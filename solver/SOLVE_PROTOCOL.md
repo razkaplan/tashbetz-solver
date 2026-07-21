@@ -61,9 +61,21 @@ CONFIDENCE DISCIPLINE (critical — a wrong high-confidence anchor poisons the w
 - When a fresh candidate conflicts with an existing anchor, suspect the ANCHOR too — re-derive
   it; do not blindly keep the earlier one just because it came first.
 
+## Controlled fact lookup (v5) — for the culture-reference tail
+The ceiling is long clues built on a specific Israeli song / politician / place pun. You MAY
+use web search to resolve FACTS, under strict anti-leakage rules:
+- ALLOWED: entity/fact queries — "who sang <song>", "<politician> full name", "capital of X",
+  "Hebrew name of <place>", "songs by <artist>", discography/filmography/Bible lookups.
+- FORBIDDEN, always: (a) the answers site 14across.co.il or ANY crossword-solution site;
+  (b) searching the clue text verbatim or near-verbatim; (c) any query containing
+  "תשבץ"/"crossword"/"פתרון"/"solution"; (d) the puzzle images. If a search result looks like
+  a crossword answer key, discard it and do not use it.
+- Use lookups to turn "I don't know this reference" into a candidate, THEN still verify the
+  wordplay and crossings before committing. A looked-up fact does not bypass confidence discipline.
+
 ## Hard rules
-- Never consult 14across.co.il or any answers site. Web lookups for cultural facts
-  (song lyrics, politician names) are allowed; searching the clue text verbatim is NOT.
+- Never consult 14across.co.il or any answers/solution site. Searching the clue verbatim is NOT
+  allowed. Only entity-fact lookups per the section above.
 - Answer in unspaced form (as grid letters), e.g. שלומעלישראל. The grid NEVER uses final
   letter forms (ם/ן/ץ/ף/ך -> מ/נ/צ/פ/כ everywhere, including word-final position).
 - Try the mechanical anagram detector first: a contiguous run of clue words whose letter

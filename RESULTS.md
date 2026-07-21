@@ -31,6 +31,23 @@ Blind: solver sees only clues + grid + playbook; answers site and web forbidden.
   songs/politicians/place puns) that the model cannot crack BLIND without external knowledge —
   reported independently by all 6 solver agents. This, not mechanics, is the wall.
 
+- **v5** (controlled cultural-fact lookup + confidence-weighted consensus) on 2026-05-29:
+  best single run **61%** (a new high, above v2's 57%); consensus **50%** (vs v4's 39%). Two
+  findings: (1) permitting entity-fact web lookup (who sang X, a politician's name) while strictly
+  forbidding the answers site and verbatim clue search DOES crack culture-reference clues that were
+  previously unsolvable, and agents correctly discarded crossword-solution results per protocol;
+  (2) confidence-weighted consensus (sum of confidences per candidate) beats majority voting
+  (50% vs 43%) because one confident-correct answer is no longer outvoted by two hesitant wrong ones.
+  BUT on the harder 2026-06-05, v5 REGRESSED to 18% (below v2's 25%): all three runs failed to
+  crack the tightly interlocked NW corner, and a few confident-but-wrong culture guesses anchored
+  the grid wrong. Fact-lookup cannot manufacture a bootstrap anchor when a puzzle's core has no
+  easy entry. Net across the two dev puzzles: v5 ~34% consensus / ~40% best-single, comparable to
+  v2's 41%, with much higher puzzle-to-puzzle variance. The binding constraint is now PUZZLE
+  STRUCTURE (bootstrappability), not mechanics or culture knowledge.
+  Next levers: N=5-7 runs for wider agreement; do NOT propagate low-confidence guesses onto the
+  grid (leave cells blank so sparse-but-correct anchors survive); prove the harness on the less
+  adversarial easier-setter puzzles.
+
 ## Diagnosis (what the errors say)
 - **Grid layer is airtight**: 26/26 wrong answers are the correct length; 0 conflicts; only 1 accidental reversal across both puzzles. The letter-count problem the user flagged is fully solved by grid-first solving.
 - **100% of the gap is wordplay-cracking quality** on the hardest Hebrew cryptic — not mechanics, not transcription, not data.

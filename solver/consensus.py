@@ -31,17 +31,23 @@ def main():
             a = norm(s.get('answer'))
             if key in sl and len(a) == len(sl[key]):
                 cand.setdefault(key, []).append((a, s.get('confidence', 0), s.get('explanation', ''), s.get('answer')))
-    # tally agreement
+    # tally per-candidate: summed confidence across runs (confidence-weighted consensus).
+    # A single high-confidence answer must not be outvoted by two low-confidence wrong ones.
     scored = []
     for key, lst in cand.items():
-        from collections import Counter
-        cnt = Counter(a for a, _, _, _ in lst)
-        top, votes = cnt.most_common(1)[0]
-        best = max((x for x in lst if x[0] == top), key=lambda x: x[1])
-        scored.append({'key': key, 'answer': top, 'votes': votes, 'nruns': len(lst),
-                       'conf': best[1], 'expl': best[2], 'raw': best[3]})
-    # place anchors: agreed (votes>=2) first, then by confidence
-    scored.sort(key=lambda x: (-(x['votes'] >= 2), -x['votes'], -x['conf']))
+        from collections import defaultdict
+        agg = defaultdict(lambda: [0.0, 0, '', ''])  # answer -> [sum_conf, votes, expl, raw]
+        for a, conf, expl, raw in lst:
+            g = agg[a]
+            g[0] += (conf or 0); g[1] += 1
+            if (conf or 0) >= (max((x[1] or 0) for x in lst if x[0] == a)):
+                g[2], g[3] = expl, raw
+        top = max(agg.items(), key=lambda kv: (kv[1][0], kv[1][1]))
+        a, (sconf, votes, expl, raw) = top
+        scored.append({'key': key, 'answer': a, 'votes': votes, 'nruns': len(lst),
+                       'sconf': sconf, 'conf': sconf / max(len(lst), 1), 'expl': expl, 'raw': raw})
+    # place anchors by summed confidence (strongest agreement + certainty first)
+    scored.sort(key=lambda x: (-x['sconf'], -x['votes']))
     board = {}
     placed = {}
     for it in scored:

@@ -165,7 +165,7 @@ hr.sec{border:none; border-top:1px solid var(--rule); margin:2rem 0}
   <p class="byline"><b>An autonomous build.</b> Data pipeline, solver, and evaluation loop for the Haaretz weekly logic crossword by <span class="he">יורם הרועה</span>, reputedly the hardest cryptic in Hebrew. Working notes and interactive failure review.</p>
   <div class="abstract">
     <p class="lead">Abstract</p>
-    <p>We assemble a corpus of 362 Hebrew logic crosswords (8,249 clue-answer-explanation triples) by scraping a community solutions site and transcribing paywalled newspaper images, then build a solver that couples large-language-model wordplay reasoning with hard grid constraints, a 129k-word lexicon, corpus retrieval, and best-of-N consensus. On blind evaluation the grid layer is airtight (every answer is length-valid), and cross-run agreement is a 64%-reliable correctness signal, but absolute accuracy plateaus at 25 to 57 percent per puzzle. We localize the ceiling precisely: a long tail of Israeli-culture reference clues that cannot be solved without external knowledge. This page documents the method and opens every remaining failure for human correction.</p>
+    <p>We assemble a corpus of 362 Hebrew logic crosswords (8,249 clue-answer-explanation triples) by scraping a community solutions site and transcribing paywalled newspaper images, then build a solver that couples large-language-model wordplay reasoning with hard grid constraints, a 129k-word lexicon, corpus retrieval, and best-of-N consensus. On blind evaluation the grid layer is airtight (every answer is length-valid), and cross-run agreement is a 64%-reliable correctness signal. Permitting controlled entity-fact lookup lifts the best single run to 61 percent and cracks the Israeli-culture reference clues that had formed the ceiling, but accuracy stays highly variable across puzzles: the binding constraint becomes bootstrappability, whether a puzzle offers enough easy footholds to start the crossing cascade. This page documents the method and opens every remaining failure for human correction.</p>
   </div>
 </header>
 
@@ -173,8 +173,8 @@ hr.sec{border:none; border-top:1px solid var(--rule); margin:2rem 0}
   <div class="stat"><div class="v">362</div><div class="l">Puzzles</div></div>
   <div class="stat"><div class="v">8,249</div><div class="l">Clues</div></div>
   <div class="stat"><div class="v">129k</div><div class="l">Lexicon</div></div>
-  <div class="stat"><div class="v" id="s-acc">41%</div><div class="l">Best dev avg</div></div>
-  <div class="stat"><div class="v" id="s-fail">31</div><div class="l">Open failures</div></div>
+  <div class="stat"><div class="v" id="s-acc">61%</div><div class="l">Best single run</div></div>
+  <div class="stat"><div class="v" id="s-fail">29</div><div class="l">Open failures</div></div>
 </div>
 
 <section id="problem">
@@ -221,6 +221,7 @@ hr.sec{border:none; border-top:1px solid var(--rule); margin:2rem 0}
       <tr><td class="mono">v2</td><td>Careful, definition-first, grid</td><td class="n">25% / 57%</td><td><span class="tag win">baseline</span></td></tr>
       <tr><td class="mono">v3</td><td>Lexicon tools, anagram-first</td><td class="n">4% / 14%</td><td><span class="tag reg">regressed</span></td></tr>
       <tr><td class="mono">v4</td><td>Best-of-3 consensus + discipline</td><td class="n">39%</td><td><span class="tag win">beat every run</span></td></tr>
+      <tr><td class="mono">v5</td><td>Fact lookup + confidence-weighted consensus</td><td class="n">61% / 18%</td><td><span class="tag win">new high</span></td></tr>
     </tbody>
   </table>
   <p>v3 is the instructive failure: an anagram <em>existing</em> is not evidence it is the answer (a multi-word answer has many real-word orderings), and one over-confident anchor poisons the whole grid. The bottleneck is confidence calibration, not candidate generation.</p>
@@ -229,10 +230,11 @@ hr.sec{border:none; border-top:1px solid var(--rule); margin:2rem 0}
     <div class="stat"><div class="v" style="color:var(--good)">64%</div><div class="l">Correct when ≥2 runs agree</div></div>
     <div class="stat"><div class="v" style="color:var(--accent)">24%</div><div class="l">Correct from a single run</div></div>
   </div>
-  <h3>The ceiling</h3>
-  <p>Only about 40% of clues reach agreement. The rest are a hard tail, and every solver agent named the same wall independently:</p>
+  <h3>The moving ceiling</h3>
+  <p>Only about 40% of clues reach agreement. Early on, every solver agent named the same wall independently:</p>
   <blockquote>the long culture clues resisted the blind toolset. I could not crack them blind without verifiable culture lookups.</blockquote>
-  <p>These are the long showpiece clues built on a specific Israeli song, politician, or place-name pun. They are not a mechanics problem, a data problem, or a grid problem. They are missing external knowledge, deliberately withheld to keep the evaluation clean. The single highest-value next lever is to permit controlled fact lookup (who sang X, capital of Y) while still forbidding the answers site and any verbatim clue search.</p>
+  <p>So v5 permitted controlled fact lookup (who sang X, a politician's full name) while still forbidding the answers site and any verbatim clue search. It worked: culture clues that had resisted every blind run fell to a single entity lookup, a Geffen and Poliker song, a Mozart lied rendered as violets, and the agents correctly discarded any result that looked like a crossword answer key. The best single run reached 61%, a new high.</p>
+  <p>But the wall only moved. On the harder of the two puzzles v5 dropped to 18%, below the careful baseline: all three runs failed to break into a tightly interlocked corner with no easy first anchor, and a few confident-but-wrong culture guesses locked the grid into the wrong letters. Fact lookup answers "what is this reference"; it cannot manufacture a foothold when a puzzle's core has no easy way in. The binding constraint is no longer mechanics or knowledge. It is <em>bootstrappability</em>: whether enough clues are individually crackable to start the crossing cascade. That is a property of the puzzle, and it varies week to week.</p>
 </section>
 
 <section id="review">

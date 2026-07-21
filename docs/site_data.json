@@ -4,7 +4,7 @@
    "date": "2026-06-05",
    "image": "images/2026-06-04.jpg",
    "n": 28,
-   "solved": 7,
+   "solved": 9,
    "clues": [
     {
      "num": 1,
@@ -31,6 +31,12 @@
        "ok": false,
        "explanation": "ברכה לזמרת בת ה-80: יום הולדת לך",
        "confidence": 0.3
+      },
+      "v5_consensus": {
+       "answer": "מזלוברכהלכ",
+       "ok": false,
+       "explanation": "מזל וברכה לך - ברכת יהורם גאון לזמרת (שר, בת 80); תבנית [3,5,2] מתאימה",
+       "confidence": 0.16666666666666666
       }
      },
      "solved": false
@@ -60,6 +66,12 @@
        "ok": false,
        "explanation": "לא מרפים = יאחזו; נשמע כמו לעולם תקח",
        "confidence": 0.12
+      },
+      "v5_consensus": {
+       "answer": "מלאבס",
+       "ok": false,
+       "explanation": "ניחוש; הומופון לעולם תקח; מ??ס מהצלבות",
+       "confidence": 0.1
       }
      },
      "solved": false
@@ -87,6 +99,12 @@
        "ok": false,
        "explanation": "באמריקה הכסף (עשיר) לא מתחשב - מיליונר",
        "confidence": 0.4
+      },
+      "v5_consensus": {
+       "answer": "לאסוגאס",
+       "ok": false,
+       "explanation": "לאס וגאס - באמריקה הכסף לא מתחשב (מהמרים); ג במקום 5 אושר",
+       "confidence": 0.26666666666666666
       }
      },
      "solved": false
@@ -116,6 +134,12 @@
        "ok": false,
        "explanation": "שר משפטן בפאב; ניחוש",
        "confidence": 0.08
+      },
+      "v5_consensus": {
+       "answer": "ביתדינ",
+       "ok": false,
+       "explanation": "ניחוש; שר משפטן ז'ל בפאב; ב???י? מהצלבות",
+       "confidence": 0.1
       }
      },
      "solved": false
@@ -145,6 +169,12 @@
        "ok": false,
        "explanation": "אנגרם ההרמות = הותמרה; ניחוש",
        "confidence": 0.08
+      },
+      "v5_consensus": {
+       "answer": "כלייתיות",
+       "ok": false,
+       "explanation": "ניחוש; טולסטוי/התרגשות; כ???ת??? מהצלבות",
+       "confidence": 0.08
       }
      },
      "solved": false
@@ -172,6 +202,12 @@
        "ok": false,
        "explanation": "מה ששייך לסופרים; ניחוש",
        "confidence": 0.1
+      },
+      "v5_consensus": {
+       "answer": "לאתחמוד",
+       "ok": false,
+       "explanation": "לא תחמוד - אסור לקחת מה ששייך לאחר (לסופרים)",
+       "confidence": 0.19999999999999998
       }
      },
      "solved": false
@@ -201,6 +237,12 @@
        "ok": false,
        "explanation": "גבורת אופרה; נשמע ממעיני הישועה; ניחוש",
        "confidence": 0.08
+      },
+      "v5_consensus": {
+       "answer": "טוסקהמתה",
+       "ok": false,
+       "explanation": "גבורת האופרה טוסקה מתה = קטסטרופה",
+       "confidence": 0.3
       }
      },
      "solved": false
@@ -228,6 +270,12 @@
        "ok": false,
        "explanation": "מלבד זאת = אבל (מתיישב עם מיליונר החוצה)",
        "confidence": 0.2
+      },
+      "v5_consensus": {
+       "answer": "אפס",
+       "ok": false,
+       "explanation": "אפס = אולם/מלבד זאת; מסתיים ב-ס לפי הצלבה עם לאסוגאס",
+       "confidence": 0.4
       }
      },
      "solved": false
@@ -256,6 +304,12 @@
        "ok": false,
        "explanation": "גנדי -> אינדירה גנדי; ניחוש",
        "confidence": 0.15
+      },
+      "v5_consensus": {
+       "answer": "גנדישמי",
+       "ok": false,
+       "explanation": "רחבעם זאבי, אלוף מיל' שכונה גנדי",
+       "confidence": 0.15
       }
      },
      "solved": true
@@ -283,6 +337,12 @@
        "ok": false,
        "explanation": "גדלו בגן וגם של מוצרט - נעוריהם",
        "confidence": 0.15
+      },
+      "v5_consensus": {
+       "answer": "סיגליות",
+       "ok": false,
+       "explanation": "סיגליות גדלו בגינה וגם Das Veilchen של מוצרט",
+       "confidence": 0.39999999999999997
       }
      },
      "solved": false
@@ -311,6 +371,12 @@
        "ok": false,
        "explanation": "מץ (Metz) שחרבה והפכה גרמנית 1871",
        "confidence": 0.15
+      },
+      "v5_consensus": {
+       "answer": "מיצ",
+       "ok": false,
+       "explanation": "מץ/מיץ (Metz) הפכה גרמנית 1871; כתיב מלא (מ), מיץ=משקה",
+       "confidence": 0.18333333333333335
       }
      },
      "solved": true
@@ -338,6 +404,12 @@
        "ok": false,
        "explanation": "מתנה לשבועות = מתן תורה",
        "confidence": 0.35
+      },
+      "v5_consensus": {
+       "answer": "שוסע",
+       "ok": false,
+       "explanation": "ניחוש; צבי הביא מתנה (שי) לשבועות; ש?ס? מהצלבות",
+       "confidence": 0.1
       }
      },
      "solved": false
@@ -366,9 +438,15 @@
        "ok": false,
        "explanation": "קשה למוכר להתחרות ברשת",
        "confidence": 0.15
+      },
+      "v5_consensus": {
+       "answer": "שוקהכרמל",
+       "ok": true,
+       "explanation": "אנגרם קשה למוכר; קשה להתחרות בשוק הכרמל",
+       "confidence": 0.5499999999999999
       }
      },
-     "solved": false
+     "solved": true
     },
     {
      "num": 12,
@@ -394,6 +472,12 @@
        "ok": false,
        "explanation": "אש כבתה (הכבאים גמרו); סופר = אש (שלום אש)",
        "confidence": 0.3
+      },
+      "v5_consensus": {
+       "answer": "לומדימ",
+       "ok": false,
+       "explanation": "ניחוש; סופר כשהכבאים כיבו; ???ד?? מהצלבה",
+       "confidence": 0.1
       }
      },
      "solved": false
@@ -422,6 +506,12 @@
        "ok": false,
        "explanation": "שלום עקר = אין (לא צמח)",
        "confidence": 0.15
+      },
+      "v5_consensus": {
+       "answer": "להב",
+       "ok": false,
+       "explanation": "ניחוש; שלום עקר באוגוסט; ??ב מהצלבה",
+       "confidence": 0.1
       }
      },
      "solved": false
@@ -449,6 +539,12 @@
        "ok": false,
        "explanation": "עד המדרגה העליונה = שיא",
        "confidence": 0.25
+      },
+      "v5_consensus": {
+       "answer": "שיא",
+       "ok": false,
+       "explanation": "המדרגה העליונה = שיא",
+       "confidence": 0.3
       }
      },
      "solved": true
@@ -477,6 +573,12 @@
        "ok": false,
        "explanation": "שירז עיר בפרס; ניחוש",
        "confidence": 0.12
+      },
+      "v5_consensus": {
+       "answer": "מראהמקומ",
+       "ok": true,
+       "explanation": "מראה מקום = נוף/מראה של מקום וגם ציטוט בספר",
+       "confidence": 0.18333333333333335
       }
      },
      "solved": true
@@ -505,6 +607,12 @@
        "ok": true,
        "explanation": "תחנת שידור ערבית = קול ערב",
        "confidence": 0.2
+      },
+      "v5_consensus": {
+       "answer": "קולערב",
+       "ok": true,
+       "explanation": "קול ערב = תחנת שידור ערבית/סעודית וגם קול נעים; שולמית",
+       "confidence": 0.35000000000000003
       }
      },
      "solved": true
@@ -533,6 +641,12 @@
        "ok": false,
        "explanation": "יאוש של כבאים = אש גדולה",
        "confidence": 0.1
+      },
+      "v5_consensus": {
+       "answer": "להתפקשש",
+       "ok": false,
+       "explanation": "ניחוש; טבלת יאוש של כבאים; ל???ק?ש התאמה יחידה",
+       "confidence": 0.04
       }
      },
      "solved": false
@@ -561,6 +675,12 @@
        "ok": false,
        "explanation": "חי (תולעת) שהוא שופט מקראי - תולע",
        "confidence": 0.45
+      },
+      "v5_consensus": {
+       "answer": "תולע",
+       "ok": false,
+       "explanation": "תולע שופט מקראי וגם תולעת (חי)",
+       "confidence": 0.15
       }
      },
      "solved": false
@@ -589,6 +709,12 @@
        "ok": false,
        "explanation": "כותב ושר = זמר-יוצר; ניחוש",
        "confidence": 0.08
+      },
+      "v5_consensus": {
+       "answer": "מתיכספי",
+       "ok": false,
+       "explanation": "כותב ושר מעל חצי יובל = מתי כספי",
+       "confidence": 0.3
       }
      },
      "solved": false
@@ -616,6 +742,12 @@
        "ok": false,
        "explanation": "דרגת המשט; ניחוש",
        "confidence": 0.1
+      },
+      "v5_consensus": {
+       "answer": "ראשמטה",
+       "ok": false,
+       "explanation": "ניחוש; העלה דרגת המשט; ???מ?ה מהצלבות",
+       "confidence": 0.04
       }
      },
      "solved": false
@@ -639,6 +771,12 @@
        "confidence": 0.8
       },
       "v3": {
+       "answer": "עול",
+       "ok": false,
+       "explanation": "אילוץ = עול",
+       "confidence": 0.2
+      },
+      "v5_consensus": {
        "answer": "עול",
        "ok": false,
        "explanation": "אילוץ = עול",
@@ -671,6 +809,12 @@
        "ok": false,
        "explanation": "חיה טורפת + הסופר; ניחוש",
        "confidence": 0.1
+      },
+      "v5_consensus": {
+       "answer": "חיהרעבה",
+       "ok": false,
+       "explanation": "חיה רעבה הטורפת את הסופר מאחור",
+       "confidence": 0.12
       }
      },
      "solved": false
@@ -698,6 +842,12 @@
        "ok": false,
        "explanation": "עמית מפי ברווז; ניחוש",
        "confidence": 0.08
+      },
+      "v5_consensus": {
+       "answer": "קולגה",
+       "ok": true,
+       "explanation": "עמית = קולגה; קול+גע (ברווז)",
+       "confidence": 0.21666666666666667
       }
      },
      "solved": true
@@ -725,6 +875,12 @@
        "ok": false,
        "explanation": "נאמנים בקיצוניות למסורתם - השומרונים",
        "confidence": 0.4
+      },
+      "v5_consensus": {
+       "answer": "מדקדקימ",
+       "ok": false,
+       "explanation": "נאמנים בקיצוניות למסורתם (מדקדקים) ולא טועים (מדייקים)",
+       "confidence": 0.6666666666666666
       }
      },
      "solved": false
@@ -753,6 +909,12 @@
        "ok": false,
        "explanation": "טראמפ -> טרם (=לפני שהציעו)",
        "confidence": 0.4
+      },
+      "v5_consensus": {
+       "answer": "טרמ",
+       "ok": false,
+       "explanation": "טרם = לפני שהציעו",
+       "confidence": 0.35
       }
      },
      "solved": true
@@ -782,9 +944,15 @@
        "ok": false,
        "explanation": "תבן ומוץ דליקים - שריפות בשדה; ניחוש",
        "confidence": 0.12
+      },
+      "v5_consensus": {
+       "answer": "קשימלהפרדה",
+       "ok": true,
+       "explanation": "קשים להפרדה - קשה להפריד בין תבן למוץ; ם במקום 4 מהצלבה",
+       "confidence": 0.19999999999999998
       }
      },
-     "solved": false
+     "solved": true
     }
    ]
   },
@@ -825,6 +993,12 @@
        "ok": false,
        "explanation": "רמז תרבות (עפר קציר): 'האיש ש-ירה...' - כותרת/שיר; ניחוש",
        "confidence": 0.12
+      },
+      "v5_consensus": {
+       "answer": "בשירהאישברז",
+       "ok": false,
+       "explanation": "רמז תרבותי - לא פוענח בוודאות",
+       "confidence": 0.1
       }
      },
      "solved": false
@@ -858,6 +1032,12 @@
        "ok": true,
        "explanation": "רקדן; ההגדרה+הצלבות ??י?נ????",
        "confidence": 0.85
+      },
+      "v5_consensus": {
+       "answer": "ברישניקוב",
+       "ok": true,
+       "explanation": "רקדן - מיכאיל ברישניקוב",
+       "confidence": 0.5166666666666666
       }
      },
      "solved": true
@@ -891,6 +1071,12 @@
        "ok": true,
        "explanation": "אנגרם פחות יין; מאושש בהצלבות ??פ?י??",
        "confidence": 0.8
+      },
+      "v5_consensus": {
+       "answer": "יחפניות",
+       "ok": true,
+       "explanation": "אנגרם 'פחות יין'",
+       "confidence": 0.55
       }
      },
      "solved": true
@@ -926,6 +1112,12 @@
        "ok": false,
        "explanation": "נוסע ברכבת חש בו = רוח פרצים (משב); תואם ח במיקום",
        "confidence": 0.35
+      },
+      "v5_consensus": {
+       "answer": "רוחפרצימ",
+       "ok": false,
+       "explanation": "מה שחש הנוסע = רוח פרצים",
+       "confidence": 0.3
       }
      },
      "solved": false
@@ -961,6 +1153,12 @@
        "ok": false,
        "explanation": "נתן בחג לאוספי התרומות = תרם כסף",
        "confidence": 0.22
+      },
+      "v5_consensus": {
+       "answer": "יומטוב",
+       "ok": false,
+       "explanation": "בחג = יום טוב",
+       "confidence": 0.2
       }
      },
      "solved": false
@@ -995,6 +1193,12 @@
        "ok": true,
        "explanation": "צמח 'פה מזוהם' = לוע הארי (סנפדרגון) (מ)",
        "confidence": 0.22
+      },
+      "v5_consensus": {
+       "answer": "עשבשוטה",
+       "ok": false,
+       "explanation": "צמח 'מזוהם' = עשב שוטה",
+       "confidence": 0.3
       }
      },
      "solved": true
@@ -1028,6 +1232,12 @@
        "ok": false,
        "explanation": "ניחוש: מטבע ממזרח אירופה (זלוטי)",
        "confidence": 0.3
+      },
+      "v5_consensus": {
+       "answer": "זלוטי",
+       "ok": false,
+       "explanation": "מטבע ממזרח אירופה (פולין)",
+       "confidence": 0.3333333333333333
       }
      },
      "solved": false
@@ -1062,6 +1272,12 @@
        "ok": true,
        "explanation": "אנגרם משפר חיי (יש פרחים)",
        "confidence": 0.85
+      },
+      "v5_consensus": {
+       "answer": "ישפרחימ",
+       "ok": true,
+       "explanation": "אנגרם משפר חיי; שיר מוני אמריליו יש פרחים",
+       "confidence": 0.5233333333333333
       }
      },
      "solved": true
@@ -1095,6 +1311,12 @@
        "ok": false,
        "explanation": "רד/רב - ניחוש",
        "confidence": 0.2
+      },
+      "v5_consensus": {
+       "answer": "בגו",
+       "ok": false,
+       "explanation": "רד/רב - ניחוש",
+       "confidence": 0.12
       }
      },
      "solved": false
@@ -1128,6 +1350,12 @@
        "ok": true,
        "explanation": "שוב=היפוך; להפך נשי=ישן (לא חדש); נשי=לא מאצ'ו",
        "confidence": 0.75
+      },
+      "v5_consensus": {
+       "answer": "נשי",
+       "ok": true,
+       "explanation": "שוב (להפך) ישן = נשי; הגדרה: לא מאצ'ו",
+       "confidence": 0.6999999999999998
       }
      },
      "solved": true
@@ -1162,6 +1390,12 @@
        "ok": false,
        "explanation": "'נפטר מהעולם' = שבק חיים (לכל חי)",
        "confidence": 0.32
+      },
+      "v5_consensus": {
+       "answer": "מותטבעי",
+       "ok": false,
+       "explanation": "נפטר ללא מחלה = מוות טבעי",
+       "confidence": 0.13333333333333333
       }
      },
      "solved": false
@@ -1196,6 +1430,12 @@
        "ok": false,
        "explanation": "טורף; פנתרים (לא בערים הגדולות); תואם הצלבות (ת,י)",
        "confidence": 0.3
+      },
+      "v5_consensus": {
+       "answer": "קרתנית",
+       "ok": false,
+       "explanation": "בקרים ולא בערים הגדולות = קרתני",
+       "confidence": 0.09999999999999999
       }
      },
      "solved": true
@@ -1230,6 +1470,12 @@
        "ok": false,
        "explanation": "ניחוש: חסרון(מום) ליתרון במים",
        "confidence": 0.25
+      },
+      "v5_consensus": {
+       "answer": "שחה",
+       "ok": false,
+       "explanation": "הפך חסרון ליתרון במים = שחה; ניחוש",
+       "confidence": 0.2
       }
      },
      "solved": true
@@ -1263,6 +1509,12 @@
        "ok": true,
        "explanation": "מלחין, מסתיים ב-ט(=טוב)",
        "confidence": 0.35
+      },
+      "v5_consensus": {
+       "answer": "ליסט",
+       "ok": true,
+       "explanation": "מלחין; מסתיים ב-ט(טוב)",
+       "confidence": 0.28333333333333327
       }
      },
      "solved": true
@@ -1297,6 +1549,12 @@
        "ok": true,
        "explanation": "אנגרם טוטלי לגבי = טלי גוטליב (חכ\"ית)",
        "confidence": 0.85
+      },
+      "v5_consensus": {
+       "answer": "טליגוטליב",
+       "ok": true,
+       "explanation": "אנגרם טוטלי לגבי (בלבול); ח\"כ טלי גוטליב",
+       "confidence": 0.8166666666666668
       }
      },
      "solved": true
@@ -1331,6 +1589,12 @@
        "ok": true,
        "explanation": "האריה של MGM שואג בפתח כל סרט = מ.ג.מ",
        "confidence": 0.5
+      },
+      "v5_consensus": {
+       "answer": "מגמ",
+       "ok": true,
+       "explanation": "האריה של MGM שואג בכל סרט",
+       "confidence": 0.35
       }
      },
      "solved": true
@@ -1366,6 +1630,12 @@
        "ok": false,
        "explanation": "ספר; מגילת רות (נקראת בשבועות, תאריך הפאזל)",
        "confidence": 0.15
+      },
+      "v5_consensus": {
+       "answer": "מנחממנדל",
+       "ok": true,
+       "explanation": "ספר; מנחם מנדל (שלום עליכם)",
+       "confidence": 0.19999999999999998
       }
      },
      "solved": true
@@ -1399,6 +1669,12 @@
        "ok": false,
        "explanation": "מילה משותפת: להג=דברן / דובר=דברן",
        "confidence": 0.58
+      },
+      "v5_consensus": {
+       "answer": "בדחנ",
+       "ok": false,
+       "explanation": "להג/דובר = בדחן",
+       "confidence": 0.11666666666666665
       }
      },
      "solved": false
@@ -1434,6 +1710,12 @@
        "ok": false,
        "explanation": "בת נבל לדוד (הדוד) = אחיינית; ניחוש",
        "confidence": 0.3
+      },
+      "v5_consensus": {
+       "answer": "נעימהלו",
+       "ok": false,
+       "explanation": "אביה נבל (נבל=כלי); לדוד (המנגן) היא נעימה לו",
+       "confidence": 0.3
       }
      },
      "solved": false
@@ -1468,6 +1750,12 @@
        "ok": false,
        "explanation": "רופא מחוץ לירושלים; מ....י; ניחוש (מבשרת ציון)",
        "confidence": 0.12
+      },
+      "v5_consensus": {
+       "answer": "הקאמרי",
+       "ok": false,
+       "explanation": "מחוץ לירושלים (ת״א)",
+       "confidence": 0.35
       }
      },
      "solved": true
@@ -1502,6 +1790,12 @@
        "ok": true,
        "explanation": "פרת משה רבנו; הצלבה idx4=ב מתאימה",
        "confidence": 0.35
+      },
+      "v5_consensus": {
+       "answer": "משהרבנו",
+       "ok": true,
+       "explanation": "אנגרם בשם נורה",
+       "confidence": 0.39999999999999997
       }
      },
      "solved": true
@@ -1535,6 +1829,12 @@
        "ok": false,
        "explanation": "יצאו מהברכה=רוחצים; idx3=צ תואם צרנוביל",
        "confidence": 0.5
+      },
+      "v5_consensus": {
+       "answer": "המוציא",
+       "ok": true,
+       "explanation": "אנגרם הם יצאו (מבולבלים); ברכת המוציא",
+       "confidence": 0.5166666666666667
       }
      },
      "solved": true
@@ -1568,6 +1868,12 @@
        "ok": false,
        "explanation": "עפ\"י השמיעה; משחק על הזרזים; ניחוש",
        "confidence": 0.25
+      },
+      "v5_consensus": {
+       "answer": "אנזימימ",
+       "ok": true,
+       "explanation": "הזרזים = אנזימים (זרזים ביולוגיים)",
+       "confidence": 0.08333333333333333
       }
      },
      "solved": true
@@ -1602,6 +1908,12 @@
        "ok": false,
        "explanation": "רצען = סנדלר; רב במצב לא פעיל (מ)",
        "confidence": 0.15
+      },
+      "v5_consensus": {
+       "answer": "מחליפ",
+       "ok": false,
+       "explanation": "במצב לא פעיל = מחליף",
+       "confidence": 0.2
       }
      },
      "solved": false
@@ -1635,6 +1947,12 @@
        "ok": true,
        "explanation": "בטלפון = הלו; פניה",
        "confidence": 0.45
+      },
+      "v5_consensus": {
+       "answer": "הלו",
+       "ok": true,
+       "explanation": "בטלפון = הלו",
+       "confidence": 0.5
       }
      },
      "solved": true
@@ -1668,6 +1986,12 @@
        "ok": false,
        "explanation": "מלחמה=קרב; קר(חורף)+ב",
        "confidence": 0.42
+      },
+      "v5_consensus": {
+       "answer": "קרב",
+       "ok": false,
+       "explanation": "מלחמה = קרב; קר (חורף) בתוכו",
+       "confidence": 0.21666666666666665
       }
      },
      "solved": false
@@ -1701,6 +2025,12 @@
        "ok": true,
        "explanation": "אנגרם ליבנו צר = צ'רנוביל (האסון ההוא)",
        "confidence": 0.9
+      },
+      "v5_consensus": {
+       "answer": "צרנוביל",
+       "ok": true,
+       "explanation": "אנגרם ליבנו צר; האסון ההוא",
+       "confidence": 0.8833333333333333
       }
      },
      "solved": true
@@ -1736,6 +2066,12 @@
        "ok": false,
        "explanation": "שיר של יהונתן גפן; ניחוש",
        "confidence": 0.15
+      },
+      "v5_consensus": {
+       "answer": "פחותאבלכואב",
+       "ok": true,
+       "explanation": "שיר גפן/פוליקר; ברית מילה = פחות אבל כואב",
+       "confidence": 0.6
       }
      },
      "solved": true
@@ -1745,7 +2081,7 @@
  ],
  "totals": {
   "clues": 56,
-  "failures": 31
+  "failures": 29
  },
  "corpus": {
   "main_puzzles": 52,

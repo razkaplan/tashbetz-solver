@@ -1,0 +1,254 @@
+[
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 1,
+  "direction": "across",
+  "answer": "מזלוברכהלכ",
+  "explanation": "מזל וברכה לך - ברכת יהורם גאון לזמרת (שר, בת 80); תבנית [3,5,2] מתאימה",
+  "confidence": 0.16666666666666666,
+  "votes": 1
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 1,
+  "direction": "down",
+  "answer": "מלאבס",
+  "explanation": "ניחוש; הומופון לעולם תקח; מ??ס מהצלבות",
+  "confidence": 0.1,
+  "votes": 1
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 2,
+  "direction": "down",
+  "answer": "לאסוגאס",
+  "explanation": "לאס וגאס - באמריקה הכסף לא מתחשב (מהמרים); ג במקום 5 אושר",
+  "confidence": 0.26666666666666666,
+  "votes": 1
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 3,
+  "direction": "down",
+  "answer": "ביתדינ",
+  "explanation": "ניחוש; שר משפטן ז'ל בפאב; ב???י? מהצלבות",
+  "confidence": 0.1,
+  "votes": 1
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 4,
+  "direction": "down",
+  "answer": "כלייתיות",
+  "explanation": "ניחוש; טולסטוי/התרגשות; כ???ת??? מהצלבות",
+  "confidence": 0.08,
+  "votes": 1
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 5,
+  "direction": "down",
+  "answer": "לאתחמוד",
+  "explanation": "לא תחמוד - אסור לקחת מה ששייך לאחר (לסופרים)",
+  "confidence": 0.19999999999999998,
+  "votes": 1
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 6,
+  "direction": "down",
+  "answer": "טוסקהמתה",
+  "explanation": "גבורת האופרה טוסקה מתה = קטסטרופה",
+  "confidence": 0.3,
+  "votes": 1
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 7,
+  "direction": "across",
+  "answer": "אפס",
+  "explanation": "אפס = אולם/מלבד זאת; מסתיים ב-ס לפי הצלבה עם לאסוגאס",
+  "confidence": 0.4,
+  "votes": 1
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 8,
+  "direction": "across",
+  "answer": "גנדישמי",
+  "explanation": "רחבעם זאבי, אלוף מיל' שכונה גנדי",
+  "confidence": 0.15,
+  "votes": 1
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 9,
+  "direction": "across",
+  "answer": "סיגליות",
+  "explanation": "סיגליות גדלו בגינה וגם Das Veilchen של מוצרט",
+  "confidence": 0.39999999999999997,
+  "votes": 2
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 10,
+  "direction": "across",
+  "answer": "מיצ",
+  "explanation": "מץ/מיץ (Metz) הפכה גרמנית 1871; כתיב מלא (מ), מיץ=משקה",
+  "confidence": 0.18333333333333335,
+  "votes": 1
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 11,
+  "direction": "across",
+  "answer": "שוסע",
+  "explanation": "ניחוש; צבי הביא מתנה (שי) לשבועות; ש?ס? מהצלבות",
+  "confidence": 0.1,
+  "votes": 1
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 11,
+  "direction": "down",
+  "answer": "שוקהכרמל",
+  "explanation": "אנגרם קשה למוכר; קשה להתחרות בשוק הכרמל",
+  "confidence": 0.5499999999999999,
+  "votes": 2
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 12,
+  "direction": "across",
+  "answer": "לומדימ",
+  "explanation": "ניחוש; סופר כשהכבאים כיבו; ???ד?? מהצלבה",
+  "confidence": 0.1,
+  "votes": 1
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 12,
+  "direction": "down",
+  "answer": "להב",
+  "explanation": "ניחוש; שלום עקר באוגוסט; ??ב מהצלבה",
+  "confidence": 0.1,
+  "votes": 1
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 13,
+  "direction": "across",
+  "answer": "שיא",
+  "explanation": "המדרגה העליונה = שיא",
+  "confidence": 0.3,
+  "votes": 1
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 13,
+  "direction": "down",
+  "answer": "מראהמקומ",
+  "explanation": "מראה מקום = נוף/מראה של מקום וגם ציטוט בספר",
+  "confidence": 0.18333333333333335,
+  "votes": 1
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 14,
+  "direction": "across",
+  "answer": "קולערב",
+  "explanation": "קול ערב = תחנת שידור ערבית/סעודית וגם קול נעים; שולמית",
+  "confidence": 0.35000000000000003,
+  "votes": 2
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 15,
+  "direction": "down",
+  "answer": "להתפקשש",
+  "explanation": "ניחוש; טבלת יאוש של כבאים; ל???ק?ש התאמה יחידה",
+  "confidence": 0.04,
+  "votes": 1
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 16,
+  "direction": "across",
+  "answer": "תולע",
+  "explanation": "תולע שופט מקראי וגם תולעת (חי)",
+  "confidence": 0.15,
+  "votes": 1
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 17,
+  "direction": "down",
+  "answer": "מתיכספי",
+  "explanation": "כותב ושר מעל חצי יובל = מתי כספי",
+  "confidence": 0.3,
+  "votes": 1
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 18,
+  "direction": "down",
+  "answer": "ראשמטה",
+  "explanation": "ניחוש; העלה דרגת המשט; ???מ?ה מהצלבות",
+  "confidence": 0.04,
+  "votes": 1
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 19,
+  "direction": "across",
+  "answer": "עול",
+  "explanation": "אילוץ = עול",
+  "confidence": 0.2,
+  "votes": 1
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 20,
+  "direction": "across",
+  "answer": "חיהרעבה",
+  "explanation": "חיה רעבה הטורפת את הסופר מאחור",
+  "confidence": 0.12,
+  "votes": 1
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 21,
+  "direction": "down",
+  "answer": "קולגה",
+  "explanation": "עמית = קולגה; קול+גע (ברווז)",
+  "confidence": 0.21666666666666667,
+  "votes": 2
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 22,
+  "direction": "across",
+  "answer": "מדקדקימ",
+  "explanation": "נאמנים בקיצוניות למסורתם (מדקדקים) ולא טועים (מדייקים)",
+  "confidence": 0.6666666666666666,
+  "votes": 3
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 23,
+  "direction": "across",
+  "answer": "טרמ",
+  "explanation": "טרם = לפני שהציעו",
+  "confidence": 0.35,
+  "votes": 1
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 24,
+  "direction": "across",
+  "answer": "קשימלהפרדה",
+  "explanation": "קשים להפרדה - קשה להפריד בין תבן למוץ; ם במקום 4 מהצלבה",
+  "confidence": 0.19999999999999998,
+  "votes": 1
+ }
+]
