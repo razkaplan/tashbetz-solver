@@ -1,0 +1,226 @@
+[
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 1,
+  "direction": "across",
+  "answer": "מוניאמריליו",
+  "explanation": "האיש שירה = מוני אמריליו (זמר)",
+  "confidence": 0.25
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 7,
+  "direction": "across",
+  "answer": "פרחימיש",
+  "explanation": "אנגרם משפר חיי (מוני אמריליו=סימן); פרחים יש",
+  "confidence": 0.7
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 8,
+  "direction": "across",
+  "answer": "רדר",
+  "explanation": "רד + ר(רב) = רדאר",
+  "confidence": 0.3
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 9,
+  "direction": "across",
+  "answer": "מוג",
+  "explanation": "לא מאצ'ו = מוג לב",
+  "confidence": 0.3
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 10,
+  "direction": "across",
+  "answer": "מותטבעי",
+  "explanation": "נפטר ללא מחלה = מוות טבעי",
+  "confidence": 0.4
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 11,
+  "direction": "across",
+  "answer": "טורפימ",
+  "explanation": "טורף בקרים (חיות טרף)",
+  "confidence": 0.2
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 13,
+  "direction": "across",
+  "answer": "ליסט",
+  "explanation": "מלחין (ליסט)",
+  "confidence": 0.25
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 15,
+  "direction": "across",
+  "answer": "לאו",
+  "explanation": "האריה לאו (לוגו מטרו) שואג",
+  "confidence": 0.35
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 17,
+  "direction": "across",
+  "answer": "פטפט",
+  "explanation": "להג = פטפוט/דיבור",
+  "confidence": 0.25
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 19,
+  "direction": "across",
+  "answer": "בוזוקי",
+  "explanation": "תחביב הרופא מחוץ לירושלים",
+  "confidence": 0.15
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 22,
+  "direction": "across",
+  "answer": "מיחנקימ",
+  "explanation": "נשמע - הדג נחנק",
+  "confidence": 0.1
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 23,
+  "direction": "across",
+  "answer": "הלו",
+  "explanation": "פניה בטלפון = הלו",
+  "confidence": 0.4
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 24,
+  "direction": "across",
+  "answer": "קרה",
+  "explanation": "מלחמה קרה = מלחמה בחורף",
+  "confidence": 0.4
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 25,
+  "direction": "across",
+  "answer": "צרנוביל",
+  "explanation": "אנגרם ליבנו צר; צ'רנוביל = האסון ההוא",
+  "confidence": 0.9
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 26,
+  "direction": "across",
+  "answer": "בריתמילהזהב",
+  "explanation": "שיר פוליקר/גפן",
+  "confidence": 0.1
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 1,
+  "direction": "down",
+  "answer": "ציפורדרור",
+  "explanation": "דקירת רקדן בלט",
+  "confidence": 0.1
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 2,
+  "direction": "down",
+  "answer": "בדחניות",
+  "explanation": "פוחזות",
+  "confidence": 0.3
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 3,
+  "direction": "down",
+  "answer": "הרמוניקה",
+  "explanation": "נשמע (הומופון)",
+  "confidence": 0.3
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 4,
+  "direction": "down",
+  "answer": "מעשרות",
+  "explanation": "נתן בחג לאוספי התרומות = מעשרות",
+  "confidence": 0.35
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 5,
+  "direction": "down",
+  "answer": "לכלוכית",
+  "explanation": "צמח מזוהם",
+  "confidence": 0.15
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 6,
+  "direction": "down",
+  "answer": "זלוטי",
+  "explanation": "מטבע ממזרח אירופה (זלוטי)",
+  "confidence": 0.35
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 12,
+  "direction": "down",
+  "answer": "צפה",
+  "explanation": "חסרון שהופך ליתרון במים = צף",
+  "confidence": 0.2
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 14,
+  "direction": "down",
+  "answer": "טליגוטליב",
+  "explanation": "אנגרם טוטלי לגבי; טלי גוטליב = חברת הכנסת",
+  "confidence": 0.8
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 16,
+  "direction": "down",
+  "answer": "אוליאנוב",
+  "explanation": "ספר של סופר עצבני",
+  "confidence": 0.1
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 18,
+  "direction": "down",
+  "answer": "אחיינית",
+  "explanation": "מה היא לדוד (=דוד) = אחיינית",
+  "confidence": 0.3
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 20,
+  "direction": "down",
+  "answer": "פרהנבור",
+  "explanation": "פרה בשם נורה (לד)",
+  "confidence": 0.1
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 21,
+  "direction": "down",
+  "answer": "חלוצות",
+  "explanation": "יצאו מבולבלים מהברכה",
+  "confidence": 0.15
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 22,
+  "direction": "down",
+  "answer": "רדומה",
+  "explanation": "רב במצב לא פעיל",
+  "confidence": 0.1
+ }
+]

@@ -1,0 +1,84 @@
+{
+  "_note": "Empirically collected from 728 train rows of Haaretz Yoram HaRoeh logic crossword, EXTENDED 2026-07 with the secondary corpus: 310 puzzles / 6,792 clues from Dekel Beno (תרתי משמע, הפוך על הפוך, ידיעות, לאישה) and Lior Liani (גלובס). Anagram indicators are weak/optional for all setters: the strongest anagram signal is mechanical (a contiguous clue-word window whose letter multiset exactly matches the answer budget, 85% recall, ~0.5% false positives). Homophone and reversal indicators are strong. Crowd-explanation label vocabulary differs per community — see explanation_labels.",
+  "anagram": [
+    "מבלבל", "מתבלבל", "בלבל", "התבלבלה", "שיבוש", "אחרת", "מסעיר", "יוצא",
+    "נוצר", "תמורה", "משתלב", "משתלבות", "מתברבר", "הפרעה", "בשגעון", "פרוע",
+    "באופן פרוע", "משונה", "מעורב", "שבור", "גורס", "ערבוב", "יסתדרו",
+    "בגרסת", "עפ\"י מוני אמריליו", "מוני אמריליו", "אשנה", "נמיר", "הפך",
+    "אנגרם", "אנגרם של", "אנגרמה", "אנגראם", "אנאגרם", "שיכול אותיות",
+    "סיכול אותיות", "ערבוב אותיות", "בלבול אותיות", "שינוי סדר האותיות",
+    "משחק עם האותיות", "מבולגן", "מבולבל", "בערבוביה"
+  ],
+  "reversal": [
+    "שוב", "חוזר", "חוזרת", "חוזרים", "בחזרה", "בשובו", "יחזור", "בחזור",
+    "החזיר", "תחזיר", "מחזיר", "החזרת", "שהוחזר", "להפך", "ההפך", "הפוך",
+    "מאחור", "מאחורי", "אחוריי", "מצד שני", "במבט רטרוספקטיבי", "ממול",
+    "לאחור", "מימין", "עולה", "ערוף", "משיכתה", "בכיוון הפוך",
+    "ההיפך", "בהיפוך", "במהופך", "מהסוף", "מהסוף להתחלה", "משמאל לימין",
+    "בקריאה הפוכה", "בקריאה מאחור", "קריאה הפוכה", "לקרוא הפוך", "מסתובב",
+    "לסובב", "שידור חוזר", "מלמטה למעלה", "בעליה", "בעלייה", "מלמטה",
+    "נסוג", "בנסיגה"
+  ],
+  "palindrome": [
+    "פלינדרום", "נקרא משני הכיוונים", "נקרא גם הפוך", "נקראת אותו הדבר גם בכיוון ההפוך",
+    "מקדימה ומהסוף", "גם מהסוף להתחלה", "סימטרי",
+    "_note: NEW mechanism from the Dekel Beno / Liani corpus (absent from Yoram HaRoeh): the answer reads identically in both directions. Crowd label is פלינדרום. Observed palindrome answers: אבבא, אסא, דוד, היההיה, הלה, וולוו, ימי, ירי, לעלעל, מיגימ, מיהימ, מילימ, מינונימ, מיצימ, מישמשימ, נימינ, נממנ, סייס, סיס, קיק, רוטור, תוססות"
+  ],
+  "container": [
+    "בתוך", "נכנס", "נכנסים", "נכנסו", "נכנסה", "להיכנס", "מכניס", "מכניסות",
+    "בלע", "בלעה", "בולע", "שבלע", "עוטפת", "עטוף", "מוקף", "מושקע", "תקעו",
+    "תפסה", "משתתף", "בין", "באמצע", "בלב", "מחוץ ל", "ברשות", "בבעלות",
+    "בקרב", "בחברת", "מעורב ב", "יש ב", "קבור ב", "טמון",
+    "מקיף", "מקיפה", "חובק", "חובקת", "בליבם", "במרכז", "סביב ל", "מסביב ל",
+    "הגדרת ב-", "ב-", "עוקץ"
+  ],
+  "double_definition": [
+    "או", "גם", "וגם", "?", "זה", "עם", "כמו",
+    "_note: double definitions rarely have indicators; the signal is a SHORT clue (2-4 words) for a SHORT answer (enum [3]) whose two halves each independently mean the answer; crowd labels: מילה משותפת / מלה משותפת / משפט משותף / מונח משותף / שם משותף / משמעות כפולה / פירוש כפול / פרשנות כפולה / כפל משמעות / דו משמעי / תרתי משמע"
+  ],
+  "hidden": [
+    "מ", "ב", "מגיע מ", "בין", "פרושה בין", "יש ב", "רצף אותיות בהגדרה",
+    "_note: crowd label is רצף אותיות; the answer runs across word boundaries of the clue text, often starting inside a long proper noun with a מ- or ב- prefix. Dekel/Liani variant notation: (ט)יפו(ס) = the answer יפו hides inside טיפוס"
+  ],
+  "fragment_selection": [
+    "חצי", "חצי מהמילה", "חלק מהמילה", "התחלת המילה", "תחילת המילה",
+    "סוף המילה", "מרכז המילה", "ראש", "בלי ראש", "מתוך", "אחוז", "%",
+    "_note: NEW category from secondary corpus - take a substring of a clue word: 'חצי מהמילה חציר' = יר; 'התחלת המילה גנוסיד' = גנ; 'מרכז המילה ערוגה' = רוג; '60% כלומר 3 מתוך 5 אותיות' = (חו)מוס; 'חצי ליטר' = לי; 'חצי ליצ'י' = צ'י"
+  ],
+  "homophone": [
+    "שמענו", "נשמע", "נשמעת", "הנשמעת", "כפי ששמענו", "לשמוע", "שומעים",
+    "מצטלצל", "מצלצל", "כך אומרים", "כך אמרו", "עפ\"י השמיעה של", "עפ\"י השמועה",
+    "קול", "מפי", "אומר", "מכריז", "מכריזה", "שרים זאת",
+    "נשמע:", "נשמע כמו", "נשמע כ-", "(ש)",
+    "_note: (ש) inside a Dekel Beno clue is an explicit homophone flag - the marked part is to be taken by sound. Dekel homophones are phonetic charades: the answer's SOUND splits into 2-3 small words, with free swaps of ק/כ, ט/ת, ס/שׂ/ש, א/ע, ח/כ dgusha and free vowel changes"
+  ],
+  "deletion": [
+    "בלי", "ללא", "חסר", "חסרת", "מינוס", "בקיצור", "עד אין סוף", "ערוף",
+    "בלי ראש", "בלי סוף", "הומלסית", "חצי", "אבד",
+    "ללא האות", "בלי האות", "פחות", "נעלם", "נעלמו", "מחוץ ל"
+  ],
+  "cross_reference": [
+    "ר'", "ראה", "אופקי", "אנכי", "+", "יחד עם",
+    "ר.", "מאוזן", "מאונך",
+    "_note: Yoram HaRoeh format: ר' N אופקי/אנכי. Dekel Beno format: ר. N מאוזן/מאונך (e.g. ר. 11 מאוזן - very frequent, one long answer split across entries)"
+  ],
+  "gematria_letters": {
+    "א": 1, "ב": 2, "ג": 3, "ד": 4, "ה": 5, "ו": 6, "ז": 7, "ח": 8, "ט": 9,
+    "י": 10, "כ": 20, "ל": 30, "מ": 40, "נ": 50, "ס": 60, "ע": 70, "פ": 80,
+    "צ": 90, "ק": 100, "ר": 200, "ש": 300, "ת": 400,
+    "_note": "Universal across setters. Dekel Beno favorites: ס=60 (also ס=אפס/0!), ח=8, ד=4, י=10, ג=3, ק=100, מ=40, ת=400. Also דו=2 (פעמיים), and year gematria (תשפ\"ו=786, תמ\"ה=455). Letters also decode as: days of week ב(יום) ו' / ימים ב-ג-ד = בגד; school grades כיתה ב'/ג'; נ=נכשל (failing grade); ט=טוב; letter names spelled out (למדא, גימל=ג-מ-ל)"
+  },
+  "spelling_flags": {
+    "(מ)": "ktiv male - answer spelled plene (extra י/ו). Used by Yoram HaRoeh and Dekel Beno",
+    "(ח)": "ktiv haser - answer spelled defective",
+    "(ש)": "Dekel Beno only: homophone flag - solve that part by sound",
+    "[מ\"צ]": "crowd shorthand seen in Dekel explanations for כתיב מלא/מ\"צ marking",
+    "default": "leans haser; missing י is normal"
+  },
+  "explanation_labels": {
+    "yoram_haroeh": ["אנגרם", "מילה משותפת", "משפט משותף", "נשמע", "להפך זה", "רצף אותיות", "X בתוך Y"],
+    "dekel_beno": ["אנגרם / אנגרם של <fodder>", "מלה משותפת / מילה משותפת", "משמעות כפולה", "פירוש כפול", "נשמע: <phonetic split>", "ההיפך: <word>", "X ב-Y / X בתוך Y", "X מחוץ ל-Y", "פלינדרום", "ר. N מאוזן"],
+    "lior_liani": ["part-hyphen notation: פ-בלוב-ה", "אנגרם (usually without fodder)", "סיכול אותיות", "X # Y = reversal/palindrome (word reads as Y backwards)", "[...] = gloss or inserted letters", "בתוך", "הגדרת ב", "רצף אותיות בהגדרה"]
+  },
+  "credit_note": "(עפ\"י <name>) and (מחדושי <name>) credit the CONTRIBUTOR of the clue (reader/colleague), not a pun target. (עפ\"י השמיעה של <name>) additionally marks a homophone clue. These credits are Yoram HaRoeh-specific; Dekel Beno and Liani clues carry no contributor credits."
+}

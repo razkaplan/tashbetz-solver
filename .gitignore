@@ -1,0 +1,10 @@
+# Raw scraped corpus — not redistributed (copyright: Haaretz / community site)
+data/
+solver/lex/hspell.txt
+# scratch / tooling
+scraper/*.json
+web/site_data.json.bak
+node_modules/
+.DS_Store
+.vercel
+web/

@@ -1,0 +1,226 @@
+[
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 9,
+  "direction": "across",
+  "answer": "נשי",
+  "explanation": "להפך ישן (שוב=היפוך; זה לא חדש=ישן; נשי=לא מאצ'ו)",
+  "confidence": 0.93
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 11,
+  "direction": "across",
+  "answer": "קרתנימ",
+  "explanation": "תנים (טורפים) + קר (בקרים); קרתנים = לא מהערים הגדולות",
+  "confidence": 0.85
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 15,
+  "direction": "across",
+  "answer": "מגמ",
+  "explanation": "מ.ג.מ - חברת הסרטים שהאריה שלה שואג; מ'כל מ'קום + ג",
+  "confidence": 0.65
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 19,
+  "direction": "across",
+  "answer": "פנימאי",
+  "explanation": "פנאי (זמנו החפשי) מחוץ ל-ים (ירושלים); פנימאי = הרופא",
+  "confidence": 0.93
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 22,
+  "direction": "across",
+  "answer": "אנזימימ",
+  "explanation": "נשמע אין זימים (הדג מתקשה לנשום); אנזימים = הזרזים",
+  "confidence": 0.96
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 23,
+  "direction": "across",
+  "answer": "הלו",
+  "explanation": "פניה בטלפון; ל\"ו = הצדיקים",
+  "confidence": 0.9
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 24,
+  "direction": "across",
+  "answer": "קשת",
+  "explanation": "מילה משותפת: קשת נשק (מלחמה) / קשת בענן (בחורף)",
+  "confidence": 0.85
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 25,
+  "direction": "across",
+  "answer": "צרנוביל",
+  "explanation": "אנגרם ליבנו צר; האסון ההוא = צ'רנוביל",
+  "confidence": 0.97
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 26,
+  "direction": "across",
+  "answer": "פחותאבלכואב",
+  "explanation": "שיר של גפן/פוליקר; פאן על ברית מילה - פחות אבל כואב",
+  "confidence": 0.88
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 1,
+  "direction": "down",
+  "answer": "ברישניקוב",
+  "explanation": "ב + ריש (אות) לפני ניקוב (דקירה) = רקדן",
+  "confidence": 0.95
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 2,
+  "direction": "down",
+  "answer": "יחפניות",
+  "explanation": "אנגרם פחות יין; פוחזות אלו = יחפניות",
+  "confidence": 0.9
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 12,
+  "direction": "down",
+  "answer": "מגפ",
+  "explanation": "להפך פגם (חסרון); מגף = יתרון במים",
+  "confidence": 0.9
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 14,
+  "direction": "down",
+  "answer": "טליגוטליב",
+  "explanation": "אנגרם טוטלי לגבי; ח\"כ טלי גוטליב (סדר המילים הפוך מהסוגריים)",
+  "confidence": 0.9
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 16,
+  "direction": "down",
+  "answer": "מנחממנדל",
+  "explanation": "ספרו של שלום עליכם מנחם מנדל",
+  "confidence": 0.6
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 21,
+  "direction": "down",
+  "answer": "המוציא",
+  "explanation": "אנגרם הם יצאו (מבולבלים); הברכה = המוציא",
+  "confidence": 0.93
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 7,
+  "direction": "across",
+  "answer": "ישפרחימ",
+  "explanation": "אנגרם משפר חיי = יש פרחים (מוני אמריליו = סימן אנגרם)",
+  "confidence": 0.55
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 8,
+  "direction": "across",
+  "answer": "ברד",
+  "explanation": "רד רב - ברד יורד הרבה",
+  "confidence": 0.5
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 10,
+  "direction": "across",
+  "answer": "דברברור",
+  "explanation": "זה נכון = דבר ברור; דבר = מגפה שנפטרה מהעולם",
+  "confidence": 0.6
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 20,
+  "direction": "down",
+  "answer": "משהרבנו",
+  "explanation": "פרה בשם = פרת משה רבנו; נורה = הסנה הבוער",
+  "confidence": 0.75
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 6,
+  "direction": "down",
+  "answer": "סידור",
+  "explanation": "הלואה אידיאלית שמקבלים = סידור (טוב)",
+  "confidence": 0.3
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 4,
+  "direction": "down",
+  "answer": "רשמקרנ",
+  "explanation": "רשם (נתן) לקרן (אוספי התרומות)",
+  "confidence": 0.2
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 18,
+  "direction": "down",
+  "answer": "מוזגתלו",
+  "explanation": "נבל = נאד יין, דוד = קומקום; היא מוזגת לו",
+  "confidence": 0.75
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 1,
+  "direction": "across",
+  "answer": "בניואורלינס",
+  "explanation": "עיר הגז - שם מופיע איש השירה (גז)",
+  "confidence": 0.45
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 3,
+  "direction": "down",
+  "answer": "איחודקימ",
+  "explanation": "נשמע ביחוד = איחוד קוים (קים בכתיב חסר) ברכבת",
+  "confidence": 0.3
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 5,
+  "direction": "down",
+  "answer": "יובלרעי",
+  "explanation": "יובל של רעי - פה מזוהם; צמח לו",
+  "confidence": 0.15
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 13,
+  "direction": "across",
+  "answer": "ביזט",
+  "explanation": "מלחין; ב + יז (טוב בגימטריה 17) + ט",
+  "confidence": 0.3
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 17,
+  "direction": "across",
+  "answer": "באמת",
+  "explanation": "להג (נו, באמת!) / דובר אמת",
+  "confidence": 0.4
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 22,
+  "direction": "down",
+  "answer": "אתקיפ",
+  "explanation": "רצען (דוקר) או רב (מתנצח) - אתקיף; לא פעיל = עתיד (מ)",
+  "confidence": 0.12
+ }
+]
