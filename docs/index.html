@@ -165,7 +165,7 @@ hr.sec{border:none; border-top:1px solid var(--rule); margin:2rem 0}
   <p class="byline"><b>An autonomous build.</b> Data pipeline, solver, and evaluation loop for the Haaretz weekly logic crossword by <span class="he">יורם הרועה</span>, reputedly the hardest cryptic in Hebrew. Working notes and interactive failure review.</p>
   <div class="abstract">
     <p class="lead">Abstract</p>
-    <p>We assemble a corpus of 362 Hebrew logic crosswords (8,249 clue-answer-explanation triples) by scraping a community solutions site and transcribing paywalled newspaper images, then build a solver that couples large-language-model wordplay reasoning with hard grid constraints, a 129k-word lexicon, corpus retrieval, and best-of-N consensus. On blind evaluation the grid layer is airtight (every answer is length-valid), and cross-run agreement is a 64%-reliable correctness signal. Permitting controlled entity-fact lookup lifts the best single run to 61 percent and cracks the Israeli-culture reference clues that had formed the ceiling, but accuracy stays highly variable across puzzles: the binding constraint becomes bootstrappability, whether a puzzle offers enough easy footholds to start the crossing cascade. This page documents the method and opens every remaining failure for human correction.</p>
+    <p>We assemble a corpus of 362 Hebrew logic crosswords (8,249 clue-answer-explanation triples) by scraping a community solutions site and transcribing paywalled newspaper images, then build a solver that couples large-language-model wordplay reasoning with hard grid constraints, a 129k-word lexicon, corpus retrieval, and best-of-N consensus. On blind evaluation the grid layer is airtight (every answer is length-valid), and cross-run agreement is a 64%-reliable correctness signal. Mid-project, a run scored 96 percent on a puzzle where every prior version scored 4 to 25. The implausibility triggered an audit, which found the cause in our own retrieval tool: the lexicon had been built from a corpus that included the held-out answers, so pattern lookups were returning the gold answer ranked above ordinary words. Those results are retracted. After sealing the leak, clean accuracy is 14 to 25 percent, meaning the entire apparent gain from four iterations of tooling was contamination. We report the retraction, the detection method, and one device that does survive audit: the homograph collapse of unvocalized Hebrew. This page documents the method and opens every remaining failure for human correction.</p>
   </div>
 </header>
 
@@ -173,7 +173,7 @@ hr.sec{border:none; border-top:1px solid var(--rule); margin:2rem 0}
   <div class="stat"><div class="v">362</div><div class="l">Puzzles</div></div>
   <div class="stat"><div class="v">8,249</div><div class="l">Clues</div></div>
   <div class="stat"><div class="v">129k</div><div class="l">Lexicon</div></div>
-  <div class="stat"><div class="v" id="s-acc">61%</div><div class="l">Best single run</div></div>
+  <div class="stat"><div class="v" id="s-acc">25%</div><div class="l">Clean accuracy</div></div>
   <div class="stat"><div class="v" id="s-fail">29</div><div class="l">Open failures</div></div>
 </div>
 
@@ -220,10 +220,13 @@ hr.sec{border:none; border-top:1px solid var(--rule); margin:2rem 0}
     <tbody>
       <tr><td class="mono">v2</td><td>Careful, definition-first, grid</td><td class="n">25% / 57%</td><td><span class="tag win">baseline</span></td></tr>
       <tr><td class="mono">v3</td><td>Lexicon tools, anagram-first</td><td class="n">4% / 14%</td><td><span class="tag reg">regressed</span></td></tr>
-      <tr><td class="mono">v4</td><td>Best-of-3 consensus + discipline</td><td class="n">39%</td><td><span class="tag win">beat every run</span></td></tr>
-      <tr><td class="mono">v5</td><td>Fact lookup + confidence-weighted consensus</td><td class="n">61% / 18%</td><td><span class="tag win">new high</span></td></tr>
+      <tr><td class="mono">v4</td><td>Best-of-3 consensus + discipline</td><td class="n">39%</td><td><span class="tag reg">retracted</span></td></tr>
+      <tr><td class="mono">v5</td><td>Fact lookup + confidence-weighted consensus</td><td class="n">61% / 18%</td><td><span class="tag reg">retracted</span></td></tr>
+      <tr><td class="mono">v6</td><td>Culture lexicon + grid discipline</td><td class="n">39-96%</td><td><span class="tag reg">retracted</span></td></tr>
+      <tr><td class="mono">v7</td><td>Same tools, leak sealed</td><td class="n">14-21%</td><td><span class="tag win">clean</span></td></tr>
     </tbody>
   </table>
+  <p class="small">Rows v3 through v6 are struck from the record. See section 6.</p>
   <p>v3 is the instructive failure: an anagram <em>existing</em> is not evidence it is the answer (a multi-word answer has many real-word orderings), and one over-confident anchor poisons the whole grid. The bottleneck is confidence calibration, not candidate generation.</p>
   <p>v4 makes the point positively. Merging independent runs beat every individual run, and agreement is a strong signal:</p>
   <div class="stats">
@@ -233,12 +236,34 @@ hr.sec{border:none; border-top:1px solid var(--rule); margin:2rem 0}
   <h3>The moving ceiling</h3>
   <p>Only about 40% of clues reach agreement. Early on, every solver agent named the same wall independently:</p>
   <blockquote>the long culture clues resisted the blind toolset. I could not crack them blind without verifiable culture lookups.</blockquote>
-  <p>So v5 permitted controlled fact lookup (who sang X, a politician's full name) while still forbidding the answers site and any verbatim clue search. It worked: culture clues that had resisted every blind run fell to a single entity lookup, a Geffen and Poliker song, a Mozart lied rendered as violets, and the agents correctly discarded any result that looked like a crossword answer key. The best single run reached 61%, a new high.</p>
-  <p>But the wall only moved. On the harder of the two puzzles v5 dropped to 18%, below the careful baseline: all three runs failed to break into a tightly interlocked corner with no easy first anchor, and a few confident-but-wrong culture guesses locked the grid into the wrong letters. Fact lookup answers "what is this reference"; it cannot manufacture a foothold when a puzzle's core has no easy way in. The binding constraint is no longer mechanics or knowledge. It is <em>bootstrappability</em>: whether enough clues are individually crackable to start the crossing cascade. That is a property of the puzzle, and it varies week to week.</p>
+  <p>So v5 permitted controlled fact lookup (who sang X, a politician's full name) while still forbidding the answers site and any verbatim clue search. It appeared to work: culture clues that had resisted every blind run started falling, and the agents correctly discarded any result that looked like a crossword answer key. The best single run reached 61%. That figure is retracted; see section 6.</p>
+  <p>The wall appeared to move rather than fall. On the harder puzzle v5 dropped to 18%, below the careful baseline. In hindsight the variance itself was the tell: runs of one configuration ranged from 18 to 61 percent because they differed in how heavily they leaned on a leaking tool, not in how well they reasoned. Fact lookup answers "what is this reference"; it cannot manufacture a foothold when a puzzle's core has no easy way in. The binding constraint is no longer mechanics or knowledge. It is <em>bootstrappability</em>: whether enough clues are individually crackable to start the crossing cascade. That is a property of the puzzle, and it varies week to week.</p>
+</section>
+
+<section id="retraction">
+  <h2><span class="num">6</span>Retraction: the leak was in our own tool</h2>
+  <p>A v6 run returned 27 of 28 clues correct on 2026-06-05, a puzzle where every earlier version had scored between 4 and 25 percent. Nothing about the method justified a jump of that size, so the result was audited before it was reported.</p>
+  <p>The solver's transcript was clean. It had visited no solutions site, read no answers file, opened no puzzle image. The contamination was upstream, in the retrieval tool we built. <span class="mono">lexicon.py</span> assembled its wordlist from the same answer corpus that produced the evaluation set, so all 28 held-out answers sat in the lexicon at a priority that ranked them <em>above</em> ordinary dictionary words. Every pattern query on an unsolved slot returned the gold answer near the top of the list. The instruction that made it worse was ours: v6 told solvers to always run pattern lookups on long unsolved slots, which pointed them directly at the leak.</p>
+  <div class="stats">
+    <div class="stat"><div class="v" style="color:var(--accent)">96%</div><div class="l">Reported, then retracted</div></div>
+    <div class="stat"><div class="v" style="color:var(--good)">14-25%</div><div class="l">Clean, leak sealed</div></div>
+    <div class="stat"><div class="v">28/28</div><div class="l">Gold answers reachable via the tool</div></div>
+  </div>
+  <p>The fix blocks every dev and eval answer from the corpus and culture tiers of the lexicon. Ordinary words that happen to be answers stay, as they would in any real solver's dictionary, which leaves 8 or 9 of 28 per puzzle: honest coverage rather than leakage. Re-measured afterwards, accuracy is 14 to 21 percent, at or below the pre-tool baseline of 25 percent. <strong>Four iterations of apparent progress were contamination.</strong></p>
+  <p>Two details make this worth writing down. First, the file-access rules were obeyed perfectly and the leak happened anyway, because a retrieval tool built from the same corpus as the evaluation set is a leak vector no access rule can catch. Audit the tools, not only the agent. Second, the detection signal was not a security check but a statistical one: identical prompts producing 39, 50, and 96 percent is not what capability looks like. Real skill does not triple between runs of the same configuration.</p>
+  <h3>An unrelated bug the audit surfaced</h3>
+  <p>Chasing the same result turned up a second defect. Multi-word enumerations are printed inside right-to-left text, and the transcription had preserved their visual order rather than the answer's word order on 6 of 50 puzzles, including both evaluation puzzles. Solvers were being told the last word's length where they needed the first. An automatic check now scores each orientation by whether the resulting split yields real Hebrew words, and the affected puzzles have been corrected.</p>
+</section>
+
+<section id="homographs">
+  <h2><span class="num">7</span>What survives: the homograph collapse</h2>
+  <p>One device came through the audit intact, and it is the most Hebrew-specific thing here. Written Hebrew omits vowels, so distinct words collapse into one letter sequence. <span class="he">שרה</span> is simultaneously <em>she sings</em>, <em>a female minister</em>, and the name <em>Sarah</em>. <span class="he">רב</span> is a rabbi, the word for many, and a surname. <span class="he">פרס</span> is a prize, Persia, and a former prime minister. The setter builds clues on precisely these collisions, and a solver that can enumerate a token's senses can read the clue's definition half in the sense the surface hides.</p>
+  <p>Indexing the corpus against a dictionary, a culture list, and person-name components yields 4,949 ambiguous tokens, of which 55 follow the <span class="he">שרה</span> pattern exactly: a role or verb that is also a personal name. The corpus confirms the setter exploits them. <span class="he">גפן</span> appears as an answer in different weeks explained two different ways, once as the surname of a well-known musician, once as wordplay on the word for garden.</p>
+  <p>The practical rule, now the first step on every clue: when a clue names a profession, a role, or a title, suspect it is standing in for a person's name, or the reverse. Clean runs cracked several clues through this route with no lookup and no leak. It is a small, real gain, and it was suggested by a reader looking at the word <span class="he">שרה</span> and asking whether the list of such collisions had been built.</p>
 </section>
 
 <section id="review">
-  <h2><span class="num">6</span>Interactive supplement: review and fix</h2>
+  <h2><span class="num">8</span>Interactive supplement: review and fix</h2>
   <p>Every scored clue is below, failures first. Expand any clue to see what each solver produced, the gold answer, the crowd explanation, and the source image, then record a correction: a fixed transcription, a fixed gold answer where the crowd made a typo, or a verdict that the solver was in fact right under an accepted alias. Corrections persist in your browser and export as JSON to feed back into the dataset.</p>
   <div class="tool">
     <div class="tool-bar">
@@ -259,8 +284,8 @@ hr.sec{border:none; border-top:1px solid var(--rule); margin:2rem 0}
 </section>
 
 <section id="repro">
-  <h2><span class="num">7</span>Artifacts and reproducibility</h2>
-  <p>The pipeline is deterministic end to end: scrape, transcribe with letter-count validation, build the grid and verify numbering against the printed clues, distill the playbook, solve blind, score, analyze, repeat. The solver toolkit (grid validator, lexicon, retrieval, consensus merge) and the evaluation harness are plain scripts. The honest read: 80% on <span class="he">יורם הרועה</span> is not yet reached, gated by culture-reference knowledge. The easier setters, which lack that wall, are the realistic place to demonstrate the harness clearing the bar first.</p>
+  <h2><span class="num">9</span>Artifacts and reproducibility</h2>
+  <p>The pipeline is deterministic end to end: scrape, transcribe with letter-count validation, build the grid and verify numbering against the printed clues, distill the playbook, solve blind, score, analyze, repeat. The solver toolkit (grid validator, lexicon, retrieval, consensus merge) and the evaluation harness are plain scripts. The honest read: 80% on <span class="he">יורם הרועה</span> is not reached. Clean accuracy sits at 14 to 25 percent, and no tooling built across seven iterations has yet beaten the simplest careful baseline. The easier setters, which lack that wall, are the realistic place to demonstrate the harness clearing the bar first.</p>
 </section>
 
 <footer>
