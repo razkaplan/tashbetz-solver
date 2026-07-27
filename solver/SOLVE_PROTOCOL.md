@@ -45,6 +45,36 @@ Output: solutions JSON: [{puzzle_date, clue_number, direction, answer, explanati
   known fragment (for container/charade assembly).
 - `python3 solver/retrieve.py "<clue text>" 8` — most similar SOLVED train clues with their
   answers + crowd explanations; use them to identify the mechanism and imitate the reasoning.
+- `python3 solver/wiki.py search|summary|whois|links "<entity>"` — Hebrew Wikipedia facts.
+  THE tool for culture clues: who sang X, a politician's real name/nickname, a place, a Bible
+  figure. Query the ENTITY, never the clue text.
+- The lexicon now also contains ~4,800 culture entities from he-wikipedia (1,794 song titles,
+  1,799 artists, 998 politicians, 239 places). So `lexicon.py pattern` on a crossing pattern can
+  surface a SONG TITLE or a PERSON'S NAME directly — always run it on long unsolved slots, which
+  are exactly where the culture showpieces live.
+
+## Homographs (v7) — RUN THIS ON EVERY CLUE FIRST
+`python3 solver/homographs.py scan "<clue text>"` lists every word in the clue that has more
+than one sense, and `python3 solver/homographs.py <word>` explains one token.
+
+Unvocalized Hebrew is the setter's main weapon: one letter sequence, several words.
+  שרה = she sings / a female minister / the name Sarah
+  שר  = a minister / he sings
+  רב  = a rabbi / many / he quarrelled / the surname Rav
+  פרס = a prize / Persia / the surname Peres
+  גפן = a vine / the surname Geffen
+  אור = light / the given name Or
+Whenever a clue mentions a profession, a role, a title, or a common noun, suspect it is
+standing in for a PERSON'S NAME (or the reverse). "The singer" may mean the word שרה;
+"the minister" may mean the same letters. This resolves a large share of the culture clues:
+the answer is often the OTHER reading of a word already sitting in the clue.
+
+## Grid discipline (v6) — do NOT poison the board
+- Fill a clue's letters into the shared grid ONLY when confidence >= 0.6. Low-confidence guesses
+  stay in your answer file but are NEVER propagated as crossing constraints.
+- Rationale (measured): on hard puzzles, propagating weak guesses locked the grid into wrong
+  letters and dragged accuracy below the no-tools baseline. Sparse-but-correct anchors beat a
+  full board of guesses. Leave cells unknown; unknown is recoverable, wrong is not.
 
 Loop: classify → generate candidates (lexicon/anagram) → fill high-confidence into grid →
 fill_state.py → for each remaining clue, `lexicon.py pattern` on its ?-pattern → pick the

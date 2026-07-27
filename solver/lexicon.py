@@ -43,6 +43,15 @@ def load():
                 w = norm(c.get('answer'))
                 if w:
                     words[w] = 2
+    # culture entities (song titles, artists, politicians, places) from he-wikipedia.
+    # Highest priority: these are exactly the answers the solver cannot invent.
+    cp = os.path.join(HERE, 'lex/culture.json')
+    if os.path.exists(cp):
+        for kind, items in json.load(open(cp)).items():
+            for t in items:
+                w = norm(t)
+                if w:
+                    words[w] = 3
     return words
 
 def rank(words, matches):
