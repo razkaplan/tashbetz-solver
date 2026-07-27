@@ -20,8 +20,23 @@ HERE = os.path.dirname(__file__)
 def norm(s):
     return re.sub(r'[^א-ת]', '', s or '').translate(FIN)
 
+def held_out_answers():
+    """Normalized answers belonging to dev/eval puzzles — these MUST NOT enter the lexicon,
+    or a pattern lookup silently hands the solver the gold answer (measured: this inflated
+    a run to 96%). Train-split answers are legitimate priors."""
+    out = set()
+    p = 'data/dataset/clues.jsonl'
+    if os.path.exists(p):
+        for line in open(p):
+            r = json.loads(line)
+            if r.get('split') in ('dev', 'eval') and r.get('answer_raw'):
+                out.add(norm(r['answer_raw']))
+    return out
+
+
 def load():
-    words = {}  # word -> priority (2 corpus, 1 dict)
+    words = {}  # word -> priority (3 culture, 2 corpus, 1 dict)
+    BLOCK = held_out_answers()
     hp = os.path.join(HERE, 'lex/hspell.txt')
     if os.path.exists(hp):
         for line in open(hp, encoding='utf-8'):
@@ -34,14 +49,14 @@ def load():
             for p in json.load(open(pat)):
                 for c in p['clues']:
                     w = norm(c.get('answer'))
-                    if w:
+                    if w and w not in BLOCK:
                         words[w] = 2
     for f in glob.glob('data/answers/extra/*.json'):
         d = json.load(open(f))
         for p in d.get('puzzles', []):
             for c in p['clues']:
                 w = norm(c.get('answer'))
-                if w:
+                if w and w not in BLOCK:
                     words[w] = 2
     # culture entities (song titles, artists, politicians, places) from he-wikipedia.
     # Highest priority: these are exactly the answers the solver cannot invent.
@@ -50,7 +65,7 @@ def load():
         for kind, items in json.load(open(cp)).items():
             for t in items:
                 w = norm(t)
-                if w:
+                if w and w not in BLOCK:
                     words[w] = 3
     return words
 

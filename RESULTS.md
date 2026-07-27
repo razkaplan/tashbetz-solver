@@ -48,6 +48,29 @@ Blind: solver sees only clues + grid + playbook; answers site and web forbidden.
   grid (leave cells blank so sparse-but-correct anchors survive); prove the harness on the less
   adversarial easier-setter puzzles.
 
+## ⚠ INTEGRITY FINDING (2026-07-21) — v3..v6 results are CONTAMINATED
+`solver/lexicon.py` built its wordlist from `data/answers/answers_parsed.json`, which contains
+**all 52 puzzles including the dev/eval splits**. Held-out gold answers therefore sat in the
+lexicon at priority 2, i.e. ranked ABOVE ordinary dictionary words in every `pattern` lookup.
+The solver never "read" an answers file, but the tool handed it the answer.
+
+Detected when a v6 run scored **96% (27/28)** on 2026-06-05 — a puzzle where every prior
+version scored 4-25%. The implausible jump triggered an audit: 28/28 gold answers for both dev
+puzzles were present in the lexicon. The v6 prompt explicitly told solvers to "always run
+pattern lookups on long unsolved slots", which maximised exploitation of the leak.
+
+- **96% is retracted. It measures the leak, not the solver.**
+- Transcript audit found NO other violation: no answers-site access, no forbidden file reads,
+  no image reads. The contamination was entirely through my own tool.
+- **Fix**: `held_out_answers()` now blocks every dev/eval answer from the corpus and culture
+  tiers. Ordinary dictionary words that happen to be answers (ערב, נשי) legitimately remain,
+  as they would in any real solver's dictionary.
+- **Clean baseline is v2** (25% / 57%), which predates lexicon.py entirely. All v3-v6 numbers
+  should be treated as upper bounds contaminated to an unknown degree, and re-measured.
+
+Lesson: a retrieval tool built from the same corpus as the eval set is a leak vector even when
+file-access rules are perfectly obeyed. Audit the tools, not just the agent.
+
 ## Diagnosis (what the errors say)
 - **Grid layer is airtight**: 26/26 wrong answers are the correct length; 0 conflicts; only 1 accidental reversal across both puzzles. The letter-count problem the user flagged is fully solved by grid-first solving.
 - **100% of the gap is wordplay-cracking quality** on the hardest Hebrew cryptic — not mechanics, not transcription, not data.
