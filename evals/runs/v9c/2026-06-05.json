@@ -1,0 +1,226 @@
+[
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 1,
+  "direction": "across",
+  "answer": "מהאברכהלשר",
+  "explanation": "'מה אברך' (יהורם גאון) + שר = Cher, הזמרת בת ה-80",
+  "confidence": 0.35
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 7,
+  "direction": "across",
+  "answer": "חוצ",
+  "explanation": "מלבד זאת = חוץ מזה",
+  "confidence": 0.3
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 8,
+  "direction": "across",
+  "answer": "גדישמני",
+  "explanation": "אנגרם 'שמי גנדי' = גדי שמני, אלוף (מיל')",
+  "confidence": 0.85
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 9,
+  "direction": "across",
+  "answer": "סיגליות",
+  "explanation": "גדלות בגינה, וגם 'הסיגלית' של מוצרט",
+  "confidence": 0.25
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 10,
+  "direction": "across",
+  "answer": "נוב",
+  "explanation": "להפך זה בון (עיר גרמנית); נוב עיר הכהנים שחרבה",
+  "confidence": 0.85
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 11,
+  "direction": "across",
+  "answer": "תורה",
+  "explanation": "מתן תורה - המתנה של שבועות",
+  "confidence": 0.25
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 12,
+  "direction": "across",
+  "answer": "שלומאש",
+  "explanation": "שלום אש הסופר; כשהכבאים גמרו - שלום לאש",
+  "confidence": 0.75
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 13,
+  "direction": "across",
+  "answer": "שלב",
+  "explanation": "עד המדרגה/השלב העליון",
+  "confidence": 0.3
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 14,
+  "direction": "across",
+  "answer": "קולריו",
+  "explanation": "תחנת שידור",
+  "confidence": 0.1
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 16,
+  "direction": "across",
+  "answer": "דיינ",
+  "explanation": "השופט = דיין",
+  "confidence": 0.35
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 19,
+  "direction": "across",
+  "answer": "עול",
+  "explanation": "אילוץ",
+  "confidence": 0.25
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 20,
+  "direction": "across",
+  "answer": "סופתברק",
+  "explanation": "הם ייחלו לראות אותה; ברק",
+  "confidence": 0.2
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 22,
+  "direction": "across",
+  "answer": "הצדוקימ",
+  "explanation": "הצדוקים נאמנים בקיצוניות למסורת - והם ה'צודקים'",
+  "confidence": 0.5
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 23,
+  "direction": "across",
+  "answer": "דיל",
+  "explanation": "די (מספיק) + ל (למד) = דיל, מה שהציעו לטראמפ",
+  "confidence": 0.7
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 24,
+  "direction": "across",
+  "answer": "קלותהבעירה",
+  "explanation": "תבן ומוץ בוערים בקלות",
+  "confidence": 0.25
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 1,
+  "direction": "down",
+  "answer": "לאתקח",
+  "explanation": "'לא תקח האם על הבנים' - אם לא מרפים כדרוש",
+  "confidence": 0.3
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 2,
+  "direction": "down",
+  "answer": "אגואיסט",
+  "explanation": "לא מתחשב",
+  "confidence": 0.3
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 3,
+  "direction": "down",
+  "answer": "דנגורנ",
+  "explanation": "שר משפטן ז\"ל",
+  "confidence": 0.15
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 4,
+  "direction": "down",
+  "answer": "מרימותלב",
+  "explanation": "ההרמות = מרימות, טולסטוי = לב; מרימות לב",
+  "confidence": 0.4
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 5,
+  "direction": "down",
+  "answer": "שלמונימ",
+  "explanation": "של (ששייך) + מונים (סופרים) = שלמונים, שאסור לקחת",
+  "confidence": 0.85
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 6,
+  "direction": "down",
+  "answer": "מימבששונ",
+  "explanation": "נשמע; 'ושאבתם מים בששון ממעיני הישועה'",
+  "confidence": 0.75
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 11,
+  "direction": "down",
+  "answer": "רשתשיווק",
+  "explanation": "קשה למוכר להתחרות שם",
+  "confidence": 0.12
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 12,
+  "direction": "down",
+  "answer": "שלו",
+  "explanation": "שלום עקר (בלי מ) = שלו",
+  "confidence": 0.6
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 13,
+  "direction": "down",
+  "answer": "שושנבירה",
+  "explanation": "שושן הבירה - העיר בפרס ובמגילה",
+  "confidence": 0.25
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 15,
+  "direction": "down",
+  "answer": "כיבויאש",
+  "explanation": "של כבאים",
+  "confidence": 0.3
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 17,
+  "direction": "down",
+  "answer": "יובלדור",
+  "explanation": "יובל (50) מעל דור (חצי יובל, 25)",
+  "confidence": 0.65
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 18,
+  "direction": "down",
+  "answer": "רבחובל",
+  "explanation": "דרגה במשט",
+  "confidence": 0.25
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 21,
+  "direction": "down",
+  "answer": "קולגה",
+  "explanation": "עמית = קולגה; קול + גע (מפי ברווז)",
+  "confidence": 0.7
+ }
+]

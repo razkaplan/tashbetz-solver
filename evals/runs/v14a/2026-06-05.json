@@ -1,0 +1,254 @@
+[
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 1,
+  "direction": "across",
+  "answer": "",
+  "tier": "blank",
+  "explanation": "",
+  "confidence": 0.0
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 7,
+  "direction": "across",
+  "answer": "",
+  "tier": "blank",
+  "explanation": "",
+  "confidence": 0.0
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 8,
+  "direction": "across",
+  "answer": "אבודאבי",
+  "tier": "suggestion",
+  "explanation": "מתאים לתבנית ??ו???י ולאניו [3,4]; המנגנון (גנדי/האלוף מיל') לא מפוענח",
+  "confidence": 0.3
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 9,
+  "direction": "across",
+  "answer": "כרובינו",
+  "tier": "committed",
+  "explanation": "גדלו בגינתנו - כרובינו; וגם 'כרובינו' של מוצרט (כרוב/Cherubino)",
+  "confidence": 0.9
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 10,
+  "direction": "across",
+  "answer": "נוב",
+  "tier": "committed",
+  "explanation": "נוב עיר הכהנים שחרבה; לפני שהפכה 'נובה' (גרמנית)",
+  "confidence": 0.85
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 11,
+  "direction": "across",
+  "answer": "",
+  "tier": "blank",
+  "explanation": "",
+  "confidence": 0.0
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 12,
+  "direction": "across",
+  "answer": "שלומאש",
+  "tier": "committed",
+  "explanation": "שלום עש - הסופר שלום אש; 'שלום' + 'אש' (הכבאים גמרו עבודתם)",
+  "confidence": 0.9
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 13,
+  "direction": "across",
+  "answer": "מרב",
+  "tier": "suggestion",
+  "explanation": "מרב = המדרגה העליונה (מקסימום); 'מלאו למשל' לא מפוענח",
+  "confidence": 0.4
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 14,
+  "direction": "across",
+  "answer": "קולערב",
+  "tier": "committed",
+  "explanation": "קול ערב - מה לשולמית (קולך ערב); תחנת שידור סעודית",
+  "confidence": 0.85
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 16,
+  "direction": "across",
+  "answer": "",
+  "tier": "blank",
+  "explanation": "",
+  "confidence": 0.0
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 19,
+  "direction": "across",
+  "answer": "כרח",
+  "tier": "committed",
+  "explanation": "אילוץ = הכרח; נשמע כמו 'כי רך' (אין מעודן ממנו)",
+  "confidence": 0.8
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 20,
+  "direction": "across",
+  "answer": "",
+  "tier": "blank",
+  "explanation": "",
+  "confidence": 0.0
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 22,
+  "direction": "across",
+  "answer": "מדייקימ",
+  "tier": "committed",
+  "explanation": "נאמנים למסורתם בקיצוניות = חרדים/מדייקים; ולא טועים = מדייקים",
+  "confidence": 0.8
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 23,
+  "direction": "across",
+  "answer": "דיל",
+  "tier": "committed",
+  "explanation": "טראמפ - deal; 'די' (מספיק) + 'ל' - למד מספיק לפני שהציעו",
+  "confidence": 0.8
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 24,
+  "direction": "across",
+  "answer": "",
+  "tier": "blank",
+  "explanation": "",
+  "confidence": 0.0
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 1,
+  "direction": "down",
+  "answer": "",
+  "tier": "blank",
+  "explanation": "",
+  "confidence": 0.0
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 2,
+  "direction": "down",
+  "answer": "",
+  "tier": "blank",
+  "explanation": "",
+  "confidence": 0.0
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 3,
+  "direction": "down",
+  "answer": "",
+  "tier": "blank",
+  "explanation": "",
+  "confidence": 0.0
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 4,
+  "direction": "down",
+  "answer": "תרומותלב",
+  "tier": "committed",
+  "explanation": "ההרמות = תרומות (משורש רו\"ם, 'והרמתם ממנו תרומה'); שהיו לטולסטוי = לב (לב טולסטוי); תרומות לב עוררו התרגשות",
+  "confidence": 0.75
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 5,
+  "direction": "down",
+  "answer": "",
+  "tier": "blank",
+  "explanation": "",
+  "confidence": 0.0
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 6,
+  "direction": "down",
+  "answer": "מימבששונ",
+  "tier": "committed",
+  "explanation": "נשמע 'מים בששון' - ושאבתם מים בששון ממעיני הישועה; מי מבשש ון",
+  "confidence": 0.9
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 11,
+  "direction": "down",
+  "answer": "שוקהכרמל",
+  "tier": "committed",
+  "explanation": "קשה למוכר (זר) להתחרות שם - שוק הכרמל",
+  "confidence": 0.9
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 12,
+  "direction": "down",
+  "answer": "שרב",
+  "tier": "committed",
+  "explanation": "שלום עקר באוגוסט - שרב",
+  "confidence": 0.85
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 13,
+  "direction": "down",
+  "answer": "",
+  "tier": "blank",
+  "explanation": "",
+  "confidence": 0.0
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 15,
+  "direction": "down",
+  "answer": "לוחמיאש",
+  "tier": "committed",
+  "explanation": "טבלת יאוש = אנגרם 'לוחמי אש'; כבאים",
+  "confidence": 0.9
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 17,
+  "direction": "down",
+  "answer": "טרובדור",
+  "tier": "committed",
+  "explanation": "כותב ושר - טרובדור",
+  "confidence": 0.85
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 18,
+  "direction": "down",
+  "answer": "",
+  "tier": "blank",
+  "explanation": "",
+  "confidence": 0.0
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 21,
+  "direction": "down",
+  "answer": "קולגה",
+  "tier": "committed",
+  "explanation": "עמית = קולגה; מפי ברווז - קול גה/געגוע",
+  "confidence": 0.85
+ }
+]

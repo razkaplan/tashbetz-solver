@@ -219,19 +219,47 @@ def query(tokens):
             if ex:
                 print(f'    {k}: {ex}')
 
+PREFIXES = ['ו', 'ה', 'ב', 'ל', 'מ', 'ש', 'כ', 'וה', 'ול', 'וב', 'שה', 'מה', 'כש', 'לה', 'בה']
+SUFFIXES = ['ים', 'ות', 'י', 'ה', 'ו', 'ת', 'נו', 'כם', 'יו', 'ים']
+
+def variants(w):
+    """A clue word may appear inflected or glued to a prefix; the bare token is what
+    carries the ambiguity. Yield the word and its plausible stems."""
+    out = {w}
+    for p in PREFIXES:
+        if w.startswith(p) and len(w) - len(p) >= 2:
+            out.add(w[len(p):])
+    for s in SUFFIXES:
+        if w.endswith(s) and len(w) - len(s) >= 2:
+            out.add(w[:-len(s)])
+    # prefix + suffix together
+    for p in PREFIXES:
+        if w.startswith(p):
+            stem = w[len(p):]
+            for s in SUFFIXES:
+                if stem.endswith(s) and len(stem) - len(s) >= 2:
+                    out.add(stem[:-len(s)])
+    return out
+
 def scan(text):
-    """Report every ambiguous token appearing in a clue — run this on EVERY clue."""
+    """Report every ambiguous token appearing in a clue — run this on EVERY clue.
+    Matches inflected and prefixed forms back to their ambiguous stem."""
     path = os.path.join(HERE, 'lex/ambiguities.json')
     idx = json.load(open(path))
-    hits = []
+    hits, seen = [], set()
     for w in re.split(r'[\s,.;:!?()"\'\-־]+', text or ''):
-        n = norm(w)
-        if n in idx and len(n) >= 2:
-            hits.append((w, idx[n]['senses']))
+        nw = norm(w)
+        if len(nw) < 2:
+            continue
+        for v in sorted(variants(nw), key=len, reverse=True):
+            if v in idx and (w, v) not in seen:
+                seen.add((w, v))
+                via = '' if v == nw else f'  [stem of {w}]'
+                hits.append((v, idx[v]['senses'], via))
     if not hits:
         print('(no ambiguous tokens in this clue)')
-    for w, s in hits:
-        print(f'{w}: {", ".join(s)}')
+    for v, s, via in hits:
+        print(f'{v}: {", ".join(s)}{via}')
 
 if __name__ == '__main__':
     if len(sys.argv) > 1 and sys.argv[1] == 'scan':

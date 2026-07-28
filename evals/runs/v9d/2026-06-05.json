@@ -1,0 +1,226 @@
+[
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 1,
+  "direction": "across",
+  "answer": "כלהכבודלשר",
+  "explanation": "\"כל הכבוד\" (יהורם גאון, קזבלן) ל-שר = Cher, שמלאו לה 80 במאי 2026",
+  "confidence": 0.7
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 7,
+  "direction": "across",
+  "answer": "חוצ",
+  "explanation": "מלבד זאת = חוץ",
+  "confidence": 0.3
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 8,
+  "direction": "across",
+  "answer": "גדישמני",
+  "explanation": "אנגרם \"שמי גנדי\" = גדי שמני, אלוף (מיל')",
+  "confidence": 0.85
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 9,
+  "direction": "across",
+  "answer": "בנגינתו",
+  "explanation": "אנגרם \"בגינתנו\"; גדלו של מוצרט - בנגינתו",
+  "confidence": 0.7
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 10,
+  "direction": "across",
+  "answer": "נוב",
+  "explanation": "נוב עיר הכהנים שחרבה; להפך = בון הגרמנית",
+  "confidence": 0.75
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 11,
+  "direction": "across",
+  "answer": "שמנת",
+  "explanation": "מתנה חלבית לשבועות",
+  "confidence": 0.25
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 12,
+  "direction": "across",
+  "answer": "שלומאש",
+  "explanation": "שלום אש הסופר = שלום לאש כשהכבאים גמרו",
+  "confidence": 0.8
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 13,
+  "direction": "across",
+  "answer": "מרב",
+  "explanation": "מילאו עד המרב = המדרגה העליונה",
+  "confidence": 0.3
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 14,
+  "direction": "across",
+  "answer": "קולערב",
+  "explanation": "\"כי קולך ערב\" (השולמית, שיר השירים) וגם תחנת שידור ערבית",
+  "confidence": 0.8
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 16,
+  "direction": "across",
+  "answer": "קטינ",
+  "explanation": "קטין בבית המשפט",
+  "confidence": 0.2
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 19,
+  "direction": "across",
+  "answer": "כרח",
+  "explanation": "כורח = אילוץ",
+  "confidence": 0.4
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 20,
+  "direction": "across",
+  "answer": "בעלתותק",
+  "explanation": "ותק; מאחור = היפוך",
+  "confidence": 0.15
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 22,
+  "direction": "across",
+  "answer": "מדקדקימ",
+  "explanation": "מדקדקים במסורת ולא טועים בלשון - מילה משותפת",
+  "confidence": 0.45
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 23,
+  "direction": "across",
+  "answer": "דיל",
+  "explanation": "די (מספיק) לפני ל (למד) = דיל, העסקה שהציעו לטראמפ",
+  "confidence": 0.6
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 24,
+  "direction": "across",
+  "answer": "אוליבקטריה",
+  "explanation": "בקטריה בתבן ובמוץ",
+  "confidence": 0.1
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 1,
+  "direction": "down",
+  "answer": "כלחוב",
+  "explanation": "כל חוב שלא מרפים ממנו",
+  "confidence": 0.2
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 2,
+  "direction": "down",
+  "answer": "הבורגני",
+  "explanation": "הכסף באמריקה",
+  "confidence": 0.15
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 3,
+  "direction": "down",
+  "answer": "ברגינס",
+  "explanation": "בר (פאב) + גינס",
+  "confidence": 0.2
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 4,
+  "direction": "down",
+  "answer": "דפיקותלב",
+  "explanation": "לב = לב טולסטוי; התרגשות = דפיקות לב",
+  "confidence": 0.55
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 5,
+  "direction": "down",
+  "answer": "שלמונימ",
+  "explanation": "של מונים (סופרים = מונים); אסור לקחת שלמונים",
+  "confidence": 0.85
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 6,
+  "direction": "down",
+  "answer": "מימבששונ",
+  "explanation": "\"ושאבתם מים בששון ממעייני הישועה\" - עפ\"י השמיעה",
+  "confidence": 0.6
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 11,
+  "direction": "down",
+  "answer": "שוקהכרמל",
+  "explanation": "בשוק הכרמל קשה למוכר להתחרות",
+  "confidence": 0.45
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 12,
+  "direction": "down",
+  "answer": "שרב",
+  "explanation": "שרב באוגוסט",
+  "confidence": 0.3
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 13,
+  "direction": "down",
+  "answer": "מראההעיר",
+  "explanation": "מראה = נוף; מראה בפרס או בספר",
+  "confidence": 0.15
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 15,
+  "direction": "down",
+  "answer": "לוחותאש",
+  "explanation": "לוח (טבלה) של אש",
+  "confidence": 0.2
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 17,
+  "direction": "down",
+  "answer": "טרובדור",
+  "explanation": "טרובדור כותב ושר; דור = חצי יובל (25 שנה)",
+  "confidence": 0.7
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 18,
+  "direction": "down",
+  "answer": "רבחובל",
+  "explanation": "דרגת המשט, מלמטה למעלה",
+  "confidence": 0.12
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 21,
+  "direction": "down",
+  "answer": "קולגה",
+  "explanation": "עמית = קולגה; \"קול גע\" מפי הברווז",
+  "confidence": 0.6
+ }
+]

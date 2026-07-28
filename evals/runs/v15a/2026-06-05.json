@@ -1,0 +1,254 @@
+[
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 1,
+  "direction": "across",
+  "answer": "",
+  "tier": "blank",
+  "explanation": "יהורם גאון מברך זמרת בת 80 - לא זוהתה הזמרת ולא נמצאה ברכה [2,5,3] שמתאימה; אין אף אות מוצלבת ודאית.",
+  "confidence": 0.0
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 7,
+  "direction": "across",
+  "answer": "",
+  "tier": "blank",
+  "explanation": "אין אותיות מוצלבות כלל; 'פרעה חוזר' (היפוך) לא הניב מילה בת 3 שמשמעה 'מלבד זאת' (ברם/פרט/חוץ אף אחת אינה היפוך של שם פרעה).",
+  "confidence": 0.0
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 8,
+  "direction": "across",
+  "answer": "",
+  "tier": "blank",
+  "explanation": "'שמי גנדי' = רחבעם זאבי (אלוף מיל'), אך [3,4] המסתיים ב-י לא אומת; 'אני זאבי' מתאים לתבנית אך המנגנון רופף.",
+  "confidence": 0.0
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 9,
+  "direction": "across",
+  "answer": "כרובינו",
+  "tier": "committed",
+  "explanation": "הגדרה כפולה: כרובים שגדלו בגינתנו + כרובינו (Cherubino) של מוצרט מ'נישואי פיגארו'. מילה אחת, כל האותיות מוסברות.",
+  "confidence": 0.86
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 10,
+  "direction": "across",
+  "answer": "נוב",
+  "tier": "committed",
+  "explanation": "נוב עיר הכהנים שחרבה; 'בטרם הפכה גרמנית' = בון בהיפוך = נוב.",
+  "confidence": 0.85
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 11,
+  "direction": "across",
+  "answer": "",
+  "tier": "blank",
+  "explanation": "מתנת שבועות בת 4 אותיות הפותחת ב-ש (מוצלבת מ'שוק' של 11 מאונך) - לא אומתה.",
+  "confidence": 0.0
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 12,
+  "direction": "across",
+  "answer": "שלומאש",
+  "tier": "committed",
+  "explanation": "שלום אש, הסופר. 'הכבאים גמרו עבודתם' = נפרדים מהאש, 'שלום, אש'. סדר המילים כפוי: מוצלבת 0 = ש מ-12 מאונך (שרב) ומוצלבת 5 = ש מ-6 מאונך (מים בששון); בסדר ההפוך (אש שלום) היו נופלות שתיהן.",
+  "confidence": 0.85
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 13,
+  "direction": "across",
+  "answer": "",
+  "tier": "blank",
+  "explanation": "תבנית ?ר? (ה-ר מ'שרב'); 'מלאו למשל עד המדרגה העליונה' לא פוענח.",
+  "confidence": 0.0
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 14,
+  "direction": "across",
+  "answer": "קולערב",
+  "tier": "committed",
+  "explanation": "קול ערב - 'כי קולך ערב' (שולמית משיר השירים) + תחנת שידור ערבית/סעודית 'קול ערב'. סדר כפוי: מוצלבת 0 = ק מ-11 מאונך (שוק הכרמל) ומוצלבת 5 = ב מ-12 מאונך (שרב); 'ערב קול' היה נופל בשתיהן.",
+  "confidence": 0.85
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 16,
+  "direction": "across",
+  "answer": "",
+  "tier": "blank",
+  "explanation": "תבנית ?ט?נ (ט מ'טרובדור', נ מ'בששון'); 'חי בבית השופט' לא פוענח.",
+  "confidence": 0.0
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 19,
+  "direction": "across",
+  "answer": "כרח",
+  "tier": "committed",
+  "explanation": "אילוץ = הכרח/כורח; 'שאין מעודן ממנו כפי ששמענו' = הומופון של כרך (מטרופולין - אין מעודן/עירוני ממנו). כ ו-ח מוצלבות מ-11 ו-15 מאונך.",
+  "confidence": 0.8
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 20,
+  "direction": "across",
+  "answer": "",
+  "tier": "blank",
+  "explanation": "תבנית ????ו?ק. המילה השנייה (3) חייבת להיות ו?ק - 'ותק' היחידה הסבירה, אך 'טורפת מאחור את הסופר' לא פוענח.",
+  "confidence": 0.0
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 22,
+  "direction": "across",
+  "answer": "מדייקימ",
+  "tier": "suggestion",
+  "explanation": "דגל-חולשה (הכי חלש מבין המחויבים): 'ולא טועים' = מדייקים ברור, אבל 'נאמנים בקיצוניות למסורתם' הוא מיפוי רופף והסימון (מ) בסוף הרמז נותר בלתי מוסבר; רק שתי אותיות מוצלבות (מ,י).",
+  "confidence": 0.6
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 23,
+  "direction": "across",
+  "answer": "דיל",
+  "tier": "committed",
+  "explanation": "דיל = deal (טראמפ). 'למד' = האות ל, 'מספיק' = די; די+ל, וה-ל אחרי ('לפני שהציעו' - סדר הבנייה).",
+  "confidence": 0.82
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 24,
+  "direction": "across",
+  "answer": "",
+  "tier": "blank",
+  "explanation": "תבנית ?ש?????ר?ה; 'קשים לעיכול' נפסל ע\"י ה-ר במיקום 7 (מ'טרובדור') וה-ה במיקום 9 (מ'קולגה').",
+  "confidence": 0.0
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 1,
+  "direction": "down",
+  "answer": "",
+  "tier": "blank",
+  "explanation": "תבנית ????כ, [2,3]; לא פוענח.",
+  "confidence": 0.0
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 2,
+  "direction": "down",
+  "answer": "",
+  "tier": "blank",
+  "explanation": "תבנית ????ו??; 'באמריקה הכסף לא מתחשב' - 'מיליונר' מתאים לתבנית אך ללא הסבר מלא לפירוק.",
+  "confidence": 0.0
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 3,
+  "direction": "down",
+  "answer": "",
+  "tier": "blank",
+  "explanation": "שר-משפטן ז\"ל בן [2,4] לא זוהה ('דב יוסף' נופל על ה-י המוצלבת מ'כרובינו').",
+  "confidence": 0.0
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 4,
+  "direction": "down",
+  "answer": "רוממותלב",
+  "tier": "suggestion",
+  "explanation": "הורד ממחויב. לב = שמו הפרטי של טולסטוי, וסדר המילים כפוי (מוצלבת 6 = ל מ'שלום אש'). המילה הראשונה אינה ודאית: 'ההרמות' = רוממות (שם הפעולה הישיר של הרמה), ו'רוממות לב' = התרגשות/התעלות. הפתרון הקודם 'תרומות' הוא רק שם עצם סביר ולא תרגום של 'ההרמות'. המוצלבת היחידה במילה הראשונה היא ו במיקום 4 (מ'כרובינו') שמתאימה לכל ריבוי בסיומת -ות, ולכן אינה מכריעה.",
+  "confidence": 0.45
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 5,
+  "direction": "down",
+  "answer": "",
+  "tier": "blank",
+  "explanation": "תבנית ????נ?מ (7, מסתיים ב-ם, נ במיקום 4). 'סופרים' עשוי להיות ספרים (מספרות) - 'מספריים' נופל על התבנית. לא פוענח.",
+  "confidence": 0.0
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 6,
+  "direction": "down",
+  "answer": "מימבששונ",
+  "tier": "committed",
+  "explanation": "'ושאבתם מים בששון ממעיני הישועה' - הרמז מצטט 'ממעיני הישועה' ומסומן כהומופון. הסדר כפוי ע\"י הפסוק וע\"י המוצלבות: ב במיקום 3 מ'נוב' ו-ש במיקום 5 מ'שלום אש' ('בששון מים' היה נופל בשתיהן.",
+  "confidence": 0.85
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 11,
+  "direction": "down",
+  "answer": "שוקהכרמל",
+  "tier": "committed",
+  "explanation": "שוק הכרמל - שוק צפוף שבו קשה למוכר להתחרות. הסדר כפוי: ק במיקום 2 מ'קול ערב', כ במיקום 4 מ'כרח', מ במיקום 6 מ'מדייקים' - שלוש מוצלבות שנגזרו עצמאית; 'שוק חופשי' (חלופה מפתה) נופל על שתיים מהן.",
+  "confidence": 0.78
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 12,
+  "direction": "down",
+  "answer": "שרב",
+  "tier": "committed",
+  "explanation": "'שלום רב' שנעקר ממנו לו\"ם = שרב; חום כבד באוגוסט.",
+  "confidence": 0.8
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 13,
+  "direction": "down",
+  "answer": "",
+  "tier": "blank",
+  "explanation": "תבנית ?ר???ק?? עם enum [4,4]; 'פרוטוקול' מתאים לתבנית אך הוא מילה אחת ולכן נפסל.",
+  "confidence": 0.0
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 15,
+  "direction": "down",
+  "answer": "לוחמיאש",
+  "tier": "committed",
+  "explanation": "כבאים = לוחמי אש (הגדרה); הבנייה: לוח (טבלה) + מיאש (יאוש). הסדר כפוי: ל במיקום 0 מ'קול ערב', ח במיקום 2 מ'כרח', י במיקום 4 מ'מדייקים' - 'אש לוחמי' היה נופל בכולן.",
+  "confidence": 0.84
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 17,
+  "direction": "down",
+  "answer": "טרובדור",
+  "tier": "committed",
+  "explanation": "טרובדור - כותב ושר; דור = חצי יובל (25 שנה) בסוף המילה.",
+  "confidence": 0.8
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 18,
+  "direction": "down",
+  "answer": "",
+  "tier": "blank",
+  "explanation": "תבנית ???מ??; 'העלה מלמטה את דרגת המשט' לא פוענח.",
+  "confidence": 0.0
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 21,
+  "direction": "down",
+  "answer": "קולגה",
+  "tier": "committed",
+  "explanation": "עמית = קולגה; קול (מפי) + גה (קריאת הברווז). ל במיקום 2 מוצלבת מ'דיל'.",
+  "confidence": 0.78
+ }
+]

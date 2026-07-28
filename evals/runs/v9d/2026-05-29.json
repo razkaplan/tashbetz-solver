@@ -1,0 +1,226 @@
+[
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 1,
+  "direction": "across",
+  "answer": "בהיעדרמשירה",
+  "explanation": "ניחוש - לא פוענח; 'שירה' כהומוגרף (ש+ירה)",
+  "confidence": 0.1
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 7,
+  "direction": "across",
+  "answer": "ישפרחימ",
+  "explanation": "אנגרם 'משפר חיי' (מוני אמריליו = סימן לערבוב) = יש פרחים",
+  "confidence": 0.55
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 8,
+  "direction": "across",
+  "answer": "עוד",
+  "explanation": "'רב' = הרבה, עוד; לפי האותיות המצטלבות",
+  "confidence": 0.15
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 9,
+  "direction": "across",
+  "answer": "נשי",
+  "explanation": "'שוב' = להפך; ישן (זה לא חדש) הפוך = נשי. ההגדרה: ממש לא מאצ'ו",
+  "confidence": 0.85
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 10,
+  "direction": "across",
+  "answer": "דרכימות",
+  "explanation": "ניחוש - 'מחלה' ו'דלת' כהומוגרפים",
+  "confidence": 0.12
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 11,
+  "direction": "across",
+  "answer": "קרתנימ",
+  "explanation": "קרתנים - לא מהערים הגדולות",
+  "confidence": 0.5
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 13,
+  "direction": "across",
+  "answer": "ליסט",
+  "explanation": "ליס + ט (טוב); ההגדרה: כמלחין (פרנץ ליסט)",
+  "confidence": 0.3
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 15,
+  "direction": "across",
+  "answer": "מגמ",
+  "explanation": "האריה של MGM שואג; 'מכל מקום' = נקרא אותו הדבר משני הכיוונים (פלינדרום)",
+  "confidence": 0.65
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 17,
+  "direction": "across",
+  "answer": "ברבר",
+  "explanation": "מילה משותפת: בירבר (להג) / ברבר (דובר שפה בלתי מובנת - מקור המילה)",
+  "confidence": 0.6
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 19,
+  "direction": "across",
+  "answer": "פנימאי",
+  "explanation": "פנאי (זמנו החפשי) ובתוכו ים (שנמצא מחוץ לירושלים): פנ-ים-אי; ההגדרה: הרופא",
+  "confidence": 0.85
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 22,
+  "direction": "across",
+  "answer": "אנזימימ",
+  "explanation": "עפ\"י השמיעה: 'אין זימים' - ולכן הדג מתקשה לנשום; ההגדרה: הזרזים",
+  "confidence": 0.9
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 23,
+  "direction": "across",
+  "answer": "הלו",
+  "explanation": "הלו - בטלפון; ופניה: הַלָּלוּ",
+  "confidence": 0.7
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 24,
+  "direction": "across",
+  "answer": "שלג",
+  "explanation": "מלחמת שלג - בחורף",
+  "confidence": 0.6
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 25,
+  "direction": "across",
+  "answer": "צרנוביל",
+  "explanation": "אנגרם 'ליבנו צר' = צ'רנוביל; ההגדרה: האסון ההוא",
+  "confidence": 0.9
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 26,
+  "direction": "across",
+  "answer": "פחותאבלכואב",
+  "explanation": "'פחות אבל כואב' - פוליקר, בהשתתפות יהונתן גפן; והפאן: ברית מילה",
+  "confidence": 0.9
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 1,
+  "direction": "down",
+  "answer": "ברישניקוב",
+  "explanation": "ב + האות ריש + לפני 'ניקוב' (דקירה) = ברישניקוב; ההגדרה: רקדן",
+  "confidence": 0.85
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 2,
+  "direction": "down",
+  "answer": "חופשיות",
+  "explanation": "חופשיות - פוחזות",
+  "confidence": 0.3
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 3,
+  "direction": "down",
+  "answer": "ריחהדרימ",
+  "explanation": "הנוסע ברכבת חש בריח ההדרים, ביחוד בשרון (פרדסים)",
+  "confidence": 0.55
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 4,
+  "direction": "down",
+  "answer": "יומטוב",
+  "explanation": "יום טוב - החג",
+  "confidence": 0.15
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 5,
+  "direction": "down",
+  "answer": "לועהארי",
+  "explanation": "פה = לוע; לוע הארי הוא צמח",
+  "confidence": 0.35
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 6,
+  "direction": "down",
+  "answer": "אידיש",
+  "explanation": "אידיש - שפה שהתקבלה בהלואה ממזרח אירופה",
+  "confidence": 0.35
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 12,
+  "direction": "down",
+  "answer": "מגפ",
+  "explanation": "להפך: פגם (החסרון) הפוך = מגף - יתרון במים",
+  "confidence": 0.6
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 14,
+  "direction": "down",
+  "answer": "טליגוטליב",
+  "explanation": "'יש בלבול' = אנגרם 'טוטלי לגבי' = טלי גוטליב; ההגדרה: חברת הכנסת",
+  "confidence": 0.9
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 16,
+  "direction": "down",
+  "answer": "מנחממנדל",
+  "explanation": "'מנחם מנדל' - ספרו של שלום עליכם",
+  "confidence": 0.65
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 18,
+  "direction": "down",
+  "answer": "בתזוגתו",
+  "explanation": "אביה נבל, ואמה אביגיל היתה לזוגתו של דוד - היא בת זוגתו",
+  "confidence": 0.8
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 20,
+  "direction": "down",
+  "answer": "משהרבנו",
+  "explanation": "אנגרם 'בשם נורה' = משה רבנו",
+  "confidence": 0.75
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 21,
+  "direction": "down",
+  "answer": "המוציא",
+  "explanation": "אנגרם 'הם יצאו' ('מבולבלים'); ההגדרה: מהברכה - 'המוציא לחם מן הארץ'",
+  "confidence": 0.85
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 22,
+  "direction": "down",
+  "answer": "אושכפ",
+  "explanation": "אושכף (כתיב מלא של אשכף) = רצען",
+  "confidence": 0.6
+ }
+]

@@ -53,6 +53,90 @@ Output: solutions JSON: [{puzzle_date, clue_number, direction, answer, explanati
   surface a SONG TITLE or a PERSON'S NAME directly — always run it on long unsolved slots, which
   are exactly where the culture showpieces live.
 
+## PRECISION FIRST (v10) — a blank beats a wrong answer
+Policy from the project owner, and the highest-priority rule here. A wrong answer is worse
+than no answer: it scores zero AND writes wrong letters into every crossing slot, corrupting
+clues you would otherwise have solved. Blank is recoverable. Wrong is contagious.
+
+Every answer you output carries a `tier`:
+- `"committed"` — you are prepared to assert this is correct. Requires BOTH: the definition
+  clearly fits, AND every letter is accounted for by a stated mechanism, AND nothing
+  contradicts a crossing. Only committed answers are propagated onto the grid.
+- `"suggestion"` — plausible, unverified. Recorded for a human or a later pass. NEVER
+  propagated as a crossing constraint. Use this freely; it costs nothing.
+- `"blank"` — leave `answer` empty. Use when you have nothing you would defend.
+
+Do NOT pad. Do NOT invent a plausible-looking string to fill a slot. If the only thing you
+have is "a word of the right length", that is a `suggestion` at best, more likely a `blank`.
+
+You are scored on:
+  PRECISION = correct committed / all committed   <- the number that matters most
+  COVERAGE  = committed / all clues
+  YIELD     = correct committed / all clues       <- accurate fulfilment
+A run that commits 12 and gets 12 right beats a run that answers 28 and gets 15.
+Target: precision >= 95%, then push coverage up without losing precision.
+
+## PROOF GATE (v16) — a commit must EXECUTE, not merely persuade
+Method adapted from the current SOTA on English cryptics (formalise wordplay as code,
+verify by execution). Every previous verifier here was an LLM judging plausibility, and
+plausibility is exactly what re-committed a wrong answer three times with three different
+convincing justifications. An assertion either runs or it does not.
+
+BEFORE COMMITTING any answer, write its wordplay as assertions and run them:
+
+  python3 solver/prove.py check "
+  assert is_anagram('משפר חיי', 'ישפרחימ')
+  assert word_order('ישפרחימ', 'יש', 'פרחים')
+  assert has_length('ישפרחימ', 2, 5)
+  " --answer ישפרחימ
+
+Exit code 0 = PROVED, commit permitted. Non-zero = the proof failed and prints WHY;
+either repair the derivation or downgrade to suggestion. Available assertions:
+  is_anagram(fodder, answer)      is_reversal(src, answer)
+  is_container(outer, inner, ans) is_hidden(text, answer)
+  means(phrase, target)           <- grounded in the setters' own 3,141 substitutions;
+                                     an invented synonym FAILS here, by design
+  word_order(answer, w1, w2, ...) <- catches right-letters-wrong-order, our worst error class
+  has_length(answer, *enum)       is_word(w)   concat(*parts)
+
+Rules:
+- A multi-word answer REQUIRES a passing `word_order` assertion.
+- If you cannot express the wordplay as assertions at all, you do not understand the clue
+  well enough to commit it. That is information, not an obstacle.
+- `means` failing tells you the substitution is not one these setters use. Do not work
+  around it by rewording; find the reading they actually intended.
+
+## Self-flag your weakest commit (v15) — nearly free precision
+At the end of a run, name the ONE committed answer you would bet against if exactly one of
+them were wrong: the one with the thinnest mechanism, an unexplained surface word, or a
+definition you had to stretch. Set its tier to "suggestion" and say why in its explanation.
+
+This is empirically the cheapest precision available. Measured on a real run: the solver's
+own weakest-commit flag identified the actual error, and demoting it moved precision
+90.5% -> 95.0% while coverage fell only 75% -> 71%. You know which of your answers is
+shakiest; act on it instead of hoping.
+
+## Word ORDER of a multi-word answer (v15) — a recurring, costly error
+Getting the right letters in the wrong order has been the single most persistent error class.
+An anagram or charade that yields the correct letter multiset does NOT tell you the word order.
+Before committing a multi-word answer:
+- state which crossing letter FORCES each word into its position; if no crossing forces it,
+  you are guessing between orderings and must not commit above 0.6;
+- check both orderings against the enum: [2,5] and [5,2] are different answers;
+- prefer the ordering that makes idiomatic Hebrew, but treat idiom as weaker evidence than a
+  crossing letter.
+
+## Substitutions (v14) — the setter's private vocabulary
+`python3 solver/substitutions.py <word>` / `--to <word>` — 3,141 equivalences mined from
+11,931 crowd explanations of real clues by these setters. This is what they actually use:
+a first name completed by a surname, a word standing for a fragment, an abbreviation.
+Examples from the data: אפ~גמ, קנ~בית, בל~לא, ספר~מנה, יו~גרנט, גרנ~חצי, קו~גבול.
+39% of clue words in this genre have a recorded substitution.
+
+Use it whenever a clue fragment is UNACCOUNTED FOR. The commonest cause of a failed
+commit is "I have most of the answer but one word of the surface does nothing" — that
+leftover word is usually a substitution. Query it before you settle for a partial account.
+
 ## Homographs (v7) — RUN THIS ON EVERY CLUE FIRST
 `python3 solver/homographs.py scan "<clue text>"` lists every word in the clue that has more
 than one sense, and `python3 solver/homographs.py <word>` explains one token.

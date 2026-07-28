@@ -1,0 +1,254 @@
+[
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 1,
+  "direction": "across",
+  "answer": "",
+  "tier": "blank",
+  "explanation": "בכרך (בורט בכרך), ברינר (יול ברינר), אגם (יעקב אגם); תבנית ??י?ר??|?ל?? (ל' חדשה מ-5 אנכי 'לוע הארי'). לא נמצא צירוף [7,4] שמסביר את 'האיש שירה...'",
+  "confidence": 0.0
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 7,
+  "direction": "across",
+  "answer": "שיפרחימ",
+  "tier": "committed",
+  "explanation": "אנגרם 'משפר חיי' (מוני אמריליו = סימן ערבוב). סדר האותיות מאומת: ה-פ' במקום 3 נכפית ע\"י 2 אנכי (יחפניות) - רק 'שי פרחים' עומד בכך. ההגדרה: שי פרחים משפר את החיים",
+  "confidence": 0.95
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 8,
+  "direction": "across",
+  "answer": "ערב",
+  "tier": "committed",
+  "explanation": "מילה משותפת: 'ערב רד' (הערב רד) / 'ערב רב'. הע' נקבעת ע\"י 5 אנכי (לוע הארי)",
+  "confidence": 0.88
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 9,
+  "direction": "across",
+  "answer": "נשי",
+  "tier": "committed",
+  "explanation": "'שוב' = להפך; 'זה לא חדש' = ישן, בהיפוך נשי; ההגדרה 'ממש לא מאצ'ו'",
+  "confidence": 0.95
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 10,
+  "direction": "across",
+  "answer": "",
+  "tier": "blank",
+  "explanation": "תבנית ד???א?? ([4,3], א' מ-5 אנכי, ד' מ-3 אנכי). 'מאחורי הדלת' רומז לד'/להיפוך; 'ללא מחלה' ו'נפטר מהעולם' לא פוענחו יחד - לא מחויב",
+  "confidence": 0.0
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 11,
+  "direction": "across",
+  "answer": "קרתנימ",
+  "tier": "committed",
+  "explanation": "תן (טורף) בתוך קרים: קר-תן-ים; ההגדרה 'אך לא בערים הגדולות'",
+  "confidence": 0.9
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 13,
+  "direction": "across",
+  "answer": "ליסט",
+  "tier": "suggestion",
+  "explanation": "מלחין; ט = טוב (מנגנון מאושר בקורפוס: 'ברל טוב כמעיל' = זק+ט). התבנית ?י?ט נקבעת ע\"י 5 אנכי (לוע הארי) ו-14 אנכי. 'בני' -> ליס לא פוענח - לא מחויב",
+  "confidence": 0.6
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 15,
+  "direction": "across",
+  "answer": "מגמ",
+  "tier": "committed",
+  "explanation": "מ.ג.מ - האריה שלה שואג בפתיחת כל סרט, מכל מקום; ג' מ-12 אנכי, מ' מ-16 אנכי",
+  "confidence": 0.82
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 17,
+  "direction": "across",
+  "answer": "",
+  "tier": "blank",
+  "explanation": "תבנית ??ב? (ב' מ-18 אנכי). 'להג' = דיבור, 'דובר' = מי שמדבר; לא נמצאה מילה בת 4 אותיות שמספקת את שתי ההגדרות ואת התבנית",
+  "confidence": 0.0
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 19,
+  "direction": "across",
+  "answer": "פנימאי",
+  "tier": "committed",
+  "explanation": "פנאי (זמנו החפשי) מחוץ ל-י\"ם (ירושלים): פנ-ים-אי; ההגדרה - רופא פנימאי",
+  "confidence": 0.92
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 22,
+  "direction": "across",
+  "answer": "אנזימימ",
+  "tier": "committed",
+  "explanation": "נשמע 'אין זימים' (עפ\"י השמיעה של אליעזר כמון); ההגדרה - הזרזים = אנזימים",
+  "confidence": 0.95
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 23,
+  "direction": "across",
+  "answer": "הלו",
+  "tier": "committed",
+  "explanation": "ה + ל\"ו (צדיקים) = פניה אל הצדיקים; ההגדרה - בטלפון",
+  "confidence": 0.95
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 24,
+  "direction": "across",
+  "answer": "שלג",
+  "tier": "committed",
+  "explanation": "מילה משותפת: מלחמת שלג / שלג בחורף",
+  "confidence": 0.9
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 25,
+  "direction": "across",
+  "answer": "צרנוביל",
+  "tier": "committed",
+  "explanation": "אנגרם 'ליבנו צר'; ההגדרה - האסון ההוא",
+  "confidence": 0.95
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 26,
+  "direction": "across",
+  "answer": "פחותאבלכואב",
+  "tier": "committed",
+  "explanation": "'פחות אבל כואב' - שירם של יהונתן גפן ויהודה פוליקר; והפאן על ברית מילה (פחות, אבל כואב). כל שש אותיות ההצטלבות פ-ו-א-ל-ו-ב מתאימות",
+  "confidence": 0.9
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 1,
+  "direction": "down",
+  "answer": "",
+  "tier": "blank",
+  "explanation": "תבנית ??ש?נ?ק?? (ש מ-7 אופקי, נ מ-9 אופקי, ק מ-11 אופקי). אין אנגרם ('דקירת רקדן' ו'לפני דקירת' הן 9 אותיות אך ללא ש'). 'רקדן' כהגדרה (ברישניקוב?) לא מתיישב עם התבנית - לא מחויב",
+  "confidence": 0.0
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 2,
+  "direction": "down",
+  "answer": "יחפניות",
+  "tier": "committed",
+  "explanation": "אנגרם 'פחות יין' ('דוקא' = סימן ערבוב); ההגדרה - פוחזות אלו",
+  "confidence": 0.95
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 3,
+  "direction": "down",
+  "answer": "ריחהדרימ",
+  "tier": "committed",
+  "explanation": "ריח = מה ש'חש בו' הנוסע; 'עלה בשרון' = הדרים (פרדסי השרון), ו'שמענו' מסמן את הפאן השמיעתי: הדרים (פרי הדר) / ה-דרים (מי שעלה וגר בשרון). תואם [3,5] ואת אותיות ההצטלבות ח-י-מ",
+  "confidence": 0.75
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 4,
+  "direction": "down",
+  "answer": "",
+  "tier": "blank",
+  "explanation": "תבנית ??מ??? ([3,3], מ' מ-7 אופקי). 'נתן' = תרם? 'אוספי התרומות' = כהנים/גבאים; לא פוענח צירוף בן [3,3] - לא מחויב",
+  "confidence": 0.0
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 5,
+  "direction": "down",
+  "answer": "לועהארי",
+  "tier": "committed",
+  "explanation": "ההגדרה: צמח (לוע הארי). 'פה' = לוע; 'לו פה מזוהם' = הארי (האריה, שפיו מזוהם) - ולכן לוע-הארי. (מ) כתיב מלא. פותח את 8 אופקי (ערב) ואת 13 אופקי",
+  "confidence": 0.85
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 6,
+  "direction": "down",
+  "answer": "",
+  "tier": "blank",
+  "explanation": "תבנית ??ב?? (ב' מ-8 אופקי 'ערב'). 'בהלואה אידיאלית' לא פוענח; מועמדים גיאוגרפיים (לטביה/סרביה) ללא מנגנון - לא מחויב",
+  "confidence": 0.0
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 12,
+  "direction": "down",
+  "answer": "מגפ",
+  "tier": "committed",
+  "explanation": "'הפך' - להפך זה פגם (החסרון); מגף = יתרון במים",
+  "confidence": 0.85
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 14,
+  "direction": "down",
+  "answer": "טליגוטליב",
+  "tier": "committed",
+  "explanation": "'יש בלבול' = אנגרם 'טוטלי לגבי' = טלי גוטליב; ההגדרה - חברת הכנסת",
+  "confidence": 0.95
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 16,
+  "direction": "down",
+  "answer": "מנחממנדל",
+  "tier": "committed",
+  "explanation": "'מנחם מנדל' - ספרו של שלום עליכם (ההגדרה: ספר). 'הסופר' = מנדל(י מוכר ספרים); 'עצבני מרפאל' = מנחם (המנחם/מרפא את העצוב; רפאל - מלאך הרפואה). כל 5 אותיות ההצטלבות מ-נ-מ-נ-ל מתאימות",
+  "confidence": 0.78
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 18,
+  "direction": "down",
+  "answer": "בתזוגתו",
+  "tier": "committed",
+  "explanation": "אביגיל אשת נבל נישאה לדוד; אם אביה נבל - אמה אביגיל, ולכן היא בת-זוגתו של דוד",
+  "confidence": 0.9
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 20,
+  "direction": "down",
+  "answer": "משהרבנו",
+  "tier": "committed",
+  "explanation": "אנגרם 'בשם נורה' (סימן השאלה = סימן ערבוב); ההגדרה - פרה (פרה אדומה / פרשת פרה שנצטווה משה רבנו)",
+  "confidence": 0.9
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 21,
+  "direction": "down",
+  "answer": "המוציא",
+  "tier": "committed",
+  "explanation": "אנגרם 'הם יצאו' ('מבולבלים' = סימן ערבוב); ההגדרה - הברכה (המוציא לחם מן הארץ)",
+  "confidence": 0.95
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 22,
+  "direction": "down",
+  "answer": "אושכפ",
+  "tier": "committed",
+  "explanation": "אושכף (אשכף בכתיב מלא, (מ)) = רצען - ההגדרה. המנגנון: 'רב' = שך (הרב שך) בתוך 'אוף' = OFF, 'מצב לא פעיל': א-ו-שך-פ",
+  "confidence": 0.9
+ }
+]

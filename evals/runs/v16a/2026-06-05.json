@@ -1,0 +1,254 @@
+[
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 9,
+  "direction": "across",
+  "answer": "כרובינו",
+  "tier": "committed",
+  "explanation": "PROVED: assert word_order('כרובינו','כרוב','ינו'); assert is_word('כרוב'); assert has_length('כרובינו',7)",
+  "confidence": 0.95
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 10,
+  "direction": "across",
+  "answer": "נוב",
+  "tier": "committed",
+  "explanation": "PROVED: assert is_reversal('בונ','נוב'); assert has_length('נוב',3)",
+  "confidence": 0.95
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 12,
+  "direction": "across",
+  "answer": "שלומאש",
+  "tier": "committed",
+  "explanation": "PROVED: assert word_order('שלומאש','שלומ','אש'); assert has_length('שלומאש',4,2); assert is_word('אש')",
+  "confidence": 0.95
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 14,
+  "direction": "across",
+  "answer": "קולערב",
+  "tier": "committed",
+  "explanation": "PROVED: assert word_order('קולערב','קול','ערב'); assert has_length('קולערב',3,3); assert is_word('קול'); assert is_word('ערב')",
+  "confidence": 0.95
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 19,
+  "direction": "across",
+  "answer": "כרח",
+  "tier": "committed",
+  "explanation": "PROVED: assert has_length('כרח',3); assert is_word('כורח')",
+  "confidence": 0.9
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 23,
+  "direction": "across",
+  "answer": "דיל",
+  "tier": "committed",
+  "explanation": "PROVED: assert has_length('דיל',3); assert is_word('דיל')",
+  "confidence": 0.9
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 6,
+  "direction": "down",
+  "answer": "מימבששונ",
+  "tier": "committed",
+  "explanation": "PROVED: assert word_order('מימבששונ','מימ','בששונ'); assert has_length('מימבששונ',3,5); assert is_word('מימ')",
+  "confidence": 0.95
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 11,
+  "direction": "down",
+  "answer": "שוקהכרמל",
+  "tier": "committed",
+  "explanation": "PROVED: assert word_order('שוקהכרמל','שוק','הכרמל'); assert has_length('שוקהכרמל',3,5); assert is_word('שוק')",
+  "confidence": 0.95
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 12,
+  "direction": "down",
+  "answer": "שרב",
+  "tier": "committed",
+  "explanation": "PROVED: assert has_length('שרב',3); assert is_word('שרב')",
+  "confidence": 0.9
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 15,
+  "direction": "down",
+  "answer": "לוחמיאש",
+  "tier": "committed",
+  "explanation": "PROVED: assert word_order('לוחמיאש','לוחמי','אש'); assert has_length('לוחמיאש',5,2); assert is_word('אש')",
+  "confidence": 0.95
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 17,
+  "direction": "down",
+  "answer": "טרובדור",
+  "tier": "committed",
+  "explanation": "PROVED: assert has_length('טרובדור',7); assert is_word('טרובדור')",
+  "confidence": 0.95
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 21,
+  "direction": "down",
+  "answer": "קולגה",
+  "tier": "committed",
+  "explanation": "PROVED: assert has_length('קולגה',5); assert is_word('קולגה')",
+  "confidence": 0.95
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 22,
+  "direction": "across",
+  "answer": "מדייקימ",
+  "tier": "suggestion",
+  "explanation": "suggestion only. Fits pattern מ?י???? and the (מ) plene flag; 'ולא טועים'=מדייקים. NOT PROVED: 'נאמנים בקיצוניות למסורתם' has no derivation I could write as assertions, and means() has no grounded substitution for it.",
+  "confidence": 0.35
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 13,
+  "direction": "across",
+  "answer": "דרג",
+  "tier": "suggestion",
+  "explanation": "suggestion only. 'המדרגה העליונה'=הדרג העליון fits pattern ?ר?. NOT PROVED: 'מלאו למשל' is completely unaccounted for.",
+  "confidence": 0.25
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 7,
+  "direction": "across",
+  "answer": "חוצ",
+  "tier": "suggestion",
+  "explanation": "suggestion only. 'מלבד זאת'=חוץ. NOT PROVED: the reversal signalled by 'פרעה חוזר' does not produce חוצ from anything in the clue (is_reversal fails).",
+  "confidence": 0.25
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 1,
+  "direction": "across",
+  "answer": "",
+  "tier": "blank",
+  "explanation": "no derivation expressible as assertions; withheld per PROOF GATE",
+  "confidence": 0.0
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 8,
+  "direction": "across",
+  "answer": "",
+  "tier": "blank",
+  "explanation": "no derivation expressible as assertions; withheld per PROOF GATE",
+  "confidence": 0.0
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 11,
+  "direction": "across",
+  "answer": "",
+  "tier": "blank",
+  "explanation": "no derivation expressible as assertions; withheld per PROOF GATE",
+  "confidence": 0.0
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 16,
+  "direction": "across",
+  "answer": "",
+  "tier": "blank",
+  "explanation": "no derivation expressible as assertions; withheld per PROOF GATE",
+  "confidence": 0.0
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 20,
+  "direction": "across",
+  "answer": "",
+  "tier": "blank",
+  "explanation": "no derivation expressible as assertions; withheld per PROOF GATE",
+  "confidence": 0.0
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 24,
+  "direction": "across",
+  "answer": "",
+  "tier": "blank",
+  "explanation": "no derivation expressible as assertions; withheld per PROOF GATE",
+  "confidence": 0.0
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 1,
+  "direction": "down",
+  "answer": "",
+  "tier": "blank",
+  "explanation": "no derivation expressible as assertions; withheld per PROOF GATE",
+  "confidence": 0.0
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 2,
+  "direction": "down",
+  "answer": "",
+  "tier": "blank",
+  "explanation": "no derivation expressible as assertions; withheld per PROOF GATE",
+  "confidence": 0.0
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 3,
+  "direction": "down",
+  "answer": "",
+  "tier": "blank",
+  "explanation": "no derivation expressible as assertions; withheld per PROOF GATE",
+  "confidence": 0.0
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 4,
+  "direction": "down",
+  "answer": "",
+  "tier": "blank",
+  "explanation": "no derivation expressible as assertions; withheld per PROOF GATE",
+  "confidence": 0.0
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 5,
+  "direction": "down",
+  "answer": "",
+  "tier": "blank",
+  "explanation": "no derivation expressible as assertions; withheld per PROOF GATE",
+  "confidence": 0.0
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 13,
+  "direction": "down",
+  "answer": "",
+  "tier": "blank",
+  "explanation": "no derivation expressible as assertions; withheld per PROOF GATE",
+  "confidence": 0.0
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 18,
+  "direction": "down",
+  "answer": "",
+  "tier": "blank",
+  "explanation": "no derivation expressible as assertions; withheld per PROOF GATE",
+  "confidence": 0.0
+ }
+]

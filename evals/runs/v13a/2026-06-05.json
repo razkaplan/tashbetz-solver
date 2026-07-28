@@ -1,0 +1,254 @@
+[
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 1,
+  "direction": "across",
+  "answer": "",
+  "tier": "blank",
+  "explanation": "יהורם גאון + זמרת בת 80 - לא זוהתה הזמרת ולא נמצא צירוף [2,5,3] שמצדיק כל אות",
+  "confidence": 0.0
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 7,
+  "direction": "across",
+  "answer": "",
+  "tier": "blank",
+  "explanation": "אין אותיות הצלבה כלל; מועמדים ל'מלבד זאת' (חוץ/פרט/ברם/אלא) - אף אחד לא מוסבר ע\"י 'פרעה חוזר'",
+  "confidence": 0.0
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 8,
+  "direction": "across",
+  "answer": "",
+  "tier": "blank",
+  "explanation": "גנדי = רחבעם זאבי, אבל [3,4] לא מכיל את שמו; לא נמצא צירוף שמצדיק את התבנית",
+  "confidence": 0.0
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 9,
+  "direction": "across",
+  "answer": "כרובינו",
+  "tier": "committed",
+  "explanation": "מילה משותפת: הכרובים שגדלו בגינתנו / כרובינו, הנער באופרה 'נישואי פיגארו' של מוצרט. אומת מחדש מהגדרה בלבד",
+  "confidence": 0.85
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 10,
+  "direction": "across",
+  "answer": "נוב",
+  "tier": "committed",
+  "explanation": "להפך: נוב (עיר הכהנים שחרבה בידי שאול) הפוכה = בונ, העיר הגרמנית. 'הפכה' = מילת היפוך",
+  "confidence": 0.9
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 11,
+  "direction": "across",
+  "answer": "",
+  "tier": "blank",
+  "explanation": "רק ש' ידועה (משוק הכרמל); לא נמצאה מתנת שבועות בת 4 אותיות שמסבירה את 'צבי'",
+  "confidence": 0.0
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 12,
+  "direction": "across",
+  "answer": "שלומאש",
+  "tier": "committed",
+  "explanation": "שלום אש - הסופר; והכבאים גמרו: 'שלום, אש!' כל אות מנומקת",
+  "confidence": 0.9
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 13,
+  "direction": "across",
+  "answer": "מרב",
+  "tier": "suggestion",
+  "explanation": "מרב = המדרגה העליונה/המקסימום; 'מלאו למשל' נשאר ללא מנגנון, וה-ב' נשענה על 4 אנכי שהודח",
+  "confidence": 0.5
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 14,
+  "direction": "across",
+  "answer": "קולערב",
+  "tier": "committed",
+  "explanation": "מילה משותפת: 'כי קולך ערב' (שיר השירים, שולמית) / קול ערב - תחנת שידור ערבית",
+  "confidence": 0.9
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 16,
+  "direction": "across",
+  "answer": "",
+  "tier": "blank",
+  "explanation": "תבנית ?ט?נ; אף מועמד (קטין/בטלן/עטין/בטון) לא נקשר ל'בית השופט'",
+  "confidence": 0.0
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 19,
+  "direction": "across",
+  "answer": "כרח",
+  "tier": "committed",
+  "explanation": "אילוץ = כורח; ולפי השמיעה 'כה רך' = שאין מעודן ממנו",
+  "confidence": 0.85
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 20,
+  "direction": "across",
+  "answer": "",
+  "tier": "blank",
+  "explanation": "המילה השנייה חייבת ו?ק (ותק/ורק); 'שנות ותק' מתאים לתבנית אך לא מוסבר ע\"י 'טורפת מאחור את הסופר'",
+  "confidence": 0.0
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 22,
+  "direction": "across",
+  "answer": "מדייקימ",
+  "tier": "committed",
+  "explanation": "מדייקים - נאמנים בדקדקנות למסורתם וגם לא טועים; (מ) = כתיב מלא (יו\"ד כפולה). מוצלב ב-מ' משוק הכרמל וב-י' מלוחמי אש (מדקדקים נפסל בגלל ה-י')",
+  "confidence": 0.85
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 23,
+  "direction": "across",
+  "answer": "דיל",
+  "tier": "committed",
+  "explanation": "די (מספיק) + ל (למד) = דיל, העסקה שטראמפ הציע",
+  "confidence": 0.9
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 24,
+  "direction": "across",
+  "answer": "",
+  "tier": "blank",
+  "explanation": "תבנית ?ש?????ר?ה; לא נמצא צירוף [4,6] שמסביר את הפאן על תבן ומוץ",
+  "confidence": 0.0
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 1,
+  "direction": "down",
+  "answer": "",
+  "tier": "blank",
+  "explanation": "רמז הומופון ('נשמע כמו לעולם תקח') שלא פוענח; רק כ' סופית ידועה",
+  "confidence": 0.0
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 2,
+  "direction": "down",
+  "answer": "",
+  "tier": "blank",
+  "explanation": "תבנית ????ו??; לא נמצא פתרון שמסביר גם 'באמריקה הכסף' וגם 'לא מתחשב'",
+  "confidence": 0.0
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 3,
+  "direction": "down",
+  "answer": "ברתמיר",
+  "tier": "suggestion",
+  "explanation": "בר = פאב; תמיר = שמואל תמיר, שר המשפטים המשפטן ז\"ל. תואם י' מכרובינו, אבל 'נסים' (משה נסים, שר משפטים משפטן) תואם את אותה תבנית ??י? - אי-ודאות אמיתית, וגם הצירוף עצמו חסר משמעות",
+  "confidence": 0.5
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 4,
+  "direction": "down",
+  "answer": "רוממותלב",
+  "tier": "suggestion",
+  "explanation": "הודח מ-committed. לב = שמו הפרטי של טולסטוי (מנומק), אך 'רוממות' היא רק נרדפת רופפת ל'הרמות' ואינה נגזרת ממנגנון מוצהר; הצירוף 'רוממות לב' אינו ניב מוכר להתרגשות (הניב הוא 'רוממות רוח'), ובקורפוס הוא מופיע דווקא במובן גאווה. מועמדים חלופיים בתבנית ????ו?+ל? (תרומות/הגבהות/העלאות/פעימות/דפיקות) לא נשללו",
+  "confidence": 0.45
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 5,
+  "direction": "down",
+  "answer": "קניינימ",
+  "tier": "suggestion",
+  "explanation": "קניינים = רכוש שאסור לקחת / הקניינים של רשתות הסופרים; אבל אין סימון (מ) והכתיב המלא נדרש, והמילה אינה בלקסיקון בתבנית זו",
+  "confidence": 0.4
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 6,
+  "direction": "down",
+  "answer": "מימבששונ",
+  "tier": "committed",
+  "explanation": "'ושאבתם מים בששון ממעייני הישועה' (ישעיהו יב) - כל 8 האותיות מהפסוק, ולפי השמיעה גם מצבה של מימי, גיבורת האופרה",
+  "confidence": 0.85
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 11,
+  "direction": "down",
+  "answer": "שוקהכרמל",
+  "tier": "committed",
+  "explanation": "שוק הכרמל - קשה למוכר להתחרות שם (וגם התחרות של אליהו בהר הכרמל). מוצלב שלוש פעמים: ק' מקול ערב, כ' מכרח, מ' ממדייקים",
+  "confidence": 0.9
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 12,
+  "direction": "down",
+  "answer": "שרב",
+  "tier": "committed",
+  "explanation": "שרב = מזג האוויר של אוגוסט; ש' ו-ב' מאומתות בהצלבה משלום אש ומקול ערב, כך שהתבנית ש?ב כפויה. 'שלום עקר' = 'שלום רב' שנעקר ממנו הלו\"ם",
+  "confidence": 0.75
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 13,
+  "direction": "down",
+  "answer": "",
+  "tier": "blank",
+  "explanation": "תבנית ?ר???ק??; 'פרס' (פרס/פרס/שמעון פרס) ו'ספר' (ספר/עיר ספר/סַפָּר) לא הוכרעו",
+  "confidence": 0.0
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 15,
+  "direction": "down",
+  "answer": "לוחמיאש",
+  "tier": "committed",
+  "explanation": "לוחמי אש = כבאים; ובקריאה אחרת 'לוח מיאש' = טבלת יאוש. כל אות מנומקת",
+  "confidence": 0.9
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 17,
+  "direction": "down",
+  "answer": "טרובדור",
+  "tier": "committed",
+  "explanation": "טרובדור - הוא כותב ושר; ד' מאומתת בהצלבה מדיל. 'רוב' = מעל חצי, 'דור' מתחתיו",
+  "confidence": 0.78
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 18,
+  "direction": "down",
+  "answer": "",
+  "tier": "blank",
+  "explanation": "תבנית ???מ??; 'העלה מלמטה את דרגת המשט' לא פוענח",
+  "confidence": 0.0
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 21,
+  "direction": "down",
+  "answer": "קולגה",
+  "tier": "committed",
+  "explanation": "עמית = קולגה; קול + גע (מפי ברווז). ל' מאומתת בהצלבה מדיל",
+  "confidence": 0.82
+ }
+]

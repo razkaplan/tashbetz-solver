@@ -1,0 +1,226 @@
+[
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 1,
+  "direction": "across",
+  "answer": "אחינועמניני",
+  "explanation": "הזמרת אחינועם ניני - 'האיש שירה' (עפ\"י עפר קציר)",
+  "confidence": 0.7
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 7,
+  "direction": "across",
+  "answer": "ישפרחימ",
+  "explanation": "אנגרם משפר חיי (מוני אמריליו = סימן לערבוב)",
+  "confidence": 0.4
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 8,
+  "direction": "across",
+  "answer": "ברד",
+  "explanation": "רד (יורד) רב (הרבה) = ברד",
+  "confidence": 0.4
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 9,
+  "direction": "across",
+  "answer": "נשי",
+  "explanation": "שוב = היפוך: ישן (זה לא חדש) הפוך = נשי (ממש לא מאצ'ו)",
+  "confidence": 0.75
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 10,
+  "direction": "across",
+  "answer": "בוקרחדש",
+  "explanation": "מאחורי הדלת מופיע בוקר חדש",
+  "confidence": 0.25
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 11,
+  "direction": "across",
+  "answer": "פנתרימ",
+  "explanation": "טורפים; הפנתרים לא בערים הגדולות",
+  "confidence": 0.3
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 13,
+  "direction": "across",
+  "answer": "ליסט",
+  "explanation": "המלחין ליסט",
+  "confidence": 0.3
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 15,
+  "direction": "across",
+  "answer": "מגמ",
+  "explanation": "האריה של מ.ג.מ שואג בכל בתי הקולנוע",
+  "confidence": 0.45
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 17,
+  "direction": "across",
+  "answer": "מדבר",
+  "explanation": "להג/דובר = מדבר",
+  "confidence": 0.3
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 19,
+  "direction": "across",
+  "answer": "פרוורי",
+  "explanation": "מחוץ לירושלים - פרוורי",
+  "confidence": 0.15
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 22,
+  "direction": "across",
+  "answer": "אנזימימ",
+  "explanation": "נשמע 'אין זימים' - ולכן הדג מתקשה לנשום; אנזימים הם הזרזים",
+  "confidence": 0.85
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 23,
+  "direction": "across",
+  "answer": "הלו",
+  "explanation": "ה-ל\"ו צדיקים / הלו בטלפון - מילה משותפת",
+  "confidence": 0.75
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 24,
+  "direction": "across",
+  "answer": "שלג",
+  "explanation": "מלחמת שלג בחורף",
+  "confidence": 0.6
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 25,
+  "direction": "across",
+  "answer": "צרנוביל",
+  "explanation": "אנגרם ליבנו צר; האסון בצ'רנוביל",
+  "confidence": 0.85
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 26,
+  "direction": "across",
+  "answer": "פחותאבלכואב",
+  "explanation": "שיר של יהודה פוליקר; בברית מילה - פחות, אבל כואב",
+  "confidence": 0.8
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 1,
+  "direction": "down",
+  "answer": "אצטגנינימ",
+  "explanation": "ניחוש",
+  "confidence": 0.1
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 2,
+  "direction": "down",
+  "answer": "יחפניות",
+  "explanation": "אנגרם פחות יין; פוחזות = יחפניות",
+  "confidence": 0.85
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 3,
+  "direction": "down",
+  "answer": "ורדכאבימ",
+  "explanation": "ניחוש - נשמע",
+  "confidence": 0.08
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 4,
+  "direction": "down",
+  "answer": "מתנבחג",
+  "explanation": "מתן בחג לגבאים",
+  "confidence": 0.15
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 5,
+  "direction": "down",
+  "answer": "יערמצוי",
+  "explanation": "ניחוש - שם צמח",
+  "confidence": 0.12
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 6,
+  "direction": "down",
+  "answer": "יידיש",
+  "explanation": "שפה שמקבלים ממזרח אירופה, מילות הלוואה",
+  "confidence": 0.6
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 12,
+  "direction": "down",
+  "answer": "מגפ",
+  "explanation": "להפך: פגם (החסרון) הפוך = מגף - יתרון במים",
+  "confidence": 0.7
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 14,
+  "direction": "down",
+  "answer": "טליגוטליב",
+  "explanation": "אנגרם טוטלי לגבי; חברת הכנסת טלי גוטליב",
+  "confidence": 0.85
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 16,
+  "direction": "down",
+  "answer": "מרימענבל",
+  "explanation": "ניחוש",
+  "confidence": 0.1
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 18,
+  "direction": "down",
+  "answer": "בתזוגתו",
+  "explanation": "אביגיל אשת נבל היתה זוגתו של דוד - הבת היא בת-זוגתו",
+  "confidence": 0.75
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 20,
+  "direction": "down",
+  "answer": "פרהאבדו",
+  "explanation": "ניחוש",
+  "confidence": 0.1
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 21,
+  "direction": "down",
+  "answer": "המוציא",
+  "explanation": "אנגרם הם יצאו; הברכה על הלחם",
+  "confidence": 0.85
+ },
+ {
+  "puzzle_date": "2026-05-29",
+  "clue_number": 22,
+  "direction": "down",
+  "answer": "אושכפ",
+  "explanation": "אושכף = רצען",
+  "confidence": 0.65
+ }
+]

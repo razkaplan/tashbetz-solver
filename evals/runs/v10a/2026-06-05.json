@@ -1,0 +1,254 @@
+[
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 1,
+  "direction": "across",
+  "answer": "",
+  "tier": "blank",
+  "explanation": "לא זוהתה הזמרת בת ה-80 ולא ברכת יהורם גאון",
+  "confidence": 0.0
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 7,
+  "direction": "across",
+  "answer": "",
+  "tier": "blank",
+  "explanation": "לא נמצא היפוך שנותן מילה בת 3 שמשמעה 'מלבד זאת'",
+  "confidence": 0.0
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 8,
+  "direction": "across",
+  "answer": "",
+  "tier": "blank",
+  "explanation": "לא זוהה האלוף (מיל') שכינויו גנדי בחלוקה 3+4",
+  "confidence": 0.0
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 9,
+  "direction": "across",
+  "answer": "",
+  "tier": "blank",
+  "explanation": "אנגרם 'בגינתנו' נותן רק גבנונית - לא מתאים למוצרט",
+  "confidence": 0.0
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 10,
+  "direction": "across",
+  "answer": "נוב",
+  "tier": "committed",
+  "explanation": "נוב עיר הכהנים שחרבה; להפך (בטרם הפכה) זה בון הגרמנית; (מ) - נוב ולא נב",
+  "confidence": 0.85
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 11,
+  "direction": "across",
+  "answer": "",
+  "tier": "blank",
+  "explanation": "פותחת ב-ש (מ-שוק הכרמל) אך לא נמצאה מתנת שבועות מתאימה",
+  "confidence": 0.0
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 12,
+  "direction": "across",
+  "answer": "שלומאש",
+  "tier": "committed",
+  "explanation": "שלום אש הסופר; כשהכבאים גמרו - שלום, אש",
+  "confidence": 0.85
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 13,
+  "direction": "across",
+  "answer": "",
+  "tier": "blank",
+  "explanation": "לא פוענח",
+  "confidence": 0.0
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 14,
+  "direction": "across",
+  "answer": "קולערב",
+  "tier": "committed",
+  "explanation": "משפט משותף: 'כי קולך ערב' (השולמית, שיר השירים) / קול ערב - תחנת שידור סעודית",
+  "confidence": 0.9
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 16,
+  "direction": "across",
+  "answer": "חיות",
+  "tier": "suggestion",
+  "explanation": "חי - חיות; בית השופטת אסתר חיות (לא מאומת)",
+  "confidence": 0.3
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 19,
+  "direction": "across",
+  "answer": "כרח",
+  "tier": "committed",
+  "explanation": "נשמע 'כה רך' (אין מעודן ממנו) = כורח/כרח - אילוץ",
+  "confidence": 0.75
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 20,
+  "direction": "across",
+  "answer": "",
+  "tier": "blank",
+  "explanation": "לא פוענח; ידוע שהאות האחרונה ק",
+  "confidence": 0.0
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 22,
+  "direction": "across",
+  "answer": "מדייקימ",
+  "tier": "committed",
+  "explanation": "ולא טועים = מדייקים; נאמנים למסורתם בדיוק; (מ) - כתיב מלא; מתאים למ??י שבהצלבות",
+  "confidence": 0.6
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 23,
+  "direction": "across",
+  "answer": "דיל",
+  "tier": "committed",
+  "explanation": "די (מספיק) + ל (למד) = דיל - העסקה שהציעו לטראמפ",
+  "confidence": 0.6
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 24,
+  "direction": "across",
+  "answer": "",
+  "tier": "blank",
+  "explanation": "סברה: הבעיה היא האות הסופית (ן, ץ) - לא נמצא ניסוח שמתאים להצלבות",
+  "confidence": 0.0
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 1,
+  "direction": "down",
+  "answer": "",
+  "tier": "blank",
+  "explanation": "לא פוענח",
+  "confidence": 0.0
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 2,
+  "direction": "down",
+  "answer": "",
+  "tier": "blank",
+  "explanation": "לא פוענח",
+  "confidence": 0.0
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 3,
+  "direction": "down",
+  "answer": "דביוספ",
+  "tier": "suggestion",
+  "explanation": "דב יוסף - שר משפטן ז\"ל; מנגנון 'בפאב' לא הוסבר",
+  "confidence": 0.3
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 4,
+  "direction": "down",
+  "answer": "",
+  "tier": "blank",
+  "explanation": "לא פוענח; אות 7 היא ל",
+  "confidence": 0.0
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 5,
+  "direction": "down",
+  "answer": "",
+  "tier": "blank",
+  "explanation": "תבנית ????נ?מ; לא נמצא מה ששייך לסופרים",
+  "confidence": 0.0
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 6,
+  "direction": "down",
+  "answer": "",
+  "tier": "blank",
+  "explanation": "קלוז' שמיעה; תבנית ???ב?ש?? לא פוענחה",
+  "confidence": 0.0
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 11,
+  "direction": "down",
+  "answer": "שוקהכרמל",
+  "tier": "committed",
+  "explanation": "שוק הכרמל - שם קשה למוכר להתחרות; מתאים ל-ק (קול ערב) ול-כ (כרח)",
+  "confidence": 0.7
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 12,
+  "direction": "down",
+  "answer": "שרב",
+  "tier": "committed",
+  "explanation": "שלום רב - עקרו את לום = שרב, החום של אוגוסט; מתאים לתבנית ש?ב",
+  "confidence": 0.6
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 13,
+  "direction": "down",
+  "answer": "",
+  "tier": "blank",
+  "explanation": "תבנית ?ר?? ?ק?? לא פוענחה",
+  "confidence": 0.0
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 15,
+  "direction": "down",
+  "answer": "לוחמיאש",
+  "tier": "committed",
+  "explanation": "משפט משותף: לוח מיאש (טבלת יאוש) = לוחמי אש (כבאים)",
+  "confidence": 0.8
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 17,
+  "direction": "down",
+  "answer": "",
+  "tier": "blank",
+  "explanation": "לא זוהה הזמר-יוצר; אות 5 היא ד",
+  "confidence": 0.0
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 18,
+  "direction": "down",
+  "answer": "",
+  "tier": "blank",
+  "explanation": "לא פוענח",
+  "confidence": 0.0
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 21,
+  "direction": "down",
+  "answer": "קולגה",
+  "tier": "committed",
+  "explanation": "עמית = קולגה; 'קול גה' מפי הברווז; מאשר את ל' של דיל",
+  "confidence": 0.65
+ }
+]
