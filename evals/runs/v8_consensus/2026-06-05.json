@@ -1,0 +1,254 @@
+[
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 1,
+  "direction": "across",
+  "answer": "כלהכבודלשר",
+  "explanation": "\"כל הכבוד\" - שירו של יהורם גאון מ\"קזבלן\"; ל-שר: הזמרת שר (Cher) מלאו לה 80 ב-20.5.2026",
+  "confidence": 0.35,
+  "votes": 1
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 1,
+  "direction": "down",
+  "answer": "כיתצא",
+  "explanation": "פרשת כי תצא - מצוות שילוח הקן: אם לא מרפים את האם כדרוש",
+  "confidence": 0.5,
+  "votes": 1
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 2,
+  "direction": "down",
+  "answer": "גסותרוח",
+  "explanation": "גסות רוח = לא מתחשב",
+  "confidence": 0.3,
+  "votes": 1
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 3,
+  "direction": "down",
+  "answer": "בנגביר",
+  "explanation": "בן גביר - שר ומשפטן; בר (פאב) בשמו",
+  "confidence": 0.15,
+  "votes": 1
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 4,
+  "direction": "down",
+  "answer": "דפיקותלב",
+  "explanation": "טולסטוי זה לב; דפיקות לב מעוררות התרגשות",
+  "confidence": 0.3,
+  "votes": 1
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 5,
+  "direction": "down",
+  "answer": "שלמונימ",
+  "explanation": "\"של מונים\" - מונים זה סופרים; אסור לקחת שלמונים (שוחד)",
+  "confidence": 0.4,
+  "votes": 1
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 6,
+  "direction": "down",
+  "answer": "מימבששונ",
+  "explanation": "נשמע \"מימי באסון\" (מימי, גיבורת \"לה בוהם\"); ההגדרה: \"ושאבתם מים בששון ממעייני הישועה\"",
+  "confidence": 0.4,
+  "votes": 1
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 7,
+  "direction": "across",
+  "answer": "חוצ",
+  "explanation": "חוץ מזה = מלבד זאת; להפך זה צוח",
+  "confidence": 0.325,
+  "votes": 2
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 8,
+  "direction": "across",
+  "answer": "גדישמני",
+  "explanation": "אנגרם \"שמי גנדי\" = גדי שמני, האלוף (מיל')",
+  "confidence": 0.425,
+  "votes": 1
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 9,
+  "direction": "across",
+  "answer": "כרובינו",
+  "explanation": "כרובינו = הכרובים שגדלו בגינתנו, וגם כרובינו (Cherubino) של מוצרט מ'נישואי פיגארו'",
+  "confidence": 0.4,
+  "votes": 1
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 10,
+  "direction": "across",
+  "answer": "נוב",
+  "explanation": "נוב, עיר הכהנים שחרבה; להפך (הפכה) זה בון הגרמנית. (מ) - כתיב מלא",
+  "confidence": 0.375,
+  "votes": 1
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 11,
+  "direction": "across",
+  "answer": "תורה",
+  "explanation": "מתן תורה - המתנה של שבועות",
+  "confidence": 0.3,
+  "votes": 1
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 11,
+  "direction": "down",
+  "answer": "שוקהכרמל",
+  "explanation": "שוק הכרמל - שם קשה למוכר להתחרות",
+  "confidence": 0.35,
+  "votes": 1
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 12,
+  "direction": "across",
+  "answer": "שלומאש",
+  "explanation": "שלום אש הסופר; כשהכבאים גמרו: שלום, אש!",
+  "confidence": 0.825,
+  "votes": 2
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 12,
+  "direction": "down",
+  "answer": "שרב",
+  "explanation": "שלום [רב] עקר - נשאר שרב, מה שיש באוגוסט",
+  "confidence": 0.35,
+  "votes": 2
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 13,
+  "direction": "across",
+  "answer": "מרב",
+  "explanation": "מרב = המדרגה העליונה, עד המקסימום",
+  "confidence": 0.2,
+  "votes": 1
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 13,
+  "direction": "down",
+  "answer": "מרחבהעיר",
+  "explanation": "מרחב העיר - נוף העיר",
+  "confidence": 0.075,
+  "votes": 1
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 14,
+  "direction": "across",
+  "answer": "קולערב",
+  "explanation": "קול ערב - 'כי קולך ערב' (השולמית, שיר השירים) וגם תחנת שידור ערבית/סעודית",
+  "confidence": 0.775,
+  "votes": 2
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 15,
+  "direction": "down",
+  "answer": "לוחמיאש",
+  "explanation": "לוח (טבלת) + מיאש (יאוש) = לוחמי אש, כבאים",
+  "confidence": 0.35,
+  "votes": 1
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 16,
+  "direction": "across",
+  "answer": "שוכנ",
+  "explanation": "שוכן = חי, מתגורר בבית",
+  "confidence": 0.3,
+  "votes": 1
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 17,
+  "direction": "down",
+  "answer": "טרובדור",
+  "explanation": "ט(וב) + רוב (מעל חצי) + דור (חצי יובל=25) = טרובדור, כותב ושר",
+  "confidence": 0.35,
+  "votes": 1
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 18,
+  "direction": "down",
+  "answer": "אדמירל",
+  "explanation": "אדמירל - דרגת המשט, בעליה מלמטה",
+  "confidence": 0.1,
+  "votes": 1
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 19,
+  "direction": "across",
+  "answer": "כרח",
+  "explanation": "נשמע 'כה רך' - שאין מעודן ממנו; כורח = אילוץ",
+  "confidence": 0.25,
+  "votes": 1
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 20,
+  "direction": "across",
+  "answer": "פרסנובל",
+  "explanation": "פרס (עוף דורס) נובל - מה שסופרים מייחלים לו",
+  "confidence": 0.45,
+  "votes": 1
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 21,
+  "direction": "down",
+  "answer": "קולגה",
+  "explanation": "עמית = קולגה; נשמע קול-גע, הקול מפי הברווז",
+  "confidence": 0.6499999999999999,
+  "votes": 2
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 22,
+  "direction": "across",
+  "answer": "מדקדקימ",
+  "explanation": "מדקדקים במצוות - נאמנים בקיצוניות למסורתם; מדקדקים בלשון - לא טועים",
+  "confidence": 0.6,
+  "votes": 1
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 23,
+  "direction": "across",
+  "answer": "דיל",
+  "explanation": "די (מספיק) + ל (למד) = דיל, העסקה שטראמפ מציע",
+  "confidence": 0.625,
+  "votes": 2
+ },
+ {
+  "puzzle_date": "2026-06-05",
+  "clue_number": 24,
+  "direction": "across",
+  "answer": "חומרלבעירה",
+  "explanation": "תבן ומוץ הם חומר לבעירה - הסכנה שבהם",
+  "confidence": 0.2,
+  "votes": 1
+ }
+]

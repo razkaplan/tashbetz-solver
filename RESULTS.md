@@ -48,6 +48,26 @@ Blind: solver sees only clues + grid + playbook; answers site and web forbidden.
   grid (leave cells blank so sparse-but-correct anchors survive); prove the harness on the less
   adversarial easier-setter puzzles.
 
+## Clean, audited results (v8) — the recovery
+After sealing the leak AND fixing the reversed enumerations, on 2026-06-05:
+- v8a: **43%**, v8b: **43%** (two independent runs, both transcript-audited: no forbidden
+  file reads, no solution site, no images; every gold answer reachable via the lexicon
+  verified to be a plain hspell dictionary word at priority 1, not a leak tier).
+- **v8 confidence-weighted consensus: 64% (18/28)** — vs a clean v2 baseline of 25%.
+- Consensus mechanics: each run got 12 right but only 5 were the SAME 12; union = 19/28,
+  and the merge captured 18 of those 19. The runs find genuinely different clues, so
+  merging recovers nearly everything either one knew. This is consensus working as intended,
+  unlike v4/v5 where majority voting dragged strong runs down.
+
+What produced the gain (both independent of the leak):
+1. **Reversed enumerations fixed** — roughly doubled single-run accuracy (14-21% -> 43%).
+   The earlier "clean" numbers were measuring a data bug as much as a solver.
+2. **The homograph device** — the שרה collapse (see solver/HOMOGRAPHS.md). Both runs credit
+   it for multiple cracks (cabbages/Cherubino, sweet-voice/radio-station, סופר as
+   writer/counter, role-word-for-name substitutions). Derived, not retrieved.
+
+Still short of 80%, and this is one puzzle. Generalization test on 2026-05-29 pending.
+
 ## ⚠ INTEGRITY FINDING (2026-07-21) — v3..v6 results are CONTAMINATED
 `solver/lexicon.py` built its wordlist from `data/answers/answers_parsed.json`, which contains
 **all 52 puzzles including the dev/eval splits**. Held-out gold answers therefore sat in the

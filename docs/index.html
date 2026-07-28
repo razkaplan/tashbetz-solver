@@ -165,7 +165,7 @@ hr.sec{border:none; border-top:1px solid var(--rule); margin:2rem 0}
   <p class="byline"><b>An autonomous build.</b> Data pipeline, solver, and evaluation loop for the Haaretz weekly logic crossword by <span class="he">יורם הרועה</span>, reputedly the hardest cryptic in Hebrew. Working notes and interactive failure review.</p>
   <div class="abstract">
     <p class="lead">Abstract</p>
-    <p>We assemble a corpus of 362 Hebrew logic crosswords (8,249 clue-answer-explanation triples) by scraping a community solutions site and transcribing paywalled newspaper images, then build a solver that couples large-language-model wordplay reasoning with hard grid constraints, a 129k-word lexicon, corpus retrieval, and best-of-N consensus. On blind evaluation the grid layer is airtight (every answer is length-valid), and cross-run agreement is a 64%-reliable correctness signal. Mid-project, a run scored 96 percent on a puzzle where every prior version scored 4 to 25. The implausibility triggered an audit, which found the cause in our own retrieval tool: the lexicon had been built from a corpus that included the held-out answers, so pattern lookups were returning the gold answer ranked above ordinary words. Those results are retracted. After sealing the leak, clean accuracy is 14 to 25 percent, meaning the entire apparent gain from four iterations of tooling was contamination. We report the retraction, the detection method, and one device that does survive audit: the homograph collapse of unvocalized Hebrew. This page documents the method and opens every remaining failure for human correction.</p>
+    <p>We assemble a corpus of 362 Hebrew logic crosswords (8,249 clue-answer-explanation triples) by scraping a community solutions site and transcribing paywalled newspaper images, then build a solver that couples large-language-model wordplay reasoning with hard grid constraints, a 129k-word lexicon, corpus retrieval, and best-of-N consensus. On blind evaluation the grid layer is airtight (every answer is length-valid), and cross-run agreement is a 64%-reliable correctness signal. Mid-project, a run scored 96 percent on a puzzle where every prior version scored 4 to 25. The implausibility triggered an audit, which found the cause in our own retrieval tool: the lexicon had been built from a corpus that included the held-out answers, so pattern lookups were returning the gold answer ranked above ordinary words. Those results are retracted. After sealing the leak, clean accuracy fell to 14 to 25 percent, meaning the entire apparent gain from four iterations of tooling was contamination. The same audit then exposed a second defect, enumerations transcribed in reverse word order on six puzzles including both evaluation puzzles. Correcting both, two independently audited runs reach 43 percent each and merge to 64 percent, against a 25 percent baseline. We report the retraction, the detection method, and the two things that survive it: correct word boundaries, and the homograph collapse of unvocalized Hebrew. This page documents the method and opens every remaining failure for human correction.</p>
   </div>
 </header>
 
@@ -173,7 +173,7 @@ hr.sec{border:none; border-top:1px solid var(--rule); margin:2rem 0}
   <div class="stat"><div class="v">362</div><div class="l">Puzzles</div></div>
   <div class="stat"><div class="v">8,249</div><div class="l">Clues</div></div>
   <div class="stat"><div class="v">129k</div><div class="l">Lexicon</div></div>
-  <div class="stat"><div class="v" id="s-acc">25%</div><div class="l">Clean accuracy</div></div>
+  <div class="stat"><div class="v" id="s-acc">64%</div><div class="l">Clean, audited</div></div>
   <div class="stat"><div class="v" id="s-fail">29</div><div class="l">Open failures</div></div>
 </div>
 
@@ -224,6 +224,7 @@ hr.sec{border:none; border-top:1px solid var(--rule); margin:2rem 0}
       <tr><td class="mono">v5</td><td>Fact lookup + confidence-weighted consensus</td><td class="n">61% / 18%</td><td><span class="tag reg">retracted</span></td></tr>
       <tr><td class="mono">v6</td><td>Culture lexicon + grid discipline</td><td class="n">39-96%</td><td><span class="tag reg">retracted</span></td></tr>
       <tr><td class="mono">v7</td><td>Same tools, leak sealed</td><td class="n">14-21%</td><td><span class="tag win">clean</span></td></tr>
+      <tr><td class="mono">v8</td><td>Leak sealed + enumerations corrected</td><td class="n">43% / 64% merged</td><td><span class="tag win">clean, audited</span></td></tr>
     </tbody>
   </table>
   <p class="small">Rows v3 through v6 are struck from the record. See section 6.</p>
@@ -251,6 +252,9 @@ hr.sec{border:none; border-top:1px solid var(--rule); margin:2rem 0}
   </div>
   <p>The fix blocks every dev and eval answer from the corpus and culture tiers of the lexicon. Ordinary words that happen to be answers stay, as they would in any real solver's dictionary, which leaves 8 or 9 of 28 per puzzle: honest coverage rather than leakage. Re-measured afterwards, accuracy is 14 to 21 percent, at or below the pre-tool baseline of 25 percent. <strong>Four iterations of apparent progress were contamination.</strong></p>
   <p>Two details make this worth writing down. First, the file-access rules were obeyed perfectly and the leak happened anyway, because a retrieval tool built from the same corpus as the evaluation set is a leak vector no access rule can catch. Audit the tools, not only the agent. Second, the detection signal was not a security check but a statistical one: identical prompts producing 39, 50, and 96 percent is not what capability looks like. Real skill does not triple between runs of the same configuration.</p>
+  <h3>What the audit was worth</h3>
+  <p>Retracting the result was not the end of it. Sealing the leak dropped accuracy to 14 to 21 percent, below the pre-tool baseline, which said plainly that four iterations of work had produced nothing. But the same scrutiny that caught the leak also caught the defect below, and with both fixed the clean, audited figure is 43 percent per run and 64 percent merged. The audit cost one impressive number and returned a real one.</p>
+
   <h3>An unrelated bug the audit surfaced</h3>
   <p>Chasing the same result turned up a second defect. Multi-word enumerations are printed inside right-to-left text, and the transcription had preserved their visual order rather than the answer's word order on 6 of 50 puzzles, including both evaluation puzzles. Solvers were being told the last word's length where they needed the first. An automatic check now scores each orientation by whether the resulting split yields real Hebrew words, and the affected puzzles have been corrected.</p>
 </section>
@@ -285,7 +289,7 @@ hr.sec{border:none; border-top:1px solid var(--rule); margin:2rem 0}
 
 <section id="repro">
   <h2><span class="num">9</span>Artifacts and reproducibility</h2>
-  <p>The pipeline is deterministic end to end: scrape, transcribe with letter-count validation, build the grid and verify numbering against the printed clues, distill the playbook, solve blind, score, analyze, repeat. The solver toolkit (grid validator, lexicon, retrieval, consensus merge) and the evaluation harness are plain scripts. The honest read: 80% on <span class="he">יורם הרועה</span> is not reached. Clean accuracy sits at 14 to 25 percent, and no tooling built across seven iterations has yet beaten the simplest careful baseline. The easier setters, which lack that wall, are the realistic place to demonstrate the harness clearing the bar first.</p>
+  <p>The pipeline is deterministic end to end: scrape, transcribe with letter-count validation, build the grid and verify numbering against the printed clues, distill the playbook, solve blind, score, analyze, repeat. The solver toolkit (grid validator, lexicon, retrieval, consensus merge) and the evaluation harness are plain scripts. The honest read: 80% on <span class="he">יורם הרועה</span> is not reached. Clean, audited accuracy is 43 percent per run and 64 percent merged, against a 25 percent baseline. That gain came from two corrections, not from the tooling that appeared to be working: fixing reversed word boundaries, and exploiting the homograph collapse. The easier setters, which lack that wall, are the realistic place to demonstrate the harness clearing the bar first.</p>
 </section>
 
 <footer>
