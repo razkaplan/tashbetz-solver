@@ -72,27 +72,38 @@ propagated), `blank`. Score with `python3 evals/run_eval.py <file>`.
 
 ## IF YOU ARE THE DAILY CLOUD AGENT — read this
 
-You cloned the public repo. **The data is not here and that is intentional**: the corpus,
-grids, clue inputs, gold answers and the hspell lexicon are gitignored so this repo does not
-republish Haaretz content. Therefore:
+The repo ships no corpus, but **you are not blocked: everything is reconstructible from
+public sources.** Run this first:
 
-**You CANNOT run the solver or the eval loop. Do not try, and do not fabricate scores.**
-`data/` is absent. Any number you cannot produce by running code, you must not report.
+    ./bootstrap.sh --dev-only     # ~2 min: lexicon, answers, culture, substitutions, dev images
 
-What you CAN do, and what your job is:
+That fetches the hspell lexicon (github), re-scrapes the answers corpus from 14across
+(plain HTTP, no login), rebuilds culture entities from the he-wikipedia API, derives the
+substitution dictionary, and downloads the dev puzzle images from the public Haaretz CDN
+via the committed URL manifest. Grids are already in the repo.
 
-1. **Research.** Search for new work on cryptic-crossword solving, wordplay parsing,
-   constrained generation, Hebrew NLP. The field moves; the last survey found the
-   formalise-and-verify approach that became `solver/prove.py`. Record findings in
-   `RESEARCH.md` with links, and say plainly whether each is applicable here and why.
-2. **Implement exactly ONE code-only lever** from the queue in this file. Priority is
-   candidate generation, then definition-span detection. These are pure code and need no
-   corpus. Write them so they degrade gracefully when `data/` is missing.
-3. **Write tests that run without data.** `solver/prove.py selftest` is the model: it
-   exercises real logic on inlined examples. Any new module should ship one.
-4. **Open a pull request** with the change, and in the description state exactly what
-   remains unverified because you had no data. Do not merge to main.
-5. **Append to the Log** below: date, what you researched, what you built, what is untested.
+The one thing it cannot script is **clue text**, which exists only inside the images.
+Bootstrap step 6 tells you how to transcribe it, and you can: read the jpg, transcribe the
+תשבץ היגיון clues, validate each enumeration against the answer letter count, then run
+`python3 solver/build_dataset.py`. Do this for one dev puzzle and you can evaluate for real.
 
-Verification of your work happens locally, where the data lives. Your job is to arrive with
-a well-argued, tested-where-possible change — not with claimed results.
+**So you CAN verify your work — and you must.** Run `python3 evals/run_eval.py <file>`
+on anything you claim. Never state a number you did not produce by executing code.
+This project already had a 96% result turn out to be a leak in its own tooling; that is
+why every claim needs evidence. If you genuinely cannot run something, say so plainly
+rather than estimating.
+
+Each run:
+
+1. **Bootstrap** (above), then confirm what you actually have.
+2. **Research** — new work on cryptic solving, wordplay formalisation, definition-span
+   detection, Hebrew NLP. Append to RESEARCH.md with links and an honest judgement of
+   whether it transfers. Most crossword-AI work targets non-cryptic puzzles and does not.
+3. **Implement exactly ONE lever** from the queue above. One, so the effect is attributable.
+4. **Evaluate it** against the previous best in the state table. Audit before believing:
+   scan for forbidden reads, check no tool leaks held-out answers, and treat any jump over
+   ~15 points as suspect until explained.
+5. **Open a PR** (never push to main) stating what you built, the measured effect, and what
+   is still unverified. Update the state table and append to the Log.
+
+A run that reports "this lever did not help, here is the evidence" is a good run.
