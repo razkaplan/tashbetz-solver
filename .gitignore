@@ -14,3 +14,5 @@ node_modules/
 .DS_Store
 .vercel
 web/
+__pycache__/
+*.pyc
