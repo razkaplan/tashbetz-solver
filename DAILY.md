@@ -13,9 +13,24 @@ Read this first each run. It is the handoff between days.
 | Hardest puzzle | 2026-06-05: 100% / 43% / 43% | coverage stuck |
 
 Baseline for comparison: v2 = 41% raw with untraceable errors.
-Last lever added: **proof gate** (`solver/prove.py`) — commits must execute as assertions.
+Last lever added: **candidate generation** (`solver/candidates.py`, 2026-08-03) — two
+mechanical generators (anagram-window, hidden-run). Measured: 1/28 blind recall on a
+newly-reconstructed real dev puzzle (2026-05-29) — see log. Full-pipeline
+precision/coverage/yield above are NOT re-measured today (14across is down; see log).
 Last finding: coverage is bounded by CANDIDATE GENERATION, not verification. Same
 conclusion the cryptic-SOTA paper reached independently.
+
+**⚠ INFRASTRUCTURE (2026-08-03): 14across.co.il is blocked for scripted access.**
+Every request (including the bare homepage) now redirects to a bot-protection
+challenge (`/.well-known/sgcaptcha/`). `bootstrap.sh` step 2 gets 0/52 puzzles until
+this changes; do not try to script around a deliberate anti-bot wall. This blocks the
+answers corpus, hence `data/dataset` gold labels, hence `evals/run_eval.py`, for every
+puzzle reachable only that way. Workaround (now documented in bootstrap.sh step 6):
+each week's puzzle image also prints the FILLED SOLUTION GRID for the *previous*
+week's puzzle ("פתרון תשבץ ההיגיון מהשבוע שעבר"), so two consecutive weekly images
+give one fully gold-verified puzzle (clue text from week N's image, solution letters
+from week N+1's image) with zero 14across access. Used today to reconstruct
+2026-05-29 as real, audited dev data — see log.
 
 ## The policy that governs everything
 A blank beats a wrong answer. Wrong letters corrupt crossings and poison later passes.
@@ -67,6 +82,75 @@ propagated), `blank`. Score with `python3 evals/run_eval.py <file>`.
 - 2026-07-28: proof gate added. Rejected 3 candidates on 06-05: 2 were genuine errors,
   1 was a correct answer lost. Precision 100%, coverage flat. Concluded candidate
   generation is the bottleneck.
+- 2026-08-03: `./bootstrap.sh --dev-only` step 2 (14across scrape) returned 0/52
+  puzzles — the site now serves a bot-protection challenge page
+  (`/.well-known/sgcaptcha/`) on every request, confirmed on the bare homepage too, not
+  just `answers.php`. Did not attempt to defeat it (no headless-browser CAPTCHA bypass
+  attempted; web.archive.org was also tried as a non-evasive alternative but is
+  unreachable from this environment). This crashed the rest of bootstrap.sh (unhandled
+  exception on `puzzle_date.split('/')` with `puzzle_date=None`) — fixed so it degrades
+  and continues to steps 3-6 instead. Also caught and reverted an unrelated near-miss:
+  manually running `scraper/harvest_culture.py` without its bootstrap guard clobbered
+  the committed `solver/lex/culture.json` (6,771 songs / 2,431 artists / 998
+  politicians / 239 places) with a rate-limited partial rebuild (1,791 / 1,807 / 0 / 0);
+  reverted via `git checkout`. Added a matching guard to bootstrap.sh step 4
+  (`substitutions.py build`) so a future 0-clue run can't do the same to
+  `substitutions.json`.
+
+  Found a working alternative for gold data that needs no 14across access at all: each
+  week's puzzle image also prints the filled SOLUTION grid for the *previous* week's
+  puzzle. Used it to reconstruct 2026-05-29 as real, audited dev data: transcribed
+  clue text from `data/images/2026-05-28.jpg` (its own week) and solution letters from
+  the small grid in `data/images/2026-06-04.jpg` (captioned "solution to last week's
+  puzzle"); cross-validated the solution grid's black-cell pattern cell-for-cell
+  against the already-committed `data/grids/2026-05-29.json` (exact match, a strong
+  signature over 15x11 cells) and every one of the 28 enumerations against the
+  grid-derived answer length (28/28 match, zero mismatches). This is gold letters, not
+  crowd explanations (the solution box has no commentary) — good for scoring, not for
+  `substitutions.py`/`retrieve.py`. Full technique now documented in bootstrap.sh step 6
+  for future runs; `data/clues/` and `data/answers/by_date/` stay gitignored as before
+  (matches the existing no-corpus-redistribution policy), so a future agent must redo
+  this transcription (or extend it to more weeks) rather than finding it committed.
+
+  **Lever: candidate generation** (queue item (a), highest priority). Built
+  `solver/candidates.py`: two blind, mechanical generators — anagram-window scan
+  (every contiguous run of clue words whose letter count matches the target, checked
+  for a real-word anagram) and hidden-run scan (every contiguous letter run of target
+  length in the space-free clue, checked for realness). Chosen because these are
+  exactly the two mechanisms `prove.py` already verifies unambiguously
+  (`is_anagram`/`is_hidden`); charade/container generation needs synonym knowledge to
+  do more than blind substring search and was left out rather than shipped half-working
+  (see RESEARCH.md 2026-08-03 for why — no Hebrew WordNet to lean on).
+
+  **Measured** (`python3 solver/candidates.py selftest`, 3/3 pass; then run over all 28
+  clues of the newly-built 2026-05-29 dev set, blind — clue text + enum only, no
+  crossings, no gold access): **1/28 (3.6%) recall** — the gold answer appears in the
+  generated pool for exactly one clue (2d, `יחפניות`, anagram of "פחות יין"). Mean pool
+  size 2.9 candidates/clue; 13/28 clues produced an empty pool. AUDITED before trusting
+  this low number, not just a high one: verified by hand that clue 25a
+  (`ליבנו צר` -> `צרנוביל`/Chernobyl) IS a letter-perfect anagram the generator's logic
+  correctly identifies as a fodder window, but the candidate is invisible because
+  `צרנוביל` is neither in hspell nor the (Israel-only) culture-places list, and is
+  correctly excluded from the corpus tier by `lexicon.held_out_answers()` now that this
+  puzzle is `dev`-split gold — the same guard that caught the 2026-07-21 leak, working
+  as intended, not a bug. So the ceiling here is bounded by two independent things: (a)
+  most of this puzzle's 28 clues are not anagram/hidden mechanism at all (charade,
+  culture-reference, double-definition — consistent with PLAN_V2's error profile), and
+  (b) even correct mechanism hits need a broader real-word/proper-noun recognizer than
+  hspell + Israel-scoped culture entities to confirm a candidate as real. Full jump
+  check: 1/28 is a *drop* in absolute terms from nothing (there was no prior number to
+  compare against — this is the first candidate-pool-recall measurement taken), so no
+  ~15-point-jump implausibility concern applies either way.
+
+  **Honest read**: this is a small, real, mechanically-sound piece (selftest 3/3,
+  including a documented anti-leak interaction) that is not yet pulling its weight
+  end-to-end. It does not move today's precision/coverage/yield numbers (not wired into
+  the solve pipeline; that integration plus a broader realness dictionary is the
+  natural next step, not attempted today to keep this run's change attributable to one
+  thing). Full-pipeline numbers in the state table above are last measured
+  2026-07-28/29 and were not re-run today (no full blind solve was performed against
+  the new 2026-05-29 corpus this run — only the candidate-generation-recall
+  measurement).
 
 ---
 
