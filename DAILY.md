@@ -13,9 +13,18 @@ Read this first each run. It is the handoff between days.
 | Hardest puzzle | 2026-06-05: 100% / 43% / 43% | coverage stuck |
 
 Baseline for comparison: v2 = 41% raw with untraceable errors.
-Last lever added: **proof gate** (`solver/prove.py`) — commits must execute as assertions.
-Last finding: coverage is bounded by CANDIDATE GENERATION, not verification. Same
-conclusion the cryptic-SOTA paper reached independently.
+Last lever added: **candidate generation** (`solver/candidates.py`) — anagram/reversal/
+hidden/charade proposal, per-mechanism and per-definition-span-hypothesis, feeding the
+proof gate. Measured recall@candidates on 2026-05-29 (28 clues, freshly transcribed):
+**1/28 = 4%** (only יחפניות, a plain dictionary word, found via anagram). Root cause:
+most gold answers here are proper nouns / coined portmanteaus / multi-word idioms that
+are not in ANY word list (hspell + non-held-out corpus + non-held-out culture), so no
+letter-mechanics generator can propose them from a cold start — this is a dictionary-
+coverage ceiling, not a search-strategy bug. See Log 2026-08-04 for the audited detail.
+Last finding: coverage is bounded by CANDIDATE GENERATION, not verification — still true,
+but today's result shows the fix is not "generate more from letters," it's dictionary/
+knowledge coverage (culture entities, semantic definition-matching), which is a
+different, larger lever than the one implemented today.
 
 ## The policy that governs everything
 A blank beats a wrong answer. Wrong letters corrupt crossings and poison later passes.
@@ -67,6 +76,36 @@ propagated), `blank`. Score with `python3 evals/run_eval.py <file>`.
 - 2026-07-28: proof gate added. Rejected 3 candidates on 06-05: 2 were genuine errors,
   1 was a correct answer lost. Precision 100%, coverage flat. Concluded candidate
   generation is the bottleneck.
+- 2026-08-04: bootstrapped from scratch (`./bootstrap.sh --dev-only`), transcribed
+  2026-05-29 (all 28 clues, image `data/images/2026-05-28.jpg`) by hand from the puzzle
+  image, cross-validated every enum sum against `data/answers/by_date/2026-05-29.json`
+  and `grid_tools.py validate` (OK, 0 mismatches). Built `solver/candidates.py`: N-diverse
+  candidate generation (anagram / reversal / hidden / charade) run both whole-clue and
+  under definition-span hypotheses (definition-first / definition-last, per
+  arXiv:2412.09012), feeding the existing proof gate instead of the solver inventing one
+  candidate and justifying it after the fact. Selftest passes (6/6, synthetic vocab,
+  independent of the real held-out-aware lexicon). Measured recall@candidates on the
+  freshly transcribed puzzle: **1/28 = 4%**, the one hit (יחפניות, clue 2 down) via
+  anagram, confirmed genuine (plain hspell entry, unaffected by held-out blocking — see
+  audit below). AUDIT: no forbidden reads (only the puzzle image + data/answers/by_date,
+  exactly per bootstrap step 6); `held_out_answers()` confirmed excluding all 28 gold
+  answers of this puzzle from the pattern/anagram word list (spot-checked 7 multi-letter
+  answers, all correctly absent); no implausible jump (result is low, not high — the
+  opposite of the failure mode the leak caught before). CONCLUSION: letter-mechanics
+  candidate generation alone has a low ceiling on this setter because most gold answers
+  (בליברטיולנס, ברישניקוב, טליגוטליב, מנחממנדל, ...) are proper nouns, coined
+  portmanteaus, or multi-word idioms absent from hspell/corpus/culture — no anagram,
+  reversal, hidden-word, or charade search over a word LIST can propose a string that
+  isn't in the list. This is a dictionary/knowledge-coverage ceiling, not a search-
+  strategy bug, and it means the next-highest-value lever is not "search harder" but
+  either (a) growing the answer/culture corpus (queue item 3, already the identified
+  long game) or (b) a definition-matching mechanism that proposes candidates from
+  clue-word SYNONYMS via substitutions.py's reverse index rather than requiring the
+  final string to already exist somewhere — untried, follow-up for a future run.
+  Secondary finding worth flagging: whole-clue (non-span-restricted) anagram scanning is
+  noisy on short slots — clue 9 (3 letters) produced 30 candidates, none correct — so if
+  a future lever wires this into an actual solve loop, prefer the definition-span-
+  restricted candidate lists over the whole-clue ones to cut false-positive load.
 
 ---
 
