@@ -13,9 +13,17 @@ Read this first each run. It is the handoff between days.
 | Hardest puzzle | 2026-06-05: 100% / 43% / 43% | coverage stuck |
 
 Baseline for comparison: v2 = 41% raw with untraceable errors.
-Last lever added: **proof gate** (`solver/prove.py`) — commits must execute as assertions.
+Last lever added: **candidate generation** (`solver/candidates.py`) — per-clue candidates
+crossed by mechanism (anagram/reversal/hidden/charade) x definition-span hypothesis
+(prefix/suffix, k=1..3), feeding the existing proof gate. Selftest: all pass. Measured
+standalone recall@50 on a freshly-transcribed dev puzzle (2026-05-29, 28 clues, audited
+no-leak): **1/28 = 4%** exact-answer recall from pure letter-mechanics alone (no full
+solve/eval done this cycle — see log). Low, and explainable: spot-checked misses are
+double-definition / homograph / culture-pun clues, mechanisms this tool does not attempt.
+The table above (precision/coverage/yield) is from a PRIOR session's full transcribed
+corpus and is NOT reproduced this cycle — see log for why.
 Last finding: coverage is bounded by CANDIDATE GENERATION, not verification. Same
-conclusion the cryptic-SOTA paper reached independently.
+conclusion the cryptic-SOTA paper reached independently (see RESEARCH.md 2026-08-05).
 
 ## The policy that governs everything
 A blank beats a wrong answer. Wrong letters corrupt crossings and poison later passes.
@@ -67,6 +75,41 @@ propagated), `blank`. Score with `python3 evals/run_eval.py <file>`.
 - 2026-07-28: proof gate added. Rejected 3 candidates on 06-05: 2 were genuine errors,
   1 was a correct answer lost. Precision 100%, coverage flat. Concluded candidate
   generation is the bottleneck.
+- 2026-08-05: Fresh environment, no corpus shipped (by design). Ran `./bootstrap.sh
+  --dev-only`; hit a pre-existing bug (pipefail + `head -3` on step 4 raised
+  BrokenPipeError and killed the script before step 5), fixed with a one-line change
+  (`bootstrap.sh` line 59, redirect stderr + `|| true`) — trivial infra fix, not
+  today's lever. Transcribed **one dev puzzle from scratch** (2026-05-29, article date
+  2026-05-28) by reading the jpg directly: 28 clues, both directions, every enum
+  validated to sum to the gold answer's letter count (0 mismatches) before touching
+  the solver. Note for future transcription: this puzzle's across clues 13/15/17
+  visually cluster two short clues' numbers and enums close together on one line
+  (`...11(6) 13. בני טוב` then next line `כמלחין (4) .15 האריה... (3) .17 ...`) —
+  it took several rounds of pixel-level re-cropping to confirm the enum immediately
+  preceding a clue-number belongs to the clue that number STARTS, not the one it
+  visually sits next to; all three now validate against gold lengths.
+  Researched (RESEARCH.md): the ICML-2025 Cryptonite SOTA paper generates ~20
+  candidates/clue before verification, independently confirming this project's own
+  diagnosis. Implemented **lever (a), candidate generation**: `solver/candidates.py`
+  (mechanism x definition-span-hypothesis candidate generator, selftest all-pass) +
+  `solver/eval_candidates.py` (reusable recall@N harness for future cycles).
+  Measured recall@50 on the transcribed puzzle: 1/28 (4%), audited — lexicon.py's
+  held_out_answers() confirmed blocking all 28 gold answers from lexicon upgrade
+  (verified directly: e.g. ישפרחימ/ליסט/ברישניקוב absent from the loaded word set),
+  so the one hit (2d יחפניות, via anagram of the fodder פחות+יין) is a legitimate
+  hspell dictionary word, not a leak — confirmed end-to-end with prove.py. Spot-checked
+  several misses (8a ערב, 24a שלג, 6d סרבית) and they are double-definition /
+  homograph clues, mechanisms outside this tool's scope by design — matches this
+  project's own long-standing diagnosis (RESULTS.md: "100% of the gap is
+  wordplay-cracking quality") and the literature (RESEARCH.md: definition-span
+  ambiguity and multi-step wordplay are the documented LLM failure modes on this
+  genre), not a bug in the new tool.
+  **What I did NOT do this cycle**: a full solve-and-eval pass (acting as the LLM
+  solver across all 28 clues with SOLVE_PROTOCOL, self-flagging, and the proof gate)
+  to get a comparable precision/coverage/yield number against the state-table baseline.
+  That is naturally next: run the pipeline with `candidates.py` available as a tool and
+  compare against a same-puzzle baseline run without it. The state table above is left
+  as the last session's number, not overwritten with an unmeasured guess.
 
 ---
 

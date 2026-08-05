@@ -56,7 +56,7 @@ echo "==> 3/6  culture entities from he-wikipedia"
 [ -s solver/lex/culture.json ] || python3 scraper/harvest_culture.py
 
 echo "==> 4/6  substitution dictionary (derived from the explanations)"
-python3 solver/substitutions.py build | head -3
+python3 solver/substitutions.py build 2>/dev/null | head -3 || true
 
 echo "==> 5/6  puzzle images from the public CDN"
 mkdir -p data/images
