@@ -6,16 +6,26 @@ Read this first each run. It is the handoff between days.
 
 | Metric | Value | Target |
 |---|---|---|
-| Precision (combined dev) | **96.9%** | >=95% ✓ |
-| Coverage | 57% | >=70% |
-| Accurate fulfilment (yield) | 55% | ~67% |
+| Precision (combined dev) | **96.9%** (unchanged, not re-run today — see log) | >=95% ✓ |
+| Coverage | 57% (unchanged, not re-run today) | >=70% |
+| Accurate fulfilment (yield) | 55% (unchanged, not re-run today) | ~67% |
 | Best single puzzle | 2026-05-29: 95% / 71% / 68% ✓ all targets | |
 | Hardest puzzle | 2026-06-05: 100% / 43% / 43% | coverage stuck |
+| **Candidate recall@N (new, offline, mechanical only)** | **3.6% (1/28)**, avg 11.6 candidates/clue, on 2026-05-29 | not yet a target — diagnostic |
 
 Baseline for comparison: v2 = 41% raw with untraceable errors.
-Last lever added: **proof gate** (`solver/prove.py`) — commits must execute as assertions.
+Last lever added: **mechanical candidate generation** (`solver/candidates.py`) —
+anagram/hidden/reversal/pattern candidates per clue, character-level fodder windows
+(not just whole-word), feeding the existing proof gate. Precision/coverage/yield were
+NOT re-measured this run (that requires a full LLM solve session, out of scope for one
+lever) — only the generator's own offline recall was, honestly, and it is low. See log.
 Last finding: coverage is bounded by CANDIDATE GENERATION, not verification. Same
-conclusion the cryptic-SOTA paper reached independently.
+conclusion the cryptic-SOTA paper reached independently. Today's finding refines this:
+even a mechanically thorough (character-level, all 3 base mechanisms) generator recovers
+only 1/28 answers on this setter's hardest puzzle, because most of its wordplay is not
+literal anagram/hidden/reversal — it leans on substitution and homograph devices
+(consistent with PLAYBOOK.md). The generator is real infrastructure for the proof gate
+to use, but by itself it is a small piece of the coverage problem, not the whole fix.
 
 ## The policy that governs everything
 A blank beats a wrong answer. Wrong letters corrupt crossings and poison later passes.
@@ -42,9 +52,14 @@ propagated), `blank`. Score with `python3 evals/run_eval.py <file>`.
 
 ## Lever queue (highest expected value first)
 
-1. **Candidate generation** — the measured bottleneck. Generate N diverse candidates per
-   clue (per mechanism, per definition-span hypothesis), then let the proof gate filter.
-   Currently the solver produces one candidate and tries to justify it; that is backwards.
+1. **Candidate generation** — the measured bottleneck. `solver/candidates.py` (2026-08-06)
+   does the mechanical half (anagram/hidden/reversal/pattern, character-level fodder
+   windows) but measures only 3.6% recall alone — NOT sufficient by itself. Remaining
+   work, roughly in order: (a) wire it into an actual solve pass so an LLM proof-gates
+   the generated list instead of one guess — not done yet, this was pure offline
+   generator + recall measurement; (b) add substitution- and homograph-aware generation
+   (`substitutions.py`, `homographs.py` as additional mechanisms) — the setter leans on
+   these, not literal anagram/hidden/reversal, per the 3.6% result and PLAYBOOK.md.
 2. **Definition-span detection** — a cryptic clue's definition sits at one END. Classify
    which end, then solve the wordplay from the remainder. Standard in the literature,
    never tried here.
@@ -67,6 +82,63 @@ propagated), `blank`. Score with `python3 evals/run_eval.py <file>`.
 - 2026-07-28: proof gate added. Rejected 3 candidates on 06-05: 2 were genuine errors,
   1 was a correct answer lost. Precision 100%, coverage flat. Concluded candidate
   generation is the bottleneck.
+- 2026-08-06: **candidate generation** (`solver/candidates.py`), lever 1 from the queue.
+  Bootstrap first: `./bootstrap.sh --dev-only` hit an intermittent bot-check on
+  14across.co.il (HTTP 202 sgcaptcha redirect on ~half of requests, random, not
+  rate-related — confirmed by re-fetching the same URL and getting 200 on retry).
+  Fixed with a retry-with-backoff in `scraper/parse_answers.py` (also fixed a crash in
+  bootstrap.sh's by_date rebuild when a puzzle date comes back null, and a
+  BrokenPipeError in `solver/substitutions.py` that was aborting the whole bootstrap
+  under `set -e -o pipefail` when piped to `head`) — all 52/52 puzzles, 1,457 clues
+  recovered. **Also found bootstrap.sh's reconstructibility claim is not quite true**:
+  rebuilding `solver/lex/substitutions.json` from what bootstrap.sh can actually fetch
+  (528 head words) is far smaller than the committed version (2,220 head words), which
+  must have been built from the secondary corpus (RESULTS.md: 310 easier-setter
+  puzzles) that bootstrap.sh has no step to fetch at all. Did NOT commit the regressed
+  regeneration — reverted with `git checkout`, left a warning in bootstrap.sh so the
+  next run doesn't silently overwrite it. Scraping the secondary corpus is PLAN_V2.md
+  item G, still open. Then transcribed clue text for 2026-05-29 (28 clues) from
+  `data/images/2026-05-28.jpg`, validated every enum sum against the gold answer's
+  letter count (0 mismatches), built the dataset (`solver/build_dataset.py`). This
+  transcription is not committed (by design — `data/` is gitignored, newspaper content
+  is not redistributed); a future run must redo it.
+
+  Built `solver/candidates.py`: given a clue's text + enum, mechanically generates
+  candidate answers by anagram / hidden-word / reversal, searching CHARACTER-level
+  windows (not just whole clue words) so it can find fodder that drops a word's final
+  letter — the exact case `solver/prove.py`'s own worked example needed ('משפר חיי' is
+  'משפר' + 3 of 4 letters of 'חייו'), which a whole-word-only search structurally cannot
+  reach. Also wraps `lexicon.py`'s pattern lookup for grid-anchored generation once
+  crossing letters are known, and fixed a real bug found while wiring it up: pattern
+  matching against fixed letters failed silently for any pattern ending in a final
+  letter form (ם/ן/ץ/ף/ך), because the lexicon folds finals but the pattern's fixed
+  cells were not being folded before building the regex.
+
+  Selftest (`python3 solver/candidates.py selftest`, all 5 checks pass) uses synthetic
+  examples only, deliberately not this puzzle's gold data, to keep the same discipline
+  `lexicon.py` enforces against embedding held-out answers in tooling.
+
+  MEASURED (executed, not estimated): `python3 solver/candidates.py recall
+  data/dataset/clues.jsonl eval` on the 28 transcribed clues of 2026-05-29 —
+  **1/28 = 3.6% recall@N**, average 11.6 candidates generated per clue. The one hit
+  (2 down, `יחפניות`) was a genuine whole-word anagram of the clue fodder 'פחות יין'.
+  AUDIT: confirmed `lexicon.held_out_answers()` correctly excludes this puzzle's own
+  gold answers (spot-checked `ישפרחימ`, the prove.py worked example's answer — absent
+  from the loaded lexicon, so the generator cannot recover it by lookup, only by
+  deriving it, and today's mechanism genuinely cannot derive it either since the fodder
+  spans a partial word my anagram search DID reach but the target string itself is a
+  fused two-word phrase not present anywhere in the (correctly leak-free) lexicon).
+  No forbidden reads; no jump to explain (3.6% is low, not suspicious).
+
+  HONEST READ: this is a real, working, tested building block — not filler — but it is
+  a small piece of the coverage gap, not the fix. Most of this setter's answers are not
+  literal anagram/hidden/reversal of clue text; PLAYBOOK.md already documents that this
+  setter leans on substitution and homograph devices, and today's low recall is
+  independent confirmation of that from a different angle. Not wired into a live solve
+  session this run (that's a second, larger step: hook `candidates.py` into a solve pass
+  so the LLM proof-gates a generated list instead of a single guess, and extend
+  generation to use `substitutions.py`/`homographs.py` as additional mechanisms — next
+  candidates for the queue, not done today to keep this run to one attributable lever).
 
 ---
 

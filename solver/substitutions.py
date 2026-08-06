@@ -105,6 +105,7 @@ def query(w, reverse=False):
         print(f'   {b}   (seen {n}x)')
 
 if __name__ == '__main__':
+  try:
     if len(sys.argv) < 2:
         print(__doc__)
     elif sys.argv[1] == 'build':
@@ -113,3 +114,7 @@ if __name__ == '__main__':
         query(sys.argv[2], reverse=True)
     else:
         query(sys.argv[1])
+  except BrokenPipeError:
+    # e.g. `... | head -3` in bootstrap.sh closes stdout early; that is not a real
+    # failure and must not make bootstrap.sh (set -euo pipefail) abort mid-run.
+    sys.stderr.close()

@@ -46,16 +46,30 @@ python3 - <<'PY'
 import json, os
 d = json.load(open('data/answers/answers_parsed.json'))
 os.makedirs('data/answers/by_date', exist_ok=True)
+skipped = 0
 for p in d:
+    if not p.get('puzzle_date'):
+        skipped += 1  # 14across occasionally serves a bot-check page instead of the puzzle;
+        continue      # parse_answers.py retries but can still miss one. Re-run it to backfill.
     dd, mm, yy = p['puzzle_date'].split('/')
     json.dump(p, open(f'data/answers/by_date/{yy}-{mm}-{dd}.json', 'w'), ensure_ascii=False, indent=1)
-print(f"    {len(d)} puzzles, {sum(len(p['clues']) for p in d)} clues")
+print(f"    {len(d) - skipped} puzzles, {sum(len(p['clues']) for p in d)} clues"
+      + (f"  ({skipped} skipped — no date, re-run scraper/parse_answers.py to retry)" if skipped else ""))
 PY
 
 echo "==> 3/6  culture entities from he-wikipedia"
 [ -s solver/lex/culture.json ] || python3 scraper/harvest_culture.py
 
 echo "==> 4/6  substitution dictionary (derived from the explanations)"
+echo "    NOTE: this rebuilds solver/lex/substitutions.json from ONLY the main corpus"
+echo "    fetched above (52 puzzles). The version already committed to git was built"
+echo "    from that PLUS a secondary corpus (RESULTS.md: 310 puzzles, ~6,800 clues,"
+echo "    easier setters) that this script has no step to fetch — it is NOT actually"
+echo "    reconstructible from what bootstrap.sh can reach (2026-08-06 finding)."
+echo "    Rebuilding here is strictly SMALLER (measured: 528 vs 2,220 head words)."
+echo "    Do not blindly 'git add' this file afterward — check 'git diff --stat' first"
+echo "    and revert with 'git checkout -- solver/lex/substitutions.json' unless you"
+echo "    are deliberately replacing it with something better."
 python3 solver/substitutions.py build | head -3
 
 echo "==> 5/6  puzzle images from the public CDN"
