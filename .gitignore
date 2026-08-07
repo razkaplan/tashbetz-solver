@@ -14,3 +14,7 @@ node_modules/
 .DS_Store
 .vercel
 web/
+# assistant runtime state (contains puzzle content — never republish)
+app/uploads/
+app/puzzles/
+data/sessions/
