@@ -1,0 +1,7 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {"name": "tashbetz-assistant", "runtimeExecutable": "python3",
+     "runtimeArgs": ["app/server.py"], "port": 8765}
+  ]
+}

@@ -6,31 +6,38 @@ Read this first each run. It is the handoff between days.
 
 | Metric | Value | Target |
 |---|---|---|
-| Precision (combined dev) | **96.9%** | >=95% ✓ |
-| Coverage | 57% | >=70% |
-| Accurate fulfilment (yield) | 55% | ~67% |
+| Precision (combined dev) | **96.9%** (unchanged, not re-run today — see log) | >=95% ✓ |
+| Coverage | 57% (unchanged, not re-run today) | >=70% |
+| Accurate fulfilment (yield) | 55% (unchanged, not re-run today) | ~67% |
 | Best single puzzle | 2026-05-29: 95% / 71% / 68% ✓ all targets | |
 | Hardest puzzle | 2026-06-05: 100% / 43% / 43% | coverage stuck |
+| **Candidate recall@N (new, offline, mechanical only)** | **3.6% (1/28)**, avg 11.6 candidates/clue, on 2026-05-29 | not yet a target — diagnostic |
 
 Baseline for comparison: v2 = 41% raw with untraceable errors.
-Last lever added: **candidate generation** (`solver/candidates.py`, 2026-08-03) — two
-mechanical generators (anagram-window, hidden-run). Measured: 1/28 blind recall on a
-newly-reconstructed real dev puzzle (2026-05-29) — see log. Full-pipeline
-precision/coverage/yield above are NOT re-measured today (14across is down; see log).
+Last lever added: **mechanical candidate generation** (`solver/candidates.py`) —
+anagram/hidden/reversal/pattern candidates per clue, character-level fodder windows
+(not just whole-word), feeding the existing proof gate. Precision/coverage/yield were
+NOT re-measured this run (that requires a full LLM solve session, out of scope for one
+lever) — only the generator's own offline recall was, honestly, and it is low. See log.
 Last finding: coverage is bounded by CANDIDATE GENERATION, not verification. Same
-conclusion the cryptic-SOTA paper reached independently.
+conclusion the cryptic-SOTA paper reached independently. Today's finding refines this:
+even a mechanically thorough (character-level, all 3 base mechanisms) generator recovers
+only 1/28 answers on this setter's hardest puzzle, because most of its wordplay is not
+literal anagram/hidden/reversal — it leans on substitution and homograph devices
+(consistent with PLAYBOOK.md). The generator is real infrastructure for the proof gate
+to use, but by itself it is a small piece of the coverage problem, not the whole fix.
 
-**⚠ INFRASTRUCTURE (2026-08-03): 14across.co.il is blocked for scripted access.**
-Every request (including the bare homepage) now redirects to a bot-protection
-challenge (`/.well-known/sgcaptcha/`). `bootstrap.sh` step 2 gets 0/52 puzzles until
-this changes; do not try to script around a deliberate anti-bot wall. This blocks the
-answers corpus, hence `data/dataset` gold labels, hence `evals/run_eval.py`, for every
-puzzle reachable only that way. Workaround (now documented in bootstrap.sh step 6):
-each week's puzzle image also prints the FILLED SOLUTION GRID for the *previous*
-week's puzzle ("פתרון תשבץ ההיגיון מהשבוע שעבר"), so two consecutive weekly images
-give one fully gold-verified puzzle (clue text from week N's image, solution letters
-from week N+1's image) with zero 14across access. Used today to reconstruct
-2026-05-29 as real, audited dev data — see log.
+**INFRASTRUCTURE UPDATE (2026-08-06): 14across.co.il access is intermittent, not blocked.**
+Earlier (2026-08-03) it looked like a hard bot-protection wall (`/.well-known/sgcaptcha/`
+on every request, 0/52 puzzles). A later run found it's actually a random ~50%-of-requests
+bot-check redirect, unrelated to rate — `scraper/parse_answers.py` now retries with
+backoff and recovers all 52/52 puzzles reliably. If a future run still comes up short
+anyway, there's a fallback needing zero 14across access: each week's puzzle image also
+prints the FILLED SOLUTION GRID for the *previous* week's puzzle ("פתרון תשבץ ההיגיון
+מהשבוע שעבר"), so two consecutive weekly images give one fully gold-verified puzzle
+(clue text from week N's image, solution letters from week N+1's image). Documented in
+bootstrap.sh step 6; used once (2026-08-03) to reconstruct 2026-05-29 as real, audited
+dev data before the retry fix existed — see log.
 
 ## The policy that governs everything
 A blank beats a wrong answer. Wrong letters corrupt crossings and poison later passes.
@@ -57,9 +64,14 @@ propagated), `blank`. Score with `python3 evals/run_eval.py <file>`.
 
 ## Lever queue (highest expected value first)
 
-1. **Candidate generation** — the measured bottleneck. Generate N diverse candidates per
-   clue (per mechanism, per definition-span hypothesis), then let the proof gate filter.
-   Currently the solver produces one candidate and tries to justify it; that is backwards.
+1. **Candidate generation** — the measured bottleneck. `solver/candidates.py` (2026-08-06)
+   does the mechanical half (anagram/hidden/reversal/pattern, character-level fodder
+   windows) but measures only 3.6% recall alone — NOT sufficient by itself. Remaining
+   work, roughly in order: (a) wire it into an actual solve pass so an LLM proof-gates
+   the generated list instead of one guess — not done yet, this was pure offline
+   generator + recall measurement; (b) add substitution- and homograph-aware generation
+   (`substitutions.py`, `homographs.py` as additional mechanisms) — the setter leans on
+   these, not literal anagram/hidden/reversal, per the 3.6% result and PLAYBOOK.md.
 2. **Definition-span detection** — a cryptic clue's definition sits at one END. Classify
    which end, then solve the wordplay from the remainder. Standard in the literature,
    never tried here.
@@ -83,74 +95,87 @@ propagated), `blank`. Score with `python3 evals/run_eval.py <file>`.
   1 was a correct answer lost. Precision 100%, coverage flat. Concluded candidate
   generation is the bottleneck.
 - 2026-08-03: `./bootstrap.sh --dev-only` step 2 (14across scrape) returned 0/52
-  puzzles — the site now serves a bot-protection challenge page
-  (`/.well-known/sgcaptcha/`) on every request, confirmed on the bare homepage too, not
-  just `answers.php`. Did not attempt to defeat it (no headless-browser CAPTCHA bypass
-  attempted; web.archive.org was also tried as a non-evasive alternative but is
-  unreachable from this environment). This crashed the rest of bootstrap.sh (unhandled
-  exception on `puzzle_date.split('/')` with `puzzle_date=None`) — fixed so it degrades
-  and continues to steps 3-6 instead. Also caught and reverted an unrelated near-miss:
+  puzzles that day — looked at the time like a hard bot-protection wall (see
+  2026-08-06 entry below for the corrected diagnosis: it's intermittent, and a retry
+  fix now recovers all 52/52). Found a working alternative for gold data that needs no
+  14across access at all, useful independent of that fix: each week's puzzle image also
+  prints the filled SOLUTION grid for the *previous* week's puzzle. Used it to
+  reconstruct 2026-05-29 as real, audited dev data: transcribed clue text from
+  `data/images/2026-05-28.jpg` (its own week) and solution letters from the small grid
+  in `data/images/2026-06-04.jpg` (captioned "solution to last week's puzzle");
+  cross-validated the solution grid's black-cell pattern cell-for-cell against the
+  already-committed `data/grids/2026-05-29.json` (exact match, a strong signature over
+  15x11 cells) and every one of the 28 enumerations against the grid-derived answer
+  length (28/28 match, zero mismatches). This is gold letters, not crowd explanations
+  (the solution box has no commentary) — good for scoring, not for
+  `substitutions.py`/`retrieve.py`. Full technique documented in bootstrap.sh step 6 as
+  a fallback for future runs. Also caught and reverted an unrelated near-miss that day:
   manually running `scraper/harvest_culture.py` without its bootstrap guard clobbered
-  the committed `solver/lex/culture.json` (6,771 songs / 2,431 artists / 998
-  politicians / 239 places) with a rate-limited partial rebuild (1,791 / 1,807 / 0 / 0);
-  reverted via `git checkout`. Added a matching guard to bootstrap.sh step 4
-  (`substitutions.py build`) so a future 0-clue run can't do the same to
-  `substitutions.json`.
+  the committed `solver/lex/culture.json`; reverted via `git checkout` before it reached
+  any measurement or commit.
 
-  Found a working alternative for gold data that needs no 14across access at all: each
-  week's puzzle image also prints the filled SOLUTION grid for the *previous* week's
-  puzzle. Used it to reconstruct 2026-05-29 as real, audited dev data: transcribed
-  clue text from `data/images/2026-05-28.jpg` (its own week) and solution letters from
-  the small grid in `data/images/2026-06-04.jpg` (captioned "solution to last week's
-  puzzle"); cross-validated the solution grid's black-cell pattern cell-for-cell
-  against the already-committed `data/grids/2026-05-29.json` (exact match, a strong
-  signature over 15x11 cells) and every one of the 28 enumerations against the
-  grid-derived answer length (28/28 match, zero mismatches). This is gold letters, not
-  crowd explanations (the solution box has no commentary) — good for scoring, not for
-  `substitutions.py`/`retrieve.py`. Full technique now documented in bootstrap.sh step 6
-  for future runs; `data/clues/` and `data/answers/by_date/` stay gitignored as before
-  (matches the existing no-corpus-redistribution policy), so a future agent must redo
-  this transcription (or extend it to more weeks) rather than finding it committed.
+  Independently built a first version of a candidate-generation lever this same day
+  (two word-level mechanical generators, anagram-window + hidden-run; 1/28 recall on
+  the same 2026-05-29 puzzle). Superseded by the more complete character-level version
+  built 2026-08-06 below (anagram/hidden/reversal/pattern) — not kept separately to
+  avoid two competing implementations of the same lever.
+- 2026-08-06: **candidate generation** (`solver/candidates.py`), lever 1 from the queue.
+  Bootstrap first: `./bootstrap.sh --dev-only` hit an intermittent bot-check on
+  14across.co.il (HTTP 202 sgcaptcha redirect on ~half of requests, random, not
+  rate-related — confirmed by re-fetching the same URL and getting 200 on retry).
+  Fixed with a retry-with-backoff in `scraper/parse_answers.py` (also fixed a crash in
+  bootstrap.sh's by_date rebuild when a puzzle date comes back null, and a
+  BrokenPipeError in `solver/substitutions.py` that was aborting the whole bootstrap
+  under `set -e -o pipefail` when piped to `head`) — all 52/52 puzzles, 1,457 clues
+  recovered. **Also found bootstrap.sh's reconstructibility claim is not quite true**:
+  rebuilding `solver/lex/substitutions.json` from what bootstrap.sh can actually fetch
+  (528 head words) is far smaller than the committed version (2,220 head words), which
+  must have been built from the secondary corpus (RESULTS.md: 310 easier-setter
+  puzzles) that bootstrap.sh has no step to fetch at all. Did NOT commit the regressed
+  regeneration — reverted with `git checkout`, left a warning in bootstrap.sh so the
+  next run doesn't silently overwrite it. Scraping the secondary corpus is PLAN_V2.md
+  item G, still open. Then transcribed clue text for 2026-05-29 (28 clues) from
+  `data/images/2026-05-28.jpg`, validated every enum sum against the gold answer's
+  letter count (0 mismatches), built the dataset (`solver/build_dataset.py`). This
+  transcription is not committed (by design — `data/` is gitignored, newspaper content
+  is not redistributed); a future run must redo it.
 
-  **Lever: candidate generation** (queue item (a), highest priority). Built
-  `solver/candidates.py`: two blind, mechanical generators — anagram-window scan
-  (every contiguous run of clue words whose letter count matches the target, checked
-  for a real-word anagram) and hidden-run scan (every contiguous letter run of target
-  length in the space-free clue, checked for realness). Chosen because these are
-  exactly the two mechanisms `prove.py` already verifies unambiguously
-  (`is_anagram`/`is_hidden`); charade/container generation needs synonym knowledge to
-  do more than blind substring search and was left out rather than shipped half-working
-  (see RESEARCH.md 2026-08-03 for why — no Hebrew WordNet to lean on).
+  Built `solver/candidates.py`: given a clue's text + enum, mechanically generates
+  candidate answers by anagram / hidden-word / reversal, searching CHARACTER-level
+  windows (not just whole clue words) so it can find fodder that drops a word's final
+  letter — the exact case `solver/prove.py`'s own worked example needed ('משפר חיי' is
+  'משפר' + 3 of 4 letters of 'חייו'), which a whole-word-only search structurally cannot
+  reach. Also wraps `lexicon.py`'s pattern lookup for grid-anchored generation once
+  crossing letters are known, and fixed a real bug found while wiring it up: pattern
+  matching against fixed letters failed silently for any pattern ending in a final
+  letter form (ם/ן/ץ/ף/ך), because the lexicon folds finals but the pattern's fixed
+  cells were not being folded before building the regex.
 
-  **Measured** (`python3 solver/candidates.py selftest`, 3/3 pass; then run over all 28
-  clues of the newly-built 2026-05-29 dev set, blind — clue text + enum only, no
-  crossings, no gold access): **1/28 (3.6%) recall** — the gold answer appears in the
-  generated pool for exactly one clue (2d, `יחפניות`, anagram of "פחות יין"). Mean pool
-  size 2.9 candidates/clue; 13/28 clues produced an empty pool. AUDITED before trusting
-  this low number, not just a high one: verified by hand that clue 25a
-  (`ליבנו צר` -> `צרנוביל`/Chernobyl) IS a letter-perfect anagram the generator's logic
-  correctly identifies as a fodder window, but the candidate is invisible because
-  `צרנוביל` is neither in hspell nor the (Israel-only) culture-places list, and is
-  correctly excluded from the corpus tier by `lexicon.held_out_answers()` now that this
-  puzzle is `dev`-split gold — the same guard that caught the 2026-07-21 leak, working
-  as intended, not a bug. So the ceiling here is bounded by two independent things: (a)
-  most of this puzzle's 28 clues are not anagram/hidden mechanism at all (charade,
-  culture-reference, double-definition — consistent with PLAN_V2's error profile), and
-  (b) even correct mechanism hits need a broader real-word/proper-noun recognizer than
-  hspell + Israel-scoped culture entities to confirm a candidate as real. Full jump
-  check: 1/28 is a *drop* in absolute terms from nothing (there was no prior number to
-  compare against — this is the first candidate-pool-recall measurement taken), so no
-  ~15-point-jump implausibility concern applies either way.
+  Selftest (`python3 solver/candidates.py selftest`, all 5 checks pass) uses synthetic
+  examples only, deliberately not this puzzle's gold data, to keep the same discipline
+  `lexicon.py` enforces against embedding held-out answers in tooling.
 
-  **Honest read**: this is a small, real, mechanically-sound piece (selftest 3/3,
-  including a documented anti-leak interaction) that is not yet pulling its weight
-  end-to-end. It does not move today's precision/coverage/yield numbers (not wired into
-  the solve pipeline; that integration plus a broader realness dictionary is the
-  natural next step, not attempted today to keep this run's change attributable to one
-  thing). Full-pipeline numbers in the state table above are last measured
-  2026-07-28/29 and were not re-run today (no full blind solve was performed against
-  the new 2026-05-29 corpus this run — only the candidate-generation-recall
-  measurement).
+  MEASURED (executed, not estimated): `python3 solver/candidates.py recall
+  data/dataset/clues.jsonl eval` on the 28 transcribed clues of 2026-05-29 —
+  **1/28 = 3.6% recall@N**, average 11.6 candidates generated per clue. The one hit
+  (2 down, `יחפניות`) was a genuine whole-word anagram of the clue fodder 'פחות יין'.
+  AUDIT: confirmed `lexicon.held_out_answers()` correctly excludes this puzzle's own
+  gold answers (spot-checked `ישפרחימ`, the prove.py worked example's answer — absent
+  from the loaded lexicon, so the generator cannot recover it by lookup, only by
+  deriving it, and today's mechanism genuinely cannot derive it either since the fodder
+  spans a partial word my anagram search DID reach but the target string itself is a
+  fused two-word phrase not present anywhere in the (correctly leak-free) lexicon).
+  No forbidden reads; no jump to explain (3.6% is low, not suspicious).
+
+  HONEST READ: this is a real, working, tested building block — not filler — but it is
+  a small piece of the coverage gap, not the fix. Most of this setter's answers are not
+  literal anagram/hidden/reversal of clue text; PLAYBOOK.md already documents that this
+  setter leans on substitution and homograph devices, and today's low recall is
+  independent confirmation of that from a different angle. Not wired into a live solve
+  session this run (that's a second, larger step: hook `candidates.py` into a solve pass
+  so the LLM proof-gates a generated list instead of a single guess, and extend
+  generation to use `substitutions.py`/`homographs.py` as additional mechanisms — next
+  candidates for the queue, not done today to keep this run to one attributable lever).
 
 ---
 

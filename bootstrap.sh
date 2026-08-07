@@ -28,14 +28,14 @@ fi
 wc -l < solver/lex/hspell.txt | xargs echo "    words:"
 
 echo "==> 2/6  answers corpus from 14across (52 puzzles, ~1,450 clues)"
-echo "    NOTE (2026-08-03): 14across.co.il now serves a bot-protection challenge"
-echo "    (/.well-known/sgcaptcha/) on EVERY request, including the bare homepage,"
-echo "    to plain HTTP fetches. This step will produce 0 clues for all 52 puzzles"
-echo "    until that changes. Do not try to script around it (it's a deliberate"
-echo "    anti-bot wall, not a rate limit -- repeated/delayed requests don't help)."
-echo "    See step 6 below for a working alternative that needs no 14across access:"
-echo "    the newspaper's own CDN images embed the PREVIOUS week's solution grid,"
-echo "    which is enough to reconstruct one full gold dev puzzle per two images."
+echo "    NOTE: 14across.co.il intermittently serves a bot-check redirect (HTTP 202,"
+echo "    sgcaptcha) instead of the real page -- observed on roughly half of requests"
+echo "    in one run, at random, unrelated to request rate. scraper/parse_answers.py"
+echo "    retries with backoff and recovers cleanly (52/52 last confirmed 2026-08-06)."
+echo "    If a run still comes up short, see step 6 below for a fallback needing no"
+echo "    14across access at all: the newspaper's own CDN images embed the PREVIOUS"
+echo "    week's solution grid, enough to reconstruct one full gold dev puzzle per"
+echo "    two consecutive weekly images."
 mkdir -p data/answers/by_date data/dataset
 if [ ! -s data/answers/answers_parsed.json ]; then
   python3 - <<'PY'
@@ -54,34 +54,31 @@ python3 - <<'PY'
 import json, os
 d = json.load(open('data/answers/answers_parsed.json'))
 os.makedirs('data/answers/by_date', exist_ok=True)
-n_written = 0
+skipped = 0
 for p in d:
     if not p.get('puzzle_date'):
-        continue  # scraper got a challenge/error page instead of real content for this URL
+        skipped += 1  # 14across occasionally serves a bot-check page instead of the puzzle;
+        continue      # parse_answers.py retries but can still miss one. Re-run it to backfill.
     dd, mm, yy = p['puzzle_date'].split('/')
     json.dump(p, open(f'data/answers/by_date/{yy}-{mm}-{dd}.json', 'w'), ensure_ascii=False, indent=1)
-    n_written += 1
-total_clues = sum(len(p['clues']) for p in d)
-print(f"    {n_written}/{len(d)} puzzles parsed, {total_clues} clues")
-if n_written == 0 and d:
-    print("    0 puzzles parsed -- 14across is almost certainly serving its bot")
-    print("    challenge page instead of content (see the note above step 2).")
-    print("    Continuing to steps 3-6 anyway; use the step-6 alternative for gold data.")
+print(f"    {len(d) - skipped} puzzles, {sum(len(p['clues']) for p in d)} clues"
+      + (f"  ({skipped} skipped — no date, re-run scraper/parse_answers.py to retry)" if skipped else ""))
 PY
 
 echo "==> 3/6  culture entities from he-wikipedia"
 [ -s solver/lex/culture.json ] || python3 scraper/harvest_culture.py
 
 echo "==> 4/6  substitution dictionary (derived from the explanations)"
-echo "    NOTE: this REBUILDS solver/lex/substitutions.json from data/answers/answers_parsed.json."
-echo "    If step 2 got 0 clues (see above), running this would overwrite the good committed"
-echo "    file (2,220 mined equivalences) with an empty one. Guarded below -- do not bypass it."
-n_clues=$(python3 -c "import json; d=json.load(open('data/answers/answers_parsed.json')); print(sum(len(p['clues']) for p in d))" 2>/dev/null || echo 0)
-if [ "$n_clues" -gt 0 ]; then
-  python3 solver/substitutions.py build | head -3
-else
-  echo "    skipped: 0 clues in the corpus, keeping the committed solver/lex/substitutions.json"
-fi
+echo "    NOTE: this rebuilds solver/lex/substitutions.json from ONLY the main corpus"
+echo "    fetched above (52 puzzles). The version already committed to git was built"
+echo "    from that PLUS a secondary corpus (RESULTS.md: 310 puzzles, ~6,800 clues,"
+echo "    easier setters) that this script has no step to fetch — it is NOT actually"
+echo "    reconstructible from what bootstrap.sh can reach (2026-08-06 finding)."
+echo "    Rebuilding here is strictly SMALLER (measured: 528 vs 2,220 head words)."
+echo "    Do not blindly 'git add' this file afterward — check 'git diff --stat' first"
+echo "    and revert with 'git checkout -- solver/lex/substitutions.json' unless you"
+echo "    are deliberately replacing it with something better."
+python3 solver/substitutions.py build | head -3
 
 echo "==> 5/6  puzzle images from the public CDN"
 mkdir -p data/images

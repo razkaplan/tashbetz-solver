@@ -1,0 +1,355 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>עוזר תשבץ היגיון</title>
+<link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  /* Haaretz-inspired: white page, near-black ink, the #f22b39 red as the one accent */
+  --paper:#ffffff; --paper2:#f6f5f3;
+  --ink:#121212; --ink2:#5c5c5c; --rule:#dcdcdc;
+  --red:#f22b39; --red-soft:#fdeaec;
+  --green:#1e7d45; --green-soft:#e8f4ec;
+  --gold:#f5c518;
+}
+@media (prefers-color-scheme: dark){:root{
+  --paper:#161616; --paper2:#222222;
+  --ink:#f2f0ec; --ink2:#a5a5a5; --rule:#3a3a3a;
+  --red:#ff5a63; --red-soft:#43181c;
+  --green:#5fc98a; --green-soft:#1c3527;
+}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:'Frank Ruhl Libre',serif;font-size:1.05rem;line-height:1.55}
+.wrap{max-width:76rem;margin:0 auto;padding:1rem 1.2rem}
+header{border-bottom:1px solid var(--ink);box-shadow:0 3px 0 -1px var(--ink);padding:.9rem 0 .8rem;display:flex;align-items:baseline;gap:1rem;flex-wrap:wrap}
+h1{font-size:2rem;margin:0;font-weight:700;letter-spacing:-0.015em}
+.kicker{font-family:'IBM Plex Mono',monospace;font-size:.66rem;letter-spacing:.14em;color:#fff;background:var(--red);display:inline-block;padding:.15rem .5rem;margin-bottom:.25rem}
+.score{margin-inline-start:auto;font-family:'IBM Plex Mono',monospace;font-size:1rem}
+.score b{color:var(--gold);font-size:1.25rem}
+button{font-family:'Frank Ruhl Libre',serif;font-size:.95rem;background:var(--paper2);
+  color:var(--ink);border:1.5px solid var(--ink);border-radius:3px;padding:.45rem 1rem;cursor:pointer}
+button:hover{background:var(--red-soft)}
+button.primary{background:var(--red);color:#fff;border-color:var(--red)}
+button:disabled{opacity:.4;cursor:default}
+
+/* upload */
+#drop{margin:3rem auto;max-width:34rem;border:2px dashed var(--ink2);border-radius:6px;
+  padding:3rem 2rem;text-align:center;cursor:pointer;transition:background .15s}
+#drop.hot{background:var(--red-soft)}
+#drop .big{font-size:1.4rem;font-weight:500}
+.small{font-size:.85rem;color:var(--ink2)}
+
+/* digitize */
+#digi{display:none;text-align:center;margin:3rem auto;max-width:36rem}
+.spinner{font-family:'IBM Plex Mono',monospace;color:var(--red);margin:.8rem 0}
+.factcard{margin:1.6rem auto;padding:1rem 1.3rem;background:var(--paper2);
+  border:1px solid var(--rule);max-width:30rem;text-align:right}
+.factcard .t{font-family:'IBM Plex Mono',monospace;font-size:.68rem;color:var(--red);letter-spacing:.1em}
+.factcard b{font-size:1.3rem}
+
+/* board */
+#board{display:none;grid-template-columns:minmax(21rem,26rem) 1fr;gap:1.6rem;margin-top:1.2rem}
+@media(max-width:900px){#board{grid-template-columns:1fr}}
+table.grid{border-collapse:collapse;direction:rtl;margin:0 auto}
+.grid td{width:2.05rem;height:2.05rem;border:1px solid #121212;position:relative;
+  text-align:center;font-size:1.25rem;font-weight:500;cursor:pointer;padding:0;
+  background:#fff;color:#121212}  /* a crossword stays black-on-white in any theme */
+.grid td.black{background:#121212;cursor:default}
+.grid td.sel{background:var(--gold);color:#121212}
+.grid td.word{background:#fdeaec}
+.grid td.ok{background:#e8f4ec}
+.grid td .n{position:absolute;top:1px;right:2px;font-size:.55rem;font-family:'IBM Plex Mono',monospace;color:#777}
+.clues{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem}
+@media(max-width:640px){.clues{grid-template-columns:1fr}}
+.clues h3{border-bottom:3px solid var(--red);display:inline-block;padding-bottom:.15rem;margin:.2rem 0 .5rem;font-size:1.15rem}
+.clue{padding:.3rem .45rem;border-radius:3px;cursor:pointer;font-size:.98rem}
+.clue:hover{background:var(--paper2)}
+.clue.sel{background:var(--red-soft)}
+.clue.done{color:var(--ink2)}
+.clue.done .txt{text-decoration:line-through}
+.clue .en{font-family:'IBM Plex Mono',monospace;font-size:.72rem;color:var(--ink2)}
+
+/* hint panel */
+#panel{position:sticky;top:0;background:var(--paper);padding:.6rem 0;border-bottom:1px solid var(--rule);
+  display:none;gap:.5rem;flex-wrap:wrap;align-items:center;z-index:5}
+#panel .who{font-weight:700}
+.hbtn{font-size:.82rem;padding:.3rem .6rem}
+.hbtn .cost{font-family:'IBM Plex Mono',monospace;font-size:.65rem;color:var(--red)}
+#hintout{white-space:pre-wrap;background:var(--paper2);border:1px solid var(--rule);
+  border-inline-start:3px solid var(--gold);padding:.7rem 1rem;margin:.6rem 0;display:none;font-size:.95rem}
+#msg{min-height:1.4rem;font-size:.92rem;margin:.3rem 0}
+#msg.good{color:var(--green)} #msg.bad{color:var(--red)}
+.enginebadge{font-family:'IBM Plex Mono',monospace;font-size:.7rem;color:var(--ink2)}
+
+/* confetti + proof */
+.burst{position:fixed;pointer-events:none;font-size:1.5rem;animation:fall 1.4s ease-in forwards;z-index:99}
+@keyframes fall{to{transform:translateY(60vh) rotate(300deg);opacity:0}}
+#proof{position:fixed;inset:auto 1rem 1rem 1rem;max-width:34rem;margin-inline-start:auto;background:var(--paper);
+  border:2px solid var(--ink);padding:1rem 1.2rem;display:none;z-index:50;box-shadow:0 8px 30px #0004}
+#proof .t{font-family:'IBM Plex Mono',monospace;color:var(--green);font-size:.7rem;letter-spacing:.12em}
+#proof pre{white-space:pre-wrap;font-size:.85rem;margin:.4rem 0 0;font-family:'IBM Plex Mono',monospace}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div><div class="kicker">תשבץ היגיון · עוזר פתירה</div><h1 id="title">נפתור ביחד?</h1></div>
+  <div class="score" id="scorebox" style="display:none">נקודות <b id="score">0</b></div>
+</header>
+
+<div id="drop">
+  <div class="big">גררו לכאן צילום או PDF של התשבץ</div>
+  <p class="small">או לחצו לבחירת קובץ · המנוע יהפוך אותו ללוח דיגיטלי ותפתרו ביחד</p>
+  <input type="file" id="file" accept="image/*,.pdf" hidden>
+</div>
+
+<div id="digi">
+  <div class="big">המנוע קורא את התשבץ...</div>
+  <div class="spinner" id="step">מעלה את הקובץ</div>
+  <div class="factcard"><div class="t">בינתיים — הידעתם?</div><div id="fact"></div></div>
+  <p class="small">התמלול לוקח דקה-שתיים. ברקע המנוע גם מתחיל לפתור, אבל אל דאגה — הוא לא יגלה כלום בלי שתבקשו.</p>
+</div>
+
+<div id="panel">
+  <span class="who" id="curclue">—</span>
+  <button class="hbtn" onclick="hint(1)">איזה מנגנון? <span class="cost">-10</span></button>
+  <button class="hbtn" onclick="hint(2)">איפה ההגדרה? <span class="cost">-20</span></button>
+  <button class="hbtn" onclick="hint(3)">רמז לדרך <span class="cost">-30</span></button>
+  <button class="hbtn" onclick="hint(4)">אות ראשונה <span class="cost">-50</span></button>
+  <button class="hbtn" onclick="hint(5)">גלה תשובה <span class="cost">-80</span></button>
+  <button class="hbtn primary" onclick="checkSlot()">בדוק ✓</button>
+  <span class="enginebadge" id="engstat"></span>
+</div>
+<div id="hintout"></div>
+<div id="msg"></div>
+
+<div id="board">
+  <div><table class="grid" id="grid"></table></div>
+  <div class="clues">
+    <div><h3>אופקי</h3><div id="across"></div></div>
+    <div><h3>אנכי</h3><div id="down"></div></div>
+  </div>
+</div>
+</div>
+
+<div id="proof"><div class="t">ההוכחה — כך זה עובד</div><pre id="prooftxt"></pre></div>
+
+<script>
+const FACTS=[
+ ['שרה','גם "היא שרה" (זמרת), גם שָׂרָה בממשלה, וגם סתם שרה. שלוש מילים, אותן אותיות — זה המנוע של כל תשבץ היגיון.'],
+ ['פרס','פרס שמקבלים, פָּרַס האימפריה, ושמעון פרס. המחבר סומך עליכם שתקראו לא נכון.'],
+ ['גפן','פעם זה צמח, פעם זה אביב גפן. באותו תשבץ זה הופיע בשתי המשמעויות בשבועות שונים.'],
+ ['רב','רב בבית כנסת, רב = הרבה, וגם שם משפחה. אם יש בהגדרה מקצוע — חשדו שהוא בכלל שם פרטי.'],
+ ['(עפ"י ...)','הקרדיט בסוגריים הוא שם הקורא ששלח את ההגדרה — הוא לא חלק מהתחבולה. חוץ מ"עפ"י השמיעה של", שמסמן הומופון.'],
+];
+let PID=null, PUZ=null, SEL=null, DIRN='across', SCORE=0, BOARD={}, SPENT={}, solved=new Set();
+const $=id=>document.getElementById(id);
+
+/* ---------- upload ---------- */
+const drop=$('drop'), file=$('file');
+drop.onclick=()=>file.click();
+drop.ondragover=e=>{e.preventDefault();drop.classList.add('hot')};
+drop.ondragleave=()=>drop.classList.remove('hot');
+drop.ondrop=e=>{e.preventDefault();drop.classList.remove('hot');handle(e.dataTransfer.files[0])};
+file.onchange=()=>handle(file.files[0]);
+
+async function handle(f){
+  if(!f) return;
+  drop.style.display='none'; $('digi').style.display='block';
+  let fi=0; $('fact').innerHTML='<b>'+FACTS[0][0]+'</b><br>'+FACTS[0][1];
+  const factTimer=setInterval(()=>{fi=(fi+1)%FACTS.length;
+    $('fact').innerHTML='<b>'+FACTS[fi][0]+'</b><br>'+FACTS[fi][1]},9000);
+  const b64=await new Promise(r=>{const rd=new FileReader();
+    rd.onload=()=>r(rd.result.split(',')[1]);rd.readAsDataURL(f)});
+  const up=await api('/api/upload',{name:f.name,data_b64:b64});
+  $('step').textContent='מתמלל הגדרות ורשת...';
+  const dj=await api('/api/digitize',{path:up.path});
+  const poll=setInterval(async()=>{
+    const j=await (await fetch('/api/job/'+dj.job)).json();
+    if(j.step) $('step').textContent=j.step;
+    if(j.status==='done'){clearInterval(poll);clearInterval(factTimer);start(j.result)}
+    if(j.status==='error'){clearInterval(poll);clearInterval(factTimer);
+      $('step').textContent='שגיאה: '+j.error}
+  },2500);
+}
+async function api(u,body){return (await fetch(u,{method:'POST',
+  headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})).json()}
+
+/* ---------- board ---------- */
+function start(puz){
+  PID=puz.id; PUZ=puz; BOARD=puz.board||{};
+  $('drop').style.display='none';
+  $('digi').style.display='none'; $('board').style.display='grid';
+  $('panel').style.display='flex'; $('scorebox').style.display='block';
+  $('title').textContent='פותרים ביחד';
+  renderGrid(); renderClues(); tickEngine();
+  history.replaceState(null,'','?p='+PID);
+}
+function cellNum(r,c){
+  for(const[k,cells]of Object.entries(PUZ.slots)){
+    if(cells[0][0]===r&&cells[0][1]===c) return k.split('-')[0];}
+  return null;
+}
+function renderGrid(){
+  const g=PUZ.grid, t=$('grid'); t.innerHTML='';
+  g.forEach((row,r)=>{
+    const tr=document.createElement('tr');
+    row.split('').forEach((ch,c)=>{
+      const td=document.createElement('td');
+      if(ch==='#'){td.className='black'}
+      else{
+        const n=cellNum(r,c);
+        if(n)td.innerHTML='<span class="n">'+n+'</span>';
+        td.dataset.rc=r+','+c;
+        if(BOARD[r+','+c])td.append(BOARD[r+','+c]);
+        td.onclick=()=>clickCell(r,c);
+      }
+      tr.append(td);
+    });
+    t.append(tr);
+  });
+  paint();
+}
+function slotAt(r,c,d){
+  for(const[k,cells]of Object.entries(PUZ.slots)){
+    const[n,dd]=k.split('-');
+    if(dd!==d)continue;
+    if(cells.some(x=>x[0]===r&&x[1]===c))return k;}
+  return null;
+}
+function clickCell(r,c){
+  const same=SEL&&PUZ.slots[SEL].some(x=>x[0]===r&&x[1]===c);
+  if(same)DIRN=DIRN==='across'?'down':'across';
+  SEL=slotAt(r,c,DIRN)||slotAt(r,c,DIRN==='across'?'down':'across');
+  if(SEL)DIRN=SEL.split('-')[1];
+  paint(); showClue();
+}
+function paint(){
+  document.querySelectorAll('.grid td').forEach(td=>{
+    td.classList.remove('sel','word');
+    const rc=td.dataset.rc; if(!rc)return;
+    const[r,c]=rc.split(',').map(Number);
+    if(SEL&&PUZ.slots[SEL].some(x=>x[0]===r&&x[1]===c))td.classList.add('word');
+  });
+  document.querySelectorAll('.clue').forEach(el=>el.classList.toggle('sel',el.dataset.k===SEL));
+}
+function renderClues(){
+  for(const d of['across','down']){
+    const box=$(d); box.innerHTML='';
+    for(const c of PUZ.clues[d]){
+      const div=document.createElement('div');
+      div.className='clue'; div.dataset.k=c.num+'-'+d;
+      div.innerHTML=`<b>${c.num}.</b> <span class="txt">${c.clue}</span> <span class="en">(${c.enum.join(',')})</span>`;
+      div.onclick=()=>{SEL=c.num+'-'+d;DIRN=d;paint();showClue();
+        const cell=PUZ.slots[SEL][0];
+        document.querySelector(`[data-rc="${cell[0]},${cell[1]}"]`)?.scrollIntoView({block:'center',behavior:'smooth'});};
+      box.append(div);
+    }
+  }
+}
+function curClueObj(){if(!SEL)return null;
+  const[n,d]=SEL.split('-');return PUZ.clues[d].find(c=>c.num==n);}
+function showClue(){
+  const c=curClueObj(); if(!c)return;
+  $('curclue').textContent=`${SEL.split('-')[0]} ${DIRN==='across'?'מאוזן':'מאונך'}: ${c.clue} (${c.enum.join(',')})`;
+  $('hintout').style.display='none'; $('msg').textContent='';
+}
+
+/* ---------- typing ---------- */
+document.addEventListener('keydown',e=>{
+  if(!SEL)return;
+  const cells=PUZ.slots[SEL];
+  const heb=/^[א-ת]$/.test(e.key);
+  if(heb||e.key==='Backspace'){
+    e.preventDefault();
+    const idx=cells.findIndex(x=>!BOARD[x[0]+','+x[1]]);
+    if(heb){
+      const fin={'ך':'כ','ם':'מ','ן':'נ','ף':'פ','ץ':'צ'}[e.key]||e.key;
+      const target=idx===-1?cells[cells.length-1]:cells[idx];
+      BOARD[target[0]+','+target[1]]=fin;
+    }else{
+      const last=[...cells].reverse().find(x=>BOARD[x[0]+','+x[1]]);
+      if(last)delete BOARD[last[0]+','+last[1]];
+    }
+    renderGrid(); saveBoard();
+  }
+});
+let saveT; function saveBoard(){clearTimeout(saveT);
+  saveT=setTimeout(()=>api('/api/board',{pid:PID,board:BOARD}),800)}
+
+/* ---------- hints & scoring ---------- */
+const COSTS={1:10,2:20,3:30,4:50,5:80};
+async function hint(level){
+  if(!SEL)return;
+  const[n,d]=SEL.split('-'); const c=curClueObj();
+  bump(-COSTS[level]);
+  SPENT[SEL]=(SPENT[SEL]||0)+COSTS[level];
+  const r=await api('/api/hint',{pid:PID,num:+n,dir:d,level,clue:c.clue});
+  $('hintout').textContent=r.hint; $('hintout').style.display='block';
+}
+async function checkSlot(){
+  if(!SEL)return;
+  const[n,d]=SEL.split('-');
+  const cells=PUZ.slots[SEL];
+  const ans=cells.map(x=>BOARD[x[0]+','+x[1]]||'').join('');
+  if(ans.length<cells.length){say('bad','חסרות אותיות במשבצות');return}
+  const r=await api('/api/check',{pid:PID,num:+n,dir:d,answer:ans,board:{}});
+  if(r.engine_agrees===true||(r.ok&&r.in_lexicon&&r.engine_agrees!==false)){
+    solved.add(SEL);
+    const gain=Math.max(20,100-(SPENT[SEL]||0));
+    bump(gain); say('good',`יפה! ‎+${gain} נק׳`);
+    cells.forEach(x=>document.querySelector(`[data-rc="${x[0]},${x[1]}"]`)?.classList.add('ok'));
+    document.querySelector(`.clue[data-k="${SEL}"]`)?.classList.add('done');
+    confetti(); maybeProof(+n,d); maybeDone();
+  }else if(r.engine_agrees===false){
+    bump(-5); say('bad','המנוע חושב אחרת... שווה לבדוק שוב (‎-5)');
+  }else if(!r.ok){
+    bump(-5); say('bad',(r.conflicts||[]).join(' · ')||r.why||'משהו לא מסתדר (‎-5)');
+  }else{
+    say('good','מסתדר עם ההצלבות — אין למנוע דעה. ממשיכים!');
+    solved.add(SEL); maybeDone();
+  }
+  api('/api/log',{pid:PID,t:'user_answer',num:+n,dir:d,answer:ans,
+    hints_spent:SPENT[SEL]||0,verdict:r});
+}
+async function maybeProof(n,d){
+  const r=await api('/api/hint',{pid:PID,num:n,dir:d,level:5,clue:''});
+  if(r.hint&&r.hint.includes('ההסבר')){
+    $('prooftxt').textContent=r.hint.split('ההסבר:')[1]?.trim()||'';
+    if($('prooftxt').textContent){$('proof').style.display='block';
+      setTimeout(()=>$('proof').style.display='none',9000);}
+  }
+}
+function maybeDone(){
+  const total=Object.keys(PUZ.slots).length;
+  if(solved.size>=total){
+    say('good','🎉 התשבץ הושלם!');
+    for(let i=0;i<40;i++)setTimeout(confetti,i*60);
+    api('/api/log',{pid:PID,t:'completed',score:SCORE});
+  }
+}
+function bump(x){SCORE=Math.max(0,SCORE+x);$('score').textContent=SCORE}
+function say(cls,txt){$('msg').className=cls;$('msg').textContent=txt}
+function confetti(){
+  const e=document.createElement('div');e.className='burst';
+  e.textContent=['✳','●','▲','✚','◆'][Math.floor(Math.random()*5)];
+  e.style.left=(10+Math.random()*80)+'vw';e.style.top=(5+Math.random()*20)+'vh';
+  e.style.color=['var(--red)','var(--gold)','var(--green)'][Math.floor(Math.random()*3)];
+  document.body.append(e);setTimeout(()=>e.remove(),1500);
+}
+async function tickEngine(){
+  const d=await (await fetch('/api/puzzle/'+PID)).json();
+  $('engstat').textContent=({running:'· המנוע פותר ברקע...',done:'· המנוע מוכן לרמוז',
+    auth:'· המנוע מנותק — הריצו claude בטרמינל להתחברות מחדש (הבדיקות והרמזים המכניים עובדים בינתיים)'})[d.engine_status]
+    ||(d.engine_status&&d.engine_status.startsWith('error')?'· המנוע נתקל בתקלה — רמזים מכניים עדיין עובדים':'');
+  if(d.engine_status!=='done')setTimeout(tickEngine,8000);
+}
+/* resume via ?p= */
+const qp=new URLSearchParams(location.search).get('p');
+if(qp)fetch('/api/puzzle/'+qp).then(r=>r.json()).then(d=>{if(!d.error)start(d)});
+</script>
+</body>
+</html>

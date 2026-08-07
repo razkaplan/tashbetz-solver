@@ -163,6 +163,7 @@ hr.sec{border:none; border-top:1px solid var(--rule); margin:2rem 0}
   <p class="kicker">Applied Research Note · Hebrew NLP · Cryptic Crosswords</p>
   <h1 class="title">Solving <span class="he">תשבץ היגיון</span>: A Grid-Constrained Harness for the Hebrew Cryptic Crossword</h1>
   <p class="byline"><b>An autonomous build.</b> Data pipeline, solver, and evaluation loop for the Haaretz weekly logic crossword by <span class="he">יורם הרועה</span>, reputedly the hardest cryptic in Hebrew. Working notes and interactive failure review.</p>
+  <p style="margin:.9rem 0 0"><a href="solve/" style="font-family:'IBM Plex Mono',monospace;font-size:.85rem;text-decoration:none;border:1.5px solid var(--accent);color:var(--accent);padding:.35rem .8rem;display:inline-block">🧩 Try the interactive solver — נסו את עוזר הפתירה</a></p>
   <div class="abstract">
     <p class="lead">Abstract</p>
     <p>We assemble a corpus of 362 Hebrew logic crosswords (8,249 clue-answer-explanation triples) by scraping a community solutions site and transcribing paywalled newspaper images, then build a solver that couples large-language-model wordplay reasoning with hard grid constraints, a 129k-word lexicon, corpus retrieval, and best-of-N consensus. On blind evaluation the grid layer is airtight (every answer is length-valid), and cross-run agreement is a 64%-reliable correctness signal. Mid-project, a run scored 96 percent on a puzzle where every prior version scored 4 to 25. The implausibility triggered an audit, which found the cause in our own retrieval tool: the lexicon had been built from a corpus that included the held-out answers, so pattern lookups were returning the gold answer ranked above ordinary words. Those results are retracted. After sealing the leak, clean accuracy fell to 14 to 25 percent, meaning the entire apparent gain from four iterations of tooling was contamination. The same audit then exposed a second defect, enumerations transcribed in reverse word order on six puzzles including both evaluation puzzles. Correcting both, two independently audited runs reach 43 percent each and merge to 64 percent, against a 25 percent baseline. We report the retraction, the detection method, and the two things that survive it: correct word boundaries, and the homograph collapse of unvocalized Hebrew. This page documents the method and opens every remaining failure for human correction.</p>
@@ -295,6 +296,7 @@ hr.sec{border:none; border-top:1px solid var(--rule); margin:2rem 0}
 <footer>
   <p><b>Method note.</b> This research note and the review tool were produced autonomously as a build log. Numbers are from blind evaluation on held-out puzzles and are reported as measured, including the regressions.</p>
   <p class="refs">Sources: community solutions site (answers + explanations); Haaretz weekly logic crossword (clue images); hspell-derived Hebrew wordlist. No answers were consulted at solve time.</p>
+  <p class="small">A project by <a href="https://www.linkedin.com/in/razkaplan/" target="_blank" rel="noopener">Raz Kaplan</a> · פרויקט של רז קפלן</p>
   <p id="gen-note" class="small"></p>
 </footer>
 

@@ -201,6 +201,13 @@ def main():
         if p in out:
             print(f"\n{probe}: {out[p]['senses']}")
 
+HEBSENSE = {'common_word': 'מילה מן המילון', 'given_name': 'שם פרטי', 'surname': 'שם משפחה',
+            'role_noun': 'תפקיד/פועל וגם שם', 'song': 'שם שיר', 'song_word': 'מילה מתוך שיר',
+            'artist': 'זמר/להקה', 'politician': 'פוליטיקאי/ת', 'place': 'מקום',
+            'bible': 'דמות מקראית', 'answer': 'הופיעה כתשובה בתשבצים'}
+def heb_senses(senses):
+    return ', '.join(HEBSENSE.get(s, s) for s in senses)
+
 def query(tokens):
     """Look up senses for one or more tokens (used by the solver at solve time)."""
     path = os.path.join(HERE, 'lex/ambiguities.json')
@@ -213,7 +220,7 @@ def query(tokens):
         if not d:
             print(f'{t}: (no recorded ambiguity)')
             continue
-        print(f'{t}  senses: {", ".join(d["senses"])}')
+        print(f'{t}  משמעויות: {heb_senses(d["senses"])}')
         for k, v in d['evidence'].items():
             ex = '; '.join(x for x in v if x)[:120]
             if ex:
@@ -259,7 +266,7 @@ def scan(text):
     if not hits:
         print('(no ambiguous tokens in this clue)')
     for v, s, via in hits:
-        print(f'{v}: {", ".join(s)}{via}')
+        print(f'{v}: {heb_senses(s)}{via}')
 
 if __name__ == '__main__':
     if len(sys.argv) > 1 and sys.argv[1] == 'scan':
