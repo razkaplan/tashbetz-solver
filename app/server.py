@@ -114,13 +114,17 @@ Finally output ONE fenced json block:
 def solve_job(pid):
     pdir = os.path.join(PUZZLES, pid)
     marker = os.path.join(pdir, 'engine.status')
+    if os.path.exists(os.path.join(pdir, 'engine.json')):
+        open(marker, 'w').write('done')   # never overwrite an existing solve
+        return
     open(marker, 'w').write('running')
     try:
         prompt = f"""Solve the Hebrew logic crossword described in {pdir}/puzzle.json (read it).
 Follow solver/SOLVE_PROTOCOL.md strictly — precision first: a wrong answer is worse than a blank.
 Use the tools: python3 solver/lexicon.py, solver/homographs.py, solver/substitutions.py,
 solver/prove.py, solver/retrieve.py, solver/wiki.py. Never consult crossword-solution sites;
-never search clue text verbatim. Every "committed" answer must pass solver/prove.py (put the
+never search clue text verbatim. NEVER read data/answers/, data/dataset/clues.jsonl, or
+data/clues/ — they contain gold answers and reading them invalidates the solve. Every "committed" answer must pass solver/prove.py (put the
 passing proof in explanation). Multi-word commits require a passing word_order assertion.
 Unspaced answers, no final letter forms, exact enum length.
 Output ONE fenced json block: a list with one entry per clue:

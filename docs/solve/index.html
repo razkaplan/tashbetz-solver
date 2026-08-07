@@ -82,11 +82,7 @@ footer{margin:3rem 0 2rem;padding-top:1rem;border-top:1px solid var(--rule);font
 </header>
 
 <div id="home">
-  <div class="card" id="democard">
-    <div class="big">▶ פתרו את תשבץ הדמו</div>
-    <p>התשבץ של 31.7.2026, מוכן לפתירה מיידית. המנוע כבר פתר אותו בעיוורון
-    (15 מתוך 28, כולן נכונות) ורמזיו זמינים בלי שום מפתח.</p>
-  </div>
+  <div id="demolist" style="display:contents"></div>
   <div class="card" id="drop">
     <div class="big">⬆ העלו תשבץ משלכם</div>
     <p>צילום או PDF. הדיגיטציה והרמזים החכמים דורשים מפתח
@@ -132,7 +128,8 @@ footer{margin:3rem 0 2rem;padding-top:1rem;border-top:1px solid var(--rule);font
 <footer>
   כלי מחקר אישי, בהשראת השפה העיצובית של עיתונות מודפסת; אינו קשור לעיתון הארץ.
   ההגדרות בדמו מתוך תשבץ ההיגיון של יורם הרועה (31.7.2026) לצורך הדגמה.
-  <a href="../">למאמר המחקר</a> · <a href="https://github.com/razkaplan/tashbetz-solver">קוד פתוח</a>
+  <a href="../">למאמר המחקר</a> · <a href="https://github.com/razkaplan/tashbetz-solver">קוד פתוח</a> ·
+  פרויקט של <a href="https://www.linkedin.com/in/razkaplan/" target="_blank" rel="noopener">רז קפלן</a>
 </footer>
 </div>
 <div id="proof"><div class="t">ההוכחה — כך זה עובד</div><pre id="prooftxt"></pre></div>
@@ -231,14 +228,22 @@ const jsonOf=t=>{const m=t.match(/```json\s*([\s\S]*?)```/)||t.match(/([\[{][\s\
   if(!m)throw new Error('no JSON in model reply');return JSON.parse(m[1])};
 
 /* ================= flows ================= */
-$('democard').onclick=async()=>{
-  $('home').style.display='none';$('digi').style.display='block';startFacts();
-  await loadData();
-  $('step').textContent='טוען את תשבץ הדמו...';
-  const puz=await fetch('data/demo/puzzle.json').then(r=>r.json());
-  ENGINE=await fetch('data/demo/engine.json').then(r=>r.json());
-  start(puz,'demo3107');
-};
+fetch('data/demos.json').then(r=>r.json()).then(demos=>{
+  const box=$('demolist');
+  for(const d of demos){
+    const el=document.createElement('div');el.className='card';
+    el.innerHTML='<div class="big">▶ '+d.title+'</div><p>'+d.desc+'</p>';
+    el.onclick=async()=>{
+      $('home').style.display='none';$('digi').style.display='block';startFacts();
+      await loadData();
+      $('step').textContent='טוען את התשבץ...';
+      const puz=await fetch('data/demo/'+d.id+'/puzzle.json').then(r=>r.json());
+      ENGINE=await fetch('data/demo/'+d.id+'/engine.json').then(r=>r.json());
+      start(puz,d.id);
+    };
+    box.append(el);
+  }
+});
 $('drop').onclick=()=>{
   $('keyrow').style.display='flex';
   $('orkey').value=KEY();$('ormodel').value=MODEL();

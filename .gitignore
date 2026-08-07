@@ -6,6 +6,10 @@ data/
 !data/articles.txt        # article date -> id manifest
 !data/grids/              # black/white cell patterns: factual layout, our own transcription
 !data/grids/*.json
+# the hosted app data bundle (derived indices + demo excerpt) must ship with the site
+!docs/
+!docs/solve/data/
+!docs/solve/data/**
 solver/lex/hspell.txt
 # scratch / tooling
 scraper/*.json

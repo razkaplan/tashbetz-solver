@@ -51,16 +51,24 @@ def main():
 הצלבה, לא ניחוש. תשובה שגויה גרועה מריק: היא מרעילה הצלבות."""
     open(f'{OUT}/playbook.txt', 'w').write(digest)
 
-    # demo puzzle if the engine solve exists
-    pdir = 'app/puzzles/sample3107'
-    if os.path.exists(f'{pdir}/engine.json'):
-        os.makedirs(f'{OUT}/demo', exist_ok=True)
+    # demo puzzles: every app/puzzles/<id> with a finished engine solve
+    DEMOS = [('demo3107', 'sample3107', 'התשבץ של 31.7.2026'),
+             ('demo0708', 'sample0708', 'התשבץ של 7.8.2026')]
+    manifest = []
+    for did, src, title in DEMOS:
+        pdir = f'app/puzzles/{src}'
+        if not os.path.exists(f'{pdir}/engine.json'):
+            print(f'demo {did}: engine not ready — skipped'); continue
+        eng = json.load(open(f'{pdir}/engine.json'))
+        com = sum(1 for e in eng if e.get('tier') == 'committed')
+        os.makedirs(f'{OUT}/demo/{did}', exist_ok=True)
         for fn in ('puzzle.json', 'engine.json'):
             json.dump(json.load(open(f'{pdir}/{fn}')),
-                      open(f'{OUT}/demo/{fn}', 'w'), ensure_ascii=False)
-        print('demo: baked (puzzle + engine)')
-    else:
-        print('demo: engine.json not ready yet — skipped (re-run later)')
+                      open(f'{OUT}/demo/{did}/{fn}', 'w'), ensure_ascii=False)
+        manifest.append({'id': did, 'title': title,
+            'desc': f'המנוע פתר אותו בעיוורון: {com} מתוך {len(eng)} בתיוג "מוכח". רמזים זמינים בלי מפתח.'})
+        print(f'demo {did}: baked ({com} committed)')
+    json.dump(manifest, open(f'{OUT}/demos.json', 'w'), ensure_ascii=False)
 
 if __name__ == '__main__':
     main()
