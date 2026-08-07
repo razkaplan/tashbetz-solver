@@ -7,31 +7,32 @@
 <link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root{
-  --paper:oklch(0.985 0.006 85); --paper2:oklch(0.962 0.008 85);
-  --ink:oklch(0.24 0.012 60); --ink2:oklch(0.45 0.012 60); --rule:oklch(0.86 0.008 75);
-  --red:oklch(0.52 0.16 27); --red-soft:oklch(0.93 0.05 30);
-  --green:oklch(0.5 0.11 150); --green-soft:oklch(0.93 0.06 150);
-  --gold:oklch(0.75 0.12 85);
+  /* Haaretz-inspired: white page, near-black ink, the #f22b39 red as the one accent */
+  --paper:#ffffff; --paper2:#f6f5f3;
+  --ink:#121212; --ink2:#5c5c5c; --rule:#dcdcdc;
+  --red:#f22b39; --red-soft:#fdeaec;
+  --green:#1e7d45; --green-soft:#e8f4ec;
+  --gold:#f5c518;
 }
 @media (prefers-color-scheme: dark){:root{
-  --paper:oklch(0.2 0.01 70); --paper2:oklch(0.25 0.012 70);
-  --ink:oklch(0.92 0.01 80); --ink2:oklch(0.72 0.01 80); --rule:oklch(0.37 0.012 70);
-  --red:oklch(0.72 0.15 30); --red-soft:oklch(0.33 0.07 30);
-  --green:oklch(0.72 0.12 150); --green-soft:oklch(0.3 0.06 150);
+  --paper:#161616; --paper2:#222222;
+  --ink:#f2f0ec; --ink2:#a5a5a5; --rule:#3a3a3a;
+  --red:#ff5a63; --red-soft:#43181c;
+  --green:#5fc98a; --green-soft:#1c3527;
 }}
 *{box-sizing:border-box}
 body{margin:0;background:var(--paper);color:var(--ink);
   font-family:'Frank Ruhl Libre',serif;font-size:1.05rem;line-height:1.55}
 .wrap{max-width:76rem;margin:0 auto;padding:1rem 1.2rem}
-header{border-bottom:2px solid var(--ink);padding:.9rem 0 .7rem;display:flex;align-items:baseline;gap:1rem;flex-wrap:wrap}
-h1{font-size:1.6rem;margin:0;font-weight:700}
-.kicker{font-family:'IBM Plex Mono',monospace;font-size:.68rem;letter-spacing:.14em;color:var(--red)}
+header{border-bottom:1px solid var(--ink);box-shadow:0 3px 0 -1px var(--ink);padding:.9rem 0 .8rem;display:flex;align-items:baseline;gap:1rem;flex-wrap:wrap}
+h1{font-size:2rem;margin:0;font-weight:700;letter-spacing:-0.015em}
+.kicker{font-family:'IBM Plex Mono',monospace;font-size:.66rem;letter-spacing:.14em;color:#fff;background:var(--red);display:inline-block;padding:.15rem .5rem;margin-bottom:.25rem}
 .score{margin-inline-start:auto;font-family:'IBM Plex Mono',monospace;font-size:1rem}
 .score b{color:var(--gold);font-size:1.25rem}
 button{font-family:'Frank Ruhl Libre',serif;font-size:.95rem;background:var(--paper2);
   color:var(--ink);border:1.5px solid var(--ink);border-radius:3px;padding:.45rem 1rem;cursor:pointer}
 button:hover{background:var(--red-soft)}
-button.primary{background:var(--ink);color:var(--paper)}
+button.primary{background:var(--red);color:#fff;border-color:var(--red)}
 button:disabled{opacity:.4;cursor:default}
 
 /* upload */
@@ -53,16 +54,17 @@ button:disabled{opacity:.4;cursor:default}
 #board{display:none;grid-template-columns:minmax(21rem,26rem) 1fr;gap:1.6rem;margin-top:1.2rem}
 @media(max-width:900px){#board{grid-template-columns:1fr}}
 table.grid{border-collapse:collapse;direction:rtl;margin:0 auto}
-.grid td{width:2.05rem;height:2.05rem;border:1px solid var(--ink);position:relative;
-  text-align:center;font-size:1.25rem;font-weight:500;cursor:pointer;padding:0;background:var(--paper)}
-.grid td.black{background:var(--ink);cursor:default}
-.grid td.sel{background:var(--gold);color:oklch(0.2 0.01 70)}
-.grid td.word{background:var(--red-soft)}
-.grid td.ok{background:var(--green-soft)}
-.grid td .n{position:absolute;top:1px;right:2px;font-size:.55rem;font-family:'IBM Plex Mono',monospace;color:var(--ink2)}
+.grid td{width:2.05rem;height:2.05rem;border:1px solid #121212;position:relative;
+  text-align:center;font-size:1.25rem;font-weight:500;cursor:pointer;padding:0;
+  background:#fff;color:#121212}  /* a crossword stays black-on-white in any theme */
+.grid td.black{background:#121212;cursor:default}
+.grid td.sel{background:var(--gold);color:#121212}
+.grid td.word{background:#fdeaec}
+.grid td.ok{background:#e8f4ec}
+.grid td .n{position:absolute;top:1px;right:2px;font-size:.55rem;font-family:'IBM Plex Mono',monospace;color:#777}
 .clues{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem}
 @media(max-width:640px){.clues{grid-template-columns:1fr}}
-.clues h3{border-bottom:1.5px solid var(--ink);padding-bottom:.2rem;margin:.2rem 0 .5rem}
+.clues h3{border-bottom:3px solid var(--red);display:inline-block;padding-bottom:.15rem;margin:.2rem 0 .5rem;font-size:1.15rem}
 .clue{padding:.3rem .45rem;border-radius:3px;cursor:pointer;font-size:.98rem}
 .clue:hover{background:var(--paper2)}
 .clue.sel{background:var(--red-soft)}

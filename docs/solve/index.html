@@ -1,0 +1,492 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>עוזר תשבץ היגיון · פותרים ביחד</title>
+<link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#ffffff; --paper2:#f6f5f3; --ink:#121212; --ink2:#5c5c5c; --rule:#dcdcdc;
+  --red:#f22b39; --red-soft:#fdeaec; --green:#1e7d45; --green-soft:#e8f4ec; --gold:#f5c518;
+}
+@media (prefers-color-scheme: dark){:root{
+  --paper:#161616; --paper2:#222; --ink:#f2f0ec; --ink2:#a5a5a5; --rule:#3a3a3a;
+  --red:#ff5a63; --red-soft:#43181c; --green:#5fc98a; --green-soft:#1c3527;
+}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:'Frank Ruhl Libre',serif;font-size:1.05rem;line-height:1.55}
+.wrap{max-width:76rem;margin:0 auto;padding:1rem 1.2rem}
+header{border-bottom:1px solid var(--ink);box-shadow:0 3px 0 -1px var(--ink);padding:.9rem 0 .8rem;display:flex;align-items:baseline;gap:1rem;flex-wrap:wrap}
+h1{font-size:2rem;margin:0;font-weight:700;letter-spacing:-0.015em}
+.kicker{font-family:'IBM Plex Mono',monospace;font-size:.66rem;letter-spacing:.14em;color:#fff;background:var(--red);display:inline-block;padding:.15rem .5rem;margin-bottom:.25rem}
+.score{margin-inline-start:auto;font-family:'IBM Plex Mono',monospace}
+.score b{color:var(--gold);font-size:1.25rem}
+button{font-family:'Frank Ruhl Libre',serif;font-size:.95rem;background:var(--paper2);color:var(--ink);border:1.5px solid var(--ink);border-radius:3px;padding:.45rem 1rem;cursor:pointer}
+button:hover{background:var(--red-soft)}
+button.primary{background:var(--red);color:#fff;border-color:var(--red)}
+.small{font-size:.85rem;color:var(--ink2)}
+a{color:var(--red)}
+#home{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin:2.5rem 0}
+@media(max-width:760px){#home{grid-template-columns:1fr}}
+.card{border:1.5px solid var(--ink);padding:1.6rem;cursor:pointer}
+.card:hover{background:var(--paper2)}
+.card .big{font-size:1.3rem;font-weight:700}
+#drop.hot{background:var(--red-soft)}
+#keyrow{margin:1rem 0 0;display:none;gap:.5rem;flex-wrap:wrap;align-items:center}
+#keyrow input{flex:1 1 16rem;font-family:'IBM Plex Mono',monospace;font-size:.8rem;padding:.45rem .6rem;border:1px solid var(--ink2);border-radius:3px;background:var(--paper);color:var(--ink)}
+#digi{display:none;text-align:center;margin:3rem auto;max-width:36rem}
+.spinner{font-family:'IBM Plex Mono',monospace;color:var(--red);margin:.8rem 0;min-height:1.3rem}
+.factcard{margin:1.6rem auto;padding:1rem 1.3rem;background:var(--paper2);border:1px solid var(--rule);max-width:30rem;text-align:right}
+.factcard .t{font-family:'IBM Plex Mono',monospace;font-size:.68rem;color:var(--red);letter-spacing:.1em}
+.factcard b{font-size:1.3rem}
+#board{display:none;grid-template-columns:minmax(21rem,26rem) 1fr;gap:1.6rem;margin-top:1.2rem}
+@media(max-width:900px){#board{grid-template-columns:1fr}}
+table.grid{border-collapse:collapse;direction:rtl;margin:0 auto}
+.grid td{width:2.05rem;height:2.05rem;border:1px solid #121212;position:relative;text-align:center;font-size:1.25rem;font-weight:500;cursor:pointer;padding:0;background:#fff;color:#121212}
+.grid td.black{background:#121212;cursor:default}
+.grid td.sel{background:var(--gold);color:#121212}
+.grid td.word{background:#fdeaec}
+.grid td.ok{background:#e8f4ec}
+.grid td .n{position:absolute;top:1px;right:2px;font-size:.55rem;font-family:'IBM Plex Mono',monospace;color:#777}
+.clues{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem}
+@media(max-width:640px){.clues{grid-template-columns:1fr}}
+.clues h3{border-bottom:3px solid var(--red);display:inline-block;padding-bottom:.15rem;margin:.2rem 0 .5rem;font-size:1.15rem}
+.clue{padding:.3rem .45rem;border-radius:3px;cursor:pointer;font-size:.98rem}
+.clue:hover{background:var(--paper2)}
+.clue.sel{background:var(--red-soft)}
+.clue.done{color:var(--ink2)} .clue.done .txt{text-decoration:line-through}
+.clue .en{font-family:'IBM Plex Mono',monospace;font-size:.72rem;color:var(--ink2)}
+#panel{position:sticky;top:0;background:var(--paper);padding:.6rem 0;border-bottom:1px solid var(--rule);display:none;gap:.5rem;flex-wrap:wrap;align-items:center;z-index:5}
+#panel .who{font-weight:700;flex-basis:100%}
+.hbtn{font-size:.82rem;padding:.3rem .6rem}
+.hbtn .cost{font-family:'IBM Plex Mono',monospace;font-size:.65rem;color:var(--red)}
+#hintout{white-space:pre-wrap;background:var(--paper2);border:1px solid var(--rule);border-inline-start:3px solid var(--gold);padding:.7rem 1rem;margin:.6rem 0;display:none;font-size:.95rem}
+#msg{min-height:1.4rem;font-size:.92rem;margin:.3rem 0}
+#msg.good{color:var(--green)} #msg.bad{color:var(--red)}
+.enginebadge{font-family:'IBM Plex Mono',monospace;font-size:.7rem;color:var(--ink2)}
+.burst{position:fixed;pointer-events:none;font-size:1.5rem;animation:fall 1.4s ease-in forwards;z-index:99}
+@keyframes fall{to{transform:translateY(60vh) rotate(300deg);opacity:0}}
+#proof{position:fixed;inset:auto 1rem 1rem 1rem;max-width:34rem;margin-inline-start:auto;background:var(--paper);border:2px solid var(--ink);padding:1rem 1.2rem;display:none;z-index:50;box-shadow:0 8px 30px #0004}
+#proof .t{font-family:'IBM Plex Mono',monospace;color:var(--green);font-size:.7rem;letter-spacing:.12em}
+#proof pre{white-space:pre-wrap;font-size:.85rem;margin:.4rem 0 0;font-family:'IBM Plex Mono',monospace}
+footer{margin:3rem 0 2rem;padding-top:1rem;border-top:1px solid var(--rule);font-size:.82rem;color:var(--ink2)}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div><div class="kicker">תשבץ היגיון · פותרים ביחד</div><h1 id="title">עוזר תשבץ היגיון</h1></div>
+  <div class="score" id="scorebox" style="display:none">נקודות <b id="score">0</b></div>
+  <button id="exportbtn" style="display:none" onclick="exportSession()" title="ייצוא סשן ללמידה">⬇ סשן</button>
+</header>
+
+<div id="home">
+  <div class="card" id="democard">
+    <div class="big">▶ פתרו את תשבץ הדמו</div>
+    <p>התשבץ של 31.7.2026, מוכן לפתירה מיידית. המנוע כבר פתר אותו בעיוורון
+    (15 מתוך 28, כולן נכונות) ורמזיו זמינים בלי שום מפתח.</p>
+  </div>
+  <div class="card" id="drop">
+    <div class="big">⬆ העלו תשבץ משלכם</div>
+    <p>צילום או PDF. הדיגיטציה והרמזים החכמים דורשים מפתח
+    <a href="https://openrouter.ai/keys" target="_blank" rel="noopener">OpenRouter</a>
+    — הוא נשמר רק בדפדפן שלכם ונשלח רק ל-OpenRouter.</p>
+    <input type="file" id="file" accept="image/*,.pdf" hidden>
+  </div>
+</div>
+<div id="keyrow">
+  <input id="orkey" type="password" placeholder="sk-or-v1-...  (מפתח OpenRouter)">
+  <input id="ormodel" style="flex:0 1 15rem" placeholder="מודל" value="anthropic/claude-sonnet-4.5">
+  <button class="primary" id="keygo">המשך</button>
+  <span class="small">נשמר ב-localStorage בלבד</span>
+</div>
+
+<div id="digi">
+  <div style="font-size:1.3rem;font-weight:700">המנוע קורא את התשבץ...</div>
+  <div class="spinner" id="step">מכין...</div>
+  <div class="factcard"><div class="t">בינתיים — הידעתם?</div><div id="fact"></div></div>
+</div>
+
+<div id="panel">
+  <span class="who" id="curclue">—</span>
+  <button class="hbtn" onclick="hint(1)">איזה מנגנון? <span class="cost">-10</span></button>
+  <button class="hbtn" onclick="hint(2)">איפה ההגדרה? <span class="cost">-20</span></button>
+  <button class="hbtn" onclick="hint(3)">רמז לדרך <span class="cost">-30</span></button>
+  <button class="hbtn" onclick="hint(4)">אות ראשונה <span class="cost">-50</span></button>
+  <button class="hbtn" onclick="hint(5)">גלה תשובה <span class="cost">-80</span></button>
+  <button class="hbtn primary" onclick="checkSlot()">בדוק ✓</button>
+  <span class="enginebadge" id="engstat"></span>
+</div>
+<div id="hintout"></div>
+<div id="msg"></div>
+
+<div id="board">
+  <div><table class="grid" id="grid"></table></div>
+  <div class="clues">
+    <div><h3>אופקי</h3><div id="across"></div></div>
+    <div><h3>אנכי</h3><div id="down"></div></div>
+  </div>
+</div>
+
+<footer>
+  כלי מחקר אישי, בהשראת השפה העיצובית של עיתונות מודפסת; אינו קשור לעיתון הארץ.
+  ההגדרות בדמו מתוך תשבץ ההיגיון של יורם הרועה (31.7.2026) לצורך הדגמה.
+  <a href="../">למאמר המחקר</a> · <a href="https://github.com/razkaplan/tashbetz-solver">קוד פתוח</a>
+</footer>
+</div>
+<div id="proof"><div class="t">ההוכחה — כך זה עובד</div><pre id="prooftxt"></pre></div>
+
+<script>
+/* ================= shared state ================= */
+const FIN={'ך':'כ','ם':'מ','ן':'נ','ף':'פ','ץ':'צ'};
+const norm=s=>(s||'').split('').map(c=>FIN[c]||c).filter(c=>/[א-ת]/.test(c)).join('');
+const $=id=>document.getElementById(id);
+let PUZ=null,PID=null,SEL=null,DIRN='across',SCORE=0,BOARD={},SPENT={},solved=new Set();
+let ENGINE=null;                    // per-clue engine results (demo: baked; upload: on demand)
+let LEX=null,ANAG=null,SUBS=null,AMB=null,PLAYBOOK='';
+const LOG=[];
+const FACTS=[
+ ['שרה','גם "היא שרה", גם שָׂרָה בממשלה, וגם סתם שרה. אותן אותיות — זה המנוע של תשבץ היגיון.'],
+ ['פרס','פרס שמקבלים, פָּרַס האימפריה, ושמעון פרס. המחבר סומך עליכם שתקראו לא נכון.'],
+ ['אנגרם','ב-85% מהאנגרמים של יורם הרועה האותיות מופיעות מילולית בתוך ההגדרה. חפשו חלון רצוף.'],
+ ['(עפ"י ...)','הקרדיט בסוגריים = שם הקורא ששלח. לא חלק מהתחבולה. חוץ מ"עפ"י השמיעה של" — הומופון.'],
+ ['דיוק','המנוע מסמן תשובה "מוכחת" רק כשכל אות מוסברת. עדיף ריק מטעות — טעות מרעילה הצלבות.'],
+];
+
+/* ================= data loading ================= */
+async function loadData(){
+  if(LEX)return;
+  $('step').textContent='טוען מילון (פעם אחת, ~2MB)...';
+  const [lx,sb,am,pb]=await Promise.all([
+    fetch('data/lexicon.txt').then(r=>r.text()),
+    fetch('data/substitutions.json').then(r=>r.json()),
+    fetch('data/ambiguities.json').then(r=>r.json()),
+    fetch('data/playbook.txt').then(r=>r.text())]);
+  const words=lx.split('\n').filter(Boolean);
+  LEX=new Set(words);
+  ANAG=new Map();
+  for(const w of words){const k=w.split('').sort().join('');
+    if(!ANAG.has(k))ANAG.set(k,[]); if(ANAG.get(k).length<8)ANAG.get(k).push(w);}
+  SUBS=sb; AMB=am; PLAYBOOK=pb;
+}
+function patternSearch(pat){ // '?ו?ר' -> candidates
+  const L=pat.length,out=[];
+  for(const w of LEX){if(w.length!==L)continue;let ok=true;
+    for(let i=0;i<L;i++){if(pat[i]!=='?'&&pat[i]!==w[i]){ok=false;break}}
+    if(ok){out.push(w);if(out.length>=40)break}}
+  return out;
+}
+const anagrams=letters=>ANAG.get(norm(letters).split('').sort().join(''))||[];
+
+/* ================= JS grid tools (port of solver/grid_tools.py) ================= */
+function gridSlots(grid){
+  const nr=grid.length,nc=grid[0].length,out={};let num=0;
+  for(let r=0;r<nr;r++)for(let i=0;i<nc;i++){
+    if(grid[r][i]==='#')continue;
+    const sa=(i===0||grid[r][i-1]==='#')&&i+1<nc&&grid[r][i+1]==='.';
+    const sd=(r===0||grid[r-1][i]==='#')&&r+1<nr&&grid[r+1][i]==='.';
+    if(sa||sd)num++;
+    if(sa){const cells=[];let j=i;while(j<nc&&grid[r][j]==='.'){cells.push([r,j]);j++}out[num+'-across']=cells}
+    if(sd){const cells=[];let k=r;while(k<nr&&grid[k][i]==='.'){cells.push([k,i]);k++}out[num+'-down']=cells}
+  }
+  return out;
+}
+function gridValidate(grid,clues){
+  const sl=gridSlots(grid),probs=[],want={};
+  for(const d of['across','down'])for(const c of clues[d]||[])want[c.num+'-'+d]=c.enum.reduce((a,b)=>a+b,0);
+  const keys=new Set([...Object.keys(sl),...Object.keys(want)]);
+  for(const k of keys){
+    if(!(k in sl))probs.push(k+': printed clue but grid has no such slot');
+    else if(!(k in want))probs.push(k+': grid slot (len '+sl[k].length+') but no printed clue');
+    else if(want[k]!==sl[k].length)probs.push(k+': enum sum '+want[k]+' != slot length '+sl[k].length);
+  }
+  return probs;
+}
+/* mechanical proof checks (port of solver/prove.py essentials) */
+function verifyClaims(e,enumArr){
+  const a=norm(e.answer||'');if(!a)return false;
+  if(enumArr&&enumArr.reduce((x,y)=>x+y,0)!==a.length)return false;
+  if(e.mechanism==='anagram'&&e.fodder){
+    if(norm(e.fodder).split('').sort().join('')!==a.split('').sort().join(''))return false;}
+  if(enumArr&&enumArr.length>1&&e.words){
+    if(e.words.map(norm).join('')!==a)return false;}
+  return true;
+}
+
+/* ================= OpenRouter ================= */
+const KEY=()=>localStorage.getItem('or_key')||'';
+const MODEL=()=>localStorage.getItem('or_model')||'anthropic/claude-sonnet-4.5';
+async function orChat(messages,max_tokens=4000){
+  const r=await fetch('https://openrouter.ai/api/v1/chat/completions',{
+    method:'POST',
+    headers:{'Authorization':'Bearer '+KEY(),'Content-Type':'application/json',
+      'HTTP-Referer':location.origin,'X-Title':'Tashbetz Solver'},
+    body:JSON.stringify({model:MODEL(),messages,max_tokens})});
+  if(!r.ok)throw new Error('OpenRouter '+r.status+': '+(await r.text()).slice(0,200));
+  const d=await r.json();
+  return d.choices[0].message.content;
+}
+const jsonOf=t=>{const m=t.match(/```json\s*([\s\S]*?)```/)||t.match(/([\[{][\s\S]*[\]}])/);
+  if(!m)throw new Error('no JSON in model reply');return JSON.parse(m[1])};
+
+/* ================= flows ================= */
+$('democard').onclick=async()=>{
+  $('home').style.display='none';$('digi').style.display='block';startFacts();
+  await loadData();
+  $('step').textContent='טוען את תשבץ הדמו...';
+  const puz=await fetch('data/demo/puzzle.json').then(r=>r.json());
+  ENGINE=await fetch('data/demo/engine.json').then(r=>r.json());
+  start(puz,'demo3107');
+};
+$('drop').onclick=()=>{
+  $('keyrow').style.display='flex';
+  $('orkey').value=KEY();$('ormodel').value=MODEL();
+  $('keygo').onclick=()=>{localStorage.setItem('or_key',$('orkey').value.trim());
+    localStorage.setItem('or_model',$('ormodel').value.trim()||'anthropic/claude-sonnet-4.5');
+    if(KEY())$('file').click();else alert('נדרש מפתח OpenRouter')};
+};
+$('drop').ondragover=e=>{e.preventDefault();$('drop').classList.add('hot')};
+$('drop').ondragleave=()=>$('drop').classList.remove('hot');
+$('drop').ondrop=e=>{e.preventDefault();$('drop').classList.remove('hot');
+  if(KEY())handleFile(e.dataTransfer.files[0]);else $('drop').click()};
+$('file').onchange=()=>handleFile($('file').files[0]);
+
+let factT;function startFacts(){let i=0;$('fact').innerHTML='<b>'+FACTS[0][0]+'</b><br>'+FACTS[0][1];
+  factT=setInterval(()=>{i=(i+1)%FACTS.length;$('fact').innerHTML='<b>'+FACTS[i][0]+'</b><br>'+FACTS[i][1]},9000)}
+
+async function fileToDataURL(f){
+  if(f.type==='application/pdf'){
+    $('step').textContent='ממיר PDF לתמונה...';
+    const pdfjs=await import('https://cdn.jsdelivr.net/npm/pdfjs-dist@4.6.82/build/pdf.min.mjs');
+    pdfjs.GlobalWorkerOptions.workerSrc='https://cdn.jsdelivr.net/npm/pdfjs-dist@4.6.82/build/pdf.worker.min.mjs';
+    const pdf=await pdfjs.getDocument({data:await f.arrayBuffer()}).promise;
+    const page=await pdf.getPage(1),vp=page.getViewport({scale:2});
+    const cv=document.createElement('canvas');cv.width=vp.width;cv.height=vp.height;
+    await page.render({canvasContext:cv.getContext('2d'),viewport:vp}).promise;
+    return cv.toDataURL('image/jpeg',0.9);
+  }
+  // downscale images to ~1600px max side
+  const img=await createImageBitmap(f);
+  const sc=Math.min(1,1600/Math.max(img.width,img.height));
+  const cv=document.createElement('canvas');cv.width=img.width*sc;cv.height=img.height*sc;
+  cv.getContext('2d').drawImage(img,0,0,cv.width,cv.height);
+  return cv.toDataURL('image/jpeg',0.9);
+}
+
+async function handleFile(f){
+  if(!f)return;
+  $('home').style.display='none';$('keyrow').style.display='none';
+  $('digi').style.display='block';startFacts();
+  try{
+    await loadData();
+    const dataURL=await fileToDataURL(f);
+    $('step').textContent='מתמלל הגדרות ורשת (חצי דקה עד דקה)...';
+    let puz=null,feedback='';
+    for(let attempt=0;attempt<2&&!puz;attempt++){
+      const txt=await orChat([{role:'user',content:[
+        {type:'text',text:
+`This image contains a Hebrew logic crossword (תשבץ היגיון). If several puzzles appear, use the one titled תשבץ היגיון and ignore others.
+Transcribe EVERY clue: number, direction (אופקי=across, אנכי=down), full Hebrew text, and the trailing parenthesized enumeration as an int list (enum[0]=first word of the answer; the RTL layout sometimes prints the tuple reversed). Rejoin hyphen-broken words.
+Also transcribe the grid black/white pattern. Rows top to bottom; each row is a string of '.'(white)/'#'(black); string index 0 = the RIGHTMOST cell (RTL). Grids here are typically 11 wide x 15 tall.
+${feedback?'Previous attempt failed validation with these problems, fix them:\n'+feedback:''}
+Reply with ONE fenced json block only:
+\`\`\`json
+{"grid":["..."],"across":[{"num":1,"clue":"...","enum":[3,4]}],"down":[...]}
+\`\`\``},
+        {type:'image_url',image_url:{url:dataURL}}]}],8000);
+      const d=jsonOf(txt);
+      const probs=gridValidate(d.grid,{across:d.across,down:d.down});
+      if(!probs.length){puz={grid:d.grid,clues:{across:d.across,down:d.down}}}
+      else{feedback=probs.slice(0,12).join('\n');
+        $('step').textContent='מתקן שגיאות תמלול ('+probs.length+')...'}
+    }
+    if(!puz)throw new Error('התמלול לא עבר ולידציה אחרי שני ניסיונות');
+    ENGINE=[];  // uploaded puzzle: engine answers arrive on demand per clue
+    start({id:'up'+Date.now().toString(36),grid:puz.grid,clues:puz.clues,
+           slots:gridSlots(puz.grid)},null);
+  }catch(e){$('step').textContent='שגיאה: '+e.message}
+}
+
+/* ================= board (same UX as the local app) ================= */
+function start(puz,fixedId){
+  PID=fixedId||puz.id;PUZ=puz;
+  if(!PUZ.slots)PUZ.slots=gridSlots(PUZ.grid);
+  BOARD=JSON.parse(localStorage.getItem('tash_board_'+PID)||'{}');
+  clearInterval(factT);
+  $('digi').style.display='none';$('home').style.display='none';
+  $('board').style.display='grid';$('panel').style.display='flex';
+  $('scorebox').style.display='block';$('exportbtn').style.display='inline-block';
+  $('title').textContent='פותרים ביחד';
+  $('engstat').textContent=ENGINE&&ENGINE.length?'· המנוע פתר מראש — רמזים מיידיים':'· רמזים חכמים יחושבו לפי דרישה';
+  renderGrid();renderClues();
+}
+function cellNum(r,c){for(const[k,cells]of Object.entries(PUZ.slots)){
+  if(cells[0][0]===r&&cells[0][1]===c)return k.split('-')[0]}return null}
+function renderGrid(){
+  const t=$('grid');t.innerHTML='';
+  PUZ.grid.forEach((row,r)=>{const tr=document.createElement('tr');
+    row.split('').forEach((ch,c)=>{const td=document.createElement('td');
+      if(ch==='#')td.className='black';
+      else{const n=cellNum(r,c);if(n)td.innerHTML='<span class="n">'+n+'</span>';
+        td.dataset.rc=r+','+c;
+        if(BOARD[r+','+c])td.append(BOARD[r+','+c]);
+        td.onclick=()=>clickCell(r,c);}
+      tr.append(td)});
+    t.append(tr)});
+  paint();
+}
+function slotAt(r,c,d){for(const[k,cells]of Object.entries(PUZ.slots)){
+  if(!k.endsWith(d))continue;if(cells.some(x=>x[0]===r&&x[1]===c))return k}return null}
+function clickCell(r,c){
+  const same=SEL&&PUZ.slots[SEL].some(x=>x[0]===r&&x[1]===c);
+  if(same)DIRN=DIRN==='across'?'down':'across';
+  SEL=slotAt(r,c,DIRN)||slotAt(r,c,DIRN==='across'?'down':'across');
+  if(SEL)DIRN=SEL.split('-')[1];
+  paint();showClue();
+}
+function paint(){
+  document.querySelectorAll('.grid td').forEach(td=>{
+    td.classList.remove('sel','word');const rc=td.dataset.rc;if(!rc)return;
+    const[r,c]=rc.split(',').map(Number);
+    if(SEL&&PUZ.slots[SEL].some(x=>x[0]===r&&x[1]===c))td.classList.add('word')});
+  document.querySelectorAll('.clue').forEach(el=>el.classList.toggle('sel',el.dataset.k===SEL));
+}
+function renderClues(){
+  for(const d of['across','down']){const box=$(d);box.innerHTML='';
+    for(const c of PUZ.clues[d]){const div=document.createElement('div');
+      div.className='clue';div.dataset.k=c.num+'-'+d;
+      div.innerHTML=`<b>${c.num}.</b> <span class="txt">${c.clue}</span> <span class="en">(${c.enum.join(',')})</span>`;
+      div.onclick=()=>{SEL=c.num+'-'+d;DIRN=d;paint();showClue()};
+      box.append(div)}}
+}
+const curClueObj=()=>{if(!SEL)return null;const[n,d]=SEL.split('-');
+  return PUZ.clues[d].find(c=>c.num==n)};
+function showClue(){const c=curClueObj();if(!c)return;
+  $('curclue').textContent=`${SEL.split('-')[0]} ${DIRN==='across'?'מאוזן':'מאונך'}: ${c.clue} (${c.enum.join(',')})`;
+  $('hintout').style.display='none';$('msg').textContent=''}
+document.addEventListener('keydown',e=>{
+  if(!SEL)return;const cells=PUZ.slots[SEL];
+  const heb=/^[א-ת]$/.test(e.key);
+  if(heb||e.key==='Backspace'){e.preventDefault();
+    if(heb){const idx=cells.findIndex(x=>!BOARD[x[0]+','+x[1]]);
+      const t=idx===-1?cells[cells.length-1]:cells[idx];
+      BOARD[t[0]+','+t[1]]=FIN[e.key]||e.key;}
+    else{const last=[...cells].reverse().find(x=>BOARD[x[0]+','+x[1]]);
+      if(last)delete BOARD[last[0]+','+last[1]];}
+    renderGrid();
+    localStorage.setItem('tash_board_'+PID,JSON.stringify(BOARD));}
+});
+
+/* ================= engine per clue ================= */
+const engOf=(n,d)=>ENGINE&&ENGINE.find(e=>e.clue_number==n&&e.direction===d)||null;
+const crackCache={};
+function boardPattern(key){return PUZ.slots[key].map(x=>BOARD[x[0]+','+x[1]]||'?').join('')}
+async function crackClue(n,d){
+  const key=n+'-'+d;
+  if(crackCache[key])return crackCache[key];
+  const baked=engOf(n,d);if(baked)return baked;
+  if(!KEY())return null;
+  const c=PUZ.clues[d].find(x=>x.num==n),pat=boardPattern(key);
+  const kn=pat.split('').filter(x=>x!=='?').length;
+  const cands=kn>=1?patternSearch(pat):[];
+  const subsHits=[],senses=[];
+  for(const w of c.clue.split(/[\s,.;:!?()"'\-־]+/)){const nw=norm(w);
+    if(nw.length<2)continue;
+    if(SUBS.fwd[nw])subsHits.push(nw+'~'+SUBS.fwd[nw].slice(0,3).map(x=>x[0]).join('/'));
+    if(AMB[nw])senses.push(nw+': '+AMB[nw].senses.join(','));}
+  $('engstat').textContent='· המנוע חושב על ההגדרה...';
+  const txt=await orChat([{role:'user',content:
+`אתה פותר תשבץ היגיון עברי. ${PLAYBOOK}
+ההגדרה: "${c.clue}" (${c.enum.join(',')}) — ${d==='across'?'מאוזן':'מאונך'}.
+אותיות ידועות מהצלבות (מימין לשמאל, ?=לא ידוע): ${pat}
+${cands.length?'מועמדים אמיתיים מהמילון שתואמים לתבנית: '+cands.slice(0,30).join(', '):''}
+${subsHits.length?'תחליפים מוכרים של המחברים: '+subsHits.join(' | '):''}
+${senses.length?'מילים דו-משמעיות: '+senses.join(' | '):''}
+כלל: עדיף להשאיר ריק מלנחש. tier="committed" רק אם כל אות מוסברת; אחרת "suggestion" או "blank".
+השב אך ורק בבלוק json:
+\`\`\`json
+{"answer":"ללארווחים","tier":"committed","mechanism":"anagram","fodder":"אם אנגרם: המילים מההגדרה","words":["אם רב-מילים","סדר","נכון"],"definition_side":"start","hint_fragment":"מילה מההגדרה ומה היא מייצגת","explanation":"הסבר קצר"}
+\`\`\``}],2500);
+  let e=null;
+  try{e=jsonOf(txt)}catch(_){e={tier:'blank',answer:''}}
+  e.clue_number=n;e.direction=d;
+  // mechanical verification gate — a "committed" claim must survive the checks
+  if(e.tier==='committed'&&!verifyClaims(e,c.enum))e.tier='suggestion';
+  crackCache[key]=e;
+  $('engstat').textContent='';
+  return e;
+}
+
+/* ================= hints / check / score ================= */
+const COSTS={1:10,2:20,3:30,4:50,5:80};
+const HEB={anagram:'אנגרם',reversal:'היפוך',container:'הכלה (מילה בתוך מילה)',
+  hidden:'מילה מוסתרת ברצף',charade:'שרשור חלקים',double:'מילה משותפת',culture:'רפרנס תרבותי'};
+async function hint(level){
+  if(!SEL)return;const[n,d]=SEL.split('-');const c=curClueObj();
+  bump(-COSTS[level]);SPENT[SEL]=(SPENT[SEL]||0)+COSTS[level];
+  LOG.push({t:'hint',num:+n,dir:d,level,ts:Date.now()});
+  let out='';
+  if(level===1){
+    const hits=[];
+    for(const w of c.clue.split(/[\s,.;:!?()"'\-־]+/)){const nw=norm(w);
+      if(nw.length>=2&&AMB[nw])hits.push(nw+': '+AMB[nw].senses.join(', '))}
+    out='מילים דו-משמעיות בהגדרה:\n'+(hits.join('\n')||'(לא נמצאו)');
+    const e=engOf(+n,d);if(e&&e.mechanism&&HEB[e.mechanism])out+='\n\nהמנגנון כנראה: '+HEB[e.mechanism];
+  }else{
+    const e=await crackClue(+n,d);
+    if(level===2){const s=e&&e.definition_side;
+      out=s==='start'?'החלק המגדיר נמצא בתחילת ההגדרה; השאר משחק מילים.'
+        :s==='end'?'החלק המגדיר נמצא בסוף ההגדרה; השאר משחק מילים.'
+        :'ההגדרה הישירה באחד הקצוות — נסו מכל כיוון.';}
+    if(level===3)out=e&&e.hint_fragment?('רמז לחלק מהדרך: '+e.hint_fragment)
+      :'אין למנוע רמז מבוסס כאן.';
+    if(level===4){const a=norm(e&&e.answer||'');
+      out=a&&e.tier!=='blank'?('האות הראשונה: '+a[0]+'   (אורך: '+a.length+')')
+        :'למנוע אין כאן תשובה מבוססת. נסו הצלבות.';}
+    if(level===5){
+      if(!e||e.tier==='blank'||!norm(e.answer||''))
+        out='המנוע נשאר כאן ריק בכוונה — אין לו תשובה שהוא מוכן להתחייב עליה. אתם לבד בזה :)';
+      else out='התשובה ('+(e.tier==='committed'?'מוכחת':'השערה בלבד')+'): '+e.answer+
+        '\n\nההסבר:\n'+(e.explanation||'');}
+  }
+  $('hintout').textContent=out;$('hintout').style.display='block';
+}
+async function checkSlot(){
+  if(!SEL)return;const[n,d]=SEL.split('-');
+  const cells=PUZ.slots[SEL];
+  const ans=cells.map(x=>BOARD[x[0]+','+x[1]]||'').join('');
+  if(ans.length<cells.length){say('bad','חסרות אותיות במשבצות');return}
+  const inLex=LEX.has(norm(ans));
+  const e=engOf(+n,d)||crackCache[SEL];
+  const ea=e&&norm(e.answer||'');
+  LOG.push({t:'user_answer',num:+n,dir:d,answer:ans,hints_spent:SPENT[SEL]||0,
+    in_lexicon:inLex,engine_agrees:ea?ea===norm(ans):null,ts:Date.now()});
+  if(ea&&ea===norm(ans)||(!ea&&inLex)){
+    solved.add(SEL);const gain=Math.max(20,100-(SPENT[SEL]||0));bump(gain);
+    say('good','יפה! ‎+'+gain+' נק׳');
+    cells.forEach(x=>document.querySelector(`[data-rc="${x[0]},${x[1]}"]`)?.classList.add('ok'));
+    document.querySelector(`.clue[data-k="${SEL}"]`)?.classList.add('done');
+    confetti();
+    if(e&&e.explanation){$('prooftxt').textContent=e.explanation;
+      $('proof').style.display='block';setTimeout(()=>$('proof').style.display='none',9000)}
+    if(solved.size>=Object.keys(PUZ.slots).length){
+      say('good','🎉 התשבץ הושלם!');for(let i=0;i<40;i++)setTimeout(confetti,i*60)}
+  }else if(ea&&ea!==norm(ans)){bump(-5);say('bad','המנוע חושב אחרת... שווה לבדוק שוב (‎-5)')}
+  else{bump(-5);say('bad','המילה לא מוכרת למילון ולמנוע אין דעה (‎-5) — אולי בכל זאת נכונה?')}
+}
+function bump(x){SCORE=Math.max(0,SCORE+x);$('score').textContent=SCORE}
+function say(cls,t){$('msg').className=cls;$('msg').textContent=t}
+function confetti(){const e=document.createElement('div');e.className='burst';
+  e.textContent=['✳','●','▲','✚','◆'][Math.floor(Math.random()*5)];
+  e.style.left=(10+Math.random()*80)+'vw';e.style.top=(5+Math.random()*20)+'vh';
+  e.style.color=['var(--red)','var(--gold)','var(--green)'][Math.floor(Math.random()*3)];
+  document.body.append(e);setTimeout(()=>e.remove(),1500)}
+function exportSession(){
+  const blob=new Blob([LOG.map(x=>JSON.stringify({pid:PID,...x})).join('\n')],{type:'application/jsonl'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download='tashbetz_session_'+PID+'.jsonl';a.click();
+}
+</script>
+</body>
+</html>
