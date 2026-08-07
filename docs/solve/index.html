@@ -394,7 +394,7 @@ async function crackClue(n,d){
   for(const w of c.clue.split(/[\s,.;:!?()"'\-־]+/)){const nw=norm(w);
     if(nw.length<2)continue;
     if(SUBS.fwd[nw])subsHits.push(nw+'~'+SUBS.fwd[nw].slice(0,3).map(x=>x[0]).join('/'));
-    if(AMB[nw])senses.push(nw+': '+AMB[nw].senses.join(','));}
+    if(AMB[nw])senses.push(nw+': '+hebSenses(AMB[nw].senses));}
   $('engstat').textContent='· המנוע חושב על ההגדרה...';
   const txt=await orChat([{role:'user',content:
 `אתה פותר תשבץ היגיון עברי. ${PLAYBOOK}
@@ -420,6 +420,10 @@ ${senses.length?'מילים דו-משמעיות: '+senses.join(' | '):''}
 
 /* ================= hints / check / score ================= */
 const COSTS={1:10,2:20,3:30,4:50,5:80};
+const HEBSENSE={common_word:'מילה מן המילון',given_name:'שם פרטי',surname:'שם משפחה',
+  role_noun:'תפקיד/פועל וגם שם',song:'שם שיר',song_word:'מילה מתוך שיר',artist:'זמר/להקה',
+  politician:'פוליטיקאי/ת',place:'מקום',bible:'דמות מקראית',answer:'הופיעה כתשובה בתשבצים'};
+const hebSenses=a=>a.map(x=>HEBSENSE[x]||x).join(', ');
 const HEB={anagram:'אנגרם',reversal:'היפוך',container:'הכלה (מילה בתוך מילה)',
   hidden:'מילה מוסתרת ברצף',charade:'שרשור חלקים',double:'מילה משותפת',culture:'רפרנס תרבותי'};
 async function hint(level){
@@ -430,7 +434,7 @@ async function hint(level){
   if(level===1){
     const hits=[];
     for(const w of c.clue.split(/[\s,.;:!?()"'\-־]+/)){const nw=norm(w);
-      if(nw.length>=2&&AMB[nw])hits.push(nw+': '+AMB[nw].senses.join(', '))}
+      if(nw.length>=2&&AMB[nw])hits.push(nw+': '+hebSenses(AMB[nw].senses))}
     out='מילים דו-משמעיות בהגדרה:\n'+(hits.join('\n')||'(לא נמצאו)');
     const e=engOf(+n,d);if(e&&e.mechanism&&HEB[e.mechanism])out+='\n\nהמנגנון כנראה: '+HEB[e.mechanism];
   }else{
