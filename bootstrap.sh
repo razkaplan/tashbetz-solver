@@ -46,10 +46,15 @@ python3 - <<'PY'
 import json, os
 d = json.load(open('data/answers/answers_parsed.json'))
 os.makedirs('data/answers/by_date', exist_ok=True)
+skipped = 0
 for p in d:
+    if not p['puzzle_date']:
+        skipped += 1
+        continue
     dd, mm, yy = p['puzzle_date'].split('/')
     json.dump(p, open(f'data/answers/by_date/{yy}-{mm}-{dd}.json', 'w'), ensure_ascii=False, indent=1)
-print(f"    {len(d)} puzzles, {sum(len(p['clues']) for p in d)} clues")
+ok = len(d) - skipped
+print(f"    {ok} puzzles, {sum(len(p['clues']) for p in d)} clues ({skipped} unrecovered from captcha, skipped)")
 PY
 
 echo "==> 3/6  culture entities from he-wikipedia"
