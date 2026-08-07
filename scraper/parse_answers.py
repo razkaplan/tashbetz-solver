@@ -30,20 +30,45 @@ def parse_page(page):
         })
     return date, clues
 
+def fetch(u, retries=5, base_delay=2.5):
+    """14across intermittently serves a bot-check redirect (HTTP 202, sgcaptcha) instead
+    of the page — observed on roughly half of requests in one run, at random, unrelated
+    to request rate. A plain retry with a short delay reliably gets a real 200 within a
+    few attempts, so retry here rather than let one unlucky request drop a whole puzzle."""
+    for attempt in range(retries):
+        req = urllib.request.Request(u, headers={'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36'})
+        try:
+            page = urllib.request.urlopen(req, timeout=30).read().decode('utf-8', 'replace')
+        except Exception:
+            time.sleep(base_delay * (attempt + 1))
+            continue
+        date, clues = parse_page(page)
+        if date is not None:
+            return date, clues
+        time.sleep(base_delay * (attempt + 1))
+    return None, []
+
 def main():
     urls = [u.strip() for u in open('data/answer_urls.txt') if u.strip()]
     out = []
+    failed = []
     for i, u in enumerate(urls):
-        req = urllib.request.Request(u, headers={'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36'})
-        page = urllib.request.urlopen(req, timeout=30).read().decode('utf-8', 'replace')
-        date, clues = parse_page(page)
+        date, clues = fetch(u)
         out.append({'puzzle_date': date, 'source_url': u, 'clues': clues})
+        if date is None:
+            failed.append(u)
         print(f'{i+1}/{len(urls)} {date}: {len(clues)} clues', flush=True)
         time.sleep(1.2)
     json.dump(out, open('data/answers/answers_parsed.json', 'w'), ensure_ascii=False, indent=1)
     total = sum(len(p['clues']) for p in out)
     empty = sum(1 for p in out for c in p['clues'] if not c['answer'])
     print(f'DONE: {len(out)} puzzles, {total} clues, {empty} empty answers')
+    if failed:
+        print(f'WARNING: {len(failed)} puzzle(s) still failed after retries (bot-check did not '
+              f'clear) and are recorded with puzzle_date=null — the by_date rebuild step skips '
+              f'these; re-run this script later to fill them in:')
+        for u in failed:
+            print(f'  {u}')
 
 if __name__ == '__main__':
     main()
