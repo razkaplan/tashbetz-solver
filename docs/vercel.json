@@ -1,0 +1,10 @@
+{
+  "redirects": [
+    {
+      "source": "/",
+      "has": [{ "type": "host", "value": "tashbetz.gtmascode.dev" }],
+      "destination": "/solve/",
+      "permanent": false
+    }
+  ]
+}
