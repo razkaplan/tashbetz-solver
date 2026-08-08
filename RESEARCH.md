@@ -59,6 +59,35 @@ analyzer could in principle strip construct-state and prefix/suffix inflections 
 before checking anagram/hidden matches), not pursued today to keep this run to one
 lever.
 
+## 2026-08-08
+
+**"Proving that Cryptic Crossword Clue Answers are Correct"** (arXiv 2407.08824,
+Jul 2024). https://arxiv.org/html/2407.08824v1
+Companion paper to the ICML 2025 work already logged 2026-08-06 (2506.04824) — same
+verify-by-execution idea, earlier version, with one detail the later paper's abstract
+didn't surface: candidate *re-ranking* uses the definition span specifically —
+generate the definition span (via a fine-tuned Llama-3), then rank crossword-word
+candidates of the right pattern by FastText cosine-similarity to that span, and take
+the closest match as the semantic anchor alongside the mechanical wordplay derivation.
+**Transfer: the structural idea is a genuine gap in today's lever, the technical
+approach is not portable.** Fetched the full method (not just the abstract) to check
+specifically because it bears on definition-span detection, queue item 2. Confirmed,
+in the paper's own words: this is *not* a rule-based or explicitly-trained span
+detector — it's LLM-generated (the fine-tuned model produces the definition text
+directly) and the paper reports no isolated accuracy number for span detection alone,
+so there is no benchmark number to target. The re-ranking step depends on FastText
+embeddings trained on English and a UK-newspaper training corpus; neither transfers to
+Hebrew, and the paper's own discussion section says as much about non-English cryptics
+generally. What *does* transfer conceptually: today's `candidates.py` mechanisms
+(anagram/hidden/reversal/substitution/homograph, this run's lever) generate candidates
+but do not yet rank or filter them by semantic closeness to a definition span — that
+remains a real, unfilled gap matching queue item 2, and this paper is evidence a
+definition-span signal is worth having once it exists, not evidence for how to build
+one in Hebrew. A Hebrew equivalent would need either a Hebrew sentence embedding model
+(available, e.g. AlephBERT-derived) or a hand-built heuristic (first-N-words vs
+last-N-words, scored by whether the *other* end's residual parses as wordplay) — still
+unattempted, still a distinct smaller lever from today's.
+
 **"Language Models are Crossword Solvers"** (arXiv 2406.09043) and the general
 crossword-AI literature (Berkeley Crossword Solver, Dr. Fill, Proverb) — checked again,
 no new transferable finding beyond what PLAYBOOK.md and PLAN_V2.md already extracted
