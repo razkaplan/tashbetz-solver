@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <rect width="1200" height="630" fill="#ffffff"/>
+  <style>@import url("https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@700&amp;display=swap");</style>
+  <!-- top rule pair, newspaper masthead style -->
+  <rect x="70" y="78" width="1060" height="3" fill="#121212"/>
+  <rect x="70" y="86" width="1060" height="1.5" fill="#121212"/>
+  <!-- red kicker chip -->
+  <rect x="880" y="106" width="250" height="34" fill="#f22b39"/>
+  <text x="1005" y="129" font-family="Menlo, monospace" font-size="16" letter-spacing="3" fill="#ffffff" text-anchor="middle">פותרים ביחד</text>
+  <!-- title, RTL -->
+  <text x="1130" y="215" font-family="'Frank Ruhl Libre','Arial Hebrew',serif" font-size="76" font-weight="700" fill="#121212" text-anchor="start" direction="rtl">עוזר תשבץ היגיון</text>
+  <text x="1130" y="268" font-family="'Frank Ruhl Libre','Arial Hebrew',serif" font-size="30" fill="#5c5c5c" text-anchor="start" direction="rtl">מנוע AI שפותר איתך, לא במקומך</text>
+  <!-- stats row -->
+  <text x="1130" y="345" font-family="Menlo, monospace" font-size="24" fill="#121212" text-anchor="start" direction="rtl">שני תשבצים עיוורים · דיוק 100%</text>
+  <text x="666" y="380" font-family="Menlo, monospace" font-size="18" fill="#5c5c5c" text-anchor="start">28/28 committed answers correct</text>
+  <!-- mini crossword grid, bottom-left, with a few letters -->
+  <g transform="translate(70,150)">
+    <g stroke="#121212" stroke-width="2.5" fill="#ffffff">
+      <rect x="0"   y="0"   width="70" height="70"/><rect x="70"  y="0"   width="70" height="70" fill="#121212"/>
+      <rect x="140" y="0"   width="70" height="70"/><rect x="210" y="0"   width="70" height="70"/>
+      <rect x="280" y="0"   width="70" height="70"/>
+      <rect x="0"   y="70"  width="70" height="70"/><rect x="70"  y="70"  width="70" height="70"/>
+      <rect x="140" y="70"  width="70" height="70" fill="#121212"/><rect x="210" y="70"  width="70" height="70"/>
+      <rect x="280" y="70"  width="70" height="70"/>
+      <rect x="0"   y="140" width="70" height="70"/><rect x="70"  y="140" width="70" height="70"/>
+      <rect x="140" y="140" width="70" height="70"/><rect x="210" y="140" width="70" height="70" fill="#fdeaec"/>
+      <rect x="280" y="140" width="70" height="70" fill="#fdeaec"/>
+      <rect x="0"   y="210" width="70" height="70" fill="#121212"/><rect x="70"  y="210" width="70" height="70"/>
+      <rect x="140" y="210" width="70" height="70"/><rect x="210" y="210" width="70" height="70"/>
+      <rect x="280" y="210" width="70" height="70" fill="#121212"/>
+      <rect x="0"   y="280" width="70" height="70"/><rect x="70"  y="280" width="70" height="70" fill="#e8f4ec"/>
+      <rect x="140" y="280" width="70" height="70" fill="#e8f4ec"/><rect x="210" y="280" width="70" height="70" fill="#e8f4ec"/>
+      <rect x="280" y="280" width="70" height="70"/>
+    </g>
+    <g font-family="'Frank Ruhl Libre','Arial Hebrew',serif" font-size="42" font-weight="500" fill="#121212" text-anchor="middle">
+      <text x="35"  y="50">ש</text><text x="175" y="50">ר</text><text x="245" y="50">ה</text>
+      <text x="245" y="190" fill="#f22b39">ג</text><text x="315" y="190" fill="#f22b39">פ</text>
+      <text x="105" y="330">פ</text><text x="175" y="330">ר</text><text x="245" y="330">ס</text>
+    </g>
+  </g>
+  <!-- bottom rule + footer -->
+  <rect x="70" y="560" width="1060" height="2" fill="#121212"/>
+  <text x="70" y="596" font-family="Menlo, monospace" font-size="17" fill="#5c5c5c">tashbetz-solver.vercel.app/solve</text>
+  <text x="1130" y="596" font-family="'Frank Ruhl Libre','Arial Hebrew',serif" font-size="18" fill="#5c5c5c" text-anchor="start" direction="rtl">פרויקט של רז קפלן</text>
+</svg>
