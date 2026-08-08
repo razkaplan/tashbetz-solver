@@ -11,21 +11,27 @@ Read this first each run. It is the handoff between days.
 | Accurate fulfilment (yield) | 55% (unchanged, not re-run today) | ~67% |
 | Best single puzzle | 2026-05-29: 95% / 71% / 68% ✓ all targets | |
 | Hardest puzzle | 2026-06-05: 100% / 43% / 43% | coverage stuck |
-| **Candidate recall@N (new, offline, mechanical only)** | **3.6% (1/28)**, avg 11.6 candidates/clue, on 2026-05-29 | not yet a target — diagnostic |
+| **Candidate recall@N (offline, mechanical only, anagram/hidden/reversal)** | 3.6% (1/28) on 2026-05-29 (2026-08-06) | not yet a target — diagnostic |
+| **Candidate recall@N with substitution+homograph mechanisms added** | **NOT MEASURED today — 14across access blocked, see log** | — |
 
 Baseline for comparison: v2 = 41% raw with untraceable errors.
-Last lever added: **mechanical candidate generation** (`solver/candidates.py`) —
-anagram/hidden/reversal/pattern candidates per clue, character-level fodder windows
-(not just whole-word), feeding the existing proof gate. Precision/coverage/yield were
-NOT re-measured this run (that requires a full LLM solve session, out of scope for one
-lever) — only the generator's own offline recall was, honestly, and it is low. See log.
-Last finding: coverage is bounded by CANDIDATE GENERATION, not verification. Same
-conclusion the cryptic-SOTA paper reached independently. Today's finding refines this:
-even a mechanically thorough (character-level, all 3 base mechanisms) generator recovers
-only 1/28 answers on this setter's hardest puzzle, because most of its wordplay is not
-literal anagram/hidden/reversal — it leans on substitution and homograph devices
-(consistent with PLAYBOOK.md). The generator is real infrastructure for the proof gate
-to use, but by itself it is a small piece of the coverage problem, not the whole fix.
+Last lever added: **substitution- and homograph-aware candidate generation**
+(`solver/candidates.py`: `substitution_candidates`, `homograph_candidates`), extending
+the mechanical generator from 2026-08-06 (anagram/hidden/reversal/pattern) with the
+two devices PLAYBOOK.md says this setter actually favors. Code is built, selftested
+(8/8 checks pass — 2 new checks against real committed substitution/ambiguity data),
+and audited for the leak mode this project has been burned by before (see log). It is
+**NOT wired into a live recall measurement today**: 14across.co.il returned a hard
+bot-check (sgcaptcha redirect) on every answer-page request all run, so no dev puzzle's
+gold answers could be fetched — recall@N for the new mechanisms is unmeasured, not
+zero, not estimated. 2026-05-29's clue text WAS fully transcribed and independently,
+mechanically validated against the committed grid (`grid_tools.py validate` -> OK,
+28/28 clues, enum sums match slot lengths exactly) — the transcription is ready; only
+the gold-answer join is blocked. Re-run `python3 solver/candidates.py recall
+data/dataset/clues.jsonl eval` once 14across is reachable and `data/answers/by_date/
+2026-05-29.json` exists (transcription is in the session but data/ is gitignored by
+design, so a future run must either redo it or reuse this PR's description of the
+clue text to save re-transcribing).
 
 ## The policy that governs everything
 A blank beats a wrong answer. Wrong letters corrupt crossings and poison later passes.
@@ -139,6 +145,85 @@ propagated), `blank`. Score with `python3 evals/run_eval.py <file>`.
   so the LLM proof-gates a generated list instead of a single guess, and extend
   generation to use `substitutions.py`/`homographs.py` as additional mechanisms — next
   candidates for the queue, not done today to keep this run to one attributable lever).
+
+- 2026-08-08: **substitution- and homograph-aware candidate generation**, lever 1(b)
+  from the queue (explicitly the next item flagged 2026-08-06). Bootstrap ran but
+  degraded: `./bootstrap.sh --dev-only` fetched the hspell lexicon (129,574 words) and
+  the 4 dev puzzle images fine, but the 14across answers scrape got hit far harder than
+  2026-08-06's transient bot-check — **51 of 52 puzzle pages returned a hard sgcaptcha
+  redirect even after 12 retries with backoff** (only 2026-01-16, a train-split puzzle,
+  came through). A targeted extra retry pass on just the 4 dev-puzzle URLs (12 more
+  attempts each, longer backoff) still got zero — direct inspection showed every
+  request being redirected to `/.well-known/sgcaptcha/`, i.e. a real challenge page, not
+  a rate-limit that backoff can outlast. This is an external site-availability issue,
+  not a bug in this repo's retry code (which already worked on 2026-08-06). Per its own
+  warning, bootstrap's substitutions.json rebuild (step 4/6) was even more degraded than
+  the 2026-08-06 finding (14 pairs from 1 puzzle vs 528 from 52) — reverted with
+  `git checkout`, not committed, same as before.
+
+  Despite the blocked scrape, transcribed 2026-05-29's clues in full anyway (28/28,
+  from `data/images/2026-05-28.jpg`) and validated them the one way still available
+  without the answer key: **`solver/grid_tools.py validate` against the committed grid
+  — OK, every enum sum matches its slot's actual length, numbering matches** (this
+  catches transcription errors — number/text/enum boundary mistakes, reversed enums —
+  independent of knowing the gold answers; it does not catch a wrong clue-text
+  transcription that happens to sum to the right length, which is why this is not a
+  substitute for the answer-key check, only a partial one). Mid-transcription, caught
+  and fixed my own error: initially misread the column reading order for the two
+  side-by-side clue-text columns (assumed each column's rightmost-to-leftmost line was
+  independent instead of reading the WHOLE right-hand column top-to-bottom before
+  starting the left column, per correct RTL multi-column flow) — this had scrambled
+  several clue-number/enum boundaries (e.g. an anagram fodder I could independently
+  cross-check against PLAYBOOK.md's own worked example, 'פחות יין' -> יחפניות,
+  confirmed which clue number it actually belonged to and exposed the ordering bug).
+  Re-transcribed with the corrected column order; all 28 clues then validated clean.
+  Could not complete the join to gold answers (`build_dataset.py` skips a puzzle
+  outright when `data/answers/by_date/<date>.json` is absent), so **no recall number
+  for the new mechanisms was produced or estimated this run** — the code lever is
+  built and unit-tested but its real-world effect on recall@N remains queued for the
+  next run that can reach 14across.
+
+  Built `substitution_candidates()` and `homograph_candidates()` in `candidates.py`,
+  wired into `generate()`. Selftest extended to 8 checks (6 prior + 2 new), all pass:
+  a real committed substitution pair (טומי->לפיד) recovers לפיד as a hidden word after
+  the swap; a real ambiguous token (שרה) is proposed as itself; a real name-component
+  (אבא -> אבא חושי) is expanded to its full culture-sourced entity.
+
+  AUDIT (the part of this lever that took the most care): both new mechanisms read
+  data built from the FULL answers corpus (substitutions.json from crowd explanations,
+  ambiguities.json partly from corpus answers), unlike lexicon.py's word list, which
+  already excludes held-out dev/eval answers via `held_out_answers()`. Two distinct
+  leak risks, handled differently:
+  1. `homograph_candidates` could leak a held-out gold answer through
+     `ambiguities.json`'s 'answer' sense (set whenever a token was EVER a crossword
+     answer anywhere in the 52-puzzle corpus, dev/eval included, unfiltered). Fixed by
+     construction: the function only ever consults tokens that literally appear in the
+     CLUE TEXT being solved (never a corpus-wide scan by length), and explicitly
+     excludes the 'answer' sense from the set of senses that justify emitting a
+     candidate (`_SAFE_SENSES` in candidates.py) — only dictionary membership, curated
+     role nouns, and Wikipedia-sourced culture entities can trigger a candidate. This
+     is a structural fix, not a runtime filter, so it cannot regress silently.
+  2. `substitution_candidates` draws on `substitutions.json`, mined from crowd
+     EXPLANATIONS (not just answers) of all 52 puzzles including dev/eval, with no
+     held-out filtering at all — this is a genuine, pre-existing gap (also shared by
+     `prove.py`'s `means()`, unaudited until now) since a pair mined from a dev clue's
+     own explanation and then used to generate a candidate for that same clue would be
+     reading the answer key. Wrote `scratch_audit_leak.py`, a leave-one-out check:
+     rebuild the pair index excluding a target puzzle's own explanations and compare
+     candidate output with/without. **Could not run it this session** — it needs the
+     same blocked answer corpus as the recall measurement. It is committed, ready to
+     run the moment 14across is reachable, and should be run BEFORE trusting any
+     substitution-mechanism hit in a future recall number. Flagging this explicitly
+     rather than either skipping the concern or asserting it's clean without evidence.
+  No forbidden reads or solution-site access this run (bootstrap's own fetches are the
+  documented public sources; the sgcaptcha page was inspected only to confirm it was a
+  challenge redirect, never followed or solved).
+
+  HONEST READ: the code lever is complete, sound-by-construction against one leak mode,
+  and honestly flagged as unaudited against a second, real one — but it shipped with
+  ZERO measured effect on recall, purely because of an external outage. That is a
+  materially weaker result than 2026-08-06's (which at least got a real, if low, number)
+  and should be treated as unproven until the next run measures it for real.
 
 ---
 
