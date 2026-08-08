@@ -1,6 +1,15 @@
 <!doctype html>
 <html lang="he" dir="rtl">
 <head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-V7LGK8CMHQ"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-V7LGK8CMHQ');
+  </script>
+
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="מנוע AI שפותר איתך תשבץ היגיון — רמזים מדורגים, הוכחות לכל תשובה, ודיוק 100% על שני תשבצים עיוורים.">
@@ -79,6 +88,20 @@ table.grid{border-collapse:collapse;direction:rtl;margin:0 auto}
 #proof .t{font-family:'IBM Plex Mono',monospace;color:var(--green);font-size:.7rem;letter-spacing:.12em}
 #proof pre{white-space:pre-wrap;font-size:.85rem;margin:.4rem 0 0;font-family:'IBM Plex Mono',monospace}
 footer{margin:3rem 0 2rem;padding-top:1rem;border-top:1px solid var(--rule);font-size:.82rem;color:var(--ink2)}
+/* ---- mobile ---- */
+.grid td,button,.clue{touch-action:manipulation}
+#kbd{position:fixed;top:0;left:0;width:2px;height:2px;opacity:.01;border:0;padding:0;font-size:16px;background:transparent;color:transparent;caret-color:transparent;z-index:-1}
+#kbdbar{display:none;position:sticky;bottom:0;background:var(--paper);border-top:1.5px solid var(--ink);padding:.5rem .6rem;z-index:6;font-size:.85rem;align-items:center;gap:.6rem}
+#kbdbar button{padding:.35rem .7rem;font-size:.85rem}
+@media(max-width:640px){
+  .wrap{padding:0 .6rem}
+  h1{font-size:1.45rem}
+  .grid td{width:calc((100vw - 2.4rem)/11);height:calc((100vw - 2.4rem)/11);font-size:clamp(.85rem,4.2vw,1.2rem)}
+  .grid td .n{font-size:.42rem;top:0;right:1px}
+  .hbtn{font-size:.72rem;padding:.28rem .45rem}
+  .hbtn .cost{font-size:.55rem}
+  #panel .who{font-size:.9rem}
+}
 </style>
 </head>
 <body>
@@ -142,6 +165,9 @@ footer{margin:3rem 0 2rem;padding-top:1rem;border-top:1px solid var(--rule);font
 </footer>
 </div>
 <div id="proof"><div class="t">ההוכחה — כך זה עובד</div><pre id="prooftxt"></pre></div>
+<input id="kbd" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" lang="he" aria-hidden="true" tabindex="-1">
+<div id="kbdbar"><span>👆 בחרו משבצת · הקלידו אותיות · לחיצה נוספת מחליפה כיוון</span>
+<button class="primary" onclick="focusKbd(true)">⌨ פתחו מקלדת</button></div>
 
 <script>
 /* ================= shared state ================= */
@@ -332,6 +358,8 @@ function start(puz,fixedId){
   $('board').style.display='grid';$('panel').style.display='flex';
   $('scorebox').style.display='block';$('exportbtn').style.display='inline-block';
   $('title').textContent='פותרים ביחד';
+  if(matchMedia('(pointer:coarse)').matches){$('kbdbar').style.display='flex';
+    say('good','בחרו משבצת בלוח והקלידו — המקלדת תיפתח לבד')}
   $('engstat').textContent=ENGINE&&ENGINE.length?'· המנוע פתר מראש — רמזים מיידיים':'· רמזים חכמים יחושבו לפי דרישה';
   renderGrid();renderClues();
 }
@@ -357,7 +385,7 @@ function clickCell(r,c){
   if(same)DIRN=DIRN==='across'?'down':'across';
   SEL=slotAt(r,c,DIRN)||slotAt(r,c,DIRN==='across'?'down':'across');
   if(SEL)DIRN=SEL.split('-')[1];
-  paint();showClue();
+  paint();showClue();focusKbd();
 }
 function paint(){
   document.querySelectorAll('.grid td').forEach(td=>{
@@ -371,7 +399,7 @@ function renderClues(){
     for(const c of PUZ.clues[d]){const div=document.createElement('div');
       div.className='clue';div.dataset.k=c.num+'-'+d;
       div.innerHTML=`<b>${c.num}.</b> <span class="txt">${c.clue}</span> <span class="en">(${c.enum.join(',')})</span>`;
-      div.onclick=()=>{SEL=c.num+'-'+d;DIRN=d;paint();showClue()};
+      div.onclick=()=>{SEL=c.num+'-'+d;DIRN=d;paint();showClue();focusKbd()};
       box.append(div)}}
 }
 const curClueObj=()=>{if(!SEL)return null;const[n,d]=SEL.split('-');
@@ -379,17 +407,39 @@ const curClueObj=()=>{if(!SEL)return null;const[n,d]=SEL.split('-');
 function showClue(){const c=curClueObj();if(!c)return;
   $('curclue').textContent=`${SEL.split('-')[0]} ${DIRN==='across'?'מאוזן':'מאונך'}: ${c.clue} (${c.enum.join(',')})`;
   $('hintout').style.display='none';$('msg').textContent=''}
-document.addEventListener('keydown',e=>{
+function addLetter(ch){
   if(!SEL)return;const cells=PUZ.slots[SEL];
-  const heb=/^[א-ת]$/.test(e.key);
-  if(heb||e.key==='Backspace'){e.preventDefault();
-    if(heb){const idx=cells.findIndex(x=>!BOARD[x[0]+','+x[1]]);
-      const t=idx===-1?cells[cells.length-1]:cells[idx];
-      BOARD[t[0]+','+t[1]]=FIN[e.key]||e.key;}
-    else{const last=[...cells].reverse().find(x=>BOARD[x[0]+','+x[1]]);
-      if(last)delete BOARD[last[0]+','+last[1]];}
-    renderGrid();
-    localStorage.setItem('tash_board_'+PID,JSON.stringify(BOARD));}
+  const idx=cells.findIndex(x=>!BOARD[x[0]+','+x[1]]);
+  const t=idx===-1?cells[cells.length-1]:cells[idx];
+  BOARD[t[0]+','+t[1]]=FIN[ch]||ch;
+  renderGrid();localStorage.setItem('tash_board_'+PID,JSON.stringify(BOARD));
+}
+function delLetter(){
+  if(!SEL)return;const cells=PUZ.slots[SEL];
+  const last=[...cells].reverse().find(x=>BOARD[x[0]+','+x[1]]);
+  if(last){delete BOARD[last[0]+','+last[1]];
+    renderGrid();localStorage.setItem('tash_board_'+PID,JSON.stringify(BOARD));}
+}
+const kbd=$('kbd');
+const SENT='\u200b';                       // sentinel so mobile backspace is detectable
+function focusKbd(force){
+  if(!SEL&&!force)return;
+  kbd.value=SENT;
+  kbd.focus({preventScroll:true});
+}
+kbd.addEventListener('input',()=>{
+  const v=kbd.value;
+  if(v.length===0){delLetter()}            // sentinel deleted -> backspace
+  else{for(const ch of v.replace(SENT,''))if(/[א-ת]/.test(ch))addLetter(ch)}
+  kbd.value=SENT;
+});
+kbd.addEventListener('keydown',e=>{        // physical keyboards while kbd focused
+  if(e.key==='Backspace'){e.preventDefault();delLetter();kbd.value=SENT}
+});
+document.addEventListener('keydown',e=>{   // desktop path when kbd is not focused
+  if(e.target===kbd||!SEL)return;
+  if(/^[א-ת]$/.test(e.key)){e.preventDefault();addLetter(e.key)}
+  else if(e.key==='Backspace'){e.preventDefault();delLetter()}
 });
 
 /* ================= engine per clue ================= */
