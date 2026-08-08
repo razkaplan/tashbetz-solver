@@ -25,6 +25,20 @@ answers at solve time. The grid layer is airtight (every answer is length-valid)
 accuracy plateaus at 25–57% per puzzle, gated by Israeli-culture reference clues
 that need external knowledge.
 
+## Use it as a Claude Code skill
+
+The solving methodology installs as a skill for any Claude Code user:
+
+```bash
+git clone https://github.com/razkaplan/tashbetz-solver ~/tashbetz-solver
+cp -r ~/tashbetz-solver/skills/tashbetz-solver ~/.claude/skills/
+cd ~/tashbetz-solver && ./bootstrap.sh --dev-only
+```
+
+Then drop any תשבץ היגיון image into a Claude Code session and ask it to solve.
+The skill enforces the precision-first protocol and the executable proof gate that
+produced two consecutive blind 100%-precision solves.
+
 ## Data note
 The raw scraped corpus (newspaper images, full answer database) is **not** included
 in this repo out of respect for the sources' copyright. Only a two-puzzle excerpt

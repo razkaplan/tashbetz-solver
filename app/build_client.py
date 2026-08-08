@@ -57,17 +57,27 @@ def main():
     manifest = []
     for did, src, title in DEMOS:
         pdir = f'app/puzzles/{src}'
-        if not os.path.exists(f'{pdir}/engine.json'):
-            print(f'demo {did}: engine not ready — skipped'); continue
-        eng = json.load(open(f'{pdir}/engine.json'))
+        if not os.path.exists(f'{pdir}/puzzle.json'):
+            print(f'demo {did}: no puzzle — skipped'); continue
+        # engine is OPTIONAL: a puzzle publishes empty first, the engine arrives later
+        eng = []
+        if os.path.exists(f'{pdir}/engine.json'):
+            eng = json.load(open(f'{pdir}/engine.json'))
+            if isinstance(eng, dict):
+                eng = eng.get('entries', [])
+        done = os.path.exists(f'{pdir}/engine.status') and \
+            open(f'{pdir}/engine.status').read().strip() == 'done'
         com = sum(1 for e in eng if e.get('tier') == 'committed')
         os.makedirs(f'{OUT}/demo/{did}', exist_ok=True)
-        for fn in ('puzzle.json', 'engine.json'):
-            json.dump(json.load(open(f'{pdir}/{fn}')),
-                      open(f'{OUT}/demo/{did}/{fn}', 'w'), ensure_ascii=False)
-        manifest.append({'id': did, 'title': title,
-            'desc': f'המנוע פתר אותו בעיוורון: {com} מתוך {len(eng)} בתיוג "מוכח". רמזים זמינים בלי מפתח.'})
-        print(f'demo {did}: baked ({com} committed)')
+        json.dump(json.load(open(f'{pdir}/puzzle.json')),
+                  open(f'{OUT}/demo/{did}/puzzle.json', 'w'), ensure_ascii=False)
+        json.dump(eng, open(f'{OUT}/demo/{did}/engine.json', 'w'), ensure_ascii=False)
+        desc = (f'המנוע פתר אותו בעיוורון: {com} מתוך {len(eng)} בתיוג "מוכח". רמזים זמינים בלי מפתח.'
+                if done and eng else
+                (f'המנוע עדיין פותר ברקע — עד כה {com} תשובות מוכחות. אפשר כבר לפתור לבד!' if eng else
+                 'טרי מהדפוס — המנוע עוד לא פתר. פתרו לבד, או העלו מפתח לרמזים חכמים.'))
+        manifest.append({'id': did, 'title': title, 'desc': desc})
+        print(f'demo {did}: baked ({com} committed, done={done})')
     json.dump(manifest, open(f'{OUT}/demos.json', 'w'), ensure_ascii=False)
 
 if __name__ == '__main__':
