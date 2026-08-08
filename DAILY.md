@@ -179,3 +179,8 @@ Each run:
    is still unverified. Update the state table and append to the Log.
 
 A run that reports "this lever did not help, here is the evidence" is a good run.
+
+- 2026-08-08: PRIVATE definitions corpus added — scraper/crawl_defs.py crawls note.co.il
+  and pitaronfree (מורדו) def->answer pairs into data/answers/private_defs/ (GITIGNORED,
+  never publish/deploy — solver use only). solver/defs.py exposes lookup/candidates.
+  LEVER for candidate generation: defs.py candidates "<clue>" <len> before lexicon pattern.
