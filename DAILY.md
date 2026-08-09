@@ -184,3 +184,20 @@ A run that reports "this lever did not help, here is the evidence" is a good run
   and pitaronfree (מורדו) def->answer pairs into data/answers/private_defs/ (GITIGNORED,
   never publish/deploy — solver use only). solver/defs.py exposes lookup/candidates.
   LEVER for candidate generation: defs.py candidates "<clue>" <len> before lexicon pattern.
+
+## Research-informed lever queue (2026-08-08, from NYT/cryptic literature review)
+Ordered by expected yield; attack coverage (46-57%) while preserving the 100%-precision rule.
+1. SWEEP LOOP (SweepClip, NAACL 2025): after each commit, re-crack all unsolved clues with
+   new grid letters; promote a suggestion to committed only if it survives 2 consecutive
+   sweeps AND passes prove.py. Never retract committed answers; suggestions are retractable.
+2. RANKED RETRIEVAL (Berkeley Crossword Solver, ACL 2022): BM25/char-ngram ranking over
+   private_defs (4,433 pairs) + answers corpus explanations (11,931) as the FIRST candidate
+   source per clue, before lexicon pattern. Upgrade solver/defs.py from word-overlap.
+3. MECHANICAL CHARADE ENUMERATION: for each clue, enumerate letter-count splits of the enum;
+   look up each segment in substitutions.json (fwd+rev). Charade is the top mechanism and
+   is still pure-LLM. Emit candidates with ready-made prove.py lines.
+4. HYPOTHESIS BREADTH (ICML 2025 reasoning SOTA): raise candidates-per-clue ~3 -> ~20;
+   prove.py filters. Wrong hypotheses are free while the gate holds.
+5. LETTER LOCAL SEARCH (Berkeley stage 3): for slots >=60% crossed, enumerate lexicon words
+   fitting the pattern; if exactly one candidate, surface as high-confidence suggestion.
+Measure each lever on dev (fixed enums) with run_eval.py before/after; one lever per day.
