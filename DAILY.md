@@ -214,3 +214,10 @@ Measure each lever on dev (fixed enums) with run_eval.py before/after; one lever
   top slots WITH letters, prove.py gate unchanged. USE THIS in every solve loop.
 - Scoring note: keys for unseen dates fetch from 14across POST-HOC only (never at solve
   time); parse via scraper/parse_answers.parse_page.
+- LEVER 2 (ranked retrieval): BUILT solver/retrieve_defs.py (BM25 over private_defs +
+  train pairs; held-out applies to OUR corpus docs only - external defs are independent
+  knowledge). MEASURED on dev: gold@25 = 5.4%; ceiling = 27% (share of dev answers that
+  exist in the index at all; Haroeh's long coined phrases never will). Retrieval finds
+  20% of reachable answers. VERDICT: secondary candidate source, best for culture/common
+  short answers and for the simpler Dekel-Bnо tier; not a primary generator for Haroeh.
+  Usage: python3 solver/retrieve_defs.py candidates "<clue or clue-end>" <len>.
