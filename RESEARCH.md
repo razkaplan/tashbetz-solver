@@ -68,3 +68,52 @@ implemented — candidate generation is upstream of that and had to come first).
 where "candidate" means "any dictionary word of the right length crossing existing
 letters" — there is no wordplay-decoding step, which is the entire difficulty of this
 project's puzzles. Confirms DAILY.md's standing skepticism.
+
+## 2026-08-09
+
+**"Proving that Cryptic Crossword Clue Answers are Correct"** (arXiv 2407.08824).
+https://arxiv.org/html/2407.08824v1
+A fine-tuned Llama model proposes definition + wordplay annotations for a
+(clue, candidate-answer) pair; a second model formalises the wordplay as a Python DSL
+program; a verifier executes it and — the part not previously in this project's
+literature notes — on failure returns a structured error/hint back to the generator for
+up to 5 iterative rewrites, rather than a bare pass/fail. The paper also reports that
+gold answers are measurably more "provable" than close semantic decoys (~38-42%
+true-positive preference), i.e. provability itself carries a correctness signal.
+**Transfer: partial, and not implemented today.** `solver/prove.py`'s docstring already
+credits the sibling ICML paper (2506.04824) for the propose-then-verify shape and
+already returns a WHY string on failure (`prove.py check` prints the failing assertion).
+What is genuinely new here is *feeding that failure hint back into another generation
+round* — this project's proof gate currently treats a failed proof as a terminal signal
+("repair the derivation or downgrade to suggestion" — SOLVE_PROTOCOL.md's own wording),
+not as input to a second attempt. That is a plausible future lever (an iterative
+prove-then-repair loop around `candidates.py` output) but is a distinct, non-trivial
+piece of work — flagging for the queue, not attempting it inside today's single-lever
+budget.
+
+**"Are LLMs Good Cryptic Crossword Solvers?"** (arXiv 2403.12094) — re-checked for
+definition-span detection technique detail (last run's note said this needed a closer
+read). The PDF did not extract cleanly this run either (binary/figure-heavy layout), so
+no new technical detail was recoverable beyond what was already logged 2026-08-06:
+LLMs are tested on definition-span identification as an isolated subtask and do
+measurably better on it than on full clue solving, which is process confirmation, not a
+portable technique — the paper does not describe a rule-based or embedding-free
+definition-span method that would work without English-tuned resources. No update to
+the prior skeptical judgement.
+
+**Hebrew morphology 2025-2026 survey** (Arabic root-pattern tokenizer study
+arXiv 2603.15773; Hebrew coreference/morphology benchmark arXiv 2604.17108) — checked
+for anything that would improve `candidates.py`'s character-window fodder search or
+`homographs.py`'s prefix/suffix stripping. **Transfer: none actionable today.** Both
+papers are evaluation/benchmark work (how well do LLMs/tokenizers represent Semitic
+morphology), not new segmenters this project could call as a library; the standing
+finding from 2026-08-06 (a real morphological analyzer could in principle replace the
+ad hoc prefix list in `homographs.py`'s `PREFIXES`/`SUFFIXES`) is unchanged and still
+not pursued — the ad hoc list already covers the productive Hebrew clitics (ו/ה/ב/ל/
+מ/ש/כ) and the benchmark literature gives no evidence a full analyzer would move this
+project's numbers, only that LLMs alone underperform on the task in general.
+
+**Net for today:** no new technique changed the plan. This confirmed the queue item
+DAILY.md already flagged as untried and still-relevant: definition-span detection
+(rule-based, since no learned/embedding approach transfers without English-tuned
+resources) — see the Log entry below for what was actually built.
