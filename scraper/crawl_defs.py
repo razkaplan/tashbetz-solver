@@ -96,3 +96,31 @@ def crawl_mordo():
 
 if __name__=='__main__':
     {'note':crawl_note,'mordo':crawl_mordo}[sys.argv[1]]()
+
+# Mordo (pitaronfree) posts use "פתרון N אותיות:" sections without "של".
+# Re-parse saved content in place (crawl saves content, so no re-crawl needed):
+#   python3 -c "import crawl_defs; crawl_defs.reparse_mordo()"
+import re as _re
+_SEC=_re.compile(r'פתרון (?:של )?(\d+|שתי מילים) (?:אותיות|מילים)?\s*(?:ומעלה)?\s*:\s*')
+def parse_mordo_answers(content):
+    cut=content.find('ביטויים דומים')
+    body=content[:cut] if cut>0 else content
+    ans=[]
+    parts=_SEC.split(body)
+    for i in range(1,len(parts)-1,2):
+        n,seg=parts[i],parts[i+1].strip()
+        if not seg: continue
+        if ',' in seg: ans+=[a.strip() for a in seg.split(',') if a.strip()]
+        elif n.isdigit():
+            toks=seg.split()
+            ans+= toks if toks and all(len(t)==int(n) for t in toks) else [seg]
+        else: ans.append(seg)
+    return [a for a in ans if _re.search(r'[א-ת]',a)]
+
+def reparse_mordo(path='data/answers/private_defs/mordo.jsonl'):
+    import json
+    rows=[json.loads(l) for l in open(path)]
+    for r in rows:
+        if not r.get('answers'): r['answers']=parse_mordo_answers(r.get('content',''))
+    with open(path,'w') as f:
+        for r in rows: f.write(json.dumps(r,ensure_ascii=False)+'\n')
