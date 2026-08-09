@@ -201,3 +201,16 @@ Ordered by expected yield; attack coverage (46-57%) while preserving the 100%-pr
 5. LETTER LOCAL SEARCH (Berkeley stage 3): for slots >=60% crossed, enumerate lexicon words
    fitting the pattern; if exactly one candidate, surface as high-confidence suggestion.
 Measure each lever on dev (fixed enums) with run_eval.py before/after; one lever per day.
+
+### Lever measurements (2026-08-08, session experiments)
+- LEVER 3 (charade enumeration): BUILT solver/charade.py. Train-split hit-rate: gold in
+  top-25 for only 2.8% of charade-ish clues - the mined substitution table (2.2k+2.5k
+  pairs) is too sparse for full-answer generation. NEGATIVE as a generator; keep as a
+  segment/proof-sketch aide. Do not re-attempt without a much larger equivalence table.
+- LEVER 1 (sweep): BUILT solver/sweep.py, then RECALIBRATED by measurement: promoting
+  suggestions on 2+ crossing agreement scored 1/5 on live puzzles (קלינטון fit קריפטון's
+  crossings); an as-if chain poisoned downstream patterns. Tool now emits a re-crack
+  worklist (pattern + crossings + suggestion status + lexicon leads); agent re-cracks
+  top slots WITH letters, prove.py gate unchanged. USE THIS in every solve loop.
+- Scoring note: keys for unseen dates fetch from 14across POST-HOC only (never at solve
+  time); parse via scraper/parse_answers.parse_page.
