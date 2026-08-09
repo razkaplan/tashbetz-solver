@@ -225,7 +225,7 @@ hr.sec{border:none; border-top:1px solid var(--rule); margin:2rem 0}
 
 <section id="method">
   <h2><span class="num">4</span>The solver</h2>
-  <p>The solver is an LLM working a fixed protocol, augmented with four tools. It reads only the clues, the grid, and a data-derived playbook, never the answers.</p>
+  <p>The solver is an LLM working a fixed protocol, augmented with four tools. It reads only the clues, the grid, and a data-derived playbook, never the answers. To be explicit: no model was trained or fine-tuned. The LLM is a frozen commercial model; all learning in this project happens around it, in the corpus, the deterministic tools (lexicon, substitution table, homograph index), the playbook, and the evaluation loop.</p>
   <h3>Grid as a hard constraint</h3>
   <p>Answers are placed into the real grid: exactly one letter per white cell, dark cells empty, and every crossing must agree. This alone eliminated the entire class of length errors, and it turns each unsolved clue into a letter pattern that filters candidates. As a user reviewing this work put it: build the grid first, confirm one letter per cell, and always move to the clue that already has the most letters.</p>
   <h3>Lexicon, retrieval, consensus</h3>
