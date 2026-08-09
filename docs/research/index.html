@@ -146,6 +146,8 @@ blockquote{margin:1.3rem 0; padding:.2rem 0 .2rem 1.1rem; border-inline-start:2p
 .att .ex{color:var(--ink-soft); font-size:.82rem}
 .gold-row{margin-top:.35rem; font-size:.95rem}
 .gold-row .g{font-family:'Frank Ruhl Libre',serif; direction:rtl; font-weight:700; color:var(--good)}
+.canon{margin-top:.4rem;padding:.45rem .7rem;background:rgba(46,125,50,.08);border-inline-start:3px solid var(--good,#2e7d32);font-size:.95rem}
+.canon .he{font-weight:500}
 .crowd{font-size:.85rem; color:var(--ink-soft); margin-top:.25rem}
 .crowd .he{font-weight:400}
 details.fixbox{margin-top:.6rem}
@@ -392,8 +394,9 @@ function clueHTML(p,c,k,reviewed){
       <span class="ans he">${esc(a.answer)}</span>
       <span class="mk ${a.ok?'ok':'no'}">${a.ok?'✓':'✗'}</span>
       <span class="ex">${esc(a.explanation)}</span></div>`).join('');
+  const canon = c.canon ? `<div class="canon">Solution: <span class="he">${esc(c.canon)}</span></div>` : '';
   const crowd = (c.crowd&&c.crowd.length)
-    ? `<div class="crowd">crowd: <span class="he">${c.crowd.map(esc).join(' · ')}</span></div>` : '';
+    ? `<div class="crowd">Reader explanations (raw): <span class="he">${c.crowd.map(x=>esc(x.replace(/\s+/g,' '))).join(' · ')}</span></div>` : '';
   const f = fixes[k]||{};
   return `<div class="clue" data-k="${k}">
     <div class="head">
@@ -403,6 +406,7 @@ function clueHTML(p,c,k,reviewed){
       <span class="enum">${enum_}</span>
     </div>
     <div class="gold-row">gold: <span class="g he">${esc(c.gold)}</span></div>
+    ${canon}
     <div class="attempts">${atts}</div>
     ${crowd}
     <button class="imgtoggle" data-img="${p.image||''}">show source image</button>
