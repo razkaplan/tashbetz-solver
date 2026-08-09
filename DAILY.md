@@ -11,7 +11,8 @@ Read this first each run. It is the handoff between days.
 | Accurate fulfilment (yield) | 55% (unchanged, not re-run today) | ~67% |
 | Best single puzzle | 2026-05-29: 95% / 71% / 68% ✓ all targets | |
 | Hardest puzzle | 2026-06-05: 100% / 43% / 43% | coverage stuck |
-| **Candidate recall@N (new, offline, mechanical only)** | **3.6% (1/28)**, avg 11.6 candidates/clue, on 2026-05-29 | not yet a target — diagnostic |
+| **Candidate recall@N (new, offline, mechanical only)** | **3.6% (1/28)**, avg 11.6 candidates/clue, on 2026-05-29 (unchanged, not re-run today — see log) | not yet a target — diagnostic |
+| **Defspan false-positive reduction (new, synthetic, offline)** | mean candidates/clue **6.08 -> 2.54** (200 synthetic clues); shrank on 92% | diagnostic — not live recall |
 
 Baseline for comparison: v2 = 41% raw with untraceable errors.
 Last lever added: **mechanical candidate generation** (`solver/candidates.py`) —
@@ -26,6 +27,15 @@ only 1/28 answers on this setter's hardest puzzle, because most of its wordplay 
 literal anagram/hidden/reversal — it leans on substitution and homograph devices
 (consistent with PLAYBOOK.md). The generator is real infrastructure for the proof gate
 to use, but by itself it is a small piece of the coverage problem, not the whole fix.
+
+**2026-08-09: bootstrap's answers-corpus step (14across.co.il) was unreachable this
+session** — every request returned an sgcaptcha challenge (HTTP 202), 100% of the time,
+confirmed three independent ways (see log). This blocked transcribing a fresh dev puzzle
+and blocked re-measuring precision/coverage/yield/recall@N against real data, so those
+rows above are UNCHANGED from 2026-08-06, not re-verified today. Today's lever
+(`solver/defspan.py`, definition-span detection) was built and selftested against
+synthetic dictionary examples only — real, executed, leak-free evidence, but not a live
+recall/precision number. See log for what would need to happen first.
 
 ## The policy that governs everything
 A blank beats a wrong answer. Wrong letters corrupt crossings and poison later passes.
@@ -59,10 +69,21 @@ propagated), `blank`. Score with `python3 evals/run_eval.py <file>`.
    the generated list instead of one guess — not done yet, this was pure offline
    generator + recall measurement; (b) add substitution- and homograph-aware generation
    (`substitutions.py`, `homographs.py` as additional mechanisms) — the setter leans on
-   these, not literal anagram/hidden/reversal, per the 3.6% result and PLAYBOOK.md.
+   these, not literal anagram/hidden/reversal, per the 3.6% result and PLAYBOOK.md. NOTE
+   (2026-08-09): a full-answer generator built the same way already exists and already
+   failed — `solver/charade.py`'s substitution-table charade enumeration measured 2.8%
+   top-25 hit-rate and was logged NEGATIVE (2026-08-08 entry below). Re-attempting (b) as
+   stated would likely repeat that result; if revisited, it needs a materially bigger
+   equivalence table first (PLAN_V2.md item G), not just a different call site.
 2. **Definition-span detection** — a cryptic clue's definition sits at one END. Classify
-   which end, then solve the wordplay from the remainder. Standard in the literature,
-   never tried here.
+   which end, then solve the wordplay from the remainder. Standard in the literature.
+   BUILT 2026-08-09 (`solver/defspan.py`) — rule-based split scoring, wired to restrict
+   `candidates.py`'s search to the wordplay residual. See log: real synthetic evidence it
+   reduces false-positive candidates (6.08 -> 2.54 mean/clue, 92% of cases), but NOT yet
+   measured against a live puzzle (bootstrap's answers corpus was unreachable this run).
+   Remaining work: wire into `candidates.recall_eval`-style measurement once the corpus
+   is reachable again, and consider whether `definition_text` is itself a usable
+   candidate-scoring signal (e.g. cross-check against `retrieve_defs.py`).
 3. **Grow the corpus** — 8,249 clue-answer pairs vs ~470k used by the SOTA system. The
    tartey_mashma Google Group posts weekly scans of easier setters; transcribing those
    unlocks both retrieval and any future fine-tune. This is the long game.
@@ -139,6 +160,81 @@ propagated), `blank`. Score with `python3 evals/run_eval.py <file>`.
   so the LLM proof-gates a generated list instead of a single guess, and extend
   generation to use `substitutions.py`/`homographs.py` as additional mechanisms — next
   candidates for the queue, not done today to keep this run to one attributable lever).
+
+- 2026-08-09: **bootstrap blocked, pivoted to definition-span detection** (lever 2 from
+  the queue). `./bootstrap.sh --dev-only` step 1 (hspell, 129,574 words) and step 5
+  (dev images from img.haarets.co.il) succeeded; step 2 (answers corpus from
+  14across.co.il) **failed 100% of the time this session** — every request, including a
+  bare fetch of the site's homepage, returned an sgcaptcha challenge (HTTP 202,
+  `content-length: 318`, a meta-refresh to `/.well-known/sgcaptcha/`). This is NOT the
+  2026-08-06 finding (~half of requests, random, cleared on retry): confirmed via three
+  independent paths — the script's own 5x retry-with-backoff (18/18 puzzles failed
+  before I stopped it), five manual `curl` retries 3s apart (5/5 failed, identical
+  challenge body), and the `WebFetch` tool on the same URL (also returned no real
+  content). he.wikipedia.org's API and the Haaretz image CDN both worked fine from the
+  same session in the same minutes, so this is not a blanket network problem — it is
+  specific to 14across.co.il, and looks like the shared cloud egress IP range this
+  session's outbound proxy uses has been rate-limited or blocklisted by the site, plausibly
+  from repeated traffic by this project's own prior daily-agent runs. Killed the scraper
+  rather than let it grind through the remaining 34 URLs to the same conclusion.
+  **Consequence: no fresh answers corpus, so no fresh transcription, no enum validation,
+  and no live recall/precision/coverage/yield measurement was possible this run** — the
+  state-table rows above are unchanged from 2026-08-06, not re-verified today. Flagging
+  for whoever runs this next: if 14across is still unreachable, the fix is either a
+  different egress path or accepting a standing gap in bootstrap's "everything is
+  reconstructible" claim for this one source.
+
+  Pivoted to **lever 2 (definition-span detection)**, since it is buildable and
+  selftest-verifiable without live puzzle data — the queue explicitly allows a synthetic
+  selftest "modelled on `python3 solver/prove.py selftest`" for exactly this reason.
+  Built `solver/defspan.py`: for a clue, tries every 1-3-word split at each end as a
+  (definition, wordplay) hypothesis, and scores each by whether `candidates.py`'s
+  anagram/hidden/reversal search over the RESIDUAL alone (never the discarded definition
+  words) produces anything — the only leak-free signal available without gold answers.
+  `generate()` wraps this: use the best-parsing hypothesis's residual-restricted
+  candidates, falling back to the existing whole-clue search when no hypothesis exists or
+  parses (e.g. single-word clues), so this is never worse than today's `candidates.py`,
+  only more precise when a split parses.
+
+  Why this matters mechanically: `candidates.py`'s char-window search scans the WHOLE
+  clue's letters, so a window can straddle the definition/wordplay boundary and produce a
+  candidate built partly from definition letters — not real fodder. Selftest
+  (`python3 solver/defspan.py selftest`, 3/3 checks pass) demonstrates this concretely
+  with real hspell dictionary words (no dev/eval answer involved, same discipline as
+  `candidates.py`'s own selftest): clue `'נס ברז'` (נס=miracle/definition, ברז=faucet/
+  wordplay) — whole-clue search returns 6 candidates, 4 of which (`נסב`, `סבנ`, `סבר`,
+  `סרב`) are boundary-crossing false positives that use the definition word's letter;
+  defspan-restricted search returns exactly the 2 that live fully inside the wordplay
+  residual (`ברז` itself, and its real-word anagram `בזר`). A third selftest confirms the
+  no-split fallback (single-word clue) matches `candidates.py`'s own existing selftest
+  result exactly.
+
+  MEASURED (executed, not estimated) beyond the hand-picked selftest: added a `stress`
+  command — 200 synthetic "<2-letter DEF> <3-letter WORDPLAY>" clues built from
+  consecutive plain hspell words (deterministic, no randomness, so reproducible) — mean
+  candidates per clue **6.08 (whole-clue) -> 2.54 (defspan-restricted)**, and the list
+  shrank in 185/200 (92%) of cases, never grew in any. This is a real, aggregate,
+  leak-free measurement of the false-positive-reduction mechanism.
+
+  HONEST LIMITS: this is a candidate-list PRECISION measurement on synthetic clues, not a
+  live-puzzle RECALL measurement — it says nothing about whether definition-span
+  classification helps or hurts actual coverage/precision/yield on a real Haaretz clue,
+  because no real clue could be scored this run (see the bootstrap failure above). Real
+  cryptic clues also don't look like "<word> <word>" — multi-word definitions, credit
+  suffixes, and punctuation all complicate the split search in ways the selftest doesn't
+  exercise. Next step, once 14across is reachable again: run `candidates.py recall_eval`
+  both with and without `defspan.generate()` on the same transcribed puzzle and compare
+  recall@N directly — that is the number that would actually settle whether this lever
+  moves the needle, and it could not be produced today.
+
+  AUDIT: no forbidden reads (no answers/solution site content was ever received — every
+  14across response was the challenge page, not puzzle content; no puzzle image was read
+  this run since there was no gold data to validate a transcription against). No tool-leak
+  risk: `data/answers/answers_parsed.json` does not exist this session (the scrape
+  produced nothing), so `lexicon.load()` ran on hspell + committed `culture.json` only —
+  there was no held-out data anywhere in reach for `defspan.py` or `candidates.py` to leak
+  even in principle. No implausible jump: no live score was produced to compare against
+  the state table, so there is nothing to be suspicious of this run.
 
 ---
 
