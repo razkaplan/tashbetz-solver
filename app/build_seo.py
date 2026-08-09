@@ -21,9 +21,19 @@ cult=json.load(open('solver/lex/culture.json'))
 amb=json.load(open('solver/lex/ambiguities.json'))
 cw=json.load(open('solver/crosswordese.json')) if os.path.exists('solver/crosswordese.json') else {}
 subs=json.load(open('solver/lex/substitutions.json'))
+# corpus-mined: answers that recur across the 362-puzzle sample (our own statistic)
+known=set()
+for v in cult.values(): known.update(norm(x) for x in v)
+cult['common']=sorted(a for a,c in cw.items() if c>=2 and a not in known and 2<=len(a)<=12)
 
 CATS={'song':('שירים','שיר'),'artist':('זמרים ולהקות','זמר/להקה'),
-      'politician':('פוליטיקאים','פוליטיקאי/ת'),'place':('ערים ומקומות','מקום')}
+      'politician':('פוליטיקאים','פוליטיקאי/ת'),'place':('ערים בישראל','עיר'),
+      'neighborhood':('שכונות','שכונה'),'park':('פארקים ושמורות טבע','פארק/שמורה'),
+      'museum':('מוזיאונים','מוזיאון'),'nation':('מדינות','מדינה'),
+      'world_city':('ערי בירה','עיר בירה'),'athlete':('ספורטאים','ספורטאי/ת'),
+      'bible':('דמויות מהתנ"ך','דמות מקראית'),'author':('סופרים ומשוררים','סופר/משורר'),
+      'actor':('שחקנים','שחקן/ית'),'kibbutz':('קיבוצים ומושבים','קיבוץ/מושב'),
+      'common':('תשובות נפוצות בתשבצים','תשובה נפוצה')}
 HEBSENSE={'common_word':'מילה מן המילון','given_name':'שם פרטי','surname':'שם משפחה',
  'role_noun':'תפקיד/פועל וגם שם','song':'שם שיר','song_word':'מילה מתוך שיר','artist':'זמר/להקה',
  'politician':'פוליטיקאי/ת','place':'מקום','answer':'הופיעה כתשובה בתשבצים'}
@@ -47,7 +57,7 @@ def page(path,title,desc,body,jsonld=None):
 <meta name="viewport" content="width=device-width,initial-scale=1"><title>{title}</title>
 <meta name="description" content="{desc}"><link rel="canonical" href="{canon}">{ld}{STYLE}</head><body><div class="w">
 <header><span class="k">מילון תשבץ · פותרים ביחד</span><h1>{title}</h1>
-<div class="crumb"><a href="/milon/">מילון</a> · <a href="/solve/">עוזר הפתירה</a> · <a href="/">המחקר</a></div></header>
+<div class="crumb"><a href="/milon/">מילון</a> · <a href="/solve/">עוזר הפתירה</a> · <a href="/">דף הבית</a></div></header>
 {body}
 <footer>מבוסס על אינדקס פתוח של שמות (ויקיפדיה/שירונט) וניתוח סטטיסטי מקורי · לא מתפרסמות הגדרות מעיתונים ·
 <a href="https://www.linkedin.com/in/razkaplan/">פרויקט של רז קפלן</a></footer></div></body></html>""")
@@ -127,7 +137,7 @@ let hits;
 if(v.includes('?')){{const rx=new RegExp('^'+v.replace(/[א-ת]/g,m=>m).replace(/\\?/g,'.')+'$');
   hits=E.filter(e=>rx.test(e.n));}}
 else hits=E.filter(e=>e.t.includes(v)||e.n.includes(v.replace(/[ךםןףץ]/g,m=>({{'ך':'כ','ם':'מ','ן':'נ','ף':'פ','ץ':'צ'}})[m])));
-res.innerHTML=hits.slice(0,60).map(e=>'<li><b>'+e.t+'</b><br><small>'+CAT[e.c]+' · '+e.l+' אותיות · <span style="font-family:monospace">'+e.n+'</span></small></li>').join('');
+const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}}[c]));res.innerHTML=hits.slice(0,60).map(e=>'<li><b>'+esc(e.t)+'</b><br><small>'+esc(CAT[e.c]||'')+' · '+esc(e.l)+' אותיות · <span style="font-family:monospace">'+esc(e.n)+'</span></small></li>').join('');
 }};
 </script>"""
 page(f'{OUT}/index.html','מילון תשבץ — חיפוש שירים, זמרים ואנשים לפי אורך',
@@ -138,7 +148,7 @@ urls.insert(0,'/milon/')
 
 # ---------- sitemap + robots ----------
 sm='<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
-for u in ['/','/solve/']+urls:
+for u in ['/','/solve/','/methods/','/research/','/research/he/']+urls:
     sm+=f'  <url><loc>{BASE}{u}</loc></url>\n'
 sm+='</urlset>'
 open('docs/sitemap.xml','w').write(sm)

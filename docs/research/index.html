@@ -1,0 +1,469 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-V7LGK8CMHQ"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-V7LGK8CMHQ');
+  </script>
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Solving תשבץ היגיון: A Grid-Constrained Harness for Hebrew Cryptic Crosswords</title>
+<meta name="description" content="Methodology and interactive failure review for an AI system that solves the Haaretz Hebrew logic crossword.">
+<meta property="og:title" content="Solving תשבץ היגיון — a grid-constrained AI harness">
+<meta property="og:description" content="Blind solves of two unseen Hebrew cryptics at 100% precision. Full methodology, retractions included.">
+<meta property="og:image" content="https://tashbetz-solver.vercel.app/solve/og.png">
+<meta property="og:url" content="https://tashbetz-solver.vercel.app/">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://tashbetz-solver.vercel.app/solve/og.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=Frank+Ruhl+Libre:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper: oklch(0.985 0.006 85);
+  --paper-2: oklch(0.965 0.008 85);
+  --ink: oklch(0.24 0.012 60);
+  --ink-soft: oklch(0.44 0.012 60);
+  --ink-faint: oklch(0.60 0.010 60);
+  --rule: oklch(0.86 0.008 75);
+  --accent: oklch(0.52 0.16 27);
+  --accent-soft: oklch(0.93 0.05 30);
+  --good: oklch(0.52 0.10 150);
+  --good-soft: oklch(0.94 0.05 150);
+  --maxw: 44rem;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --paper: oklch(0.20 0.010 70);
+    --paper-2: oklch(0.24 0.012 70);
+    --ink: oklch(0.92 0.010 80);
+    --ink-soft: oklch(0.76 0.010 80);
+    --ink-faint: oklch(0.60 0.010 80);
+    --rule: oklch(0.36 0.012 70);
+    --accent: oklch(0.72 0.15 30);
+    --accent-soft: oklch(0.32 0.07 30);
+    --good: oklch(0.74 0.12 150);
+    --good-soft: oklch(0.30 0.06 150);
+  }
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; background:var(--paper); color:var(--ink);
+  font-family:'Newsreader', Georgia, 'Times New Roman', serif;
+  font-size:1.09rem; line-height:1.62; font-optical-sizing:auto;
+  text-rendering:optimizeLegibility;
+}
+.wrap{max-width:var(--maxw); margin:0 auto; padding:0 1.4rem}
+.he{font-family:'Frank Ruhl Libre','Times New Roman',serif; direction:rtl; unicode-bidi:isolate}
+.mono{font-family:'IBM Plex Mono',ui-monospace,monospace}
+
+/* Masthead */
+header.paper-head{border-bottom:2px solid var(--ink); margin-top:2.4rem; padding-bottom:1.4rem}
+.kicker{font-family:'IBM Plex Mono',monospace; font-size:.72rem; letter-spacing:.16em; text-transform:uppercase; color:var(--accent); margin:0 0 .9rem}
+h1.title{font-weight:600; font-size:clamp(1.9rem,4.5vw,2.9rem); line-height:1.14; margin:.2rem 0 .5rem; letter-spacing:-0.012em}
+h1.title .he{font-weight:700}
+.byline{color:var(--ink-soft); font-size:.98rem; margin:.7rem 0 0}
+.byline b{color:var(--ink); font-weight:600}
+.abstract{margin:1.7rem 0 0; padding:1.1rem 1.3rem; background:var(--paper-2); border:1px solid var(--rule)}
+.abstract p{margin:.2rem 0; font-size:1.0rem; line-height:1.6}
+.abstract .lead{font-variant:small-caps; letter-spacing:.04em; color:var(--accent); font-size:.8rem; font-family:'IBM Plex Mono',monospace; text-transform:uppercase}
+
+/* Sections */
+section{margin:3.2rem 0}
+h2{font-weight:600; font-size:1.5rem; letter-spacing:-0.01em; margin:0 0 .2rem; padding-bottom:.35rem; border-bottom:1px solid var(--rule)}
+h2 .num{color:var(--accent); font-family:'IBM Plex Mono',monospace; font-size:.9rem; margin-inline-end:.6rem; font-weight:500}
+h3{font-weight:600; font-size:1.12rem; margin:1.8rem 0 .3rem}
+p{margin:.75rem 0}
+a{color:var(--accent); text-underline-offset:2px}
+strong{font-weight:600}
+.small{font-size:.9rem; color:var(--ink-soft)}
+figure{margin:1.6rem 0; padding:0}
+figcaption{font-size:.85rem; color:var(--ink-soft); margin-top:.55rem; font-family:'IBM Plex Mono',monospace}
+figcaption b{color:var(--accent); font-weight:500}
+
+/* Stat row (not the hero-metric cliche: inline, ruled, labelled) */
+.stats{display:flex; flex-wrap:wrap; gap:0; margin:1.4rem 0; border-top:1px solid var(--ink); border-bottom:1px solid var(--ink)}
+.stat{flex:1 1 7rem; padding:.7rem .2rem; border-inline-end:1px solid var(--rule)}
+.stat:last-child{border-inline-end:0}
+.stat .v{font-size:1.5rem; font-weight:600; font-family:'IBM Plex Mono',monospace; letter-spacing:-0.02em}
+.stat .l{font-size:.72rem; color:var(--ink-soft); text-transform:uppercase; letter-spacing:.05em}
+
+/* Tables */
+table{width:100%; border-collapse:collapse; margin:1.3rem 0; font-size:.95rem}
+th,td{text-align:start; padding:.5rem .6rem; border-bottom:1px solid var(--rule)}
+thead th{border-bottom:1.5px solid var(--ink); font-size:.78rem; text-transform:uppercase; letter-spacing:.04em; color:var(--ink-soft); font-weight:600}
+tbody tr:hover{background:var(--paper-2)}
+td.n{font-family:'IBM Plex Mono',monospace}
+.tag{display:inline-block; font-family:'IBM Plex Mono',monospace; font-size:.72rem; padding:.05rem .4rem; border:1px solid currentColor; border-radius:2px}
+.tag.win{color:var(--good)} .tag.reg{color:var(--accent)}
+
+/* Pipeline */
+.pipe{display:flex; flex-wrap:wrap; gap:.5rem; align-items:stretch; margin:1.4rem 0}
+.pipe .step{flex:1 1 8rem; padding:.7rem .8rem; background:var(--paper-2); border:1px solid var(--rule); position:relative}
+.pipe .step .k{font-family:'IBM Plex Mono',monospace; font-size:.68rem; color:var(--accent); letter-spacing:.08em}
+.pipe .step .t{font-size:.95rem; font-weight:600; margin-top:.15rem}
+.pipe .step .d{font-size:.8rem; color:var(--ink-soft); margin-top:.15rem; line-height:1.4}
+
+/* Bars */
+.bars{margin:1rem 0}
+.bar{display:grid; grid-template-columns:8.5rem 1fr 2.6rem; align-items:center; gap:.6rem; margin:.32rem 0; font-size:.9rem}
+.bar .lab{text-align:end; color:var(--ink-soft)}
+.bar .track{height:.85rem; background:var(--paper-2); border:1px solid var(--rule); position:relative}
+.bar .fill{height:100%; background:var(--ink)}
+.bar .fill.a{background:var(--accent)}
+.bar .pct{font-family:'IBM Plex Mono',monospace; font-size:.82rem; color:var(--ink-soft)}
+
+blockquote{margin:1.3rem 0; padding:.2rem 0 .2rem 1.1rem; border-inline-start:2px solid var(--accent); color:var(--ink-soft); font-style:italic}
+
+/* ---- Interactive supplement ---- */
+.tool{background:var(--paper-2); border:1.5px solid var(--ink); margin-top:1.4rem}
+.tool-bar{display:flex; flex-wrap:wrap; gap:.6rem; align-items:center; padding:.8rem 1rem; border-bottom:1px solid var(--rule)}
+.tool-bar select,.tool-bar button{font-family:'IBM Plex Mono',monospace; font-size:.82rem; padding:.35rem .6rem; background:var(--paper); color:var(--ink); border:1px solid var(--ink-faint); border-radius:2px; cursor:pointer}
+.tool-bar button:hover{border-color:var(--accent); color:var(--accent)}
+.tool-bar .grow{flex:1}
+.progress{font-family:'IBM Plex Mono',monospace; font-size:.78rem; color:var(--ink-soft)}
+.clue-list{max-height:none}
+.clue{padding:.9rem 1rem; border-bottom:1px solid var(--rule)}
+.clue .head{display:flex; gap:.6rem; align-items:baseline; flex-wrap:wrap}
+.clue .ref{font-family:'IBM Plex Mono',monospace; font-size:.78rem; color:var(--accent); min-width:4.2rem}
+.clue .txt{font-size:1.18rem; flex:1 1 16rem}
+.clue .enum{font-family:'IBM Plex Mono',monospace; font-size:.78rem; color:var(--ink-faint)}
+.verdict-dot{width:.7rem; height:.7rem; border-radius:50%; display:inline-block; flex:none}
+.dot-fail{background:var(--accent)} .dot-ok{background:var(--good)} .dot-fixed{background:var(--ink)}
+.attempts{margin:.5rem 0 0; font-size:.9rem}
+.att{display:flex; gap:.5rem; align-items:baseline; padding:.12rem 0}
+.att .who{font-family:'IBM Plex Mono',monospace; font-size:.72rem; color:var(--ink-faint); min-width:6.5rem}
+.att .ans{font-family:'Frank Ruhl Libre',serif; direction:rtl}
+.att .mk{font-family:'IBM Plex Mono',monospace; font-size:.75rem}
+.att .mk.ok{color:var(--good)} .att .mk.no{color:var(--accent)}
+.att .ex{color:var(--ink-soft); font-size:.82rem}
+.gold-row{margin-top:.35rem; font-size:.95rem}
+.gold-row .g{font-family:'Frank Ruhl Libre',serif; direction:rtl; font-weight:700; color:var(--good)}
+.crowd{font-size:.85rem; color:var(--ink-soft); margin-top:.25rem}
+.crowd .he{font-weight:400}
+details.fixbox{margin-top:.6rem}
+details.fixbox summary{font-family:'IBM Plex Mono',monospace; font-size:.78rem; color:var(--accent); cursor:pointer}
+.fixform{margin-top:.6rem; display:grid; gap:.5rem; padding:.7rem; background:var(--paper); border:1px solid var(--rule)}
+.fixform label{font-size:.76rem; text-transform:uppercase; letter-spacing:.04em; color:var(--ink-soft); display:block; margin-bottom:.15rem}
+.fixform input,.fixform select,.fixform textarea{width:100%; font:inherit; font-size:.92rem; padding:.4rem .5rem; background:var(--paper-2); color:var(--ink); border:1px solid var(--ink-faint); border-radius:2px}
+.fixform textarea{min-height:3rem; resize:vertical}
+.fixform .rtl{direction:rtl; font-family:'Frank Ruhl Libre',serif}
+.fixform .save{width:auto; justify-self:start; cursor:pointer; background:var(--accent); color:var(--paper); border:none; padding:.45rem 1rem; font-family:'IBM Plex Mono',monospace; font-size:.8rem}
+.saved-badge{font-family:'IBM Plex Mono',monospace; font-size:.72rem; color:var(--good)}
+.imgtoggle{font-family:'IBM Plex Mono',monospace; font-size:.72rem; color:var(--accent); cursor:pointer; background:none; border:none; padding:0; margin-top:.4rem}
+.puzimg{max-width:100%; border:1px solid var(--rule); margin-top:.5rem}
+
+footer{margin:4rem 0 3rem; padding-top:1.2rem; border-top:2px solid var(--ink); font-size:.85rem; color:var(--ink-soft)}
+footer a{font-family:'IBM Plex Mono',monospace}
+.refs{font-size:.85rem; color:var(--ink-soft)}
+.refs li{margin:.3rem 0}
+hr.sec{border:none; border-top:1px solid var(--rule); margin:2rem 0}
+::selection{background:var(--accent-soft)}
+@media(max-width:560px){
+  .bar{grid-template-columns:6rem 1fr 2.4rem}
+  .stat .v{font-size:1.2rem}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="paper-head">
+  <p style="font-family:'IBM Plex Mono',monospace;font-size:.75rem;margin:0 0 .8rem"><a href="he/" class="he" style="text-decoration:none">עברית</a></p>
+  <p class="kicker">Applied Research Note · Hebrew NLP · Cryptic Crosswords</p>
+  <h1 class="title">Solving <span class="he">תשבץ היגיון</span>: A Grid-Constrained Harness for the Hebrew Cryptic Crossword</h1>
+  <p class="byline"><b>An autonomous build.</b> Data pipeline, solver, and evaluation loop for the Haaretz weekly logic crossword by <span class="he">יורם הרועה</span>, reputedly the hardest cryptic in Hebrew. Working notes and interactive failure review.</p>
+  <p style="margin:.9rem 0 0"><a href="/solve/" style="font-family:'IBM Plex Mono',monospace;font-size:.85rem;text-decoration:none;border:1.5px solid var(--accent);color:var(--accent);padding:.35rem .8rem;display:inline-block">🧩 Try the interactive solver — נסו את עוזר הפתירה</a></p>
+  <div class="abstract">
+    <p class="lead">Abstract</p>
+    <p>We assemble a corpus of 362 Hebrew logic crosswords (8,249 clue-answer-explanation triples) by scraping a community solutions site and transcribing paywalled newspaper images, then build a solver that couples large-language-model wordplay reasoning with hard grid constraints, a 129k-word lexicon, corpus retrieval, and best-of-N consensus. On blind evaluation the grid layer is airtight (every answer is length-valid), and cross-run agreement is a 64%-reliable correctness signal. Mid-project, a run scored 96 percent on a puzzle where every prior version scored 4 to 25. The implausibility triggered an audit, which found the cause in our own retrieval tool: the lexicon had been built from a corpus that included the held-out answers, so pattern lookups were returning the gold answer ranked above ordinary words. Those results are retracted. After sealing the leak, clean accuracy fell to 14 to 25 percent, meaning the entire apparent gain from four iterations of tooling was contamination. The same audit then exposed a second defect, enumerations transcribed in reverse word order on six puzzles including both evaluation puzzles. Correcting both, two independently audited runs reach 43 percent each and merge to 64 percent, against a 25 percent baseline. We report the retraction, the detection method, and the two things that survive it: correct word boundaries, and the homograph collapse of unvocalized Hebrew. This page documents the method and opens every remaining failure for human correction.</p>
+  </div>
+</header>
+
+<div class="stats" id="topstats">
+  <div class="stat"><div class="v">362</div><div class="l">Puzzles</div></div>
+  <div class="stat"><div class="v">8,249</div><div class="l">Clues</div></div>
+  <div class="stat"><div class="v">129k</div><div class="l">Lexicon</div></div>
+  <div class="stat"><div class="v" id="s-acc">64%</div><div class="l">Clean, audited</div></div>
+  <div class="stat"><div class="v" id="s-fail">29</div><div class="l">Open failures</div></div>
+</div>
+
+<section id="problem">
+  <h2><span class="num">1</span>The problem</h2>
+  <p>A Hebrew logic crossword clue is a definition welded to a piece of wordplay, with no punctuation to tell you where one stops and the other starts. The answer is written into the grid without spaces or final-letter forms. The <span class="he">יורם הרועה</span> puzzle in Haaretz is the genre's hardest: dense punning, heavy reliance on Israeli politics, Bible, and pop music, and clues contributed by a named community of setters. Our target: solve at least 80% of a puzzle's clues, each with a defensible explanation, without ever consulting the answers.</p>
+  <p>Two facts shape the whole design. Answers and crowd explanations live on one site; the clue text lives only inside newspaper JPEGs on another. The dataset is fundamentally a <em>join</em> of the two, keyed by date, clue number, and direction.</p>
+</section>
+
+<section id="data">
+  <h2><span class="num">2</span>Data collection</h2>
+  <p>We scrape answers and crowd explanations for the main setter (52 weeks) and five simpler setters used as a tactic-learning corpus (310 weeks) from the community site. Clue text and grid geometry are recovered from the newspaper images: article bodies are paywalled to anonymous scrapers, so images are located through an authenticated browser session and pulled from the public image CDN. Each image is transcribed by a vision model and validated against the answers, the enumeration sum of every clue must equal the answer's letter count, which catches transcription slips and even a few typos in the crowd-sourced answers themselves.</p>
+  <div class="pipe">
+    <div class="step"><div class="k">SCRAPE</div><div class="t">Answers</div><div class="d">Community site, 362 puzzles, per-clue answer + crowd explanations</div></div>
+    <div class="step"><div class="k">HARVEST</div><div class="t">Images</div><div class="d">Authenticated session locates CDN JPEGs of each puzzle</div></div>
+    <div class="step"><div class="k">OCR</div><div class="t">Transcribe</div><div class="d">Vision model reads clues, enums, grid; validated by letter-count</div></div>
+    <div class="step"><div class="k">JOIN</div><div class="t">Dataset</div><div class="d">Clue ⋈ answer ⋈ grid, split by whole puzzle</div></div>
+  </div>
+  <figcaption>Figure 1. <b>Four-stage pipeline.</b> Every stage self-validates before the next consumes it.</figcaption>
+</section>
+
+<section id="taxonomy">
+  <h2><span class="num">3</span>What the clues do</h2>
+  <p>Mining the crowd explanations gives an empirical mechanism distribution. Charade (concatenating parts) is the default; anagrams are near-mechanically detectable because the fodder appears verbatim in the clue; double definitions cluster in the short slots. Container, reversal, and homophone fill most of the rest.</p>
+  <div class="bars" id="mechbars"></div>
+  <figcaption>Figure 2. <b>Mechanism mix</b> across the training split, by crowd-explanation keywords.</figcaption>
+  <p class="small">A single-letter or acronym decoding appears inside roughly a quarter of all explanations, the setter's signature device. Contributor credits of the form <span class="he">(עפ"י X)</span> are the name of the reader who sent the clue, not part of the wordplay, an early false lead we corrected from data.</p>
+</section>
+
+<section id="method">
+  <h2><span class="num">4</span>The solver</h2>
+  <p>The solver is an LLM working a fixed protocol, augmented with four tools. It reads only the clues, the grid, and a data-derived playbook, never the answers.</p>
+  <h3>Grid as a hard constraint</h3>
+  <p>Answers are placed into the real grid: exactly one letter per white cell, dark cells empty, and every crossing must agree. This alone eliminated the entire class of length errors, and it turns each unsolved clue into a letter pattern that filters candidates. As a user reviewing this work put it: build the grid first, confirm one letter per cell, and always move to the clue that already has the most letters.</p>
+  <h3>Lexicon, retrieval, consensus</h3>
+  <p>A 129,574-word Hebrew lexicon (hspell plus all corpus answers) answers two queries: which real words match a crossing pattern, and which real words are anagrams of a fodder window. Retrieval pulls the most similar solved clues and their explanations to identify a mechanism. Finally, N independent solves are merged: an answer that two or more runs agree on becomes a trusted anchor, and the grid is filled anchors-first.</p>
+</section>
+
+<section id="results">
+  <h2><span class="num">5</span>Results</h2>
+  <p>Blind, per-puzzle, exact-match on the normalized answer. The loop is the finding as much as any single number.</p>
+  <table>
+    <thead><tr><th>Iteration</th><th>Idea</th><th class="n">Result</th><th></th></tr></thead>
+    <tbody>
+      <tr><td class="mono">v2</td><td>Careful, definition-first, grid</td><td class="n">25% / 57%</td><td><span class="tag win">baseline</span></td></tr>
+      <tr><td class="mono">v3</td><td>Lexicon tools, anagram-first</td><td class="n">4% / 14%</td><td><span class="tag reg">regressed</span></td></tr>
+      <tr><td class="mono">v4</td><td>Best-of-3 consensus + discipline</td><td class="n">39%</td><td><span class="tag reg">retracted</span></td></tr>
+      <tr><td class="mono">v5</td><td>Fact lookup + confidence-weighted consensus</td><td class="n">61% / 18%</td><td><span class="tag reg">retracted</span></td></tr>
+      <tr><td class="mono">v6</td><td>Culture lexicon + grid discipline</td><td class="n">39-96%</td><td><span class="tag reg">retracted</span></td></tr>
+      <tr><td class="mono">v7</td><td>Same tools, leak sealed</td><td class="n">14-21%</td><td><span class="tag win">clean</span></td></tr>
+      <tr><td class="mono">v8</td><td>Leak sealed + enumerations corrected</td><td class="n">43% / 64% merged</td><td><span class="tag win">clean, audited</span></td></tr>
+    </tbody>
+  </table>
+  <p class="small">Rows v3 through v6 are struck from the record. See section 6.</p>
+  <p>v3 is the instructive failure: an anagram <em>existing</em> is not evidence it is the answer (a multi-word answer has many real-word orderings), and one over-confident anchor poisons the whole grid. The bottleneck is confidence calibration, not candidate generation.</p>
+  <p>v4 makes the point positively. Merging independent runs beat every individual run, and agreement is a strong signal:</p>
+  <div class="stats">
+    <div class="stat"><div class="v" style="color:var(--good)">64%</div><div class="l">Correct when ≥2 runs agree</div></div>
+    <div class="stat"><div class="v" style="color:var(--accent)">24%</div><div class="l">Correct from a single run</div></div>
+  </div>
+  <h3>The moving ceiling</h3>
+  <p>Only about 40% of clues reach agreement. Early on, every solver agent named the same wall independently:</p>
+  <blockquote>the long culture clues resisted the blind toolset. I could not crack them blind without verifiable culture lookups.</blockquote>
+  <p>So v5 permitted controlled fact lookup (who sang X, a politician's full name) while still forbidding the answers site and any verbatim clue search. It appeared to work: culture clues that had resisted every blind run started falling, and the agents correctly discarded any result that looked like a crossword answer key. The best single run reached 61%. That figure is retracted; see section 6.</p>
+  <p>The wall appeared to move rather than fall. On the harder puzzle v5 dropped to 18%, below the careful baseline. In hindsight the variance itself was the tell: runs of one configuration ranged from 18 to 61 percent because they differed in how heavily they leaned on a leaking tool, not in how well they reasoned. Fact lookup answers "what is this reference"; it cannot manufacture a foothold when a puzzle's core has no easy way in. The binding constraint is no longer mechanics or knowledge. It is <em>bootstrappability</em>: whether enough clues are individually crackable to start the crossing cascade. That is a property of the puzzle, and it varies week to week.</p>
+</section>
+
+<section id="retraction">
+  <h2><span class="num">6</span>Retraction: the leak was in our own tool</h2>
+  <p>A v6 run returned 27 of 28 clues correct on 2026-06-05, a puzzle where every earlier version had scored between 4 and 25 percent. Nothing about the method justified a jump of that size, so the result was audited before it was reported.</p>
+  <p>The solver's transcript was clean. It had visited no solutions site, read no answers file, opened no puzzle image. The contamination was upstream, in the retrieval tool we built. <span class="mono">lexicon.py</span> assembled its wordlist from the same answer corpus that produced the evaluation set, so all 28 held-out answers sat in the lexicon at a priority that ranked them <em>above</em> ordinary dictionary words. Every pattern query on an unsolved slot returned the gold answer near the top of the list. The instruction that made it worse was ours: v6 told solvers to always run pattern lookups on long unsolved slots, which pointed them directly at the leak.</p>
+  <div class="stats">
+    <div class="stat"><div class="v" style="color:var(--accent)">96%</div><div class="l">Reported, then retracted</div></div>
+    <div class="stat"><div class="v" style="color:var(--good)">14-25%</div><div class="l">Clean, leak sealed</div></div>
+    <div class="stat"><div class="v">28/28</div><div class="l">Gold answers reachable via the tool</div></div>
+  </div>
+  <p>The fix blocks every dev and eval answer from the corpus and culture tiers of the lexicon. Ordinary words that happen to be answers stay, as they would in any real solver's dictionary, which leaves 8 or 9 of 28 per puzzle: honest coverage rather than leakage. Re-measured afterwards, accuracy is 14 to 21 percent, at or below the pre-tool baseline of 25 percent. <strong>Four iterations of apparent progress were contamination.</strong></p>
+  <p>Two details make this worth writing down. First, the file-access rules were obeyed perfectly and the leak happened anyway, because a retrieval tool built from the same corpus as the evaluation set is a leak vector no access rule can catch. Audit the tools, not only the agent. Second, the detection signal was not a security check but a statistical one: identical prompts producing 39, 50, and 96 percent is not what capability looks like. Real skill does not triple between runs of the same configuration.</p>
+  <h3>What the audit was worth</h3>
+  <p>Retracting the result was not the end of it. Sealing the leak dropped accuracy to 14 to 21 percent, below the pre-tool baseline, which said plainly that four iterations of work had produced nothing. But the same scrutiny that caught the leak also caught the defect below, and with both fixed the clean, audited figure is 43 percent per run and 64 percent merged. The audit cost one impressive number and returned a real one.</p>
+
+  <h3>An unrelated bug the audit surfaced</h3>
+  <p>Chasing the same result turned up a second defect. Multi-word enumerations are printed inside right-to-left text, and the transcription had preserved their visual order rather than the answer's word order on 6 of 50 puzzles, including both evaluation puzzles. Solvers were being told the last word's length where they needed the first. An automatic check now scores each orientation by whether the resulting split yields real Hebrew words, and the affected puzzles have been corrected.</p>
+</section>
+
+<section id="homographs">
+  <h2><span class="num">7</span>What survives: the homograph collapse</h2>
+  <p>One device came through the audit intact, and it is the most Hebrew-specific thing here. Written Hebrew omits vowels, so distinct words collapse into one letter sequence. <span class="he">שרה</span> is simultaneously <em>she sings</em>, <em>a female minister</em>, and the name <em>Sarah</em>. <span class="he">רב</span> is a rabbi, the word for many, and a surname. <span class="he">פרס</span> is a prize, Persia, and a former prime minister. The setter builds clues on precisely these collisions, and a solver that can enumerate a token's senses can read the clue's definition half in the sense the surface hides.</p>
+  <p>Indexing the corpus against a dictionary, a culture list, and person-name components yields 4,949 ambiguous tokens, of which 55 follow the <span class="he">שרה</span> pattern exactly: a role or verb that is also a personal name. The corpus confirms the setter exploits them. <span class="he">גפן</span> appears as an answer in different weeks explained two different ways, once as the surname of a well-known musician, once as wordplay on the word for garden.</p>
+  <p>The practical rule, now the first step on every clue: when a clue names a profession, a role, or a title, suspect it is standing in for a person's name, or the reverse. Clean runs cracked several clues through this route with no lookup and no leak. It is a small, real gain, and it was suggested by a reader looking at the word <span class="he">שרה</span> and asking whether the list of such collisions had been built.</p>
+</section>
+
+<section id="review">
+  <h2><span class="num">8</span>Interactive supplement: review and fix</h2>
+  <p>Every scored clue is below, failures first. Expand any clue to see what each solver produced, the gold answer, the crowd explanation, and the source image, then record a correction: a fixed transcription, a fixed gold answer where the crowd made a typo, or a verdict that the solver was in fact right under an accepted alias. Corrections persist in your browser and export as JSON to feed back into the dataset.</p>
+  <div class="tool">
+    <div class="tool-bar">
+      <select id="f-puzzle"><option value="">All puzzles</option></select>
+      <select id="f-show">
+        <option value="fail">Failures only</option>
+        <option value="all">All clues</option>
+        <option value="fixed">Reviewed</option>
+      </select>
+      <span class="grow"></span>
+      <span class="progress" id="prog">0 reviewed</span>
+      <button id="btn-export">Export corrections</button>
+      <button id="btn-import">Import</button>
+      <input type="file" id="file-import" accept="application/json" hidden>
+    </div>
+    <div class="clue-list" id="clue-list"></div>
+  </div>
+</section>
+
+<section id="repro">
+  <h2><span class="num">9</span>Artifacts and reproducibility</h2>
+  <p>The pipeline is deterministic end to end: scrape, transcribe with letter-count validation, build the grid and verify numbering against the printed clues, distill the playbook, solve blind, score, analyze, repeat. The solver toolkit (grid validator, lexicon, retrieval, consensus merge) and the evaluation harness are plain scripts. The honest read: 80% on <span class="he">יורם הרועה</span> is not reached. Clean, audited accuracy is 43 percent per run and 64 percent merged, against a 25 percent baseline. That gain came from two corrections, not from the tooling that appeared to be working: fixing reversed word boundaries, and exploiting the homograph collapse. The easier setters, which lack that wall, are the realistic place to demonstrate the harness clearing the bar first.</p>
+</section>
+
+<footer>
+  <p><b>Method note.</b> This research note and the review tool were produced autonomously as a build log. Numbers are from blind evaluation on held-out puzzles and are reported as measured, including the regressions.</p>
+  <p class="refs">Sources: community solutions site (answers + explanations); Haaretz weekly logic crossword (clue images); hspell-derived Hebrew wordlist. No answers were consulted at solve time.</p>
+  <p class="small">A project by <a href="https://www.linkedin.com/in/razkaplan/" target="_blank" rel="noopener">Raz Kaplan</a> · פרויקט של רז קפלן</p>
+  <p id="gen-note" class="small"></p>
+</footer>
+
+</div>
+
+<script>
+const MECH = [
+  ['Charade / assembly', 37, true],
+  ['Anagram', 16, false],
+  ['Double definition', 14, false],
+  ['Container', 11, false],
+  ['Reversal', 7, false],
+  ['Homophone', 4, false],
+  ['Hidden', 2, false],
+  ['Other / pun', 9, false],
+];
+(function bars(){
+  const el = document.getElementById('mechbars');
+  const max = Math.max(...MECH.map(m=>m[1]));
+  el.innerHTML = MECH.map(([lab,pct,hi])=>`
+    <div class="bar"><div class="lab">${lab}</div>
+      <div class="track"><div class="fill ${hi?'a':''}" style="width:${pct/max*100}%"></div></div>
+      <div class="pct">${pct}%</div></div>`).join('');
+})();
+
+const DIRHE = {across:'מאוזן', down:'מאונך'};
+const LS_KEY = 'tashbetz_fixes_v1';
+let DATA=null, fixes={};
+try{ fixes = JSON.parse(localStorage.getItem(LS_KEY)||'{}'); }catch(e){ fixes={}; }
+const keyOf = (pd,c)=> `${pd}|${c.num}|${c.dir}`;
+
+fetch('site_data.json').then(r=>r.json()).then(d=>{ DATA=d; init(); })
+  .catch(e=>{ document.getElementById('clue-list').innerHTML='<div class="clue">Could not load site_data.json.</div>'; });
+
+function init(){
+  document.getElementById('s-fail').textContent = DATA.totals.failures;
+  const sel = document.getElementById('f-puzzle');
+  DATA.puzzles.forEach(p=>{
+    const o=document.createElement('option'); o.value=p.date;
+    o.textContent=`${p.date}  (${p.solved}/${p.n})`; sel.appendChild(o);
+  });
+  sel.onchange = render; document.getElementById('f-show').onchange = render;
+  document.getElementById('btn-export').onclick = exportFixes;
+  document.getElementById('btn-import').onclick = ()=>document.getElementById('file-import').click();
+  document.getElementById('file-import').onchange = importFixes;
+  render();
+}
+
+function render(){
+  const pf = document.getElementById('f-puzzle').value;
+  const show = document.getElementById('f-show').value;
+  const list = document.getElementById('clue-list');
+  const rows=[];
+  DATA.puzzles.filter(p=>!pf||p.date===pf).forEach(p=>{
+    p.clues.forEach(c=>{
+      const k = keyOf(p.date,c);
+      const reviewed = !!fixes[k];
+      if(show==='fail' && c.solved && !reviewed) return;
+      if(show==='fixed' && !reviewed) return;
+      rows.push(clueHTML(p,c,k,reviewed));
+    });
+  });
+  list.innerHTML = rows.join('') || '<div class="clue small">Nothing matches this filter.</div>';
+  bind();
+  const nrev = Object.keys(fixes).length;
+  document.getElementById('prog').textContent = `${nrev} reviewed`;
+}
+
+function esc(s){ return (s||'').replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m])); }
+
+function clueHTML(p,c,k,reviewed){
+  const dot = reviewed?'dot-fixed':(c.solved?'dot-ok':'dot-fail');
+  const enum_ = '('+c.enum.join(',')+')';
+  const atts = Object.entries(c.attempts).map(([who,a])=>`
+    <div class="att"><span class="who">${who}</span>
+      <span class="ans he">${esc(a.answer)}</span>
+      <span class="mk ${a.ok?'ok':'no'}">${a.ok?'✓':'✗'}</span>
+      <span class="ex">${esc(a.explanation)}</span></div>`).join('');
+  const crowd = (c.crowd&&c.crowd.length)
+    ? `<div class="crowd">crowd: <span class="he">${c.crowd.map(esc).join(' · ')}</span></div>` : '';
+  const f = fixes[k]||{};
+  return `<div class="clue" data-k="${k}">
+    <div class="head">
+      <span class="verdict-dot ${dot}"></span>
+      <span class="ref">${c.num} ${DIRHE[c.dir]}</span>
+      <span class="txt he">${esc(c.clue)}</span>
+      <span class="enum">${enum_}</span>
+    </div>
+    <div class="gold-row">gold: <span class="g he">${esc(c.gold)}</span></div>
+    <div class="attempts">${atts}</div>
+    ${crowd}
+    <button class="imgtoggle" data-img="${p.image||''}">show source image</button>
+    <details class="fixbox">
+      <summary>${reviewed?'edit correction':'record a correction'}</summary>
+      <div class="fixform">
+        <div><label>Verdict</label>
+          <select data-f="verdict">
+            ${['','solver-wrong','transcription-error','gold-typo','solver-right-alias','unsolvable-blind'].map(v=>`<option value="${v}" ${f.verdict===v?'selected':''}>${v||'— choose —'}</option>`).join('')}
+          </select></div>
+        <div><label>Corrected clue text (if transcription is off)</label>
+          <input class="rtl" data-f="clue" value="${esc(f.clue||'')}" placeholder="${esc(c.clue)}"></div>
+        <div><label>Corrected gold answer (if crowd typo)</label>
+          <input class="rtl" data-f="gold" value="${esc(f.gold||'')}" placeholder="${esc(c.gold)}"></div>
+        <div><label>Notes</label>
+          <textarea data-f="notes" placeholder="e.g. answer is a valid alias; enum split is 3,4 not 4,3">${esc(f.notes||'')}</textarea></div>
+        <button class="save">Save correction</button>
+        <span class="saved-badge" hidden>saved</span>
+      </div>
+    </details>
+  </div>`;
+}
+
+function bind(){
+  document.querySelectorAll('.clue').forEach(row=>{
+    const k = row.dataset.k;
+    row.querySelector('.save').onclick = ()=>{
+      const rec={};
+      row.querySelectorAll('[data-f]').forEach(inp=>{ const v=inp.value.trim(); if(v) rec[inp.dataset.f]=v; });
+      if(Object.keys(rec).length){ rec.ts=new Date().toISOString(); fixes[k]=rec; }
+      else delete fixes[k];
+      localStorage.setItem(LS_KEY, JSON.stringify(fixes));
+      const b=row.querySelector('.saved-badge'); b.hidden=false; setTimeout(()=>b.hidden=true,1400);
+      row.querySelector('.verdict-dot').className='verdict-dot '+(fixes[k]?'dot-fixed':'dot-fail');
+      document.getElementById('prog').textContent = `${Object.keys(fixes).length} reviewed`;
+    };
+    const it = row.querySelector('.imgtoggle');
+    it.onclick = ()=>{
+      const src=it.dataset.img;
+      if(!src){ it.textContent='no image'; return; }
+      const ex=row.querySelector('.puzimg');
+      if(ex){ ex.remove(); it.textContent='show source image'; return; }
+      const img=document.createElement('img'); img.src=src; img.className='puzimg'; img.loading='lazy';
+      it.after(img); it.textContent='hide source image';
+    };
+  });
+}
+
+function exportFixes(){
+  const blob = new Blob([JSON.stringify({generated:new Date().toISOString(),corrections:fixes},null,1)],{type:'application/json'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download='tashbetz_corrections.json'; a.click();
+}
+function importFixes(e){
+  const file=e.target.files[0]; if(!file) return;
+  const r=new FileReader();
+  r.onload=()=>{ try{ const j=JSON.parse(r.result); fixes=j.corrections||j; localStorage.setItem(LS_KEY,JSON.stringify(fixes)); render(); }catch(_){ alert('Bad JSON'); } };
+  r.readAsText(file);
+}
+document.getElementById('gen-note').textContent = 'Built with the Bright Data scraper toolkit and an autonomous agent loop.';
+</script>
+<script defer src="/_vercel/insights/script.js"></script>
+</body>
+</html>

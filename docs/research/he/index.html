@@ -1,0 +1,479 @@
+<!doctype html>
+<html dir="rtl" lang="he">
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-V7LGK8CMHQ"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-V7LGK8CMHQ');
+  </script>
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>פתרון תשבץ היגיון: מערכת פתירה עם אילוצי רשת לתשבץ ההיגיון העברי</title>
+<meta name="description" content="מתודולוגיה וסקירת כשלים אינטראקטיבית של מערכת בינה מלאכותית הפותרת את תשבץ ההיגיון של הארץ.">
+<meta property="og:title" content="פתרון תשבץ היגיון: מערכת פתירה עם אילוצי רשת">
+<meta property="og:description" content="פתירה עיוורת של שני תשבצים לא מוכרים, בדיוק מלא בשכבת הרשת. מתודולוגיה מלאה, כולל ביטולי תוצאות.">
+<meta property="og:image" content="https://tashbetz-solver.vercel.app/solve/og.png">
+<meta property="og:url" content="https://tashbetz-solver.vercel.app/">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://tashbetz-solver.vercel.app/solve/og.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=Frank+Ruhl+Libre:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper: oklch(0.985 0.006 85);
+  --paper-2: oklch(0.965 0.008 85);
+  --ink: oklch(0.24 0.012 60);
+  --ink-soft: oklch(0.44 0.012 60);
+  --ink-faint: oklch(0.60 0.010 60);
+  --rule: oklch(0.86 0.008 75);
+  --accent: oklch(0.52 0.16 27);
+  --accent-soft: oklch(0.93 0.05 30);
+  --good: oklch(0.52 0.10 150);
+  --good-soft: oklch(0.94 0.05 150);
+  --maxw: 44rem;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --paper: oklch(0.20 0.010 70);
+    --paper-2: oklch(0.24 0.012 70);
+    --ink: oklch(0.92 0.010 80);
+    --ink-soft: oklch(0.76 0.010 80);
+    --ink-faint: oklch(0.60 0.010 80);
+    --rule: oklch(0.36 0.012 70);
+    --accent: oklch(0.72 0.15 30);
+    --accent-soft: oklch(0.32 0.07 30);
+    --good: oklch(0.74 0.12 150);
+    --good-soft: oklch(0.30 0.06 150);
+  }
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; background:var(--paper); color:var(--ink);
+  font-family:'Frank Ruhl Libre','Newsreader',Georgia,'Times New Roman',serif;
+  font-size:1.09rem; line-height:1.7; font-optical-sizing:auto;
+  text-rendering:optimizeLegibility;
+}
+.wrap{max-width:var(--maxw); margin:0 auto; padding:0 1.4rem}
+.he{font-family:'Frank Ruhl Libre','Times New Roman',serif; direction:rtl; unicode-bidi:isolate}
+.en{font-family:'Newsreader',Georgia,serif; direction:ltr; unicode-bidi:isolate}
+.mono{font-family:'IBM Plex Mono',ui-monospace,monospace; direction:ltr; unicode-bidi:isolate}
+
+/* Masthead */
+header.paper-head{border-bottom:2px solid var(--ink); margin-top:2.4rem; padding-bottom:1.4rem}
+.lang-switch{font-family:'IBM Plex Mono',monospace; font-size:.75rem; margin:0 0 .8rem}
+.lang-switch a{text-decoration:none}
+.kicker{font-family:'IBM Plex Mono',monospace; font-size:.72rem; letter-spacing:.16em; text-transform:uppercase; color:var(--accent); margin:0 0 .9rem}
+h1.title{font-weight:700; font-size:clamp(1.9rem,4.5vw,2.9rem); line-height:1.2; margin:.2rem 0 .5rem}
+.byline{color:var(--ink-soft); font-size:.98rem; margin:.7rem 0 0}
+.byline b{color:var(--ink); font-weight:700}
+.abstract{margin:1.7rem 0 0; padding:1.1rem 1.3rem; background:var(--paper-2); border:1px solid var(--rule)}
+.abstract p{margin:.2rem 0; font-size:1.0rem; line-height:1.65}
+.abstract .lead{letter-spacing:.04em; color:var(--accent); font-size:.8rem; font-family:'IBM Plex Mono',monospace; text-transform:uppercase}
+
+/* Sections */
+section{margin:3.2rem 0}
+h2{font-weight:700; font-size:1.5rem; margin:0 0 .2rem; padding-bottom:.35rem; border-bottom:1px solid var(--rule)}
+h2 .num{color:var(--accent); font-family:'IBM Plex Mono',monospace; font-size:.9rem; margin-inline-end:.6rem; font-weight:500}
+h3{font-weight:700; font-size:1.12rem; margin:1.8rem 0 .3rem}
+p{margin:.75rem 0}
+a{color:var(--accent); text-underline-offset:2px}
+strong{font-weight:700}
+.small{font-size:.9rem; color:var(--ink-soft)}
+figure{margin:1.6rem 0; padding:0}
+figcaption{font-size:.85rem; color:var(--ink-soft); margin-top:.55rem}
+figcaption b{color:var(--accent); font-weight:500}
+
+/* Stat row (not the hero-metric cliche: inline, ruled, labelled) */
+.stats{display:flex; flex-wrap:wrap; gap:0; margin:1.4rem 0; border-top:1px solid var(--ink); border-bottom:1px solid var(--ink)}
+.stat{flex:1 1 7rem; padding:.7rem .2rem; border-inline-end:1px solid var(--rule)}
+.stat:last-child{border-inline-end:0}
+.stat .v{font-size:1.5rem; font-weight:600; font-family:'IBM Plex Mono',monospace; letter-spacing:-0.02em; direction:ltr; unicode-bidi:isolate}
+.stat .l{font-size:.78rem; color:var(--ink-soft); letter-spacing:.02em}
+
+/* Tables */
+table{width:100%; border-collapse:collapse; margin:1.3rem 0; font-size:.95rem}
+th,td{text-align:start; padding:.5rem .6rem; border-bottom:1px solid var(--rule)}
+thead th{border-bottom:1.5px solid var(--ink); font-size:.82rem; color:var(--ink-soft); font-weight:700}
+tbody tr:hover{background:var(--paper-2)}
+td.n{font-family:'IBM Plex Mono',monospace; direction:ltr; unicode-bidi:isolate; text-align:start}
+.tag{display:inline-block; font-size:.78rem; padding:.05rem .4rem; border:1px solid currentColor; border-radius:2px}
+.tag.win{color:var(--good)} .tag.reg{color:var(--accent)}
+
+/* Pipeline */
+.pipe{display:flex; flex-wrap:wrap; gap:.5rem; align-items:stretch; margin:1.4rem 0}
+.pipe .step{flex:1 1 8rem; padding:.7rem .8rem; background:var(--paper-2); border:1px solid var(--rule); position:relative}
+.pipe .step .k{font-family:'IBM Plex Mono',monospace; font-size:.68rem; color:var(--accent); letter-spacing:.08em}
+.pipe .step .t{font-size:.95rem; font-weight:700; margin-top:.15rem}
+.pipe .step .d{font-size:.8rem; color:var(--ink-soft); margin-top:.15rem; line-height:1.45}
+
+/* Bars */
+.bars{margin:1rem 0}
+.bar{display:grid; grid-template-columns:9.5rem 1fr 2.6rem; align-items:center; gap:.6rem; margin:.32rem 0; font-size:.9rem}
+.bar .lab{text-align:end; color:var(--ink-soft)}
+.bar .track{height:.85rem; background:var(--paper-2); border:1px solid var(--rule); position:relative}
+.bar .fill{height:100%; background:var(--ink)}
+.bar .fill.a{background:var(--accent)}
+.bar .pct{font-family:'IBM Plex Mono',monospace; font-size:.82rem; color:var(--ink-soft); direction:ltr; unicode-bidi:isolate}
+
+blockquote{margin:1.3rem 0; padding:.2rem 0; padding-inline-start:1.1rem; border-inline-start:2px solid var(--accent); color:var(--ink-soft); font-style:italic}
+
+/* ---- Interactive supplement ---- */
+.tool{background:var(--paper-2); border:1.5px solid var(--ink); margin-top:1.4rem}
+.tool-bar{display:flex; flex-wrap:wrap; gap:.6rem; align-items:center; padding:.8rem 1rem; border-bottom:1px solid var(--rule)}
+.tool-bar select,.tool-bar button{font-family:inherit; font-size:.88rem; padding:.35rem .6rem; background:var(--paper); color:var(--ink); border:1px solid var(--ink-faint); border-radius:2px; cursor:pointer}
+.tool-bar button:hover{border-color:var(--accent); color:var(--accent)}
+.tool-bar .grow{flex:1}
+.progress{font-size:.82rem; color:var(--ink-soft)}
+.clue-list{max-height:none}
+.clue{padding:.9rem 1rem; border-bottom:1px solid var(--rule)}
+.clue .head{display:flex; gap:.6rem; align-items:baseline; flex-wrap:wrap}
+.clue .ref{font-size:.82rem; color:var(--accent); min-width:4.2rem}
+.clue .txt{font-size:1.18rem; flex:1 1 16rem}
+.clue .enum{font-family:'IBM Plex Mono',monospace; font-size:.78rem; color:var(--ink-faint); direction:ltr; unicode-bidi:isolate}
+.verdict-dot{width:.7rem; height:.7rem; border-radius:50%; display:inline-block; flex:none}
+.dot-fail{background:var(--accent)} .dot-ok{background:var(--good)} .dot-fixed{background:var(--ink)}
+.attempts{margin:.5rem 0 0; font-size:.9rem}
+.att{display:flex; gap:.5rem; align-items:baseline; padding:.12rem 0}
+.att .who{font-family:'IBM Plex Mono',monospace; font-size:.72rem; color:var(--ink-faint); min-width:6.5rem; direction:ltr; unicode-bidi:isolate; text-align:start}
+.att .ans{font-family:'Frank Ruhl Libre',serif; direction:rtl}
+.att .mk{font-family:'IBM Plex Mono',monospace; font-size:.75rem}
+.att .mk.ok{color:var(--good)} .att .mk.no{color:var(--accent)}
+.att .ex{color:var(--ink-soft); font-size:.82rem}
+.gold-row{margin-top:.35rem; font-size:.95rem}
+.gold-row .g{font-family:'Frank Ruhl Libre',serif; direction:rtl; font-weight:700; color:var(--good)}
+.crowd{font-size:.85rem; color:var(--ink-soft); margin-top:.25rem}
+.crowd .he{font-weight:400}
+details.fixbox{margin-top:.6rem}
+details.fixbox summary{font-size:.82rem; color:var(--accent); cursor:pointer}
+.fixform{margin-top:.6rem; display:grid; gap:.5rem; padding:.7rem; background:var(--paper); border:1px solid var(--rule)}
+.fixform label{font-size:.78rem; letter-spacing:.02em; color:var(--ink-soft); display:block; margin-bottom:.15rem}
+.fixform input,.fixform select,.fixform textarea{width:100%; font:inherit; font-size:.92rem; padding:.4rem .5rem; background:var(--paper-2); color:var(--ink); border:1px solid var(--ink-faint); border-radius:2px}
+.fixform textarea{min-height:3rem; resize:vertical}
+.fixform .rtl{direction:rtl; font-family:'Frank Ruhl Libre',serif}
+.fixform .save{width:auto; justify-self:start; cursor:pointer; background:var(--accent); color:var(--paper); border:none; padding:.45rem 1rem; font-size:.85rem}
+.saved-badge{font-size:.78rem; color:var(--good)}
+.imgtoggle{font-size:.78rem; color:var(--accent); cursor:pointer; background:none; border:none; padding:0; margin-top:.4rem; font-family:inherit}
+.puzimg{max-width:100%; border:1px solid var(--rule); margin-top:.5rem}
+
+footer{margin:4rem 0 3rem; padding-top:1.2rem; border-top:2px solid var(--ink); font-size:.85rem; color:var(--ink-soft)}
+.refs{font-size:.85rem; color:var(--ink-soft)}
+.refs li{margin:.3rem 0}
+hr.sec{border:none; border-top:1px solid var(--rule); margin:2rem 0}
+::selection{background:var(--accent-soft)}
+@media(max-width:560px){
+  .bar{grid-template-columns:6.5rem 1fr 2.4rem}
+  .stat .v{font-size:1.2rem}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="paper-head">
+  <p class="lang-switch"><a href="../" class="en">English</a></p>
+  <p class="kicker">הערת מחקר יישומי · עיבוד שפה טבעית בעברית · תשבצי היגיון</p>
+  <h1 class="title">פתרון תשבץ היגיון: מערכת פתירה עם אילוצי רשת לתשבץ ההיגיון העברי</h1>
+  <p class="byline"><b>פרויקט אוטונומי.</b> צינור נתונים, פותר ולולאת הערכה לתשבץ ההיגיון השבועי של הארץ מאת יורם הרועה, הנחשב לתשבץ ההיגיון הקשה ביותר בעברית. הערות עבודה וסקירת כשלים אינטראקטיבית.</p>
+  <p style="margin:.9rem 0 0"><a href="/solve/" style="font-size:.9rem;text-decoration:none;border:1.5px solid var(--accent);color:var(--accent);padding:.35rem .8rem;display:inline-block">🧩 נסו את עוזר הפתירה האינטראקטיבי</a></p>
+  <div class="abstract">
+    <p class="lead">תקציר</p>
+    <p>אספנו קורפוס של 362 תשבצי היגיון עבריים (8,249 שלשות של הגדרה, פתרון והסבר) באמצעות גריפת אתר פתרונות קהילתי ותעתוק תצלומי עיתון החסומים בחומת תשלום, ובנינו פותר המשלב הסקת משחקי מילים של מודל שפה גדול (LLM) עם אילוצי רשת קשיחים, לקסיקון של 129 אלף מילים, אחזור מהקורפוס וקונצנזוס מרובה ריצות (best-of-N). בהערכה עיוורת שכבת הרשת אטומה לחלוטין (כל פתרון תקין באורכו), והסכמה בין ריצות היא אות נכונות אמין ב-64 אחוזים. באמצע הפרויקט ריצה אחת השיגה 96 אחוזים בתשבץ שבו כל גרסה קודמת השיגה בין 4 ל-25. חוסר הסבירות עורר ביקורת (audit), שאיתרה את הסיבה בכלי האחזור שבנינו בעצמנו: הלקסיקון נבנה מקורפוס שכלל את פתרונות ההערכה המוחזקים בצד, כך ששאילתות תבנית החזירו את פתרון הזהב בדירוג גבוה ממילים רגילות. התוצאות הללו מבוטלות. לאחר איטום הדליפה (leak) ירד הדיוק הנקי ל-14 עד 25 אחוזים, כלומר כל השיפור לכאורה מארבע איטרציות של פיתוח כלים היה זיהום. אותה ביקורת חשפה פגם שני, ספירות אותיות (enumerations) שתועתקו בסדר מילים הפוך בשישה תשבצים, ובהם שני תשבצי ההערכה. לאחר תיקון שניהם, שתי ריצות שבוקרו באופן בלתי תלוי מגיעות ל-43 אחוזים כל אחת ומתמזגות ל-64 אחוזים, לעומת בסיס של 25 אחוזים. אנו מדווחים על הביטול, על שיטת האיתור ועל שני הדברים ששרדו אותה: גבולות מילים נכונים, וקריסת ההומוגרפים של העברית הבלתי מנוקדת. עמוד זה מתעד את השיטה ופותח כל כשל שנותר לתיקון אנושי.</p>
+  </div>
+</header>
+
+<div class="stats" id="topstats">
+  <div class="stat"><div class="v">362</div><div class="l">תשבצים</div></div>
+  <div class="stat"><div class="v">8,249</div><div class="l">הגדרות</div></div>
+  <div class="stat"><div class="v">129k</div><div class="l">מילים בלקסיקון</div></div>
+  <div class="stat"><div class="v" id="s-acc">64%</div><div class="l">נקי ומבוקר</div></div>
+  <div class="stat"><div class="v" id="s-fail">29</div><div class="l">כשלים פתוחים</div></div>
+</div>
+
+<section id="problem">
+  <h2><span class="num">1</span>הבעיה</h2>
+  <p>הגדרה בתשבץ היגיון עברי היא הגדרה מילונית המרותכת לקטע של משחק מילים, ללא סימן פיסוק שיאמר היכן נגמרת האחת ומתחיל השני. הפתרון נכתב ברשת בלי רווחים ובלי אותיות סופיות. תשבץ יורם הרועה בהארץ הוא הקשה בז'אנר: לשון נופל על לשון בצפיפות, הישענות כבדה על פוליטיקה ישראלית, תנ"ך ומוזיקת פופ, והגדרות שתורמים חברי קהילה ששמם נקוב. היעד שלנו: לפתור לפחות 80 אחוזים מהגדרות התשבץ, כל אחת עם הסבר בר הגנה, בלי לעיין בפתרונות ולו פעם אחת.</p>
+  <p>שתי עובדות מעצבות את התכנון כולו. הפתרונות והסברי הקהל נמצאים באתר אחד; טקסט ההגדרות קיים רק בתוך תצלומי JPEG של העיתון באתר אחר. מסד הנתונים הוא ביסודו צירוף (join) של השניים, לפי תאריך, מספר הגדרה וכיוון.</p>
+</section>
+
+<section id="data">
+  <h2><span class="num">2</span>איסוף הנתונים</h2>
+  <p>גרפנו פתרונות והסברי קהל עבור המחבר המרכזי (52 שבועות) וחמישה מחברים פשוטים יותר המשמשים קורפוס ללימוד טקטיקות (310 שבועות) מהאתר הקהילתי. טקסט ההגדרות וגאומטריית הרשת משוחזרים מתצלומי העיתון: גוף הכתבות חסום בפני גורפים אנונימיים, ולכן התמונות אותרו דרך סשן דפדפן מחובר ונמשכו מרשת התמונות (CDN) הציבורית. כל תמונה מתועתקת על ידי מודל ראייה ומאומתת מול הפתרונות, סכום ספירת האותיות של כל הגדרה חייב להיות שווה למספר אותיות הפתרון, בדיקה שתופסת שגיאות תעתוק ואפילו כמה שגיאות הקלדה בפתרונות שמקורם בקהל.</p>
+  <div class="pipe">
+    <div class="step"><div class="k">SCRAPE</div><div class="t">פתרונות</div><div class="d">אתר קהילתי, 362 תשבצים, פתרון והסברי קהל לכל הגדרה</div></div>
+    <div class="step"><div class="k">HARVEST</div><div class="t">תמונות</div><div class="d">סשן מחובר מאתר את קובצי ה-JPEG של כל תשבץ ברשת התמונות</div></div>
+    <div class="step"><div class="k">OCR</div><div class="t">תעתוק</div><div class="d">מודל ראייה קורא הגדרות, ספירות ורשת; אימות לפי ספירת אותיות</div></div>
+    <div class="step"><div class="k">JOIN</div><div class="t">מסד נתונים</div><div class="d">הגדרה ⋈ פתרון ⋈ רשת, חלוקה לפי תשבץ שלם</div></div>
+  </div>
+  <figcaption>איור 1. <b>צינור בן ארבעה שלבים.</b> כל שלב מאמת את עצמו לפני שהשלב הבא צורך אותו.</figcaption>
+</section>
+
+<section id="taxonomy">
+  <h2><span class="num">3</span>מה ההגדרות עושות</h2>
+  <p>כריית הסברי הקהל מפיקה התפלגות מנגנונים אמפירית. שרשור חלקים (charade) הוא ברירת המחדל; אנגרמות ניתנות לזיהוי כמעט מכני, שכן חומר הגלם מופיע מילה במילה בהגדרה; הגדרות כפולות מתרכזות במשבצות הקצרות. הכלה, היפוך והומופון ממלאים את רוב היתרה.</p>
+  <div class="bars" id="mechbars"></div>
+  <figcaption>איור 2. <b>תמהיל המנגנונים</b> בחלוקת האימון, לפי מילות מפתח בהסברי הקהל.</figcaption>
+  <p class="small">פענוח של אות בודדת או ראשי תיבות מופיע בתוך כרבע מכלל ההסברים, מכשיר החתימה של המחבר. קרדיטים לתורמים בצורה (עפ"י X) הם שם הקורא ששלח את ההגדרה, לא חלק ממשחק המילים, כיוון שווא מוקדם שתוקן מתוך הנתונים.</p>
+</section>
+
+<section id="method">
+  <h2><span class="num">4</span>הפותר</h2>
+  <p>הפותר הוא מודל שפה גדול העובד לפי פרוטוקול קבוע, מוגבר בארבעה כלים. הוא קורא רק את ההגדרות, את הרשת ומדריך פעולה שנגזר מהנתונים, לעולם לא את הפתרונות.</p>
+  <h3>הרשת כאילוץ קשיח</h3>
+  <p>הפתרונות ממוקמים ברשת האמיתית: בדיוק אות אחת בכל משבצת לבנה, משבצות כהות נותרות ריקות, וכל הצטלבות חייבת להתיישב. זה לבדו חיסל את כל מחלקת שגיאות האורך, והוא הופך כל הגדרה שטרם נפתרה לתבנית אותיות המסננת מועמדים. כפי שניסח זאת משתמש שסקר את העבודה: בנו את הרשת תחילה, ודאו אות אחת למשבצת, ועברו תמיד להגדרה שכבר יש בה הכי הרבה אותיות.</p>
+  <h3>לקסיקון, אחזור, קונצנזוס</h3>
+  <p>לקסיקון עברי של 129,574 מילים (hspell בתוספת כל פתרונות הקורפוס) עונה על שתי שאילתות: אילו מילים אמיתיות מתאימות לתבנית הצטלבות, ואילו מילים אמיתיות הן אנגרמות של חלון חומר גלם. האחזור שולף את ההגדרות הפתורות הדומות ביותר יחד עם הסבריהן כדי לזהות מנגנון. לבסוף, N פתירות בלתי תלויות ממוזגות: פתרון ששתי ריצות או יותר מסכימות עליו הופך לעוגן אמין, והרשת מתמלאת עוגנים תחילה.</p>
+</section>
+
+<section id="results">
+  <h2><span class="num">5</span>תוצאות</h2>
+  <p>הערכה עיוורת, לפי תשבץ, בהתאמה מדויקת לפתרון המנורמל. הלולאה עצמה היא הממצא, לא פחות מכל מספר בודד.</p>
+  <table>
+    <thead><tr><th>איטרציה</th><th>רעיון</th><th class="n">תוצאה</th><th></th></tr></thead>
+    <tbody>
+      <tr><td class="mono">v2</td><td>זהירות, הגדרה תחילה, רשת</td><td class="n">25% / 57%</td><td><span class="tag win">בסיס</span></td></tr>
+      <tr><td class="mono">v3</td><td>כלי לקסיקון, אנגרמה תחילה</td><td class="n">4% / 14%</td><td><span class="tag reg">נסיגה</span></td></tr>
+      <tr><td class="mono">v4</td><td>קונצנזוס best-of-3 ומשמעת</td><td class="n">39%</td><td><span class="tag reg">בוטל</span></td></tr>
+      <tr><td class="mono">v5</td><td>בדיקת עובדות וקונצנזוס משוקלל ביטחון</td><td class="n">61% / 18%</td><td><span class="tag reg">בוטל</span></td></tr>
+      <tr><td class="mono">v6</td><td>לקסיקון תרבות ומשמעת רשת</td><td class="n">39-96%</td><td><span class="tag reg">בוטל</span></td></tr>
+      <tr><td class="mono">v7</td><td>אותם כלים, דליפה אטומה</td><td class="n">14-21%</td><td><span class="tag win">נקי</span></td></tr>
+      <tr><td class="mono">v8</td><td>דליפה אטומה וספירות מתוקנות</td><td class="n">43% / 64% במיזוג</td><td><span class="tag win">נקי ומבוקר</span></td></tr>
+    </tbody>
+  </table>
+  <p class="small">השורות v3 עד v6 נמחקות מהרישום. ראו סעיף 6.</p>
+  <p>v3 הוא הכשל המאלף: עצם קיומה של אנגרמה אינו ראיה לכך שהיא הפתרון (לפתרון רב מילים יש סידורים רבים של מילים אמיתיות), ועוגן אחד בטוח מדי מרעיל את הרשת כולה. צוואר הבקבוק הוא כיול ביטחון, לא ייצור מועמדים.</p>
+  <p>v4 מוכיח את הנקודה על דרך החיוב. מיזוג ריצות בלתי תלויות ניצח כל ריצה בודדת, והסכמה היא אות חזק:</p>
+  <div class="stats">
+    <div class="stat"><div class="v" style="color:var(--good)">64%</div><div class="l">נכון כששתי ריצות או יותר מסכימות</div></div>
+    <div class="stat"><div class="v" style="color:var(--accent)">24%</div><div class="l">נכון מריצה בודדת</div></div>
+  </div>
+  <h3>התקרה הנודדת</h3>
+  <p>רק כ-40 אחוזים מההגדרות מגיעות להסכמה. כבר בשלב מוקדם, כל סוכן פותר נקב באותו קיר באופן עצמאי:</p>
+  <blockquote>הגדרות התרבות הארוכות עמדו בפני ערכת הכלים העיוורת. לא הצלחתי לפצח אותן בעיניים מכוסות, בלי בדיקות תרבות שאפשר לאמת.</blockquote>
+  <p>לכן v5 התיר בדיקת עובדות מבוקרת (מי שר את X, שמו המלא של פוליטיקאי), תוך שהוא ממשיך לאסור על אתר הפתרונות ועל כל חיפוש מילולי של הגדרה. זה נראה עובד: הגדרות תרבות שעמדו בפני כל ריצה עיוורת החלו ליפול, והסוכנים פסלו בצדק כל תוצאה שנראתה כמו מפתח פתרונות של תשבץ. הריצה הבודדת הטובה ביותר הגיעה ל-61 אחוזים. הנתון הזה מבוטל; ראו סעיף 6.</p>
+  <p>הקיר, מסתבר, זז במקום ליפול. בתשבץ הקשה יותר צנח v5 ל-18 אחוזים, מתחת לבסיס הזהיר. בדיעבד, השונות עצמה הייתה הסימן: ריצות של תצורה אחת נעו בין 18 ל-61 אחוזים משום שנבדלו במידת הישענותן על כלי דולף, לא באיכות ההסקה שלהן. בדיקת עובדות עונה על השאלה "מהי ההפניה הזאת"; היא אינה יכולה לייצר נקודת אחיזה כשלליבת התשבץ אין דרך כניסה קלה. האילוץ המחייב אינו עוד מכניקה או ידע. הוא יכולת האתחול (bootstrappability): האם די הגדרות ניתנות לפיצוח כל אחת בפני עצמה כדי להתניע את מפל ההצטלבויות. זו תכונה של התשבץ, והיא משתנה משבוע לשבוע.</p>
+</section>
+
+<section id="retraction">
+  <h2><span class="num">6</span>ביטול תוצאות (retraction): הדליפה הייתה בכלי שלנו</h2>
+  <p>ריצת v6 החזירה 27 מתוך 28 הגדרות נכונות בתשבץ 2026-06-05, תשבץ שבו כל גרסה קודמת השיגה בין 4 ל-25 אחוזים. שום דבר בשיטה לא הצדיק קפיצה בסדר גודל כזה, ולכן התוצאה בוקרה בטרם דווחה.</p>
+  <p>תמליל הפותר היה נקי. הוא לא ביקר באתר פתרונות, לא קרא קובץ פתרונות, לא פתח תמונת תשבץ. הזיהום היה במעלה הזרם, בכלי האחזור שבנינו. <span class="mono">lexicon.py</span> הרכיב את רשימת המילים שלו מאותו קורפוס פתרונות שממנו נוצרה קבוצת ההערכה, כך שכל 28 הפתרונות המוחזקים בצד ישבו בלקסיקון בעדיפות שדירגה אותם מעל מילים מילוניות רגילות. כל שאילתת תבנית על משבצת שטרם נפתרה החזירה את פתרון הזהב סמוך לראש הרשימה. ההנחיה שהחמירה את המצב הייתה שלנו: v6 הורה לפותרים להריץ תמיד שאילתות תבנית על משבצות ארוכות שלא נפתרו, וכך הצביע להם ישירות על הדליפה.</p>
+  <div class="stats">
+    <div class="stat"><div class="v" style="color:var(--accent)">96%</div><div class="l">דווח, ואז בוטל</div></div>
+    <div class="stat"><div class="v" style="color:var(--good)">14-25%</div><div class="l">נקי, דליפה אטומה</div></div>
+    <div class="stat"><div class="v">28/28</div><div class="l">פתרונות זהב נגישים דרך הכלי</div></div>
+  </div>
+  <p>התיקון חוסם כל פתרון של קבוצות הפיתוח וההערכה משכבות הקורפוס והתרבות של הלקסיקון. מילים רגילות שבמקרה הן גם פתרונות נשארות, כפי שהיו נשארות במילון של כל פותר אמיתי, מה שמותיר 8 או 9 מתוך 28 בכל תשבץ: כיסוי הוגן, לא דליפה. במדידה חוזרת לאחר מכן הדיוק הוא 14 עד 21 אחוזים, ברמת הבסיס של 25 אחוזים שלפני הכלים או מתחתיה. <strong>ארבע איטרציות של התקדמות לכאורה היו זיהום.</strong></p>
+  <p>שני פרטים הופכים זאת לראוי לכתיבה. ראשית, כללי הגישה לקבצים קוימו בשלמות והדליפה התרחשה בכל זאת, משום שכלי אחזור שנבנה מאותו קורפוס שממנו נבנתה קבוצת ההערכה הוא וקטור דליפה ששום כלל גישה אינו יכול לתפוס. בקרו את הכלים, לא רק את הסוכן. שנית, אות האיתור לא היה בדיקת אבטחה אלא בדיקה סטטיסטית: פרומפטים זהים המפיקים 39, 50 ו-96 אחוזים אינם מה שיכולת נראית כמוהו. מיומנות אמיתית אינה משלשת את עצמה בין ריצות של אותה תצורה.</p>
+  <h3>מה הייתה שווה הביקורת</h3>
+  <p>ביטול התוצאה לא היה סוף הסיפור. איטום הדליפה הוריד את הדיוק ל-14 עד 21 אחוזים, מתחת לבסיס שלפני הכלים, ואמר בפשטות שארבע איטרציות של עבודה לא הניבו דבר. אבל אותה בחינה שתפסה את הדליפה תפסה גם את הפגם שלהלן, ועם שני התיקונים הנתון הנקי והמבוקר עומד על 43 אחוזים לריצה ו-64 אחוזים במיזוג. הביקורת עלתה במספר מרשים אחד והחזירה מספר אמיתי.</p>
+
+  <h3>באג לא קשור שהביקורת חשפה</h3>
+  <p>המרדף אחר אותה תוצאה העלה פגם שני. ספירות אותיות של פתרונות מרובי מילים מודפסות בתוך טקסט הנקרא מימין לשמאל, והתעתוק שימר את סדרן החזותי במקום את סדר המילים של הפתרון ב-6 מתוך 50 תשבצים, ובהם שני תשבצי ההערכה. לפותרים נמסר אורך המילה האחרונה במקום שבו נדרש להם אורך הראשונה. בדיקה אוטומטית מדרגת כעת כל כיוון לפי השאלה האם הפיצול המתקבל מניב מילים עבריות אמיתיות, והתשבצים הפגומים תוקנו.</p>
+</section>
+
+<section id="homographs">
+  <h2><span class="num">7</span>מה ששורד: קריסת ההומוגרפים</h2>
+  <p>תחבולה אחת יצאה מן הביקורת שלמה, והיא הדבר העברי ביותר כאן. העברית הכתובה משמיטה את התנועות, ולכן מילים נבדלות קורסות לרצף אותיות אחד. שרה היא בעת ובעונה אחת מי ששרה שיר, שרה בממשלה, והשם שרה. רב הוא רב בבית הכנסת, מילה המציינת ריבוי, ושם משפחה. פרס הוא פרס, ממלכת פרס, וראש ממשלה לשעבר. המחבר בונה הגדרות בדיוק על ההתנגשויות האלה, ופותר המסוגל למנות את משמעויותיו של צירוף אותיות יכול לקרוא את מחצית ההגדרה המילונית במשמעות שפני השטח של המשפט מסתירים.</p>
+  <p>מיפתוח הקורפוס מול מילון, רשימת תרבות ורכיבי שמות של אנשים מניב 4,949 צירופים דו משמעיים, שמתוכם 55 עוקבים במדויק אחר תבנית שרה: תפקיד או פועל שהוא גם שם פרטי. הקורפוס מאשר שהמחבר מנצל אותם. גפן מופיעה כפתרון בשבועות שונים עם שני הסברים שונים, פעם כשם משפחתו של מוזיקאי מוכר, פעם כמשחק מילים על צמח הגן.</p>
+  <p>הכלל המעשי, כיום הצעד הראשון בכל הגדרה: כשהגדרה נוקבת במקצוע, בתפקיד או בתואר, יש לחשוד שהם עומדים במקום שמו של אדם, או להפך. ריצות נקיות פיצחו כמה הגדרות בדרך הזאת, בלי בדיקה חיצונית ובלי דליפה. זהו רווח קטן ואמיתי, והוא הוצע על ידי קורא שהביט במילה שרה ושאל אם נבנתה רשימת ההתנגשויות מהסוג הזה.</p>
+</section>
+
+<section id="review">
+  <h2><span class="num">8</span>נספח אינטראקטיבי: סקירה ותיקון</h2>
+  <p>כל הגדרה שנוקדה מופיעה למטה, כשלים תחילה. הרחיבו כל הגדרה כדי לראות מה הפיק כל פותר, את פתרון הזהב, את הסבר הקהל ואת תמונת המקור, ואז רשמו תיקון: תעתוק מתוקן, פתרון זהב מתוקן במקרה של שגיאת הקלדה של הקהל, או פסיקה שהפותר בעצם צדק תחת כינוי מקובל. התיקונים נשמרים בדפדפן שלכם ומיוצאים כ-JSON להזנה חזרה אל מסד הנתונים.</p>
+  <div class="tool">
+    <div class="tool-bar">
+      <select id="f-puzzle"><option value="">כל התשבצים</option></select>
+      <select id="f-show">
+        <option value="fail">כשלים בלבד</option>
+        <option value="all">כל ההגדרות</option>
+        <option value="fixed">נסקרו</option>
+      </select>
+      <span class="grow"></span>
+      <span class="progress" id="prog">0 נסקרו</span>
+      <button id="btn-export">ייצוא תיקונים</button>
+      <button id="btn-import">ייבוא</button>
+      <input type="file" id="file-import" accept="application/json" hidden>
+    </div>
+    <div class="clue-list" id="clue-list"></div>
+  </div>
+</section>
+
+<section id="repro">
+  <h2><span class="num">9</span>תוצרים ושחזוריות</h2>
+  <p>הצינור דטרמיניסטי מקצה לקצה: גריפה, תעתוק עם אימות ספירת אותיות, בניית הרשת ואימות המספור מול ההגדרות המודפסות, זיקוק מדריך הפעולה, פתירה עיוורת, ניקוד, ניתוח, וחוזר חלילה. ערכת כלי הפותר (מאמת רשת, לקסיקון, אחזור, מיזוג קונצנזוס) ומסגרת ההערכה הן סקריפטים פשוטים. הקריאה הכנה: היעד של 80 אחוזים בתשבץ יורם הרועה לא הושג. הדיוק הנקי והמבוקר הוא 43 אחוזים לריצה ו-64 אחוזים במיזוג, לעומת בסיס של 25 אחוזים. הרווח הזה בא משני תיקונים, לא מהכלים שנראו כאילו הם עובדים: תיקון גבולות המילים ההפוכים, וניצול קריסת ההומוגרפים. המחברים הפשוטים יותר, שאין אצלם הקיר הזה, הם המקום הריאלי להדגים בו תחילה שהמערכת עוברת את הרף.</p>
+</section>
+
+<footer>
+  <p><b>הערת שיטה.</b> הערת מחקר זו וכלי הסקירה הופקו באופן אוטונומי כיומן בנייה. המספרים נובעים מהערכה עיוורת על תשבצים מוחזקים בצד ומדווחים כפי שנמדדו, כולל הנסיגות.</p>
+  <p class="refs">מקורות: אתר פתרונות קהילתי (פתרונות והסברים); תשבץ ההיגיון השבועי של הארץ (תצלומי ההגדרות); רשימת מילים עברית נגזרת hspell. בזמן הפתירה לא נעשה עיון בפתרונות.</p>
+  <p class="small">פרויקט של <a href="https://www.linkedin.com/in/razkaplan/" target="_blank" rel="noopener">רז קפלן</a> · <a href="../" class="en">English version</a></p>
+  <p id="gen-note" class="small"></p>
+</footer>
+
+</div>
+
+<script>
+const MECH = [
+  ['שרשור / הרכבה', 37, true],
+  ['אנגרמה', 16, false],
+  ['הגדרה כפולה', 14, false],
+  ['הכלה', 11, false],
+  ['היפוך', 7, false],
+  ['הומופון', 4, false],
+  ['מילה מוסתרת', 2, false],
+  ['אחר / לשון נופל על לשון', 9, false],
+];
+(function bars(){
+  const el = document.getElementById('mechbars');
+  const max = Math.max(...MECH.map(m=>m[1]));
+  el.innerHTML = MECH.map(([lab,pct,hi])=>`
+    <div class="bar"><div class="lab">${lab}</div>
+      <div class="track"><div class="fill ${hi?'a':''}" style="width:${pct/max*100}%"></div></div>
+      <div class="pct">${pct}%</div></div>`).join('');
+})();
+
+const DIRHE = {across:'מאוזן', down:'מאונך'};
+const VERDICT_LABELS = {
+  '': 'בחרו...',
+  'solver-wrong': 'הפותר טעה',
+  'transcription-error': 'שגיאת תעתוק',
+  'gold-typo': 'שגיאת הקלדה בפתרון הזהב',
+  'solver-right-alias': 'הפותר צדק (כינוי מקובל)',
+  'unsolvable-blind': 'בלתי פתיר בעיוורון'
+};
+const LS_KEY = 'tashbetz_fixes_v1';
+let DATA=null, fixes={};
+try{ fixes = JSON.parse(localStorage.getItem(LS_KEY)||'{}'); }catch(e){ fixes={}; }
+const keyOf = (pd,c)=> `${pd}|${c.num}|${c.dir}`;
+
+fetch('../site_data.json').then(r=>r.json()).then(d=>{ DATA=d; init(); })
+  .catch(e=>{ document.getElementById('clue-list').innerHTML='<div class="clue">טעינת site_data.json נכשלה.</div>'; });
+
+function init(){
+  document.getElementById('s-fail').textContent = DATA.totals.failures;
+  const sel = document.getElementById('f-puzzle');
+  DATA.puzzles.forEach(p=>{
+    const o=document.createElement('option'); o.value=p.date;
+    o.textContent=`${p.date}  (${p.solved}/${p.n})`; sel.appendChild(o);
+  });
+  sel.onchange = render; document.getElementById('f-show').onchange = render;
+  document.getElementById('btn-export').onclick = exportFixes;
+  document.getElementById('btn-import').onclick = ()=>document.getElementById('file-import').click();
+  document.getElementById('file-import').onchange = importFixes;
+  render();
+}
+
+function render(){
+  const pf = document.getElementById('f-puzzle').value;
+  const show = document.getElementById('f-show').value;
+  const list = document.getElementById('clue-list');
+  const rows=[];
+  DATA.puzzles.filter(p=>!pf||p.date===pf).forEach(p=>{
+    p.clues.forEach(c=>{
+      const k = keyOf(p.date,c);
+      const reviewed = !!fixes[k];
+      if(show==='fail' && c.solved && !reviewed) return;
+      if(show==='fixed' && !reviewed) return;
+      rows.push(clueHTML(p,c,k,reviewed));
+    });
+  });
+  list.innerHTML = rows.join('') || '<div class="clue small">אין תוצאות למסנן הזה.</div>';
+  bind();
+  const nrev = Object.keys(fixes).length;
+  document.getElementById('prog').textContent = `${nrev} נסקרו`;
+}
+
+function esc(s){ return (s||'').replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m])); }
+
+function clueHTML(p,c,k,reviewed){
+  const dot = reviewed?'dot-fixed':(c.solved?'dot-ok':'dot-fail');
+  const enum_ = '('+c.enum.join(',')+')';
+  const imgsrc = p.image ? ('../'+p.image) : '';
+  const atts = Object.entries(c.attempts).map(([who,a])=>`
+    <div class="att"><span class="who">${who}</span>
+      <span class="ans he">${esc(a.answer)}</span>
+      <span class="mk ${a.ok?'ok':'no'}">${a.ok?'✓':'✗'}</span>
+      <span class="ex">${esc(a.explanation)}</span></div>`).join('');
+  const crowd = (c.crowd&&c.crowd.length)
+    ? `<div class="crowd">הסבר הקהל: <span class="he">${c.crowd.map(esc).join(' · ')}</span></div>` : '';
+  const f = fixes[k]||{};
+  return `<div class="clue" data-k="${k}">
+    <div class="head">
+      <span class="verdict-dot ${dot}"></span>
+      <span class="ref">${c.num} ${DIRHE[c.dir]}</span>
+      <span class="txt he">${esc(c.clue)}</span>
+      <span class="enum">${enum_}</span>
+    </div>
+    <div class="gold-row">פתרון הזהב: <span class="g he">${esc(c.gold)}</span></div>
+    <div class="attempts">${atts}</div>
+    ${crowd}
+    <button class="imgtoggle" data-img="${imgsrc}">הצגת תמונת המקור</button>
+    <details class="fixbox">
+      <summary>${reviewed?'עריכת תיקון':'רישום תיקון'}</summary>
+      <div class="fixform">
+        <div><label>פסיקה</label>
+          <select data-f="verdict">
+            ${['','solver-wrong','transcription-error','gold-typo','solver-right-alias','unsolvable-blind'].map(v=>`<option value="${v}" ${f.verdict===v?'selected':''}>${VERDICT_LABELS[v]}</option>`).join('')}
+          </select></div>
+        <div><label>טקסט הגדרה מתוקן (אם התעתוק שגוי)</label>
+          <input class="rtl" data-f="clue" value="${esc(f.clue||'')}" placeholder="${esc(c.clue)}"></div>
+        <div><label>פתרון זהב מתוקן (אם שגיאת הקלדה של הקהל)</label>
+          <input class="rtl" data-f="gold" value="${esc(f.gold||'')}" placeholder="${esc(c.gold)}"></div>
+        <div><label>הערות</label>
+          <textarea data-f="notes" placeholder="למשל: הפתרון הוא כינוי תקף; פיצול הספירה הוא 3,4 ולא 4,3">${esc(f.notes||'')}</textarea></div>
+        <button class="save">שמירת התיקון</button>
+        <span class="saved-badge" hidden>נשמר</span>
+      </div>
+    </details>
+  </div>`;
+}
+
+function bind(){
+  document.querySelectorAll('.clue').forEach(row=>{
+    const k = row.dataset.k;
+    row.querySelector('.save').onclick = ()=>{
+      const rec={};
+      row.querySelectorAll('[data-f]').forEach(inp=>{ const v=inp.value.trim(); if(v) rec[inp.dataset.f]=v; });
+      if(Object.keys(rec).length){ rec.ts=new Date().toISOString(); fixes[k]=rec; }
+      else delete fixes[k];
+      localStorage.setItem(LS_KEY, JSON.stringify(fixes));
+      const b=row.querySelector('.saved-badge'); b.hidden=false; setTimeout(()=>b.hidden=true,1400);
+      row.querySelector('.verdict-dot').className='verdict-dot '+(fixes[k]?'dot-fixed':'dot-fail');
+      document.getElementById('prog').textContent = `${Object.keys(fixes).length} נסקרו`;
+    };
+    const it = row.querySelector('.imgtoggle');
+    it.onclick = ()=>{
+      const src=it.dataset.img;
+      if(!src){ it.textContent='אין תמונה'; return; }
+      const ex=row.querySelector('.puzimg');
+      if(ex){ ex.remove(); it.textContent='הצגת תמונת המקור'; return; }
+      const img=document.createElement('img'); img.src=src; img.className='puzimg'; img.loading='lazy';
+      it.after(img); it.textContent='הסתרת תמונת המקור';
+    };
+  });
+}
+
+function exportFixes(){
+  const blob = new Blob([JSON.stringify({generated:new Date().toISOString(),corrections:fixes},null,1)],{type:'application/json'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download='tashbetz_corrections.json'; a.click();
+}
+function importFixes(e){
+  const file=e.target.files[0]; if(!file) return;
+  const r=new FileReader();
+  r.onload=()=>{ try{ const j=JSON.parse(r.result); fixes=j.corrections||j; localStorage.setItem(LS_KEY,JSON.stringify(fixes)); render(); }catch(_){ alert('קובץ JSON לא תקין'); } };
+  r.readAsText(file);
+}
+document.getElementById('gen-note').textContent = 'נבנה עם ערכת הגריפה של Bright Data ולולאת סוכן אוטונומית.';
+</script>
+<script defer src="/_vercel/insights/script.js"></script>
+</body>
+</html>

@@ -174,6 +174,7 @@ footer{margin:3rem 0 2rem;padding-top:1rem;border-top:1px solid var(--rule);font
 const FIN={'ך':'כ','ם':'מ','ן':'נ','ף':'פ','ץ':'צ'};
 const norm=s=>(s||'').split('').map(c=>FIN[c]||c).filter(c=>/[א-ת]/.test(c)).join('');
 const $=id=>document.getElementById(id);
+const esc=x=>String(x??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
 let PUZ=null,PID=null,SEL=null,DIRN='across',SCORE=0,BOARD={},SPENT={},solved=new Set();
 let ENGINE=null;                    // per-clue engine results (demo: baked; upload: on demand)
 let LEX=null,ANAG=null,SUBS=null,AMB=null,PLAYBOOK='';
@@ -267,7 +268,7 @@ fetch('data/demos.json').then(r=>r.json()).then(demos=>{
   const box=$('demolist');
   for(const d of demos){
     const el=document.createElement('div');el.className='card';
-    el.innerHTML='<div class="big">▶ '+d.title+'</div><p>'+d.desc+'</p>';
+    el.innerHTML='<div class="big">▶ '+esc(d.title)+'</div><p>'+esc(d.desc)+'</p>';
     el.onclick=async()=>{
       $('home').style.display='none';$('digi').style.display='block';startFacts();
       await loadData();
@@ -398,7 +399,7 @@ function renderClues(){
   for(const d of['across','down']){const box=$(d);box.innerHTML='';
     for(const c of PUZ.clues[d]){const div=document.createElement('div');
       div.className='clue';div.dataset.k=c.num+'-'+d;
-      div.innerHTML=`<b>${c.num}.</b> <span class="txt">${c.clue}</span> <span class="en">(${c.enum.join(',')})</span>`;
+      div.innerHTML=`<b>${esc(c.num)}.</b> <span class="txt">${esc(c.clue)}</span> <span class="en">(${esc(c.enum.join(','))})</span>`;
       div.onclick=()=>{SEL=c.num+'-'+d;DIRN=d;paint();showClue();focusKbd()};
       box.append(div)}}
 }
