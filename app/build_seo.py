@@ -26,6 +26,28 @@ known=set()
 for v in cult.values(): known.update(norm(x) for x in v)
 cult['common']=sorted(a for a,c in cw.items() if c>=2 and a not in known and 2<=len(a)<=12)
 
+# curated military terms: crossword answers are the gershayim-less spellings (norm handles it)
+MIL={
+ 'טוראי':'הדרגה הראשונה בצה\"ל','רב\"ט':'רב טוראי','סמל':'דרגת סמל','סמ\"ר':'סמל ראשון',
+ 'רס\"ל':'רב סמל','רס\"ר':'רב סמל ראשון','רס\"מ':'רב סמל מתקדם','רס\"ב':'רב סמל בכיר',
+ 'רנ\"ג':'רב נגד','סג\"ם':'סגן משנה','סגן':'דרגת קצונה','סרן':'דרגת קצונה',
+ 'רס\"ן':'רב סרן','סא\"ל':'סגן אלוף','אל\"מ':'אלוף משנה','תא\"ל':'תת אלוף',
+ 'אלוף':'דרגת האלוף','רב אלוף':'דרגת הרמטכ\"ל',
+ 'מ\"כ':'מפקד כיתה','מ\"מ':'מפקד מחלקה','מ\"פ':'מפקד פלוגה','סמ\"פ':'סגן מפקד פלוגה',
+ 'מג\"ד':'מפקד גדוד','סמג\"ד':'סגן מפקד גדוד','מח\"ט':'מפקד חטיבה','מא\"ז':'מפקד אזור',
+ 'קמ\"ן':'קצין מודיעין','קצי\"ח':'קצין חימוש','שליש':'קצין שלישות','רמטכ\"ל':'ראש המטה הכללי',
+ 'מטכ\"ל':'המטה הכללי','אג\"ם':'אגף המבצעים','אכ\"א':'אגף כוח אדם','אמ\"ן':'אגף המודיעין',
+ 'כיתה':'יחידה בסיסית','מחלקה':'יחידת משנה בפלוגה','פלוגה':'יחידת משנה בגדוד',
+ 'גדוד':'יחידת משנה בחטיבה','חטיבה':'יחידת משנה באוגדה','אוגדה':'עוצבה גדולה','גיס':'עוצבת גיסות',
+ 'חי\"ר':'חיל רגלים','חת\"ם':'חיל התותחנים','חש\"ן':'חיל השריון (היסטורי)','שריון':'גייסות השריון',
+ 'צנחן':'לוחם בחטיבת הצנחנים','נגמ\"ש':'נושא גייסות משוריין','זחל\"ם':'רכב חצי זחלי',
+ 'שק\"ם':'שירות קנטינות ומזנונים','בקו\"ם':'בסיס קליטה ומיון','בה\"ד':'בסיס הדרכה',
+ 'טירונות':'אימון בסיסי','מיל\"':'שירות מילואים','חוגר':'חייל שאינו קצין','פז\"ם':'פרק זמן מינימלי',
+ 'רבש\"ץ':'רכז ביטחון שוטף צבאי','מש\"ק':'מפקד שאינו קצין','נ\"מ':'נגד מטוסים','תול\"ר':'תותח ללא רתע',
+}
+MIL={k.replace('\\"','\"'):v.replace('\\"','\"') for k,v in MIL.items()}
+cult['military']=sorted(set(cult.get('military',[]))|set(MIL))
+
 CATS={'song':('שירים','שיר'),'artist':('זמרים ולהקות','זמר/להקה'),
       'politician':('פוליטיקאים','פוליטיקאי/ת'),'place':('ערים בישראל','עיר'),
       'neighborhood':('שכונות','שכונה'),'park':('פארקים ושמורות טבע','פארק/שמורה'),
@@ -33,6 +55,12 @@ CATS={'song':('שירים','שיר'),'artist':('זמרים ולהקות','זמר
       'world_city':('ערי בירה','עיר בירה'),'athlete':('ספורטאים','ספורטאי/ת'),
       'bible':('דמויות מהתנ"ך','דמות מקראית'),'author':('סופרים ומשוררים','סופר/משורר'),
       'actor':('שחקנים','שחקן/ית'),'kibbutz':('קיבוצים ומושבים','קיבוץ/מושב'),
+      'city_il':('ערים ויישובים בישראל','יישוב'),'mountain':('הרים ורכסים','הר'),
+      'stream':('נחלים','נחל'),'river':('נהרות העולם','נהר'),
+      'valley':('עמקים ובקעות','עמק'),'lake_sea':('ימים, אגמים ומפרצים','ים/אגם'),
+      'desert':('מדבריות','מדבר'),'island':('איים','אי'),
+      'region':('חבלי ארץ','חבל ארץ'),'site':('אתרים עתיקים וגנים לאומיים','אתר'),
+      'military':('מונחים צבאיים','מונח צבאי'),
       'common':('תשובות נפוצות בתשבצים','תשובה נפוצה')}
 HEBSENSE={'common_word':'מילה מן המילון','given_name':'שם פרטי','surname':'שם משפחה',
  'role_noun':'תפקיד/פועל וגם שם','song':'שם שיר','song_word':'מילה מתוך שיר','artist':'זמר/להקה',
@@ -51,7 +79,13 @@ footer{margin:2.5rem 0 1.5rem;border-top:1px solid #dcdcdc;padding-top:.8rem;fon
 
 def page(path,title,desc,body,jsonld=None):
     os.makedirs(os.path.dirname(path),exist_ok=True)
-    ld=f'<script type="application/ld+json">{json.dumps(jsonld,ensure_ascii=False)}</script>' if jsonld else ''
+    rel='/'+os.path.relpath(path,'docs').replace('index.html','').replace(os.sep,'/')
+    crumbs=[("דף הבית",BASE+"/"),("מילון",BASE+"/milon/")]
+    if rel not in ('/milon/','/'): crumbs.append((title.split(' — ')[0],BASE+rel))
+    bc={"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[
+        {"@type":"ListItem","position":i+1,"name":n,"item":u} for i,(n,u) in enumerate(crumbs)]}
+    ld=f'<script type="application/ld+json">{json.dumps(bc,ensure_ascii=False)}</script>'
+    if jsonld: ld+=f'<script type="application/ld+json">{json.dumps(jsonld,ensure_ascii=False)}</script>'
     canon=BASE+'/'+os.path.relpath(path,'docs').replace('index.html','').replace(os.sep,'/')
     open(path,'w').write(f"""<!doctype html><html lang="he" dir="rtl"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1"><title>{title}</title>
@@ -71,49 +105,124 @@ for cat,(plural,single) in CATS.items():
         if 2<=len(n)<=12: by_len.setdefault(len(n),[]).append((t,n))
     for L,items in sorted(by_len.items()):
         if len(items)<5: continue
-        items.sort()
+        items.sort(key=lambda x:(-cw.get(x[1],0),x[0]))     # frequent crossword answers first
         slug=f'{cat}-{L}'
-        lis=''.join(f'<li>{t}<br><small style="font-family:monospace;color:#5c5c5c">{n}</small></li>' for t,n in items)
+        def _li(t,n):
+            b=f' <span class="k" style="font-size:.55rem">{cw[n]}×</span>' if cw.get(n,0)>=2 else ''
+            return f'<li>{t}{b}<br><small style="font-family:monospace;color:#5c5c5c">{n}</small></li>'
+        lis=''.join(_li(t,n) for t,n in items)
         body=f"""<p><b>{len(items)} {plural}</b> שהשם שלהם נכתב ברשת התשבץ ב-<b>{L} אותיות</b>
 (בתשבץ אין אותיות סופיות — ם/ן/ץ/ף/ך נכתבות מ/נ/צ/פ/כ, והכתיב מוצג מתחת לכל שם).</p>
 <ul class="grid">{lis}</ul>"""
         page(f'{OUT}/{slug}/index.html',
-             f'{plural} ב-{L} אותיות — רשימה מלאה לתשבץ',
-             f'כל ה{plural} שנכתבים ב-{L} אותיות ברשת תשבץ, כולל הכתיב ללא אותיות סופיות. {len(items)} ערכים.',
+             f'{plural} ב-{L} אותיות לתשבץ ותשחץ — {len(items)} פתרונות',
+             f'{single} ב-{L} אותיות? הרשימה המלאה לפתרון תשבצים: {len(items)} {plural}, ממוינים לפי שכיחות בתשבצים, עם הכתיב המדויק ללא אותיות סופיות.',
              body,
              {"@context":"https://schema.org","@type":"ItemList","name":f"{plural} ב-{L} אותיות",
               "numberOfItems":len(items)})
         urls.append(f'/milon/{slug}/')
 
-# ---------- entity pages: only entities with rich data ----------
-ent_index=[]
-count=0
+# ---------- entity pages: entities with rich data or references ----------
+# relations: song <-> artist from shironet (titles are public metadata, lyrics never copied)
+song_rel={}; artist_rel={}
+if os.path.exists('data/shironet_songs.json'):
+    for r in json.load(open('data/shironet_songs.json')):
+        an=(r.get('artist_name') or '').strip()
+        if not an: continue
+        for st in r.get('song_titles',[]):
+            st=st.strip()
+            if not st: continue
+            song_rel.setdefault(norm(st),{'artist':an,'url':r.get('product_page_url','')})
+            artist_rel.setdefault(norm(an),{'name':an,'prfid':r.get('prfid',''),'songs':[]})
+            artist_rel[norm(an)]['songs'].append(st)
+WIKI_CATS={c for c in CATS if c not in ('song','artist','common','military')}
+
+def refs_for(cat,t,n):
+    """at least one reference per entity; internal cross-links resolved later"""
+    out=[]
+    if cat=='song' and n in song_rel:
+        r=song_rel[n]
+        out.append(('artist',r['artist']))
+        if r['url']: out.append(('ext',('מילות השיר בשירונט',r['url'])))
+    if cat=='artist' and n in artist_rel:
+        r=artist_rel[n]
+        for st in r['songs'][:10]: out.append(('song',st))
+        if r['prfid']:
+            out.append(('ext',('דף האמן בשירונט',
+                f"https://shironet.mako.co.il/artist?type=works&lang=1&prfid={r['prfid']}")))
+    if cat=='military' and t in MIL:
+        art=MIL[t] if MIL[t] and ' ' in MIL[t] and len(MIL[t])<=22 else t
+        out.append(('ext',(f'{art} בוויקיפדיה',
+            'https://he.wikipedia.org/wiki/'+urllib.parse.quote(art.replace(' ','_')))))
+    if cat in WIKI_CATS:
+        out.append(('ext',(f'{t} בוויקיפדיה',
+            'https://he.wikipedia.org/wiki/'+urllib.parse.quote(t.replace(' ','_')))))
+    return out
+
+# pass 1: decide which entities get pages (rich data OR relations), respecting the cap
+ent_index=[]; page_set=set(); count=0; CAP=6000
 for cat,(plural,single) in CATS.items():
     for t in cult.get(cat,[]):
         n=norm(t)
         if not (2<=len(n)<=14): continue
         a=amb.get(n); c=cw.get(n,0); sb=subs['fwd'].get(n,[])+subs['rev'].get(n,[])
-        rich=bool(a)or c>=2 or bool(sb)
+        has_rel=(cat=='song' and n in song_rel) or (cat=='artist' and n in artist_rel) or cat=='military'
+        rich=bool(a) or c>=2 or bool(sb) or has_rel
         ent_index.append({'t':t,'n':n,'c':cat,'l':len(n)})
-        if not rich or count>=1800: continue
-        count+=1
-        rows=f'<tr><th>סוג</th><td>{single}</td></tr><tr><th>אורך ברשת</th><td>{len(n)} אותיות</td></tr>'
-        rows+=f'<tr><th>כתיב בתשבץ</th><td style="font-family:monospace">{n}</td></tr>'
-        if c: rows+=f'<tr><th>הופעות בתשבצים</th><td>{c} פעמים (מתוך מדגם של 362 תשבצים)</td></tr>'
-        if a: rows+=f'<tr><th>משמעויות נוספות</th><td>{", ".join(HEBSENSE.get(x,x) for x in a["senses"])}</td></tr>'
-        if sb:
-            pairs=', '.join(f'{x[0]}' for x in sb[:5])
-            rows+=f'<tr><th>תחליפים בתשבצים</th><td>{pairs}</td></tr>'
-        letters=' · '.join(sorted(set(n)))
-        body=f"""<table>{rows}<tr><th>אותיות (לאנגרם)</th><td style="font-family:monospace">{letters}</td></tr></table>
-<p style="margin-top:1rem"><a href="/milon/{urllib.parse.quote(f'{cat}-{len(n)}')}/">עוד {plural} ב-{len(n)} אותיות ←</a></p>"""
-        page(f'{OUT}/e/{urllib.parse.quote(t,safe="")}/index.html',
-             f'{t} בתשבץ — {len(n)} אותיות',
-             f'{t}: {single}, {len(n)} אותיות ברשת התשבץ ({n}). משמעויות, הופעות ותחליפים לפותרי תשבצים.',
-             body,
-             {"@context":"https://schema.org","@type":"DefinedTerm","name":t,
-              "inDefinedTermSet":f"{BASE}/milon/"})
-        urls.append(f'/milon/e/{urllib.parse.quote(t,safe="")}/')
+        if rich and count<CAP:
+            page_set.add((cat,t)); count+=1
+by_norm={}
+for cat,t in page_set: by_norm.setdefault(norm(t),(cat,t))
+
+def ref_link(kind,val):
+    if kind=='ext':
+        label,url=val
+        return f'<a href="{url}" rel="noopener">{label}</a>'
+    hit=by_norm.get(norm(val))
+    if hit:
+        return f'<a href="/milon/e/{urllib.parse.quote(hit[1],safe="")}/">{val}</a>'
+    return val
+
+# pass 2: build pages
+for cat,t in sorted(page_set):
+    plural,single=CATS[cat]; n=norm(t)
+    a=amb.get(n); c=cw.get(n,0); sb=subs['fwd'].get(n,[])+subs['rev'].get(n,[])
+    rows=f'<tr><th>סוג</th><td>{single}</td></tr><tr><th>אורך ברשת</th><td>{len(n)} אותיות</td></tr>'
+    if cat=='military' and t in MIL: rows+=f'<tr><th>פירוש</th><td>{MIL[t]}</td></tr>'
+    rows+=f'<tr><th>כתיב בתשבץ</th><td style="font-family:monospace">{n}</td></tr>'
+    if c: rows+=f'<tr><th>הופעות בתשבצים</th><td>{c} פעמים (מתוך מדגם של 362 תשבצים)</td></tr>'
+    if a: rows+=f'<tr><th>משמעויות נוספות</th><td>{", ".join(HEBSENSE.get(x,x) for x in a["senses"])}</td></tr>'
+    if sb:
+        pairs=', '.join(f'{x[0]}' for x in sb[:5])
+        rows+=f'<tr><th>תחליפים בתשבצים</th><td>{pairs}</td></tr>'
+    refs=refs_for(cat,t,n)
+    if refs:
+        by_kind={}
+        for kind,val in refs: by_kind.setdefault(kind,[]).append(val)
+        parts=[]
+        if 'artist' in by_kind: parts.append('מאת: '+', '.join(ref_link('x',v) for v in by_kind['artist']))
+        if 'song' in by_kind: parts.append('שירים: '+', '.join(ref_link('x',v) for v in by_kind['song']))
+        if 'ext' in by_kind: parts.append(' · '.join(ref_link('ext',v) for v in by_kind['ext']))
+        rows+=f'<tr><th>רפרנסים</th><td>{"<br>".join(parts)}</td></tr>'
+    letters=' · '.join(sorted(set(n)))
+    related=[t2 for c2,t2 in sorted(page_set) if c2==cat and t2!=t and len(norm(t2))==len(n)][:10]
+    rel_html=''
+    if related:
+        rl=' · '.join(f'<a href="/milon/e/{urllib.parse.quote(t2,safe="")}/">{t2}</a>' for t2 in related)
+        rel_html=f'<p style="margin-top:.8rem"><b>ערכים קרובים ({single}, {len(n)} אותיות):</b> {rl}</p>'
+    body=f"""<table>{rows}<tr><th>אותיות (לאנגרם)</th><td style="font-family:monospace">{letters}</td></tr></table>
+{rel_html}
+<p style="margin-top:1rem"><a href="/milon/{urllib.parse.quote(f'{cat}-{len(n)}')}/">עוד {plural} ב-{len(n)} אותיות ←</a>
+ · <a href="/milon/anagram/">חיפוש אנגרם</a></p>"""
+    ld={"@context":"https://schema.org","@type":"DefinedTerm","name":t,
+        "inDefinedTermSet":f"{BASE}/milon/"}
+    ext=[v[1] for k,v in refs if k=='ext']
+    if ext: ld["sameAs"]=ext
+    page(f'{OUT}/e/{urllib.parse.quote(t,safe="")}/index.html',
+         f'{t} בתשבץ — {single} ב-{len(n)} אותיות (כתיב: {n})',
+         f'איך כותבים {t} בתשבץ? {single} ב-{len(n)} אותיות, כתיב רשת: {n}. משמעויות כפולות, שכיחות, רפרנסים ותחליפים לפותרי תשבצים ותשחצים.',
+         body, ld)
+    urls.append(f'/milon/e/{urllib.parse.quote(t,safe="")}/')
 
 # ---------- search hub ----------
 json.dump(ent_index,open(f'{OUT}/entities.json','w'),ensure_ascii=False)
@@ -124,7 +233,8 @@ for cat,(plural,_) in CATS.items():
     cat_links+=f'<p><b>{plural}</b> לפי אורך: {links}</p>'
 hub=f"""<p>מנוע חיפוש לפותרי תשבצים: שמות של שירים, זמרים, פוליטיקאים ומקומות — עם הכתיב המדויק ברשת
 (ללא אותיות סופיות), אורך, ומשמעויות כפולות. {len(ent_index):,} ערכים.</p>
-<input id="q" placeholder="חיפוש שם, או תבנית עם ? (למשל: ?ו?ה)" autocomplete="off">
+<input id="q" placeholder="חיפוש שם, או תבנית: ? או . לאות חסרה (למשל: ?ו?ה)" autocomplete="off">
+<p style="margin:.5rem 0"><a href="/milon/anagram/"><b>יש לכם אותיות מבולבלות? → חיפוש אנגרם</b></a></p>
 <div id="res" class="grid" style="margin-top:.8rem"></div>
 <h2>עיון לפי קטגוריה ואורך</h2>{cat_links}
 <p style="margin-top:1.4rem">חסרה לכם תשובה שלמה? <a href="/solve/">עוזר הפתירה</a> פותר איתכם עם רמזים מדורגים והוכחות.</p>
@@ -140,11 +250,46 @@ else hits=E.filter(e=>e.t.includes(v)||e.n.includes(v.replace(/[ךםןףץ]/g,m=
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}}[c]));res.innerHTML=hits.slice(0,60).map(e=>'<li><b>'+esc(e.t)+'</b><br><small>'+esc(CAT[e.c]||'')+' · '+esc(e.l)+' אותיות · <span style="font-family:monospace">'+esc(e.n)+'</span></small></li>').join('');
 }};
 </script>"""
-page(f'{OUT}/index.html','מילון תשבץ — חיפוש שירים, זמרים ואנשים לפי אורך',
+page(f'{OUT}/index.html','מילון תשבץ — חיפוש לפי אורך, תבנית ואנגרם',
      f'מנוע חיפוש לפותרי תשבצים: {len(ent_index):,} שירים, זמרים, פוליטיקאים ומקומות עם כתיב תשבץ מדויק, אורך ותבניות.',
-     hub,{"@context":"https://schema.org","@type":"WebSite","name":"מילון תשבץ",
-     "url":f"{BASE}/milon/"})
+     hub,[{"@context":"https://schema.org","@type":"DefinedTermSet","name":"מילון תשבץ",
+      "url":f"{BASE}/milon/","description":f"{len(ent_index):,} ערכים לפותרי תשבצים"},
+     {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+      {"@type":"Question","name":"איך כותבים שמות בתשבץ בלי אותיות סופיות?",
+       "acceptedAnswer":{"@type":"Answer","text":"ברשת תשבץ אין אותיות סופיות: ם/ן/ץ/ף/ך נכתבות מ/נ/צ/פ/כ. המילון מציג לכל ערך את כתיב הרשת המדויק."}},
+      {"@type":"Question","name":"איך מוצאים תשובה כשידועות רק חלק מהאותיות?",
+       "acceptedAnswer":{"@type":"Answer","text":"מקלידים תבנית בשורת החיפוש: סימן שאלה או נקודה במקום אות חסרה, למשל ?ו?ה. מקבלים את כל הערכים המתאימים."}},
+      {"@type":"Question","name":"מה עושים עם הגדרת אנגרם?",
+       "acceptedAnswer":{"@type":"Answer","text":"בעמוד חיפוש האנגרם מקלידים את האותיות ומקבלים את כל השמות והמילים שהן פרמוטציה שלהן."}}]}])
 urls.insert(0,'/milon/')
+
+# ---------- anagram page ----------
+ana_body="""<p>הפודר של אנגרם בתשבץ היגיון מופיע מילולית בהגדרה. מקלידים כאן את האותיות (ברצף, בלי רווחים)
+ומקבלים כל שם ומילה שהם פרמוטציה מדויקת שלהן. אפשר גם לכלול את לקסיקון המילים המלא (141 אלף מילים).</p>
+<input id="a" placeholder="האותיות שיש לכם, למשל: ליבנוצר" autocomplete="off">
+<label style="display:block;margin:.5rem 0;font-size:.9rem"><input type="checkbox" id="uselex" style="width:auto"> כלול גם מילים רגילות מהלקסיקון (טעינה חד-פעמית של ~1.5MB)</label>
+<div id="ares" class="grid" style="margin-top:.8rem"></div>
+<p style="margin-top:1.4rem">רוצים גם הוכחה שהאנגרם נכון? <a href="/solve/">עוזר הפתירה</a> בודק מכנית כל טענה.</p>
+<script>
+let E=null,LEX=null;const a=document.getElementById('a'),ares=document.getElementById('ares'),ul=document.getElementById('uselex');
+fetch('/milon/entities.json').then(r=>r.json()).then(d=>E=d);
+const FIN={'ך':'כ','ם':'מ','ן':'נ','ף':'פ','ץ':'צ'};
+const sig=w=>w.replace(/[ךםןףץ]/g,m=>FIN[m]).split('').sort().join('');
+const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ul.onchange=()=>{if(ul.checked&&!LEX)fetch('/solve/data/lexicon.txt').then(r=>r.text()).then(t=>{LEX=t.split('\n');run()});else run()};
+function run(){if(!E)return;const v=a.value.replace(/[^א-ת]/g,'');ares.innerHTML='';if(v.length<3)return;
+const target=sig(v);let out=[];
+for(const e of E){if(e.n.length===v.length&&sig(e.n)===target)out.push('<li><b>'+esc(e.t)+'</b><br><small style="font-family:monospace">'+esc(e.n)+'</small></li>');if(out.length>=40)break}
+if(ul.checked&&LEX){for(const w of LEX){if(w.length===v.length&&sig(w)===target)out.push('<li>'+esc(w)+'</li>');if(out.length>=80)break}}
+ares.innerHTML=out.join('')||'<li>לא נמצאה פרמוטציה. נסו לכלול את הלקסיקון המלא.</li>'}
+a.oninput=run;
+</script>"""
+page(f'{OUT}/anagram/index.html',
+     'חיפוש אנגרם לתשבץ — מי מסתתר באותיות המבולבלות',
+     'פותר אנגרמות לתשבצי היגיון: מקלידים את האותיות ומקבלים כל שם, מקום ומילה שהם פרמוטציה שלהן. כולל לקסיקון של 141 אלף מילים וכתיב רשת מדויק.',
+     ana_body,{"@context":"https://schema.org","@type":"WebApplication","name":"חיפוש אנגרם לתשבץ",
+     "url":f"{BASE}/milon/anagram/","applicationCategory":"Utility"})
+urls.insert(1,'/milon/anagram/')
 
 # ---------- sitemap + robots ----------
 sm='<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'

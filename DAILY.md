@@ -230,3 +230,8 @@ Measure each lever on dev (fixed enums) with run_eval.py before/after; one lever
   (2) confidence exactly at 0.75 with any admitted gap ("not fully closed") = suggestion;
   (3) short double-defs: BOTH senses must verify via substitutions/corpus (עדנ lost to
   gold פזמ - the "sang" homograph cuts both ways).
+- MILON EXPANSION (2026-08-10): geo harvest (city_il/mountain/stream/river/valley/lake_sea/
+  desert/island; region+site categories NOT FOUND on he-wiki under guessed names - find the
+  real category names and re-harvest), curated military terms (59, with expansions), refs on
+  every rich entity page (song<->artist from shironet, wiki sameAs links), /milon/anagram/
+  standalone tool, frequency-sorted category pages, breadcrumb+FAQ schema. 6,107 pages.

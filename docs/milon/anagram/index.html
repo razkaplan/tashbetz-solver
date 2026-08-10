@@ -1,0 +1,37 @@
+<!doctype html><html lang="he" dir="rtl"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1"><title>חיפוש אנגרם לתשבץ — מי מסתתר באותיות המבולבלות</title>
+<meta name="description" content="פותר אנגרמות לתשבצי היגיון: מקלידים את האותיות ומקבלים כל שם, מקום ומילה שהם פרמוטציה שלהן. כולל לקסיקון של 141 אלף מילים וכתיב רשת מדויק."><link rel="canonical" href="https://tashbetz.gtmascode.dev/milon/anagram/"><script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "דף הבית", "item": "https://tashbetz.gtmascode.dev/"}, {"@type": "ListItem", "position": 2, "name": "מילון", "item": "https://tashbetz.gtmascode.dev/milon/"}, {"@type": "ListItem", "position": 3, "name": "חיפוש אנגרם לתשבץ", "item": "https://tashbetz.gtmascode.dev/milon/anagram/"}]}</script><script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebApplication", "name": "חיפוש אנגרם לתשבץ", "url": "https://tashbetz.gtmascode.dev/milon/anagram/", "applicationCategory": "Utility"}</script><style>*{box-sizing:border-box}body{margin:0;background:#fff;color:#121212;font-family:'Frank Ruhl Libre','Arial Hebrew',serif;line-height:1.6}
+.w{max-width:52rem;margin:0 auto;padding:1rem 1.2rem}header{border-bottom:1px solid #121212;box-shadow:0 3px 0 -1px #121212;padding:.8rem 0}
+h1{font-size:1.6rem;margin:.2rem 0}.k{font-family:monospace;font-size:.65rem;letter-spacing:.12em;color:#fff;background:#f22b39;display:inline-block;padding:.12rem .5rem}
+a{color:#f22b39}h2{border-bottom:3px solid #f22b39;display:inline-block;font-size:1.1rem;padding-bottom:.1rem}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(11rem,1fr));gap:.4rem;padding:0;list-style:none}
+.grid li{background:#f6f5f3;padding:.35rem .6rem;border-radius:3px}
+table{border-collapse:collapse;width:100%}td,th{border-bottom:1px solid #dcdcdc;padding:.4rem .5rem;text-align:right}
+footer{margin:2.5rem 0 1.5rem;border-top:1px solid #dcdcdc;padding-top:.8rem;font-size:.8rem;color:#5c5c5c}
+.crumb{font-size:.8rem;color:#5c5c5c;margin:.6rem 0}input{font:inherit;padding:.5rem;border:1.5px solid #121212;border-radius:3px;width:100%}
+@media(prefers-color-scheme:dark){body{background:#161616;color:#f2f0ec}.grid li{background:#222}td,th{border-color:#3a3a3a}}</style></head><body><div class="w">
+<header><span class="k">מילון תשבץ · פותרים ביחד</span><h1>חיפוש אנגרם לתשבץ — מי מסתתר באותיות המבולבלות</h1>
+<div class="crumb"><a href="/milon/">מילון</a> · <a href="/solve/">עוזר הפתירה</a> · <a href="/">דף הבית</a></div></header>
+<p>הפודר של אנגרם בתשבץ היגיון מופיע מילולית בהגדרה. מקלידים כאן את האותיות (ברצף, בלי רווחים)
+ומקבלים כל שם ומילה שהם פרמוטציה מדויקת שלהן. אפשר גם לכלול את לקסיקון המילים המלא (141 אלף מילים).</p>
+<input id="a" placeholder="האותיות שיש לכם, למשל: ליבנוצר" autocomplete="off">
+<label style="display:block;margin:.5rem 0;font-size:.9rem"><input type="checkbox" id="uselex" style="width:auto"> כלול גם מילים רגילות מהלקסיקון (טעינה חד-פעמית של ~1.5MB)</label>
+<div id="ares" class="grid" style="margin-top:.8rem"></div>
+<p style="margin-top:1.4rem">רוצים גם הוכחה שהאנגרם נכון? <a href="/solve/">עוזר הפתירה</a> בודק מכנית כל טענה.</p>
+<script>
+let E=null,LEX=null;const a=document.getElementById('a'),ares=document.getElementById('ares'),ul=document.getElementById('uselex');
+fetch('/milon/entities.json').then(r=>r.json()).then(d=>E=d);
+const FIN={'ך':'כ','ם':'מ','ן':'נ','ף':'פ','ץ':'צ'};
+const sig=w=>w.replace(/[ךםןףץ]/g,m=>FIN[m]).split('').sort().join('');
+const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ul.onchange=()=>{if(ul.checked&&!LEX)fetch('/solve/data/lexicon.txt').then(r=>r.text()).then(t=>{LEX=t.split('
+');run()});else run()};
+function run(){if(!E)return;const v=a.value.replace(/[^א-ת]/g,'');ares.innerHTML='';if(v.length<3)return;
+const target=sig(v);let out=[];
+for(const e of E){if(e.n.length===v.length&&sig(e.n)===target)out.push('<li><b>'+esc(e.t)+'</b><br><small style="font-family:monospace">'+esc(e.n)+'</small></li>');if(out.length>=40)break}
+if(ul.checked&&LEX){for(const w of LEX){if(w.length===v.length&&sig(w)===target)out.push('<li>'+esc(w)+'</li>');if(out.length>=80)break}}
+ares.innerHTML=out.join('')||'<li>לא נמצאה פרמוטציה. נסו לכלול את הלקסיקון המלא.</li>'}
+a.oninput=run;
+</script>
+<footer>מבוסס על אינדקס פתוח של שמות (ויקיפדיה/שירונט) וניתוח סטטיסטי מקורי · לא מתפרסמות הגדרות מעיתונים ·
+<a href="https://www.linkedin.com/in/razkaplan/">פרויקט של רז קפלן</a></footer></div></body></html>
