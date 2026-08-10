@@ -250,3 +250,8 @@ Measure each lever on dev (fixed enums) with run_eval.py before/after; one lever
 - COINAGE DEVICE (2026-08-10): "מחידושי <שם>" = setter-coined portmanteau; answer is NOT
   in any lexicon (expected!). Base phrase warped 1-2 letters to encode the definition
   (פקקיסטנ, אחימלחשק). Lexicon absence must not veto; proof = base + letter operation.
+- EXTERNAL-GUIDE AUDIT (2026-08-10): diffed playbook vs ravmilim/maariv/wikipedia/ynet
+  guides; 11 missing devices added to PLAYBOOK (consecutive letters, foreign phonetics,
+  notation tails (ש"כ)/(ס)/(מו"ש)/(דו"ש), container-role inversion, למשל=category,
+  interleave, או-collocation, 9 letter glosses, שב/סב reversal, digits->gematria,
+  service-letter double-parse) + FIXED wrong claim that (מחדושי X) is a plain credit.

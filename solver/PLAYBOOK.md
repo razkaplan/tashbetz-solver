@@ -288,8 +288,10 @@ Contributor style priors (use as weak evidence):
 - **עפר קציר** — culture references: films, songs, poems (טשרניחובסקי, יוסי גמזו, sketches).
 - **צבי ויצמן, אלי מועלם** — standard charades/anagrams.
 
-Variants: "(מחדושי X)" = same meaning; "(עפ"י השמיעה של X)" = **homophone clue**;
-"(מחדושי המחבר)" = Yoram's own.
+Variants: "(עפ"י השמיעה של X)" = **homophone clue**. CORRECTED 2026-08-10:
+"(מחדושי X)" is NOT a plain credit synonym — it is credit + a COINAGE FLAG (see the
+Coinage section): the answer is an invented portmanteau absent from every lexicon.
+"(מחדושי המחבר)" = Yoram's own coinage.
 
 Other clue-tail markers:
 - **(מ)** = כתיב מלא (plene spelling) — 62 clues. The answer is written with extra
@@ -679,3 +681,32 @@ sketches with no letter mechanics; the loose "two wordplays, no definition" styl
 The secondary-corpus setters are stricter: nearly every clue has a clean definition
 half + one mechanical half, so for them the strict verification gate of §4.10 can be
 tightened (reject candidates whose leftover words do not define).
+
+
+## External-guide audit additions (2026-08-10)
+Diffed against blog.ravmilim.co.il tips, Maariv (Liani), he.wikipedia תשבץ היגיון,
+ynet, higayonbarie, FXP. Items below were MISSING from this playbook:
+
+1. **אותיות עוקבות**: indicators עוקבות/לפי הסדר/בסדר → answer contains an
+   alphabet-consecutive letter run (דורשת = דו+רשת: ר,ש,ת; פרלמן = פר+למן: ל,מ,נ).
+2. **Foreign-word phonetics**: (ל), באנגליה, בצרפת → sound out clue words in
+   English/French ("תהיה טוב" = Be good → ביגוד; להפסיד = to lose → טולוז).
+3. **Notation tails**: (כ"מ)/(כ"ח) = spelling variants; (ש"כ) = one clue word serves
+   BOTH definitions; (ס) = slang answer; (מו"ש) = inspired by another clue in this
+   puzzle; (דו"ש) = two-step: transform the definition first, then solve it
+   ("הפוליטיקאית" → לבני → ידלבנימ).
+4. **"בדיוק להפך" = container-role inversion**, not letter reversal: the ostensible
+   container becomes the contained (ברוק->קורב inside מים = מקורבימ).
+5. **"X, למשל"** = definition-by-example: answer is X's CATEGORY (חרטום, למשל → בירה).
+6. **לסירוגין** = interleave letters of two words (rare, reserved word).
+7. **"X או Y"** = both collocate with the answer on the same side (מדד או חום →
+   יולי/אוגוסט); beware common-word multi-answer clues (אין שם יפה אחר → דבר).
+8. **Letter glosses to ADD**: ו=תלוי (shape), ג=אישור (גימלים), ל=לומד (learner's L),
+   ר=לקיש (ריש), ע=עין/הלל (ע. הלל), פ=פה, צ=צדיק, א=שור, ב=מיכאל (ב. מיכאל).
+9. **Reversal indicators to ADD**: bare שב and bare סב (סב also glosses as זקן -
+   disambiguate by syntax).
+10. **Digits in clue → letter spelling**: printed numbers become gematria letter
+    pairs inside the answer (15 → ט"ו in טורבנימ; 14 → י"ד in אירביד).
+11. **Service-letter misreading (מש"ה וכל"ב)**: a clue word starting with ל/ב/כ/מ/ש/ו
+    may be preposition+word or one whole word (לשון = ל+שון; לסוטות = ל+סוטות).
+    Try both parses before synonym lookup.
