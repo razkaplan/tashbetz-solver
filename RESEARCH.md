@@ -4,6 +4,53 @@ One entry per run: what was found, one-line summary, and an honest judgement of 
 it transfers to a Hebrew cryptic solver with an 8k-clue corpus. Default skepticism: most
 crossword-AI work targets non-cryptic (American-style) puzzles and does not transfer.
 
+## 2026-08-10
+
+**"Proving that Cryptic Crossword Clue Answers are Correct"** (arXiv 2407.08824).
+https://arxiv.org/html/2407.08824v1
+Hybrid pipeline: a fine-tuned Llama-3 proposes definition+wordplay annotations, Gemini
+formalises them into Python proof assertions (`is_synonym`, `is_abbreviation`, string
+concatenation), and a verifier executes them, allowing up to 5 LLM re-write attempts on
+failure. Catalogs nine wordplay types (anagram, charade, container, deletion, double
+definition, hidden word, homophone, reversal, + one more) with a corresponding DSL.
+Headline result: proofs distinguish the gold answer from a close FastText-similarity
+distractor only 38-42% of the time, with 55-59% draws — even this system's own authors
+call that short of reliable at scale.
+**Transfer: strong structural confirmation, one important negative data point.**
+`solver/prove.py` already independently converged on the same design (assertion DSL,
+execute-don't-persuade) before this paper was read here — convergent validation, not a
+new idea to adopt. The genuinely new information is the **definition-span number**: this
+paper's candidate generation and evaluation both start from a *human-annotated* definition
+span (curly-brace markup in their "Wordplay" dataset), not an automatically detected one.
+That is direct evidence that automatic definition-span detection is still an open problem
+even in the English cryptic literature with far more training data (470k+ clues) than this
+project has — which recalibrates queue item 2 ("definition-span detection... standard in
+the literature") from "a known technique to port" to "an unsolved problem elsewhere too."
+Any heuristic built here should be evaluated as a research attempt, not treated as an
+established baseline we're merely behind on.
+
+**Hebrew morphology / LLM benchmarks, checked for anything new since 2026-08-06.**
+https://arxiv.org/pdf/2604.17108 (Hebrew coreference benchmark), NNLP-IL resource list.
+No new transferable finding: confirms the standing read that general-purpose LLM Hebrew
+morphology handling still lags dedicated tools (GPT-4o scored 5 points below a small
+encoder-based baseline on Hebrew coreference with gold mention boundaries given). Does not
+change this project's approach, which already avoids depending on an LLM's own Hebrew
+segmentation and instead does explicit prefix/suffix stripping (`homographs.py`'s
+`variants()`, and today's `candidates.py` port of the same stemming).
+**Transfer: none new — status quo confirmed.**
+
+**Operational finding, not a paper: `bootstrap.sh` step 2 (14across.co.il) was
+100%-blocked this run**, not the "~half, random" intermittency logged 2026-08-06. Five
+retries with backoff (the existing fix) failed on every one of the first 7/52 puzzles
+before the run was aborted; a direct `curl` reproduced a persistent HTTP 202 `sgcaptcha`
+redirect with zero successes across 9 attempts over several minutes. Routing the identical
+GET through the Bright Data MCP scraping tool (a different egress path) succeeded on the
+first try for both puzzles fetched. This is an infrastructure/IP-reputation fact about
+today's environment, not a code defect — `parse_answers.py`'s retry logic is correct for
+the failure mode it was built for (transient, ~50%), just not for a fully-blocked egress
+IP. Left unfixed today (out of scope for one lever); flagging for whoever next hits a
+0/N bootstrap run: try an alternate egress path before assuming the scraper regressed.
+
 ## 2026-08-06
 
 **"A Reasoning-Based Approach to Cryptic Crossword Clue Solving"** (arXiv 2506.04824,

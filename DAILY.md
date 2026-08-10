@@ -11,21 +11,29 @@ Read this first each run. It is the handoff between days.
 | Accurate fulfilment (yield) | 55% (unchanged, not re-run today) | ~67% |
 | Best single puzzle | 2026-05-29: 95% / 71% / 68% ✓ all targets | |
 | Hardest puzzle | 2026-06-05: 100% / 43% / 43% | coverage stuck |
-| **Candidate recall@N (new, offline, mechanical only)** | **3.6% (1/28)**, avg 11.6 candidates/clue, on 2026-05-29 | not yet a target — diagnostic |
+| **Candidate recall@N (offline, mechanical only)** | **3.6% (1/28)**, avg 12.3 candidates/clue, on 2026-05-29 (re-verified 2026-08-10, independent re-transcription) | not yet a target — diagnostic |
 
 Baseline for comparison: v2 = 41% raw with untraceable errors.
-Last lever added: **mechanical candidate generation** (`solver/candidates.py`) —
-anagram/hidden/reversal/pattern candidates per clue, character-level fodder windows
-(not just whole-word), feeding the existing proof gate. Precision/coverage/yield were
-NOT re-measured this run (that requires a full LLM solve session, out of scope for one
-lever) — only the generator's own offline recall was, honestly, and it is low. See log.
-Last finding: coverage is bounded by CANDIDATE GENERATION, not verification. Same
-conclusion the cryptic-SOTA paper reached independently. Today's finding refines this:
-even a mechanically thorough (character-level, all 3 base mechanisms) generator recovers
-only 1/28 answers on this setter's hardest puzzle, because most of its wordplay is not
-literal anagram/hidden/reversal — it leans on substitution and homograph devices
-(consistent with PLAYBOOK.md). The generator is real infrastructure for the proof gate
-to use, but by itself it is a small piece of the coverage problem, not the whole fix.
+Last lever added: **homograph-aware candidate generation** (`solver/candidates.py`
+`homograph_candidates`) — for every ambiguous token in a clue (`homographs.py`'s
+ambiguities.json), propose the token itself and any named entity it is evidence for,
+wherever the normalized length matches the enum. Fires on 18/28 clues (26 candidates
+generated) but recall@N is UNCHANGED at 3.6% (1/28, same anagram hit as before) — zero
+of the 26 new candidates were correct on this puzzle. Honest negative result on n=28;
+see log. Precision/coverage/yield were NOT re-measured (needs a full LLM solve session,
+out of scope for one lever) — only the generator's own offline recall was, again honestly.
+AUDIT finding from building this: `ambiguities.json`'s 'answer' evidence tier had NO
+held-out filtering (unlike `lexicon.py`), a latent leak vector — verified it did not
+affect today's number (0 of 14 leak-reachable tokens were ever a word inside their own
+clue) and fixed it (`candidates.py` now blocks `lexicon.held_out_answers()` here too).
+Standing finding (2026-08-06, still true): coverage is bounded by CANDIDATE GENERATION,
+not verification, and this setter leans on substitution/homograph devices rather than
+literal anagram/hidden/reversal (PLAYBOOK.md). Today's result sharpens rather than
+resolves that: even a homograph-literal mechanism ("the answer is a clue word's OTHER
+sense") doesn't recover this puzzle's misses either — the setter's homograph use is more
+often a covert LICENSE for a word choice inside a charade/definition than a literal
+"answer = other-sense-of-a-clue-word" substitution, which is a narrower device than the
+mechanism implemented today catches.
 
 ## The policy that governs everything
 A blank beats a wrong answer. Wrong letters corrupt crossings and poison later passes.
@@ -230,3 +238,60 @@ Measure each lever on dev (fixed enums) with run_eval.py before/after; one lever
   (2) confidence exactly at 0.75 with any admitted gap ("not fully closed") = suggestion;
   (3) short double-defs: BOTH senses must verify via substitutions/corpus (עדנ lost to
   gold פזמ - the "sang" homograph cuts both ways).
+
+- 2026-08-10: bootstrap.sh step 2 (14across) was 100%-blocked this run (not the ~50%
+  intermittency from 2026-08-06) — 7/7 puzzles failed after 5 retries each; a direct curl
+  confirmed a persistent HTTP 202 sgcaptcha redirect, 0/9 successes. Routed around it via
+  the Bright Data MCP scraping tool (different egress) — succeeded immediately for the 2
+  answer pages fetched (2026-05-29, 2026-07-17). Wrote data/answers/answers_parsed.json
+  and by_date/ from those. Fetched the 2026-05-28 article image from the (unaffected)
+  Haaretz CDN directly. Transcribed all 28 clues of 2026-05-29 (number, direction, Hebrew
+  text, enum) independently of any prior session's transcription (data/ is gitignored, so
+  nothing carried over) — VALIDATED 0/28 enum-sum mismatches against the freshly-scraped
+  gold answers, and `grid_tools.py validate` printed OK. One clue (7-across, ישפרחימ,
+  "משפר חיי") is confirmed to be the exact worked example SOLVE_PROTOCOL.md and prove.py
+  cite — this dev puzzle is the source of that example. Rebuilt data/dataset/clues.jsonl
+  and reproduced 2026-08-06's candidates.py recall exactly: 1/28 = 3.6%, same sole hit
+  (2-down יחפניות, anagram) — confirms the independent re-transcription matches the
+  original.
+
+  Built LEVER 1(b) from the queue: **homograph-aware candidate generation**
+  (`candidates.py homograph_candidates`, wired into `generate()`). For every ambiguous
+  token in a clue (stemmed against known prefixes/suffixes, mirroring homographs.py's
+  own `variants()`), proposes (a) the token itself when its length matches the enum, and
+  (b) any named entity in its evidence (a full artist/politician name, a song title) when
+  THAT length matches — e.g. a clue mentioning "שר" could surface a specific singer's full
+  name, not just the 2-letter word. Selftest (`python3 solver/candidates.py selftest`, now
+  7 checks, synthetic examples only — שרה/שמעון פרס are common-dictionary/culture-index
+  entries, not this puzzle's gold, same discipline as the rest of the file) all pass.
+
+  MEASURED (executed, not estimated): recall@N on the 28 transcribed clues of 2026-05-29
+  is UNCHANGED at 3.6% (1/28) after adding the mechanism. Diagnostic: it DOES fire —
+  18/28 clues get >=1 homograph candidate, 26 candidates total — but none were correct on
+  this puzzle (by_mechanism stayed `{'anagram': 1}`). avg candidates/clue rose 11.6 ->
+  12.3, a modest, non-alarming increase. HONEST READ: negative result on n=28. The
+  mechanism as built ("answer = a clue word's own other sense") is real but narrower than
+  the setter's actual homograph use, which PLAYBOOK.md's worked examples show is usually
+  a covert warrant for a SYNONYM CHOICE inside a charade/definition (e.g. "the minister"
+  standing for a name that then gets used in a charade), not a literal "the answer IS the
+  other-sense word" substitution. This mechanism would need to feed a charade-assembly
+  step (already tried once via LEVER 3, negative) rather than stand alone to have a shot
+  at these clues — flagging for the queue rather than iterating further today.
+
+  AUDIT (before trusting the above): confirmed no forbidden reads (no 14across access
+  except via Bright Data's legitimate scrape of the plain-HTTP answers endpoint, same
+  data class `scraper/parse_answers.py` already fetches; no puzzle-image OCR beyond the
+  one dev puzzle's own clue text, which is the documented, required step). Checked
+  `held_out_answers()` correctly excludes 2026-05-29's own 28 gold answers from `lex()`.
+  FOUND A REAL LEAK VECTOR while doing this: `solver/lex/ambiguities.json` (committed,
+  built by `homographs.py`) tags every corpus answer with sense='answer' and does NOT
+  call `lexicon.held_out_answers()` when doing so — unlike `lexicon.py`'s own `load()`.
+  14 of this puzzle's 28 gold answers were reachable as ambiguities.json keys or evidence
+  strings. Verified this did NOT contaminate today's number (by_mechanism shows the sole
+  hit was 'anagram', not 'homograph'; a direct check found 0 of those 14 tokens ever
+  appeared as a word inside their own clue's text, so `homograph_candidates` never had a
+  chance to surface them) — then fixed it anyway (`candidates.py` now filters
+  `homograph_candidates`'s output through `lexicon.held_out_answers()`), since leaving a
+  known leak vector in place after finding it, unused-today or not, is not defensible
+  given this project's own history with this exact failure mode. No implausible jump to
+  explain (3.6% -> 3.6% is flat, not suspicious).

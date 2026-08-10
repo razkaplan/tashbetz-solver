@@ -16,6 +16,14 @@ This module does exactly that, per clue, with no LLM involved:
   - reversal_candidates: same search, reversed.
   - pattern_candidates:  wraps lexicon.py's crossing-pattern lookup, for when grid
                           letters are already known.
+  - homograph_candidates: for every ambiguous token in the clue (homographs.py's
+                          ambiguities.json), propose (a) the token itself, and (b) any
+                          entity/name it is evidence for, wherever the normalized length
+                          matches the enum total. This is the "double meaning" device —
+                          the answer IS the clue's own word read in its OTHER sense —
+                          which is a genuinely different mechanism from anagram/hidden/
+                          reversal (2026-08-06's recall run measured only those three and
+                          found this setter leans on substitution/homograph devices instead).
   - split_candidates:    for multi-part enums (e.g. (5,2)), splits a hit at the enum
                           boundary and flags whether BOTH pieces are real words — the
                           precondition prove.py's word_order() needs to succeed.
@@ -139,6 +147,87 @@ def reversal_candidates(clue_text, target_len):
     return out
 
 
+_AMBIG = None
+PREFIXES = ['ו', 'ה', 'ב', 'ל', 'מ', 'ש', 'כ', 'וה', 'ול', 'וב', 'שה', 'מה', 'כש', 'לה', 'בה']
+SUFFIXES = ['ים', 'ות', 'י', 'ה', 'ו', 'ת', 'נו', 'כם', 'יו']
+
+
+def ambig():
+    """solver/lex/ambiguities.json — built by homographs.py, same file, loaded directly
+    here (not via homographs.query/scan) so this module has no import-time side effects
+    and stays independently testable, same discipline as lex()."""
+    global _AMBIG
+    if _AMBIG is None:
+        p = os.path.join(HERE, 'lex/ambiguities.json')
+        _AMBIG = json.load(open(p)) if os.path.exists(p) else {}
+    return _AMBIG
+
+
+_HELD_OUT = None
+
+
+def held_out():
+    """AUDIT FINDING (2026-08-10): unlike lex(), solver/lex/ambiguities.json's 'answer'
+    evidence tier (homographs.py: every corpus answer, tagged sense='answer') is built
+    from data/answers/answers_parsed.json with NO held-out filtering — the same leak
+    shape that contaminated v3-v6 (RESULTS.md), just via a second file lexicon.py's own
+    held_out_answers() never touches. Verified today's homograph_candidates did NOT
+    exploit it (the one recall hit was mechanism='anagram'), but 14 of this puzzle's own
+    28 gold answers were reachable as ambiguities.json keys/evidence — a live risk on
+    any future puzzle, not a hypothetical one. Reuse lexicon's own blocklist here."""
+    global _HELD_OUT
+    if _HELD_OUT is None:
+        sys.path.insert(0, HERE)
+        import lexicon
+        cwd = os.getcwd()
+        try:
+            os.chdir(ROOT)
+            _HELD_OUT = lexicon.held_out_answers()
+        finally:
+            os.chdir(cwd)
+    return _HELD_OUT
+
+
+def _stems(w):
+    """A clue word may carry a prefix/suffix the ambiguity index doesn't; strip them
+    (mirrors homographs.py's variants()) so 'שרה' inside 'כשרה' or 'שרתה' still resolves
+    to the ambiguous stem 'שרה'/'שר'."""
+    out = {w}
+    for p in PREFIXES:
+        if w.startswith(p) and len(w) - len(p) >= 2:
+            out.add(w[len(p):])
+    for s in SUFFIXES:
+        if w.endswith(s) and len(w) - len(s) >= 2:
+            out.add(w[:-len(s)])
+    return out
+
+
+def homograph_candidates(clue_text, target_len):
+    """The 'double meaning' device: the answer is one of the clue's own words, read in
+    its OTHER sense. For every ambiguous token found in the clue (stemmed), propose (a)
+    the token itself when its length matches, and (b) any named entity it is evidence
+    for (a full artist/politician name, a song title) when ITS length matches — e.g. the
+    clue word 'שר' (minister/he-sings) ambiguously evidencing a specific singer's name."""
+    idx = ambig()
+    blocked = held_out()
+    out = []
+    for w in words_of(clue_text):
+        for stem in _stems(norm(w)):
+            d = idx.get(stem)
+            if not d:
+                continue
+            if len(stem) == target_len and stem not in blocked:
+                out.append({'answer': stem, 'mechanism': 'homograph', 'fodder': w,
+                             'senses': d['senses']})
+            for sense, examples in d.get('evidence', {}).items():
+                for ex in examples:
+                    n = norm(ex)
+                    if n and n != stem and len(n) == target_len and n not in blocked:
+                        out.append({'answer': n, 'mechanism': 'homograph', 'fodder': w,
+                                     'senses': [sense]})
+    return out
+
+
 def pattern_candidates(pattern):
     """pattern like '?ו?ר??' — '?' or '_' = unknown crossing letter. The lexicon folds
     final letters (ם/ן/ץ/ף/ך -> מ/נ/צ/פ/כ) everywhere, so fixed cells must be folded
@@ -182,6 +271,7 @@ def generate(clue_text, enum, pattern=None, max_n=25):
     cands += anagram_candidates(clue_text, target_len)
     cands += hidden_candidates(clue_text, target_len)
     cands += reversal_candidates(clue_text, target_len)
+    cands += homograph_candidates(clue_text, target_len)
     if pattern:
         cands += pattern_candidates(pattern)
 
@@ -270,6 +360,20 @@ def selftest():
     hits = pattern_candidates('של?ם')
     found = any(h['answer'] == norm('שלום') for h in hits)
     print(f'  found שלום matching pattern של?ם: {found} (expected True)')
+    ok &= found
+
+    print('--- homograph device: the answer is a clue word read in its OTHER sense ---')
+    # 'שרה' (role_noun: female minister / she sings / Sarah) sits in the clue with a
+    # prefix ('כשרה'); stemming must recover it as a 3-letter candidate in its own right.
+    hits = homograph_candidates('אמרו שהיא כשרה לתפקיד', 3)
+    found = any(h['answer'] == norm('שרה') for h in hits)
+    print(f'  found שרה (stemmed from כשרה) as its own homograph candidate: {found} (expected True)')
+    ok &= found
+    # 'פרס' is evidence for the surname pairing 'שמעון פרס' (8 letters folded); a clue
+    # mentioning 'פרס' should also surface the longer named entity it disambiguates to.
+    hits = homograph_candidates('קיבל פרס על העבודה', len(norm('שמעון פרס')))
+    found = any(h['answer'] == norm('שמעון פרס') for h in hits)
+    print(f'  found שמעון פרס as an entity פרס is evidence for: {found} (expected True)')
     ok &= found
 
     print('--- split_candidates: flags whether a multi-part answer is two real words ---')
