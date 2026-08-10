@@ -244,3 +244,6 @@ Measure each lever on dev (fixed enums) with run_eval.py before/after; one lever
   anchored rows on category pages (thin-content SEO guard). Search results are links now.
   GSC: sitemap resubmitted 2026-08-10 (was reading the pre-expansion 1,881-page version).
   GAP for later: plural-form commons lack glosses (morphology lookup lever).
+- SETTER INDICATORS (user-attested 2026-08-10, corpus-confirmed): homophone can be marked
+  by "שמענו ש" (13), "אומרים" (7), or even a LONE ש׳ (do not read as typo). Reversal also
+  marked "שבו" (=returned, 6 in corpus) and "חזרו". PLAYBOOK.md + client digest updated.

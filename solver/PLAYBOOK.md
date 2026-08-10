@@ -196,8 +196,11 @@ Worked examples:
 **How the crowd phrases it:** "נשמע X", "שמענו", and the credit line itself:
 **"(עפ"י השמיעה של <שם>)"** in the clue is an explicit homophone marker (8 occurrences).
 
-**Clue-side indicators:** שמענו (11/11 = homophone, perfectly reliable), כפי ששמענו,
-לשמוע, נשמעת, מצטלצל / מצלצל, כך אומרים, קול, עפ"י השמועה, בנוסח / בהשראת השמיעה.
+**Clue-side indicators:** שמענו (11/11 = homophone, perfectly reliable), "שמענו ש..."
+(13 in corpus), כפי ששמענו, לשמוע, נשמעת, מצטלצל / מצלצל, כך אומרים, "אומרים" alone
+(7 in corpus), קול, עפ"י השמועה, בנוסח / בהשראת השמיעה. SETTER QUIRK (user-attested,
+2026-08-10): Yoram sometimes marks a homophone with nothing but a bare **ש׳** (a lone
+shin+geresh) — treat a stray ש׳ in a clue as a possible homophone marker, not a typo.
 
 Worked examples:
 - שמענו שחקן מכריז שיפעל כפלאח → עזראדגנ ("נשמע אזרע דגן"; עזרא דגן the actor)
@@ -509,7 +512,8 @@ NAME and the answer a phrase, or vice versa: הקאמרי↔אמריקה, סלו
 
 **Reversal.** The near-universal formula is **"ההיפך: X"** (158). Clue-side/crowd
 variants: "בהיפוך", "במהופך", "מהסוף", "מהסוף להתחלה", "משמאל לימין", "בקריאה
-הפוכה/מאחור", "לקרוא הפוך", "מסתובב/לסובב", "שידור חוזר" (שידורחוזר = "רוד יש"
+הפוכה/מאחור", "לקרוא הפוך", "מסתובב/לסובב", **"שבו"** (=returned; 6 in corpus, easy to
+misread as "in which"), **"חזרו"** (plural returned; user-attested), "שידור חוזר" (שידורחוזר = "רוד יש"
 backwards!), and for DOWN clues "מלמטה למעלה" / "עולה" / "בעליה" (ילדפלא = אלף+דלי
 read upward; פסטרמה = "בתוך פסטה מר עולה"). Reversal fodder is very often a
 celebrity name: הדסונ←נוסדה, דורמנ←נמרוד, בלושי←ישולב, מויאל←לאיום, לוק←(איריס) קול,
