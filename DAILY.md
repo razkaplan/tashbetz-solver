@@ -221,3 +221,12 @@ Measure each lever on dev (fixed enums) with run_eval.py before/after; one lever
   20% of reachable answers. VERDICT: secondary candidate source, best for culture/common
   short answers and for the simpler Dekel-Bnо tier; not a primary generator for Haroeh.
   Usage: python3 solver/retrieve_defs.py candidates "<clue or clue-end>" <len>.
+- RE-CRACK ROUNDS 1-2 (2026-08-09): sweep worklist -> re-crack shipped +13 verified answers
+  across demos (3107: 15->23/28, 0708: 13->18/28; every SHIPPED commit key-verified).
+  Raw round-2 engine output was 10/12 commits correct - archived with verdicts at
+  evals/runs/live/2026-08-09_recrack2.json. THREE COMMIT-RULE TIGHTENINGS from the misses:
+  (1) definition-only proofs NEVER commit - executable wordplay required (הולכומתערער
+  matched gold's shared prefix on crossings, then diverged);
+  (2) confidence exactly at 0.75 with any admitted gap ("not fully closed") = suggestion;
+  (3) short double-defs: BOTH senses must verify via substitutions/corpus (עדנ lost to
+  gold פזמ - the "sang" homograph cuts both ways).

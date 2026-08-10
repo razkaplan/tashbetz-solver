@@ -1,0 +1,176 @@
+{
+ "sample3107": [
+  {
+   "clue_number": 13,
+   "direction": "down",
+   "answer": "חפצביקרו",
+   "tier": "committed",
+   "explanation": "הכנר = חפץ (יאשה חפץ, הכנר הנודע); פקד אותו = ביקרו (ביקר אותו); ההגדרה: רצה להיטיב עמו = חפץ ביקרו (מגילת אסתר: 'אשר המלך חפץ ביקרו'). האנום [5,3] הפוך ויזואלית (RTL) - בפועל (3,5). הצלבות ח,ב מאומתות; פ ב-pos2 מוצלבת עם טופקפי (אותו תא). PROVED: word_order('חפצביקרו','חפצ','ביקרו'); is_word('חפצ'); is_word('ביקרו'); has_length(3,5)",
+   "confidence": 0.85,
+   "mechanism": "charade",
+   "verdict": "correct"
+  },
+  {
+   "clue_number": 14,
+   "direction": "across",
+   "answer": "טופקפי",
+   "tier": "committed",
+   "explanation": "השחקן = פק (גרגורי פק); עטוף בסוכרייה = פק בתוך טופי: טו[פק]פי; ההגדרה: בסרט = טופקפי, סרט השוד של ז'ול דאסן (1964). הצלבת י (12 אנכי) מאומתת; פ מוצלבת עם חפצביקרו. PROVED: is_container('טופי','פק','טופקפי'); has_length(6)",
+   "confidence": 0.8,
+   "mechanism": "container",
+   "verdict": "correct"
+  },
+  {
+   "clue_number": 3,
+   "direction": "down",
+   "answer": "לוקשימ",
+   "tier": "committed",
+   "explanation": "צדיקים = לו (ל\"ו הצדיקים); לא נוחים = קשים; לו+קשים = לוקשים; ההגדרה: לא מהימנים = לוקשים ('מכר לו לוקשים'). הצלבות ל,ק,י מאומתות; ההצעה הישנה לקקנימ נדחית - אין לה מנגנון. PROVED: word_order('לוקשימ','לו','קשימ'); is_word('קשימ'); has_length(6)",
+   "confidence": 0.8,
+   "mechanism": "charade",
+   "verdict": "correct"
+  },
+  {
+   "clue_number": 7,
+   "direction": "across",
+   "answer": "ננה",
+   "tier": "committed",
+   "explanation": "נשמעות בקשות = נא+נא; ההגדרה: בספרות זולה = ננה (Nana), הרומן של אמיל זולא - 'זולה' = הסופר, לא שם תואר. הצלבות נ,ה מאומתות. PROVED: concat('נ','נ','ה')=='ננה'; has_length(3)",
+   "confidence": 0.8,
+   "mechanism": "homophone",
+   "verdict": "correct"
+  },
+  {
+   "clue_number": 24,
+   "direction": "across",
+   "answer": "הולכומתערער",
+   "tier": "committed",
+   "explanation": "ההגדרה: מרגע לרגע מסתבר שהפצוע מידרדר = מצבו הולך ומתערער. אנום [7,4] הפוך ויזואלית - בפועל (4,7): הולכ+ומתערער. (מ) = כתיב מלא ✓. שלוש הצלבות ו,ת,ר מאומתות (חפצביקרו, צרימות, הוקיר). PROVED: word_order('הולכומתערער','הולכ','ומתערער'); is_word('הולכ'); has_length(4,7)",
+   "confidence": 0.78,
+   "mechanism": "definition",
+   "verdict": "wrong"
+  },
+  {
+   "clue_number": 11,
+   "direction": "down",
+   "answer": "מרטלויזיה",
+   "tier": "committed",
+   "explanation": "אנגרם 'לימי זוהר' + ט (טוב בקיצור = ט') = מר טלויזיה; ההגדרה: חיים יבין = מר טלוויזיה (כינויו המפורסם, ריף על 11 מאוזן מהפכ). אנום [7,2] הפוך - בפועל (2,7). כתיב חסר (ו אחת) כברירת המחדל של המחבר. הצלבות מ,ט מאומתות. PROVED: is_anagram('טלימיזוהר','מרטלויזיה'); has_length(2,7)",
+   "confidence": 0.85,
+   "mechanism": "anagram",
+   "verdict": "correct"
+  },
+  {
+   "clue_number": 19,
+   "direction": "across",
+   "answer": "וטו",
+   "tier": "committed",
+   "explanation": "מילה משותפת: אסור = וטו (הטלת וטו = איסור) / לצייר = וטו (אנטואן ואטו, הצייר הצרפתי - תעתיק מעוות כמנהג המחבר). מאגר הציירים של defs.py מציע את אטו/ואטו לרמז זה. הצלבת ו (מ-מרטלויזיה) מאומתת. PROVED: is_word('וטו'); has_length(3)",
+   "confidence": 0.75,
+   "mechanism": "double-definition",
+   "verdict": "correct"
+  },
+  {
+   "clue_number": 15,
+   "direction": "down",
+   "answer": "פתוחקול",
+   "tier": "committed",
+   "explanation": "אנגרם 'חתול'+'קוף' (סימני השאלה = אינדיקטור) = פתוח קול; ההגדרה: להשתתפות באופרה צריך = פיתוח קול. כתיב חסר (בלי י) כברירת המחדל. אנום [3,4] הפוך - בפועל (4,3). ארבע הצלבות פ,ו,ק,ל מאומתות (טופקפי, וטו, זיקוקימ, הולכומתערער). PROVED: is_anagram('חתולקופ','פתוחקול'); has_length(4,3); is_word('קול')",
+   "confidence": 0.9,
+   "mechanism": "anagram",
+   "verdict": "correct"
+  },
+  {
+   "clue_number": 22,
+   "direction": "across",
+   "answer": "זיקוקימ",
+   "tier": "committed",
+   "explanation": "ההגדרה: המנצח נמצא בשמים תרתי משמע = זיקוקים - חגיגת הניצחון נמצאת בשמים גם פיזית וגם 'בשמים' משמחה; (מ) = כתיב מלא ✓ (זיקוקים מלא). ארבע הצלבות ז,ק,ק,מ מאומתות (מרטלויזיה, פתוחקול, חפצביקרו, צרימות) - התבנית ז?ק?ק?מ יחידה בלקסיקון. PROVED: is_word('זיקוקימ'); has_length(7)",
+   "confidence": 0.75,
+   "mechanism": "definition",
+   "verdict": "correct"
+  },
+  {
+   "clue_number": 17,
+   "direction": "down",
+   "answer": "משיחשקר",
+   "tier": "committed",
+   "explanation": "ההגדרה: ישו = משיח שקר (הכינוי היהודי המסורתי); טומן בחובו יריב מוסיקלי - 'המשיח' של הנדל כיצירה מוסיקלית + שקר; פענוח היריב אינו סגור לגמרי, אבל האנום [4,3] מדויק (משיח+שקר) ושתי הצלבות י,ר מאומתות (בורגיבה, הולכומתערער). PROVED: word_order('משיחשקר','משיח','שקר'); is_word('משיח'); is_word('שקר'); has_length(4,3)",
+   "confidence": 0.75,
+   "mechanism": "charade",
+   "verdict": "wrong"
+  },
+  {
+   "clue_number": 6,
+   "direction": "down",
+   "answer": "האמלאההגר",
+   "tier": "suggestion",
+   "explanation": "נשות אברהם ויעקב = הגר ולאה; המבנה (3,3,3): האם+לאה+הגר = 'האם לאה הגר?' - סימן השאלה ברמז תומך. word1 'האם' אמור לבוא מ'התרנגולים פתחו בשיר עם' (שיר עם של להקת התרנגולים?) - לא אומת. הצלבות ה,מ,א,ה (4/4) תואמות: לאה ב-?א? והגר ב-ה?? כפויות כמעט לחלוטין.",
+   "confidence": 0.55,
+   "mechanism": "culture-reference",
+   "verdict": "wrong"
+  },
+  {
+   "clue_number": 16,
+   "direction": "across",
+   "answer": "זמיר",
+   "tier": "suggestion",
+   "explanation": "ניהל בית ספר (= 'מוסד'!) בצבא? = צבי זמיר, האלוף שעמד בראש המוסד - הפאן: בית ספר הוא 'מוסד' חינוכי, וזמיר האלוף (איש צבא) ניהל את 'המוסד'. הצלבת מ (pos2, ממשיחשקר) מאומתת; ר (pos4) תלויה בהצעת 6 אנכי (הגר). לא הוכח מספיק לקומיט.",
+   "confidence": 0.65,
+   "mechanism": "pun",
+   "verdict": "wrong"
+  }
+ ],
+ "sample0708": [
+  {
+   "clue_number": 7,
+   "direction": "across",
+   "answer": "שוקאפור",
+   "tier": "committed",
+   "explanation": "הדוקטור... חוזר = רופא במהופך = אפור; החשמל שצרך = שוק (שוק חשמלי); ההגדרה: פעילות מפוקפקת = שוק אפור. (מ) = כתיב מלא ✓. האנום (4,3) הפוך ויזואלית - בפועל (3,4): שוק+אפור. הצלבת פ מאומתת (הפיזיקאימ). PROVED: is_reversal('רופא','אפור'); word_order('שוקאפור','שוק','אפור'); has_length(3,4)",
+   "confidence": 0.9,
+   "mechanism": "reversal+charade",
+   "verdict": "correct"
+  },
+  {
+   "clue_number": 9,
+   "direction": "across",
+   "answer": "עדנ",
+   "tier": "committed",
+   "explanation": "מילה משותפת: כל אותה תקופה = עִדָּן (עידן, בכתיב חסר כברירת המחדל; 'עידן עידנים' - דניאל) / לא פסק לשיר = עדן (עדן חסון / עדן בן זקן). משבצות ה-[3] הן מוקד המילה-המשותפת לפי ה-PLAYBOOK, ו'עדנ' היא תשובה חוזרת מוכרת בקורפוס (הופיעה פעמיים). PROVED: has_length(3); is_word('עדנ')",
+   "confidence": 0.75,
+   "mechanism": "double-definition",
+   "verdict": "wrong"
+  },
+  {
+   "clue_number": 4,
+   "direction": "down",
+   "answer": "רפרפימ",
+   "tier": "suggestion",
+   "explanation": "מעופפים = רפרפים (מרפרפים). ההתאמה היחידה בלקסיקון לתבנית ר?ר?י? (r מ-1 מאוזן, ר חדשה משוקאפור, י מקריפטונ) עם משמעות תעופתית. המנגנון 'כמו מוסיקאי ומי שהיה שר חוץ' לא פוענח (רפ+רפ? ראפר?) - לכן הצעה בלבד.",
+   "confidence": 0.6,
+   "mechanism": "definition",
+   "verdict": "correct"
+  },
+  {
+   "clue_number": 20,
+   "direction": "down",
+   "answer": "אבנבוחנ",
+   "tier": "suggestion",
+   "explanation": "ההגדרה: הקריטריונים = אבן בוחן; כמעט-אנגרם של 'בן בן אחי' (בנבנאחי = א,ב,ב,ח,י,נ,נ מול אבנבוחנ = א,ב,ב,ו,ח,נ,נ - הבדל יחיד י/ו, גמישות מוכרת של המחבר). אנום (3,4) מדויק כמודפס. הצלבת א מאומתת. לא עובר is_anagram מכני בגלל ה-י/ו - לכן הצעה.",
+   "confidence": 0.68,
+   "mechanism": "anagram",
+   "verdict": "wrong"
+  },
+  {
+   "clue_number": 22,
+   "direction": "down",
+   "answer": "סטלינ",
+   "tier": "suggestion",
+   "explanation": "בטל = בטלין (ארמית, 'בטלין ומבוטלין' מכל נדרי); בלי בית = בלי ב' = טלין; בששים = עם ס' (60 בגימטריה) = ס+טלין = סטלין. כל האותיות מוסברות. 'אך עם ראש פז' אמור להיות ההגדרה (מנהיג? איש הפלדה?) - לא סגור, לכן הצעה. הצלבות ס,ל מאומתות (סורדינו, לחי).",
+   "confidence": 0.62,
+   "mechanism": "charade",
+   "verdict": "wrong"
+  }
+ ]
+}
