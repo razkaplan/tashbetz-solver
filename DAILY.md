@@ -235,3 +235,4 @@ Measure each lever on dev (fixed enums) with run_eval.py before/after; one lever
   real category names and re-harvest), curated military terms (59, with expansions), refs on
   every rich entity page (song<->artist from shironet, wiki sameAs links), /milon/anagram/
   standalone tool, frequency-sorted category pages, breadcrumb+FAQ schema. 6,107 pages.
+- DEPLOY NOTE: site >5000 files; always deploy with `npx vercel deploy --prod --yes --archive=tgz` from docs/.
