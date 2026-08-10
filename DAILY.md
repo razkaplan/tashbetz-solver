@@ -238,7 +238,6 @@ Measure each lever on dev (fixed enums) with run_eval.py before/after; one lever
   (2) confidence exactly at 0.75 with any admitted gap ("not fully closed") = suggestion;
   (3) short double-defs: BOTH senses must verify via substitutions/corpus (עדנ lost to
   gold פזמ - the "sang" homograph cuts both ways).
-
 - 2026-08-10: bootstrap.sh step 2 (14across) was 100%-blocked this run (not the ~50%
   intermittency from 2026-08-06) — 7/7 puzzles failed after 5 retries each; a direct curl
   confirmed a persistent HTTP 202 sgcaptcha redirect, 0/9 successes. Routed around it via
@@ -295,3 +294,18 @@ Measure each lever on dev (fixed enums) with run_eval.py before/after; one lever
   known leak vector in place after finding it, unused-today or not, is not defensible
   given this project's own history with this exact failure mode. No implausible jump to
   explain (3.6% -> 3.6% is flat, not suspicious).
+
+- MILON EXPANSION (2026-08-10): geo harvest (city_il/mountain/stream/river/valley/lake_sea/
+  desert/island; region+site categories NOT FOUND on he-wiki under guessed names - find the
+  real category names and re-harvest), curated military terms (59, with expansions), refs on
+  every rich entity page (song<->artist from shironet, wiki sameAs links), /milon/anagram/
+  standalone tool, frequency-sorted category pages, breadcrumb+FAQ schema. 6,107 pages.
+- DEPLOY NOTE: site >5000 files; always deploy with `npx vercel deploy --prod --yes --archive=tgz` from docs/.
+- DEFINITIONS LAYER (2026-08-10): every milon surface now shows a short definition -
+  wikipedia short-descs (5.8k), wiktionary first-gloss via wikitext parse (427; TextExtracts
+  returns EMPTY on wiktionary - must parse revisions), shironet fallback for songs/artists,
+  substitutions fallback for common. data/culture/descriptions.json (gitignored; rebuild via
+  scraper/fetch_descriptions.py). TWO-TIER pages: full page only at 2+ signals, others are
+  anchored rows on category pages (thin-content SEO guard). Search results are links now.
+  GSC: sitemap resubmitted 2026-08-10 (was reading the pre-expansion 1,881-page version).
+  GAP for later: plural-form commons lack glosses (morphology lookup lever).
