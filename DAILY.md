@@ -255,3 +255,10 @@ Measure each lever on dev (fixed enums) with run_eval.py before/after; one lever
   notation tails (ש"כ)/(ס)/(מו"ש)/(דו"ש), container-role inversion, למשל=category,
   interleave, או-collocation, 9 letter glosses, שב/סב reversal, digits->gematria,
   service-letter double-parse) + FIXED wrong claim that (מחדושי X) is a plain credit.
+- RESOLVED HARVEST (2026-08-10): category names now RESOLVED via ns-14 search (he-wiki
+  convention is "X: Y"). All flagged-empty cats filled: neighborhoods 347, museums 100,
+  parks 242, capitals 324, authors 1712 (needed 429-retry), actors 998, kibbutzim 835,
+  mountains 381, streams 105, rivers 79, valleys 492, deserts 53, regions 63, sites 518
+  (CLEANED: resolver had matched Tel Aviv categories to 'תל' - always eyeball resolved
+  category lists). Index 19,185 entries, 12,820 definitions, 5,992 pages. VERIFY per-cat
+  counts after every harvest - a 0 is silent.
