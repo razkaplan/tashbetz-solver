@@ -247,3 +247,6 @@ Measure each lever on dev (fixed enums) with run_eval.py before/after; one lever
 - SETTER INDICATORS (user-attested 2026-08-10, corpus-confirmed): homophone can be marked
   by "שמענו ש" (13), "אומרים" (7), or even a LONE ש׳ (do not read as typo). Reversal also
   marked "שבו" (=returned, 6 in corpus) and "חזרו". PLAYBOOK.md + client digest updated.
+- COINAGE DEVICE (2026-08-10): "מחידושי <שם>" = setter-coined portmanteau; answer is NOT
+  in any lexicon (expected!). Base phrase warped 1-2 letters to encode the definition
+  (פקקיסטנ, אחימלחשק). Lexicon absence must not veto; proof = base + letter operation.

@@ -519,6 +519,20 @@ read upward; פסטרמה = "בתוך פסטה מר עולה"). Reversal fodder 
 celebrity name: הדסונ←נוסדה, דורמנ←נמרוד, בלושי←ישולב, מויאל←לאיום, לוק←(איריס) קול,
 נדל←ל(נחל) דן, נחש←ש(שולה) חן.
 
+**Coinage — "מחידושי <שם>" (setter-coined portmanteau).** Corpus-derived 2026-08-10
+(user pointed at the marker; meaning derived from the 2 corpus instances):
+the answer is an INVENTED blend, not a dictionary word or real phrase. A familiar
+base word/phrase is warped by 1-2 letters (or a splice) so the result literally
+encodes the definition side: אחימלחשק = אחים לנשק -> אחים לחשק ("חברותא בהתהוללות");
+פקקיסטנ = פקיסטן + פקק ("מדינת הכבישים הסתומים"). The parenthetical credits the
+coiner, exactly like (עפ"י שם).
+SOLVING RULES: (1) lexicon membership must NOT veto the candidate - absence is
+EXPECTED for coinages; (2) search for a base phrase/word within edit distance 1-2
+of the enum whose warped form spells the definition; (3) the definition side reads
+as a literal, often absurd, description of the pun; (4) proof = base + the exact
+letter operation, both stated (prove.py: use concat/containment of the warped part,
+never means() on the coined whole).
+
 **Palindrome — a NEW named device** (absent from Yoram's corpus): crowd label
 "פלינדרום" (19), also "נקרא משני הכיוונים", "נקראת אותו הדבר גם בכיוון ההפוך",
 "מקדימה ומהסוף". Observed palindrome answers: דוד, אסא, סיס, סייס, קיק, וטו, רוטור,
