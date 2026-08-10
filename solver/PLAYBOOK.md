@@ -196,8 +196,11 @@ Worked examples:
 **How the crowd phrases it:** "נשמע X", "שמענו", and the credit line itself:
 **"(עפ"י השמיעה של <שם>)"** in the clue is an explicit homophone marker (8 occurrences).
 
-**Clue-side indicators:** שמענו (11/11 = homophone, perfectly reliable), כפי ששמענו,
-לשמוע, נשמעת, מצטלצל / מצלצל, כך אומרים, קול, עפ"י השמועה, בנוסח / בהשראת השמיעה.
+**Clue-side indicators:** שמענו (11/11 = homophone, perfectly reliable), "שמענו ש..."
+(13 in corpus), כפי ששמענו, לשמוע, נשמעת, מצטלצל / מצלצל, כך אומרים, "אומרים" alone
+(7 in corpus), קול, עפ"י השמועה, בנוסח / בהשראת השמיעה. SETTER QUIRK (user-attested,
+2026-08-10): Yoram sometimes marks a homophone with nothing but a bare **ש׳** (a lone
+shin+geresh) — treat a stray ש׳ in a clue as a possible homophone marker, not a typo.
 
 Worked examples:
 - שמענו שחקן מכריז שיפעל כפלאח → עזראדגנ ("נשמע אזרע דגן"; עזרא דגן the actor)
@@ -285,8 +288,10 @@ Contributor style priors (use as weak evidence):
 - **עפר קציר** — culture references: films, songs, poems (טשרניחובסקי, יוסי גמזו, sketches).
 - **צבי ויצמן, אלי מועלם** — standard charades/anagrams.
 
-Variants: "(מחדושי X)" = same meaning; "(עפ"י השמיעה של X)" = **homophone clue**;
-"(מחדושי המחבר)" = Yoram's own.
+Variants: "(עפ"י השמיעה של X)" = **homophone clue**. CORRECTED 2026-08-10:
+"(מחדושי X)" is NOT a plain credit synonym — it is credit + a COINAGE FLAG (see the
+Coinage section): the answer is an invented portmanteau absent from every lexicon.
+"(מחדושי המחבר)" = Yoram's own coinage.
 
 Other clue-tail markers:
 - **(מ)** = כתיב מלא (plene spelling) — 62 clues. The answer is written with extra
@@ -340,6 +345,7 @@ Letters stand for words. Empirically observed decodings:
 | ק | 100 | — |
 | ס | אפס / כלום / doing nothing | לקס = לק+ס; דלס = דל+ס; פנס = פן+ס |
 | ט | טוב; ט"מ = טוב מאוד | אלט = אל+ט; טורנדוט = טורנדו+ט; מטמונ = מ-ט"מ+ו-נ |
+| מ | מצוין (הציון); grade set: מ=מצוין, ט=טוב, נ=נכשל, א=ראשון | user-attested 2026-08-10 |
 | א | ראשון / אלף; א"א = מצוינות | חטא = חט+א; אבאאבנ |
 | ע"ה = ז"ל | (both = "the deceased") | מעה = מ-ע"ה ≡ מ-ז"ל ("מזל שוה כסף") |
 | מ"מ | ממלא מקום / במקום | ממזג = מ"מ+זג |
@@ -509,11 +515,26 @@ NAME and the answer a phrase, or vice versa: הקאמרי↔אמריקה, סלו
 
 **Reversal.** The near-universal formula is **"ההיפך: X"** (158). Clue-side/crowd
 variants: "בהיפוך", "במהופך", "מהסוף", "מהסוף להתחלה", "משמאל לימין", "בקריאה
-הפוכה/מאחור", "לקרוא הפוך", "מסתובב/לסובב", "שידור חוזר" (שידורחוזר = "רוד יש"
+הפוכה/מאחור", "לקרוא הפוך", "מסתובב/לסובב", **"שבו"** (=returned; 6 in corpus, easy to
+misread as "in which"), **"חזרו"** (plural returned; user-attested), "שידור חוזר" (שידורחוזר = "רוד יש"
 backwards!), and for DOWN clues "מלמטה למעלה" / "עולה" / "בעליה" (ילדפלא = אלף+דלי
 read upward; פסטרמה = "בתוך פסטה מר עולה"). Reversal fodder is very often a
 celebrity name: הדסונ←נוסדה, דורמנ←נמרוד, בלושי←ישולב, מויאל←לאיום, לוק←(איריס) קול,
 נדל←ל(נחל) דן, נחש←ש(שולה) חן.
+
+**Coinage — "מחידושי <שם>" (setter-coined portmanteau).** Corpus-derived 2026-08-10
+(user pointed at the marker; meaning derived from the 2 corpus instances):
+the answer is an INVENTED blend, not a dictionary word or real phrase. A familiar
+base word/phrase is warped by 1-2 letters (or a splice) so the result literally
+encodes the definition side: אחימלחשק = אחים לנשק -> אחים לחשק ("חברותא בהתהוללות");
+פקקיסטנ = פקיסטן + פקק ("מדינת הכבישים הסתומים"). The parenthetical credits the
+coiner, exactly like (עפ"י שם).
+SOLVING RULES: (1) lexicon membership must NOT veto the candidate - absence is
+EXPECTED for coinages; (2) search for a base phrase/word within edit distance 1-2
+of the enum whose warped form spells the definition; (3) the definition side reads
+as a literal, often absurd, description of the pun; (4) proof = base + the exact
+letter operation, both stated (prove.py: use concat/containment of the warped part,
+never means() on the coined whole).
 
 **Palindrome — a NEW named device** (absent from Yoram's corpus): crowd label
 "פלינדרום" (19), also "נקרא משני הכיוונים", "נקראת אותו הדבר גם בכיוון ההפוך",
@@ -567,7 +588,7 @@ word (same solving move as §2.3, new standard glosses):
 
 | fragment | gloss | example |
 |---|---|---|
-| מ | (את) / (תוך) / (מושב/העיר) / (מספיק) | מ(את) חם = מחם |
+| מ | (את) / (תוך) / (מושב/העיר) / (מספיק) / (מצוין - הציון) | מ(את) חם = מחם |
 | כ | (מו) | כ(מו) בוי (ג'ורג') |
 | ב | (ית) / (יום) / (תוך) / (בעל הבית) | ב(ית) ב-כר = כבר; חל ב(יום) ו' |
 | ל | (מען) | ל(מען) עז = לעז |
@@ -661,3 +682,32 @@ sketches with no letter mechanics; the loose "two wordplays, no definition" styl
 The secondary-corpus setters are stricter: nearly every clue has a clean definition
 half + one mechanical half, so for them the strict verification gate of §4.10 can be
 tightened (reject candidates whose leftover words do not define).
+
+
+## External-guide audit additions (2026-08-10)
+Diffed against blog.ravmilim.co.il tips, Maariv (Liani), he.wikipedia תשבץ היגיון,
+ynet, higayonbarie, FXP. Items below were MISSING from this playbook:
+
+1. **אותיות עוקבות**: indicators עוקבות/לפי הסדר/בסדר → answer contains an
+   alphabet-consecutive letter run (דורשת = דו+רשת: ר,ש,ת; פרלמן = פר+למן: ל,מ,נ).
+2. **Foreign-word phonetics**: (ל), באנגליה, בצרפת → sound out clue words in
+   English/French ("תהיה טוב" = Be good → ביגוד; להפסיד = to lose → טולוז).
+3. **Notation tails**: (כ"מ)/(כ"ח) = spelling variants; (ש"כ) = one clue word serves
+   BOTH definitions; (ס) = slang answer; (מו"ש) = inspired by another clue in this
+   puzzle; (דו"ש) = two-step: transform the definition first, then solve it
+   ("הפוליטיקאית" → לבני → ידלבנימ).
+4. **"בדיוק להפך" = container-role inversion**, not letter reversal: the ostensible
+   container becomes the contained (ברוק->קורב inside מים = מקורבימ).
+5. **"X, למשל"** = definition-by-example: answer is X's CATEGORY (חרטום, למשל → בירה).
+6. **לסירוגין** = interleave letters of two words (rare, reserved word).
+7. **"X או Y"** = both collocate with the answer on the same side (מדד או חום →
+   יולי/אוגוסט); beware common-word multi-answer clues (אין שם יפה אחר → דבר).
+8. **Letter glosses to ADD**: ו=תלוי (shape), ג=אישור (גימלים), ל=לומד (learner's L),
+   ר=לקיש (ריש), ע=עין/הלל (ע. הלל), פ=פה, צ=צדיק, א=שור, ב=מיכאל (ב. מיכאל).
+9. **Reversal indicators to ADD**: bare שב and bare סב (סב also glosses as זקן -
+   disambiguate by syntax).
+10. **Digits in clue → letter spelling**: printed numbers become gematria letter
+    pairs inside the answer (15 → ט"ו in טורבנימ; 14 → י"ד in אירביד).
+11. **Service-letter misreading (מש"ה וכל"ב)**: a clue word starting with ל/ב/כ/מ/ש/ו
+    may be preposition+word or one whole word (לשון = ל+שון; לסוטות = ל+סוטות).
+    Try both parses before synonym lookup.

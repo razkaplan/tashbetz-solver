@@ -309,3 +309,21 @@ Measure each lever on dev (fixed enums) with run_eval.py before/after; one lever
   anchored rows on category pages (thin-content SEO guard). Search results are links now.
   GSC: sitemap resubmitted 2026-08-10 (was reading the pre-expansion 1,881-page version).
   GAP for later: plural-form commons lack glosses (morphology lookup lever).
+- SETTER INDICATORS (user-attested 2026-08-10, corpus-confirmed): homophone can be marked
+  by "שמענו ש" (13), "אומרים" (7), or even a LONE ש׳ (do not read as typo). Reversal also
+  marked "שבו" (=returned, 6 in corpus) and "חזרו". PLAYBOOK.md + client digest updated.
+- COINAGE DEVICE (2026-08-10): "מחידושי <שם>" = setter-coined portmanteau; answer is NOT
+  in any lexicon (expected!). Base phrase warped 1-2 letters to encode the definition
+  (פקקיסטנ, אחימלחשק). Lexicon absence must not veto; proof = base + letter operation.
+- EXTERNAL-GUIDE AUDIT (2026-08-10): diffed playbook vs ravmilim/maariv/wikipedia/ynet
+  guides; 11 missing devices added to PLAYBOOK (consecutive letters, foreign phonetics,
+  notation tails (ש"כ)/(ס)/(מו"ש)/(דו"ש), container-role inversion, למשל=category,
+  interleave, או-collocation, 9 letter glosses, שב/סב reversal, digits->gematria,
+  service-letter double-parse) + FIXED wrong claim that (מחדושי X) is a plain credit.
+- RESOLVED HARVEST (2026-08-10): category names now RESOLVED via ns-14 search (he-wiki
+  convention is "X: Y"). All flagged-empty cats filled: neighborhoods 347, museums 100,
+  parks 242, capitals 324, authors 1712 (needed 429-retry), actors 998, kibbutzim 835,
+  mountains 381, streams 105, rivers 79, valleys 492, deserts 53, regions 63, sites 518
+  (CLEANED: resolver had matched Tel Aviv categories to 'תל' - always eyeball resolved
+  category lists). Index 19,185 entries, 12,820 definitions, 5,992 pages. VERIFY per-cat
+  counts after every harvest - a 0 is silent.
