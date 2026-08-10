@@ -18,6 +18,7 @@ norm=lambda s:re.sub(r'[^א-ת]','',s or '').translate(FIN)
 BASE='https://tashbetz.gtmascode.dev'
 
 cult=json.load(open('solver/lex/culture.json'))
+DESC=json.load(open('data/culture/descriptions.json')) if os.path.exists('data/culture/descriptions.json') else {}
 amb=json.load(open('solver/lex/ambiguities.json'))
 cw=json.load(open('solver/crosswordese.json')) if os.path.exists('solver/crosswordese.json') else {}
 subs=json.load(open('solver/lex/substitutions.json'))
@@ -93,36 +94,9 @@ def page(path,title,desc,body,jsonld=None):
 <header><span class="k">מילון תשבץ · פותרים ביחד</span><h1>{title}</h1>
 <div class="crumb"><a href="/milon/">מילון</a> · <a href="/solve/">עוזר הפתירה</a> · <a href="/">דף הבית</a></div></header>
 {body}
-<footer>מבוסס על אינדקס פתוח של שמות (ויקיפדיה/שירונט) וניתוח סטטיסטי מקורי · לא מתפרסמות הגדרות מעיתונים ·
+<footer>מבוסס על אינדקס פתוח (ויקיפדיה/ויקימילון/שירונט, CC BY-SA, עם קישור למקור) וניתוח סטטיסטי מקורי · לא מתפרסמות הגדרות מעיתונים ·
 <a href="https://www.linkedin.com/in/razkaplan/">פרויקט של רז קפלן</a></footer></div></body></html>""")
 
-urls=[]
-# ---------- category-length pages ----------
-for cat,(plural,single) in CATS.items():
-    by_len={}
-    for t in cult.get(cat,[]):
-        n=norm(t)
-        if 2<=len(n)<=12: by_len.setdefault(len(n),[]).append((t,n))
-    for L,items in sorted(by_len.items()):
-        if len(items)<5: continue
-        items.sort(key=lambda x:(-cw.get(x[1],0),x[0]))     # frequent crossword answers first
-        slug=f'{cat}-{L}'
-        def _li(t,n):
-            b=f' <span class="k" style="font-size:.55rem">{cw[n]}×</span>' if cw.get(n,0)>=2 else ''
-            return f'<li>{t}{b}<br><small style="font-family:monospace;color:#5c5c5c">{n}</small></li>'
-        lis=''.join(_li(t,n) for t,n in items)
-        body=f"""<p><b>{len(items)} {plural}</b> שהשם שלהם נכתב ברשת התשבץ ב-<b>{L} אותיות</b>
-(בתשבץ אין אותיות סופיות — ם/ן/ץ/ף/ך נכתבות מ/נ/צ/פ/כ, והכתיב מוצג מתחת לכל שם).</p>
-<ul class="grid">{lis}</ul>"""
-        page(f'{OUT}/{slug}/index.html',
-             f'{plural} ב-{L} אותיות לתשבץ ותשחץ — {len(items)} פתרונות',
-             f'{single} ב-{L} אותיות? הרשימה המלאה לפתרון תשבצים: {len(items)} {plural}, ממוינים לפי שכיחות בתשבצים, עם הכתיב המדויק ללא אותיות סופיות.',
-             body,
-             {"@context":"https://schema.org","@type":"ItemList","name":f"{plural} ב-{L} אותיות",
-              "numberOfItems":len(items)})
-        urls.append(f'/milon/{slug}/')
-
-# ---------- entity pages: entities with rich data or references ----------
 # relations: song <-> artist from shironet (titles are public metadata, lyrics never copied)
 song_rel={}; artist_rel={}
 if os.path.exists('data/shironet_songs.json'):
@@ -137,6 +111,50 @@ if os.path.exists('data/shironet_songs.json'):
             artist_rel[norm(an)]['songs'].append(st)
 WIKI_CATS={c for c in CATS if c not in ('song','artist','common','military')}
 
+def get_desc(cat,t,n):
+    if t in DESC: return DESC[t].removeprefix('[ויקימילון] ')
+    if cat=='song' and n in song_rel: return f"שיר של {song_rel[n]['artist']}"
+    if cat=='artist' and n in artist_rel:
+        ss=artist_rel[n]['songs'][:3]
+        return 'בין השירים: '+', '.join(f'"{x}"' for x in ss) if ss else ''
+    if cat=='military': return MIL.get(t,'')
+    if cat=='common':
+        prs=subs['fwd'].get(n,[])+subs['rev'].get(n,[])
+        if prs:
+            uniq=list(dict.fromkeys(x[0] for x in prs))[:3]
+            return 'בהסברי תשבצים מקושרת ל: '+', '.join(uniq)
+    return ''
+
+
+urls=[]
+# ---------- category-length pages ----------
+for cat,(plural,single) in CATS.items():
+    by_len={}
+    for t in cult.get(cat,[]):
+        n=norm(t)
+        if 2<=len(n)<=12: by_len.setdefault(len(n),[]).append((t,n))
+    for L,items in sorted(by_len.items()):
+        if len(items)<5: continue
+        items.sort(key=lambda x:(-cw.get(x[1],0),x[0]))     # frequent crossword answers first
+        slug=f'{cat}-{L}'
+        def _li(t,n):
+            b=f' <span class="k" style="font-size:.55rem">{cw[n]}×</span>' if cw.get(n,0)>=2 else ''
+            d=get_desc(cat,t,n)
+            dd=f'<br><small>{d[:90]}</small>' if d else ''
+            return f'<li id="{n}"><b>{t}</b>{b}{dd}<br><small style="font-family:monospace;color:#5c5c5c">{n}</small></li>'
+        lis=''.join(_li(t,n) for t,n in items)
+        body=f"""<p><b>{len(items)} {plural}</b> שהשם שלהם נכתב ברשת התשבץ ב-<b>{L} אותיות</b>
+(בתשבץ אין אותיות סופיות — ם/ן/ץ/ף/ך נכתבות מ/נ/צ/פ/כ, והכתיב מוצג מתחת לכל שם).</p>
+<ul class="grid">{lis}</ul>"""
+        page(f'{OUT}/{slug}/index.html',
+             f'{plural} ב-{L} אותיות לתשבץ ותשחץ — {len(items)} פתרונות',
+             f'{single} ב-{L} אותיות? הרשימה המלאה לפתרון תשבצים: {len(items)} {plural}, ממוינים לפי שכיחות בתשבצים, עם הכתיב המדויק ללא אותיות סופיות.',
+             body,
+             {"@context":"https://schema.org","@type":"ItemList","name":f"{plural} ב-{L} אותיות",
+              "numberOfItems":len(items)})
+        urls.append(f'/milon/{slug}/')
+
+# ---------- entity pages: entities with rich data or references ----------
 def refs_for(cat,t,n):
     """at least one reference per entity; internal cross-links resolved later"""
     out=[]
@@ -157,6 +175,9 @@ def refs_for(cat,t,n):
     if cat in WIKI_CATS:
         out.append(('ext',(f'{t} בוויקיפדיה',
             'https://he.wikipedia.org/wiki/'+urllib.parse.quote(t.replace(' ','_')))))
+    if cat=='common' and DESC.get(t,'').startswith('[ויקימילון]'):
+        out.append(('ext',(f'{t} בוויקימילון',
+            'https://he.wiktionary.org/wiki/'+urllib.parse.quote(t))))
     return out
 
 # pass 1: decide which entities get pages (rich data OR relations), respecting the cap
@@ -167,12 +188,17 @@ for cat,(plural,single) in CATS.items():
         if not (2<=len(n)<=14): continue
         a=amb.get(n); c=cw.get(n,0); sb=subs['fwd'].get(n,[])+subs['rev'].get(n,[])
         has_rel=(cat=='song' and n in song_rel) or (cat=='artist' and n in artist_rel) or cat=='military'
-        rich=bool(a) or c>=2 or bool(sb) or has_rel
-        ent_index.append({'t':t,'n':n,'c':cat,'l':len(n)})
+        has_desc=bool(get_desc(cat,t,norm(t)))
+        signals=sum([bool(a), c>=2, bool(sb), has_rel, has_desc])
+        rich=signals>=2
+        ent_index.append({'t':t,'n':n,'c':cat,'l':len(n),'d':get_desc(cat,t,n)[:70],'r':rich})
         if rich and count<CAP:
             page_set.add((cat,t)); count+=1
 by_norm={}
 for cat,t in page_set: by_norm.setdefault(norm(t),(cat,t))
+pages_norm={norm(t) for _,t in page_set}
+for e in ent_index: e['p']=1 if (e['r'] and e['n'] in pages_norm) else 0
+for e in ent_index: e.pop('r',None)
 
 def ref_link(kind,val):
     if kind=='ext':
@@ -187,8 +213,10 @@ def ref_link(kind,val):
 for cat,t in sorted(page_set):
     plural,single=CATS[cat]; n=norm(t)
     a=amb.get(n); c=cw.get(n,0); sb=subs['fwd'].get(n,[])+subs['rev'].get(n,[])
-    rows=f'<tr><th>סוג</th><td>{single}</td></tr><tr><th>אורך ברשת</th><td>{len(n)} אותיות</td></tr>'
-    if cat=='military' and t in MIL: rows+=f'<tr><th>פירוש</th><td>{MIL[t]}</td></tr>'
+    d=get_desc(cat,t,n)
+    rows=(f'<tr><th>הגדרה</th><td><b>{d}</b></td></tr>' if d else '')
+    rows+=f'<tr><th>סוג</th><td>{single}</td></tr><tr><th>אורך ברשת</th><td>{len(n)} אותיות</td></tr>'
+    if cat=='military' and t in MIL and MIL[t]!=d: rows+=f'<tr><th>פירוש</th><td>{MIL[t]}</td></tr>'
     rows+=f'<tr><th>כתיב בתשבץ</th><td style="font-family:monospace">{n}</td></tr>'
     if c: rows+=f'<tr><th>הופעות בתשבצים</th><td>{c} פעמים (מתוך מדגם של 362 תשבצים)</td></tr>'
     if a: rows+=f'<tr><th>משמעויות נוספות</th><td>{", ".join(HEBSENSE.get(x,x) for x in a["senses"])}</td></tr>'
@@ -220,7 +248,8 @@ for cat,t in sorted(page_set):
     if ext: ld["sameAs"]=ext
     page(f'{OUT}/e/{urllib.parse.quote(t,safe="")}/index.html',
          f'{t} בתשבץ — {single} ב-{len(n)} אותיות (כתיב: {n})',
-         f'איך כותבים {t} בתשבץ? {single} ב-{len(n)} אותיות, כתיב רשת: {n}. משמעויות כפולות, שכיחות, רפרנסים ותחליפים לפותרי תשבצים ותשחצים.',
+         (f'{t}: {get_desc(cat,t,n)}. {single} ב-{len(n)} אותיות, כתיב רשת: {n}. לפותרי תשבצים ותשחצים.' if get_desc(cat,t,n) else
+          f'איך כותבים {t} בתשבץ? {single} ב-{len(n)} אותיות, כתיב רשת: {n}. משמעויות, שכיחות ורפרנסים.'),
          body, ld)
     urls.append(f'/milon/e/{urllib.parse.quote(t,safe="")}/')
 
@@ -231,6 +260,7 @@ for cat,(plural,_) in CATS.items():
     Ls=sorted({e['l'] for e in ent_index if e['c']==cat and 2<=e['l']<=12})
     links=' '.join(f'<a href="/milon/{cat}-{L}/">{L}</a>' for L in Ls if f'/milon/{cat}-{L}/' in urls)
     cat_links+=f'<p><b>{plural}</b> לפי אורך: {links}</p>'
+cat_json=json.dumps({c:v[1] for c,v in CATS.items()},ensure_ascii=False)
 hub=f"""<p>מנוע חיפוש לפותרי תשבצים: שמות של שירים, זמרים, פוליטיקאים ומקומות — עם הכתיב המדויק ברשת
 (ללא אותיות סופיות), אורך, ומשמעויות כפולות. {len(ent_index):,} ערכים.</p>
 <input id="q" placeholder="חיפוש שם, או תבנית: ? או . לאות חסרה (למשל: ?ו?ה)" autocomplete="off">
@@ -241,13 +271,13 @@ hub=f"""<p>מנוע חיפוש לפותרי תשבצים: שמות של שירי
 <script>
 let E=null;const q=document.getElementById('q'),res=document.getElementById('res');
 fetch('/milon/entities.json').then(r=>r.json()).then(d=>E=d);
-const CAT={{song:'שיר',artist:'זמר/להקה',politician:'פוליטיקאי/ת',place:'מקום'}};
+const CAT={cat_json};
 q.oninput=()=>{{if(!E)return;const v=q.value.trim();res.innerHTML='';if(v.length<2)return;
 let hits;
 if(v.includes('?')){{const rx=new RegExp('^'+v.replace(/[א-ת]/g,m=>m).replace(/\\?/g,'.')+'$');
   hits=E.filter(e=>rx.test(e.n));}}
 else hits=E.filter(e=>e.t.includes(v)||e.n.includes(v.replace(/[ךםןףץ]/g,m=>({{'ך':'כ','ם':'מ','ן':'נ','ף':'פ','ץ':'צ'}})[m])));
-const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}}[c]));res.innerHTML=hits.slice(0,60).map(e=>'<li><b>'+esc(e.t)+'</b><br><small>'+esc(CAT[e.c]||'')+' · '+esc(e.l)+' אותיות · <span style="font-family:monospace">'+esc(e.n)+'</span></small></li>').join('');
+const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}}[c]));res.innerHTML=hits.slice(0,60).map(e=>{{const u=e.p?('/milon/e/'+encodeURIComponent(e.t)+'/'):('/milon/'+e.c+'-'+e.l+'/#'+encodeURIComponent(e.n));return '<li><a href="'+u+'" style="text-decoration:none;color:inherit"><b style="color:#f22b39">'+esc(e.t)+'</b>'+(e.d?'<br><small>'+esc(e.d)+'</small>':'')+'<br><small>'+esc(CAT[e.c]||'')+' · '+esc(e.l)+' אותיות · <span style="font-family:monospace">'+esc(e.n)+'</span></small></a></li>'}}).join('');
 }};
 </script>"""
 page(f'{OUT}/index.html','מילון תשבץ — חיפוש לפי אורך, תבנית ואנגרם',

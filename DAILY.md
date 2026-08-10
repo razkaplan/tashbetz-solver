@@ -236,3 +236,11 @@ Measure each lever on dev (fixed enums) with run_eval.py before/after; one lever
   every rich entity page (song<->artist from shironet, wiki sameAs links), /milon/anagram/
   standalone tool, frequency-sorted category pages, breadcrumb+FAQ schema. 6,107 pages.
 - DEPLOY NOTE: site >5000 files; always deploy with `npx vercel deploy --prod --yes --archive=tgz` from docs/.
+- DEFINITIONS LAYER (2026-08-10): every milon surface now shows a short definition -
+  wikipedia short-descs (5.8k), wiktionary first-gloss via wikitext parse (427; TextExtracts
+  returns EMPTY on wiktionary - must parse revisions), shironet fallback for songs/artists,
+  substitutions fallback for common. data/culture/descriptions.json (gitignored; rebuild via
+  scraper/fetch_descriptions.py). TWO-TIER pages: full page only at 2+ signals, others are
+  anchored rows on category pages (thin-content SEO guard). Search results are links now.
+  GSC: sitemap resubmitted 2026-08-10 (was reading the pre-expansion 1,881-page version).
+  GAP for later: plural-form commons lack glosses (morphology lookup lever).

@@ -22,14 +22,14 @@ footer{margin:2.5rem 0 1.5rem;border-top:1px solid #dcdcdc;padding-top:.8rem;fon
 <script>
 let E=null;const q=document.getElementById('q'),res=document.getElementById('res');
 fetch('/milon/entities.json').then(r=>r.json()).then(d=>E=d);
-const CAT={song:'שיר',artist:'זמר/להקה',politician:'פוליטיקאי/ת',place:'מקום'};
+const CAT={"song": "שיר", "artist": "זמר/להקה", "politician": "פוליטיקאי/ת", "place": "עיר", "neighborhood": "שכונה", "park": "פארק/שמורה", "museum": "מוזיאון", "nation": "מדינה", "world_city": "עיר בירה", "athlete": "ספורטאי/ת", "bible": "דמות מקראית", "author": "סופר/משורר", "actor": "שחקן/ית", "kibbutz": "קיבוץ/מושב", "city_il": "יישוב", "mountain": "הר", "stream": "נחל", "river": "נהר", "valley": "עמק", "lake_sea": "ים/אגם", "desert": "מדבר", "island": "אי", "region": "חבל ארץ", "site": "אתר", "military": "מונח צבאי", "common": "תשובה נפוצה"};
 q.oninput=()=>{if(!E)return;const v=q.value.trim();res.innerHTML='';if(v.length<2)return;
 let hits;
 if(v.includes('?')){const rx=new RegExp('^'+v.replace(/[א-ת]/g,m=>m).replace(/\?/g,'.')+'$');
   hits=E.filter(e=>rx.test(e.n));}
 else hits=E.filter(e=>e.t.includes(v)||e.n.includes(v.replace(/[ךםןףץ]/g,m=>({'ך':'כ','ם':'מ','ן':'נ','ף':'פ','ץ':'צ'})[m])));
-const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));res.innerHTML=hits.slice(0,60).map(e=>'<li><b>'+esc(e.t)+'</b><br><small>'+esc(CAT[e.c]||'')+' · '+esc(e.l)+' אותיות · <span style="font-family:monospace">'+esc(e.n)+'</span></small></li>').join('');
+const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));res.innerHTML=hits.slice(0,60).map(e=>{const u=e.p?('/milon/e/'+encodeURIComponent(e.t)+'/'):('/milon/'+e.c+'-'+e.l+'/#'+encodeURIComponent(e.n));return '<li><a href="'+u+'" style="text-decoration:none;color:inherit"><b style="color:#f22b39">'+esc(e.t)+'</b>'+(e.d?'<br><small>'+esc(e.d)+'</small>':'')+'<br><small>'+esc(CAT[e.c]||'')+' · '+esc(e.l)+' אותיות · <span style="font-family:monospace">'+esc(e.n)+'</span></small></a></li>'}).join('');
 };
 </script>
-<footer>מבוסס על אינדקס פתוח של שמות (ויקיפדיה/שירונט) וניתוח סטטיסטי מקורי · לא מתפרסמות הגדרות מעיתונים ·
+<footer>מבוסס על אינדקס פתוח (ויקיפדיה/ויקימילון/שירונט, CC BY-SA, עם קישור למקור) וניתוח סטטיסטי מקורי · לא מתפרסמות הגדרות מעיתונים ·
 <a href="https://www.linkedin.com/in/razkaplan/">פרויקט של רז קפלן</a></footer></div></body></html>
