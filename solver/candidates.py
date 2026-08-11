@@ -139,6 +139,129 @@ def reversal_candidates(clue_text, target_len):
     return out
 
 
+_SUB = None
+
+
+def subs():
+    """The setter's mined substitution table (substitutions.py): word -> [(equivalent, count), ...].
+    Loaded once, same discipline as lex()."""
+    global _SUB
+    if _SUB is None:
+        p = os.path.join(HERE, 'lex/substitutions.json')
+        _SUB = json.load(open(p)) if os.path.exists(p) else {'fwd': {}, 'rev': {}}
+    return _SUB
+
+
+def substitution_candidates(clue_text, target_len, max_subs_per_word=4):
+    """Anagram/hidden/reversal search, but ALSO over fodder where one clue word has
+    been swapped for a substitution the setter is known to use for it (substitutions.json,
+    mined from 8,249 crowd explanations: a name completed by a surname, an abbreviation,
+    a word standing for a fragment).
+
+    WHY a separate mechanism instead of folding into anagram_candidates: the plain
+    character-window search only ever sees letters that are LITERALLY in the clue. Half
+    the setter's vocabulary (SOLVE_PROTOCOL.md: "39% of clue words in this genre have a
+    recorded substitution") never appears literally — the clue says "יו" and means
+    "גרנט", or says "קנ" and means "בית". A window search can never find fodder it
+    can't see; substituting known equivalents before windowing lets it see further,
+    without inventing anything (every substitution used here is one the setters have
+    actually used, not a generic thesaurus guess — same grounding discipline as
+    prove.py's `means()`).
+
+    One word is substituted at a time (not combinatorial across multiple words at once):
+    keeps the search space linear in clue length instead of exponential, and matches how
+    the setter actually builds a charade — one fragment reinterpreted, the rest literal.
+    """
+    words = words_of(clue_text)
+    joined_words = [norm(w) for w in words]
+    S = subs()
+    out = []
+    for i, w in enumerate(joined_words):
+        if not w:
+            continue
+        equivalents = S['fwd'].get(w, [])[:max_subs_per_word] + S['rev'].get(w, [])[:max_subs_per_word]
+        for equiv, _count in equivalents:
+            equiv = norm(equiv)
+            if not equiv or equiv == w:
+                continue
+            swapped = ''.join(joined_words[:i]) + equiv + ''.join(joined_words[i + 1:])
+            for mech_fn, mech_name in ((anagram_candidates, 'anagram'), (hidden_candidates, 'hidden'),
+                                        (reversal_candidates, 'reversal')):
+                for cand in mech_fn(swapped, target_len):
+                    cand = dict(cand)
+                    cand['mechanism'] = mech_name + '+sub'
+                    cand['substituted'] = f'{w}->{equiv}'
+                    out.append(cand)
+    return out
+
+
+_AMBIG = None
+
+
+def ambiguities():
+    """The homograph index (homographs.py): token -> {senses, evidence}. evidence for
+    given_name/surname/answer senses holds full multi-word entities (e.g. 'אבא חושי')
+    that a single clue token can stand in for."""
+    global _AMBIG
+    if _AMBIG is None:
+        p = os.path.join(HERE, 'lex/ambiguities.json')
+        _AMBIG = json.load(open(p)) if os.path.exists(p) else {}
+    return _AMBIG
+
+
+ENTITY_SENSES = ('given_name', 'surname', 'song', 'artist', 'politician', 'place')
+# 'answer' deliberately excluded: homographs.py stores CROWD EXPLANATION SNIPPETS as
+# 'answer'-sense evidence (not alternate entity names like the other senses), so
+# treating it as a candidate source is both semantically wrong (produces junk strings
+# from mangled explanation text — measured: one hit, 'ההיפכרצ', is not a real word) and
+# a structural leak risk: ambiguities.json's keys are corpus ANSWERS with no
+# held_out_answers() filtering (unlike lexicon.py), so 'answer'-sense lookups sit next
+# to dev/eval gold answers in the same index. Not proven exploitable today (a clue
+# would have to literally contain its own answer as a substring, which real cryptic
+# clues never do), but excluding it removes the path entirely rather than relying on
+# that argument holding forever.
+
+
+def homograph_candidates(clue_text, target_len):
+    """A clue token that is a known homograph (one letter-sequence, several senses —
+    solver/HOMOGRAPHS.md: this setter's main weapon) can stand for a full multi-word
+    entity under its OTHER sense: "the minister" (השר) sitting in a clue may really mean
+    the name שרה, and a surname mentioned may really point at the full name. This
+    surfaces those full entities directly as candidates when their length matches the
+    enum — a mechanism the plain anagram/hidden/reversal search cannot reach, because
+    the target string is not a rearrangement of the clue's letters at all, it is a
+    DIFFERENT reading of a token already sitting there.
+
+    Deliberately narrow: only entity-shaped senses (given_name/surname/answer/song/
+    artist/politician/place), not every dictionary sense, or this would just re-surface
+    hidden_candidates' own hits under a new label.
+    """
+    idx = ambiguities()
+    out, seen_tokens = [], set()
+    for w in words_of(clue_text):
+        nw = norm(w)
+        if len(nw) < 2:
+            continue
+        candidates_tokens = {nw}
+        try:
+            sys.path.insert(0, HERE)
+            import homographs
+            candidates_tokens |= homographs.variants(nw)
+        except Exception:
+            pass
+        for tok in candidates_tokens:
+            if tok in seen_tokens or tok not in idx:
+                continue
+            seen_tokens.add(tok)
+            evidence = idx[tok].get('evidence', {})
+            for sense in ENTITY_SENSES:
+                for entity in evidence.get(sense, []):
+                    ans = norm(entity)
+                    if ans and ans != tok and len(ans) == target_len:
+                        out.append({'answer': ans, 'mechanism': 'homograph', 'fodder': tok, 'sense': sense})
+    return out
+
+
 def pattern_candidates(pattern):
     """pattern like '?ו?ר??' — '?' or '_' = unknown crossing letter. The lexicon folds
     final letters (ם/ן/ץ/ף/ך -> מ/נ/צ/פ/כ) everywhere, so fixed cells must be folded
@@ -182,6 +305,8 @@ def generate(clue_text, enum, pattern=None, max_n=25):
     cands += anagram_candidates(clue_text, target_len)
     cands += hidden_candidates(clue_text, target_len)
     cands += reversal_candidates(clue_text, target_len)
+    cands += substitution_candidates(clue_text, target_len)
+    cands += homograph_candidates(clue_text, target_len)
     if pattern:
         cands += pattern_candidates(pattern)
 
@@ -276,6 +401,20 @@ def selftest():
     split = split_candidates([{'answer': norm('שלוםעליכם'), 'mechanism': 'test'}], [4, 5])
     print(f'  split result: {split[0]["split"]} (expected two real words, not None)')
     ok &= split[0]['split'] is not None
+
+    print('--- substitution device: fodder invisible in the literal clue, visible after a')
+    print('    known equivalence swap (קנ~בית is a real mined pair, not invented) ---')
+    hits = substitution_candidates('הלכתי קנ גדול', 3)
+    found = any(h['answer'] == norm('בית') and 'sub' in h['mechanism'] for h in hits)
+    print(f'  found בית via קנ->בית substitution: {found} (expected True)')
+    ok &= found
+
+    print('--- homograph device: a clue token stands for a full entity under its OTHER')
+    print('    sense (אבא is also the given-name component of אבא חושי) ---')
+    hits = homograph_candidates('אבא הלך הביתה', 7)
+    found = any(h['answer'] == norm('אבא חושי') and h['mechanism'] == 'homograph' for h in hits)
+    print(f'  found אבא חושי via the אבא homograph: {found} (expected True)')
+    ok &= found
 
     print(f'\n{"ALL PASSED" if ok else "FAILURES ABOVE"}')
     return ok
