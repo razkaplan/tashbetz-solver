@@ -327,3 +327,20 @@ Measure each lever on dev (fixed enums) with run_eval.py before/after; one lever
   (CLEANED: resolver had matched Tel Aviv categories to 'תל' - always eyeball resolved
   category lists). Index 19,185 entries, 12,820 definitions, 5,992 pages. VERIFY per-cat
   counts after every harvest - a 0 is silent.
+- MILON DATA-QUALITY CLEANUP (2026-08-11): the harvested culture index was polluted -
+  museum/park/site categories contained the people (curators, directors, politicians)
+  from the same wiki categories, plus disambiguation pages and one junk title. Cleanup
+  rules now applied to solver/lex/culture.json: (1) junk titles dropped everywhere
+  (רשימת/קצרמר/פירושונים/קטגוריה/תבנית/ויקיפדיה substrings, ^ה?מנהל); (2) museum keeps
+  only desc containing מוזיאון (or kw in title when no desc), park needs גן/שמור/פארק,
+  site needs תל/אתר/עתיק/חורב/גן לאומי (kw matched at word start, ו/ה prefixes allowed -
+  plain substring 'תל' would keep everything "בתל אביב"); (3) person-desc drop
+  (סופר/שחקן/מנהל/נולד/היה איש/הייתה אשת + אוצר/מנכ"ל/מבקר אמנות for museum/park/site)
+  also applied to neighborhood/mountain/stream/river/valley/desert/kibbutz; (4) world_city
+  drops מחוז/נפה-only descs but keeps capitals (בירת מחוז = city!); (5) dedupe within
+  category by normalized name. Person-cats (song/artist/politician/etc) untouched beyond
+  junk; cross-cat homonyms are legitimate. Rows 19,857->18,761; distinct names 18,459->
+  18,157 (the honest "ערכים" number); museum 100->27, park 242->122, site 518->309.
+  Also: build_seo min-items per category-length page 5->3 (post-cleanup museum buckets
+  are 3-4 entries), and 654 stale orphan pages (not in sitemap) deleted from docs/milon -
+  the builder never deletes, so prune orphans after any index shrink.
