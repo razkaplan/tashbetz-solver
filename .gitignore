@@ -22,3 +22,5 @@ web/
 app/uploads/
 app/puzzles/
 data/sessions/
+__pycache__/
+*.pyc
