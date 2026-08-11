@@ -134,7 +134,7 @@ for cat,(plural,single) in CATS.items():
         n=norm(t)
         if 2<=len(n)<=12: by_len.setdefault(len(n),[]).append((t,n))
     for L,items in sorted(by_len.items()):
-        if len(items)<5: continue
+        if len(items)<3: continue
         items.sort(key=lambda x:(-cw.get(x[1],0),x[0]))     # frequent crossword answers first
         slug=f'{cat}-{L}'
         def _li(t,n):
