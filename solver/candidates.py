@@ -20,6 +20,16 @@ This module does exactly that, per clue, with no LLM involved:
                           boundary and flags whether BOTH pieces are real words — the
                           precondition prove.py's word_order() needs to succeed.
 
+Each of the three window devices (anagram/hidden/reversal) also runs against
+SUBSTITUTION VARIANTS of the clue text (substitution_variants(), backed by
+solver/substitutions.py's 3,141 mined equivalences): one clue word at a time is
+replaced by a recorded equivalent fragment before the window search runs, tagged
+with mechanism '<device>+sub' and a `substitution` provenance note. This was the
+explicit next step in DAILY.md after the first candidates.py measurement (3.6%
+recall, 2026-08-06): a purely literal-text search cannot reach fodder that only
+exists once a clue word is read through the setter's own substitution vocabulary
+(SOLVE_PROTOCOL v14's "one word of the surface does nothing" failure mode).
+
 None of this asserts an answer is CORRECT — it only asserts an answer is POSSIBLE by a
 named mechanism. Selecting among candidates and proving one is still prove.py's job.
 Held-out dev/eval answers are excluded from the lexicon by lexicon.held_out_answers(),
@@ -77,6 +87,89 @@ def joined_letters(clue_text):
     return norm(''.join(words_of(clue_text)))
 
 
+_SUB = None
+
+
+def subs():
+    """The setter's mined substitution vocabulary (solver/substitutions.py),
+    3,141 clue-fragment -> answer-fragment equivalences read off 11,931 crowd
+    explanations. Loaded lazily and cached, same pattern as lex()."""
+    global _SUB
+    if _SUB is None:
+        p = os.path.join(HERE, 'lex/substitutions.json')
+        _SUB = json.load(open(p)) if os.path.exists(p) else {'fwd': {}, 'rev': {}}
+    return _SUB
+
+
+def substitution_variants(clue_text, max_per_word=3):
+    """Yield (variant_letters, note) for every recorded substitution of a single
+    clue word. SOLVE_PROTOCOL v14: 39% of clue words in this genre have one, and
+    the commonest failure mode noted there is "one word of the surface does
+    nothing" — that leftover word is usually standing in for a differently-spelled
+    fragment. The literal clue text alone cannot supply that fragment's letters to
+    the anagram/hidden/reversal window search; substituting it in, one word at a
+    time, can. This is ADDITIVE to literal-text search, not a replacement — most
+    clue words have no recorded substitution and the literal search still runs."""
+    ws = words_of(clue_text)
+    s = subs()
+    out = []
+    for i, w in enumerate(ws):
+        nw = norm(w)
+        for b, _n in s['fwd'].get(nw, [])[:max_per_word]:
+            new_ws = list(ws)
+            new_ws[i] = b
+            out.append((norm(''.join(new_ws)), f'{nw}~{norm(b)}'))
+    return out
+
+
+def _windows(text, target_len):
+    """Every target_len-character run of `text`, WITHOUT requiring word alignment.
+    Setters routinely use partial-word fodder (e.g. dropping a trailing possessive
+    vav), so a window restricted to whole-word boundaries misses real fodder —
+    measured: it missed the worked example in SOLVE_PROTOCOL.md itself ('משפר חיי'
+    is 'משפר' plus the first 3 of 4 letters of 'חייו')."""
+    for i in range(len(text) - target_len + 1):
+        yield text[i:i + target_len]
+
+
+def _anagram_hits(text, target_len, mechanism, note=None):
+    out = []
+    for sub in _windows(text, target_len):
+        for hit in anagram_lookup(sub, target_len):
+            if hit == sub:
+                continue  # not a rearrangement, just the fodder itself
+            c = {'answer': hit, 'mechanism': mechanism, 'fodder': sub}
+            if note:
+                c['substitution'] = note
+            out.append(c)
+    return out
+
+
+def _hidden_hits(text, target_len, mechanism, note=None):
+    words = lex()
+    out = []
+    for sub in _windows(text, target_len):
+        if sub in words:
+            c = {'answer': sub, 'mechanism': mechanism, 'fodder': sub}
+            if note:
+                c['substitution'] = note
+            out.append(c)
+    return out
+
+
+def _reversal_hits(text, target_len, mechanism, note=None):
+    words = lex()
+    out = []
+    for sub in _windows(text, target_len):
+        rev = sub[::-1]
+        if rev in words:
+            c = {'answer': rev, 'mechanism': mechanism, 'fodder': sub}
+            if note:
+                c['substitution'] = note
+            out.append(c)
+    return out
+
+
 _BY_LEN = None
 
 
@@ -98,44 +191,24 @@ def anagram_lookup(letters, target_len):
     return [w for w in by_len().get(target_len, []) if Counter(w) == target]
 
 
-def _char_windows(clue_text, target_len):
-    """Every target_len-character run of the clue's letters, WITHOUT requiring word
-    alignment. Setters routinely use partial-word fodder (e.g. dropping a trailing
-    possessive vav), so a window restricted to whole-word boundaries misses real
-    fodder — measured: it missed the worked example in SOLVE_PROTOCOL.md itself
-    ('משפר חיי' is 'משפר' plus the first 3 of 4 letters of 'חייו')."""
-    joined = joined_letters(clue_text)
-    for i in range(len(joined) - target_len + 1):
-        yield joined[i:i + target_len]
-
-
 def anagram_candidates(clue_text, target_len):
-    words = lex()
-    out = []
-    for sub in _char_windows(clue_text, target_len):
-        for hit in anagram_lookup(sub, target_len):
-            if hit == sub:
-                continue  # not a rearrangement, just the fodder itself (that's `hidden`)
-            out.append({'answer': hit, 'mechanism': 'anagram', 'fodder': sub})
+    out = _anagram_hits(joined_letters(clue_text), target_len, 'anagram')
+    for variant, note in substitution_variants(clue_text):
+        out += _anagram_hits(variant, target_len, 'anagram+sub', note)
     return out
 
 
 def hidden_candidates(clue_text, target_len):
-    words = lex()
-    out = []
-    for sub in _char_windows(clue_text, target_len):
-        if sub in words:
-            out.append({'answer': sub, 'mechanism': 'hidden', 'fodder': sub})
+    out = _hidden_hits(joined_letters(clue_text), target_len, 'hidden')
+    for variant, note in substitution_variants(clue_text):
+        out += _hidden_hits(variant, target_len, 'hidden+sub', note)
     return out
 
 
 def reversal_candidates(clue_text, target_len):
-    words = lex()
-    out = []
-    for sub in _char_windows(clue_text, target_len):
-        rev = sub[::-1]
-        if rev in words:
-            out.append({'answer': rev, 'mechanism': 'reversal', 'fodder': sub})
+    out = _reversal_hits(joined_letters(clue_text), target_len, 'reversal')
+    for variant, note in substitution_variants(clue_text):
+        out += _reversal_hits(variant, target_len, 'reversal+sub', note)
     return out
 
 
@@ -265,6 +338,25 @@ def selftest():
     found = any(h['answer'] == norm('בר') for h in hits)
     print(f'  found בר as a reversal of רב: {found} (expected True)')
     ok &= found
+
+    print('--- substitution-augmented anagram: fodder only closes through a mined equivalence ---')
+    # 'משהו' stands for the (synthetic, monkeypatched) fragment 'םלוש', which
+    # anagrams to שלום. The literal clue text has no fodder that anagrams to
+    # שלום; only the substitution-expanded text does.
+    global _SUB
+    saved_sub = _SUB
+    _SUB = {'fwd': {norm('משהו'): [[norm('םלוש'), 9]]}, 'rev': {}}
+    try:
+        text = 'ראה משהו יפה עכשיו'
+        literal_hit = any(h['answer'] == norm('שלום')
+                           for h in _anagram_hits(joined_letters(text), 4, 'anagram'))
+        sub_hits = [h for h in anagram_candidates(text, 4) if h['mechanism'] == 'anagram+sub']
+        found = any(h['answer'] == norm('שלום') for h in sub_hits)
+        print(f'  literal text alone finds שלום: {literal_hit} (expected False)')
+        print(f'  substitution-augmented search finds שלום: {found} (expected True)')
+        ok &= (not literal_hit) and found
+    finally:
+        _SUB = saved_sub
 
     print('--- pattern device: crossing-pattern lookup wraps lexicon.pattern ---')
     hits = pattern_candidates('של?ם')
