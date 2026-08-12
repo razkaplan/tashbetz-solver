@@ -344,3 +344,12 @@ Measure each lever on dev (fixed enums) with run_eval.py before/after; one lever
   Also: build_seo min-items per category-length page 5->3 (post-cleanup museum buckets
   are 3-4 entries), and 654 stale orphan pages (not in sitemap) deleted from docs/milon -
   the builder never deletes, so prune orphans after any index shrink.
+- STRICT VALIDATION (2026-08-10, user found pages still polluted): scraper/validate_culture.py
+  REVERSES the filter logic - an entity stays in a place-category ONLY if its wikipedia
+  description POSITIVELY confirms it, with a HEAD-NOUN rule (match must be in the first 14
+  chars, else "יישוב ... בעמק יזרעאל" counts as a valley). No description = no entry.
+  Killed: disambiguation pages, list pages, people in place cats, Concorde-as-capital.
+  16,102 rows / 15,566 distinct names (from 19,857/18,459). build_seo.py now DELETES orphan
+  pages every run. Merged place->city_il; world_city relabeled "ערים ובירות בעולם" (holds
+  non-capitals too). RUN validate_culture.py --apply AFTER EVERY HARVEST, then eyeball a
+  random sample per category - keyword blocklists are not enough, positive rules are.

@@ -36,16 +36,6 @@
   <url><loc>https://tashbetz.gtmascode.dev/milon/politician-10/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/politician-11/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/politician-12/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/place-3/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/place-4/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/place-5/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/place-6/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/place-7/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/place-8/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/place-9/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/place-10/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/place-11/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/place-12/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/neighborhood-4/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/neighborhood-5/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/neighborhood-6/</loc></url>
@@ -56,7 +46,6 @@
   <url><loc>https://tashbetz.gtmascode.dev/milon/neighborhood-11/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/neighborhood-12/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/park-6/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/park-7/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/park-8/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/park-9/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/park-10/</loc></url>
@@ -75,15 +64,12 @@
   <url><loc>https://tashbetz.gtmascode.dev/milon/nation-10/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/nation-11/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/nation-12/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/world_city-3/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/world_city-4/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/world_city-5/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/world_city-6/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/world_city-7/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/world_city-8/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/world_city-9/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/world_city-10/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/world_city-11/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/world_city-12/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/athlete-4/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/athlete-5/</loc></url>
@@ -131,7 +117,6 @@
   <url><loc>https://tashbetz.gtmascode.dev/milon/kibbutz-9/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/kibbutz-10/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/kibbutz-11/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/kibbutz-12/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/city_il-3/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/city_il-4/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/city_il-5/</loc></url>
@@ -142,7 +127,6 @@
   <url><loc>https://tashbetz.gtmascode.dev/milon/city_il-10/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/city_il-11/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/city_il-12/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/mountain-3/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/mountain-4/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/mountain-5/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/mountain-6/</loc></url>
@@ -151,46 +135,25 @@
   <url><loc>https://tashbetz.gtmascode.dev/milon/mountain-9/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/mountain-10/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/mountain-11/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/mountain-12/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/stream-5/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/stream-6/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/stream-7/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/stream-8/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/stream-9/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/stream-10/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/river-4/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/river-5/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/river-6/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/river-7/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/river-8/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/river-9/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/river-10/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/river-11/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/river-12/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/valley-3/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/valley-4/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/valley-5/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/valley-6/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/valley-7/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/valley-8/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/valley-9/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/valley-10/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/valley-11/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/valley-12/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/lake_sea-6/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/lake_sea-7/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/lake_sea-8/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/lake_sea-9/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/lake_sea-10/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/lake_sea-11/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/lake_sea-12/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/desert-4/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/desert-7/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/desert-8/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/desert-9/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/desert-10/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/desert-12/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/island-2/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/island-3/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/island-4/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/island-5/</loc></url>
@@ -201,13 +164,7 @@
   <url><loc>https://tashbetz.gtmascode.dev/milon/island-10/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/island-11/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/island-12/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/region-5/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/region-6/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/region-7/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/region-8/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/region-9/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/region-10/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/region-11/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/site-4/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/site-5/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/site-6/</loc></url>
@@ -231,9 +188,7 @@
   <url><loc>https://tashbetz.gtmascode.dev/milon/common-9/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/common-10/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%95%D7%A9%D7%99%D7%A7%20%D7%9C%D7%95%D7%99/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%99%D7%9C%D7%9F%20%D7%9C%D7%99%D7%91%D7%95%D7%91%D7%99%D7%A5/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%9C%D7%91%D7%A8%D7%98%20%D7%9B%D7%94%D7%9F/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%9C%D7%99%20%D7%9B%D7%94%D7%9F/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%A0%D7%99%D7%94%20%D7%91%D7%95%D7%A7%D7%A9%D7%98%D7%99%D7%99%D7%9F/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%A4%D7%A8%D7%AA%20%D7%92%D7%95%D7%A9/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%91%D7%9F%20%D7%90%D7%93%D7%9D/</loc></url>
@@ -244,9 +199,7 @@
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%93%D7%A4%D7%A0%D7%94%20%D7%90%D7%A8%D7%9E%D7%95%D7%A0%D7%99/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%98%D7%9C%20%D7%9E%D7%95%D7%A1%D7%A8%D7%99/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%90%D7%99%D7%A8%20%D7%9C%D7%A4%D7%99%D7%93/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%A2%D7%A7%D7%91%20%D7%9B%D7%94%D7%9F/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9E%D7%90%D7%99%D7%A8%20%D7%91%D7%A0%D7%90%D7%99/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9E%D7%A8%D7%92%D7%99/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A8%D7%9E%D7%99%20%D7%95%D7%A8%D7%93/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A8%D7%9F%20%D7%93%D7%A0%D7%A7%D7%A8/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A9%D7%99%D7%A8%D7%99%20%D7%9E%D7%99%D7%9E%D7%95%D7%9F/</loc></url>
@@ -257,7 +210,6 @@
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%91%D7%98%D7%99%D7%A4%D7%95%D7%A1/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%91%D7%99%20%D7%90%D7%95%D7%97%D7%99%D7%95%D7%9F/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%91%D7%99%20%D7%91%D7%99%D7%98%D7%A8/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%91%D7%99%20%D7%92%D7%99%D7%9C/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%91%D7%99%20%D7%92%D7%A8%D7%99%D7%99%D7%A0%D7%99%D7%A7/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%91%D7%99%20%D7%93%D7%95%D7%A8/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%91%D7%99%20%D7%95%D7%95%D7%9C%D7%A3/</loc></url>
@@ -265,7 +217,6 @@
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%91%D7%99%20%D7%9E%D7%98%D7%95%D7%A1/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%91%D7%99%20%D7%9E%D7%9C%D7%A8/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%91%D7%99%20%D7%9E%D7%A8%D7%A7%D7%95%D7%91%D7%99%D7%A5%27/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%91%D7%99%20%D7%A4%D7%A8%D7%A5/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%91%D7%99%20%D7%A7%D7%95%D7%A8%D7%9F/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%91%D7%99%20%D7%A8%D7%9F%20%D7%98%D7%95%D7%95%D7%99%D7%92/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%91%D7%99%20%D7%A9%D7%98%D7%99%D7%99%D7%A0%D7%A8/</loc></url>
@@ -284,7 +235,6 @@
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%91%D7%A0%D7%A8%20%D7%97%D7%95%D7%93%D7%95%D7%A8%D7%95%D7%91/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%91%D7%A0%D7%A8%20%D7%A7%D7%A0%D7%A8/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%91%D7%A7/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%91%D7%A8%D7%94%D7%9D%20%D7%90%D7%95%D7%A8%D7%9F/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%91%D7%A8%D7%94%D7%9D%20%D7%91%D7%9F%20%D7%96%D7%90%D7%91/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%91%D7%A8%D7%94%D7%9D%20%D7%91%D7%A8%20%D7%A2%D7%95%D7%96/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%91%D7%A8%D7%94%D7%9D%20%D7%91%D7%A8%20%D7%A2%D7%9D/</loc></url>
@@ -292,7 +242,6 @@
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%91%D7%A8%D7%94%D7%9D%20%D7%91%D7%A8%D7%95%D7%A9%D7%99/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%91%D7%A8%D7%94%D7%9D%20%D7%92%27%D7%95%D7%A8%D7%91%D7%99%D7%A5/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%91%D7%A8%D7%94%D7%9D%20%D7%97%D7%9C%D7%A4%D7%99/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%91%D7%A8%D7%94%D7%9D%20%D7%98%D7%9C/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%91%D7%A8%D7%94%D7%9D%20%D7%9C%D7%95%D7%99/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%91%D7%A8%D7%94%D7%9D%20%D7%9C%D7%95%D7%99%D7%A0%D7%A1%D7%95%D7%9F/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%91%D7%A8%D7%94%D7%9D%20%D7%A1%D7%95%D7%A6%D7%A7%D7%95%D7%91%D7%A8/</loc></url>
@@ -319,7 +268,6 @@
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%95%D7%A1%D7%A7%D7%A8%20%D7%94%D7%9E%D7%A8%D7%A9%D7%98%D7%99%D7%99%D7%9F/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%95%D7%A4%D7%99%D7%A8%20%D7%98%D7%91%D7%94/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%95%D7%A4%D7%99%D7%A8%20%D7%99%D7%95%D7%92%D7%91/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%95%D7%A4%D7%99%D7%A8%20%D7%9B%D7%94%D7%9F/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%95%D7%A4%D7%99%D7%A8%20%D7%9E%D7%9C%D7%95%D7%9C/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%95%D7%A8%20%D7%9B%D7%A9%D7%93%D7%99%D7%9D/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%95%D7%A8%20%D7%9E%D7%99%D7%9C%D7%A9%D7%98%D7%95%D7%A7/</loc></url>
@@ -347,7 +295,6 @@
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%95%D7%A9%D7%99%D7%A7%20%D7%9C%D7%95%D7%99/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%95%D7%A9%D7%A8%20%D7%9B%D7%94%D7%9F/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%97%D7%99%D7%A0%D7%95%D7%A2%D7%9D%20%D7%A0%D7%99%D7%A0%D7%99/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%98%D7%A8%D7%A3/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%99%D7%92%D7%99%20%D7%93%D7%99%D7%99%D7%9F/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%99%D7%92%D7%99%20%D7%95%D7%A7%D7%A1%D7%9E%D7%9F/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%99%D7%94%20%D7%9B%D7%95%D7%A8%D7%9D/</loc></url>
@@ -362,7 +309,6 @@
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%99%D7%99%D7%9C%D7%94%20%D7%90%D7%99%D7%A0%D7%92%D7%93%D7%A9%D7%98/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%99%D7%99%D7%9C%D7%AA%20%D7%A6%D7%99%D7%95%D7%A0%D7%99/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%99%D7%9C%D7%9F%20%D7%92%D7%95%D7%9C%D7%93%D7%94%D7%99%D7%A8%D7%A9/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%99%D7%9C%D7%9F%20%D7%9C%D7%99%D7%91%D7%95%D7%91%D7%99%D7%A5/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%99%D7%9C%D7%9F%20%D7%A4%D7%9C%D7%93/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%99%D7%9C%D7%9F%20%D7%A9%D7%A4%D7%9C%D7%A8/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%99%D7%9C%D7%A0%D7%94%20%D7%90%D7%91%D7%99%D7%98%D7%9C/</loc></url>
@@ -379,7 +325,6 @@
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%99%D7%AA%D7%99%20%D7%A9%D7%9E%D7%A2%D7%95%D7%A0%D7%99/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%99%D7%AA%D7%9E%D7%A8%20%D7%90%D7%A9%D7%A4%D7%A8/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%99%D7%AA%D7%9F%20%D7%92%D7%9C%D7%A1/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%99%D7%AA%D7%9F%20%D7%92%D7%A4%D7%A0%D7%99/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%99%D7%AA%D7%9F%20%D7%A0%D7%97%D7%9E%D7%99%D7%90%D7%A1%20%D7%92%D7%9C%D7%A1/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%99%D7%AA%D7%9F%20%D7%A4%D7%A8%D7%A5/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%9C%D7%91%D7%99%D7%A1%20%D7%A4%D7%A8%D7%A1%D7%9C%D7%99/</loc></url>
@@ -412,16 +357,13 @@
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%9C%D7%99%D7%A2%D7%96%D7%A8%20%D7%91%D7%95%D7%A6%D7%A8/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%9C%D7%99%D7%A8%D7%9F%20%D7%90%D7%91%D7%99%D7%98%D7%9C/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%9C%D7%99%D7%A8%D7%9F%20%D7%A9%D7%93%D7%94/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%9C%D7%99%D7%A9%D7%91%D7%A2/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%9C%D7%9B%D7%A1%D7%A0%D7%93%D7%A8%20%D7%91%D7%A8%D7%A4%D7%95%D7%A8/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%9C%D7%9B%D7%A1%D7%A0%D7%93%D7%A8%20%D7%A4%D7%9F/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%9C%D7%9B%D7%A1%D7%A0%D7%93%D7%A8%D7%94/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%9C%D7%9E%D7%98%D7%A8%D7%99%D7%95%D7%98%D7%99%D7%A1/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%9C%D7%9E%D7%A0%D7%94%20%D7%A9%D7%97%D7%95%D7%A8%D7%94/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%9C%D7%9F%20%D7%9C%D7%A8%D7%A0%D7%A8/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%9C%D7%9F%20%D7%A4%D7%A8%D7%A1%D7%95%D7%A0%D7%A1/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%9C%D7%A2%D7%93%20%D7%98%D7%95%D7%99%D7%A8%D7%A9%D7%98%D7%99%D7%99%D7%9F/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%9C%D7%A7%D7%98%D7%A8%D7%94/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%9E%D7%99%D7%A8%20%D7%91%D7%9F%20%D7%93%D7%95%D7%93/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%9E%D7%99%D7%A8%20%D7%91%D7%9F%20%D7%A2%D7%9E%D7%99/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%9E%D7%99%D7%A8%20%D7%91%D7%A8%D7%95%D7%A0%D7%A9%D7%98%D7%99%D7%99%D7%9F/</loc></url>
@@ -453,7 +395,6 @@
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%A4%D7%A8%D7%99%D7%9D%20%D7%A1%D7%99%D7%93%D7%95%D7%9F/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%A4%D7%A8%D7%99%D7%9D%20%D7%A9%D7%9E%D7%99%D7%A8/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%A4%D7%A8%D7%AA%20%D7%92%D7%95%D7%A9/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%A7%D7%95/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%A7%D7%95%20%D7%9E%D7%95%D7%A8%D7%92%D7%A0%D7%A9%D7%98%D7%A8%D7%9F/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%A8%D7%96%20%D7%91%D7%A8%D7%96%D7%95%D7%9C%D7%99%D7%A7/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%A8%D7%96%20%D7%9C%D7%91%20%D7%90%D7%A8%D7%99/</loc></url>
@@ -515,8 +456,6 @@
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%92%27%D7%95%D7%A8%D7%92%27%D7%99%20%D7%91%D7%9F/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%92%27%D7%99%D7%A0%D7%92%27%D7%99%D7%95%D7%AA/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%92%27%D7%99%D7%A4%D7%A1%D7%99%20%D7%A7%D7%99%D7%A0%D7%92%D7%A1/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%92%27%D7%99%D7%A8%D7%A4%D7%95%D7%AA/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%92%27%D7%A0%D7%92%D7%95/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%92%27%D7%A0%D7%99%D7%A1%20%D7%A8%D7%91%D7%99%D7%91%D7%95/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%92%27%D7%A7%20%D7%99%D7%9C%D7%9F/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%92%27%D7%A7%D7%99%20%D7%90%D7%91%D7%9F%20%D7%97%D7%9F/</loc></url>
@@ -527,7 +466,6 @@
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%92%D7%93%D7%A2%D7%95%D7%9F%20%D7%93%D7%A8%D7%99%D7%99%D7%96%D7%99%D7%9F/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%92%D7%93%D7%A2%D7%95%D7%9F%20%D7%9B%D7%A4%D7%9F/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%92%D7%93%D7%A2%D7%95%D7%9F%20%D7%A9%D7%9E%D7%95%D7%A8/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%92%D7%96%D7%95%D7%96/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%92%D7%99%D7%90%20%D7%90%D7%A1%D7%99%D7%A3/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%92%D7%99%D7%90%20%D7%91%D7%9F%20%D7%A9%D7%99%D7%98%D7%A8%D7%99%D7%AA/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%92%D7%99%D7%90%20%D7%9E%D7%A0%D7%98%D7%A9/</loc></url>
@@ -591,7 +529,6 @@
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%93%D7%95%D7%A8%D7%99%D7%95%D7%95%D7%90%D7%9C%20%D7%A7%D7%90%D7%99%D7%9E%D7%99/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%93%D7%95%D7%A8%D7%99%D7%AA%20%D7%A6%D7%9E%D7%A8%D7%AA/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%93%D7%95%D7%A8%D7%99%D7%AA%20%D7%A8%D7%90%D7%95%D7%91%D7%A0%D7%99/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%93%D7%95%D7%AA%D7%9F/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%93%D7%99%D7%93%D7%99%20%D7%94%D7%A8%D7%A8%D7%99/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%93%D7%99%D7%93%D7%99%20%D7%9E%D7%A0%D7%95%D7%A1%D7%99/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%93%D7%99%D7%95%D7%99%D7%93%20%D7%91%D7%A8%D7%95%D7%96%D7%94/</loc></url>
@@ -599,7 +536,6 @@
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%93%D7%9C%D7%99%D7%94%20%D7%9C%D7%9E%D7%93%D7%A0%D7%99/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%93%D7%9C%D7%99%D7%94%20%D7%A8%D7%91%D7%99%D7%A7%D7%95%D7%91%D7%99%D7%A5%27/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%93%D7%9C%D7%99%D7%94%20%D7%A8%D7%99%D7%99%D7%9E%D7%95%D7%A0%D7%93/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%93%D7%9D%20%D7%97%D7%9D/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%93%D7%9E%D7%95%D7%9F%20%D7%A8%D7%90%D7%A0%D7%99%D7%95%D7%9F/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%93%D7%9F%20%D7%90%D7%9C%D7%9E%D7%92%D7%95%D7%A8/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%93%D7%9F%20%D7%91%D7%99%D7%A8%D7%9F/</loc></url>
@@ -648,7 +584,6 @@
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%94%D7%9C%D7%9C%20%D7%90%D7%91%D7%99%D7%97%D7%A0%D7%9F%20%D7%91%D7%A8%D7%92%D7%9E%D7%9F/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%94%D7%9E%D7%9B%D7%A9%D7%A4%D7%95%D7%AA/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%94%D7%9E%D7%A9%D7%90%D7%99%D7%95%D7%AA/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%94%D7%A0%D7%A8%D7%99/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%94%D7%A7%D7%9C%D7%99%D7%A7/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%94%D7%A8%D7%90%D7%9C%20%D7%A1%D7%A7%D7%A2%D7%AA/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%94%D7%A8%D7%90%D7%9C%D7%94%20%D7%91%D7%A8/</loc></url>
@@ -662,7 +597,6 @@
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%95%D7%99%D7%99%D7%A7%D7%9C%D7%99%D7%A3%20%D7%96%D7%90%D7%9F/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%95%D7%99%D7%9C%D7%99%D7%90%D7%9D%20%D7%91%D7%98%D7%9C%D7%A8%20%D7%99%D7%99%D7%98%D7%A1/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%95%D7%99%D7%9C%D7%99%D7%90%D7%9D%20%D7%A9%D7%99%D7%99%D7%A7%D7%A1%D7%A4%D7%99%D7%A8/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%95%D7%99%D7%A7/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%95%D7%A1%D7%A7%D7%95%20%D7%A4%D7%95%D7%A4%D7%94/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%95%D7%A8%D7%93%20%D7%A7%D7%9C%D7%A4%D7%98%D7%A8/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%95%D7%A8%D7%94%20%D7%A7%D7%A8%D7%99%D7%92%D7%9C/</loc></url>
@@ -725,7 +659,6 @@
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%98%D7%A0%D7%92%D7%95/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%90%D7%99%D7%90%20%D7%9B%D7%94%D7%9F%20%D7%90%D7%94%D7%A8%D7%95%D7%A0%D7%95%D7%91/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%90%D7%99%D7%A8%20%D7%90%D7%9C%D7%95%D7%A0%D7%99/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%90%D7%99%D7%A8%20%D7%9C%D7%95%D7%99/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%90%D7%99%D7%A8%20%D7%9C%D7%A4%D7%99%D7%93/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%90%D7%99%D7%A8%20%D7%A0%D7%99%D7%A6%D7%A0%D7%99/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%90%D7%99%D7%A8%20%D7%A9%D7%A8%D7%92%D7%90%D7%99/</loc></url>
@@ -753,9 +686,7 @@
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%94%D7%95%D7%A9%D7%A2%20%D7%A8%D7%91%D7%99%D7%A0%D7%95%D7%91/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%94%D7%9C%D7%99%20%D7%A1%D7%95%D7%91%D7%95%D7%9C/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%95%D7%90%D7%91%20%D7%92%D7%99%D7%A0%D7%90%D7%99/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%95%D7%90%D7%91%20%D7%99%D7%A6%D7%97%D7%A7/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%95%D7%90%D7%91%20%D7%A4%D7%95%D7%A8%D7%AA/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%95%D7%90%D7%9C%20%D7%9C%D7%A8%D7%A0%D7%A8/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%95%D7%90%D7%9C%20%D7%A8%D7%99%D7%A4%D7%9C/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%95%D7%91%D7%91%20%D7%9B%D7%A5/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%95%D7%91%D7%9C%20%D7%90%D7%91%D7%A8%D7%94%D7%9E%D7%99/</loc></url>
@@ -770,7 +701,6 @@
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%95%D7%A0%D7%99%20%D7%A8%D7%9B%D7%98%D7%A8/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%95%D7%A0%D7%AA%D7%9F%20%D7%A8%D7%98%D7%95%D7%A9/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%95%D7%A1%D7%99%20%D7%90%D7%9C%D7%A4%D7%99/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%95%D7%A1%D7%99%20%D7%91%D7%9B%D7%A8/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%95%D7%A1%D7%99%20%D7%91%D7%A0%D7%90%D7%99/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%95%D7%A1%D7%99%20%D7%92%D7%96%D7%9E%D7%95/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%95%D7%A1%D7%99%20%D7%92%D7%99%D7%A1%D7%A4%D7%9F/</loc></url>
@@ -785,7 +715,6 @@
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%95%D7%A9%D7%99/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%95%D7%AA%D7%9D%20%D7%A4%D7%95%D7%A8/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%96%D7%94%D7%A8%20%D7%A4%D7%A8%D7%95%D7%A0%D7%98/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%97%D7%99%D7%90%D7%9C%20%D7%94%D7%9C%D7%A4%D7%A8%D7%99%D7%9F/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%97%D7%99%D7%90%D7%9C%20%D7%9E%D7%95%D7%94%D7%A8/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%9C%D7%93/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%9E%D7%99%20%D7%95%D7%99%D7%A1%D7%9C%D7%A8/</loc></url>
@@ -801,7 +730,6 @@
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%A2%D7%A7%D7%91%20%D7%92%D7%9C%D7%A2%D7%93/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%A2%D7%A7%D7%91%20%D7%93%D7%95%D7%93%20%D7%A7%D7%9E%D7%96%D7%95%D7%9F/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%A2%D7%A7%D7%91%20%D7%99%D7%A2%D7%A7%D7%95%D7%91%D7%A1%D7%95%D7%9F/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%A2%D7%A7%D7%91%20%D7%9B%D7%94%D7%9F/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%A2%D7%A7%D7%91%20%D7%9C%D7%99%D7%9B%D7%98%D7%9E%D7%9F/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%A2%D7%A7%D7%91%20%D7%9E%D7%95%D7%A8%D7%92/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%A2%D7%A7%D7%91%20%D7%A0%D7%95%D7%99/</loc></url>
@@ -831,7 +759,6 @@
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%A9%D7%A8%D7%90%D7%9C/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%A9%D7%A8%D7%90%D7%9C%20%D7%93%D7%99%D7%99%D7%9F/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%A9%D7%A8%D7%90%D7%9C%20%D7%95%D7%99%D7%A1%D7%9C%D7%A8/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9B%D7%91%D7%9C%D7%99%D7%9D/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9B%D7%95%D7%95%D7%A8%D7%AA/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9B%D7%A0%D7%A1%D7%99%D7%99%D7%AA%20%D7%94%D7%A9%D7%9B%D7%9C/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9B%D7%A4%D7%99%D7%A8%20%D7%90%D7%A4%D7%A9%D7%98%D7%99%D7%99%D7%9F/</loc></url>
@@ -875,9 +802,7 @@
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9E%D7%90%D7%99%D7%A8%20%D7%A9%D7%9C%D7%95/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9E%D7%94%D7%93%D7%99/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9E%D7%94%D7%9E%D7%A7%D7%95%D7%A8%D7%95%D7%AA/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9E%D7%94%D7%A4%D7%9A/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9E%D7%95%D7%98%D7%99%20%D7%92%D7%9C%D7%A2%D7%93%D7%99/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9E%D7%95%D7%A8/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9E%D7%95%D7%A8%D7%94/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9E%D7%96%D7%99%20%D7%9B%D7%94%D7%9F/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9E%D7%97%D7%A4%D7%95%D7%93%20%D7%A4%D7%98%D7%99%D7%A9%D7%99/</loc></url>
@@ -910,13 +835,10 @@
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9E%D7%9F%20%D7%94%D7%9E%D7%A7%D7%95%D7%A8%D7%95%D7%AA/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9E%D7%9F%20%D7%94%D7%AA%D7%A4%D7%99%D7%9C%D7%94/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9E%D7%A0%D7%99%20%D7%91%D7%92%D7%A8/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9E%D7%A1%D7%95%D7%A8%D7%AA%D7%99/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9E%D7%A6%D7%99%D7%A6%D7%99%D7%9D/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9E%D7%A7%D7%A1%20%D7%92%D7%AA%20%D7%9E%D7%95%D7%A8/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9E%D7%A7%D7%A1%D7%95%D7%95%D7%9C%20%D7%90%D7%A0%D7%93%D7%A8%D7%A1%D7%95%D7%9F/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9E%D7%A8%D7%92%D7%99/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9E%D7%A8%D7%93%D7%9B%D7%99%20%D7%94%D7%95%D7%A0%D7%99%D7%92/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9E%D7%A8%D7%93%D7%9B%D7%99%20%D7%9C%D7%91%D7%A0%D7%95%D7%9F/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9E%D7%A8%D7%99%D7%9D%20%D7%99%D7%9C%D7%9F%20%D7%A9%D7%98%D7%A7%D7%9C%D7%99%D7%A1/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9E%D7%A8%D7%A7%20%D7%9C%D7%96%D7%A8/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9E%D7%A9%D7%94%20%D7%90%D7%9C%D7%99%D7%9E%D7%9C%D7%9A/</loc></url>
@@ -1024,7 +946,6 @@
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A2%D7%9E%D7%95%D7%A1%20%D7%90%D7%98%D7%99%D7%A0%D7%92%D7%A8/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A2%D7%9E%D7%95%D7%A1%20%D7%A7%D7%95%D7%9C%D7%A7/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A2%D7%9E%D7%95%D7%A1%20%D7%A7%D7%99%D7%A0%D7%9F/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A2%D7%9E%D7%99%D7%90%D7%9C/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A2%D7%9E%D7%99%D7%A8%20%D7%91%D7%A0%D7%99%D7%95%D7%9F/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A2%D7%9E%D7%99%D7%A8%20%D7%9C%D7%91/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A2%D7%9E%D7%99%D7%A8%D7%94%20%D7%94%D7%92%D7%A0%D7%99/</loc></url>
@@ -1045,28 +966,23 @@
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A2%D7%A6%D7%99%D7%95%D7%9F%20%D7%9E%D7%95%D7%A1%D7%90%D7%99/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A2%D7%A7%D7%99%D7%91%D7%90%20%D7%A0%D7%95%D7%A3/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A2%D7%A8%D7%9F%20%D7%91%D7%A0%D7%99%D7%90%D7%9C/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A2%D7%A8%D7%9F%20%D7%9C%D7%95%D7%99/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A2%D7%A8%D7%9F%20%D7%A6%D7%95%D7%A8/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A4%D7%91%D7%9C%D7%95%20%D7%92%D7%A8%D7%A8%D7%95/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A4%D7%91%D7%9C%D7%95%20%D7%93%D7%95%D7%A8%D7%A0%D7%93/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A4%D7%95%D7%9C%20%D7%90%D7%A0%D7%A7%D7%94/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A4%D7%95%D7%9C%20%D7%9E%D7%A7%D7%A8%D7%98%D7%A0%D7%99/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A4%D7%95%D7%A0%D7%A5%27/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A4%D7%95%D7%A8%D7%98%D7%95%D7%A0%D7%94/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A4%D7%96%D7%99%D7%AA%20%D7%A8%D7%92%D7%91/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A4%D7%98%D7%A8%D7%99%D7%A9%D7%99%D7%94%20%D7%A1%D7%95%D7%A1%D7%94/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A4%D7%99%D7%98%D7%A8%20%D7%A8%D7%95%D7%98/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A4%D7%99%D7%99%D7%A8%20%D7%93%D7%9C%D7%A0%D7%95%D7%90%D7%94/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A4%D7%9C%D7%93/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A4%D7%9C%D7%99%D7%A7%D7%A1%20%D7%9C%D7%95%D7%A0%D7%94/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A4%D7%A0%D7%97%D7%A1%20%D7%9C%D7%A0%D7%93%D7%A8/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A4%D7%A0%D7%97%D7%A1%20%D7%A9%D7%93%D7%94/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A4%D7%A0%D7%98%D7%92%D7%95%D7%9F/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A4%D7%A0%D7%99%D7%94%20%D7%91%D7%A8%D7%92%D7%A9%D7%98%D7%99%D7%99%D7%9F/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A4%D7%A0%D7%99%D7%A0%D7%94%20%D7%92%D7%91%D7%A8%D7%99%D7%90%D7%9C/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A4%D7%A8%D7%A0%D7%A0%D7%93%D7%95%20%D7%A4%D7%95%D7%9C%D7%99%D7%99%D7%A0%D7%95/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A6%27%D7%95%D7%9C%D7%99%20%D7%96%D7%9B%D7%90%D7%99/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A6%D7%91%D7%A2%D7%95%D7%A0%D7%99%20%D7%A9%D7%97%D7%95%D7%A8/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A6%D7%95%D7%A3%20%D7%A4%D7%99%D7%9C%D7%95%D7%A1%D7%95%D7%A3/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A6%D7%97%D7%99%20%D7%93%D7%93%D7%95/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A6%D7%9C%D7%99%D7%9C%20%D7%9E%D7%9B%D7%95%D7%95%D7%9F/</loc></url>
@@ -1152,7 +1068,6 @@
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A9%D7%95%D7%A9%D7%A0%D7%94%20%D7%93%D7%9E%D7%90%D7%A8%D7%99/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A9%D7%95%D7%A9%D7%A0%D7%94%20%D7%A6%D7%97%D7%95%D7%A8/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A9%D7%97%D7%A8%20%D7%94%D7%93%D7%A8/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A9%D7%99%20%D7%9C%D7%94%D7%91/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A9%D7%99%20%D7%9C%D7%99%D7%99%D7%91%D7%95%D7%91%D7%99%D7%A5/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A9%D7%99%20%D7%9E%D7%A9%D7%95%D7%9C%D7%9D/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A9%D7%99%20%D7%A2%D7%9E%D7%A8/</loc></url>
@@ -1180,7 +1095,6 @@
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A9%D7%9E%D7%95%D7%90%D7%9C/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A9%D7%9E%D7%95%D7%90%D7%9C%20%D7%91%D7%A1/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A9%D7%9E%D7%95%D7%90%D7%9C%20%D7%94%D7%A1%D7%A4%D7%A8%D7%99/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A9%D7%9E%D7%95%D7%90%D7%9C%20%D7%A1%D7%92%D7%9C/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A9%D7%9E%D7%95%D7%90%D7%9C%20%D7%A4%D7%99%D7%A9%D7%A8/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A9%D7%9E%D7%95%D7%9C%D7%99%D7%A7%20%D7%9C%D7%95%D7%99/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A9%D7%9E%D7%95%D7%9C%D7%99%D7%A7%20%D7%A6%27%D7%99%D7%96%D7%99%D7%A7/</loc></url>
@@ -1195,14 +1109,11 @@
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A9%D7%9E%D7%A8%D7%99%D7%AA%20%D7%90%D7%95%D7%A8/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A9%D7%9E%D7%A9%D7%95%D7%9F%20%D7%97%D7%9C%D7%A4%D7%99/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A9%D7%A0%D7%99%D7%90%D7%95%D7%A8%20%D7%97%D7%A9%D7%99%D7%9F/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A9%D7%A4%D7%99%D7%98%D7%94/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A9%D7%A4%D7%A8%D7%99%D7%A8%D7%94%20%D7%96%D7%9B%D7%90%D7%99/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A9%D7%A8%D7%94/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A9%D7%A8%D7%94%20%D7%A1%D7%99%D7%9E%D7%9F%20%D7%98%D7%95%D7%91/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A9%D7%A8%D7%94%20%D7%A9%D7%95%D7%91%D7%9C/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A9%D7%A8%D7%95%D7%9F%20%D7%A7%D7%A0%D7%98%D7%95%D7%A8/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A9%D7%A8%D7%95%D7%9F%20%D7%A9%D7%99%D7%98%D7%95%D7%91%D7%99/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A9%D7%A8%D7%99/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A9%D7%A8%D7%99%20%D7%92%D7%91%D7%A2%D7%AA%D7%99/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A9%D7%A8%D7%A7/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A9%D7%A9%D7%95%D7%9F%20%D7%A6%D7%A0%D7%A2%D7%A0%D7%99/</loc></url>
@@ -1218,15 +1129,10 @@
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%AA%D7%9E%D7%99%D7%A8%20%D7%92%D7%9C%D7%91%D7%95%D7%A2/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%AA%D7%9E%D7%A8%20%D7%99%D7%94%D7%9C%D7%95%D7%9E%D7%99/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%AA%D7%A8%D7%A6%D7%94%20%D7%91%D7%A8%D7%92%D7%9C/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%9C%D7%99%20%D7%9B%D7%94%D7%9F/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%91%D7%A8%20%D7%9C%D7%99%D7%9F/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%A2%D7%A7%D7%91%20%D7%9B%D7%94%D7%9F/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%91%D7%99%20%D7%92%D7%99%D7%9C/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%91%D7%99%20%D7%A7%D7%95%D7%A8%D7%9F/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%9C%D7%99%D7%A9%D7%91%D7%A2/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%93%D7%95%D7%93%20%D7%90%D7%91%D7%99%D7%93%D7%9F/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%A2%D7%9C%20%D7%93%D7%99%D7%99%D7%9F/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%A2%D7%A7%D7%91%20%D7%9B%D7%94%D7%9F/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%A6%D7%97%D7%A7%20%D7%99%D7%A6%D7%97%D7%A7%D7%99/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9E%D7%A9%D7%94%20%D7%A9%D7%A4%D7%A8%D7%99%D7%A8/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A0%D7%AA%D7%9F%20%D7%90%D7%9C%D7%AA%D7%A8%D7%9E%D7%9F/</loc></url>
@@ -1244,10 +1150,7 @@
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%97%D7%A0%D7%94/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%97%D7%A8%D7%98%D7%95%D7%9E%D7%99%D7%9D/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%94%D7%95%D7%90/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%94%D7%95%D7%A8%D7%9D/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%95%D7%90%D7%A9/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%95%D7%A1%D7%A3/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%95%D7%A8%D7%9D/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%97%D7%96%D7%A7%D7%90%D7%9C/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%A2%D7%A7%D7%91/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%A6%D7%97%D7%A7/</loc></url>
@@ -1260,9 +1163,7 @@
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9E%D7%A9%D7%94/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A0%D7%97/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A0%D7%A9%D7%99%D7%90/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A2%D7%93%D7%94/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A2%D7%95%D7%96%D7%99%D7%94%D7%95/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A2%D7%9C%D7%9E%D7%94/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A2%D7%9E%D7%A8%D7%99/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A2%D7%A0%D7%94/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A7%D7%99%D7%A0%D7%9F/</loc></url>
@@ -1274,40 +1175,43 @@
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A9%D7%9E%D7%A9%D7%95%D7%9F/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A9%D7%A8%D7%94/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A9%D7%AA/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%AA%D7%9E%D7%A8/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%97%D7%95%D7%95%D7%94/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%A8%D7%91%D7%9C/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%91%D7%A0%D7%99%20%D7%91%D7%A8%D7%A7/</loc></url>
+  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%95%D7%A4%D7%A7%D7%99%D7%9D/</loc></url>
+  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%99%D7%9C%D7%AA/</loc></url>
+  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%9C%D7%A2%D7%93/</loc></url>
+  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%A9%D7%93%D7%95%D7%93/</loc></url>
+  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%A9%D7%A7%D7%9C%D7%95%D7%9F/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%92%27%D7%91%D7%A2/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%92%27%D7%AA/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%93%D7%97%D7%99/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%96%D7%9E%D7%A8/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%96%D7%A8%D7%96%D7%99%D7%A8/</loc></url>
+  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%93%D7%99%D7%9E%D7%95%D7%A0%D7%94/</loc></url>
+  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%94%D7%A8%D7%A6%D7%9C%D7%99%D7%94/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%97%D7%91%D7%A8%D7%95%D7%9F/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%97%D7%93%D7%A8%D7%94/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%97%D7%99%D7%A4%D7%94/</loc></url>
+  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%98%D7%91%D7%A8%D7%99%D7%94/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%98%D7%99%D7%99%D7%91%D7%94/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%98%D7%99%D7%A8%D7%94/</loc></url>
+  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%91%D7%A0%D7%94/</loc></url>
+  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%94%D7%95%D7%93/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%A2%D7%A8%D7%94/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%A4%D7%95/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%A8%D7%95%D7%A9%D7%9C%D7%99%D7%9D/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%A8%D7%99%D7%97%D7%95/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9B%D7%91%D7%99%D7%A9%20425/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9C%D7%95%D7%91%D7%99%D7%94/</loc></url>
+  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9B%D7%A4%D7%A8%20%D7%A1%D7%91%D7%90/</loc></url>
+  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9B%D7%A8%D7%9E%D7%99%D7%90%D7%9C/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9C%D7%95%D7%93/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9E%D7%92%27%D7%93%D7%9C/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A0%D7%95%D7%95%D7%94/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A0%D7%95%D7%A3%20%D7%94%D7%92%D7%9C%D7%99%D7%9C/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A0%D7%99%D7%9F/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A1%D7%97%27%D7%A0%D7%99%D7%9F/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A2%D7%9B%D7%91%D7%A8%D7%94/</loc></url>
+  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A0%D7%94%D7%A8%D7%99%D7%94/</loc></url>
+  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A0%D7%A1%20%D7%A6%D7%99%D7%95%D7%A0%D7%94/</loc></url>
+  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A0%D7%A6%D7%A8%D7%AA/</loc></url>
+  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A0%D7%AA%D7%99%D7%91%D7%95%D7%AA/</loc></url>
+  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A0%D7%AA%D7%A0%D7%99%D7%94/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A2%D7%9B%D7%95/</loc></url>
+  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A2%D7%A4%D7%95%D7%9C%D7%94/</loc></url>
+  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A2%D7%A8%D7%93/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A4%D7%99%D7%A7/</loc></url>
+  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A4%D7%AA%D7%97%20%D7%AA%D7%A7%D7%95%D7%95%D7%94/</loc></url>
+  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A6%D7%A4%D7%AA/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A7%D7%9C%D7%A0%D7%A1%D7%95%D7%95%D7%94/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A8%D7%94%D7%98/</loc></url>
+  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A8%D7%97%D7%95%D7%91%D7%95%D7%AA/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A8%D7%9E%D7%9C%D7%94/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A9%D7%92%D7%95%D7%A8/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A9%D7%A4%D7%A8%D7%A2%D7%9D/</loc></url>
+  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A8%D7%A2%D7%A0%D7%A0%D7%94/</loc></url>
+  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A9%D7%93%D7%A8%D7%95%D7%AA/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%91/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%91%D7%95%D7%A1/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%91%D7%99%D7%A1/</loc></url>
@@ -1365,6 +1269,7 @@
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%91%D7%98%D7%99/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%91%D7%99%D7%99%D7%92%D7%9C/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%91%D7%99%D7%9C%D7%95%D7%A9/</loc></url>
+  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%91%D7%99%D7%AA%D7%A8/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%91%D7%9B%D7%97%D7%95%D7%A1/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%91%D7%9B%D7%A8/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%91%D7%9C/</loc></url>
@@ -1379,6 +1284,7 @@
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%91%D7%9C%D7%A8%D7%99%D7%A0%D7%94/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%91%D7%9C%D7%A9%D7%A0%D7%99%D7%AA/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%91%D7%A0%D7%99/</loc></url>
+  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%91%D7%A0%D7%99%D7%91%D7%A8%D7%A7/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%91%D7%A0%D7%99%D7%99%D7%A0/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%91%D7%A1%D7%99%D7%A1/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%91%D7%A2%D7%A8/</loc></url>
@@ -1389,6 +1295,7 @@
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%91%D7%A8%D7%97%D7%A9/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%91%D7%A8%D7%99/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%91%D7%A8%D7%99%D7%92%D7%93%D7%94/</loc></url>
+  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%91%D7%A8%D7%9B%D7%99%D7%94/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%91%D7%A8%D7%9E/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%91%D7%A8%D7%9E%D7%A0/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%91%D7%A9%D7%A8/</loc></url>
@@ -1411,6 +1318,7 @@
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%92%D7%9E%D7%93/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%92%D7%9E%D7%9C/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%92%D7%A0%D7%95/</loc></url>
+  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%92%D7%A2%D7%A9/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%92%D7%A8%D7%91/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%93%D7%90%D7%95/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%93%D7%90%D7%95%D7%A0/</loc></url>
@@ -1431,12 +1339,15 @@
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%93%D7%99%D7%A0%D7%A8/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%93%D7%99%D7%A1%D7%A7%D7%95/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%93%D7%99%D7%A7%D7%98/</loc></url>
+  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%93%D7%99%D7%A9%D7%95%D7%A0/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%93%D7%9C%D7%AA/</loc></url>
+  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%93%D7%9C%D7%AA%D7%95%D7%A0/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%93%D7%9E%D7%94/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%93%D7%9E%D7%95/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%93%D7%9E%D7%99/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%93%D7%9E%D7%99%D7%9E/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%93%D7%A0%D7%99/</loc></url>
+  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%93%D7%A4%D7%A0%D7%94/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%93%D7%A8%D7%99%D7%99%D7%A4%D7%95%D7%A1/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%93%D7%A8%D7%A9%D7%A0/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%94%D7%90%D7%A9/</loc></url>
@@ -1497,6 +1408,7 @@
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%97%D7%91%D7%95%D7%A9/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%97%D7%93%D7%94/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%97%D7%95%D7%9C/</loc></url>
+  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%97%D7%95%D7%A4/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%97%D7%95%D7%A7/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%97%D7%98%D7%90/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%97%D7%99%D7%98%D7%9E%D7%A0/</loc></url>
@@ -1556,10 +1468,13 @@
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%A2%D7%9C%D7%99%D7%9E/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%A2%D7%A0%D7%99%D7%A7/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%A2%D7%A8/</loc></url>
+  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%A4%D7%95/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%A4%D7%A0%D7%99%D7%9E/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%A6%D7%90/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%A6%D7%99%D7%91%D7%99%D7%9E/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%A7%D7%91/</loc></url>
+  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%A7%D7%95%D7%9E/</loc></url>
+  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%A8%D7%95%D7%97%D7%9E/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%A8%D7%95%D7%A9%D7%9C%D7%9E%D7%99/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%A8%D7%A7%D7%95%D7%A0/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%A8%D7%A7%D7%95%D7%A0%D7%99%D7%9E/</loc></url>
@@ -1569,6 +1484,7 @@
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%A9%D7%A0%D7%95%D7%AA/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%A9%D7%A0%D7%99%D7%9E/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%A9%D7%A8/</loc></url>
+  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%A9%D7%A8%D7%90%D7%9C%D7%9B%D7%A6/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%A9%D7%AA%D7%90%D7%95/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%AA%D7%A8/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%AA%D7%A8%D7%95/</loc></url>
@@ -1585,6 +1501,7 @@
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9B%D7%9C%D7%90%D7%95/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9B%D7%9C%D7%91%D7%9C%D7%91/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9B%D7%9C%D7%94/</loc></url>
+  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9B%D7%9E%D7%94%D7%99%D7%A0/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9B%D7%9E%D7%95/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9B%D7%A4%D7%99%D7%95%D7%AA/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9B%D7%A4%D7%A0/</loc></url>
@@ -1607,18 +1524,21 @@
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9C%D7%91%D7%A0%D7%95%D7%A0%D7%99/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9C%D7%92%D7%95/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9C%D7%92%D7%9E/</loc></url>
+  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9C%D7%94%D7%91/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9C%D7%94%D7%92%D7%A0/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9C%D7%94%D7%93%D7%92%D7%99%D7%9E/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9C%D7%94%D7%9E%D7%A2%D7%99%D7%98/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9C%D7%94%D7%A7/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9C%D7%94%D7%A9%D7%95%D7%95%D7%AA/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9C%D7%95/</loc></url>
+  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9C%D7%95%D7%91%D7%99%D7%94/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9C%D7%95%D7%9C/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9C%D7%95%D7%A4/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9C%D7%95%D7%A7/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9C%D7%97%D7%99/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9C%D7%97%D7%9E/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9C%D7%99%D7%9B%D7%95%D7%93/</loc></url>
+  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9C%D7%99%D7%A0%D7%A7%D7%95%D7%9C%D7%A0/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9C%D7%99%D7%A1%D7%91%D7%95%D7%A0/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9C%D7%99%D7%A9/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9C%D7%99%D7%AA/</loc></url>
@@ -1652,9 +1572,12 @@
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9E%D7%91%D7%98%D7%9C%D7%99%D7%9E/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9E%D7%92%D7%91%D7%95%D7%A0%D7%99%D7%9E/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9E%D7%92%D7%91%D7%A2%D7%AA/</loc></url>
+  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9E%D7%92%D7%93/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9E%D7%92%D7%95%D7%A8%D7%A9%D7%AA/</loc></url>
+  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9E%D7%92%D7%9C/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9E%D7%92%D7%9C%D7%91/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9E%D7%92%D7%9C%D7%92%D7%9C/</loc></url>
+  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9E%D7%92%D7%A0/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9E%D7%92%D7%A0%D7%98/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9E%D7%92%D7%A0%D7%98%D7%99/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9E%D7%93%D7%91%D7%A8%D7%99%D7%9E/</loc></url>
@@ -1667,6 +1590,7 @@
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9E%D7%94%D7%A8/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9E%D7%95%D7%A1/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9E%D7%95%D7%A1%D7%9B%D7%9E/</loc></url>
+  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9E%D7%95%D7%A8/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9E%D7%95%D7%A8%D7%9E%D7%95%D7%A0%D7%99%D7%9E/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9E%D7%95%D7%A8%D7%A1/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9E%D7%96%D7%94%D7%99%D7%A8/</loc></url>
@@ -1692,6 +1616,7 @@
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9E%D7%9C%D7%97%D7%9E%D7%AA%D7%99/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9E%D7%9C%D7%A7%D7%95%D7%97/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9E%D7%9E%D7%94%D7%A8/</loc></url>
+  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9E%D7%9E%D7%99%D7%9C%D7%90/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9E%D7%A0%D7%94%D7%9C/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9E%D7%A0%D7%94%D7%A8%D7%95%D7%AA/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9E%D7%A0%D7%95/</loc></url>
@@ -1709,6 +1634,7 @@
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9E%D7%A2%D7%9B%D7%95/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9E%D7%A2%D7%A0%D7%94/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9E%D7%A4%D7%AA%D7%94/</loc></url>
+  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9E%D7%A6%D7%A8/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9E%D7%A6%D7%AA/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9E%D7%A7%D7%95%D7%A8%D7%96%D7%9C/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9E%D7%A7%D7%A9/</loc></url>
@@ -1739,6 +1665,7 @@
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9E%D7%AA%D7%AA/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A0%D7%90%D7%A6%D7%9C/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A0%D7%91%D7%93%D7%94/</loc></url>
+  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A0%D7%91%D7%99%D7%A2%D7%95%D7%AA/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A0%D7%91%D7%9C/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A0%D7%91%D7%9C%D7%95%D7%A1/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A0%D7%91%D7%9C%D7%9E%D7%AA/</loc></url>
@@ -1804,6 +1731,7 @@
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A1%D7%99%D7%A1/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A1%D7%99%D7%A2%D7%95%D7%93/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A1%D7%9C%D7%95%D7%A0%D7%99%D7%A7%D7%99/</loc></url>
+  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A1%D7%9E%D7%A8/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A1%D7%A4%D7%94/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A1%D7%A4%D7%99/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A1%D7%A4%D7%A1%D7%9C/</loc></url>
@@ -1815,6 +1743,7 @@
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A2%D7%95%D7%93/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A2%D7%95%D7%93%D7%93/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A2%D7%95%D7%93%D7%93%D7%AA%D7%99/</loc></url>
+  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A2%D7%99%D7%93%D7%A0/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A2%D7%9B%D7%91%D7%A8/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A2%D7%9C%D7%95%D7%91/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A2%D7%9C%D7%99/</loc></url>
@@ -1874,6 +1803,7 @@
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A7%D7%95%D7%A7%D7%95%D7%A1/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A7%D7%95%D7%A8%D7%98/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A7%D7%98%D7%A0%D7%95%D7%A2/</loc></url>
+  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A7%D7%98%D7%A8/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A7%D7%99%D7%93%D7%95%D7%A9/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A7%D7%99%D7%A1%D7%9E/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A7%D7%99%D7%A7/</loc></url>
@@ -2005,199 +1935,96 @@
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%AA%D7%A8%D7%A7%D7%91/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%AA%D7%A8%D7%AA%D7%99/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%AA%D7%A9%D7%95/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%99/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%99%D7%99%D7%9C%D7%94/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%91%D7%95%D7%A8%D7%94/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%91%D7%A0%D7%A0%D7%94/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%93%D7%A0%D7%94/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%98%D7%99%D7%99%D7%A4%D7%94/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%98%D7%99%D7%9E%D7%95%D7%A8/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%9C/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9E%D7%9C%D7%98%D7%94/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A1%D7%9E%D7%99%D7%AA%27/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A2%D7%A8%D7%91%D7%99/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A4%D7%99%D7%9F/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A6%D7%95%D7%A8/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A7%D7%95%D7%A8%D7%A1%D7%99%D7%A7%D7%94/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A7%D7%A4%D7%A8%D7%99%D7%A1%D7%99%D7%9F/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A8%D7%95%D7%A1/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%91%D7%99%D7%92%D7%93%D7%95%D7%A8/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%91%D7%99%D7%98%D7%9C/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%95%D7%93%D7%99%D7%9D/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%95%D7%94%D7%93/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%95%D7%9E%D7%A5/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%95%D7%A8%D7%94/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%95%D7%A8%D7%95%D7%AA/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%95%D7%A8%D7%98%D7%9C/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%99%D7%99%D7%9C/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%99%D7%9C%D7%95%D7%9F/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%99%D7%AA%D7%9F/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%9C%D7%99-%D7%A2%D7%93/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%9C%D7%99%D7%A4%D7%9C%D7%98/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%9C%D7%99%D7%A7%D7%99%D7%9D/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%9C%D7%9E%D7%92%D7%95%D7%A8/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%9C%D7%9E%D7%95%D7%92/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%9C%D7%A2%D7%96%D7%A8/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%9E%D7%95%D7%A0%D7%99%D7%9D/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%9E%D7%99%D7%A8%D7%99%D7%9D/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%9E%D7%A0%D7%95%D7%9F/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%A8%D7%91%D7%9C/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%A8%D7%96/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%91%D7%90%D7%A8%D7%99/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%91%D7%97%D7%9F/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%91%D7%A8%D7%95%D7%A9/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%91%D7%A8%D7%9B%D7%99%D7%94/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%91%D7%A8%D7%A7/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%91%D7%A8%D7%A7%D7%AA/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%92%D7%91%D7%95%D7%9C%D7%95%D7%AA/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%92%D7%91%D7%99%D7%9D/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%92%D7%91%D7%A2/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%92%D7%91%D7%A2%D7%95%D7%9C%D7%99%D7%9D/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%92%D7%91%D7%A2%D7%AA%D7%99/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%92%D7%91%D7%AA%D7%95%D7%9F/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%92%D7%93%D7%95%D7%AA/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%92%D7%93%D7%99%D7%93/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%92%D7%93%D7%99%D7%A9/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%92%D7%95%D7%A0%D7%9F/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%92%D7%95%D7%A8%D7%9F/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%92%D7%96%D7%99%D7%AA/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%92%D7%96%D7%A8/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%92%D7%99%D7%9C%D7%AA/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%92%D7%99%D7%A0%D7%95%D7%A1%D7%A8/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%92%D7%9C%D7%A2%D7%93/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%92%D7%A0%D7%95%D7%AA/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%92%D7%A2%D7%A9/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%92%D7%A4%D7%9F/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%92%D7%A9%D7%A8/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%92%D7%AA/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%93%D7%91%D7%95%D7%A8%D7%94/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%93%D7%95%D7%A8/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%93%D7%99%D7%A9%D7%95%D7%9F/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%93%D7%9C%D7%99%D7%94/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%93%D7%9C%D7%AA%D7%95%D7%9F/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%93%D7%9F/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%93%D7%A4%D7%A0%D7%94/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%94%D7%95%D7%93%D7%99%D7%94/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%94%D7%96%D7%95%D7%A8%D7%A2%D7%99%D7%9D/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%94%D7%A8%D7%90%D7%9C/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%94%D7%A8%D7%93%D7%95%D7%A3/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%96%D7%99%D7%A7%D7%99%D7%9D/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%96%D7%9B%D7%A8%D7%99%D7%94/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%96%D7%9E%D7%A8%D7%AA/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%97%D7%96%D7%95%D7%9F/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%97%D7%9E%22%D7%93/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%98%D7%A4%D7%97%D7%95%D7%AA/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%92%D7%95%D7%A8/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%92%D7%9C/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%93%20%D7%9E%D7%A8%D7%93%D7%9B%D7%99/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%94%D7%9C/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%95%D7%91%D7%9C/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%95%D7%A0%D7%AA%D7%9F/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%97%D7%93/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%97%D7%99%D7%A2%D7%9D/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%98%D7%91%D7%AA%D7%94/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%A0%D7%95%D7%9F/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%A2%D7%93/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%A2%D7%A8%D7%94/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%A4%D7%99%D7%AA/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%A4%D7%A2%D7%AA/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%A4%D7%AA%D7%97/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%A7%D7%95%D7%9D/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%A8%D7%93%D7%A0%D7%94/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%A8%D7%97%D7%99%D7%91/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%A9%D7%A2/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%A9%D7%A8%D7%A9/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9B%D7%91%D7%99%D7%A9%20234/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9B%D7%99%D7%A1%D7%95%D7%A4%D7%99%D7%9D/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9B%D7%99%D7%A9%D7%95%D7%A8/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9B%D7%9E%D7%94%D7%99%D7%9F/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9B%D7%A8%D7%9E%D7%9C/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9C%D7%91%D7%99%D7%90/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9C%D7%94%D7%91/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9C%D7%A4%D7%99%D7%93%D7%95%D7%AA/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9E%D7%90%D7%95%D7%A8/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9E%D7%92%D7%99%D7%93%D7%95/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9E%D7%92%D7%9C/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9E%D7%92%D7%9F/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9E%D7%92%D7%A9%D7%99%D7%9E%D7%99%D7%9D/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9E%D7%95%D7%A9%D7%91/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9E%D7%96%D7%95%D7%A8/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9E%D7%99%D7%A8%D7%95%D7%9F/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9E%D7%9B%D7%95%D7%A8%D7%94/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9E%D7%9C%D7%90%D7%94/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9E%D7%A0%D7%95%D7%97%D7%94/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9E%D7%A1%D7%93%D7%94/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9E%D7%A1%D7%9C%D7%95%D7%9C/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9E%D7%A6%D7%9C%D7%99%D7%97/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9E%D7%A6%D7%A8/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9E%D7%A8%D7%92%D7%9C%D7%99%D7%95%D7%AA/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9E%D7%A9%D7%9E%D7%A8%D7%95%D7%AA/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A0%D7%95%D7%91/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A0%D7%95%D7%95%D7%94/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A0%D7%95%D7%A2%D7%9D/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A0%D7%97%D7%9C%D7%94/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A0%D7%97%D7%A9%D7%95%D7%9C%D7%99%D7%9D/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A0%D7%97%D7%A9%D7%95%D7%9F/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A0%D7%98%D7%95%D7%A8/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A0%D7%99%D7%A8%20%D7%90%D7%9C%D7%99%D7%94%D7%95/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A0%D7%A2%D7%9E%D7%94/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A1%D7%95%D7%A4%D7%94/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A1%D7%9C%D7%A2%D7%99%D7%AA/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A1%D7%9E%D7%93%D7%A8/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A1%D7%9E%D7%A8/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A1%D7%A2%D7%93/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A1%D7%A2%D7%A8/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A2%D7%95%D7%9E%D7%A8/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A2%D7%95%D7%A4%D7%A8/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A2%D7%99%D7%93%D7%9F/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A2%D7%99%D7%9F%20%D7%A9%D7%9E%D7%A8/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A2%D7%99%D7%A0%D7%AA/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A2%D7%9C%D7%9E%D7%94/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A2%D7%9E%D7%99%D7%A2%D7%93/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A2%D7%9E%D7%99%D7%A8/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A2%D7%A0%D7%91%D7%A8/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A2%D7%A9%D7%A8%D7%AA/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A4%D7%95%D7%A8%D7%AA/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A4%D7%98%D7%99%D7%A9/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A4%D7%A8%D7%95%D7%93/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A6%D7%91%D7%A8/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A6%D7%95%D7%A4%D7%99%D7%AA/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A6%D7%95%D7%A8%D7%99%D7%90%D7%9C/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A6%D7%A8%D7%95%D7%A4%D7%94/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A7%D7%93%D7%A8%D7%95%D7%9F/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A7%D7%93%D7%A8%D7%99%D7%9D/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A7%D7%9C%D7%97%D7%99%D7%9D/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A7%D7%A9%D7%AA/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A8%D7%91%D7%93%D7%99%D7%9D/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A8%D7%91%D7%99%D7%91%D7%99%D7%9D/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A8%D7%91%D7%99%D7%93/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A8%D7%92%D7%91%D7%99%D7%9D/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A8%D7%95%D7%97%D7%9E%D7%94/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A8%D7%99%D7%97%D7%9F/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A8%D7%9E%D7%95%D7%AA/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A8%D7%A7%D7%A4%D7%AA/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A9%D7%95%D7%91%D7%94/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A9%D7%95%D7%91%D7%9C/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A9%D7%95%D7%A8%D7%A9/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A9%D7%95%D7%A8%D7%A9%D7%99%D7%9D/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A9%D7%97%D7%A8/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A9%D7%9C%D7%95%D7%95%D7%94/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A9%D7%9E%D7%99%D7%A8/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A9%D7%A0%D7%99%D7%A8/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A9%D7%A2%D7%9C%D7%91%D7%99%D7%9D/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A9%D7%A4%D7%99%D7%A8/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A9%D7%A8%D7%A9%D7%A8%D7%AA/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A9%D7%AA%D7%95%D7%9C%D7%94/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A9%D7%AA%D7%95%D7%9C%D7%99%D7%9D/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%AA%D7%93%D7%94%D7%A8/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%AA%D7%95%D7%91%D7%9C/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%AA%D7%95%D7%9E%D7%A8/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%AA%D7%99%D7%A8%D7%95%D7%A9/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%AA%D7%A7%D7%95%D7%9E%D7%94/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%AA%D7%A8%D7%95%D7%9D/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%97%D7%95%D7%A3/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%9D/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9E%D7%A4%D7%A8%D7%A5/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%92%22%D7%9D/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%95%D7%92%D7%93%D7%94/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%9B%22%D7%90/</loc></url>
@@ -2257,18 +2084,11 @@
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A9%D7%A8%D7%99%D7%95%D7%9F/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%AA%D7%90%22%D7%9C/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%AA%D7%95%D7%9C%22%D7%A8/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%91%D7%99%D7%AA%D7%A8/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%94%D7%A8/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9B%D7%91%D7%99%D7%A9%20317/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9B%D7%A0%D7%A8%D7%AA/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9E%D7%92%27%D7%93/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A0%D7%98%D7%A3/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%95%D7%92%D7%A0%D7%93%D7%94/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%99%D7%98%D7%9C%D7%99%D7%94/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%99%D7%A8%D7%90%D7%9F/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%A0%D7%93%D7%95%D7%A8%D7%94/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%A1%D7%98%D7%95%D7%A0%D7%99%D7%94/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%91%D7%91%D7%9C/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%91%D7%A0%D7%92%D7%9C%D7%93%D7%A9/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%92%D7%A8%D7%9E%D7%A0%D7%99%D7%94/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%93%D7%A0%D7%9E%D7%A8%D7%A7/</loc></url>
@@ -2285,7 +2105,6 @@
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9E%D7%90%D7%9C%D7%99/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9E%D7%93%D7%92%D7%A1%D7%A7%D7%A8/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9E%D7%93%D7%99/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9E%D7%95%D7%90%D7%91/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9E%D7%95%D7%A0%D7%A7%D7%95/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9E%D7%9C%D7%98%D7%94/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9E%D7%A6%D7%A8%D7%99%D7%9D/</loc></url>
@@ -2296,86 +2115,31 @@
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A1%D7%A8%D7%91%D7%99%D7%94/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A4%D7%95%D7%9C%D7%99%D7%9F/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A4%D7%A7%D7%99%D7%A1%D7%98%D7%9F/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A7%D7%95%D7%A0%D7%92%D7%95/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A7%D7%95%D7%A1%D7%95%D7%91%D7%95/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A7%D7%98%D7%A8/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A7%D7%9E%D7%91%D7%95%D7%93%D7%99%D7%94/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A7%D7%A4%D7%A8%D7%99%D7%A1%D7%99%D7%9F/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A8%D7%95%D7%90%D7%A0%D7%93%D7%94/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%AA%D7%90%D7%99%D7%9C%D7%A0%D7%93/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%AA%D7%99%D7%9E%D7%9F/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%9E%D7%95%D7%A0%D7%94/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%92%D7%90%D7%95%D7%9C%D7%94/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%92%D7%91%D7%A2%D7%AA%20%D7%A8%D7%9D/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%92%D7%99%D7%9C%D7%94/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9E%D7%95%D7%A6%D7%90/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9E%D7%9E%D7%99%D7%9C%D7%90/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A0%D7%99%D7%95%D7%AA/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A2%D7%98%D7%A8%D7%95%D7%AA/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A4%D7%AA/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%95%D7%A4%D7%A7%D7%99%D7%9D/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%97%D7%95%D7%95%D7%94/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%99%D7%9C%D7%AA/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%9C%D7%A2%D7%93/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%A9%D7%93%D7%95%D7%93/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%A9%D7%93%D7%95%D7%93%D7%99%D7%9D/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%A9%D7%A7%D7%9C%D7%95%D7%9F/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%93%D7%99%D7%9E%D7%95%D7%A0%D7%94/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%94%D7%A8%D7%A6%D7%9C%D7%99%D7%94/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%97%D7%93%D7%A8%D7%94/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%97%D7%99%D7%A4%D7%94/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%98%D7%91%D7%A8%D7%99%D7%94/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%98%D7%99%D7%99%D7%91%D7%94/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%98%D7%99%D7%A8%D7%94/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%91%D7%A0%D7%94/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%94%D7%95%D7%93/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9B%D7%91%D7%99%D7%A9%204/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9B%D7%A4%D7%A8%20%D7%A1%D7%91%D7%90/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9B%D7%A8%D7%9E%D7%99%D7%90%D7%9C/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9C%D7%95%D7%93/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9E%D7%9B%D7%91%D7%99%D7%9D/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A0%D7%91%D7%99%D7%A2%D7%95%D7%AA/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A0%D7%94%D7%A8%D7%99%D7%94/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A0%D7%95%D7%A3%20%D7%94%D7%92%D7%9C%D7%99%D7%9C/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A0%D7%A1%20%D7%A6%D7%99%D7%95%D7%A0%D7%94/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A0%D7%A6%D7%A8%D7%AA/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A0%D7%A9%D7%A8/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A0%D7%AA%D7%99%D7%91%D7%95%D7%AA/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A0%D7%AA%D7%A0%D7%99%D7%94/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A1%D7%97%27%D7%A0%D7%99%D7%9F/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A2%D7%9B%D7%95/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A2%D7%A4%D7%95%D7%9C%D7%94/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A2%D7%A8%D7%93/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A4%D7%AA%D7%97%20%D7%AA%D7%A7%D7%95%D7%95%D7%94/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A6%D7%A4%D7%AA/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A7%D7%9C%D7%A0%D7%A1%D7%95%D7%95%D7%94/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A8%D7%94%D7%98/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A8%D7%97%D7%95%D7%91%D7%95%D7%AA/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A8%D7%9E%D7%9C%D7%94/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A8%D7%A2%D7%A0%D7%A0%D7%94/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A9%D7%93%D7%A8%D7%95%D7%AA/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A9%D7%A4%D7%A8%D7%A2%D7%9D/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%91%D7%90%20%D7%90%D7%91%D7%9F/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%91%D7%90%20%D7%97%D7%95%D7%A9%D7%99/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%99%D7%9C%D7%9F%20%D7%9C%D7%99%D7%91%D7%95%D7%91%D7%99%D7%A5/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%9C%D7%99%20%D7%9B%D7%94%D7%9F/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%91%D7%A0%D7%99%20%D7%92%D7%A0%D7%A5/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%92%D7%93%D7%A2%D7%95%D7%9F%20%D7%A1%D7%A2%D7%A8/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%93%D7%95%D7%93%20%D7%98%D7%9C/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%98%D7%9C%D7%99%20%D7%92%D7%95%D7%98%D7%9C%D7%99%D7%91/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%90%D7%99%D7%A8%20%D7%9C%D7%95%D7%99/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%90%D7%99%D7%A8%20%D7%9C%D7%A4%D7%99%D7%93/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%92%D7%90%D7%9C%20%D7%90%D7%9C%D7%95%D7%9F/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%95%D7%90%D7%91%20%D7%A7%D7%99%D7%A9/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%95%D7%91%D7%9C%20%D7%A0%D7%90%D7%9E%D7%9F/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%A2%D7%9C%20%D7%93%D7%99%D7%99%D7%9F/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%A2%D7%A7%D7%91%20%D7%9B%D7%94%D7%9F/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%A2%D7%A7%D7%91%20%D7%9C%D7%99%D7%A6%D7%9E%D7%9F/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%A6%D7%97%D7%A7%20%D7%99%D7%A6%D7%97%D7%A7%D7%99/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%A6%D7%97%D7%A7%20%D7%9C%D7%95%D7%99/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%A6%D7%97%D7%A7%20%D7%A8%D7%91%D7%99%D7%9F/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%A9%D7%A8%D7%90%D7%9C%20%D7%97%D7%A1%D7%95%D7%9F/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%A9%D7%A8%D7%90%D7%9C%20%D7%9B%22%D7%A5/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9E%D7%99%D7%A8%D7%99%20%D7%A8%D7%92%D7%91/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9E%D7%A9%D7%94%20%D7%A7%D7%95%D7%9C/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A2%D7%95%D7%96%D7%99%20%D7%93%D7%99%D7%99%D7%9F/</loc></url>
@@ -2385,15 +2149,8 @@
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A8%D7%95%D7%A0%D7%99%20%D7%91%D7%A8-%D7%90%D7%95%D7%9F/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A8%D7%9F%20%D7%9B%D7%94%D7%9F/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A9%D7%9E%D7%A2%D7%95%D7%9F%20%D7%A4%D7%A8%D7%A1/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A0%D7%A4%D7%98%D7%95%D7%9F/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%93%D7%A0%D7%95%D7%91%D7%94/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9C%D7%99/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A0%D7%95%D7%A8/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A4%D7%9C%D7%99%D7%98/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%A9%D7%93%D7%95%D7%93%20%D7%99%D7%9D/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%91%D7%A0%D7%99%20%D7%91%D7%A8%D7%A7/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9E%D7%A8%D7%A9%D7%94/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%AA%D7%A8%D7%A6%D7%94/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/12%20%D7%91%D7%9C%D7%99%D7%9C%D7%94/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/15%20%D7%93%D7%A7%D7%95%D7%AA/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/BMW%20%D7%A9%D7%97%D7%95%D7%A8%D7%94/</loc></url>
@@ -2432,7 +2189,6 @@
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%91%D7%A7%20%D7%A9%D7%9C%20%D7%94%D7%97%D7%99%D7%99%D7%9D/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%91%D7%A8%D7%94%27%D7%9E%D7%9C%D7%94%20%D7%9E%D7%9C%D7%9E%D7%93/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%91%D7%A8%D7%94%D7%9D%20%D7%95%D7%A9%D7%A8%D7%94/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%91%D7%A8%D7%94%D7%9D%20%D7%98%D7%9C/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%91%D7%A8%D7%9D%20%D7%90%D7%91%D7%A8%D7%9D/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%91%D7%A9%D7%9C%D7%95%D7%9D/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%92%D7%93%D7%94/</loc></url>
@@ -2629,7 +2385,6 @@
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%95%D7%A8%D7%94%20%D7%A9%D7%9C%20%D7%97%D7%95%D7%A4%D7%94/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%95%D7%A8%D7%95%20%D7%A9%D7%9C%20%D7%99%D7%95%D7%9D%20%D7%97%D7%93%D7%A9/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%95%D7%A8%D7%95%D7%9F/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%95%D7%A8%D7%95%D7%AA/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%95%D7%A8%D7%95%D7%AA%20%D7%95%D7%A6%D7%9C%D7%9C%D7%99%D7%9D/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%95%D7%A8%D7%97%D7%94%20%D7%91%D7%9E%D7%93%D7%91%D7%A8/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%95%D7%A8%D7%97%D7%99%20%D7%9C%D7%99%D7%9C%D7%94/</loc></url>
@@ -2867,7 +2622,6 @@
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%99%D7%AA%D7%9A%20%D7%94%D7%9C%D7%99%D7%9C%D7%94/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%99%D7%AA%D7%9A%20%D7%94%D7%9C%D7%9B%D7%AA%D7%99/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%99%D7%AA%D7%9A%20%D7%95%D7%91%D7%9C%D7%A2%D7%93%D7%99%D7%99%D7%9A/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%99%D7%AA%D7%9F/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%9A%20%D7%9C%D7%99%D7%91%D7%99%20%D7%99%D7%95%D7%A6%D7%90/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%9C/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%9C%20%D7%90%D7%9C%D7%95%D7%94%D7%99%20%D7%A9%D7%9E%D7%99%D7%99%D7%9D/</loc></url>
@@ -2968,7 +2722,6 @@
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%9C%D7%99%D7%A2%D7%96%D7%A8%20%D7%95%D7%94%D7%92%D7%96%D7%A8/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%9C%D7%99%D7%A4%D7%9C%D7%98/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%9C%D7%99%D7%A7%20%D7%94%D7%A9%D7%97%D7%A3%20%D7%A9%D7%9C%D7%99/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%9C%D7%99%D7%A9%D7%91%D7%A2/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%9C%D7%99%D7%A9%D7%91%D7%A2%20%D7%9E%D7%94%20%D7%A0%D7%97%D7%9E%D7%93%D7%AA/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%9C%D7%9B%D7%A1%D7%90%D7%94/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%9C%D7%9E%D7%A0%D7%94/</loc></url>
@@ -3722,7 +3475,6 @@
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%92%D7%95%D7%9C%D7%9D/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%92%D7%95%D7%A8%D7%91%D7%99%D7%A5%27/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%92%D7%95%D7%A8%D7%A2%20%D7%95%D7%96%D7%95%D7%A8%D7%97/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%92%D7%96%D7%95%D7%96/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%92%D7%96%D7%A8/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%92%D7%99%D7%91%D7%95%D7%A8/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%92%D7%99%D7%91%D7%95%D7%A8%20%D7%A9%D7%9C%20%D7%9E%D7%9C%D7%97%D7%9E%D7%94/</loc></url>
@@ -3758,7 +3510,6 @@
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%92%D7%A9%D7%9E%D7%99%20%D7%97%D7%A9%D7%95%D7%9F/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%92%D7%A9%D7%A8/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%93%D7%91/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%93%D7%91%D7%95%D7%A8%D7%94/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%93%D7%91%D7%A7%D7%94/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%93%D7%91%D7%A7%D7%94%20%D7%91%D7%A0%D7%95%D7%AA%20%D7%94%D7%9B%D7%A4%D7%A8/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%93%D7%91%D7%A7%D7%94%20%D7%94%D7%9C%D7%9C/</loc></url>
@@ -3813,10 +3564,8 @@
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%93%D7%9D/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%93%D7%9D%20%D7%90%D7%97%D7%93/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%93%D7%9D%20%D7%94%D7%92%D7%A4%D7%9F/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%93%D7%9D%20%D7%97%D7%9D/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%93%D7%9E%D7%A2%D7%95%D7%AA%20%D7%95%D7%97%D7%99%D7%95%D7%9B%D7%99%D7%9D/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%93%D7%9E%D7%A2%D7%95%D7%AA%20%D7%A9%D7%9C%20%D7%9E%D7%9C%D7%90%D7%9B%D7%99%D7%9D/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%93%D7%A0%D7%94/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%93%D7%A0%D7%94%20%D7%90%D7%99%D7%A0%D7%98%D7%A8%D7%A0%D7%A9%D7%99%D7%95%D7%A0%D7%9C/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%93%D7%A0%D7%94%20%D7%91%D7%A8%D7%92%D7%A8/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%93%D7%A0%D7%94%20%D7%9C%D7%A4%D7%99%D7%93%D7%95%D7%AA/</loc></url>
@@ -4419,7 +4168,6 @@
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%97%D7%9C%D7%A7%20%D7%9E%D7%92%D7%95%D7%A4%D7%99/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%97%D7%9E%D7%93%D7%94/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%97%D7%9E%D7%93%D7%AA%20%D7%96%D7%94%D7%91/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%97%D7%9E%D7%94/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%97%D7%9E%D7%95%D7%98%D7%9C/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%97%D7%9E%D7%95%D7%A5%20%D7%97%D7%9E%D7%95%D7%A5/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%97%D7%9E%D7%95%D7%A8%D7%99%D7%A7%D7%95/</loc></url>
@@ -4507,7 +4255,6 @@
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%95%D7%A0%D7%94%20%D7%A2%D7%99%D7%99%D7%A4%D7%94/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%95%D7%A0%D7%99%D7%9D%20%D7%A9%D7%9C%20%D7%A9%D7%9C%D7%95%D7%9D/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%95%D7%A0%D7%AA%20%D7%94%D7%90%D7%94%D7%91%D7%94/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%95%D7%A0%D7%AA%D7%9F/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%95%D7%A0%D7%AA%D7%9F%20%D7%A1%D7%A2%20%D7%94%D7%91%D7%99%D7%AA%D7%94/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%95%D7%A1%D7%99%20%D7%99%D7%95%D7%A1%D7%99/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%95%D7%A1%D7%A3/</loc></url>
@@ -5318,7 +5065,6 @@
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A2%D7%96%D7%95%D7%A8%20%D7%9C%D7%99/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A2%D7%99%D7%99%D7%A3%20%D7%9E%D7%94%D7%97%D7%99%D7%99%D7%9D/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A2%D7%99%D7%99%D7%A4%D7%99%D7%9D%20%D7%90%D7%A0%D7%97%D7%A0%D7%95/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A2%D7%99%D7%9F%20%D7%92%D7%93%D7%99/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A2%D7%99%D7%9F%20%D7%94%D7%A0%D7%9E%D7%A8/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A2%D7%99%D7%A0%D7%99%D7%99%D7%9A/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A2%D7%99%D7%A0%D7%99%D7%99%D7%9A%20%D7%94%D7%97%D7%95%D7%9E%D7%95%D7%AA/</loc></url>
@@ -5349,7 +5095,6 @@
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A2%D7%9C%D7%94%20%D7%91%D7%A8%D7%95%D7%97%20%D7%A1%D7%AA%D7%99%D7%95/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A2%D7%9C%D7%94%20%D7%A7%D7%A8%D7%97/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A2%D7%9C%D7%99%20%D7%96%D7%94%D7%91/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A2%D7%9C%D7%9E%D7%94/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A2%D7%9D%20%D7%90%D7%97%D7%93/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A2%D7%9D%20%D7%90%D7%97%D7%93%20%D7%A9%D7%99%D7%A8%20%D7%90%D7%97%D7%93%202023/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A2%D7%9D%20%D7%94%D7%A1%D7%A4%D7%A8/</loc></url>
@@ -5449,8 +5194,6 @@
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A6%D7%90%D7%99%20%D7%9E%D7%9E%D7%A0%D7%99/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A6%D7%91%D7%99%20%D7%94%D7%A0%D7%99%D7%A0%D7%92%27%D7%94/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A6%D7%91%D7%A2%20%D7%90%D7%97%D7%A8/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A6%D7%91%D7%A2%D7%95%D7%A0%D7%99%20%D7%A9%D7%97%D7%95%D7%A8/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A6%D7%91%D7%A8/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A6%D7%95%20%D7%A7%D7%A8%D7%99%D7%90%D7%94/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A6%D7%95%D7%9D/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A6%D7%95%D7%A2%D7%A7%D7%AA%20%D7%90%D7%94%D7%91%D7%94/</loc></url>
@@ -5649,7 +5392,6 @@
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A9%D7%99%D7%99%D7%A8%D7%94%20%D7%A9%D7%9C%20%D7%A0%D7%9E%D7%9C%D7%99%D7%9D/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A9%D7%99%D7%99%D7%A8%D7%AA%20%D7%92%D7%9E%D7%9C%D7%99%D7%9D/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A9%D7%99%D7%9B%D7%95%D7%A8%D7%94%20%D7%90%D7%AA%20%D7%95%D7%A0%D7%95%D7%A2%D7%96%D7%AA/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A9%D7%99%D7%9C%D7%94/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A9%D7%99%D7%9D%20%D7%A9%D7%9C%D7%95%D7%9D/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A9%D7%99%D7%9E%D7%A8%D7%99%20%D7%A2%D7%9C%20%D7%A2%D7%A6%D7%9E%D7%9A/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A9%D7%99%D7%A2%D7%95%D7%A8%20%D7%91%D7%90%D7%94%D7%91%D7%94/</loc></url>
@@ -5838,7 +5580,6 @@
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%AA%D7%9C%D7%9B%D7%99%20%D7%90%D7%9C%D7%99%D7%95%20%D7%90%D7%99%D7%A9%D7%94/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%AA%D7%9E%D7%99%D7%93%20%D7%90%D7%99%D7%AA%D7%99/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%AA%D7%9E%D7%99%D7%93%20%D7%9C%D7%A9%D7%95%D7%91/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%AA%D7%9E%D7%A8%D7%94/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%AA%D7%9E%D7%A9%D7%99%D7%9A%20%D7%9C%D7%A6%D7%A2%D7%95%D7%93/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%AA%D7%9F/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%AA%D7%9F%20%D7%9C%D7%99%20%D7%99%D7%93/</loc></url>
@@ -5872,45 +5613,10 @@
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%AA%D7%A8%D7%A6%D7%94/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%AA%D7%A9%D7%95%D7%A7%D7%94%20%D7%A8%D7%A2%D7%94/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%AA%D7%AA%D7%A2%D7%95%D7%A8%D7%A8/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%91%D7%95%D7%A7%D7%94/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%91%D7%99%D7%98%D7%9C/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%A8%D7%91%D7%9C/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%91%D7%A0%D7%99%20%D7%91%D7%A8%D7%A7/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%91%D7%A8%D7%A7/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%92%D7%91%D7%A2/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%92%D7%93%D7%99%D7%A9/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%92%D7%96%D7%99%D7%AA/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%93%D7%91%D7%95%D7%A8%D7%94/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%93%D7%91%D7%A9%D7%AA/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%94%D7%96%D7%95%D7%A8%D7%A2%D7%99%D7%9D/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%98%D7%99%D7%99%D7%91%D7%94/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%92%D7%95%D7%A8/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%94%D7%95%D7%93/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%A4%D7%A2%D7%AA/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%A8%D7%93%D7%A0%D7%94/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%99%D7%A8%D7%95%D7%97%D7%9D/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9B%D7%91%D7%99%D7%A9%20375/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9B%D7%A8%D7%9E%D7%99%D7%90%D7%9C/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9E%D7%92%D7%99%D7%93%D7%95/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9E%D7%9C%D7%90%D7%94/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9E%D7%A2%D7%95%D7%96/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A2%D7%A4%D7%95%D7%9C%D7%94/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A8%D7%9B%D7%A1%D7%99%D7%9D/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A9%D7%92%D7%95%D7%A8/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A9%D7%99%D7%A8%20%D7%94%D7%A2%D7%9E%D7%A7/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A9%D7%A2%D7%9C%D7%91%D7%99%D7%9D/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%AA%D7%9E%D7%A8%D7%94/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%90%D7%9C%D7%92%27%D7%99%D7%A8/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%91%D7%95%D7%A1%D7%98%D7%95%D7%9F/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%91%D7%95%D7%A8/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%92%27%D7%95%D7%91%D7%94/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%92%27%D7%99%D7%9C%D7%99/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%93%D7%A7%D7%A8/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%94%D7%9C%D7%A0%D7%94/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%94%D7%A8%D7%A8/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%95%D7%99%D7%A7%D7%98%D7%95%D7%A8%D7%99%D7%94/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%97%D7%A8%D7%91%D7%99%D7%9F/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%9C%D7%99%D7%A0%D7%A7%D7%95%D7%9C%D7%9F/</loc></url>
   <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A4%D7%99%D7%A8/</loc></url>
-  <url><loc>https://tashbetz.gtmascode.dev/milon/e/%D7%A8%D7%90%D7%9C%D7%99/</loc></url>
 </urlset>

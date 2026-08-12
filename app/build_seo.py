@@ -50,10 +50,10 @@ MIL={k.replace('\\"','\"'):v.replace('\\"','\"') for k,v in MIL.items()}
 cult['military']=sorted(set(cult.get('military',[]))|set(MIL))
 
 CATS={'song':('שירים','שיר'),'artist':('זמרים ולהקות','זמר/להקה'),
-      'politician':('פוליטיקאים','פוליטיקאי/ת'),'place':('ערים בישראל','עיר'),
+      'politician':('פוליטיקאים','פוליטיקאי/ת'),
       'neighborhood':('שכונות','שכונה'),'park':('פארקים ושמורות טבע','פארק/שמורה'),
       'museum':('מוזיאונים','מוזיאון'),'nation':('מדינות','מדינה'),
-      'world_city':('ערי בירה','עיר בירה'),'athlete':('ספורטאים','ספורטאי/ת'),
+      'world_city':('ערים ובירות בעולם','עיר בעולם'),'athlete':('ספורטאים','ספורטאי/ת'),
       'bible':('דמויות מהתנ"ך','דמות מקראית'),'author':('סופרים ומשוררים','סופר/משורר'),
       'actor':('שחקנים','שחקן/ית'),'kibbutz':('קיבוצים ומושבים','קיבוץ/מושב'),
       'city_il':('ערים ויישובים בישראל','יישוב'),'mountain':('הרים ורכסים','הר'),
@@ -252,6 +252,23 @@ for cat,t in sorted(page_set):
           f'איך כותבים {t} בתשבץ? {single} ב-{len(n)} אותיות, כתיב רשת: {n}. משמעויות, שכיחות ורפרנסים.'),
          body, ld)
     urls.append(f'/milon/e/{urllib.parse.quote(t,safe="")}/')
+
+# ---------- ORPHAN CLEANUP: entity pages whose entity no longer exists ----------
+import shutil
+live={urllib.parse.quote(t,safe="") for _,t in page_set}
+edir=f'{OUT}/e'
+removed=0
+if os.path.isdir(edir):
+    for d in os.listdir(edir):
+        if d not in live:
+            shutil.rmtree(os.path.join(edir,d),ignore_errors=True); removed+=1
+# category-length dirs that no longer get built
+live_cats={u.strip('/').split('/')[-1] for u in urls if u.startswith('/milon/') and '/e/' not in u}
+for d in os.listdir(OUT):
+    full=os.path.join(OUT,d)
+    if os.path.isdir(full) and re.match(r'^[a-z_]+-\d+$',d) and d not in live_cats:
+        shutil.rmtree(full,ignore_errors=True); removed+=1
+print(f'orphan pages removed: {removed}')
 
 # ---------- search hub ----------
 json.dump(ent_index,open(f'{OUT}/entities.json','w'),ensure_ascii=False)
