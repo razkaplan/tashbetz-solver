@@ -11,21 +11,23 @@ Read this first each run. It is the handoff between days.
 | Accurate fulfilment (yield) | 55% (unchanged, not re-run today) | ~67% |
 | Best single puzzle | 2026-05-29: 95% / 71% / 68% ✓ all targets | |
 | Hardest puzzle | 2026-06-05: 100% / 43% / 43% | coverage stuck |
-| **Candidate recall@N (new, offline, mechanical only)** | **3.6% (1/28)**, avg 11.6 candidates/clue, on 2026-05-29 | not yet a target — diagnostic |
+| **Candidate recall@N (offline, mechanical only)** | **3.6% (1/28)**, avg **14.0** candidates/clue (was 11.6), on 2026-05-29 | not yet a target — diagnostic |
 
 Baseline for comparison: v2 = 41% raw with untraceable errors.
-Last lever added: **mechanical candidate generation** (`solver/candidates.py`) —
-anagram/hidden/reversal/pattern candidates per clue, character-level fodder windows
-(not just whole-word), feeding the existing proof gate. Precision/coverage/yield were
-NOT re-measured this run (that requires a full LLM solve session, out of scope for one
-lever) — only the generator's own offline recall was, honestly, and it is low. See log.
-Last finding: coverage is bounded by CANDIDATE GENERATION, not verification. Same
-conclusion the cryptic-SOTA paper reached independently. Today's finding refines this:
-even a mechanically thorough (character-level, all 3 base mechanisms) generator recovers
-only 1/28 answers on this setter's hardest puzzle, because most of its wordplay is not
-literal anagram/hidden/reversal — it leans on substitution and homograph devices
-(consistent with PLAYBOOK.md). The generator is real infrastructure for the proof gate
-to use, but by itself it is a small piece of the coverage problem, not the whole fix.
+Last lever added: **substitution-augmented candidate generation** (`solver/candidates.py`,
+2026-08-12) — the anagram/hidden/reversal window search now also runs against
+substitution-variant fodder (one clue word swapped for its mined `substitutions.json`
+equivalent), the explicit next step queued after the 2026-08-06 candidate-generation
+lever. Precision/coverage/yield were NOT re-measured this run (same scope limit as
+2026-08-06: requires a full LLM solve session) — only the generator's own offline
+recall was, honestly, and it did NOT move. See log for the full measurement and audit.
+Last finding: the substitution mechanism is genuinely active (63% of all candidates on
+this puzzle are substitution-sourced, confirmed by direct inspection, not a silent
+no-op) and legitimately triples anagram-mechanism candidates, but it recovered zero
+NEW gold answers on this puzzle — same single hit as the 2026-08-06 baseline. Coverage
+is still bounded by candidate generation, but the missing device is not "anagram/hidden/
+reversal over a bigger fodder pool" — it's the multi-step charade/homograph/definition
+composition PLAYBOOK.md already documents, which no mechanical fodder-expansion reaches.
 
 ## The policy that governs everything
 A blank beats a wrong answer. Wrong letters corrupt crossings and poison later passes.
@@ -52,14 +54,24 @@ propagated), `blank`. Score with `python3 evals/run_eval.py <file>`.
 
 ## Lever queue (highest expected value first)
 
-1. **Candidate generation** — the measured bottleneck. `solver/candidates.py` (2026-08-06)
-   does the mechanical half (anagram/hidden/reversal/pattern, character-level fodder
-   windows) but measures only 3.6% recall alone — NOT sufficient by itself. Remaining
-   work, roughly in order: (a) wire it into an actual solve pass so an LLM proof-gates
-   the generated list instead of one guess — not done yet, this was pure offline
-   generator + recall measurement; (b) add substitution- and homograph-aware generation
-   (`substitutions.py`, `homographs.py` as additional mechanisms) — the setter leans on
-   these, not literal anagram/hidden/reversal, per the 3.6% result and PLAYBOOK.md.
+1. **Candidate generation** — the measured bottleneck. `solver/candidates.py` (2026-08-06,
+   extended 2026-08-12) does the mechanical half (anagram/hidden/reversal/pattern,
+   character-level fodder windows, now also substitution-variant fodder) but measures
+   only 3.6% recall alone — NOT sufficient by itself, and the 2026-08-12 substitution
+   extension did not move that number (see log — a real, measured negative result, not
+   an unfinished attempt). Remaining work: (a) wire it into an actual solve pass so an
+   LLM proof-gates the generated list instead of one guess — STILL not done, this
+   remains pure offline generator + recall measurement two runs running; this is now
+   the single highest-priority item in this queue entry. (b) homograph-aware generation
+   is NOT the right next step for this module: Hebrew homographs share identical
+   letters by construction (שרה is always ש-ר-ה regardless of vocalization), so they
+   cannot expand a letter-level anagram/hidden/reversal fodder pool — homograph
+   information only helps DEFINITION-side disambiguation, which is item 2 below, not
+   this generator. (c) charade-style segment substitution (splitting the enum and
+   substituting each segment, as opposed to substituting one clue WORD before an
+   anagram/hidden/reversal search) was already tried as a standalone generator
+   (2026-08-08 LEVER 3, `solver/charade.py`) and measured negative (2.8% hit rate) —
+   do not re-attempt without a much larger substitution table.
 2. **Definition-span detection** — a cryptic clue's definition sits at one END. Classify
    which end, then solve the wordplay from the remainder. Standard in the literature,
    never tried here.
@@ -288,3 +300,63 @@ Measure each lever on dev (fixed enums) with run_eval.py before/after; one lever
   pages every run. Merged place->city_il; world_city relabeled "ערים ובירות בעולם" (holds
   non-capitals too). RUN validate_culture.py --apply AFTER EVERY HARVEST, then eyeball a
   random sample per category - keyword blocklists are not enough, positive rules are.
+- 2026-08-12: **substitution-augmented candidate generation** (`solver/candidates.py`),
+  continuing lever 1 from the queue (the explicit "remaining work (b)" from 2026-08-06).
+  Bootstrap first: `./bootstrap.sh --dev-only` — 14across bot-check hit HARDER than
+  2026-08-06 (only 32/52 puzzles recovered even after the existing retry-with-backoff,
+  vs 52/52 previously; ~35 min wall clock, mostly spent sleeping in backoff, not CPU).
+  Rebuilt `solver/lex/substitutions.json` from what bootstrap could fetch this run has
+  only 334 head words (even smaller than 2026-08-06's already-smaller 528) — reverted to
+  the committed 2,220-head-word version via `git checkout`, per the existing bootstrap.sh
+  warning, so this measurement is apples-to-apples with the 2026-08-06 baseline (same
+  substitution table, same dev puzzle, same recall harness).
+
+  Extended `anagram_candidates` / `hidden_candidates` / `reversal_candidates` to also
+  search substitution-variant fodder: for each clue word with a recorded
+  `substitutions.json` equivalent (top 3 by frequency), swap it in and re-run the same
+  character-level window search. Tagged `<mechanism>+sub` with a `substitution`
+  provenance note (`fragment~equivalent`) so a downstream proof can cite it via
+  `prove.py`'s `means()`. This targets SOLVE_PROTOCOL v14's named failure mode
+  ("one word of the surface does nothing" — usually a substitution) with a fodder
+  source the literal clue text structurally cannot supply.
+
+  Selftest (`python3 solver/candidates.py selftest`, all 6 checks pass — one new,
+  synthetic, monkeypatched substitution table, same held-out-data discipline as before)
+  passes, including the new check that literal-text search misses a synthetic fodder
+  and the substitution-augmented search finds it.
+
+  MEASURED (executed, not estimated) on the SAME 28 transcribed clues of 2026-05-29
+  used for the 2026-08-06 baseline (re-transcribed this run — `data/` is gitignored by
+  design, so the transcription doesn't persist between runs; every enum re-validated
+  against gold answer letter counts, 0 mismatches, same discipline):
+  `python3 solver/candidates.py recall data/dataset/clues.jsonl eval` —
+  **recall@N UNCHANGED at 1/28 = 3.6%**, avg candidates/clue rose from 11.6 to **14.0**.
+  Direct inspection (not just the recall summary) confirms the mechanism is genuinely
+  active, not a silent no-op: of 1,390 total candidates generated across the 28 clues,
+  **879 (63%) are substitution-sourced** (`anagram+sub`: 685, `hidden+sub`: 112,
+  `reversal+sub`: 82 — the `anagram` mechanism alone nearly doubled from the literal-text
+  431 base). None of the additional candidates happened to be a NEW correct answer on
+  this puzzle. AUDIT: `lexicon.held_out_answers()` still excludes this puzzle's gold
+  answers (unchanged from prior runs); no forbidden reads; no implausible jump (flat is
+  not suspicious, it is the honest result).
+
+  HONEST READ: this is a real, tested, working extension — verified to fire substantially,
+  not filler — but it does not move recall on this one dev puzzle. Read together with the
+  existing PLAYBOOK.md finding and the 2026-08-08 charade-enumeration negative result
+  (LEVER 3, 2.8% hit rate), the pattern is now fairly clear: tripling the fodder pool
+  available to anagram/hidden/reversal — whether by character-level windows (2026-08-06),
+  or by substitution-swapped words (today), or by segment-substitution charades
+  (2026-08-08) — keeps hitting the same wall, because this setter's dominant device is
+  not "anagram/hidden/reversal of SOME transformation of the clue text." It is multi-step
+  composition (charade + definition-pun + homograph collapse together, per PLAYBOOK.md's
+  worked examples) that a single mechanical pass, however the fodder is sourced, cannot
+  produce as a byproduct of window search. N=28 is one puzzle and statistically thin
+  (PLAN_V2.md's own caution: ~1.8 points per clue) — this result should be read as
+  suggestive, not conclusive, but it is the second independent negative result pointing
+  the same direction, which raises confidence in the diagnosis.
+  NEXT: candidate generation's queue item (a) — wiring the existing generator into a
+  live solve pass so an LLM proof-gates the list — is now the clear highest-priority
+  remaining item; the mechanical-fodder-expansion sub-branch (item 1) looks exhausted
+  without a fundamentally different device (e.g. actual charade/definition-span
+  reasoning, queue item 2, which no mechanical generator variant attempted so far
+  addresses).
