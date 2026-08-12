@@ -4,6 +4,56 @@ One entry per run: what was found, one-line summary, and an honest judgement of 
 it transfers to a Hebrew cryptic solver with an 8k-clue corpus. Default skepticism: most
 crossword-AI work targets non-cryptic (American-style) puzzles and does not transfer.
 
+## 2026-08-12
+
+**"Proving that Cryptic Crossword Clue Answers are Correct"** (arXiv 2407.08824,
+also on OpenReview as "Generating Code to Verify Cryptic Crossword Reasoning").
+https://arxiv.org/abs/2407.08824 , https://openreview.net/forum?id=2nC7zy7adD
+An earlier (Jul 2024), narrower paper than the ICML-2025 one already covered here
+(2506.04824) — it is specifically about the executable-proof-verifier half of that
+later pipeline, evaluated in isolation. Its DSL: `is_synonym`, `is_abbreviation`,
+`action_type` (an Action enum: ANAGRAM, REMOVE_FIRST/REMOVE_LAST, INITIALS,
+GOES_INSIDE/GOES_OUTSIDE, REVERSE, SUBSTRING, HOMOPHONE), `is_anagram`,
+`is_homophone`. Headline finding: even with LLM-generated + code-verified proofs,
+the framework only reaches a **38-42% true positive rate distinguishing correct
+answers from plausible-but-wrong ones** — "a long way from being a reliable
+oracle." Failure modes it names: unused clue words, logically disconnected proof
+chains, conditional execution that bypasses an assertion. It reports no wordplay
+device as harder to formalize than another — the weakness is systemic (an LLM can
+write a proof that runs cleanly for the wrong answer), not device-specific.
+**Transfer: two things, one already covered, one a genuine caution.**
+(1) Two DSL primitives here are missing from `solver/prove.py`'s existing set
+(`is_word, is_anagram, is_reversal, is_container, is_hidden, means, concat,
+has_length, word_order`): an INITIALS/acrostic device (first-letter-of-each-word)
+and an explicit deletion device (REMOVE_FIRST/REMOVE_LAST). Neither is
+implemented here yet — flagged for a future lever, not built today, to keep
+today's lever singular (see below). (2) The 38-42% true-positive number is a
+direct, sobering data point for this project's own PROOF GATE claim in
+SOLVE_PROTOCOL.md ("an assertion either runs or it does not... it cannot be
+talked into agreeing") — this paper's own measurement shows a verifier that
+*runs cleanly* still passes a majority of wrong answers when the LLM writes
+both the candidate and its own proof. This project's re-crack rounds
+(2026-08-09 log) independently found the same failure mode by hand — "definition-
+only proofs matched gold's shared prefix on crossings, then diverged" — and
+tightened the commit rule in response. This paper's number puts a rough size
+on how much residual risk that discipline is compensating for: worth restating
+as a reason NOT to treat prove.py's PROVED as ground truth without a human/second
+pass, which the commit-rule tightenings already do in practice.
+
+**Cryptonite SOTA / definition-span / Hebrew morphology re-checked.** No material
+update since the 2026-08-06 entries here (2506.04824, 2412.09012, RFTokenizer/
+Hebrew-Resources) — same conclusions stand: candidate-generation-before-verify is
+already adopted; definition-span detection is structurally validated in the
+literature but has no Hebrew-specific tooling to port; morphological segmentation
+is a plausible but unbuilt future lever for fodder-window trimming.
+**Transfer: none new, re-confirms standing skepticism.**
+
+Today's lever (see DAILY.md log) is a direct, scoped continuation of the
+2026-08-06 candidates.py work rather than a new paper transfer: extending the
+existing anagram/hidden/reversal window search to also run against substitution-
+mapped clue-word variants (using the project's OWN mined substitutions.json, not
+external literature) — the concrete "remaining work" item that entry queued.
+
 ## 2026-08-06
 
 **"A Reasoning-Based Approach to Cryptic Crossword Clue Solving"** (arXiv 2506.04824,
