@@ -68,3 +68,45 @@ implemented — candidate generation is upstream of that and had to come first).
 where "candidate" means "any dictionary word of the right length crossing existing
 letters" — there is no wordplay-decoding step, which is the entire difficulty of this
 project's puzzles. Confirms DAILY.md's standing skepticism.
+
+## 2026-08-13
+
+**"Proving that Cryptic Crossword Clue Answers are Correct"** (arXiv 2407.08824,
+Andrews & Witteveen). https://arxiv.org/abs/2407.08824
+Uses "an existing cryptic wordplay proving framework (operating on Python proofs
+created by an LLM)" to distinguish correct answers from almost-correct ones by whether
+the wordplay "works" as formal proof, rather than by crossing-letter confirmation.
+**Transfer: already adopted, and this is the citation-lineage source, not new
+information.** This is the same authors' earlier work that the already-cited ICML 2025
+paper (2506.04824, logged 2026-08-06) builds on; `solver/prove.py`'s proof-gate design
+already implements exactly this idea. No new lever here — useful only as confirmation
+that the project's core verification design matches the field's current best approach,
+not a source of a new technique to try.
+
+**"Do Pretrained Contextual Language Models Distinguish between Hebrew Homograph
+Analyses?"** (arXiv 2405.07099). https://arxiv.org/abs/2405.07099
+Tests whether Hebrew contextual embeddings can disambiguate homographs (same letter
+sequence, different unvocalized readings — exactly `solver/homographs.py`'s domain).
+Finding: contextual PLMs are comparatively strong at disambiguating *segmentation and
+morphosyntax* but measurably weaker at *pure word-sense disambiguation* — precisely the
+task homograph-driven cryptic clues need (picking "שרה=Sarah" vs "שרה=she sings" vs
+"שרה=a female minister" from context). Models also degrade on 4-way ambiguities vs 2/3-way.
+**Transfer: negative-leaning, and worth recording plainly.** This had been an open
+question for a natural next step — replace `homographs.py`'s hand-curated ROLE_NOUNS
+dict and corpus-derived sense lists with a general embedding-based sense classifier that
+picks the intended reading from clue context. This paper's finding argues against that:
+the exact capability such a classifier would need (word-sense disambiguation, not
+segmentation) is the field's documented weak point, and it's weak *because* this is a
+genuinely hard task — which is also *why* this setter can build entire clues on exactly
+this ambiguity. A learned WSD layer is not a promising near-term lever; the hand-curated,
+corpus-grounded approach already in `homographs.py` (evidence-backed senses rather than
+a model's guess) is likely to keep outperforming a general-purpose PLM here without a
+much larger investment than this project's corpus size would justify. No change made;
+recorded as a reason NOT to build a homograph-sense classifier, not as a lever to build.
+
+**Definition-span detection, general check** (re-confirmed the 2412.09012 finding
+already logged 2026-08-06; no new paper found beyond it). The standard method — scan for
+an indicator word, everything on the indicator's side (plus the indicator) is wordplay,
+the rest is the definition, no overlap — matches exactly what `solver/defspan.py` (today's
+lever, see DAILY.md) implements. No new technical content beyond the earlier entry;
+recorded because it directly grounds today's implementation choice.

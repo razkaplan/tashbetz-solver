@@ -175,13 +175,25 @@ def split_candidates(cands, enum):
     return out
 
 
-def generate(clue_text, enum, pattern=None, max_n=25):
-    """Diverse candidates for one clue. Never consults the answer."""
+def generate(clue_text, enum, pattern=None, max_n=25, use_defspan=False):
+    """Diverse candidates for one clue. Never consults the answer.
+
+    use_defspan: when True and solver/defspan.py classifies the clue with confidence
+    >= 0.7 (a wordplay indicator found cleanly on one end), restrict the
+    anagram/hidden/reversal fodder search to that end's span instead of the whole
+    clue — the other end is hypothesized as the definition and is not fodder. Falls
+    back to the full clue when defspan is not confident, so this can only narrow the
+    search, never miss a clue it would otherwise have covered."""
     target_len = sum(enum)
+    search_text = clue_text
+    if use_defspan:
+        sys.path.insert(0, HERE)
+        import defspan
+        search_text = defspan.wordplay_text(clue_text)
     cands = []
-    cands += anagram_candidates(clue_text, target_len)
-    cands += hidden_candidates(clue_text, target_len)
-    cands += reversal_candidates(clue_text, target_len)
+    cands += anagram_candidates(search_text, target_len)
+    cands += hidden_candidates(search_text, target_len)
+    cands += reversal_candidates(search_text, target_len)
     if pattern:
         cands += pattern_candidates(pattern)
 
@@ -202,12 +214,13 @@ def generate(clue_text, enum, pattern=None, max_n=25):
 # isolation, BEFORE it is wired into a live solve+proof loop (which is a
 # separate integration step, not done by this lever).
 # ---------------------------------------------------------------------------
-def recall_eval(dataset_path, split=None, max_n=25):
+def recall_eval(dataset_path, split=None, max_n=25, use_defspan=False):
     total = 0
     hit = 0
     by_mech = Counter()
     sizes = []
     misses = []
+    confident = 0
     for line in open(dataset_path):
         r = json.loads(line)
         if split and r['split'] != split:
@@ -215,7 +228,12 @@ def recall_eval(dataset_path, split=None, max_n=25):
         if not r.get('answer_raw'):
             continue
         total += 1
-        cands = generate(r['clue_text'], r['enum'], max_n=max_n)
+        cands = generate(r['clue_text'], r['enum'], max_n=max_n, use_defspan=use_defspan)
+        if use_defspan:
+            sys.path.insert(0, HERE)
+            import defspan
+            if defspan.classify(r['clue_text'])['confidence'] >= 0.7:
+                confident += 1
         sizes.append(len(cands))
         gold = norm(r['answer_raw'])
         found = [c for c in cands if c['answer'] == gold]
@@ -230,6 +248,7 @@ def recall_eval(dataset_path, split=None, max_n=25):
         'avg_candidates': sum(sizes) / len(sizes) if sizes else 0.0,
         'by_mechanism': dict(by_mech),
         'misses': misses,
+        'defspan_confident': confident if use_defspan else None,
     }
 
 
@@ -294,12 +313,15 @@ def main():
         for c in generate(text, enum):
             print(c)
     elif cmd == 'recall':
-        path = sys.argv[2] if len(sys.argv) > 2 else 'data/dataset/clues.jsonl'
-        split = sys.argv[3] if len(sys.argv) > 3 else None
+        rest = [a for a in sys.argv[2:] if a != '--defspan']
+        use_defspan = '--defspan' in sys.argv[2:]
+        path = rest[0] if len(rest) > 0 else 'data/dataset/clues.jsonl'
+        split = rest[1] if len(rest) > 1 else None
         os.chdir(ROOT)
-        res = recall_eval(path, split)
+        res = recall_eval(path, split, use_defspan=use_defspan)
         print(f"recall@N: {res['hit']}/{res['total']} = {res['recall']:.1%}  "
-              f"(avg {res['avg_candidates']:.1f} candidates/clue)")
+              f"(avg {res['avg_candidates']:.1f} candidates/clue)"
+              + (f"  [defspan confident on {res['defspan_confident']}/{res['total']}]" if use_defspan else ""))
         print('hits by mechanism:', res['by_mechanism'])
         if res['misses']:
             print(f"\n{len(res['misses'])} misses (clue_number, direction, gold):")

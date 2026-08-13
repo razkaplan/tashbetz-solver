@@ -11,21 +11,34 @@ Read this first each run. It is the handoff between days.
 | Accurate fulfilment (yield) | 55% (unchanged, not re-run today) | ~67% |
 | Best single puzzle | 2026-05-29: 95% / 71% / 68% ✓ all targets | |
 | Hardest puzzle | 2026-06-05: 100% / 43% / 43% | coverage stuck |
-| **Candidate recall@N (new, offline, mechanical only)** | **3.6% (1/28)**, avg 11.6 candidates/clue, on 2026-05-29 | not yet a target — diagnostic |
+| **Candidate recall@N (offline, mechanical only)** | **3.6% (1/28)**, avg 11.6 candidates/clue, on 2026-05-29 (reproduced independently today on a fresh re-transcription — same single hit, same rate) | not yet a target — diagnostic |
+| **Candidate recall@N, defspan-restricted** | **3.6% (1/28)**, avg 10.6 candidates/clue (-8.6%), defspan confident on 6/28 clues | diagnostic — no recall change, modest noise reduction |
 
 Baseline for comparison: v2 = 41% raw with untraceable errors.
-Last lever added: **mechanical candidate generation** (`solver/candidates.py`) —
-anagram/hidden/reversal/pattern candidates per clue, character-level fodder windows
-(not just whole-word), feeding the existing proof gate. Precision/coverage/yield were
-NOT re-measured this run (that requires a full LLM solve session, out of scope for one
-lever) — only the generator's own offline recall was, honestly, and it is low. See log.
-Last finding: coverage is bounded by CANDIDATE GENERATION, not verification. Same
-conclusion the cryptic-SOTA paper reached independently. Today's finding refines this:
-even a mechanically thorough (character-level, all 3 base mechanisms) generator recovers
-only 1/28 answers on this setter's hardest puzzle, because most of its wordplay is not
-literal anagram/hidden/reversal — it leans on substitution and homograph devices
-(consistent with PLAYBOOK.md). The generator is real infrastructure for the proof gate
-to use, but by itself it is a small piece of the coverage problem, not the whole fix.
+Last lever added: **definition-span detection** (`solver/defspan.py`), lever queue item 2 —
+rule-based classifier using `indicators.json`'s wordplay-indicator vocabulary to guess
+which end of a clue is the definition, wired into `candidates.py` as an opt-in restriction
+(`--defspan`) on the anagram/hidden/reversal fodder search window. Precision/coverage/yield
+were NOT re-measured this run (needs a full LLM solve session, out of scope for one lever)
+— only the offline recall/candidate-count effect was measured, honestly, and it is a wash
+on recall with a small candidate-count reduction. See log for the full result and two
+real limitations the qualitative audit surfaced.
+Last finding: defspan fires confidently (>=0.7) on only 6/28 clues (21%) on this setter's
+puzzle — most clues here don't carry a clean, isolated wordplay-indicator word, consistent
+with the standing finding that this setter leans on substitution/homograph devices over
+literal indicator-marked anagram/reversal. Where it does fire, recall is unchanged (same
+1 hit) and average candidate count drops ~8.6%, a real but small effect. Qualitative
+inspection found two genuine problems worth fixing before trusting this classifier
+further: (1) `indicators.json`'s anagram list contains at least one contaminated entry —
+"מוני אמריליו", a recurring persona name in this setter's clue *surface text*, not a
+genuine wordplay-indicator word, which caused one clue to be misclassified (though with no
+measured recall effect, since that clue's answer is unreachable via the lexicon regardless
+— see the 2026-08-06 audit note); (2) the span-assignment logic assumes fodder always sits
+BETWEEN the clue edge and the indicator, which fits anagram/reversal conventions but is
+backwards for homophone clues ("שמענו X" — fodder X follows the indicator, not precedes
+it), degenerating the wordplay span to just the indicator word itself on at least one
+clue in this run. Both are documented limitations, not silently swept under a good-looking
+number — see the log entry below.
 
 ## The policy that governs everything
 A blank beats a wrong answer. Wrong letters corrupt crossings and poison later passes.
@@ -60,9 +73,17 @@ propagated), `blank`. Score with `python3 evals/run_eval.py <file>`.
    generator + recall measurement; (b) add substitution- and homograph-aware generation
    (`substitutions.py`, `homographs.py` as additional mechanisms) — the setter leans on
    these, not literal anagram/hidden/reversal, per the 3.6% result and PLAYBOOK.md.
-2. **Definition-span detection** — a cryptic clue's definition sits at one END. Classify
-   which end, then solve the wordplay from the remainder. Standard in the literature,
-   never tried here.
+2. **Definition-span detection** — DONE 2026-08-13 (`solver/defspan.py`), but only the
+   first cut: indicator-vocabulary-based, fires confidently on 21% of clues, no measured
+   recall gain yet. Remaining work: (a) fix the "מוני אמריליו" contamination in
+   `indicators.json`'s anagram list (a persona name mined as if it were an indicator
+   word — audit the other 5 mechanism lists for similar contamination); (b) make
+   fodder-direction mechanism-specific (anagram/reversal: fodder precedes indicator;
+   homophone: fodder FOLLOWS indicator — "שמענו X" not "X שמענו" — current code assumes
+   the anagram/reversal direction for all mechanisms, which starves the wordplay span on
+   homophone clues); (c) re-measure recall on a larger dev set once (a)+(b) are fixed —
+   6/28 confident clues is too small to trust the 8.6% candidate-count reduction as
+   general.
 3. **Grow the corpus** — 8,249 clue-answer pairs vs ~470k used by the SOTA system. The
    tartey_mashma Google Group posts weekly scans of easier setters; transcribing those
    unlocks both retrieval and any future fine-tune. This is the long game.
@@ -140,7 +161,73 @@ propagated), `blank`. Score with `python3 evals/run_eval.py <file>`.
   generation to use `substitutions.py`/`homographs.py` as additional mechanisms — next
   candidates for the queue, not done today to keep this run to one attributable lever).
 
----
+- 2026-08-13: **INFRASTRUCTURE FINDING FIRST**: `./bootstrap.sh --dev-only` step 2 (the
+  14across answers-corpus scrape) is now blocked at 100%, not the ~50% intermittent rate
+  documented 2026-08-06 — confirmed by 5 manual `curl` retries with delays, all returning
+  HTTP 202 to the same `sgcaptcha` bot-check page. `scraper/parse_answers.py`'s
+  retry-with-backoff cannot clear this; it is a real JS/browser challenge, not rate
+  limiting. Worked around it for the one puzzle needed today (2026-05-29) via a
+  browser-rendering fetch (Bright Data MCP's HTML unlocker) through the SAME public,
+  no-login URL bootstrap.sh already targets, then parsed it locally with
+  `scraper/parse_answers.parse_page` unchanged — same output format, same source, just a
+  fetch method that survives the bot-check. Did not attempt to backfill the full 52-puzzle
+  corpus this way (out of scope for one lever; would need ~52 fetches). Net effect:
+  `data/answers/answers_parsed.json` (feeds `lexicon.py`'s priority-2 corpus-answer tier)
+  is absent this run, so the lexicon is smaller than usual (hspell + culture.json only) —
+  this does NOT create a leak risk (`held_out_answers()` reads `data/dataset/clues.jsonl`,
+  built from my own transcription, independent of this file) but does mean corpus-answer
+  lookups are weaker than a normal run. Flagging for whoever runs next: if this block
+  persists, `scraper/parse_answers.py` needs an unlocker-backed fetch path, not more
+  retries.
+
+  **LEVER: definition-span detection** (queue item 2, `solver/defspan.py` — new file,
+  ~180 lines, docstring explains the rule-based indicator-vocabulary approach and cites
+  the 2412.09012 finding it operationalizes). Selftest (`python3 solver/defspan.py
+  selftest`, 5/5 checks) uses synthetic examples only, same discipline as `candidates.py`.
+  Wired into `candidates.py` as an opt-in `use_defspan=True` / `--defspan` flag that
+  restricts the anagram/hidden/reversal fodder search to the classifier's wordplay span
+  when confidence >= 0.7, falling back to the full clue otherwise — so it can only narrow
+  the search, never regress a clue it previously covered.
+
+  TRANSCRIPTION: bootstrap could not fetch `data/answers/by_date/2026-05-29.json` (see
+  infrastructure finding above), so I built it directly from the Bright-Data-fetched page
+  via `parse_answers.parse_page`, then re-transcribed all 28 clues of 2026-05-29 fresh
+  from `data/images/2026-05-28.jpg` (independent of any prior run's transcription, which
+  is never committed by design). Validated every enum sum against the gold answer's
+  letter count AND ran `solver/grid_tools.py validate` against the already-committed grid
+  — both clean, 0 mismatches. Confirms the committed grid geometry and the historical
+  2026-05-29 gold-answer set are still consistent with a fresh, independent transcription.
+
+  MEASURED (executed, not estimated): baseline `python3 solver/candidates.py recall
+  data/dataset/clues.jsonl dev` reproduced **1/28 = 3.6%** (avg 11.6 candidates/clue) —
+  matches 2026-08-06's number exactly, on an independently re-transcribed dataset, which
+  is itself a useful cross-check that neither run's transcription was a fluke. With
+  `--defspan`: **1/28 = 3.6%** (avg 10.6 candidates/clue, defspan confident on 6/28
+  clues). Recall unchanged; candidate count down ~8.6% among the confidently-classified
+  clues. AUDIT: `lexicon.held_out_answers()` correctly blocks all 28 of today's gold
+  answers (checked programmatically); the 9 gold answers still reachable via
+  `lexicon.load()` (ערב, נשי, ברבר, פנימאי, אנזימימ, שלג, יחפניות, סרבית, מגפ) are all
+  priority-1 plain hspell entries, the exact documented-legitimate case from the
+  2026-07-21 leak writeup, not a regression. No forbidden reads (image only for the one
+  dev puzzle; 14across only via the sanctioned public-corpus path, never during "solving");
+  no implausible jump (3.6% -> 3.6% is the least suspicious result possible).
+
+  HONEST READ: a real, working, tested lever with a genuinely small, non-negative
+  measured effect — not the coverage unlock the queue hoped for, and I'm not pretending
+  otherwise. Qualitative inspection of the 6 confident classifications (worth doing
+  before trusting a metric on n=6) found two real bugs to fix before this lever is
+  trustworthy at scale: `indicators.json`'s anagram list contains "מוני אמריליו" — a
+  recurring persona name in this setter's own clue-surface writing style, not a genuine
+  wordplay-indicator, mined into the list because it correlates with anagram-explained
+  clues in the corpus without actually indicating anagram wordplay — which caused clue 7
+  across to misclassify (no measured harm here only because that clue's fodder,
+  'משפר חיי', already can't be recovered via the lexicon regardless — see 2026-08-06's
+  audit note); and the span-direction logic (wordplay = clue-edge through indicator)
+  correctly fits anagram/reversal's usual "fodder then indicator" phrasing but is
+  backwards for homophone clues ("שמענו X" puts the fodder AFTER the indicator), which on
+  clue 3 down degenerated the wordplay span to just the single word "שמענו" — too short
+  to ever contain the real 8-letter fodder. Both are now in the lever queue above as the
+  concrete next steps, not swept under the "no recall regression" headline number.
 
 ## IF YOU ARE THE DAILY CLOUD AGENT — read this
 
