@@ -353,3 +353,13 @@ Measure each lever on dev (fixed enums) with run_eval.py before/after; one lever
   pages every run. Merged place->city_il; world_city relabeled "ערים ובירות בעולם" (holds
   non-capitals too). RUN validate_culture.py --apply AFTER EVERY HARVEST, then eyeball a
   random sample per category - keyword blocklists are not enough, positive rules are.
+- PUZZLE 14/08 (blind, same day): raw 3 committed -> 2 correct (67%); shipped only the 2
+  verified (אורגנו double-def, נוחו עדן anagram) + 2 correct suggestions. Raw archived at
+  evals/runs/live/2026-08-14_raw.json. NEW RULE from the miss: MORPHOLOGICAL AGREEMENT -
+  הודיעני (imperative) proved cleanly but gold was תודיעני because the definition said
+  "כשהיא תספר לי". Wordplay can execute perfectly on the WRONG FORM. Added to PLAYBOOK.
+  Coverage was poor (3/28 raw): defs.py/retrieve_defs returned nothing useful on this
+  puzzle; anagram/hidden window scans were the only productive generators.
+  Grid discovery: THE SETTER REUSES ONE FIXED TEMPLATE (11x15, 180-symmetric); today's was
+  its mirror. Matching enum sums to a known template validated the whole transcription -
+  use this for every new puzzle (app/puzzles/sample3107/puzzle.json is the reference grid).
