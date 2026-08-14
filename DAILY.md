@@ -360,3 +360,19 @@ Measure each lever on dev (fixed enums) with run_eval.py before/after; one lever
   without a fundamentally different device (e.g. actual charade/definition-span
   reasoning, queue item 2, which no mechanical generator variant attempted so far
   addresses).
+- PUZZLE 14/08 (blind, same day): raw 3 committed -> 2 correct (67%); shipped only the 2
+  verified (אורגנו double-def, נוחו עדן anagram) + 2 correct suggestions. Raw archived at
+  evals/runs/live/2026-08-14_raw.json. NEW RULE from the miss: MORPHOLOGICAL AGREEMENT -
+  הודיעני (imperative) proved cleanly but gold was תודיעני because the definition said
+  "כשהיא תספר לי". Wordplay can execute perfectly on the WRONG FORM. Added to PLAYBOOK.
+  Coverage was poor (3/28 raw): defs.py/retrieve_defs returned nothing useful on this
+  puzzle; anagram/hidden window scans were the only productive generators.
+  Grid discovery: THE SETTER REUSES ONE FIXED TEMPLATE (11x15, 180-symmetric); today's was
+  its mirror. Matching enum sums to a known template validated the whole transcription -
+  use this for every new puzzle (app/puzzles/sample3107/puzzle.json is the reference grid).
+- 14/08 ROUND 2: 8 committed, 8 CORRECT (100%). The new MORPHOLOGICAL AGREEMENT rule
+  directly fixed round 1's miss (תודיעני, explicitly reasoned as נוכחת not ציווי).
+  Shipped total 10/28 committed, all key-verified. Round-2 raw archived
+  (evals/runs/live/2026-08-14_round2_raw.json). LESSON REINFORCED: a second pass with the
+  first pass's verified crossings is worth far more than a longer first pass - round 1 got
+  3 raw in ~50min, round 2 got 8 clean in similar time using 4 crossing letters.

@@ -711,3 +711,13 @@ ynet, higayonbarie, FXP. Items below were MISSING from this playbook:
 11. **Service-letter misreading (מש"ה וכל"ב)**: a clue word starting with ל/ב/כ/מ/ש/ו
     may be preposition+word or one whole word (לשון = ל+שון; לסוטות = ל+סוטות).
     Try both parses before synonym lookup.
+
+
+**MORPHOLOGICAL AGREEMENT (learned from a 2026-08-14 miss).** The definition side fixes
+the answer's person/gender/tense, and the wordplay must produce THAT form. Live miss:
+"כשהיא תספר לי אל תכחישי - השיבי" (7) - the engine proved הודי(imperative)+עני = הודיעני
+and committed at 0.85; gold was תודיעני (תודיע = "she will inform", matching "כשהיא...").
+The wordplay executed perfectly; the FORM was wrong. RULE: before committing, restate the
+definition side as a sentence and check the candidate can grammatically replace it
+(person, gender, number, tense). A candidate that only differs from a valid answer in its
+first letter is a red flag for exactly this error.
