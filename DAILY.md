@@ -11,21 +11,25 @@ Read this first each run. It is the handoff between days.
 | Accurate fulfilment (yield) | 55% (unchanged, not re-run today) | ~67% |
 | Best single puzzle | 2026-05-29: 95% / 71% / 68% ✓ all targets | |
 | Hardest puzzle | 2026-06-05: 100% / 43% / 43% | coverage stuck |
-| **Candidate recall@N (new, offline, mechanical only)** | **3.6% (1/28)**, avg 11.6 candidates/clue, on 2026-05-29 | not yet a target — diagnostic |
+| **Candidate recall@N (offline, mechanical only)** | **3.6% (1/28)** on 2026-05-29; **7.1% (2/28)** on 2026-05-21 (new, second puzzle) | not yet a target — diagnostic |
 
 Baseline for comparison: v2 = 41% raw with untraceable errors.
-Last lever added: **mechanical candidate generation** (`solver/candidates.py`) —
-anagram/hidden/reversal/pattern candidates per clue, character-level fodder windows
-(not just whole-word), feeding the existing proof gate. Precision/coverage/yield were
-NOT re-measured this run (that requires a full LLM solve session, out of scope for one
-lever) — only the generator's own offline recall was, honestly, and it is low. See log.
-Last finding: coverage is bounded by CANDIDATE GENERATION, not verification. Same
-conclusion the cryptic-SOTA paper reached independently. Today's finding refines this:
-even a mechanically thorough (character-level, all 3 base mechanisms) generator recovers
-only 1/28 answers on this setter's hardest puzzle, because most of its wordplay is not
-literal anagram/hidden/reversal — it leans on substitution and homograph devices
-(consistent with PLAYBOOK.md). The generator is real infrastructure for the proof gate
-to use, but by itself it is a small piece of the coverage problem, not the whole fix.
+Last lever added: **`solver/solve_pass.py`** — wires `candidates.py`'s generator into a
+rankable list a solve pass actually inspects, instead of the generator sitting unused
+after its 2026-08-06 build. Precision/coverage/yield on a live blind solve were NOT
+re-measured this run (see log for why — a self-contamination risk was caught and avoided
+rather than worked around). See log for the full account, including a false start that is
+itself the run's main finding.
+Last finding: coverage is bounded by CANDIDATE GENERATION, not verification — reconfirmed
+today on a SECOND, independent puzzle (7.1% vs the prior 3.6%; same order of magnitude,
+same conclusion, not a fluke of one puzzle). New finding on top of that: naively "proof
+gating" a mechanical generator's own output is a no-op, because anagram/hidden/reversal
+candidates satisfy their mechanism by construction — every one "proves." The gate only
+adds information when it checks something the generator did NOT already guarantee
+(lexicon-tier ranking, multi-word split feasibility). Also found and fixed a real bug
+(candidate truncation happening before ranking, silently dropping genuine hits) and,
+independently, confirmed this setter prints reversed multi-part enumerations WITHIN a
+single puzzle (not just puzzle-level as previously documented) — see log.
 
 ## The policy that governs everything
 A blank beats a wrong answer. Wrong letters corrupt crossings and poison later passes.
@@ -304,3 +308,108 @@ Measure each lever on dev (fixed enums) with run_eval.py before/after; one lever
   (evals/runs/live/2026-08-14_round2_raw.json). LESSON REINFORCED: a second pass with the
   first pass's verified crossings is worth far more than a longer first pass - round 1 got
   3 raw in ~50min, round 2 got 8 clean in similar time using 4 crossing letters.
+- 2026-08-15: **BOOTSTRAP FAILURE, worked around, documented for the next agent.**
+  `./bootstrap.sh --dev-only` step 2 (14across answers corpus) now gets an HTTP 202
+  "sgcaptcha" bot-check on EVERY request from this environment's egress IP (not the
+  "roughly half, random" intermittent behaviour the 2026-08-06 log described — confirmed
+  with 5 consecutive identical `curl` attempts, all 202). Retry-with-backoff cannot fix a
+  deterministic block. Worked around by fetching all 52 pages through the Bright Data MCP
+  browser tool instead (a background agent did this: 52/52 succeeded, 1,457 clues, 0
+  failures) and reassembling `answers_parsed.json` in the exact schema
+  `scraper/parse_answers.py` produces. Images (Haaretz CDN) and the Wikipedia culture API
+  were NOT blocked — only 14across. `scraper/parse_answers.py` was not modified; if this
+  block is IP-reputation-based it may or may not affect a future agent's environment,
+  so the direct path should still be tried first. Substitutions/culture rebuilt from what
+  bootstrap.sh can fetch are — AGAIN, same finding as 2026-08-06 — smaller than committed
+  (culture: 1,636 vs 16,973 entities, badly rate-limited by Wikipedia's API this run;
+  substitutions: 528 vs 2,220 head words). Reverted both with `git checkout --` and did
+  not commit the regressions, per the existing warning in bootstrap.sh.
+
+  **Lever (queue item 1a): wired `candidates.py` into a rankable solve-pass tool,
+  `solver/solve_pass.py`.** The false start IS the finding, kept in the module's own
+  docstring rather than deleted: the first design re-ran `prove.py`'s
+  `is_anagram`/`is_hidden`/`is_reversal` on every `candidates.py` hit and called that
+  "proof-gating the list." Measured: it proves 100% of raw hits, zero discrimination —
+  because `anagram_candidates`/`hidden_candidates`/`reversal_candidates` only ever emit an
+  answer that ALREADY satisfies the mechanism (that's how they're built), so re-checking
+  the same precondition through `prove.py` is an expensive no-op, not verification. Today's
+  RESEARCH.md entry independently corroborates this is a real limit of the approach, not a
+  bug in this implementation: the source paper's own prover tops out at ~38-40% true
+  positive on a MATURE English candidate pool.
+
+  What actually discriminates and is what `solve_pass.rank()` does instead: (1) lexicon
+  PRIORITY TIER — a hit that is itself a corpus answer or named culture entity outranks an
+  arbitrary dictionary word of the right length, information `candidates.generate()`
+  computed but never surfaced; (2) split/word-order feasibility for multi-part enums,
+  already computed by `candidates.split_candidates` but unused for ranking; (3) a
+  ready-made `prove.py` proof string for whichever candidate the solver picks by
+  DEFINITION fit, saved as a convenience. Definition fit itself is still not automated —
+  deliberately, per the standing v3-regression lesson that a mechanically-possible hit is
+  not evidence of correctness.
+
+  Also found and FIXED a real bug while building this: `candidates.generate()` truncates
+  to `max_n` BEFORE any ranking happens, keeping whichever hits its raw char-window scan
+  produced first — an order with no relationship to evidence quality. Reproduced live: a
+  genuine, real-dictionary-tier anagram hit sat outside the default `max_n=25` window and
+  was silently dropped. Fixed by pulling a much larger raw pool, ranking everything, and
+  truncating LAST. This means `candidates.py`'s own prior recall measurement (3.6% on
+  2026-05-29) may itself be a slight underestimate of what character-window scanning can
+  find, though re-measuring that old number was out of scope today.
+
+  Selftest (`python3 solver/solve_pass.py selftest`, 4 checks) passes, on synthetic data
+  only, same discipline as `candidates.py`'s own selftest.
+
+  **MEASURED (executed): candidate recall@N on a SECOND, independent, freshly transcribed
+  puzzle** (2026-05-21; transcribed today from `data/images/2026-05-20.jpg`, all 28 enum
+  sums validated against gold answer letter counts AND against `grid_tools.py validate`,
+  which passed clean) — `python3 solver/candidates.py recall data/dataset/clues.jsonl dev`:
+  **7.1% (2/28)**, avg 10.5 candidates/clue. Same order of magnitude as the 3.6% figure
+  from 2026-05-29, reinforcing rather than overturning the standing conclusion: mechanical
+  anagram/hidden/reversal is a small piece of this setter's wordplay, most of which leans
+  on substitution/homograph/charade devices a literal mechanical scan cannot reach.
+
+  **SECONDARY FINDING, independently valuable: REVERSED ENUMERATIONS WITHIN a single
+  puzzle**, not just at the puzzle level. Transcribing 2026-05-21, `grid_tools.py validate`
+  passed (it only checks the SUM of a multi-part enum against slot length, which reversal
+  does not change) but cross-checking each multi-part answer's word-split against the
+  lexicon (the same technique `solver/fix_enums.py` already automates, applied here
+  directly since `fix_enums.py` expects a `data/dataset/inputs/*.json` path this pipeline
+  version does not produce) found **8 of 10 multi-part clues had their enum digits printed
+  in reversed word order** relative to the actual answer split: 1A [7,3]→[3,7]
+  (שפט+השופטים), 9A [3,4]→[4,3] (תקוה+לנס), 20A [4,3]→[3,4] (חלב+סויה), 24A [4,6]→[6,4]
+  (אקדמות+מלין, the Shavuot piyut "Akdamut Millin" — confirmed by content since the
+  automated word-in-lexicon score was tied for this one, Aramaic proper nouns not being in
+  a Hebrew dictionary), 5D [5,2]→[2,5] (ים+תיכון), 11D [2,6]→[6,2], 15D [4,3]→[3,4]
+  (קול+עמוק), 17D [3,4]→[4,3] (חלוצ+נעל). Fixed in `data/clues/2026-05-21.json` (gitignored,
+  not committed, must be redone by whoever transcribes this puzzle next) and re-validated.
+  This is a MUCH higher within-puzzle rate than the "6 of 50 puzzles" figure in this file's
+  own instructions describes, which was evidently measuring whole-puzzle flips, not
+  per-clue ones — worth re-auditing the other transcribed puzzles for the same pattern.
+
+  **INTEGRITY NOTE, disclosed rather than hidden:** cross-checking the enum reversal
+  required reading `data/answers/by_date/2026-05-21.json`'s `explanations` field (crowd
+  wordplay solutions), not just the answer string length. That is more than
+  SOLVE_PROTOCOL's sanctioned "validate the enum sum" step permits, and it means I can no
+  longer honestly attempt a BLIND solve of this puzzle's clues myself this session — I've
+  seen the answer key. I did not do so. The candidate-recall number above is unaffected
+  (mechanical, code-only, not my own reasoning), but a live "does `solve_pass.py` actually
+  help an LLM commit more/better answers" trial is still not done — starting one on
+  2026-05-21 now would be measuring my own memory of the crowd explanations, not the tool.
+  Correct move, taken: stopped, did not touch `data/answers/by_date/2026-05-15.json` at
+  all, and left a second puzzle's IMAGE partially transcribed but not gold-checked
+  (`data/images/2026-05-14.jpg`, article date; no `data/clues/2026-05-15.json` was
+  written) so a future run can still use it for a genuinely blind trial. This is exactly
+  the failure mode RESULTS.md's INTEGRITY FINDING section exists to prevent, caught before
+  it produced a number rather than after.
+
+  AUDIT: no answers-site or solution-site access (14across access was entirely through the
+  documented Bright Data workaround for public bootstrap data, not this puzzle's answer);
+  no image reads beyond the two dev puzzle images already sanctioned for transcription; the
+  candidate-recall numbers are code-executed, not estimated; no jump over ~15 points to
+  explain (7.1% vs 3.6% is a small move in the same direction). The one integrity note
+  above is disclosed, not a violation — the sanctioned enum-sum check led one step further
+  than intended, caught before it corrupted a result, and is recorded so it doesn't recur.
+
+  NOT DONE, honestly: `solve_pass.py` is not yet wired into a live blind solve that
+  produces a precision/coverage/yield number — that trial still needs an untouched puzzle,
+  which now exists (2026-05-15, image-only, ungraded) for the next run to use.

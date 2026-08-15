@@ -69,6 +69,46 @@ where "candidate" means "any dictionary word of the right length crossing existi
 letters" — there is no wordplay-decoding step, which is the entire difficulty of this
 project's puzzles. Confirms DAILY.md's standing skepticism.
 
+## 2026-08-15
+
+**"Proving that Cryptic Crossword Clue Answers are Correct"** (arXiv 2407.08824). The
+direct precursor to the ICML 2025 paper already credited in this log (2506.04824) — same
+proving-framework lineage `solver/prove.py` was adapted from. Read it specifically for two
+things not previously checked here: (1) how it formalizes wordplay into Python (an LLM,
+Gemini, generates `is_synonym()`/`is_abbreviation()`/`is_anagram()` assertions from an
+informal wordplay gloss — structurally identical to what `prove.py`'s DSL already does);
+(2) its own honest accuracy ceiling on distinguishing correct answers from close-but-wrong
+ones: **~38-40% true-positive rate, ~55% draws, ~5-6% false negatives** on 100 test clues,
+with the authors stating outright the system "is a long way from being a reliable oracle
+of answer correctness." **Transfer: confirms a limitation this project independently hit
+today.** Building `solve_pass.py` (this run's lever), the first design re-ran `is_anagram`/
+`is_hidden`/`is_reversal` on `candidates.py`'s own output and found it proved 100% of raw
+hits — because those generators only ever emit answers that already satisfy the mechanism
+by construction, so "proving" them is a tautology, not verification. The English-cryptic
+paper's own 38-40% ceiling (on a MATURE candidate pool from FastText-embedding retrieval,
+not a from-scratch mechanical generator) is independent confirmation that execution-based
+proof gates are a real but bounded tool: they catch wordplay that outright fails to
+execute, not wordplay that executes but is coincidental. Neither this project's `prove.py`
+nor the source paper's prover is "an oracle" — both need a human/LLM definition-fit
+judgment layered on top, which is exactly the division of labour `solve_pass.py` ended up
+encoding after the false start (see DAILY.md log).
+
+**Candidate ranking / definition-span retrieval, re-checked**: the same paper's candidate
+generator extracts "the span in the generated definition" and ranks crossword wordlists by
+FastText cosine similarity to it, filtered to the right letter pattern. Structurally the
+same idea already logged here 2026-08-06 (arXiv 2412.09012) and judged "structurally yes,
+technically no" for transfer (no Hebrew embedding space tuned for this genre, corpus too
+thin to train one). Re-confirmed, not new information — but now doubly attested across two
+independent English-cryptic systems, which raises this project's own priority on lexicon-
+tier ranking (tried today, see DAILY.md: corpus/culture-tier hits outrank plain dictionary
+hits) as a cheap partial substitute for embedding similarity that this corpus CAN support.
+
+**General sweep** (cryptic candidate generation / diverse hypothesis breadth 2025-2026,
+Hebrew morphological tooling): no further new transferable results beyond what the
+2026-08-06 entries already covered. The mdda/cryptic-wordplay dataset-building tools
+(github.com/mdda/cryptic-wordplay) turned up again in search results — English-clue
+dataset tooling, not directly reusable for Hebrew, no action taken.
+
 ## 2026-08-16
 
 Before searching, read the full run history first: 9 prior daily runs (PRs #1, #2, #6-#11
