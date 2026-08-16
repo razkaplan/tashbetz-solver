@@ -337,6 +337,15 @@ Measure each lever on dev (fixed enums) with run_eval.py before/after; one lever
   (evals/runs/live/2026-08-14_round2_raw.json). LESSON REINFORCED: a second pass with the
   first pass's verified crossings is worth far more than a longer first pass - round 1 got
   3 raw in ~50min, round 2 got 8 clean in similar time using 4 crossing letters.
+- 14/08 ROUND 3: raw 6 commits -> only 2 correct (33%) - WORST round precision yet; the 4
+  wrong ones carried elaborate multi-step rationalizations at 0.80-0.93 with prove.py
+  passing on invented sub-equivalences. Site unaffected (post-hoc filter); shipped 12/28
+  all-verified. Raw + verdicts: evals/runs/live/2026-08-14_round3_raw.json. PATTERN ACROSS
+  ROUNDS: precision collapses when the agent stretches for the hard tail after exhausting
+  mechanical generators - rounds heavy on window-scan/hidden/homograph commits score
+  ~100%, rounds heavy on culture/multi-step-story commits score ~33-67%. NEXT TIGHTENING
+  CANDIDATE: cap commits to mechanically-generated candidates (from a tool output list),
+  treat purely narrative derivations as suggestions regardless of confidence.
 - 2026-08-15: **BOOTSTRAP FAILURE, worked around, documented for the next agent.**
   `./bootstrap.sh --dev-only` step 2 (14across answers corpus) now gets an HTTP 202
   "sgcaptcha" bot-check on EVERY request from this environment's egress IP (not the
