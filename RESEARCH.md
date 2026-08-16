@@ -68,3 +68,64 @@ implemented — candidate generation is upstream of that and had to come first).
 where "candidate" means "any dictionary word of the right length crossing existing
 letters" — there is no wordplay-decoding step, which is the entire difficulty of this
 project's puzzles. Confirms DAILY.md's standing skepticism.
+
+## 2026-08-16
+
+Before searching, read the full run history first: 9 prior daily runs (PRs #1, #2, #6-#11
+plus RESULTS/DAILY's own logs) already implemented and measured mechanical candidate
+generation (anagram/hidden/reversal/pattern, then substitution- and homograph-augmented
+variants) and definition-span detection twice each, independently, on three different dev
+puzzles (2026-05-29, 2026-05-21, and one earlier). Every measurement landed in the same
+3.6-7.1% recall@N band regardless of which mechanism was added. That is a saturated
+result, not a promising one — today's research pass is calibrated against it rather than
+re-discovering it.
+
+**"Are LLMs Good Cryptic Crossword Solvers?"** (arXiv 2403.12094). Benchmarks LLaMA2,
+Mistral, and ChatGPT directly on cryptic clues; reports ChatGPT at ~9.5% raw accuracy vs.
+~99% for expert humans on the same clue set — the largest reported human/LLM gap found in
+this literature so far. **Transfer: corroborating, not actionable.** It measures the same
+"a bare LLM cannot decode wordplay from a single pass" ceiling this project hit and moved
+away from years ago (RESULTS.md v2-v6): no new architecture, prompting technique, or
+candidate/verification split is proposed here beyond what 2506.04824 and 2407.08824
+(already logged 2026-08-06/08-15) already contribute. Filed as confirmation the general
+finding replicates across model families, not as a new lever.
+
+**Hebrew LLM Benchmark Suite** (huggingface.co/blog/leaderboard-hebrew, and the
+"Hebrew LLM Benchmark Suite" overview, both early-2026). A new open leaderboard for
+general Hebrew-language LLM capability, with morphology/orthography-aware metrics.
+**Transfer: none for this project.** It benchmarks whole-model Hebrew fluency (QA,
+summarization, generation) — nothing about cryptic wordplay, definition-span structure,
+or candidate enumeration. Checked because it is new and Hebrew-specific, not because it
+looked promising; it doesn't change anything here.
+
+**Root-pattern morphology re-check** — no update beyond the 2026-08-06 entry (arXiv
+2603.15773, on Arabic not Hebrew, still the closest available finding: tokenizer/morpheme
+alignment is neither necessary nor sufficient for correct morphological generation). No
+new Hebrew-specific morphological segmenter surfaced this search that PLAYBOOK.md's
+hand-built prefix/suffix stripping doesn't already approximate.
+
+**Berkeley Crossword Solver / belief-propagation family, re-checked for queue item 4**
+(global constraint optimization). Confirmed again: BCS's own reported gain (57% -> 82%
+exact-puzzle accuracy at the NYT tournament) comes from combining a strong *candidate*
+list (fine-tuned BERT QA over ~6M clue-answer pairs) with belief propagation across grid
+constraints — the propagation step is described everywhere as a *re-ranker*, not a
+generator; it cannot manufacture a correct candidate that never entered the list. Also
+found the WebCrow French solver (arXiv 2311.15626), a non-English data point, but it is
+the same non-cryptic genre (clue = a definition to embed/retrieve against, not wordplay to
+decode) as the English CSP literature already logged 2026-08-06. **Transfer: reconfirms
+queue item 4 is correctly sequenced after, not before, candidate quality — and today's
+9-run history of flat 3.6-7.1% recall is exactly the "candidate list not good enough yet"
+condition that makes running belief propagation now premature.** Nothing here overrides
+that ordering; if anything it strengthens the case for leaving item 4 alone until
+candidate generation clears a materially higher recall bar than mechanical
+anagram/hidden/reversal/substitution/homograph search has reached in 9 attempts.
+
+**Conclusion for today's lever choice:** the research pass turned up no new technique for
+either candidate generation or definition-span detection — both queue items have had a
+fair, repeated trial and the literature offers nothing that would move them off their
+current plateau without a fundamentally different resource (a large Hebrew clue-embedding
+model, which this project's 8k-clue corpus cannot train). The honest move is not a 10th
+attempt at the same lever; it's finishing the one sub-task of item 1(a) that all 9 prior
+attempts explicitly left undone: an actual live LLM solve session using the ranked
+candidate list, measuring real precision/coverage/yield rather than offline recall@N. See
+DAILY.md's log for what that trial found.
