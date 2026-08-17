@@ -64,17 +64,30 @@ def load_lexicon(root):
     words = {}
     for raw in open(os.path.join(root, 'solver/lex/hspell.txt'), encoding='utf-8').read().split():
         n = norm(raw)
-        if 2 <= len(n) <= 8:
+        if 2 <= len(n) <= 11:
             words.setdefault(len(n), set()).add(n)
-    defs = {}
+    # A definition is only usable as a clue if it actually points at THIS
+    # answer. Two things disqualify one:
+    #   1. it is not a definition at all ("דף פירושונים" is Wikimilon's
+    #      disambiguation stub, 501 entries carry it)
+    #   2. it is a category label rather than a description. "כדורגלן ישראלי"
+    #      is attached to 658 different people, so as a clue it identifies
+    #      nobody and the puzzle becomes unsolvable rather than hard.
+    BOILERPLATE = ('דף פירושונים', 'פירושונים', 'ראו ערך', 'הפניה')
+    MAX_SHARED = 3
+    cand = {}
     dpath = os.path.join(root, 'data/culture/descriptions.json')
     if os.path.exists(dpath):
         for w, d in json.load(open(dpath, encoding='utf-8')).items():
             n = norm(w)
             d = (d or '').removeprefix('[ויקימילון] ').strip()
-            # One-word entities make miserable definition clues ("X: X").
-            if n and d and len(d) > 8 and n not in d:
-                defs.setdefault(n, d)
+            # A definition that repeats the answer gives the game away.
+            if n and d and len(d) > 8 and n not in d and not any(b in d for b in BOILERPLATE):
+                cand.setdefault(n, d)
+    shared = {}
+    for n, d in cand.items():
+        shared[d] = shared.get(d, 0) + 1
+    defs = {n: d for n, d in cand.items() if shared[d] <= MAX_SHARED}
     freq = {}
     fpath = os.path.join(root, 'solver/crosswordese.json')
     if os.path.exists(fpath):
@@ -183,7 +196,7 @@ def build_clue_helpers(words_by_len):
     for ws in words_by_len.values():
         for w in ws:
             ana.setdefault(''.join(sorted(w)), []).append(w)
-    carriers = sorted(set().union(*(words_by_len.get(L, []) for L in (6, 7, 8))))
+    carriers = sorted(set().union(*(words_by_len.get(L, []) for L in (6, 7, 8, 9, 10, 11))))
     return {'ana': ana, 'carriers': carriers}
 
 
@@ -213,7 +226,7 @@ def clue_for(word, defs, words_set, rng, allow, helpers=None):
 
     if 'hidden' in allow and helpers:
         for carrier in helpers['carriers']:
-            if len(carrier) > len(word) + 1 and word in carrier:
+            if len(carrier) > len(word) and word in carrier:
                 at = carrier.index(word)
                 return (f'מסתתר בתוך {carrier}', 'hidden',
                         {'type': 'hidden', 'carrier': carrier, 'at': at,
@@ -288,39 +301,49 @@ def generate(root, count=100, seed=20260817):
                 ],
             })
 
-    # The 7x7 level saturates well before 25 distinct fills, so top up from the
-    # 5x5 level rather than shipping 97 of a promised 100.
-    if len(puzzles) < count:
-        label, size, pat_i, allow, _w, _d = LEVELS[2]
-        attempt = 0
-        while len(puzzles) < count and attempt < 40000:
-            attempt += 1
-            rng = random.Random(seed + 900000 + attempt)
-            sol = fill(PATTERNS[size][pat_i], words_by_len, idx, rng, prefer, tries=4000)
-            if not sol:
-                continue
-            sig = tuple(sorted(sol.values()))
-            if sig in seen_fills:
-                continue
-            clues, bad = {}, False
-            for k, w in sol.items():
-                c = clue_for(w, defs, words_set, rng, allow, helpers)
-                if not c:
-                    bad = True
-                    break
-                clues[k] = c
-            if bad or check_fill(PATTERNS[size][pat_i], sol, None)[0]:
-                continue
-            seen_fills.add(sig)
-            n += 1
-            puzzles.append({
-                'id': n, 'level': label, 'size': size, 'grid': PATTERNS[size][pat_i],
-                'entries': [
-                    {'num': k[0], 'dir': k[1], 'answer': sol[k],
-                     'clue': clues[k][0], 'mechanism': clues[k][1], 'proof': clues[k][2]}
-                    for k in sorted(sol, key=lambda x: (x[0], x[1]))
-                ],
-            })
+    # The 7x7 level saturates: every one of its eight answers must be
+    # cluable at once, and long words have the thinnest clue coverage. Spread
+    # the shortfall across the easier levels instead of piling it all on one,
+    # which produced a 48-puzzle bulge in the middle of the ramp.
+    topups = [0, 1, 2]
+    ti = 0
+    attempt = 0
+    while len(puzzles) < count and attempt < 60000:
+        attempt += 1
+        label, size, pat_i, allow, _w, defined_only = LEVELS[topups[ti % len(topups)]]
+        ti += 1
+        rng = random.Random(seed + 900000 + attempt)
+        grid = PATTERNS[size][pat_i if isinstance(pat_i, int) else pat_i[0]]
+        sol = fill(grid, words_by_len, idx, rng, prefer, tries=4000,
+                   pool=defined_pool if defined_only else None)
+        if not sol:
+            continue
+        sig = tuple(sorted(sol.values()))
+        if sig in seen_fills:
+            continue
+        clues, bad = {}, False
+        for k, w in sol.items():
+            c = clue_for(w, defs, words_set, rng, allow, helpers)
+            if not c:
+                bad = True
+                break
+            clues[k] = c
+        if bad or check_fill(grid, sol, None)[0]:
+            continue
+        seen_fills.add(sig)
+        n += 1
+        puzzles.append({
+            'id': n, 'level': label, 'size': size, 'grid': grid,
+            'entries': [
+                {'num': k[0], 'dir': k[1], 'answer': sol[k],
+                 'clue': clues[k][0], 'mechanism': clues[k][1], 'proof': clues[k][2]}
+                for k in sorted(sol, key=lambda x: (x[0], x[1]))
+            ],
+        })
+    # Ids follow difficulty, so a topped-up puzzle is not numbered out of order.
+    puzzles.sort(key=lambda p: ([l[0] for l in LEVELS].index(p['level']), p['id']))
+    for i, p in enumerate(puzzles, 1):
+        p['id'] = i
     return puzzles
 
 
@@ -340,6 +363,11 @@ def verify(puzzles):
         if len(board) != white:
             problems.append(f"puzzle {p['id']}: {white - len(board)} white cells uncovered")
         for e in p['entries']:
+            # A clue that is a disambiguation stub or a bare category label is
+            # not solvable; this caught 28 published clues reading only
+            # "דף פירושונים", so it is asserted rather than assumed.
+            if 'פירושונים' in e['clue'] or len(e['clue'].strip()) < 6:
+                problems.append(f"puzzle {p['id']} {e['num']}{e['dir']}: unusable clue {e['clue']!r}")
             pr = e['proof']
             if pr['type'] == 'reversal' and pr['from'][::-1] != e['answer']:
                 problems.append(f"puzzle {p['id']} {e['num']}{e['dir']}: reversal proof fails")
