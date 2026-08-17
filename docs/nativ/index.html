@@ -121,7 +121,7 @@ footer a{color:var(--red)}
 
   <div id="board" aria-label="לוח המשחק"></div>
   <div id="words"></div>
-  <p class="howto" id="howto">גררו או הקישו על אותיות סמוכות (למעלה, למטה, ימינה או שמאלה - בלי אלכסונים) כדי לאיית את המילה הבאה. כל אות בלוח משמשת בדיוק פעם אחת, וכל מילה חדשה ממשיכה מסוף המילה הקודמת.</p>
+  <p class="howto" id="howto">גררו או הקישו על אותיות סמוכות (למעלה, למטה, ימינה או שמאלה - בלי אלכסונים) כדי לאיית את מילות היום. מתחילים מכל אות שרוצים, בכל סדר שרוצים - כל אות בלוח שייכת בדיוק למילה אחת.</p>
 
   <div class="panel" id="winPanel">
     <h2>כל הכבוד<em>!</em> סיימתם את הנתיב</h2>
@@ -177,8 +177,7 @@ var adj=[];            // neighbor lists per cell
 var locked=[];         // locked flag per cell
 var hintCells={};      // cellIdx -> true (revealed via hint)
 var sel=[];            // current selection: array of cell indices
-var wordIdx=0;         // current word being built
-var lastLockedCell=-1; // path end of previous word
+var solved=[];         // solved flag per word (any order allowed)
 var hints=0, mistakes=0;
 var startTs=0, elapsed=0, timerId=null, finished=false;
 var cellEls=[], wordRows=[];
@@ -219,41 +218,51 @@ function buildAdj(rows,cols){
   }
   return a;
 }
-// Find a path over free cells spelling seq, starting adjacent to startAdj
-// (or anywhere if startAdj<0). free: boolean array. Returns array|null.
-// Budget-capped; returns "cap" if budget exhausted without an answer.
-function solvePath(free,seq,startAdj){
-  if(!seq.length)return [];
-  var budget=200000, grid=puzzle.grid, capped=false;
-  function dfs(cell,pos,path){
-    if(budget--<=0){capped=true;return null;}
-    path.push(cell);
-    if(pos===seq.length-1)return path.slice();
-    free[cell]=false;
-    var nb=adj[cell];
-    for(var i=0;i<nb.length;i++){
-      var x=nb[i];
-      if(free[x]&&grid[x]===seq[pos+1]){
-        var r=dfs(x,pos+1,path);
-        if(r){free[cell]=true;path.pop();return r;}
-        if(capped)break;
+// Multi-word partition solver: find DISJOINT orthogonal self-avoiding paths
+// over free cells, one per string in seqs (all remaining free cells are
+// covered automatically, because letter counts match the grid).
+// seqs[0] may be constrained to start adjacent to startAdj (pass -1 for
+// "start anywhere"). Returns the path found for seqs[0] (array of cells),
+// true when seqs is empty, null when infeasible, "cap" if budget exhausted.
+function solveMulti(free,seqs,startAdj){
+  if(!seqs.length)return true;
+  var budget=300000, grid=puzzle.grid, capped=false;
+  // keep seqs[0] first (it carries the start constraint), longest rest first
+  var order=[seqs[0]].concat(seqs.slice(1).sort(function(a,b){return b.length-a.length;}));
+  function place(wi,path){
+    if(wi===order.length)return true;
+    var seq=order[wi];
+    function dfs(cell,pos){
+      if(budget--<=0){capped=true;return false;}
+      free[cell]=false;
+      if(wi===0)path.push(cell);
+      var ok=false;
+      if(pos===seq.length-1){
+        ok=place(wi+1,path);
+      }else{
+        var nb=adj[cell];
+        for(var i=0;i<nb.length&&!ok&&!capped;i++){
+          var x=nb[i];
+          if(free[x]&&grid[x]===seq[pos+1])ok=dfs(x,pos+1);
+        }
       }
+      if(!ok){free[cell]=true;if(wi===0)path.pop();}
+      return ok;
     }
-    free[cell]=true;
-    path.pop();
-    return null;
+    var starts=[];
+    if(wi===0&&startAdj>=0){
+      adj[startAdj].forEach(function(x){if(free[x]&&grid[x]===seq[0])starts.push(x);});
+    }else{
+      for(var i=0;i<free.length;i++)if(free[i]&&grid[i]===seq[0])starts.push(i);
+    }
+    for(var s=0;s<starts.length;s++){
+      if(dfs(starts[s],0))return true;
+      if(capped)return false;
+    }
+    return false;
   }
-  var starts=[];
-  if(startAdj>=0){
-    adj[startAdj].forEach(function(x){if(free[x]&&grid[x]===seq[0])starts.push(x);});
-  }else{
-    for(var i=0;i<free.length;i++)if(free[i]&&grid[i]===seq[0])starts.push(i);
-  }
-  for(var s=0;s<starts.length;s++){
-    var r=dfs(starts[s],0,[]);
-    if(r)return r;
-    if(capped)return "cap";
-  }
+  var path=[];
+  if(place(0,path))return path;
   return capped?"cap":null;
 }
 function freeArray(extraUsed){
@@ -262,11 +271,9 @@ function freeArray(extraUsed){
   if(extraUsed)extraUsed.forEach(function(c){f[c]=false;});
   return f;
 }
-function remainingSeqAfter(wIdx,skipInWord){
-  // letters still to place: rest of word wIdx (after skipInWord letters) + all later words
-  var s="";
-  s+=puzzle.words[wIdx].n.slice(skipInWord);
-  for(var i=wIdx+1;i<puzzle.words.length;i++)s+=puzzle.words[i].n;
+function unsolvedSeqs(excludeIdx){
+  var s=[];
+  puzzle.words.forEach(function(w,i){if(!solved[i]&&i!==excludeIdx)s.push(w.n);});
   return s;
 }
 
@@ -313,12 +320,16 @@ function renderWords(){
   refreshWords();
 }
 function refreshWords(){
+  var letters=selLetters(sel);
   puzzle.words.forEach(function(word,i){
     var row=wordRows[i];
-    row.classList.toggle("current",i===wordIdx&&!finished);
-    row.classList.toggle("done",i<wordIdx||finished);
+    var done=solved[i]||finished;
+    // highlight every unsolved word the current trace could still spell
+    var isPre=!done&&letters.length>0&&word.n.slice(0,letters.length)===letters;
+    row.classList.toggle("current",isPre&&!finished);
+    row.classList.toggle("done",done);
     var name=row.querySelector(".solvedname");
-    if(i<wordIdx||finished){
+    if(done){
       name.textContent="";
       var b=document.createElement("b");
       b.textContent="✓ ";
@@ -334,7 +345,7 @@ function refreshWords(){
       name.textContent="";
       var slots=row.querySelectorAll(".slot");
       for(var j=0;j<slots.length;j++){
-        slots[j].textContent=(i===wordIdx&&j<sel.length)?puzzle.grid[sel[j]]:"";
+        slots[j].textContent=(isPre&&j<sel.length)?puzzle.grid[sel[j]]:"";
       }
     }
   });
@@ -365,12 +376,10 @@ function stopTimer(){
 /* ---------- game logic ---------- */
 function canSelect(i){
   if(finished||locked[i]||sel.indexOf(i)>=0)return false;
-  var word=puzzle.words[wordIdx];
-  if(sel.length>=word.n.length)return false;
-  if(sel.length===0){
-    if(lastLockedCell<0)return true;
-    return adj[lastLockedCell].indexOf(i)>=0;
-  }
+  var maxLen=0;
+  puzzle.words.forEach(function(w,j){if(!solved[j]&&w.n.length>maxLen)maxLen=w.n.length;});
+  if(sel.length>=maxLen)return false;
+  if(sel.length===0)return true; // start anywhere
   return adj[sel[sel.length-1]].indexOf(i)>=0;
 }
 function addCell(i){
@@ -380,7 +389,7 @@ function addCell(i){
   cellEls[i].classList.add("pop");
   setTimeout(function(){cellEls[i].classList.remove("pop");},380);
   refreshCells();refreshWords();
-  if(sel.length===puzzle.words[wordIdx].n.length)submitWord();
+  evaluateSel();
   return true;
 }
 function popCell(){
@@ -391,36 +400,47 @@ function popCell(){
 function selLetters(s){
   return s.map(function(i){return puzzle.grid[i];}).join("");
 }
-function submitWord(){
-  var word=puzzle.words[wordIdx];
-  var ok=selLetters(sel)===word.n;
-  if(ok){
-    // accept only if the rest of the grid stays completable from here
-    var rem=remainingSeqAfter(wordIdx+1<puzzle.words.length?wordIdx+1:wordIdx, wordIdx+1<puzzle.words.length?0:word.n.length);
-    if(wordIdx+1<puzzle.words.length){
-      var f=freeArray(sel);
-      var r=solvePath(f,rem.split(""),sel[sel.length-1]);
-      ok=(r==="cap")||(r!==null);
+// After each added cell: accept the trace if it spells ANY unsolved word and
+// the rest of the grid still partitions into the remaining unsolved words;
+// keep going while it is still a prefix of some unsolved word; otherwise shake.
+function evaluateSel(){
+  var letters=selLetters(sel);
+  for(var i=0;i<puzzle.words.length;i++){
+    if(solved[i]||puzzle.words[i].n!==letters)continue;
+    var others=unsolvedSeqs(i);
+    var ok=true;
+    if(others.length){
+      var r=solveMulti(freeArray(sel),others,-1);
+      ok=(r==="cap")||(r!==null); // budget cap: give the player the benefit of the doubt
     }
+    if(ok){acceptWord(i);return;}
+    // partition failed - maybe the trace continues into a longer word
   }
-  if(!ok){
-    mistakes++;
-    var b=$("board");
-    b.classList.remove("shake");
-    void b.offsetWidth;
-    b.classList.add("shake");
-    // keep any hint-revealed prefix so paid hints are not lost
-    var keep=-1;
-    for(var i=0;i<sel.length;i++)if(hintCells[sel[i]])keep=i;
-    sel=sel.slice(0,keep+1);
-    refreshCells();refreshWords();
-    return;
+  for(var j=0;j<puzzle.words.length;j++){
+    if(!solved[j]&&puzzle.words[j].n.length>letters.length&&
+       puzzle.words[j].n.slice(0,letters.length)===letters)return; // still viable
   }
+  mistake();
+}
+function acceptWord(i){
   sel.forEach(function(c){locked[c]=true;});
-  lastLockedCell=sel[sel.length-1];
+  solved[i]=true;
   sel=[];
-  wordIdx++;
-  if(wordIdx>=puzzle.words.length)finish();
+  var left=false;
+  for(var j=0;j<solved.length;j++)if(!solved[j])left=true;
+  if(!left)finish();
+  refreshCells();refreshWords();
+}
+function mistake(){
+  mistakes++;
+  var b=$("board");
+  b.classList.remove("shake");
+  void b.offsetWidth;
+  b.classList.add("shake");
+  // keep any hint-revealed prefix so paid hints are not lost
+  var keep=-1;
+  for(var i=0;i<sel.length;i++)if(hintCells[sel[i]])keep=i;
+  sel=sel.slice(0,keep+1);
   refreshCells();refreshWords();
 }
 function undo(){
@@ -430,29 +450,32 @@ function undo(){
 function hint(){
   if(finished)return;
   startTimer();
-  var word=puzzle.words[wordIdx];
-  // trim selection to a letter-correct prefix that still leads to a solution
-  var s=sel.slice();
-  var comp=null;
-  while(true){
-    if(selLetters(s)===word.n.slice(0,s.length)){
-      var f=freeArray(s);
-      var startAdj=s.length?s[s.length-1]:lastLockedCell;
-      var r=solvePath(f,remainingSeqAfter(wordIdx,s.length).split(""),startAdj);
-      if(r&&r!=="cap"){comp=r;break;}
+  var unsolved=[];
+  puzzle.words.forEach(function(w,i){if(!solved[i])unsolved.push(i);});
+  if(!unsolved.length)return;
+  // longest unsolved word first; prefer keeping as much of the current trace
+  // as possible, so a trace-in-progress gets extended rather than discarded
+  unsolved.sort(function(a,b){return puzzle.words[b].n.length-puzzle.words[a].n.length;});
+  var comp=null,chosenSel=null;
+  for(var cut=sel.length;cut>=0&&!comp;cut--){
+    var s=sel.slice(0,cut),L=selLetters(s);
+    for(var t=0;t<unsolved.length&&!comp;t++){
+      var ti=unsolved[t],n=puzzle.words[ti].n;
+      if(L.length>=n.length||n.slice(0,L.length)!==L)continue;
+      var r=solveMulti(freeArray(s),[n.slice(L.length)].concat(unsolvedSeqs(ti)),
+        s.length?s[s.length-1]:-1);
+      if(r&&r!=="cap"&&r!==true){comp=r;chosenSel=s;}
     }
-    if(!s.length)break;
-    s.pop();
   }
   if(!comp){toast("אין רמז זמין");return;}
-  sel=s;
+  sel=chosenSel;
   hints++;
   var next=comp[0];
   hintCells[next]=true;
   sel.push(next);
   cellEls[next].classList.add("pop");
   refreshCells();refreshWords();
-  if(sel.length===word.n.length)submitWord();
+  evaluateSel();
 }
 function emojiGrid(){
   var out=[];
@@ -686,7 +709,7 @@ function bindInput(){
 /* ---------- restore an already-played day ---------- */
 function restorePlayed(res){
   finished=true;
-  wordIdx=puzzle.words.length;
+  for(var i=0;i<solved.length;i++)solved[i]=true;
   for(var i=0;i<locked.length;i++)locked[i]=true;
   // recover hint cells from the stored emoji grid
   if(res.e){
@@ -726,6 +749,8 @@ function boot(data){
   adj=buildAdj(puzzle.rows,puzzle.cols);
   locked=new Array(puzzle.rows*puzzle.cols);
   for(var i=0;i<locked.length;i++)locked[i]=false;
+  solved=new Array(puzzle.words.length);
+  for(var i=0;i<solved.length;i++)solved[i]=false;
   $("theme").textContent=puzzle.emoji+" "+puzzle.theme;
   $("datemeta").textContent="חידה יומית · "+dateKey+" · "+puzzle.words.length+" מילים · "+puzzle.rows+"×"+puzzle.cols;
   renderBoard();
