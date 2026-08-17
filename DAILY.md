@@ -318,3 +318,9 @@ Measure each lever on dev (fixed enums) with run_eval.py before/after; one lever
   dataset clues.jsonl as split=train (spent for eval); (3) rebuild crosswordese +
   re-mine substitutions; (4) rebuild client bundle. Done today for 31/07, 07/08, 14/08
   (84 new train clues; corpus now 55 puzzles). This is step 7 of every solve flow.
+- NATIV GAME (2026-08-17): daily word-path game at /nativ/ powered by the milon.
+  app/build_nativ.py generates 90 dated puzzles (deterministic seed nativ-v1) - regenerate
+  before 2026-11-13 (add to lever queue ~Nov 1). 4 words/theme/day from 12 rotating
+  categories, Hamiltonian snake layout, client accepts alternate paths only if grid stays
+  completable. Personal leaderboard + streak in localStorage; share = Wordle-style text.
+  Global leaderboard would need a Vercel function + KV (not built, site stays static).
