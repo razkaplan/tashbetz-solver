@@ -24,3 +24,7 @@ __pycache__/
 app/uploads/
 app/puzzles/
 data/sessions/
+
+# local Vercel env pulls (secrets)
+.env.vercel
+docs/.env.vercel

@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="he">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>נתיב - משחק מילים יומי</title>
+<meta name="description" content="נתיב: משחק מילים יומי בעברית. מסלול אחד רציף שעובר בכל האותיות בדיוק פעם אחת ומאיית 4 מילים מנושא יומי מהמילון. חדש כל יום.">
+<meta property="og:image" content="https://tashbetz.gtmascode.dev/nativ/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta property="og:title" content="נתיב - משחק מילים יומי">
+<meta property="og:description" content="מסלול אחד, כל האותיות, נושא יומי מהמילון. גררו נתיב בין האותיות וגלו את כל המילים.">
+<meta property="og:url" content="https://tashbetz.gtmascode.dev/nativ/">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="נתיב - משחק מילים יומי">
+<meta name="twitter:description" content="מסלול אחד, כל האותיות, נושא יומי מהמילון. משחק עברי יומי חדש.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{--red:#f22b39;--ink:#121212;--paper:#fff;--soft:#f5f4f2;--line:#e2e0dc;--muted:#6b6862;--cell:#fff;--sel:#fde8ea}
+@media (prefers-color-scheme:dark){:root{--ink:#f0efec;--paper:#161616;--soft:#1f1f1f;--line:#333;--muted:#a5a29b;--cell:#1f1f1f;--sel:#3a1a1e}}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Frank Ruhl Libre',serif;background:var(--paper);color:var(--ink);line-height:1.5;min-height:100vh;display:flex;flex-direction:column}
+a{color:inherit}
+.top{border-bottom:3px solid var(--ink);padding:.7rem 1.2rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem}
+.brand{font-weight:900;font-size:1.25rem;text-decoration:none}.brand span{color:var(--red)}
+nav{display:flex;gap:1.1rem;font-size:.95rem}
+nav a{text-decoration:none;border-bottom:2px solid transparent}
+nav a:hover{border-color:var(--red)}
+main{flex:1;width:100%;max-width:560px;margin:0 auto;padding:1.2rem 1rem 2rem}
+.head{text-align:center;margin-bottom:.8rem}
+.head h1{font-size:2rem;font-weight:900;line-height:1.1}
+.head h1 em{font-style:normal;color:var(--red)}
+.theme{font-size:1.2rem;font-weight:700;margin-top:.2rem}
+.datemeta{color:var(--muted);font-size:.85rem}
+.bar{display:flex;justify-content:center;align-items:center;gap:.6rem;margin:.6rem 0 .9rem;flex-wrap:wrap}
+.timer{font-weight:900;font-size:1.15rem;min-width:4.2rem;text-align:center;font-variant-numeric:tabular-nums}
+.tbtn{font-family:inherit;font-size:.95rem;font-weight:700;padding:.4rem .9rem;border:2px solid var(--ink);background:var(--paper);color:var(--ink);cursor:pointer}
+.tbtn:hover{border-color:var(--red);color:var(--red)}
+.tbtn:disabled{opacity:.4;cursor:default}
+#board{display:grid;gap:4px;background:var(--ink);border:3px solid var(--ink);width:100%;max-width:420px;margin:0 auto;direction:rtl;touch-action:none;user-select:none;-webkit-user-select:none}
+#board.shake{animation:shk .4s}
+@keyframes shk{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-7px)}40%,80%{transform:translateX(7px)}}
+.cell{aspect-ratio:1;background:var(--cell);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:clamp(1.2rem,6vw,1.8rem);cursor:pointer;position:relative}
+.cell.sel{background:var(--sel);box-shadow:inset 0 0 0 3px var(--red);color:var(--red)}
+.cell.lock{background:var(--ink);color:var(--paper);cursor:default}
+.cell.hintcell.lock{background:var(--red);color:#fff}
+.cell.sel.hintcell{background:var(--red);color:#fff}
+.cell.pop{animation:pop .35s}
+@keyframes pop{0%{transform:scale(.5)}70%{transform:scale(1.15)}100%{transform:scale(1)}}
+#words{margin:1rem auto 0;max-width:420px;display:flex;flex-direction:column;gap:.5rem}
+.wrow{display:flex;align-items:center;gap:.5rem;border:1px solid var(--line);padding:.45rem .7rem;min-height:2.6rem}
+.wrow.current{border-color:var(--red);border-width:2px}
+.wrow .idx{font-weight:900;color:var(--muted);font-size:.85rem;width:1.1rem}
+.wrow.current .idx{color:var(--red)}
+.slots{display:flex;gap:.3rem;direction:rtl;flex-wrap:wrap}
+.slot{width:1.5rem;height:1.5rem;border-bottom:2px solid var(--muted);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1rem}
+.wrow.done .slots{display:none}
+.solvedname{font-weight:700;font-size:1.05rem}
+.solvedname b{color:var(--red)}
+.solveddesc{color:var(--muted);font-size:.82rem;margin-inline-start:.4rem}
+.panel{border:2px solid var(--ink);background:var(--soft);max-width:420px;margin:1rem auto 0;padding:1rem 1.2rem;display:none}
+.panel.show{display:block}
+.panel h2{font-size:1.3rem;font-weight:900;margin-bottom:.5rem}
+.panel h2 em{font-style:normal;color:var(--red)}
+.resline{display:flex;gap:1.2rem;justify-content:center;text-align:center;margin:.6rem 0}
+.resline b{display:block;font-size:1.5rem;font-weight:900;color:var(--red)}
+.resline small{color:var(--muted)}
+.share-actions{display:flex;gap:.6rem;justify-content:center;margin-top:.6rem;flex-wrap:wrap}
+.btn{display:inline-block;padding:.55rem 1.3rem;text-decoration:none;font-weight:700;border:2px solid var(--ink);background:var(--paper);color:var(--ink);font-family:inherit;font-size:1rem;cursor:pointer}
+.btn.primary{background:var(--red);border-color:var(--red);color:#fff}
+.btn:hover{transform:translateY(-1px)}
+#statsPanel dl{display:grid;grid-template-columns:repeat(3,1fr);gap:.6rem;text-align:center;margin:.6rem 0}
+#statsPanel dt{color:var(--muted);font-size:.8rem}
+#statsPanel dd{font-size:1.4rem;font-weight:900;color:var(--red)}
+.subhead{font-weight:700;margin-top:.7rem;border-top:1px solid var(--line);padding-top:.5rem}
+.bestlist{list-style:none;font-variant-numeric:tabular-nums}
+.bestlist li{display:flex;justify-content:space-between;padding:.15rem 0;font-size:.95rem}
+.bestlist li.me{color:var(--red);font-weight:700;background:var(--sel);padding-inline:.3rem}
+.glrow .rnk{color:var(--muted);width:1.6rem;font-weight:700}
+.glrow .nm{flex:1;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.glrow .sc{white-space:nowrap}
+.dist{display:flex;flex-direction:column;gap:.25rem;margin-top:.3rem}
+.drow{display:flex;align-items:center;gap:.5rem;font-size:.85rem}
+.drow .dl{width:3.2rem;color:var(--muted)}
+.drow .dbar{background:var(--red);color:#fff;font-weight:700;min-width:1.3rem;padding:.05rem .35rem;text-align:left;font-size:.8rem}
+.note{color:var(--muted);font-size:.8rem;margin-top:.6rem;text-align:center}
+#toast{position:fixed;bottom:1.2rem;right:50%;transform:translateX(50%);background:var(--ink);color:var(--paper);padding:.5rem 1.1rem;font-weight:700;opacity:0;transition:opacity .25s;pointer-events:none;z-index:9}
+#toast.show{opacity:1}
+.howto{color:var(--muted);font-size:.88rem;text-align:center;margin-top:.7rem}
+footer{border-top:3px solid var(--ink);padding:1.2rem;text-align:center;font-size:.9rem;color:var(--muted)}
+footer a{color:var(--red)}
+@media(max-width:420px){.bar{gap:.4rem}.tbtn{padding:.35rem .7rem;font-size:.9rem}}
+</style>
+</head>
+<body>
+<header class="top">
+  <a class="brand" href="/">תשבץ<span>.</span>היגיון</a>
+  <nav>
+    <a href="/">ראשי</a>
+    <a href="/solve/">האפליקציה</a>
+    <a href="/milon/">מילון</a>
+    <a href="/nativ/" style="border-color:var(--red)">נתיב</a>
+  </nav>
+</header>
+
+<main>
+  <div class="head">
+    <h1>נתיב<em>.</em></h1>
+    <div class="theme" id="theme">טוען...</div>
+    <div class="datemeta" id="datemeta"></div>
+  </div>
+
+  <div class="bar">
+    <span class="timer" id="timer">00:00</span>
+    <button class="tbtn" id="undoBtn" type="button">↩ ביטול</button>
+    <button class="tbtn" id="hintBtn" type="button">💡 רמז</button>
+    <button class="tbtn" id="statsBtn" type="button">📊 סטטיסטיקה</button>
+  </div>
+
+  <div id="board" aria-label="לוח המשחק"></div>
+  <div id="words"></div>
+  <p class="howto" id="howto">גררו או הקישו על אותיות סמוכות (למעלה, למטה, ימינה או שמאלה - בלי אלכסונים) כדי לאיית את מילות היום. מתחילים מכל אות שרוצים, בכל סדר שרוצים - כל אות בלוח שייכת בדיוק למילה אחת.</p>
+
+  <div class="panel" id="winPanel">
+    <h2>כל הכבוד<em>!</em> סיימתם את הנתיב</h2>
+    <div class="resline">
+      <div><b id="resTime">--</b><small>זמן</small></div>
+      <div><b id="resHints">0</b><small>רמזים</small></div>
+      <div><b id="resMiss">0</b><small>טעויות</small></div>
+    </div>
+    <div class="share-actions">
+      <button class="btn primary" id="shareBtn" type="button">📤 שיתוף התוצאה</button>
+      <button class="btn" id="statsBtn2" type="button">📊 סטטיסטיקה</button>
+    </div>
+    <div id="globalWrap" hidden>
+      <div class="subhead">🌍 טבלת השיא העולמית של היום</div>
+      <ol class="bestlist" id="globalList"></ol>
+      <p class="note" id="globalTotal"></p>
+    </div>
+    <p class="note" id="globalSoon" hidden>🌍 טבלת שיא עולמית - בקרוב</p>
+    <p class="note">חידה חדשה מחר. אפשר בינתיים לחפור ב<a href="/milon/">מילון</a>.</p>
+  </div>
+
+  <div class="panel" id="statsPanel">
+    <h2>הסטטיסטיקה שלי<em>.</em></h2>
+    <dl>
+      <div><dt>משחקים</dt><dd id="stGames">0</dd></div>
+      <div><dt>רצף נוכחי</dt><dd id="stStreak">0</dd></div>
+      <div><dt>זמן שיא</dt><dd id="stBest">--</dd></div>
+    </dl>
+    <div class="subhead">הזמנים הטובים ביותר</div>
+    <ol class="bestlist" id="bestList"></ol>
+    <div class="subhead">התפלגות רמזים</div>
+    <div class="dist" id="dist"></div>
+    <p class="note">הנתונים נשמרים רק בדפדפן הזה (לוח תוצאות אישי). כדי להשוות עם חברים, שתפו את התוצאה היומית.</p>
+  </div>
+</main>
+
+<div id="toast" role="status"></div>
+
+<footer>
+  פרויקט של <a href="https://www.linkedin.com/in/razkaplan/" rel="me">רז קפלן</a> · <a href="/">תשבץ.היגיון</a> · <a href="/milon/">מילון תשבצאים</a>
+</footer>
+
+<script>
+(function(){
+"use strict";
+var SITE_URL="https://tashbetz.gtmascode.dev/nativ/";
+var LS_KEY="nativ.results.v1";
+var NICK_KEY="nativ.nick.v1";
+var LB_API="/api/leaderboard";
+
+var puzzle=null, dateKey=null;
+var adj=[];            // neighbor lists per cell
+var locked=[];         // locked flag per cell
+var hintCells={};      // cellIdx -> true (revealed via hint)
+var sel=[];            // current selection: array of cell indices
+var solved=[];         // solved flag per word (any order allowed)
+var hints=0, mistakes=0;
+var startTs=0, elapsed=0, timerId=null, finished=false;
+var cellEls=[], wordRows=[];
+
+function $(id){return document.getElementById(id);}
+function pad2(x){return (x<10?"0":"")+x;}
+function fmtTime(sec){return pad2(Math.floor(sec/60))+":"+pad2(sec%60);}
+function todayKey(){
+  var d=new Date();
+  return d.getFullYear()+"-"+pad2(d.getMonth()+1)+"-"+pad2(d.getDate());
+}
+function loadResults(){
+  try{return JSON.parse(localStorage.getItem(LS_KEY)||"{}")||{};}catch(e){return {};}
+}
+function saveResults(r){
+  try{localStorage.setItem(LS_KEY,JSON.stringify(r));}catch(e){}
+}
+function toast(msg){
+  var t=$("toast");
+  t.textContent=msg;
+  t.classList.add("show");
+  clearTimeout(t._h);
+  t._h=setTimeout(function(){t.classList.remove("show");},1800);
+}
+
+/* ---------- adjacency + solver ---------- */
+function buildAdj(rows,cols){
+  var a=[];
+  for(var i=0;i<rows*cols;i++){
+    var r=Math.floor(i/cols),c=i%cols,cur=[];
+    // orthogonal neighbors only - diagonals are not allowed
+    var deltas=[[-1,0],[1,0],[0,-1],[0,1]];
+    for(var k=0;k<deltas.length;k++){
+      var nr=r+deltas[k][0],nc=c+deltas[k][1];
+      if(nr>=0&&nr<rows&&nc>=0&&nc<cols)cur.push(nr*cols+nc);
+    }
+    a.push(cur);
+  }
+  return a;
+}
+// Multi-word partition solver: find DISJOINT orthogonal self-avoiding paths
+// over free cells, one per string in seqs (all remaining free cells are
+// covered automatically, because letter counts match the grid).
+// seqs[0] may be constrained to start adjacent to startAdj (pass -1 for
+// "start anywhere"). Returns the path found for seqs[0] (array of cells),
+// true when seqs is empty, null when infeasible, "cap" if budget exhausted.
+function solveMulti(free,seqs,startAdj){
+  if(!seqs.length)return true;
+  var budget=300000, grid=puzzle.grid, capped=false;
+  // keep seqs[0] first (it carries the start constraint), longest rest first
+  var order=[seqs[0]].concat(seqs.slice(1).sort(function(a,b){return b.length-a.length;}));
+  function place(wi,path){
+    if(wi===order.length)return true;
+    var seq=order[wi];
+    function dfs(cell,pos){
+      if(budget--<=0){capped=true;return false;}
+      free[cell]=false;
+      if(wi===0)path.push(cell);
+      var ok=false;
+      if(pos===seq.length-1){
+        ok=place(wi+1,path);
+      }else{
+        var nb=adj[cell];
+        for(var i=0;i<nb.length&&!ok&&!capped;i++){
+          var x=nb[i];
+          if(free[x]&&grid[x]===seq[pos+1])ok=dfs(x,pos+1);
+        }
+      }
+      if(!ok){free[cell]=true;if(wi===0)path.pop();}
+      return ok;
+    }
+    var starts=[];
+    if(wi===0&&startAdj>=0){
+      adj[startAdj].forEach(function(x){if(free[x]&&grid[x]===seq[0])starts.push(x);});
+    }else{
+      for(var i=0;i<free.length;i++)if(free[i]&&grid[i]===seq[0])starts.push(i);
+    }
+    for(var s=0;s<starts.length;s++){
+      if(dfs(starts[s],0))return true;
+      if(capped)return false;
+    }
+    return false;
+  }
+  var path=[];
+  if(place(0,path))return path;
+  return capped?"cap":null;
+}
+function freeArray(extraUsed){
+  var f=[];
+  for(var i=0;i<locked.length;i++)f.push(!locked[i]);
+  if(extraUsed)extraUsed.forEach(function(c){f[c]=false;});
+  return f;
+}
+function unsolvedSeqs(excludeIdx){
+  var s=[];
+  puzzle.words.forEach(function(w,i){if(!solved[i]&&i!==excludeIdx)s.push(w.n);});
+  return s;
+}
+
+/* ---------- rendering ---------- */
+function renderBoard(){
+  var b=$("board");
+  b.style.gridTemplateColumns="repeat("+puzzle.cols+",1fr)";
+  b.textContent="";
+  cellEls=[];
+  puzzle.grid.forEach(function(ch,i){
+    var d=document.createElement("div");
+    d.className="cell";
+    d.textContent=ch;
+    d.dataset.i=i;
+    b.appendChild(d);
+    cellEls.push(d);
+  });
+}
+function renderWords(){
+  var w=$("words");
+  w.textContent="";
+  wordRows=[];
+  puzzle.words.forEach(function(word,i){
+    var row=document.createElement("div");
+    row.className="wrow";
+    var idx=document.createElement("span");
+    idx.className="idx";
+    idx.textContent=(i+1);
+    row.appendChild(idx);
+    var slots=document.createElement("div");
+    slots.className="slots";
+    for(var j=0;j<word.n.length;j++){
+      var s=document.createElement("span");
+      s.className="slot";
+      slots.appendChild(s);
+    }
+    row.appendChild(slots);
+    var name=document.createElement("span");
+    name.className="solvedname";
+    row.appendChild(name);
+    w.appendChild(row);
+    wordRows.push(row);
+  });
+  refreshWords();
+}
+function refreshWords(){
+  var letters=selLetters(sel);
+  puzzle.words.forEach(function(word,i){
+    var row=wordRows[i];
+    var done=solved[i]||finished;
+    // highlight every unsolved word the current trace could still spell
+    var isPre=!done&&letters.length>0&&word.n.slice(0,letters.length)===letters;
+    row.classList.toggle("current",isPre&&!finished);
+    row.classList.toggle("done",done);
+    var name=row.querySelector(".solvedname");
+    if(done){
+      name.textContent="";
+      var b=document.createElement("b");
+      b.textContent="✓ ";
+      name.appendChild(b);
+      name.appendChild(document.createTextNode(word.t));
+      if(word.d){
+        var small=document.createElement("small");
+        small.className="solveddesc";
+        small.textContent=word.d;
+        name.appendChild(small);
+      }
+    }else{
+      name.textContent="";
+      var slots=row.querySelectorAll(".slot");
+      for(var j=0;j<slots.length;j++){
+        slots[j].textContent=(isPre&&j<sel.length)?puzzle.grid[sel[j]]:"";
+      }
+    }
+  });
+}
+function refreshCells(){
+  cellEls.forEach(function(el,i){
+    el.classList.toggle("lock",!!locked[i]);
+    el.classList.toggle("sel",sel.indexOf(i)>=0);
+    el.classList.toggle("hintcell",!!hintCells[i]);
+  });
+}
+
+/* ---------- timer ---------- */
+function startTimer(){
+  if(timerId||finished)return;
+  startTs=Date.now()-elapsed*1000;
+  timerId=setInterval(function(){
+    elapsed=Math.floor((Date.now()-startTs)/1000);
+    $("timer").textContent=fmtTime(elapsed);
+  },250);
+}
+function stopTimer(){
+  if(timerId){clearInterval(timerId);timerId=null;}
+  if(startTs)elapsed=Math.floor((Date.now()-startTs)/1000);
+  $("timer").textContent=fmtTime(elapsed);
+}
+
+/* ---------- game logic ---------- */
+function canSelect(i){
+  if(finished||locked[i]||sel.indexOf(i)>=0)return false;
+  var maxLen=0;
+  puzzle.words.forEach(function(w,j){if(!solved[j]&&w.n.length>maxLen)maxLen=w.n.length;});
+  if(sel.length>=maxLen)return false;
+  if(sel.length===0)return true; // start anywhere
+  return adj[sel[sel.length-1]].indexOf(i)>=0;
+}
+function addCell(i){
+  if(!canSelect(i))return false;
+  startTimer();
+  sel.push(i);
+  cellEls[i].classList.add("pop");
+  setTimeout(function(){cellEls[i].classList.remove("pop");},380);
+  refreshCells();refreshWords();
+  evaluateSel();
+  return true;
+}
+function popCell(){
+  if(!sel.length)return;
+  sel.pop();
+  refreshCells();refreshWords();
+}
+function selLetters(s){
+  return s.map(function(i){return puzzle.grid[i];}).join("");
+}
+// After each added cell: accept the trace if it spells ANY unsolved word and
+// the rest of the grid still partitions into the remaining unsolved words;
+// keep going while it is still a prefix of some unsolved word; otherwise shake.
+function evaluateSel(){
+  var letters=selLetters(sel);
+  for(var i=0;i<puzzle.words.length;i++){
+    if(solved[i]||puzzle.words[i].n!==letters)continue;
+    var others=unsolvedSeqs(i);
+    var ok=true;
+    if(others.length){
+      var r=solveMulti(freeArray(sel),others,-1);
+      ok=(r==="cap")||(r!==null); // budget cap: give the player the benefit of the doubt
+    }
+    if(ok){acceptWord(i);return;}
+    // partition failed - maybe the trace continues into a longer word
+  }
+  for(var j=0;j<puzzle.words.length;j++){
+    if(!solved[j]&&puzzle.words[j].n.length>letters.length&&
+       puzzle.words[j].n.slice(0,letters.length)===letters)return; // still viable
+  }
+  mistake();
+}
+function acceptWord(i){
+  sel.forEach(function(c){locked[c]=true;});
+  solved[i]=true;
+  sel=[];
+  var left=false;
+  for(var j=0;j<solved.length;j++)if(!solved[j])left=true;
+  if(!left)finish();
+  refreshCells();refreshWords();
+}
+function mistake(){
+  mistakes++;
+  var b=$("board");
+  b.classList.remove("shake");
+  void b.offsetWidth;
+  b.classList.add("shake");
+  // keep any hint-revealed prefix so paid hints are not lost
+  var keep=-1;
+  for(var i=0;i<sel.length;i++)if(hintCells[sel[i]])keep=i;
+  sel=sel.slice(0,keep+1);
+  refreshCells();refreshWords();
+}
+function undo(){
+  if(finished)return;
+  if(sel.length)popCell();
+}
+function hint(){
+  if(finished)return;
+  startTimer();
+  var unsolved=[];
+  puzzle.words.forEach(function(w,i){if(!solved[i])unsolved.push(i);});
+  if(!unsolved.length)return;
+  // longest unsolved word first; prefer keeping as much of the current trace
+  // as possible, so a trace-in-progress gets extended rather than discarded
+  unsolved.sort(function(a,b){return puzzle.words[b].n.length-puzzle.words[a].n.length;});
+  var comp=null,chosenSel=null;
+  for(var cut=sel.length;cut>=0&&!comp;cut--){
+    var s=sel.slice(0,cut),L=selLetters(s);
+    for(var t=0;t<unsolved.length&&!comp;t++){
+      var ti=unsolved[t],n=puzzle.words[ti].n;
+      if(L.length>=n.length||n.slice(0,L.length)!==L)continue;
+      var r=solveMulti(freeArray(s),[n.slice(L.length)].concat(unsolvedSeqs(ti)),
+        s.length?s[s.length-1]:-1);
+      if(r&&r!=="cap"&&r!==true){comp=r;chosenSel=s;}
+    }
+  }
+  if(!comp){toast("אין רמז זמין");return;}
+  sel=chosenSel;
+  hints++;
+  var next=comp[0];
+  hintCells[next]=true;
+  sel.push(next);
+  cellEls[next].classList.add("pop");
+  refreshCells();refreshWords();
+  evaluateSel();
+}
+function emojiGrid(){
+  var out=[];
+  for(var r=0;r<puzzle.rows;r++){
+    var row="";
+    for(var c=0;c<puzzle.cols;c++){
+      var i=r*puzzle.cols+c;
+      row+=hintCells[i]?"🟥":"⬜";
+    }
+    out.push(row);
+  }
+  return out.join("\n");
+}
+function finish(){
+  finished=true;
+  stopTimer();
+  $("undoBtn").disabled=true;
+  $("hintBtn").disabled=true;
+  var results=loadResults();
+  if(!results[dateKey]){
+    results[dateKey]={t:elapsed,h:hints,m:mistakes,e:emojiGrid()};
+    saveResults(results);
+  }
+  showWin(results[dateKey]);
+  submitScore(results[dateKey]);
+}
+function showWin(res){
+  $("resTime").textContent=fmtTime(res.t);
+  $("resHints").textContent=res.h;
+  $("resMiss").textContent=res.m;
+  $("winPanel").classList.add("show");
+  $("winPanel").scrollIntoView({behavior:"smooth",block:"nearest"});
+}
+
+/* ---------- global leaderboard ---------- */
+function getNick(askIfMissing){
+  var nick="";
+  try{nick=localStorage.getItem(NICK_KEY)||"";}catch(e){}
+  if(!nick&&askIfMissing){
+    var raw=window.prompt("איך לרשום אתכם בטבלת השיא העולמית? (כינוי, עד 20 תווים)");
+    if(raw){
+      nick=raw.replace(/[<>\\]/g,"").replace(/\s+/g," ").trim().slice(0,20);
+      if(nick){try{localStorage.setItem(NICK_KEY,nick);}catch(e){}}
+    }
+  }
+  return nick;
+}
+function submitScore(res){
+  var nick=getNick(true); // prompt once; the nickname persists for next time
+  if(!nick){loadGlobal();return;}
+  fetch(LB_API,{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({date:dateKey,name:nick,timeSec:res.t,hints:res.h,mistakes:res.m})
+  }).then(function(r){
+    if(!r.ok)throw new Error("http "+r.status);
+    return r.json();
+  }).then(function(){loadGlobal();}).catch(function(){loadGlobal();});
+}
+function loadGlobal(){
+  fetch(LB_API+"?date="+encodeURIComponent(dateKey)).then(function(r){
+    if(!r.ok)throw new Error("http "+r.status);
+    return r.json();
+  }).then(renderGlobal).catch(function(){
+    // API missing or 503: hide the board, leave a small teaser
+    $("globalWrap").hidden=true;
+    $("globalSoon").hidden=false;
+  });
+}
+function renderGlobal(data){
+  var nick=getNick(false);
+  var list=$("globalList");
+  list.textContent="";
+  var top=data.top||[];
+  var shown=top.slice(0,10);
+  // if the player is ranked below 10 but inside the returned top list, append their row
+  if(nick){
+    var mineIdx=-1;
+    for(var i=0;i<top.length;i++)if(top[i].name===nick){mineIdx=i;break;}
+    if(mineIdx>=10)shown.push(top[mineIdx]);
+  }
+  if(!shown.length){
+    var li=document.createElement("li");
+    li.textContent="עוד אין תוצאות היום. אתם יכולים להיות הראשונים!";
+    list.appendChild(li);
+  }
+  shown.forEach(function(e){
+    var rank=top.indexOf(e)+1;
+    var li=document.createElement("li");
+    li.className="glrow";
+    if(nick&&e.name===nick)li.classList.add("me");
+    var r=document.createElement("span");r.className="rnk";r.textContent=rank+".";
+    var nm=document.createElement("span");nm.className="nm";nm.textContent=e.name;
+    var sc=document.createElement("span");sc.className="sc";
+    sc.textContent="⏱ "+fmtTime(e.timeSec)+" · 💡"+e.hints;
+    li.appendChild(r);li.appendChild(nm);li.appendChild(sc);
+    list.appendChild(li);
+  });
+  $("globalTotal").textContent=(data.total||0)+" שחקנים סיימו את החידה היום";
+  $("globalSoon").hidden=true;
+  $("globalWrap").hidden=false;
+}
+
+/* ---------- share ---------- */
+function shareText(res){
+  return "נתיב "+dateKey+" · "+puzzle.emoji+" · ⏱ "+fmtTime(res.t)+" · 💡"+res.h+" רמזים\n"+
+    res.e+"\n"+SITE_URL;
+}
+function doShare(){
+  var res=loadResults()[dateKey];
+  if(!res)return;
+  var text=shareText(res);
+  if(navigator.share){
+    navigator.share({text:text}).catch(function(){});
+  }else if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(function(){toast("הועתק! אפשר להדביק בכל מקום");},
+      function(){toast("ההעתקה נכשלה");});
+  }else{
+    toast("שיתוף לא נתמך בדפדפן הזה");
+  }
+}
+
+/* ---------- personal stats ---------- */
+function computeStats(){
+  var results=loadResults();
+  var keys=Object.keys(results).sort();
+  var games=keys.length;
+  var best=null;
+  keys.forEach(function(k){if(best===null||results[k].t<best)best=results[k].t;});
+  // streak: consecutive days ending today (or yesterday if today not yet played)
+  var streak=0;
+  var d=new Date();
+  var k=todayKey();
+  if(!results[k])d.setDate(d.getDate()-1);
+  for(;;){
+    k=d.getFullYear()+"-"+pad2(d.getMonth()+1)+"-"+pad2(d.getDate());
+    if(!results[k])break;
+    streak++;
+    d.setDate(d.getDate()-1);
+  }
+  var bestList=keys.map(function(k){return {k:k,t:results[k].t};})
+    .sort(function(a,b){return a.t-b.t;}).slice(0,5);
+  var dist=[0,0,0,0];
+  keys.forEach(function(k){dist[Math.min(results[k].h,3)]++;});
+  return {games:games,streak:streak,best:best,bestList:bestList,dist:dist};
+}
+function showStats(){
+  var s=computeStats();
+  $("stGames").textContent=s.games;
+  $("stStreak").textContent=s.streak;
+  $("stBest").textContent=s.best===null?"--":fmtTime(s.best);
+  var bl=$("bestList");
+  bl.textContent="";
+  if(!s.bestList.length){
+    var li=document.createElement("li");
+    li.textContent="עוד אין תוצאות. משחק ראשון מחכה למעלה.";
+    bl.appendChild(li);
+  }
+  s.bestList.forEach(function(e){
+    var li=document.createElement("li");
+    var a=document.createElement("span");a.textContent=e.k;
+    var b=document.createElement("b");b.textContent=fmtTime(e.t);
+    li.appendChild(a);li.appendChild(b);
+    bl.appendChild(li);
+  });
+  var labels=["0 רמזים","רמז 1","2 רמזים","3+ רמזים"];
+  var max=Math.max.apply(null,s.dist.concat([1]));
+  var dv=$("dist");
+  dv.textContent="";
+  s.dist.forEach(function(n,i){
+    var row=document.createElement("div");row.className="drow";
+    var l=document.createElement("span");l.className="dl";l.textContent=labels[i];
+    var bar=document.createElement("span");bar.className="dbar";
+    bar.style.width=Math.max(8,Math.round(n/max*100))+"%";
+    bar.textContent=n;
+    row.appendChild(l);row.appendChild(bar);
+    dv.appendChild(row);
+  });
+  var p=$("statsPanel");
+  p.classList.toggle("show");
+  if(p.classList.contains("show"))p.scrollIntoView({behavior:"smooth",block:"nearest"});
+}
+
+/* ---------- input: tap + drag ---------- */
+function cellFromEvent(ev){
+  var el=document.elementFromPoint(ev.clientX,ev.clientY);
+  while(el&&el!==document.body){
+    if(el.classList&&el.classList.contains("cell"))return parseInt(el.dataset.i,10);
+    el=el.parentNode;
+  }
+  return -1;
+}
+function bindInput(){
+  var board=$("board");
+  var dragging=false,moved=false;
+  board.addEventListener("pointerdown",function(ev){
+    if(finished)return;
+    ev.preventDefault();
+    var i=cellFromEvent(ev);
+    if(i<0)return;
+    dragging=true;moved=false;
+    if(sel.length&&sel[sel.length-1]===i){
+      // tapping the last selected cell removes it (quick undo)
+      popCell();
+      dragging=false;
+      return;
+    }
+    addCell(i);
+  });
+  board.addEventListener("pointermove",function(ev){
+    if(!dragging||finished)return;
+    ev.preventDefault();
+    var i=cellFromEvent(ev);
+    if(i<0)return;
+    moved=true;
+    if(sel.length>1&&sel[sel.length-2]===i){
+      popCell(); // dragging back over the previous cell backtracks
+      return;
+    }
+    addCell(i);
+  });
+  window.addEventListener("pointerup",function(){dragging=false;});
+  board.addEventListener("touchmove",function(ev){ev.preventDefault();},{passive:false});
+  $("undoBtn").addEventListener("click",undo);
+  $("hintBtn").addEventListener("click",hint);
+  $("statsBtn").addEventListener("click",showStats);
+  $("statsBtn2").addEventListener("click",showStats);
+  $("shareBtn").addEventListener("click",doShare);
+}
+
+/* ---------- restore an already-played day ---------- */
+function restorePlayed(res){
+  finished=true;
+  for(var i=0;i<solved.length;i++)solved[i]=true;
+  for(var i=0;i<locked.length;i++)locked[i]=true;
+  // recover hint cells from the stored emoji grid
+  if(res.e){
+    var rows=res.e.split("\n");
+    for(var r=0;r<rows.length;r++){
+      var chars=Array.from(rows[r]);
+      for(var c=0;c<chars.length;c++){
+        if(chars[c]==="🟥")hintCells[r*puzzle.cols+c]=true;
+      }
+    }
+  }
+  elapsed=res.t;
+  $("timer").textContent=fmtTime(res.t);
+  $("undoBtn").disabled=true;
+  $("hintBtn").disabled=true;
+  $("howto").textContent="כבר שיחקתם היום. חידה חדשה מחר!";
+  refreshCells();refreshWords();
+  showWin(res);
+  loadGlobal(); // show the global board without re-prompting or re-posting
+}
+
+/* ---------- boot ---------- */
+function pickDate(data){
+  var keys=Object.keys(data.days).sort();
+  var qd=null;
+  try{qd=new URLSearchParams(location.search).get("d");}catch(e){}
+  var want=(qd&&data.days[qd])?qd:todayKey();
+  if(data.days[want])return want;
+  // fall back to the latest date not after today, else the last available
+  var t=todayKey(),cand=null;
+  for(var i=0;i<keys.length;i++)if(keys[i]<=t)cand=keys[i];
+  return cand||keys[keys.length-1];
+}
+function boot(data){
+  dateKey=pickDate(data);
+  puzzle=data.days[dateKey];
+  adj=buildAdj(puzzle.rows,puzzle.cols);
+  locked=new Array(puzzle.rows*puzzle.cols);
+  for(var i=0;i<locked.length;i++)locked[i]=false;
+  solved=new Array(puzzle.words.length);
+  for(var i=0;i<solved.length;i++)solved[i]=false;
+  $("theme").textContent=puzzle.emoji+" "+puzzle.theme;
+  $("datemeta").textContent="חידה יומית · "+dateKey+" · "+puzzle.words.length+" מילים · "+puzzle.rows+"×"+puzzle.cols;
+  renderBoard();
+  renderWords();
+  refreshCells();
+  bindInput();
+  var res=loadResults()[dateKey];
+  if(res)restorePlayed(res);
+}
+fetch("./puzzles.json").then(function(r){
+  if(!r.ok)throw new Error("http "+r.status);
+  return r.json();
+}).then(boot).catch(function(e){
+  $("theme").textContent="שגיאה בטעינת החידה";
+  $("datemeta").textContent="נסו לרענן את הדף";
+});
+})();
+</script>
+</body>
+</html>

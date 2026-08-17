@@ -1,10 +1,16 @@
 #!/usr/bin/env python3
 """Programmatic-SEO מילון: entity + category/length pages from our own indices.
 
-Competitor gap (measured 2026-08): note.co.il/מורדו index by DEFINITION text;
-nobody serves entity pages or the "זמרת 4 אותיות" query shape. We generate:
+Competitor gap (measured 2026-08): note.co.il/מורדו index by DEFINITION text.
+The original bet here was the "זמרת 4 אותיות" length shape, and 90 days of
+Search Console says that bet was wrong: of 31 Hebrew queries, ZERO searched by
+length, while four searched by starting letter and one by "<word> פירוש".
+Length pages stay (they are cheap and they do rank), but the letter index and
+the פירוש framing below exist because the query log asked for them.
+
   /milon/                      search hub (client-side: name/pattern/length)
   /milon/<cat>-<len>/          category-length lists (זמרים ב-4 אותיות...)
+  /milon/<cat>-letter-<א>/     category-letter lists (ערים באות א...)
   /milon/e/<name>/             entity pages for entities with rich data
 All content is derived (names from wikipedia/shironet titles, our own stats).
 No newspaper clue text is published: the line the whole project keeps.
@@ -19,6 +25,9 @@ BASE='https://tashbetz.gtmascode.dev'
 
 cult=json.load(open('solver/lex/culture.json'))
 DESC=json.load(open('data/culture/descriptions.json')) if os.path.exists('data/culture/descriptions.json') else {}
+# Source descriptions occasionally carry an em-dash; the project publishes none,
+# so normalise at load rather than trusting upstream data to stay clean.
+DESC={k:(v or '').replace('\u2014','-').replace('\u2013','-') for k,v in DESC.items()}
 amb=json.load(open('solver/lex/ambiguities.json'))
 cw=json.load(open('solver/crosswordese.json')) if os.path.exists('solver/crosswordese.json') else {}
 subs=json.load(open('solver/lex/substitutions.json'))
@@ -108,7 +117,7 @@ def page(path,title,desc,body,jsonld=None,crumb=None):
 <div class="crumb"><a href="/milon/">מילון</a> · <a href="/solve/">עוזר הפתירה</a> · <a href="/">דף הבית</a></div></header>
 {body}
 <footer>מבוסס על אינדקס פתוח (ויקיפדיה/ויקימילון/שירונט, CC BY-SA, עם קישור למקור) וניתוח סטטיסטי מקורי · לא מתפרסמות הגדרות מעיתונים ·
-<a href="https://www.linkedin.com/in/razkaplan/">פרויקט של רז קפלן</a></footer></div></body></html>""")
+<a href="https://www.linkedin.com/in/razkaplan/">פרויקט של רז קפלן</a> · <a href="/nativ/">🪄 נתיב, המשחק היומי</a></footer></div></body></html>""")
 
 # relations: song <-> artist from shironet (titles are public metadata, lyrics never copied)
 song_rel={}; artist_rel={}
@@ -209,6 +218,42 @@ for cat,(plural,single) in CATS.items():
               "numberOfItems":len(items)})
         urls.append(f'/milon/{slug}/')
 
+# ---------- category-LETTER pages ----------
+# Search Console (90d, measured 2026-08-17) says the length premise this file
+# was built on is wrong: of 31 Hebrew queries, ZERO searched by word length,
+# while four searched by starting letter ("עיר באות א בישראל", "עיר בישראל
+# באות מ"). Those queries currently land on a length page that does not answer
+# them, at position ~60. Index the dimension people actually type.
+for cat,(plural,single) in CATS.items():
+    by_letter={}
+    for t in cult.get(cat,[]):
+        n=norm(t)
+        if 2<=len(n)<=12 and n: by_letter.setdefault(n[0],[]).append((t,n))
+    for ch,items in sorted(by_letter.items()):
+        if len(items)<5: continue
+        items.sort(key=lambda x:(-cw.get(x[1],0),x[0]))
+        slug=f'{cat}-letter-{ch}'
+        lis=''.join(
+            f'<li id="L{n}"><b>{t}</b>'
+            f'{f" <span class=\"k\" style=\"font-size:.55rem\">{cw[n]}×</span>" if cw.get(n,0)>=2 else ""}'
+            f'{f"<br><small>{get_desc(cat,t,n)[:90]}</small>" if get_desc(cat,t,n) else ""}'
+            f'<br><small style="font-family:monospace;color:#5c5c5c">{n} · {len(n)} אותיות</small></li>'
+            for t,n in items[:400])
+        lens=sorted({len(n) for _,n in items})
+        body=f"""<p><b>{len(items)} {plural}</b> שמתחילים באות <b>{ch}</b>, עם מספר האותיות של כל אחד
+ברשת התשבץ (בתשבץ אין אותיות סופיות: ם/ן/ץ/ף/ך נכתבות מ/נ/צ/פ/כ).</p>
+<p style="font-size:.9rem">אורכים זמינים: {', '.join(f'<a href="/milon/{urllib.parse.quote(f"{cat}-{L}")}/">{L}</a>' for L in lens if L>=2)}</p>
+<ul class="grid">{lis}</ul>"""
+        page(f'{OUT}/{slug}/index.html',
+             f'{plural} באות {ch}: {len(items)} תשובות לתשבץ ותשחץ',
+             f'{single} שמתחיל באות {ch}? {len(items)} אפשרויות עם מספר האותיות והכתיב המדויק ברשת, '
+             f'ממוינות לפי שכיחות בתשבצים. לפתרון תשבצי היגיון ותשחצים.',
+             body,
+             {"@context":"https://schema.org","@type":"ItemList",
+              "name":f"{plural} באות {ch}","numberOfItems":len(items)},
+             crumb=f'{plural} באות {ch}')
+        urls.append(f'/milon/{urllib.parse.quote(slug)}/')
+
 # ---------- entity pages: entities with rich data or references ----------
 def refs_for(cat,t,n):
     """at least one reference per entity; internal cross-links resolved later"""
@@ -301,8 +346,11 @@ for cat,t in sorted(page_set):
         "inDefinedTermSet":f"{BASE}/milon/"}
     ext=[v[1] for k,v in refs if k=='ext']
     if ext: ld["sameAs"]=ext
+    # "אבוס פירוש" is a real query that lands here, so entries that actually
+    # carry a definition say so in the title; the rest keep the crossword framing.
     page(f'{OUT}/e/{urllib.parse.quote(t,safe="")}/index.html',
-         f'{t} בתשבץ: {single} ב-{len(n)} אותיות (כתיב: {n})',
+         (f'{t}: פירוש ומשמעות, {single} ב-{len(n)} אותיות בתשבץ' if d else
+          f'{t} בתשבץ: {single} ב-{len(n)} אותיות (כתיב: {n})'),
          meta_desc(t,n,single,d,c,a,sb,related),
          body, ld, crumb=t)
     urls.append(f'/milon/e/{urllib.parse.quote(t,safe="")}/')
@@ -394,7 +442,14 @@ urls.insert(1,'/milon/anagram/')
 
 # ---------- sitemap + robots ----------
 sm='<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
-for u in ['/','/solve/','/methods/','/research/','/research/he/']+urls:
+# Trainer pages (app/build_trainer.py) join the same sitemap rather than a
+# second competing one; missing file just means the trainer has not been built.
+trainer=[]
+if os.path.isdir('docs/tirgul'):
+    trainer=['/tirgul/']+[f'/tirgul/{d}/' for d in sorted(os.listdir('docs/tirgul'),
+             key=lambda x:(not x.isdigit(), int(x) if x.isdigit() else x))
+             if os.path.exists(f'docs/tirgul/{d}/index.html')]
+for u in ['/','/solve/','/methods/','/research/','/research/he/']+trainer+urls:
     sm+=f'  <url><loc>{BASE}{u}</loc></url>\n'
 sm+='</urlset>'
 open('docs/sitemap.xml','w').write(sm)
