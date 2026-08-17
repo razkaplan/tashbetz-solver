@@ -75,6 +75,10 @@ main{flex:1;width:100%;max-width:560px;margin:0 auto;padding:1.2rem 1rem 2rem}
 .subhead{font-weight:700;margin-top:.7rem;border-top:1px solid var(--line);padding-top:.5rem}
 .bestlist{list-style:none;font-variant-numeric:tabular-nums}
 .bestlist li{display:flex;justify-content:space-between;padding:.15rem 0;font-size:.95rem}
+.bestlist li.me{color:var(--red);font-weight:700;background:var(--sel);padding-inline:.3rem}
+.glrow .rnk{color:var(--muted);width:1.6rem;font-weight:700}
+.glrow .nm{flex:1;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.glrow .sc{white-space:nowrap}
 .dist{display:flex;flex-direction:column;gap:.25rem;margin-top:.3rem}
 .drow{display:flex;align-items:center;gap:.5rem;font-size:.85rem}
 .drow .dl{width:3.2rem;color:var(--muted)}
@@ -115,7 +119,7 @@ footer a{color:var(--red)}
 
   <div id="board" aria-label="לוח המשחק"></div>
   <div id="words"></div>
-  <p class="howto" id="howto">גררו או הקישו על אותיות סמוכות (גם באלכסון) כדי לאיית את המילה הבאה. כל אות בלוח משמשת בדיוק פעם אחת, וכל מילה חדשה ממשיכה מסוף המילה הקודמת.</p>
+  <p class="howto" id="howto">גררו או הקישו על אותיות סמוכות (למעלה, למטה, ימינה או שמאלה - בלי אלכסונים) כדי לאיית את המילה הבאה. כל אות בלוח משמשת בדיוק פעם אחת, וכל מילה חדשה ממשיכה מסוף המילה הקודמת.</p>
 
   <div class="panel" id="winPanel">
     <h2>כל הכבוד<em>!</em> סיימתם את הנתיב</h2>
@@ -128,6 +132,12 @@ footer a{color:var(--red)}
       <button class="btn primary" id="shareBtn" type="button">📤 שיתוף התוצאה</button>
       <button class="btn" id="statsBtn2" type="button">📊 סטטיסטיקה</button>
     </div>
+    <div id="globalWrap" hidden>
+      <div class="subhead">🌍 טבלת השיא העולמית של היום</div>
+      <ol class="bestlist" id="globalList"></ol>
+      <p class="note" id="globalTotal"></p>
+    </div>
+    <p class="note" id="globalSoon" hidden>🌍 טבלת שיא עולמית - בקרוב</p>
     <p class="note">חידה חדשה מחר. אפשר בינתיים לחפור ב<a href="/milon/">מילון</a>.</p>
   </div>
 
@@ -157,6 +167,8 @@ footer a{color:var(--red)}
 "use strict";
 var SITE_URL="https://tashbetz.gtmascode.dev/nativ/";
 var LS_KEY="nativ.results.v1";
+var NICK_KEY="nativ.nick.v1";
+var LB_API="/api/leaderboard";
 
 var puzzle=null, dateKey=null;
 var adj=[];            // neighbor lists per cell
@@ -195,9 +207,10 @@ function buildAdj(rows,cols){
   var a=[];
   for(var i=0;i<rows*cols;i++){
     var r=Math.floor(i/cols),c=i%cols,cur=[];
-    for(var dr=-1;dr<=1;dr++)for(var dc=-1;dc<=1;dc++){
-      if(!dr&&!dc)continue;
-      var nr=r+dr,nc=c+dc;
+    // orthogonal neighbors only - diagonals are not allowed
+    var deltas=[[-1,0],[1,0],[0,-1],[0,1]];
+    for(var k=0;k<deltas.length;k++){
+      var nr=r+deltas[k][0],nc=c+deltas[k][1];
       if(nr>=0&&nr<rows&&nc>=0&&nc<cols)cur.push(nr*cols+nc);
     }
     a.push(cur);
@@ -462,6 +475,7 @@ function finish(){
     saveResults(results);
   }
   showWin(results[dateKey]);
+  submitScore(results[dateKey]);
 }
 function showWin(res){
   $("resTime").textContent=fmtTime(res.t);
@@ -469,6 +483,75 @@ function showWin(res){
   $("resMiss").textContent=res.m;
   $("winPanel").classList.add("show");
   $("winPanel").scrollIntoView({behavior:"smooth",block:"nearest"});
+}
+
+/* ---------- global leaderboard ---------- */
+function getNick(askIfMissing){
+  var nick="";
+  try{nick=localStorage.getItem(NICK_KEY)||"";}catch(e){}
+  if(!nick&&askIfMissing){
+    var raw=window.prompt("איך לרשום אתכם בטבלת השיא העולמית? (כינוי, עד 20 תווים)");
+    if(raw){
+      nick=raw.replace(/[<>\\]/g,"").replace(/\s+/g," ").trim().slice(0,20);
+      if(nick){try{localStorage.setItem(NICK_KEY,nick);}catch(e){}}
+    }
+  }
+  return nick;
+}
+function submitScore(res){
+  var nick=getNick(true); // prompt once; the nickname persists for next time
+  if(!nick){loadGlobal();return;}
+  fetch(LB_API,{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({date:dateKey,name:nick,timeSec:res.t,hints:res.h,mistakes:res.m})
+  }).then(function(r){
+    if(!r.ok)throw new Error("http "+r.status);
+    return r.json();
+  }).then(function(){loadGlobal();}).catch(function(){loadGlobal();});
+}
+function loadGlobal(){
+  fetch(LB_API+"?date="+encodeURIComponent(dateKey)).then(function(r){
+    if(!r.ok)throw new Error("http "+r.status);
+    return r.json();
+  }).then(renderGlobal).catch(function(){
+    // API missing or 503: hide the board, leave a small teaser
+    $("globalWrap").hidden=true;
+    $("globalSoon").hidden=false;
+  });
+}
+function renderGlobal(data){
+  var nick=getNick(false);
+  var list=$("globalList");
+  list.textContent="";
+  var top=data.top||[];
+  var shown=top.slice(0,10);
+  // if the player is ranked below 10 but inside the returned top list, append their row
+  if(nick){
+    var mineIdx=-1;
+    for(var i=0;i<top.length;i++)if(top[i].name===nick){mineIdx=i;break;}
+    if(mineIdx>=10)shown.push(top[mineIdx]);
+  }
+  if(!shown.length){
+    var li=document.createElement("li");
+    li.textContent="עוד אין תוצאות היום. אתם יכולים להיות הראשונים!";
+    list.appendChild(li);
+  }
+  shown.forEach(function(e){
+    var rank=top.indexOf(e)+1;
+    var li=document.createElement("li");
+    li.className="glrow";
+    if(nick&&e.name===nick)li.classList.add("me");
+    var r=document.createElement("span");r.className="rnk";r.textContent=rank+".";
+    var nm=document.createElement("span");nm.className="nm";nm.textContent=e.name;
+    var sc=document.createElement("span");sc.className="sc";
+    sc.textContent="⏱ "+fmtTime(e.timeSec)+" · 💡"+e.hints;
+    li.appendChild(r);li.appendChild(nm);li.appendChild(sc);
+    list.appendChild(li);
+  });
+  $("globalTotal").textContent=(data.total||0)+" שחקנים סיימו את החידה היום";
+  $("globalSoon").hidden=true;
+  $("globalWrap").hidden=false;
 }
 
 /* ---------- share ---------- */
@@ -620,6 +703,7 @@ function restorePlayed(res){
   $("howto").textContent="כבר שיחקתם היום. חידה חדשה מחר!";
   refreshCells();refreshWords();
   showWin(res);
+  loadGlobal(); // show the global board without re-prompting or re-posting
 }
 
 /* ---------- boot ---------- */

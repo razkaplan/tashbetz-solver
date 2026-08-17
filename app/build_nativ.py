@@ -4,8 +4,9 @@
 For each day: pick a themed category from the milon, pick 4 entity names
 (4-8 letters each, normalized non-final Hebrew) whose lengths sum to exactly
 25 (5x5) or 30 (6x5), then lay the concatenated letters along a random
-self-avoiding path that visits every cell exactly once (8-directional
-adjacency, backtracking search). Validates every puzzle before writing.
+self-avoiding path that visits every cell exactly once (4-directional
+orthogonal adjacency - no diagonals, backtracking search). Validates every
+puzzle before writing.
 """
 import json
 import random
@@ -72,13 +73,10 @@ def neighbors(rows, cols):
     for i in range(rows * cols):
         r, c = divmod(i, cols)
         cur = []
-        for dr in (-1, 0, 1):
-            for dc in (-1, 0, 1):
-                if dr == 0 and dc == 0:
-                    continue
-                nr, nc = r + dr, c + dc
-                if 0 <= nr < rows and 0 <= nc < cols:
-                    cur.append(nr * cols + nc)
+        for dr, dc in ((-1, 0), (1, 0), (0, -1), (0, 1)):
+            nr, nc = r + dr, c + dc
+            if 0 <= nr < rows and 0 <= nc < cols:
+                cur.append(nr * cols + nc)
         adj.append(cur)
     return adj
 
@@ -152,7 +150,7 @@ def validate(puzzle):
     for a, b in zip(path, path[1:]):
         ra, ca = divmod(a, cols)
         rb, cb = divmod(b, cols)
-        assert max(abs(ra - rb), abs(ca - cb)) == 1, "path cells must be adjacent"
+        assert abs(ra - rb) + abs(ca - cb) == 1, "path cells must be orthogonally adjacent (no diagonals)"
     letters = "".join(grid[i] for i in path)
     assert letters == "".join(w["n"] for w in puzzle["words"]), "path letters must spell the words"
     for w in puzzle["words"]:
@@ -200,7 +198,7 @@ def main():
     if missing:
         sys.exit(f"no candidates for categories: {missing}")
 
-    rng = random.Random("nativ-v1")
+    rng = random.Random("nativ-v2")
     used_global = set()
     days = {}
     stats = {}
