@@ -68,3 +68,46 @@ implemented — candidate generation is upstream of that and had to come first).
 where "candidate" means "any dictionary word of the right length crossing existing
 letters" — there is no wordplay-decoding step, which is the entire difficulty of this
 project's puzzles. Confirms DAILY.md's standing skepticism.
+
+## 2026-08-17
+
+**"Are LLMs Good Cryptic Crossword Solvers?"** (arXiv 2403.12094, Sadallah/Kotova/
+Kochmar; NAACL-adjacent, revised Jan 2025). https://arxiv.org/pdf/2403.12094
+Benchmarks LLaMA2, Mistral, and vanilla ChatGPT on English cryptics with no special
+scaffolding: 7-9% clue accuracy vs 74% for self-reported amateur humans and 99% for
+experts. **Transfer: calibration only, no new method.** It predates and is superseded
+by the reasoning-based (generate-then-formalize-then-verify) approach already adopted
+here (arXiv 2506.04824, credited 2026-08-06); its main value is confirming that raw
+LLM wordplay-solving without candidate generation or a proof gate is genuinely weak in
+general, not just on this Hebrew setter — consistent with this project's own diagnosis
+that a single hand-picked guess is the wrong shape for this task.
+
+**Substitution/equivalence mining from crowd-sourced puzzle explanations** — searched
+specifically for prior art on today's lever (extracting clue-fragment -> answer-fragment
+equivalences from crowd explanation text, as `solver/substitutions.py` already does).
+Found nothing directly on point; closest adjacent work was "Explaining Puzzle Solutions
+in Natural Language" (ACL 2025 Findings), which targets Sudoku solution *narration*, not
+extracting a reusable equivalence table from existing human explanations for a downstream
+generator. **Transfer: none found — this appears to be a locally-developed technique**,
+which is consistent with the genre being a small, Hebrew-specific niche with no existing
+academic benchmark (unlike English Cryptonite/Times cryptics).
+
+**Hebrew morphological segmentation, re-checked.** Same landscape as 2026-08-06
+(RFTokenizer, HebPipe), plus **YAP** (morpho-syntactic parser: analysis, disambiguation,
+dependency parsing) and CommonMorph (LREC 2026, a participatory *documentation* platform,
+not a segmenter). **Transfer: still plausible, still not attempted.** Same reasoning as
+before — could in principle strip clitics (ב/ל/מ/ש/ה/ו/כ) more systematically than the
+current ad hoc prefix lists in `homographs.py`/`charade.py`, but no new evidence this run
+that it would move the measured bottleneck (candidate quality, not tokenization).
+
+**Meta-finding, not a transfer question: search-engine summarization silently drops
+retraction context.** A general web search for this exact research area surfaced this
+project's own public site (tashbetz-solver.vercel.app) and the search tool's own summary
+described "a v6 solver run returned 27 of 28 clues correct on 2026-06-05 ... suggesting
+significant recent improvements" — presenting the **retracted 96%/leak result**
+(RESULTS.md's own integrity finding, 2026-07-21) as if it were validated progress. The
+live page itself is fully honest: it has a dedicated "Retraction" section explaining the
+lexicon leak in detail, immediately below the same numbers. The summarizer simply
+stripped that context when condensing the page. Not a site bug, not actioned — but a
+concrete reminder for this project's own research step: read primary sources in full,
+don't trust a search summary's framing, especially for anything self-referential.

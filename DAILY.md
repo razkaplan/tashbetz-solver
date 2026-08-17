@@ -11,21 +11,28 @@ Read this first each run. It is the handoff between days.
 | Accurate fulfilment (yield) | 55% (unchanged, not re-run today) | ~67% |
 | Best single puzzle | 2026-05-29: 95% / 71% / 68% ✓ all targets | |
 | Hardest puzzle | 2026-06-05: 100% / 43% / 43% | coverage stuck |
-| **Candidate recall@N (new, offline, mechanical only)** | **3.6% (1/28)**, avg 11.6 candidates/clue, on 2026-05-29 | not yet a target — diagnostic |
+| **Candidate recall@N (offline, mechanical only)** | **4.0% (1/25)**, avg 14.5 candidates/clue, on 2026-04-03 (new dev puzzle; see log) | not yet a target — diagnostic |
 
 Baseline for comparison: v2 = 41% raw with untraceable errors.
-Last lever added: **mechanical candidate generation** (`solver/candidates.py`) —
-anagram/hidden/reversal/pattern candidates per clue, character-level fodder windows
-(not just whole-word), feeding the existing proof gate. Precision/coverage/yield were
-NOT re-measured this run (that requires a full LLM solve session, out of scope for one
-lever) — only the generator's own offline recall was, honestly, and it is low. See log.
-Last finding: coverage is bounded by CANDIDATE GENERATION, not verification. Same
-conclusion the cryptic-SOTA paper reached independently. Today's finding refines this:
-even a mechanically thorough (character-level, all 3 base mechanisms) generator recovers
-only 1/28 answers on this setter's hardest puzzle, because most of its wordplay is not
-literal anagram/hidden/reversal — it leans on substitution and homograph devices
-(consistent with PLAYBOOK.md). The generator is real infrastructure for the proof gate
-to use, but by itself it is a small piece of the coverage problem, not the whole fix.
+Last lever added: **substitution- and homograph-aware candidate generation**
+(`solver/candidates.py`, 2026-08-17) — extends the anagram/hidden/reversal generator
+with two more mechanisms: (a) re-run anagram/hidden/reversal over fodder where one
+clue word has been swapped for a mined `substitutions.json` equivalent first, and
+(b) flag a same-length ambiguous clue word (`ambiguities.json`) as a double-definition
+candidate. MEASURED on the same puzzle, controlled before/after: recall unchanged at
+4.0% (1/25) both with and without the new mechanisms — the one hit is the same plain
+anagram as before. Candidate volume rose 10.5 -> 14.5 avg/clue (functioning, not a
+no-op), but recovered zero additional held-out answers on this puzzle. Honest negative
+result — see log for the full picture, including that substitution_candidates alone is
+very noisy (avg ~123 raw candidates/clue on the 20/25 clues it fires on, before
+dedup/truncation), a real design gap worth fixing before trying it again elsewhere.
+Last finding (2026-08-06, still holds): coverage is bounded by CANDIDATE GENERATION,
+not verification — same conclusion the cryptic-SOTA paper reached independently. Two
+runs now agree that mechanical generation, however extended, is not closing the gap by
+itself on this setter's hardest puzzles; the far larger charade/assembly mechanism
+(PLAYBOOK.md: ~35-40% of clues) still isn't mechanically generated end-to-end, only
+patched at the edges (this run's substitution mechanism, and the already-negative
+`charade.py` full-assembly attempt from 2026-08-08).
 
 ## The policy that governs everything
 A blank beats a wrong answer. Wrong letters corrupt crossings and poison later passes.
@@ -54,12 +61,19 @@ propagated), `blank`. Score with `python3 evals/run_eval.py <file>`.
 
 1. **Candidate generation** — the measured bottleneck. `solver/candidates.py` (2026-08-06)
    does the mechanical half (anagram/hidden/reversal/pattern, character-level fodder
-   windows) but measures only 3.6% recall alone — NOT sufficient by itself. Remaining
-   work, roughly in order: (a) wire it into an actual solve pass so an LLM proof-gates
-   the generated list instead of one guess — not done yet, this was pure offline
-   generator + recall measurement; (b) add substitution- and homograph-aware generation
-   (`substitutions.py`, `homographs.py` as additional mechanisms) — the setter leans on
-   these, not literal anagram/hidden/reversal, per the 3.6% result and PLAYBOOK.md.
+   windows); measured 3.6% / 4.0% recall alone on two different dev puzzles — NOT
+   sufficient by itself. (b) **substitution- and homograph-aware generation — DONE
+   2026-08-17, measured NEGATIVE**: added as two more mechanisms, controlled before/after
+   on the same puzzle shows recall unchanged (4.0% both ways) though candidate volume
+   rose (10.5 -> 14.5 avg/clue); the substitution mechanism is real but noisy (~123 raw
+   candidates/clue on clues it fires on). Do not re-attempt this exact combination without
+   a new idea — retry only with (c) below, or on a second dev puzzle for a cleaner signal.
+   Remaining work, roughly in order: (a) wire the generator into an actual solve pass so
+   an LLM proof-gates the generated list instead of one guess — still not done, everything
+   so far has been offline generator + recall measurement only; (c) rank/score candidates
+   before truncating to `max_n` (e.g. weight by substitution corpus-count, mechanism type)
+   so the noisy substitution mechanism can't crowd out weaker-but-correct literal hits on
+   clues where both fire heavily — a concrete gap found 2026-08-17, not yet built.
 2. **Definition-span detection** — a cryptic clue's definition sits at one END. Classify
    which end, then solve the wordplay from the remainder. Standard in the literature,
    never tried here.
@@ -318,3 +332,80 @@ Measure each lever on dev (fixed enums) with run_eval.py before/after; one lever
   dataset clues.jsonl as split=train (spent for eval); (3) rebuild crosswordese +
   re-mine substitutions; (4) rebuild client bundle. Done today for 31/07, 07/08, 14/08
   (84 new train clues; corpus now 55 puzzles). This is step 7 of every solve flow.
+- 2026-08-17: **substitution- and homograph-aware candidate generation**, continuing
+  lever 1(b) from the queue. PR: `daily/2026-08-17-substitution-homograph-candidates`.
+
+  BOOTSTRAP was rockier than 2026-08-06: 14across's bot-check rejected far more requests
+  today (first full run: 13/52 puzzles; a full retry: 3/52; even a narrowly-targeted
+  20-attempt retry loop on a single URL that had JUST succeeded once immediately started
+  failing 25/25 straight after — consistent with a request-volume-triggered block kicking
+  in partway through the session, not the "random ~50%" pattern documented 2026-08-06).
+  Backed off rather than keep hammering the endpoint. Also: bootstrap.sh's own
+  `solver/lex/substitutions.json` rebuild step ran (116 head words, far smaller than
+  committed 2,220) and this time it DID silently overwrite the working tree, unlike the
+  guard rail implied by its own printed warning — `git checkout -- solver/lex/substitutions.json`
+  reverted it before anything downstream used the regressed version. Worth a follow-up:
+  the printed warning is informational only, nothing actually blocks the write.
+
+  DEV PUZZLE: the usual 2026-05-29/2026-06-05 dev dates were exactly the two that failed
+  scraping today (bad luck, or the two most-hammered URLs from repeated attempts). Rather
+  than force those, used one of the 3 puzzles that DID scrape cleanly this session
+  (2026-04-03) and downloaded its one extra image directly from the public Haaretz CDN
+  (unaffected by 14across's block — image and answer-page fetches are separate hosts).
+  Transcribed all 28 clues from `data/images/2026-04-02.jpg` by eye, cross-validating
+  every enum against the gold answer's letter count as required. Found **3 genuine
+  mismatches** (24 across, 4 down, 5 down) — confirmed NOT a misreading by re-zooming
+  each digit to extreme resolution multiple times; in all 3 cases the clue's own crowd
+  explanation independently supports the DIFFERENT (correct) letter count implied by the
+  printed enum (e.g. clue 5 down "לוי רקדן אמיץ!" (4,2,2)=8 is an exact-multiset anagram
+  fodder for the gold "דולניקר" (7 letters) — the scraped gold string is short one letter).
+  This looks like scraper/OCR corruption on 14across's end, not a newspaper typo or a
+  reversed-enumeration case (`fix_enums.py` doesn't even flag these — its check requires
+  `sum(enum) == len(gold)` to fire at all, which is false here by design of the bug).
+  Excluded these 3 from the recall measurement (25/28 valid) rather than guess-correct
+  the gold data. Did NOT transcribe a grid for this puzzle — out of scope for a
+  candidate-generation-only measurement; a future full solve run on this date needs one.
+  Nothing here is committed (by design, `data/` is gitignored); a future run redoes it.
+
+  BUILT: `substitution_candidates` and `homograph_candidates` in `solver/candidates.py`
+  (see file docstring for the mechanism description). Selftest extended with 2 new
+  deterministic checks (שר~זמר substitution, שרה homograph); all 7 checks pass.
+
+  MEASURED, controlled before/after on the SAME 25 valid clues of 2026-04-03:
+  - OLD (anagram/hidden/reversal only): 1/25 = 4.0%, avg 10.5 candidates/clue.
+  - NEW (+ substitution + homograph): 1/25 = 4.0%, avg 14.5 candidates/clue.
+  Recall is UNCHANGED — the one hit (11 across, "כך הוא מוסר צפנים" -> מורס, a plain
+  anagram of מוסר) is the same clue both times; neither new mechanism recovered anything
+  extra on this puzzle. Checked they are not dead code: `substitution_candidates` alone
+  fires on 20/25 clues, generating 3,076 raw candidates total (avg ~123 on the clues it
+  fires on) before dedup/truncation to `max_n`; `homograph_candidates` is far more
+  conservative, firing on only 2/25 clues. HONEST READ: this is a real negative result on
+  this dev puzzle, not a bug — the substitution mechanism is working but noisy (single-
+  word substitution + anagram/hidden/reversal search generates many spurious hits,
+  consistent with `charade.py`'s earlier 2.8%-hit-rate finding that this genre's
+  substitution table is too sparse/ambiguous to pin down a full answer on its own), and
+  the homograph mechanism is narrow by construction (exact-length + ambiguity-index hit
+  is a rare coincidence). One dev puzzle (n=25) is not enough to rule the mechanisms out
+  generally — the earlier 2026-05-29 measurement (28 clues, different puzzle) is the only
+  other data point and wasn't re-run with these mechanisms this session (scraper
+  flakiness blocked re-fetching it) — but on THIS puzzle they added candidate volume
+  without adding correctness.
+
+  AUDIT: `lexicon.held_out_answers()` confirmed to correctly block all 28 of this
+  puzzle's gold answers (spot-checked 4 directly: present in the block set, absent from
+  `lexicon.load()`'s output) — no leak. No forbidden reads: only touched
+  `data/images/*.jpg` (public CDN, transcription) and `data/answers/by_date/*.json`
+  (enum validation per protocol, never fed to the generator). No jump to explain (4.0%
+  is close to the prior 3.6%, not suspicious). Research pass (RESEARCH.md) turned up a
+  genuinely interesting side-finding, not a fix: a plain web search surfaced this
+  project's own public site and the search tool's summary presented the RETRACTED 96%
+  leak number as validated "2026 progress" — the live page itself fully caveats it in a
+  dedicated Retraction section; the search summarizer just dropped that context. Not
+  actioned (site is fine), but a reminder to read primary sources, not summaries.
+
+  NOT DONE (would be scope creep for one lever): re-measuring the 2026-05-29 puzzle for
+  a second data point (blocked by scraper access today); ranking/scoring candidates
+  before truncation to stop the noisy substitution mechanism from potentially crowding
+  out weaker-but-correct literal hits on clues where both fire heavily (flagged as a
+  concrete next refinement, not implemented); wiring `candidates.py` into a live solve
+  pass (still item (a) from the queue, unchanged).
