@@ -1,0 +1,46 @@
+<!doctype html><html lang="he" dir="rtl"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1"><title>תרגול תשבצים: 100 תשבצי אימון עם הסבר לכל תשובה</title>
+<meta name="description" content="100 תשבצי אימון בעברית לפתירה בדפדפן, מדורגים לפי רמה. כל תשובה מגיעה עם המנגנון וההוכחה שמאחוריה: הגדרה, היפוך, אנגרמה ומילה מוסתרת."><link rel="canonical" href="https://tashbetz.gtmascode.dev/tirgul/"><script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "דף הבית", "item": "https://tashbetz.gtmascode.dev/"}, {"@type": "ListItem", "position": 2, "name": "תרגול", "item": "https://tashbetz.gtmascode.dev/tirgul/"}]}</script><script type="application/ld+json">{"@context": "https://schema.org", "@type": "ItemList", "name": "תשבצי אימון", "numberOfItems": 100}</script><style>*{box-sizing:border-box}body{margin:0;background:#fff;color:#121212;font-family:'Frank Ruhl Libre','Arial Hebrew',serif;line-height:1.6}
+.w{max-width:52rem;margin:0 auto;padding:1rem 1.2rem}header{border-bottom:1px solid #121212;box-shadow:0 3px 0 -1px #121212;padding:.8rem 0}
+h1{font-size:1.6rem;margin:.2rem 0}.k{font-family:monospace;font-size:.65rem;letter-spacing:.12em;color:#fff;background:#f22b39;display:inline-block;padding:.12rem .5rem}
+a{color:#f22b39}h2{border-bottom:3px solid #f22b39;display:inline-block;font-size:1.1rem;padding-bottom:.1rem}
+.crumb{font-size:.8rem;color:#5c5c5c;margin:.6rem 0}
+footer{margin:2.5rem 0 1.5rem;border-top:1px solid #dcdcdc;padding-top:.8rem;font-size:.8rem;color:#5c5c5c}
+.board{display:grid;direction:rtl;gap:2px;background:#121212;padding:2px;width:max-content;margin:1rem 0;border:2px solid #121212}
+.cell{width:2.6rem;height:2.6rem;background:#fff;position:relative}
+.cell.black{background:#121212}
+.cell input{width:100%;height:100%;border:0;text-align:center;font-size:1.25rem;font-family:inherit;background:transparent;padding:0}
+.cell input:focus{outline:0;background:#ffe9a8}
+.cell.hl{background:#fff4d6}.cell.ok input{color:#1a7f37}.cell.bad input{color:#f22b39}
+.cell .n{position:absolute;top:1px;right:3px;font-size:.6rem;color:#5c5c5c;font-family:monospace}
+.clues{display:grid;grid-template-columns:repeat(auto-fit,minmax(15rem,1fr));gap:1.2rem}
+.clues ol{padding-inline-start:1.2rem;margin:.3rem 0}
+.clues li{margin:.35rem 0;cursor:pointer}
+.clues li.done{color:#5c5c5c;text-decoration:line-through}
+.bar{display:flex;gap:.5rem;flex-wrap:wrap;margin:.8rem 0}
+button.act{font:inherit;background:#121212;color:#fff;border:0;border-radius:4px;padding:.45rem 1rem;cursor:pointer}
+button.act.ghost{background:#fff;color:#121212;border:1.5px solid #121212}
+.exp{background:#f6f5f3;border-radius:4px;padding:.7rem .9rem;margin:.5rem 0;font-size:.9rem;display:none}
+.exp.on{display:block}
+.exp b{font-family:monospace}
+.lvl{display:grid;grid-template-columns:repeat(auto-fill,minmax(4.2rem,1fr));gap:.4rem;padding:0;list-style:none;margin:.6rem 0 1.4rem}
+.lvl a{display:block;text-align:center;background:#f6f5f3;border-radius:3px;padding:.5rem .2rem;text-decoration:none;font-family:monospace}
+.msg{font-weight:700;margin:.5rem 0;min-height:1.4rem}
+@media(prefers-color-scheme:dark){body{background:#161616;color:#f2f0ec}.cell input{color:#f2f0ec}
+/* Open and blocked cells must stay obviously different in dark mode; at
+   #222 against #121212 the grid read as one solid block. */
+.cell{background:#3c3c3c}.cell.black{background:#0a0a0a}
+.cell.hl{background:#5a4c22}.exp,.lvl a{background:#222}.cell input:focus{background:#6b5a26}
+.cell .n{color:#b9b9b9}.cell.ok input{color:#5fd28a}.cell.bad input{color:#ff7b84}}</style></head><body><div class="w">
+<header><span class="k">תרגול תשבץ · פותרים ביחד</span><h1>תרגול תשבצים: 100 תשבצי אימון עם הסבר לכל תשובה</h1>
+<div class="crumb"><a href="/tirgul/">תרגול</a> · <a href="/milon/">מילון</a> · <a href="/solve/">עוזר הפתירה</a> · <a href="/">דף הבית</a></div></header>
+<p>100 תשבצי אימון לפתירה ישירה בדפדפן, מסודרים לפי רמה. הם נבנו אוטומטית
+מהלקסיקון של הפרויקט, ולכן אפשר לפרסם אותם: אלה לא תשבצים מהעיתון.</p>
+<p>ההבדל מתשבץ רגיל: <b>כל תשובה מגיעה עם ההוכחה שלה</b>. אחרי הפתירה אפשר לפתוח את
+ההסברים ולראות בדיוק איזה מנגנון מייצר כל מילה: הגדרה, היפוך, אנגרמה או מילה מוסתרת.
+זו בדיוק השיטה שבה עובד <a href="/solve/">עוזר הפתירה</a>.</p>
+<h2>מתחילים</h2><p>25 תשבצים · רשת 3x3</p><ul class="lvl"><li><a href="/tirgul/1/">1</a></li><li><a href="/tirgul/2/">2</a></li><li><a href="/tirgul/3/">3</a></li><li><a href="/tirgul/4/">4</a></li><li><a href="/tirgul/5/">5</a></li><li><a href="/tirgul/6/">6</a></li><li><a href="/tirgul/7/">7</a></li><li><a href="/tirgul/8/">8</a></li><li><a href="/tirgul/9/">9</a></li><li><a href="/tirgul/10/">10</a></li><li><a href="/tirgul/11/">11</a></li><li><a href="/tirgul/12/">12</a></li><li><a href="/tirgul/13/">13</a></li><li><a href="/tirgul/14/">14</a></li><li><a href="/tirgul/15/">15</a></li><li><a href="/tirgul/16/">16</a></li><li><a href="/tirgul/17/">17</a></li><li><a href="/tirgul/18/">18</a></li><li><a href="/tirgul/19/">19</a></li><li><a href="/tirgul/20/">20</a></li><li><a href="/tirgul/21/">21</a></li><li><a href="/tirgul/22/">22</a></li><li><a href="/tirgul/23/">23</a></li><li><a href="/tirgul/24/">24</a></li><li><a href="/tirgul/25/">25</a></li></ul><h2>בסיסי</h2><p>25 תשבצים · רשת 5x5</p><ul class="lvl"><li><a href="/tirgul/26/">26</a></li><li><a href="/tirgul/27/">27</a></li><li><a href="/tirgul/28/">28</a></li><li><a href="/tirgul/29/">29</a></li><li><a href="/tirgul/30/">30</a></li><li><a href="/tirgul/31/">31</a></li><li><a href="/tirgul/32/">32</a></li><li><a href="/tirgul/33/">33</a></li><li><a href="/tirgul/34/">34</a></li><li><a href="/tirgul/35/">35</a></li><li><a href="/tirgul/36/">36</a></li><li><a href="/tirgul/37/">37</a></li><li><a href="/tirgul/38/">38</a></li><li><a href="/tirgul/39/">39</a></li><li><a href="/tirgul/40/">40</a></li><li><a href="/tirgul/41/">41</a></li><li><a href="/tirgul/42/">42</a></li><li><a href="/tirgul/43/">43</a></li><li><a href="/tirgul/44/">44</a></li><li><a href="/tirgul/45/">45</a></li><li><a href="/tirgul/46/">46</a></li><li><a href="/tirgul/47/">47</a></li><li><a href="/tirgul/48/">48</a></li><li><a href="/tirgul/49/">49</a></li><li><a href="/tirgul/50/">50</a></li></ul><h2>מתקדם</h2><p>28 תשבצים · רשת 5x5</p><ul class="lvl"><li><a href="/tirgul/51/">51</a></li><li><a href="/tirgul/52/">52</a></li><li><a href="/tirgul/53/">53</a></li><li><a href="/tirgul/54/">54</a></li><li><a href="/tirgul/55/">55</a></li><li><a href="/tirgul/56/">56</a></li><li><a href="/tirgul/57/">57</a></li><li><a href="/tirgul/58/">58</a></li><li><a href="/tirgul/59/">59</a></li><li><a href="/tirgul/60/">60</a></li><li><a href="/tirgul/61/">61</a></li><li><a href="/tirgul/62/">62</a></li><li><a href="/tirgul/63/">63</a></li><li><a href="/tirgul/64/">64</a></li><li><a href="/tirgul/65/">65</a></li><li><a href="/tirgul/66/">66</a></li><li><a href="/tirgul/67/">67</a></li><li><a href="/tirgul/68/">68</a></li><li><a href="/tirgul/69/">69</a></li><li><a href="/tirgul/70/">70</a></li><li><a href="/tirgul/71/">71</a></li><li><a href="/tirgul/72/">72</a></li><li><a href="/tirgul/73/">73</a></li><li><a href="/tirgul/74/">74</a></li><li><a href="/tirgul/75/">75</a></li><li><a href="/tirgul/98/">98</a></li><li><a href="/tirgul/99/">99</a></li><li><a href="/tirgul/100/">100</a></li></ul><h2>אתגר</h2><p>22 תשבצים · רשת 7x7</p><ul class="lvl"><li><a href="/tirgul/76/">76</a></li><li><a href="/tirgul/77/">77</a></li><li><a href="/tirgul/78/">78</a></li><li><a href="/tirgul/79/">79</a></li><li><a href="/tirgul/80/">80</a></li><li><a href="/tirgul/81/">81</a></li><li><a href="/tirgul/82/">82</a></li><li><a href="/tirgul/83/">83</a></li><li><a href="/tirgul/84/">84</a></li><li><a href="/tirgul/85/">85</a></li><li><a href="/tirgul/86/">86</a></li><li><a href="/tirgul/87/">87</a></li><li><a href="/tirgul/88/">88</a></li><li><a href="/tirgul/89/">89</a></li><li><a href="/tirgul/90/">90</a></li><li><a href="/tirgul/91/">91</a></li><li><a href="/tirgul/92/">92</a></li><li><a href="/tirgul/93/">93</a></li><li><a href="/tirgul/94/">94</a></li><li><a href="/tirgul/95/">95</a></li><li><a href="/tirgul/96/">96</a></li><li><a href="/tirgul/97/">97</a></li></ul>
+<p>רוצים לחפש מילה לפי אורך, תבנית או אנגרם? <a href="/milon/">מילון התשבץ</a> מכיל
+אלפי ערכים עם הכתיב המדויק ברשת.</p>
+<footer>תשבצי האימון נוצרו אוטומטית מהלקסיקון של הפרויקט (hspell) ומאינדקס ההגדרות (ויקימילון/ויקיפדיה, CC BY-SA).
+לא מתפרסמות הגדרות מעיתונים · <a href="https://www.linkedin.com/in/razkaplan/">פרויקט של רז קפלן</a></footer></div></body></html>
