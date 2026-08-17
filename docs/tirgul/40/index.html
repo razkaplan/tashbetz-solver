@@ -1,0 +1,132 @@
+<!doctype html><html lang="he" dir="rtl"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1"><title>תרגול תשבץ #40: רמת בסיסי, רשת 5x5</title>
+<meta name="description" content="תשבץ אימון מספר 40 ברמת בסיסי: רשת 5x5, 10 הגדרות, מנגנוני מילה מוסתרת, היפוך. פותרים ישירות בדפדפן, וכל תשובה מגיעה עם ההסבר וההוכחה שלה."><link rel="canonical" href="https://tashbetz.gtmascode.dev/tirgul/40/"><script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "דף הבית", "item": "https://tashbetz.gtmascode.dev/"}, {"@type": "ListItem", "position": 2, "name": "תרגול", "item": "https://tashbetz.gtmascode.dev/tirgul/"}, {"@type": "ListItem", "position": 3, "name": "תשבץ 40", "item": "https://tashbetz.gtmascode.dev/tirgul/40/"}]}</script><script type="application/ld+json">{"@context": "https://schema.org", "@type": "LearningResource", "name": "תרגול תשבץ #40: רמת בסיסי, רשת 5x5", "learningResourceType": "תרגול תשבץ", "inLanguage": "he", "educationalLevel": "בסיסי", "teaches": "מילה מוסתרת, היפוך", "isAccessibleForFree": true}</script><style>*{box-sizing:border-box}body{margin:0;background:#fff;color:#121212;font-family:'Frank Ruhl Libre','Arial Hebrew',serif;line-height:1.6}
+.w{max-width:52rem;margin:0 auto;padding:1rem 1.2rem}header{border-bottom:1px solid #121212;box-shadow:0 3px 0 -1px #121212;padding:.8rem 0}
+h1{font-size:1.6rem;margin:.2rem 0}.k{font-family:monospace;font-size:.65rem;letter-spacing:.12em;color:#fff;background:#f22b39;display:inline-block;padding:.12rem .5rem}
+a{color:#f22b39}h2{border-bottom:3px solid #f22b39;display:inline-block;font-size:1.1rem;padding-bottom:.1rem}
+.crumb{font-size:.8rem;color:#5c5c5c;margin:.6rem 0}
+footer{margin:2.5rem 0 1.5rem;border-top:1px solid #dcdcdc;padding-top:.8rem;font-size:.8rem;color:#5c5c5c}
+.board{display:grid;direction:rtl;gap:2px;background:#121212;padding:2px;width:max-content;margin:1rem 0;border:2px solid #121212}
+.cell{width:2.6rem;height:2.6rem;background:#fff;position:relative}
+.cell.black{background:#121212}
+.cell input{width:100%;height:100%;border:0;text-align:center;font-size:1.25rem;font-family:inherit;background:transparent;padding:0}
+.cell input:focus{outline:0;background:#ffe9a8}
+.cell.hl{background:#fff4d6}.cell.ok input{color:#1a7f37}.cell.bad input{color:#f22b39}
+.cell .n{position:absolute;top:1px;right:3px;font-size:.6rem;color:#5c5c5c;font-family:monospace}
+.clues{display:grid;grid-template-columns:repeat(auto-fit,minmax(15rem,1fr));gap:1.2rem}
+.clues ol{padding-inline-start:1.2rem;margin:.3rem 0}
+.clues li{margin:.35rem 0;cursor:pointer}
+.clues li.done{color:#5c5c5c;text-decoration:line-through}
+.bar{display:flex;gap:.5rem;flex-wrap:wrap;margin:.8rem 0}
+button.act{font:inherit;background:#121212;color:#fff;border:0;border-radius:4px;padding:.45rem 1rem;cursor:pointer}
+button.act.ghost{background:#fff;color:#121212;border:1.5px solid #121212}
+.exp{background:#f6f5f3;border-radius:4px;padding:.7rem .9rem;margin:.5rem 0;font-size:.9rem;display:none}
+.exp.on{display:block}
+.exp b{font-family:monospace}
+.lvl{display:grid;grid-template-columns:repeat(auto-fill,minmax(4.2rem,1fr));gap:.4rem;padding:0;list-style:none;margin:.6rem 0 1.4rem}
+.lvl a{display:block;text-align:center;background:#f6f5f3;border-radius:3px;padding:.5rem .2rem;text-decoration:none;font-family:monospace}
+.msg{font-weight:700;margin:.5rem 0;min-height:1.4rem}
+@media(prefers-color-scheme:dark){body{background:#161616;color:#f2f0ec}.cell input{color:#f2f0ec}
+/* Open and blocked cells must stay obviously different in dark mode; at
+   #222 against #121212 the grid read as one solid block. */
+.cell{background:#3c3c3c}.cell.black{background:#0a0a0a}
+.cell.hl{background:#5a4c22}.exp,.lvl a{background:#222}.cell input:focus{background:#6b5a26}
+.cell .n{color:#b9b9b9}.cell.ok input{color:#5fd28a}.cell.bad input{color:#ff7b84}}</style></head><body><div class="w">
+<header><span class="k">תרגול תשבץ · פותרים ביחד</span><h1>תרגול תשבץ #40: רמת בסיסי, רשת 5x5</h1>
+<div class="crumb"><a href="/tirgul/">תרגול</a> · <a href="/milon/">מילון</a> · <a href="/solve/">עוזר הפתירה</a> · <a href="/">דף הבית</a></div></header>
+<p>רמת <b>בסיסי</b> · רשת 5x5 · 10 הגדרות ·
+מנגנונים: מילה מוסתרת, היפוך</p>
+<div class="board" id="board"></div>
+<div class="bar">
+  <button class="act" id="check">בדקו אותי</button>
+  <button class="act ghost" id="explain">הראו את ההסברים</button>
+  <button class="act ghost" id="clear">נקו</button>
+</div>
+<div class="msg" id="msg"></div>
+<div class="clues">
+  <div><h2>מאוזן</h2><ol><li data-i="0"><b>1.</b> מסתתר בתוך התבאסו <small>(5)</small><div class="exp"><b>תבאסו</b> · מילה מוסתרת: התשובה יושבת ברצף בתוך המילה התבאסו, החל מהאות ה-2.</div></li>
+<li data-i="5"><b>5.</b> מסתתר בתוך חמסינימ <small>(3)</small><div class="exp"><b>חמס</b> · מילה מוסתרת: התשובה יושבת ברצף בתוך המילה חמסינימ, החל מהאות ה-1.</div></li>
+<li data-i="6"><b>6.</b> הפוך את דרו <small>(3)</small><div class="exp"><b>ורד</b> · היפוך: קוראים את המילה דרו מהסוף להתחלה ומקבלים את התשובה.</div></li>
+<li data-i="8"><b>8.</b> מסתתר בתוך אורבות <small>(3)</small><div class="exp"><b>רבו</b> · מילה מוסתרת: התשובה יושבת ברצף בתוך המילה אורבות, החל מהאות ה-3.</div></li>
+<li data-i="9"><b>9.</b> מסתתר בתוך השתרבבי <small>(5)</small><div class="exp"><b>תרבבי</b> · מילה מוסתרת: התשובה יושבת ברצף בתוך המילה השתרבבי, החל מהאות ה-3.</div></li></ol></div>
+  <div><h2>מאונך</h2><ol><li data-i="1"><b>1.</b> מסתתר בתוך מתחבלת <small>(5)</small><div class="exp"><b>תחבלת</b> · מילה מוסתרת: התשובה יושבת ברצף בתוך המילה מתחבלת, החל מהאות ה-2.</div></li>
+<li data-i="2"><b>2.</b> מסתתר בתוך במאיות <small>(2)</small><div class="exp"><b>במ</b> · מילה מוסתרת: התשובה יושבת ברצף בתוך המילה במאיות, החל מהאות ה-1.</div></li>
+<li data-i="3"><b>3.</b> מסתתר בתוך אסורבל <small>(5)</small><div class="exp"><b>אסורב</b> · מילה מוסתרת: התשובה יושבת ברצף בתוך המילה אסורבל, החל מהאות ה-1.</div></li>
+<li data-i="4"><b>4.</b> מסתתר בתוך וידויימ <small>(5)</small><div class="exp"><b>וידוי</b> · מילה מוסתרת: התשובה יושבת ברצף בתוך המילה וידויימ, החל מהאות ה-1.</div></li>
+<li data-i="7"><b>7.</b> מסתתר בתוך אעורבב <small>(3)</small><div class="exp"><b>רבב</b> · מילה מוסתרת: התשובה יושבת ברצף בתוך המילה אעורבב, החל מהאות ה-4.</div></li></ol></div>
+</div>
+<p style="margin-top:1.2rem"><a href="/tirgul/39/">← תשבץ 39</a> · <a href="/tirgul/">כל התשבצים</a> · <a href="/tirgul/41/">תשבץ 41 →</a></p>
+<script type="application/json" id="pz">{"grid": [".....", "...#.", ".#...", ".#...", "....."], "nums": {"0,0": 1, "0,1": 2, "0,2": 3, "0,4": 4, "1,0": 5, "2,2": 6, "2,3": 7, "3,2": 8, "4,0": 9}, "entries": [{"num": 1, "dir": "across", "answer": "תבאסו", "cells": [[0, 0], [0, 1], [0, 2], [0, 3], [0, 4]]}, {"num": 1, "dir": "down", "answer": "תחבלת", "cells": [[0, 0], [1, 0], [2, 0], [3, 0], [4, 0]]}, {"num": 2, "dir": "down", "answer": "במ", "cells": [[0, 1], [1, 1]]}, {"num": 3, "dir": "down", "answer": "אסורב", "cells": [[0, 2], [1, 2], [2, 2], [3, 2], [4, 2]]}, {"num": 4, "dir": "down", "answer": "וידוי", "cells": [[0, 4], [1, 4], [2, 4], [3, 4], [4, 4]]}, {"num": 5, "dir": "across", "answer": "חמס", "cells": [[1, 0], [1, 1], [1, 2]]}, {"num": 6, "dir": "across", "answer": "ורד", "cells": [[2, 2], [2, 3], [2, 4]]}, {"num": 7, "dir": "down", "answer": "רבב", "cells": [[2, 3], [3, 3], [4, 3]]}, {"num": 8, "dir": "across", "answer": "רבו", "cells": [[3, 2], [3, 3], [3, 4]]}, {"num": 9, "dir": "across", "answer": "תרבבי", "cells": [[4, 0], [4, 1], [4, 2], [4, 3], [4, 4]]}]}</script>
+<script>
+const PZ = JSON.parse(document.getElementById('pz').textContent);
+const board = document.getElementById('board');
+const msg = document.getElementById('msg');
+board.style.gridTemplateColumns = `repeat(${PZ.grid[0].length}, 2.6rem)`;
+const inputs = {};
+PZ.grid.forEach((row, r) => {
+  [...row].forEach((ch, c) => {
+    const d = document.createElement('div');
+    d.className = 'cell' + (ch === '#' ? ' black' : '');
+    if (ch !== '#') {
+      const n = PZ.nums[r + ',' + c];
+      if (n) { const s = document.createElement('span'); s.className = 'n'; s.textContent = n; d.appendChild(s); }
+      const i = document.createElement('input');
+      i.maxLength = 1; i.dataset.rc = r + ',' + c; i.autocomplete = 'off';
+      i.addEventListener('input', () => { i.value = i.value.replace(/[^\u05d0-\u05ea]/g, ''); if (i.value) advance(i); });
+      i.addEventListener('focus', () => highlight(r, c));
+      inputs[r + ',' + c] = i; d.appendChild(i);
+    }
+    board.appendChild(d);
+  });
+});
+let active = null;
+function highlight(r, c) {
+  const e = PZ.entries.find(e => e.cells.some(x => x[0] === r && x[1] === c)) || null;
+  active = e;
+  Object.values(inputs).forEach(i => i.parentNode.classList.remove('hl'));
+  if (e) e.cells.forEach(([a, b]) => inputs[a + ',' + b].parentNode.classList.add('hl'));
+}
+function advance(i) {
+  if (!active) return;
+  const [r, c] = i.dataset.rc.split(',').map(Number);
+  const at = active.cells.findIndex(x => x[0] === r && x[1] === c);
+  const nx = active.cells[at + 1];
+  if (nx) inputs[nx[0] + ',' + nx[1]].focus();
+}
+function focusEntry(idx) {
+  const e = PZ.entries[idx]; active = e;
+  const [r, c] = e.cells[0]; inputs[r + ',' + c].focus();
+}
+document.querySelectorAll('.clues li').forEach(li => li.onclick = () => focusEntry(+li.dataset.i));
+document.getElementById('check').onclick = () => {
+  let right = 0, filled = 0;
+  PZ.entries.forEach((e, idx) => {
+    let all = true;
+    e.cells.forEach(([r, c], k) => {
+      const i = inputs[r + ',' + c];
+      i.parentNode.classList.remove('ok', 'bad');
+      if (!i.value) { all = false; return; }
+      filled++;
+      if (i.value === e.answer[k]) i.parentNode.classList.add('ok');
+      else { i.parentNode.classList.add('bad'); all = false; }
+    });
+    const li = document.querySelector(`.clues li[data-i="${idx}"]`);
+    if (li) li.classList.toggle('done', all);
+    if (all) right++;
+  });
+  msg.textContent = filled === 0 ? 'מלאו כמה משבצות ואז בדקו.'
+    : `${right} מתוך ${PZ.entries.length} הגדרות נכונות.`;
+};
+document.getElementById('explain').onclick = () => {
+  document.querySelectorAll('.exp').forEach(x => x.classList.add('on'));
+  msg.textContent = 'ההסברים נפתחו: כל תשובה עם המנגנון וההוכחה שלה.';
+};
+document.getElementById('clear').onclick = () => {
+  Object.values(inputs).forEach(i => { i.value = ''; i.parentNode.classList.remove('ok', 'bad'); });
+  document.querySelectorAll('.clues li').forEach(li => li.classList.remove('done'));
+  msg.textContent = '';
+};
+</script>
+
+<footer>תשבצי האימון נוצרו אוטומטית מהלקסיקון של הפרויקט (hspell) ומאינדקס ההגדרות (ויקימילון/ויקיפדיה, CC BY-SA).
+לא מתפרסמות הגדרות מעיתונים · <a href="https://www.linkedin.com/in/razkaplan/">פרויקט של רז קפלן</a></footer></div></body></html>

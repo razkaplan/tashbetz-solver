@@ -394,7 +394,14 @@ urls.insert(1,'/milon/anagram/')
 
 # ---------- sitemap + robots ----------
 sm='<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
-for u in ['/','/solve/','/methods/','/research/','/research/he/']+urls:
+# Trainer pages (app/build_trainer.py) join the same sitemap rather than a
+# second competing one; missing file just means the trainer has not been built.
+trainer=[]
+if os.path.isdir('docs/tirgul'):
+    trainer=['/tirgul/']+[f'/tirgul/{d}/' for d in sorted(os.listdir('docs/tirgul'),
+             key=lambda x:(not x.isdigit(), int(x) if x.isdigit() else x))
+             if os.path.exists(f'docs/tirgul/{d}/index.html')]
+for u in ['/','/solve/','/methods/','/research/','/research/he/']+trainer+urls:
     sm+=f'  <url><loc>{BASE}{u}</loc></url>\n'
 sm+='</urlset>'
 open('docs/sitemap.xml','w').write(sm)
