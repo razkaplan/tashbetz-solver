@@ -127,6 +127,20 @@
 "surname"
 ]
 },
+"אבוגה": {
+"evidence": {
+"answer": [
+"ימים: א', ב', ו', ג׳, ה'; אבוג׳ה - בירת ניגריה"
+],
+"world_city": [
+"אבוג'ה"
+]
+},
+"senses": [
+"answer",
+"world_city"
+]
+},
 "אבוד": {
 "evidence": {
 "song": [
@@ -232,6 +246,17 @@
 "surname"
 ]
 },
+"אביאל": {
+"evidence": {
+"kibbutz": [
+"אביאל"
+]
+},
+"senses": [
+"common_word",
+"kibbutz"
+]
+},
 "אביב": {
 "evidence": {
 "given_name": [
@@ -265,6 +290,20 @@
 "surname"
 ]
 },
+"אביבאלוש": {
+"evidence": {
+"actor": [
+"אביב אלוש"
+],
+"artist": [
+"אביב אלוש"
+]
+},
+"senses": [
+"actor",
+"artist"
+]
+},
 "אביבגפנ": {
 "evidence": {
 "artist": [
@@ -277,6 +316,20 @@
 "senses": [
 "artist",
 "song"
+]
+},
+"אביבהגולנ": {
+"evidence": {
+"artist": [
+"אביבה גולן"
+],
+"author": [
+"אביבה גולן"
+]
+},
+"senses": [
+"artist",
+"author"
 ]
 },
 "אביבי": {
@@ -292,6 +345,31 @@
 "common_word",
 "song_word",
 "surname"
+]
+},
+"אביביטר": {
+"evidence": {
+"actor": [
+"אבי ביטר"
+],
+"artist": [
+"אבי ביטר"
+]
+},
+"senses": [
+"actor",
+"artist"
+]
+},
+"אביבימ": {
+"evidence": {
+"kibbutz": [
+"אביבים"
+]
+},
+"senses": [
+"common_word",
+"kibbutz"
 ]
 },
 "אביבית": {
@@ -311,18 +389,19 @@
 "אביגדור יצחקי",
 "אביגדור ליברמן",
 "אביגדור קהלני"
+],
+"kibbutz": [
+"אביגדור"
 ]
 },
 "senses": [
 "common_word",
-"given_name"
+"given_name",
+"kibbutz"
 ]
 },
 "אביגיל": {
 "evidence": {
-"artist": [
-"אבי גיל"
-],
 "given_name": [
 "אביגיל ויסמן",
 "אביגיל קובארי"
@@ -332,10 +411,51 @@
 ]
 },
 "senses": [
-"artist",
 "common_word",
 "given_name",
 "song_word"
+]
+},
+"אביגרייניק": {
+"evidence": {
+"actor": [
+"אבי גרייניק"
+],
+"artist": [
+"אבי גרייניק"
+]
+},
+"senses": [
+"actor",
+"artist"
+]
+},
+"אבידבש": {
+"evidence": {
+"artist": [
+"אבי דבש"
+],
+"author": [
+"אבי דבש"
+]
+},
+"senses": [
+"artist",
+"author"
+]
+},
+"אבידור": {
+"evidence": {
+"actor": [
+"אבי דור"
+],
+"artist": [
+"אבי דור"
+]
+},
+"senses": [
+"actor",
+"artist"
 ]
 },
 "אבידנ": {
@@ -388,6 +508,17 @@
 "given_name"
 ]
 },
+"אביחיל": {
+"evidence": {
+"kibbutz": [
+"אביחיל"
+]
+},
+"senses": [
+"common_word",
+"kibbutz"
+]
+},
 "אביט": {
 "evidence": {
 "answer": [
@@ -408,6 +539,9 @@
 "given_name": [
 "אביטל פסטרנק"
 ],
+"kibbutz": [
+"אביטל"
+],
 "surname": [
 "אילנה אביטל",
 "אלירן אביטל",
@@ -418,7 +552,33 @@
 "answer",
 "common_word",
 "given_name",
+"kibbutz",
 "surname"
+]
+},
+"אבייל": {
+"evidence": {
+"world_city": [
+"אבייל"
+]
+},
+"senses": [
+"common_word",
+"world_city"
+]
+},
+"אבימאירוענונו": {
+"evidence": {
+"actor": [
+"אבי מאיר וענונו"
+],
+"artist": [
+"אבי מאיר וענונו"
+]
+},
+"senses": [
+"actor",
+"artist"
 ]
 },
 "אבימלר": {
@@ -459,6 +619,21 @@
 "given_name"
 ]
 },
+"אביעזר": {
+"evidence": {
+"bible": [
+"אביעזר"
+],
+"kibbutz": [
+"אביעזר"
+]
+},
+"senses": [
+"bible",
+"common_word",
+"kibbutz"
+]
+},
 "אביקורנ": {
 "evidence": {
 "answer": [
@@ -466,11 +641,15 @@
 ],
 "artist": [
 "אבי קורן"
+],
+"author": [
+"אבי קורן"
 ]
 },
 "senses": [
 "answer",
-"artist"
+"artist",
+"author"
 ]
 },
 "אביר": {
@@ -523,8 +702,8 @@
 "evidence": {
 "given_name": [
 "אבישי אביבי",
-"אבישי כהן",
-"אבישי מילשטיין"
+"אבישי מילשטיין",
+"אבישי ברוורמן"
 ]
 },
 "senses": [
@@ -574,8 +753,8 @@
 ],
 "song_word": [
 "אֲבָל אַהֲבָה",
-"אבל אהבה",
-"אבל את"
+"אבל את",
+"אבל האמת היא"
 ]
 },
 "senses": [
@@ -641,6 +820,20 @@
 "common_word"
 ]
 },
+"אבנספיר": {
+"evidence": {
+"kibbutz": [
+"אבן ספיר"
+],
+"song": [
+"אבן ספיר"
+]
+},
+"senses": [
+"kibbutz",
+"song"
+]
+},
 "אבנר": {
 "evidence": {
 "given_name": [
@@ -652,6 +845,20 @@
 "senses": [
 "common_word",
 "given_name"
+]
+},
+"אבנרחזקיהו": {
+"evidence": {
+"actor": [
+"אבנר חזקיהו"
+],
+"artist": [
+"אבנר חזקיהו"
+]
+},
+"senses": [
+"actor",
+"artist"
 ]
 },
 "אבנרי": {
@@ -666,6 +873,20 @@
 "senses": [
 "answer",
 "surname"
+]
+},
+"אבנרשטראוס": {
+"evidence": {
+"artist": [
+"אבנר שטראוס"
+],
+"author": [
+"אבנר שטראוס"
+]
+},
+"senses": [
+"artist",
+"author"
 ]
 },
 "אבסורד": {
@@ -732,15 +953,17 @@
 },
 "אברהמ": {
 "evidence": {
+"bible": [
+"אברהם"
+],
 "given_name": [
 "אברהם אבוטבול",
-"אברהם אורן",
-"אברהם בן זאב"
+"אברהם בן זאב",
+"אברהם בר עוז"
 ],
 "song_word": [
 "אברהם אבינו",
-"אברהם ושרה",
-"אברהם טל"
+"אברהם ושרה"
 ],
 "surname": [
 "מאיה אברהם",
@@ -749,24 +972,137 @@
 ]
 },
 "senses": [
+"bible",
 "common_word",
 "given_name",
 "song_word",
 "surname"
 ]
 },
-"אברהמטל": {
+"אברהמאבוטבול": {
+"evidence": {
+"actor": [
+"אברהם אבוטבול"
+],
+"artist": [
+"אברהם אבוטבול"
+]
+},
+"senses": [
+"actor",
+"artist"
+]
+},
+"אברהמבורג": {
+"evidence": {
+"author": [
+"אברהם בורג"
+],
+"politician": [
+"אברהם בורג"
+]
+},
+"senses": [
+"author",
+"politician"
+]
+},
+"אברהמברושי": {
 "evidence": {
 "artist": [
-"אברהם טל"
+"אברהם ברושי"
 ],
-"song": [
-"אברהם טל"
+"author": [
+"אברהם ברושי"
 ]
 },
 "senses": [
 "artist",
-"song"
+"author"
+]
+},
+"אברהמברעוז": {
+"evidence": {
+"artist": [
+"אברהם בר עוז"
+],
+"author": [
+"אברהם בר-עוז"
+]
+},
+"senses": [
+"artist",
+"author"
+]
+},
+"אברהמזיגמנ": {
+"evidence": {
+"artist": [
+"אברהם זיגמן"
+],
+"author": [
+"אברהם זיגמן"
+]
+},
+"senses": [
+"artist",
+"author"
+]
+},
+"אברהמחלפי": {
+"evidence": {
+"artist": [
+"אברהם חלפי"
+],
+"author": [
+"אברהם חלפי"
+]
+},
+"senses": [
+"artist",
+"author"
+]
+},
+"אברהמלב": {
+"evidence": {
+"athlete": [
+"אברהם לב"
+],
+"author": [
+"אברהם לב"
+]
+},
+"senses": [
+"athlete",
+"author"
+]
+},
+"אברהמלוי": {
+"evidence": {
+"artist": [
+"אברהם לוי"
+],
+"athlete": [
+"אברהם לוי"
+]
+},
+"senses": [
+"artist",
+"athlete"
+]
+},
+"אברהמשלונסקי": {
+"evidence": {
+"artist": [
+"אברהם שלונסקי"
+],
+"author": [
+"אברהם שלונסקי"
+]
+},
+"senses": [
+"artist",
+"author"
 ]
 },
 "אברות": {
@@ -973,6 +1309,34 @@
 "song_word"
 ]
 },
+"אגמאוזלבו": {
+"evidence": {
+"actor": [
+"אגם אוזלבו"
+],
+"artist": [
+"אגם אוזלבו"
+]
+},
+"senses": [
+"actor",
+"artist"
+]
+},
+"אגמבוחבוט": {
+"evidence": {
+"actor": [
+"אגם בוחבוט"
+],
+"artist": [
+"אגם בוחבוט"
+]
+},
+"senses": [
+"actor",
+"artist"
+]
+},
 "אגמונ": {
 "evidence": {
 "answer": [
@@ -1173,6 +1537,31 @@
 "common_word"
 ]
 },
+"אדירימ": {
+"evidence": {
+"kibbutz": [
+"אדירים"
+]
+},
+"senses": [
+"common_word",
+"kibbutz"
+]
+},
+"אדירלוי": {
+"evidence": {
+"artist": [
+"אדיר לוי"
+],
+"athlete": [
+"אדיר לוי"
+]
+},
+"senses": [
+"artist",
+"athlete"
+]
+},
 "אדישה": {
 "evidence": {
 "song": [
@@ -1216,6 +1605,9 @@
 "artist": [
 "אדם"
 ],
+"bible": [
+"אדם"
+],
 "given_name": [
 "אדם גורליצקי",
 "אדם ישראלי"
@@ -1236,6 +1628,7 @@
 "senses": [
 "answer",
 "artist",
+"bible",
 "common_word",
 "given_name",
 "song",
@@ -1274,6 +1667,20 @@
 "senses": [
 "answer",
 "common_word"
+]
+},
+"אדמית": {
+"evidence": {
+"given_name": [
+"אדמית הראל"
+],
+"kibbutz": [
+"אדמית"
+]
+},
+"senses": [
+"given_name",
+"kibbutz"
 ]
 },
 "אדמת": {
@@ -1359,13 +1766,12 @@
 "אהבה": {
 "evidence": {
 "song": [
-"אהבה",
-"אהבה..."
+"אהבה"
 ],
 "song_word": [
 "אֲבָל אַהֲבָה",
-"אבל אהבה",
-"אה אה אה אהבה"
+"אה אה אה אהבה",
+"אהבה אבודה"
 ]
 },
 "senses": [
@@ -1461,6 +1867,20 @@
 "song_word"
 ]
 },
+"אהודבנעזר": {
+"evidence": {
+"artist": [
+"אהוד בן עזר"
+],
+"author": [
+"אהוד בן עזר"
+]
+},
+"senses": [
+"artist",
+"author"
+]
+},
 "אהרונ": {
 "evidence": {
 "given_name": [
@@ -1480,6 +1900,20 @@
 "surname"
 ]
 },
+"אהרונוודובוז": {
+"evidence": {
+"actor": [
+"אהרון וודובוז"
+],
+"artist": [
+"אהרון וודובוז"
+]
+},
+"senses": [
+"actor",
+"artist"
+]
+},
 "אהרוני": {
 "evidence": {
 "song_word": [
@@ -1488,7 +1922,7 @@
 "surname": [
 "אריה אהרוני",
 "חן אהרוני",
-"חנה אהרוני"
+"מורן אהרוני"
 ]
 },
 "senses": [
@@ -1499,6 +1933,9 @@
 },
 "אהרנ": {
 "evidence": {
+"bible": [
+"אהרן"
+],
 "given_name": [
 "אהרן עמרם",
 "אהרן קפלן",
@@ -1509,9 +1946,38 @@
 ]
 },
 "senses": [
+"bible",
 "common_word",
 "given_name",
 "surname"
+]
+},
+"אהרנעמרמ": {
+"evidence": {
+"artist": [
+"אהרן עמרם"
+],
+"author": [
+"אהרן עמרם"
+]
+},
+"senses": [
+"artist",
+"author"
+]
+},
+"אהרנשבתאי": {
+"evidence": {
+"artist": [
+"אהרן שבתאי"
+],
+"author": [
+"אהרן שבתאי"
+]
+},
+"senses": [
+"artist",
+"author"
 ]
 },
 "אובה": {
@@ -1541,6 +2007,9 @@
 "answer": [
 "אג'נדה+ו"
 ],
+"nation": [
+"אוגנדה"
+],
 "song": [
 "אוגנדה"
 ]
@@ -1548,6 +2017,7 @@
 "senses": [
 "answer",
 "common_word",
+"nation",
 "song"
 ]
 },
@@ -1582,11 +2052,15 @@
 "evidence": {
 "answer": [
 "די ב-אום"
+],
+"kibbutz": [
+"אודים"
 ]
 },
 "senses": [
 "answer",
-"common_word"
+"common_word",
+"kibbutz"
 ]
 },
 "אודליה": {
@@ -1623,11 +2097,15 @@
 "אוהד בסון",
 "אוהד חיטמן",
 "אוהד פישוף"
+],
+"kibbutz": [
+"אוהד"
 ]
 },
 "senses": [
 "common_word",
-"given_name"
+"given_name",
+"kibbutz"
 ]
 },
 "אוהיו": {
@@ -1689,6 +2167,17 @@
 "senses": [
 "answer",
 "common_word"
+]
+},
+"אוזבקיסטנ": {
+"evidence": {
+"nation": [
+"אוזבקיסטן"
+]
+},
+"senses": [
+"common_word",
+"nation"
 ]
 },
 "אוזנ": {
@@ -1835,6 +2324,17 @@
 "song_word"
 ]
 },
+"אולימפוס": {
+"evidence": {
+"mountain": [
+"אולימפוס"
+]
+},
+"senses": [
+"common_word",
+"mountain"
+]
+},
 "אולמרט": {
 "evidence": {
 "answer": [
@@ -1977,6 +2477,32 @@
 "surname"
 ]
 },
+"אוסטריה": {
+"evidence": {
+"nation": [
+"אוסטריה"
+]
+},
+"senses": [
+"common_word",
+"nation"
+]
+},
+"אוסטרליה": {
+"evidence": {
+"nation": [
+"אוסטרליה"
+],
+"song_word": [
+"אוסטרליה בלוז"
+]
+},
+"senses": [
+"common_word",
+"nation",
+"song_word"
+]
+},
 "אוסקר": {
 "evidence": {
 "given_name": [
@@ -2019,7 +2545,7 @@
 "given_name": [
 "אופיר טבה",
 "אופיר יוגב",
-"אופיר כהן"
+"אופיר מלול"
 ],
 "surname": [
 "אלון אופיר",
@@ -2113,29 +2639,14 @@
 "ר. 1 מאונך",
 "ר. 1 מאוזן"
 ],
-"place": [
+"city_il": [
 "אופקים"
 ]
 },
 "senses": [
 "answer",
-"common_word",
-"place"
-]
-},
-"אוקטבות": {
-"evidence": {
-"song_word": [
-"ארבע-עשרה אוקטבות"
-],
-"surname": [
-"ארבע-עשרה אוקטבות"
-]
-},
-"senses": [
-"common_word",
-"song_word",
-"surname"
+"city_il",
+"common_word"
 ]
 },
 "אוקיינוס": {
@@ -2176,6 +2687,21 @@
 "common_word"
 ]
 },
+"אוקראינה": {
+"evidence": {
+"nation": [
+"אוקראינה"
+],
+"song_word": [
+"מטעי הדובדבן של אוקראינה"
+]
+},
+"senses": [
+"common_word",
+"nation",
+"song_word"
+]
+},
 "אור": {
 "evidence": {
 "answer": [
@@ -2183,9 +2709,9 @@
 "מילה משותפת"
 ],
 "given_name": [
-"אור אדרי",
 "אור בירון",
-"אור טרגן"
+"אור טרגן",
+"אור כהן"
 ],
 "role_noun": [
 "light / given name Or"
@@ -2212,6 +2738,20 @@
 "song",
 "song_word",
 "surname"
+]
+},
+"אורבירונ": {
+"evidence": {
+"actor": [
+"אור בירון"
+],
+"artist": [
+"אור בירון"
+]
+},
+"senses": [
+"actor",
+"artist"
 ]
 },
 "אורבכ": {
@@ -2258,6 +2798,9 @@
 "אורה זיטנר",
 "אורה נמיר"
 ],
+"kibbutz": [
+"אורה"
+],
 "song": [
 "אורה"
 ],
@@ -2268,6 +2811,7 @@
 "senses": [
 "common_word",
 "given_name",
+"kibbutz",
 "song",
 "song_word"
 ]
@@ -2287,6 +2831,20 @@
 "song"
 ]
 },
+"אורהנר": {
+"evidence": {
+"answer": [
+"מושב אורה הופך לקיבוץ אור הנר"
+],
+"kibbutz": [
+"אור הנר"
+]
+},
+"senses": [
+"answer",
+"kibbutz"
+]
+},
 "אורונ": {
 "evidence": {
 "song": [
@@ -2301,27 +2859,13 @@
 "surname"
 ]
 },
-"אורות": {
-"evidence": {
-"song": [
-"אורות"
-],
-"song_word": [
-"אורות אדומים",
-"אורות המגדלור",
-"אורות וצללים"
-]
-},
-"senses": [
-"common_word",
-"song",
-"song_word"
-]
-},
 "אורטל": {
 "evidence": {
 "given_name": [
 "אורטל אופק"
+],
+"kibbutz": [
+"אורטל"
 ],
 "song_word": [
 "אורטל אופק"
@@ -2330,6 +2874,7 @@
 "senses": [
 "common_word",
 "given_name",
+"kibbutz",
 "song_word"
 ]
 },
@@ -2345,6 +2890,20 @@
 "senses": [
 "artist",
 "song"
+]
+},
+"אורטרגנ": {
+"evidence": {
+"actor": [
+"אור טרגן"
+],
+"artist": [
+"אור טרגן"
+]
+},
+"senses": [
+"actor",
+"artist"
 ]
 },
 "אורי": {
@@ -2372,6 +2931,20 @@
 "surname"
 ]
 },
+"אוריאורבכ": {
+"evidence": {
+"author": [
+"אורי אורבך"
+],
+"politician": [
+"אורי אורבך"
+]
+},
+"senses": [
+"author",
+"politician"
+]
+},
 "אוריאל": {
 "evidence": {
 "given_name": [
@@ -2383,6 +2956,48 @@
 "senses": [
 "common_word",
 "given_name"
+]
+},
+"אוריאלאופק": {
+"evidence": {
+"artist": [
+"אוריאל אופק"
+],
+"author": [
+"אוריאל אופק"
+]
+},
+"senses": [
+"artist",
+"author"
+]
+},
+"אוריאספ": {
+"evidence": {
+"artist": [
+"אורי אסף"
+],
+"author": [
+"אורי אסף"
+]
+},
+"senses": [
+"artist",
+"author"
+]
+},
+"אוריבנאי": {
+"evidence": {
+"actor": [
+"אורי בנאי"
+],
+"artist": [
+"אורי בנאי"
+]
+},
+"senses": [
+"actor",
+"artist"
 ]
 },
 "אוריבשנ": {
@@ -2399,6 +3014,34 @@
 "song"
 ]
 },
+"אוריוינברג": {
+"evidence": {
+"athlete": [
+"אורי וינברג"
+],
+"author": [
+"אורי וינברג"
+]
+},
+"senses": [
+"athlete",
+"author"
+]
+},
+"אוריזוהר": {
+"evidence": {
+"actor": [
+"אורי זוהר"
+],
+"artist": [
+"אורי זוהר"
+]
+},
+"senses": [
+"actor",
+"artist"
+]
+},
 "אוריינ": {
 "evidence": {
 "given_name": [
@@ -2408,6 +3051,31 @@
 "senses": [
 "common_word",
 "given_name"
+]
+},
+"אורימ": {
+"evidence": {
+"kibbutz": [
+"אורים"
+]
+},
+"senses": [
+"common_word",
+"kibbutz"
+]
+},
+"אוריצביגרינברג": {
+"evidence": {
+"author": [
+"אורי צבי גרינברג"
+],
+"politician": [
+"אורי צבי גרינברג"
+]
+},
+"senses": [
+"author",
+"politician"
 ]
 },
 "אורית": {
@@ -2452,6 +3120,20 @@
 "common_word",
 "given_name",
 "song"
+]
+},
+"אורליבנגרטי": {
+"evidence": {
+"actor": [
+"אורלי בן-גרטי"
+],
+"artist": [
+"אורלי בן-גרטי"
+]
+},
+"senses": [
+"actor",
+"artist"
 ]
 },
 "אורלנד": {
@@ -2499,9 +3181,9 @@
 "השיר של אורן"
 ],
 "surname": [
-"אברהם אורן",
 "דורון אורן",
-"טלי אורן"
+"טלי אורן",
+"מייקל אורן"
 ]
 },
 "senses": [
@@ -2525,6 +3207,20 @@
 "senses": [
 "common_word",
 "given_name"
+]
+},
+"אורנהדצ": {
+"evidence": {
+"actor": [
+"אורנה דץ"
+],
+"artist": [
+"אורנה דץ"
+]
+},
+"senses": [
+"actor",
+"artist"
 ]
 },
 "אורקולי": {
@@ -2570,6 +3266,9 @@
 },
 "אושיקלוי": {
 "evidence": {
+"actor": [
+"אושיק לוי"
+],
 "artist": [
 "אושיק לוי"
 ],
@@ -2578,8 +3277,20 @@
 ]
 },
 "senses": [
+"actor",
 "artist",
 "song"
+]
+},
+"אושפיזינ": {
+"evidence": {
+"bible": [
+"אושפיזין"
+]
+},
+"senses": [
+"bible",
+"common_word"
 ]
 },
 "אושר": {
@@ -2622,6 +3333,20 @@
 "surname"
 ]
 },
+"אושריכהנ": {
+"evidence": {
+"actor": [
+"אושרי כהן"
+],
+"artist": [
+"אושרי כהן"
+]
+},
+"senses": [
+"actor",
+"artist"
+]
+},
 "אושרכהנ": {
 "evidence": {
 "artist": [
@@ -2645,6 +3370,20 @@
 "senses": [
 "common_word",
 "given_name"
+]
+},
+"אושרתאינגדשט": {
+"evidence": {
+"actor": [
+"אושרת אינגדשט"
+],
+"artist": [
+"אושרת אינגדשט"
+]
+},
+"senses": [
+"actor",
+"artist"
 ]
 },
 "אותיות": {
@@ -2724,6 +3463,17 @@
 "song"
 ]
 },
+"אזרבייגנ": {
+"evidence": {
+"nation": [
+"אזרבייג'ן"
+]
+},
+"senses": [
+"common_word",
+"nation"
+]
+},
 "אזרחי": {
 "evidence": {
 "answer": [
@@ -2732,6 +3482,17 @@
 },
 "senses": [
 "answer",
+"common_word"
+]
+},
+"אחאב": {
+"evidence": {
+"bible": [
+"אחאב"
+]
+},
+"senses": [
+"bible",
 "common_word"
 ]
 },
@@ -2783,17 +3544,6 @@
 "song"
 ]
 },
-"אחווה": {
-"evidence": {
-"place": [
-"אחווה"
-]
-},
-"senses": [
-"common_word",
-"place"
-]
-},
 "אחות": {
 "evidence": {
 "song": [
@@ -2809,6 +3559,17 @@
 "common_word",
 "song",
 "song_word"
+]
+},
+"אחז": {
+"evidence": {
+"bible": [
+"אחז"
+]
+},
+"senses": [
+"bible",
+"common_word"
 ]
 },
 "אחי": {
@@ -2841,6 +3602,31 @@
 "answer",
 "common_word",
 "song_word"
+]
+},
+"אחיהוד": {
+"evidence": {
+"answer": [
+"אנגרם של האיחוד"
+],
+"kibbutz": [
+"אחיהוד"
+]
+},
+"senses": [
+"answer",
+"kibbutz"
+]
+},
+"אחיטוב": {
+"evidence": {
+"kibbutz": [
+"אחיטוב"
+]
+},
+"senses": [
+"common_word",
+"kibbutz"
 ]
 },
 "אחימ": {
@@ -3025,6 +3811,17 @@
 "common_word"
 ]
 },
+"אטלנטה": {
+"evidence": {
+"world_city": [
+"אטלנטה"
+]
+},
+"senses": [
+"common_word",
+"world_city"
+]
+},
 "אטלנטיס": {
 "evidence": {
 "song": [
@@ -3070,17 +3867,6 @@
 },
 "senses": [
 "answer",
-"common_word"
-]
-},
-"אטרפ": {
-"evidence": {
-"artist": [
-"אטרף"
-]
-},
-"senses": [
-"artist",
 "common_word"
 ]
 },
@@ -3303,13 +4089,31 @@
 },
 "איטליה": {
 "evidence": {
+"nation": [
+"איטליה"
+],
 "song": [
 "איטליה"
 ]
 },
 "senses": [
 "common_word",
+"nation",
 "song"
+]
+},
+"איטנגרינברג": {
+"evidence": {
+"actor": [
+"איטן גרינברג"
+],
+"artist": [
+"איטן גרינברג"
+]
+},
+"senses": [
+"actor",
+"artist"
 ]
 },
 "איידי": {
@@ -3348,6 +4152,20 @@
 "song",
 "song_word",
 "surname"
+]
+},
+"איילבוחבוט": {
+"evidence": {
+"actor": [
+"אייל בוחבוט"
+],
+"artist": [
+"אייל בוחבוט"
+]
+},
+"senses": [
+"actor",
+"artist"
 ]
 },
 "איילה": {
@@ -3389,13 +4207,27 @@
 "song_word": [
 "איילת אהבים",
 "איילת החן",
-"איילת השחר"
+"איילת חן"
 ]
 },
 "senses": [
 "common_word",
 "given_name",
 "song_word"
+]
+},
+"איילתזורר": {
+"evidence": {
+"actor": [
+"איילת זורר"
+],
+"answer": [
+"איילת זורר [ לתקן חלוקה]"
+]
+},
+"senses": [
+"actor",
+"answer"
 ]
 },
 "איינשטיינ": {
@@ -3559,6 +4391,21 @@
 "song"
 ]
 },
+"אילונ": {
+"evidence": {
+"kibbutz": [
+"אילון"
+],
+"surname": [
+"דני אילון",
+"עמי אילון"
+]
+},
+"senses": [
+"kibbutz",
+"surname"
+]
+},
 "אילינוי": {
 "evidence": {
 "answer": [
@@ -3584,6 +4431,20 @@
 "answer",
 "common_word",
 "song_word"
+]
+},
+"אילמגד": {
+"evidence": {
+"answer": [
+"אנגרם"
+],
+"author": [
+"איל מגד"
+]
+},
+"senses": [
+"answer",
+"author"
 ]
 },
 "אילמת": {
@@ -3622,6 +4483,20 @@
 "song",
 "song_word",
 "surname"
+]
+},
+"אילנברקוביצ": {
+"evidence": {
+"athlete": [
+"אילן ברקוביץ'"
+],
+"author": [
+"אילן ברקוביץ'"
+]
+},
+"senses": [
+"athlete",
+"author"
 ]
 },
 "אילנה": {
@@ -3676,23 +4551,23 @@
 "surname"
 ]
 },
-"אילנליבוביצ": {
+"אילניתגרשונ": {
 "evidence": {
-"artist": [
-"אילן ליבוביץ"
+"actor": [
+"אילנית גרשון"
 ],
-"politician": [
-"אילן ליבוביץ"
+"artist": [
+"אילנית גרשון"
 ]
 },
 "senses": [
-"artist",
-"politician"
+"actor",
+"artist"
 ]
 },
 "אילת": {
 "evidence": {
-"place": [
+"city_il": [
 "אילת"
 ],
 "song": [
@@ -3704,8 +4579,8 @@
 ]
 },
 "senses": [
+"city_il",
 "common_word",
-"place",
 "song",
 "surname"
 ]
@@ -3732,6 +4607,17 @@
 "senses": [
 "answer",
 "common_word"
+]
+},
+"אינדונזיה": {
+"evidence": {
+"nation": [
+"אינדונזיה"
+]
+},
+"senses": [
+"common_word",
+"nation"
 ]
 },
 "אינטליגנציה": {
@@ -3862,6 +4748,17 @@
 "song_word"
 ]
 },
+"איסלנד": {
+"evidence": {
+"nation": [
+"איסלנד"
+]
+},
+"senses": [
+"common_word",
+"nation"
+]
+},
 "איפה": {
 "evidence": {
 "given_name": [
@@ -3926,10 +4823,41 @@
 "surname"
 ]
 },
+"איציקבנמלכ": {
+"evidence": {
+"actor": [
+"איציק בן מלך"
+],
+"artist": [
+"איציק בן מלך"
+]
+},
+"senses": [
+"actor",
+"artist"
+]
+},
+"איציקויינגרטנ": {
+"evidence": {
+"artist": [
+"איציק ויינגרטן"
+],
+"author": [
+"איציק ויינגרטן"
+]
+},
+"senses": [
+"artist",
+"author"
+]
+},
 "איראנ": {
 "evidence": {
 "answer": [
 "ירא בתוך אן"
+],
+"nation": [
+"איראן"
 ],
 "song_word": [
 "בוקר טוב איראן"
@@ -3938,6 +4866,7 @@
 "senses": [
 "answer",
 "common_word",
+"nation",
 "song_word"
 ]
 },
@@ -4009,6 +4938,31 @@
 "senses": [
 "common_word",
 "given_name"
+]
+},
+"איריתדקל": {
+"evidence": {
+"actor": [
+"אירית דקל"
+],
+"artist": [
+"אירית דקל"
+]
+},
+"senses": [
+"actor",
+"artist"
+]
+},
+"אירלנד": {
+"evidence": {
+"nation": [
+"אירלנד"
+]
+},
+"senses": [
+"common_word",
+"nation"
 ]
 },
 "איש": {
@@ -4120,6 +5074,20 @@
 "song_word"
 ]
 },
+"איתילוי": {
+"evidence": {
+"actor": [
+"איתי לוי"
+],
+"artist": [
+"איתי לוי"
+]
+},
+"senses": [
+"actor",
+"artist"
+]
+},
 "איתמר": {
 "evidence": {
 "answer": [
@@ -4148,11 +5116,8 @@
 ],
 "given_name": [
 "איתן גלס",
-"איתן גפני",
-"איתן הדר"
-],
-"song": [
-"איתן"
+"איתן הדר",
+"איתן מסורי"
 ],
 "surname": [
 "מיכאל איתן",
@@ -4164,7 +5129,6 @@
 "answer",
 "common_word",
 "given_name",
-"song",
 "surname"
 ]
 },
@@ -4210,6 +5174,21 @@
 "senses": [
 "answer",
 "common_word"
+]
+},
+"אכזיב": {
+"evidence": {
+"city_il": [
+"אכזיב"
+],
+"song_word": [
+"לילה בחוף אכזיב"
+]
+},
+"senses": [
+"city_il",
+"common_word",
+"song_word"
 ]
 },
 "אכזר": {
@@ -4288,8 +5267,8 @@
 ],
 "song_word": [
 "איגרת אל הילדים",
-"אל אדון",
-"אל אלוהי שמיים"
+"אל אלוהי שמיים",
+"אל ארצי"
 ],
 "surname": [
 "בני אל",
@@ -4362,6 +5341,17 @@
 "common_word"
 ]
 },
+"אלבניה": {
+"evidence": {
+"nation": [
+"אלבניה"
+]
+},
+"senses": [
+"common_word",
+"nation"
+]
+},
 "אלברט": {
 "evidence": {
 "given_name": [
@@ -4380,6 +5370,9 @@
 },
 "אלברטכהנ": {
 "evidence": {
+"actor": [
+"אלברט כהן"
+],
 "answer": [
 "אנגרם בלט כנראה"
 ],
@@ -4388,6 +5381,7 @@
 ]
 },
 "senses": [
+"actor",
 "answer",
 "artist"
 ]
@@ -4418,11 +5412,26 @@
 "evidence": {
 "artist": [
 "אלג'יר"
+],
+"world_city": [
+"אלג'יר"
 ]
 },
 "senses": [
 "artist",
-"common_word"
+"common_word",
+"world_city"
+]
+},
+"אלגיריה": {
+"evidence": {
+"nation": [
+"אלג'יריה"
+]
+},
+"senses": [
+"common_word",
+"nation"
 ]
 },
 "אלגרו": {
@@ -4451,6 +5460,20 @@
 "common_word",
 "given_name",
 "surname"
+]
+},
+"אלדדכהנ": {
+"evidence": {
+"artist": [
+"אלדד כהן"
+],
+"author": [
+"אלדד כהן"
+]
+},
+"senses": [
+"artist",
+"author"
 ]
 },
 "אלה": {
@@ -4483,6 +5506,20 @@
 "song",
 "song_word",
 "surname"
+]
+},
+"אלהאמיתנ": {
+"evidence": {
+"artist": [
+"אלה אמיתן"
+],
+"author": [
+"אלה אמיתן"
+]
+},
+"senses": [
+"artist",
+"author"
 ]
 },
 "אלו": {
@@ -4547,6 +5584,17 @@
 "surname"
 ]
 },
+"אלומות": {
+"evidence": {
+"kibbutz": [
+"אלומות"
+]
+},
+"senses": [
+"common_word",
+"kibbutz"
+]
+},
 "אלונ": {
 "evidence": {
 "given_name": [
@@ -4577,6 +5625,63 @@
 "song",
 "song_word",
 "surname"
+]
+},
+"אלונאופיר": {
+"evidence": {
+"artist": [
+"אלון אופיר"
+],
+"athlete": [
+"אלון אופיר"
+]
+},
+"senses": [
+"artist",
+"athlete"
+]
+},
+"אלונימ": {
+"evidence": {
+"kibbutz": [
+"אלונים"
+],
+"song_word": [
+"שני אלונים"
+]
+},
+"senses": [
+"common_word",
+"kibbutz",
+"song_word"
+]
+},
+"אלונלוי": {
+"evidence": {
+"actor": [
+"אלון לוי"
+],
+"artist": [
+"אלון לוי"
+]
+},
+"senses": [
+"actor",
+"artist"
+]
+},
+"אלונליטבק": {
+"evidence": {
+"actor": [
+"אלון ליטבק"
+],
+"artist": [
+"אלון ליטבק"
+]
+},
+"senses": [
+"actor",
+"artist"
 ]
 },
 "אלונעדר": {
@@ -4698,6 +5803,34 @@
 "surname"
 ]
 },
+"אליבכר": {
+"evidence": {
+"artist": [
+"אלי בכר"
+],
+"athlete": [
+"אלי בכר"
+]
+},
+"senses": [
+"artist",
+"athlete"
+]
+},
+"אליגורנשטיינ": {
+"evidence": {
+"actor": [
+"אלי גורנשטיין"
+],
+"artist": [
+"אלי גורנשטיין"
+]
+},
+"senses": [
+"actor",
+"artist"
+]
+},
 "אליה": {
 "evidence": {
 "given_name": [
@@ -4801,28 +5934,13 @@
 "song_word"
 ]
 },
-"אליכהנ": {
-"evidence": {
-"answer": [
-"יכה ב-אלן"
-],
-"politician": [
-"אלי כהן"
-]
-},
-"senses": [
-"answer",
-"politician"
-]
-},
 "אלימות": {
 "evidence": {
 "answer": [
 "אל[גור]-ימות"
 ],
 "song": [
-"א-לי-מות",
-"אלימות"
+"א-לי-מות"
 ]
 },
 "senses": [
@@ -4845,6 +5963,20 @@
 "common_word",
 "given_name",
 "surname"
+]
+},
+"אלימצרי": {
+"evidence": {
+"artist": [
+"אלי מצרי"
+],
+"author": [
+"אלי מצרי"
+]
+},
+"senses": [
+"artist",
+"author"
 ]
 },
 "אלינ": {
@@ -4877,13 +6009,31 @@
 "given_name": [
 "אליעד נחום"
 ],
+"kibbutz": [
+"אלי-עד"
+],
 "surname": [
 "נסים אליעד"
 ]
 },
 "senses": [
 "given_name",
+"kibbutz",
 "surname"
+]
+},
+"אליעדנחומ": {
+"evidence": {
+"actor": [
+"אליעד נחום"
+],
+"artist": [
+"אליעד נחום"
+]
+},
+"senses": [
+"actor",
+"artist"
 ]
 },
 "אליעזר": {
@@ -4908,6 +6058,20 @@
 "given_name",
 "song_word",
 "surname"
+]
+},
+"אליעזרליבנה": {
+"evidence": {
+"author": [
+"אליעזר ליבנה"
+],
+"politician": [
+"אליעזר ליבנה"
+]
+},
+"senses": [
+"author",
+"politician"
 ]
 },
 "אליפטי": {
@@ -4940,6 +6104,9 @@
 "answer": [
 "אליפ תלמיד שנה ראשונה\r\nל  למד\r\nט טוב"
 ],
+"kibbutz": [
+"אליפלט"
+],
 "song": [
 "אליפלט"
 ],
@@ -4950,6 +6117,7 @@
 "senses": [
 "answer",
 "common_word",
+"kibbutz",
 "song",
 "song_word"
 ]
@@ -4970,11 +6138,15 @@
 "given_name": [
 "אליקים העצני",
 "אליקים-גוסטב בדיאן"
+],
+"kibbutz": [
+"אליקים"
 ]
 },
 "senses": [
 "common_word",
-"given_name"
+"given_name",
+"kibbutz"
 ]
 },
 "אלירנ": {
@@ -4994,23 +6166,15 @@
 "surname"
 ]
 },
-"אלישבע": {
+"אלישמע": {
 "evidence": {
-"artist": [
-"אלישבע"
-],
-"song": [
-"אלישבע"
-],
-"song_word": [
-"אלישבע מה נחמדת"
+"kibbutz": [
+"אלישמע"
 ]
 },
 "senses": [
-"artist",
 "common_word",
-"song",
-"song_word"
+"kibbutz"
 ]
 },
 "אלישע": {
@@ -5028,6 +6192,20 @@
 "common_word",
 "given_name",
 "song_word"
+]
+},
+"אלישעבנאי": {
+"evidence": {
+"actor": [
+"אלישע בנאי"
+],
+"artist": [
+"אלישע בנאי"
+]
+},
+"senses": [
+"actor",
+"artist"
 ]
 },
 "אלישעבנאיוארבעימהשודדימ": {
@@ -5074,21 +6252,27 @@
 "given_name"
 ]
 },
-"אלכסנדרה": {
+"אלכסנדרפנ": {
 "evidence": {
 "artist": [
-"אלכסנדרה"
+"אלכסנדר פן"
+],
+"author": [
+"אלכסנדר פן"
 ]
 },
 "senses": [
 "artist",
-"common_word"
+"author"
 ]
 },
 "אלמגור": {
 "evidence": {
 "answer": [
 "מג באור"
+],
+"kibbutz": [
+"אלמגור"
 ],
 "surname": [
 "גילה אלמגור",
@@ -5097,18 +6281,8 @@
 },
 "senses": [
 "answer",
+"kibbutz",
 "surname"
-]
-},
-"אלמוג": {
-"evidence": {
-"given_name": [
-"אלמוג כהן"
-]
-},
-"senses": [
-"common_word",
-"given_name"
 ]
 },
 "אלמנ": {
@@ -5173,11 +6347,11 @@
 },
 "אלעד": {
 "evidence": {
+"city_il": [
+"אלעד"
+],
 "given_name": [
 "אלעד טוירשטיין"
-],
-"place": [
-"אלעד"
 ],
 "song_word": [
 "אלעד ירד אל הירדן"
@@ -5187,9 +6361,9 @@
 ]
 },
 "senses": [
+"city_il",
 "common_word",
 "given_name",
-"place",
 "song_word",
 "surname"
 ]
@@ -5259,15 +6433,18 @@
 "surname"
 ]
 },
-"אלקטרה": {
+"אלקוש": {
 "evidence": {
-"artist": [
-"אלקטרה"
+"answer": [
+"לקו (למסלול) ב-א\"ש"
+],
+"kibbutz": [
+"אלקוש"
 ]
 },
 "senses": [
-"artist",
-"common_word"
+"answer",
+"kibbutz"
 ]
 },
 "אלקטרונית": {
@@ -5435,12 +6612,16 @@
 },
 "אמונימ": {
 "evidence": {
+"kibbutz": [
+"אמונים"
+],
 "song": [
 "אמונים"
 ]
 },
 "senses": [
 "common_word",
+"kibbutz",
 "song"
 ]
 },
@@ -5536,7 +6717,7 @@
 "given_name": [
 "אמיר בן דוד",
 "אמיר בן עמי",
-"אמיר בן-דוד"
+"אמיר ברונשטיין"
 ],
 "song_word": [
 "אמיר דדון",
@@ -5553,6 +6734,20 @@
 "given_name",
 "song_word",
 "surname"
+]
+},
+"אמירבנדוד": {
+"evidence": {
+"artist": [
+"אמיר בן דוד"
+],
+"author": [
+"אמיר בן-דוד"
+]
+},
+"senses": [
+"artist",
+"author"
 ]
 },
 "אמירדדונ": {
@@ -5582,6 +6777,31 @@
 "common_word",
 "given_name",
 "song"
+]
+},
+"אמירימ": {
+"evidence": {
+"kibbutz": [
+"אמירים"
+]
+},
+"senses": [
+"common_word",
+"kibbutz"
+]
+},
+"אמירכצ": {
+"evidence": {
+"artist": [
+"אמיר כץ"
+],
+"athlete": [
+"אמיר כץ"
+]
+},
+"senses": [
+"artist",
+"athlete"
 ]
 },
 "אמיתי": {
@@ -5652,6 +6872,48 @@
 "given_name",
 "song_word",
 "surname"
+]
+},
+"אמנונאבוטבול": {
+"evidence": {
+"actor": [
+"אמנון אבוטבול"
+],
+"artist": [
+"אמנון אבוטבול"
+]
+},
+"senses": [
+"actor",
+"artist"
+]
+},
+"אמנונבקר": {
+"evidence": {
+"artist": [
+"אמנון בקר"
+],
+"author": [
+"אמנון בקר"
+]
+},
+"senses": [
+"artist",
+"author"
+]
+},
+"אמנונדנקנר": {
+"evidence": {
+"artist": [
+"אמנון דנקנר"
+],
+"author": [
+"אמנון דנקנר"
+]
+},
+"senses": [
+"artist",
+"author"
 ]
 },
 "אמסטרדמ": {
@@ -5836,6 +7098,17 @@
 "song"
 ]
 },
+"אנגולה": {
+"evidence": {
+"nation": [
+"אנגולה"
+]
+},
+"senses": [
+"common_word",
+"nation"
+]
+},
 "אנגוס": {
 "evidence": {
 "answer": [
@@ -5875,6 +7148,20 @@
 "surname"
 ]
 },
+"אנדדאלדנ": {
+"evidence": {
+"answer": [
+"אנדד  ארחיק\r\nאל דן מקורות הירדן"
+],
+"author": [
+"אנדד אלדן"
+]
+},
+"senses": [
+"answer",
+"author"
+]
+},
 "אנדה": {
 "evidence": {
 "given_name": [
@@ -5890,11 +7177,15 @@
 "evidence": {
 "answer": [
 "דורה, אנדורה בין צרפת לספרד"
+],
+"nation": [
+"אנדורה"
 ]
 },
 "senses": [
 "answer",
-"common_word"
+"common_word",
+"nation"
 ]
 },
 "אנדי": {
@@ -5984,6 +7275,9 @@
 "נו ב-אש; צֶלֶם אנוש - מושג המתאר תכונות מוסר, אנושיות, טוהר ",
 ""
 ],
+"bible": [
+"אנוש"
+],
 "song": [
 "אנוש"
 ],
@@ -5993,6 +7287,7 @@
 },
 "senses": [
 "answer",
+"bible",
 "common_word",
 "song",
 "song_word"
@@ -6037,6 +7332,20 @@
 "senses": [
 "common_word",
 "given_name"
+]
+},
+"אנחלבונני": {
+"evidence": {
+"actor": [
+"אנחל בונני"
+],
+"artist": [
+"אנחל בונני"
+]
+},
+"senses": [
+"actor",
+"artist"
 ]
 },
 "אנחנו": {
@@ -6087,6 +7396,9 @@
 },
 "אניהבוקשטיינ": {
 "evidence": {
+"actor": [
+"אניה בוקשטיין"
+],
 "artist": [
 "אניה בוקשטיין"
 ],
@@ -6095,6 +7407,7 @@
 ]
 },
 "senses": [
+"actor",
 "artist",
 "song"
 ]
@@ -6108,6 +7421,20 @@
 "senses": [
 "common_word",
 "song"
+]
+},
+"אניעמ": {
+"evidence": {
+"answer": [
+"אניע (אות)ם; אניעם - מושב כ-10 ק\"מ מדרום-מזרח לקצרין"
+],
+"kibbutz": [
+"אניעם"
+]
+},
+"senses": [
+"answer",
+"kibbutz"
 ]
 },
 "אנכי": {
@@ -6289,11 +7616,15 @@
 "evidence": {
 "answer": [
 "טון (נימת הדיבור) ב- אסיה, מדינה באירופה"
+],
+"nation": [
+"אסטוניה"
 ]
 },
 "senses": [
 "answer",
-"common_word"
+"common_word",
+"nation"
 ]
 },
 "אסי": {
@@ -6312,6 +7643,24 @@
 "given_name"
 ]
 },
+"אסידיינ": {
+"evidence": {
+"actor": [
+"אסי דיין"
+],
+"artist": [
+"אסי דיין"
+],
+"author": [
+"אסי דיין"
+]
+},
+"senses": [
+"actor",
+"artist",
+"author"
+]
+},
 "אסייג": {
 "evidence": {
 "answer": [
@@ -6321,6 +7670,31 @@
 "senses": [
 "answer",
 "common_word"
+]
+},
+"אסייד": {
+"evidence": {
+"city_il": [
+"א-סייד"
+]
+},
+"senses": [
+"city_il",
+"common_word"
+]
+},
+"אסיישראלופ": {
+"evidence": {
+"actor": [
+"אסי ישראלוף"
+],
+"artist": [
+"אסי ישראלוף"
+]
+},
+"senses": [
+"actor",
+"artist"
 ]
 },
 "אסימונימ": {
@@ -6493,6 +7867,9 @@
 "ס\"ת בתוך אר(שטח)",
 "אס (אלוף) תר(מחפש) =\r\nמגילת אסתר"
 ],
+"bible": [
+"אסתר"
+],
 "given_name": [
 "אסתר אתי קסטרו",
 "אסתר גליל",
@@ -6512,6 +7889,7 @@
 },
 "senses": [
 "answer",
+"bible",
 "common_word",
 "given_name",
 "song",
@@ -6542,6 +7920,28 @@
 "senses": [
 "answer",
 "common_word"
+]
+},
+"אפגניסטנ": {
+"evidence": {
+"nation": [
+"אפגניסטן"
+]
+},
+"senses": [
+"common_word",
+"nation"
+]
+},
+"אפו": {
+"evidence": {
+"mountain": [
+"אפו"
+]
+},
+"senses": [
+"common_word",
+"mountain"
 ]
 },
 "אפופה": {
@@ -6592,6 +7992,20 @@
 "answer",
 "common_word",
 "given_name"
+]
+},
+"אפיבנישראל": {
+"evidence": {
+"actor": [
+"אפי בן ישראל"
+],
+"artist": [
+"אפי בן ישראל"
+]
+},
+"senses": [
+"actor",
+"artist"
 ]
 },
 "אפיל": {
@@ -6646,6 +8060,17 @@
 "senses": [
 "answer",
 "common_word"
+]
+},
+"אפיקימ": {
+"evidence": {
+"kibbutz": [
+"אפיקים"
+]
+},
+"senses": [
+"common_word",
+"kibbutz"
 ]
 },
 "אפל": {
@@ -6838,8 +8263,25 @@
 "surname"
 ]
 },
+"אפרתבנצור": {
+"evidence": {
+"actor": [
+"אפרת בן צור"
+],
+"artist": [
+"אפרת בן צור"
+]
+},
+"senses": [
+"actor",
+"artist"
+]
+},
 "אפרתגוש": {
 "evidence": {
+"actor": [
+"אפרת גוש"
+],
 "answer": [
 "אנגרם"
 ],
@@ -6851,6 +8293,7 @@
 ]
 },
 "senses": [
+"actor",
 "answer",
 "artist",
 "song"
@@ -7010,20 +8453,6 @@
 "common_word"
 ]
 },
-"אקו": {
-"evidence": {
-"artist": [
-"אקו"
-],
-"given_name": [
-"אקו מורגנשטרן"
-]
-},
-"senses": [
-"artist",
-"given_name"
-]
-},
 "אקומ": {
 "evidence": {
 "song": [
@@ -7091,6 +8520,17 @@
 "surname"
 ]
 },
+"אקרה": {
+"evidence": {
+"world_city": [
+"אקרה"
+]
+},
+"senses": [
+"common_word",
+"world_city"
+]
+},
 "אקרילנ": {
 "evidence": {
 "answer": [
@@ -7154,9 +8594,6 @@
 "רב ב-א\"ע (אוניברסיטה עברית)",
 "רב ב-א\"ע"
 ],
-"given_name": [
-"ארבע-עשרה אוקטבות"
-],
 "song_word": [
 "ארבע אחרי הצהריים",
 "ארבע לפנות בוקר",
@@ -7166,7 +8603,6 @@
 "senses": [
 "answer",
 "common_word",
-"given_name",
 "song_word"
 ]
 },
@@ -7183,20 +8619,6 @@
 "answer",
 "common_word",
 "song_word"
-]
-},
-"ארבעעשרהאוקטבות": {
-"evidence": {
-"artist": [
-"ארבע-עשרה אוקטבות"
-],
-"song": [
-"ארבע-עשרה אוקטבות"
-]
-},
-"senses": [
-"artist",
-"song"
 ]
 },
 "ארבעתנו": {
@@ -7332,9 +8754,9 @@
 "ארי": {
 "evidence": {
 "given_name": [
-"ארי גולד",
 "ארי גולדוואג",
-"ארי גורלי"
+"ארי גורלי",
+"ארי אנקוריון"
 ],
 "role_noun": [
 "lion / given name Ari"
@@ -7343,9 +8765,9 @@
 "הבלדה על ארי ודרצ'י"
 ],
 "surname": [
-"אורי בן ארי",
 "ארז לב ארי",
-"חנן בן ארי"
+"חנן בן ארי",
+"טולה בן ארי"
 ]
 },
 "senses": [
@@ -7380,6 +8802,20 @@
 "surname"
 ]
 },
+"אריאלברונז": {
+"evidence": {
+"actor": [
+"אריאל ברונז"
+],
+"author": [
+"אריאל ברונז"
+]
+},
+"senses": [
+"actor",
+"author"
+]
+},
 "אריאלה": {
 "evidence": {
 "song": [
@@ -7393,6 +8829,20 @@
 "common_word",
 "song",
 "song_word"
+]
+},
+"אריאלהורוביצ": {
+"evidence": {
+"artist": [
+"אריאל הורוביץ"
+],
+"author": [
+"אריאל הורוביץ"
+]
+},
+"senses": [
+"artist",
+"author"
 ]
 },
 "אריאלזילבר": {
@@ -7452,6 +8902,62 @@
 "surname"
 ]
 },
+"אריהאהרוני": {
+"evidence": {
+"artist": [
+"אריה אהרוני"
+],
+"author": [
+"אריה אהרוני"
+]
+},
+"senses": [
+"artist",
+"author"
+]
+},
+"אריהאלדד": {
+"evidence": {
+"author": [
+"אריה אלדד"
+],
+"politician": [
+"אריה אלדד"
+]
+},
+"senses": [
+"author",
+"politician"
+]
+},
+"אריהגמליאל": {
+"evidence": {
+"athlete": [
+"אריה גמליאל"
+],
+"politician": [
+"אריה גמליאל"
+]
+},
+"senses": [
+"athlete",
+"politician"
+]
+},
+"אריהמוסקונה": {
+"evidence": {
+"actor": [
+"אריה מוסקונה"
+],
+"artist": [
+"אריה מוסקונה"
+]
+},
+"senses": [
+"actor",
+"artist"
+]
+},
 "אריח": {
 "evidence": {
 "answer": [
@@ -7499,6 +9005,52 @@
 "surname"
 ]
 },
+"אריקאיינשטיינ": {
+"evidence": {
+"actor": [
+"אריק איינשטיין"
+],
+"artist": [
+"אריק איינשטיין"
+],
+"athlete": [
+"אריק איינשטיין"
+]
+},
+"senses": [
+"actor",
+"artist",
+"athlete"
+]
+},
+"אריקלביא": {
+"evidence": {
+"actor": [
+"אריק לביא"
+],
+"artist": [
+"אריק לביא"
+]
+},
+"senses": [
+"actor",
+"artist"
+]
+},
+"אריקמשעלי": {
+"evidence": {
+"actor": [
+"אריק משעלי"
+],
+"artist": [
+"אריק משעלי"
+]
+},
+"senses": [
+"actor",
+"artist"
+]
+},
 "אריקסיני": {
 "evidence": {
 "answer": [
@@ -7533,6 +9085,17 @@
 "senses": [
 "common_word",
 "surname"
+]
+},
+"ארמניה": {
+"evidence": {
+"nation": [
+"ארמניה"
+]
+},
+"senses": [
+"common_word",
+"nation"
 ]
 },
 "ארנ": {
@@ -7721,24 +9284,13 @@
 },
 "אשדוד": {
 "evidence": {
-"place": [
+"city_il": [
 "אשדוד"
 ]
 },
 "senses": [
-"common_word",
-"place"
-]
-},
-"אשדודימ": {
-"evidence": {
-"place": [
-"אשדודים"
-]
-},
-"senses": [
-"common_word",
-"place"
+"city_il",
+"common_word"
 ]
 },
 "אשדות": {
@@ -7957,13 +9509,13 @@
 },
 "אשקלונ": {
 "evidence": {
-"place": [
+"city_il": [
 "אשקלון"
 ]
 },
 "senses": [
-"common_word",
-"place"
+"city_il",
+"common_word"
 ]
 },
 "אשר": {
@@ -7992,6 +9544,20 @@
 "given_name",
 "song_word",
 "surname"
+]
+},
+"אשרברש": {
+"evidence": {
+"answer": [
+"אש(סופר שלום) + רב(די) +רש(תפרן) = אשר ברש (סופר)"
+],
+"author": [
+"אשר ברש"
+]
+},
+"senses": [
+"answer",
+"author"
 ]
 },
 "אשרי": {
@@ -8133,6 +9699,59 @@
 "given_name",
 "song",
 "surname"
+]
+},
+"אתיאנקרי": {
+"evidence": {
+"actor": [
+"אתי אנקרי"
+],
+"artist": [
+"אתי אנקרי"
+]
+},
+"senses": [
+"actor",
+"artist"
+]
+},
+"אתיבנזקנ": {
+"evidence": {
+"artist": [
+"אתי בן-זקן"
+],
+"author": [
+"אתי בן-זקן"
+]
+},
+"senses": [
+"artist",
+"author"
+]
+},
+"אתיגרוטס": {
+"evidence": {
+"actor": [
+"אתי גרוטס"
+],
+"artist": [
+"אתי גרוטס"
+]
+},
+"senses": [
+"actor",
+"artist"
+]
+},
+"אתיופיה": {
+"evidence": {
+"nation": [
+"אתיופיה"
+]
+},
+"senses": [
+"common_word",
+"nation"
 ]
 },
 "אתלט": {
@@ -8329,6 +9948,17 @@
 "song_word"
 ]
 },
+"בארו": {
+"evidence": {
+"mountain": [
+"בארו"
+]
+},
+"senses": [
+"common_word",
+"mountain"
+]
+},
 "בארי": {
 "evidence": {
 "given_name": [
@@ -8343,6 +9973,20 @@
 "common_word",
 "given_name",
 "surname"
+]
+},
+"באריחזק": {
+"evidence": {
+"artist": [
+"בארי חזק"
+],
+"author": [
+"בארי חזק"
+]
+},
+"senses": [
+"artist",
+"author"
 ]
 },
 "בבה": {
@@ -8707,6 +10351,17 @@
 "common_word"
 ]
 },
+"בהוטנ": {
+"evidence": {
+"nation": [
+"בהוטן"
+]
+},
+"senses": [
+"common_word",
+"nation"
+]
+},
 "בהיר": {
 "evidence": {
 "song_word": [
@@ -8783,8 +10438,7 @@
 "בואי": {
 "evidence": {
 "song": [
-"בואי",
-"בואי | Fuiste mia"
+"בואי"
 ],
 "song_word": [
 "בואי אהובה",
@@ -8953,6 +10607,17 @@
 "senses": [
 "answer",
 "common_word"
+]
+},
+"בולגריה": {
+"evidence": {
+"nation": [
+"בולגריה"
+]
+},
+"senses": [
+"common_word",
+"nation"
 ]
 },
 "בולוניה": {
@@ -9146,11 +10811,15 @@
 "answer": [
 "וסט ב-בון; בוסטון - בירת מסצ'וסטס",
 "נשמע: בוס סטון"
+],
+"world_city": [
+"בוסטון"
 ]
 },
 "senses": [
 "answer",
-"common_word"
+"common_word",
+"world_city"
 ]
 },
 "בוסניות": {
@@ -9234,6 +10903,20 @@
 "senses": [
 "common_word",
 "given_name"
+]
+},
+"בועזאפלבאומ": {
+"evidence": {
+"artist": [
+"בועז אפלבאום"
+],
+"author": [
+"בועז אפלבאום"
+]
+},
+"senses": [
+"artist",
+"author"
 ]
 },
 "בועטימ": {
@@ -9405,6 +11088,17 @@
 "senses": [
 "answer",
 "common_word"
+]
+},
+"בורנאו": {
+"evidence": {
+"island": [
+"בורנאו"
+]
+},
+"senses": [
+"common_word",
+"island"
 ]
 },
 "בורקס": {
@@ -9623,11 +11317,26 @@
 "ב(ית) + ח\"נ; בחן - קיבוץ בעמק חפר",
 "ב/חן (ב/נוי)",
 "ב(תוך) חן (נוי)"
+],
+"kibbutz": [
+"בחן"
 ]
 },
 "senses": [
 "answer",
-"common_word"
+"common_word",
+"kibbutz"
+]
+},
+"בחריינ": {
+"evidence": {
+"nation": [
+"בחריין"
+]
+},
+"senses": [
+"common_word",
+"nation"
 ]
 },
 "בחש": {
@@ -9639,6 +11348,17 @@
 "senses": [
 "answer",
 "common_word"
+]
+},
+"בטחה": {
+"evidence": {
+"kibbutz": [
+"בטחה"
+]
+},
+"senses": [
+"common_word",
+"kibbutz"
 ]
 },
 "בטי": {
@@ -9889,23 +11609,6 @@
 "common_word"
 ]
 },
-"בינ": {
-"evidence": {
-"given_name": [
-"בין השמשות"
-],
-"song_word": [
-"אהבה בין הקירות",
-"איך האהבה הזאת חומקת בין האצבעות",
-"בין אביב לענן"
-]
-},
-"senses": [
-"common_word",
-"given_name",
-"song_word"
-]
-},
 "בינה": {
 "evidence": {
 "given_name": [
@@ -10081,7 +11784,6 @@
 "בית": {
 "evidence": {
 "given_name": [
-"בית הבובות",
 "בית צעירות מזרחי"
 ],
 "song": [
@@ -10098,6 +11800,48 @@
 "given_name",
 "song",
 "song_word"
+]
+},
+"ביתאלפא": {
+"evidence": {
+"city_il": [
+"בית אלפא"
+],
+"kibbutz": [
+"בית אלפא"
+]
+},
+"senses": [
+"city_il",
+"kibbutz"
+]
+},
+"ביתהערבה": {
+"evidence": {
+"kibbutz": [
+"בית הערבה"
+],
+"song": [
+"בית הערבה"
+]
+},
+"senses": [
+"kibbutz",
+"song"
+]
+},
+"ביתהשיטה": {
+"evidence": {
+"city_il": [
+"בית השיטה"
+],
+"kibbutz": [
+"בית השיטה"
+]
+},
+"senses": [
+"city_il",
+"kibbutz"
 ]
 },
 "ביתי": {
@@ -10126,6 +11870,20 @@
 "senses": [
 "common_word",
 "surname"
+]
+},
+"ביתנקופה": {
+"evidence": {
+"answer": [
+"ביתן קופה ; בית נקופה - מושב הממוקם באזור הרי ירושלים בסמוך "
+],
+"kibbutz": [
+"בית נקופה"
+]
+},
+"senses": [
+"answer",
+"kibbutz"
 ]
 },
 "ביתר": {
@@ -10160,8 +11918,7 @@
 ],
 "surname": [
 "אביב בכר",
-"אלי בכר",
-"יוסי בכר"
+"אלי בכר"
 ]
 },
 "senses": [
@@ -10267,6 +12024,17 @@
 "common_word"
 ]
 },
+"בלגיה": {
+"evidence": {
+"nation": [
+"בלגיה"
+]
+},
+"senses": [
+"common_word",
+"nation"
+]
+},
 "בלגנ": {
 "evidence": {
 "answer": [
@@ -10335,6 +12103,20 @@
 "senses": [
 "common_word",
 "given_name"
+]
+},
+"בלההיפה": {
+"evidence": {
+"artist": [
+"בלהה יפה"
+],
+"author": [
+"בלהה יפה"
+]
+},
+"senses": [
+"artist",
+"author"
 ]
 },
 "בלויות": {
@@ -10491,9 +12273,7 @@
 "בלילה - תערובת"
 ],
 "song": [
-"12 בלילה",
-"1978 בלילה",
-"2 בלילה"
+"12 בלילה"
 ],
 "song_word": [
 "אהבה בלילה חם",
@@ -10694,6 +12474,20 @@
 "common_word"
 ]
 },
+"בלשאצר": {
+"evidence": {
+"answer": [
+"בלש. אצר (אעשה צר); בֵּלְשַׁאצַּר היה נסיך בבל, בנו של נבונא"
+],
+"bible": [
+"בלשאצר"
+]
+},
+"senses": [
+"answer",
+"bible"
+]
+},
 "בלשימ": {
 "evidence": {
 "answer": [
@@ -10760,6 +12554,20 @@
 "common_word"
 ]
 },
+"במקו": {
+"evidence": {
+"answer": [
+"מ(משלה)  ב-בקו (בירת אזרבייג'אן); במקו - בירת מאלי"
+],
+"world_city": [
+"במקו"
+]
+},
+"senses": [
+"answer",
+"world_city"
+]
+},
 "בנ": {
 "evidence": {
 "answer": [
@@ -10795,11 +12603,15 @@
 },
 "בנאדמ": {
 "evidence": {
+"actor": [
+"בן אדם"
+],
 "song": [
 "בן אדם"
 ]
 },
 "senses": [
+"actor",
 "common_word",
 "song"
 ]
@@ -10827,15 +12639,30 @@
 "surname"
 ]
 },
+"בנגי": {
+"evidence": {
+"world_city": [
+"בנגי"
+]
+},
+"senses": [
+"common_word",
+"world_city"
+]
+},
 "בנגלדש": {
 "evidence": {
 "answer": [
 "(יאנוש) בן גל + דש; בנגלדש - מדינה בדרום אסיה"
+],
+"nation": [
+"בנגלדש"
 ]
 },
 "senses": [
 "answer",
-"common_word"
+"common_word",
+"nation"
 ]
 },
 "בנו": {
@@ -10943,6 +12770,20 @@
 "senses": [
 "answer",
 "politician"
+]
+},
+"בנידרומ": {
+"evidence": {
+"answer": [
+"אנגרם"
+],
+"kibbutz": [
+"בני דרום"
+]
+},
+"senses": [
+"answer",
+"kibbutz"
 ]
 },
 "בניונ": {
@@ -11095,6 +12936,20 @@
 "senses": [
 "answer",
 "common_word"
+]
+},
+"בסמה": {
+"evidence": {
+"city_il": [
+"בסמ\"ה"
+],
+"song": [
+"בסמה"
+]
+},
+"senses": [
+"city_il",
+"song"
 ]
 },
 "בסתר": {
@@ -11325,6 +13180,17 @@
 "common_word"
 ]
 },
+"בקעות": {
+"evidence": {
+"kibbutz": [
+"בקעות"
+]
+},
+"senses": [
+"common_word",
+"kibbutz"
+]
+},
 "בקר": {
 "evidence": {
 "answer": [
@@ -11448,6 +13314,17 @@
 "common_word"
 ]
 },
+"ברבודה": {
+"evidence": {
+"island": [
+"ברבודה"
+]
+},
+"senses": [
+"common_word",
+"island"
+]
+},
 "ברבור": {
 "evidence": {
 "answer": [
@@ -11545,6 +13422,34 @@
 "song_word"
 ]
 },
+"ברוכברנר": {
+"evidence": {
+"actor": [
+"ברוך ברנר"
+],
+"artist": [
+"ברוך ברנר"
+]
+},
+"senses": [
+"actor",
+"artist"
+]
+},
+"ברוכדגו": {
+"evidence": {
+"answer": [
+"בר וכד (כלי) גו (משחק)"
+],
+"athlete": [
+"ברוך דגו"
+]
+},
+"senses": [
+"answer",
+"athlete"
+]
+},
 "ברוכהבא": {
 "evidence": {
 "answer": [
@@ -11590,6 +13495,20 @@
 "senses": [
 "common_word",
 "song"
+]
+},
+"ברורחיל": {
+"evidence": {
+"city_il": [
+"ברור חיל"
+],
+"kibbutz": [
+"ברור חיל"
+]
+},
+"senses": [
+"city_il",
+"kibbutz"
 ]
 },
 "ברוש": {
@@ -11916,6 +13835,9 @@
 "לי ב-ברן",
 "לי בתוך ברן"
 ],
+"athlete": [
+"בר לין"
+],
 "song": [
 "ברלין"
 ],
@@ -11926,6 +13848,7 @@
 },
 "senses": [
 "answer",
+"athlete",
 "common_word",
 "song",
 "surname"
@@ -12007,6 +13930,21 @@
 "common_word"
 ]
 },
+"ברעמ": {
+"evidence": {
+"kibbutz": [
+"ברעם"
+],
+"surname": [
+"משה ברעם",
+"עוזי ברעם"
+]
+},
+"senses": [
+"kibbutz",
+"surname"
+]
+},
 "ברצלונה": {
 "evidence": {
 "song": [
@@ -12044,6 +13982,20 @@
 "surname"
 ]
 },
+"ברקאי": {
+"evidence": {
+"kibbutz": [
+"ברקאי"
+],
+"surname": [
+"אליהו ברקאי"
+]
+},
+"senses": [
+"kibbutz",
+"surname"
+]
+},
 "ברקוד": {
 "evidence": {
 "answer": [
@@ -12064,6 +14016,20 @@
 "senses": [
 "answer",
 "common_word"
+]
+},
+"ברקפלדמנ": {
+"evidence": {
+"artist": [
+"ברק פלדמן"
+],
+"author": [
+"ברק פלדמן"
+]
+},
+"senses": [
+"artist",
+"author"
 ]
 },
 "ברקת": {
@@ -12207,6 +14173,34 @@
 "song"
 ]
 },
+"בתיהגור": {
+"evidence": {
+"answer": [
+"נשמע בת יגור\r\nיגור נמצאת למרגלות הכרמל"
+],
+"author": [
+"בתיה גור"
+]
+},
+"senses": [
+"answer",
+"author"
+]
+},
+"בתשלמה": {
+"evidence": {
+"answer": [
+"בת ילדה\r\nשלמה תמימה"
+],
+"kibbutz": [
+"בת שלמה"
+]
+},
+"senses": [
+"answer",
+"kibbutz"
+]
+},
 "גאה": {
 "evidence": {
 "answer": [
@@ -12246,6 +14240,20 @@
 "song"
 ]
 },
+"גאוליתימנ": {
+"evidence": {
+"city_il": [
+"גאולי תימן"
+],
+"kibbutz": [
+"גאולי תימן"
+]
+},
+"senses": [
+"city_il",
+"kibbutz"
+]
+},
 "גאונ": {
 "evidence": {
 "surname": [
@@ -12258,6 +14266,17 @@
 "surname"
 ]
 },
+"גאורגיה": {
+"evidence": {
+"nation": [
+"גאורגיה"
+]
+},
+"senses": [
+"common_word",
+"nation"
+]
+},
 "גאות": {
 "evidence": {
 "song": [
@@ -12267,6 +14286,17 @@
 "senses": [
 "common_word",
 "song"
+]
+},
+"גאנה": {
+"evidence": {
+"nation": [
+"גאנה"
+]
+},
+"senses": [
+"common_word",
+"nation"
 ]
 },
 "גבאי": {
@@ -12300,6 +14330,9 @@
 },
 "גבולות": {
 "evidence": {
+"kibbutz": [
+"גבולות"
+],
 "song": [
 "גבולות"
 ],
@@ -12310,6 +14343,7 @@
 },
 "senses": [
 "common_word",
+"kibbutz",
 "song",
 "song_word"
 ]
@@ -12323,6 +14357,17 @@
 "senses": [
 "answer",
 "common_word"
+]
+},
+"גבונ": {
+"evidence": {
+"nation": [
+"גבון"
+]
+},
+"senses": [
+"common_word",
+"nation"
 ]
 },
 "גבי": {
@@ -12351,11 +14396,15 @@
 "answer": [
 "גבים=נותנים גב=תומכים",
 "גבים. קיבוץ בשער הנגב. גב. נותן תמיכה"
+],
+"kibbutz": [
+"גבים"
 ]
 },
 "senses": [
 "answer",
-"common_word"
+"common_word",
+"kibbutz"
 ]
 },
 "גבינו": {
@@ -12440,13 +14489,47 @@
 },
 "גבע": {
 "evidence": {
+"city_il": [
+"ג'בע"
+],
 "given_name": [
 "גבע אלון"
+],
+"kibbutz": [
+"גבע"
+]
+},
+"senses": [
+"city_il",
+"common_word",
+"given_name",
+"kibbutz"
+]
+},
+"גבעה": {
+"evidence": {
+"city_il": [
+"ג'בעה"
+],
+"song_word": [
+"גבעה אחת"
+]
+},
+"senses": [
+"city_il",
+"common_word",
+"song_word"
+]
+},
+"גבעולימ": {
+"evidence": {
+"kibbutz": [
+"גבעולים"
 ]
 },
 "senses": [
 "common_word",
-"given_name"
+"kibbutz"
 ]
 },
 "גבעתי": {
@@ -12464,6 +14547,20 @@
 "surname"
 ]
 },
+"גבעתיואב": {
+"evidence": {
+"answer": [
+"(שרי) גבעתי ו(גם) א.ב (יהושע)"
+],
+"kibbutz": [
+"גבעת יואב"
+]
+},
+"senses": [
+"answer",
+"kibbutz"
+]
+},
 "גבעתיימ": {
 "evidence": {
 "song": [
@@ -12472,6 +14569,20 @@
 },
 "senses": [
 "common_word",
+"song"
+]
+},
+"גבעתכח": {
+"evidence": {
+"kibbutz": [
+"גבעת כ\"ח"
+],
+"song": [
+"גבעת כח"
+]
+},
+"senses": [
+"kibbutz",
 "song"
 ]
 },
@@ -12547,6 +14658,20 @@
 "surname"
 ]
 },
+"גבריבנאי": {
+"evidence": {
+"actor": [
+"גברי בנאי"
+],
+"artist": [
+"גברי בנאי"
+]
+},
+"senses": [
+"actor",
+"artist"
+]
+},
 "גבתה": {
 "evidence": {
 "answer": [
@@ -12556,6 +14681,21 @@
 "senses": [
 "answer",
 "common_word"
+]
+},
+"גבתונ": {
+"evidence": {
+"answer": [
+"ת ב-גבון",
+"בתו בתוךגן"
+],
+"kibbutz": [
+"גבתון"
+]
+},
+"senses": [
+"answer",
+"kibbutz"
 ]
 },
 "גג": {
@@ -12640,8 +14780,7 @@
 "החיים גדולים עלי"
 ],
 "surname": [
-"כמו גדולים",
-"כמו גדולים 2"
+"כמו גדולים"
 ]
 },
 "senses": [
@@ -12663,6 +14802,9 @@
 },
 "גדות": {
 "evidence": {
+"kibbutz": [
+"גדות"
+],
 "song_word": [
 "גל גדות"
 ],
@@ -12672,6 +14814,7 @@
 },
 "senses": [
 "common_word",
+"kibbutz",
 "song_word",
 "surname"
 ]
@@ -12709,6 +14852,20 @@
 "senses": [
 "answer",
 "common_word"
+]
+},
+"גדיש": {
+"evidence": {
+"answer": [
+"גד (מזל) + יש (אין חוסר)"
+],
+"kibbutz": [
+"גדיש"
+]
+},
+"senses": [
+"answer",
+"kibbutz"
 ]
 },
 "גדלות": {
@@ -12778,6 +14935,48 @@
 "given_name"
 ]
 },
+"גדעונאונה": {
+"evidence": {
+"artist": [
+"גדעון אונה"
+],
+"author": [
+"גדעון אונה"
+]
+},
+"senses": [
+"artist",
+"author"
+]
+},
+"גדעונדמתי": {
+"evidence": {
+"answer": [
+"גדע ונדמתי, שחקן נבחרת ישראל בכדורגל בעבר"
+],
+"athlete": [
+"גדעון דמתי"
+]
+},
+"senses": [
+"answer",
+"athlete"
+]
+},
+"גדעונזינגר": {
+"evidence": {
+"actor": [
+"גדעון זינגר"
+],
+"artist": [
+"גדעון זינגר"
+]
+},
+"senses": [
+"actor",
+"artist"
+]
+},
 "גדעונסער": {
 "evidence": {
 "answer": [
@@ -12840,6 +15039,17 @@
 "answer",
 "common_word",
 "surname"
+]
+},
+"גובה": {
+"evidence": {
+"world_city": [
+"ג'ובה"
+]
+},
+"senses": [
+"common_word",
+"world_city"
 ]
 },
 "גובות": {
@@ -13038,6 +15248,20 @@
 "surname"
 ]
 },
+"גולנאזולאי": {
+"evidence": {
+"actor": [
+"גולן אזולאי"
+],
+"artist": [
+"גולן אזולאי"
+]
+},
+"senses": [
+"actor",
+"artist"
+]
+},
 "גולש": {
 "evidence": {
 "answer": [
@@ -13163,11 +15387,15 @@
 "evidence": {
 "given_name": [
 "גונן שגב"
+],
+"kibbutz": [
+"גונן"
 ]
 },
 "senses": [
 "common_word",
-"given_name"
+"given_name",
+"kibbutz"
 ]
 },
 "גוסטב": {
@@ -13358,6 +15586,20 @@
 "surname"
 ]
 },
+"גורשלפ": {
+"evidence": {
+"answer": [
+"שחקן כדורסל בעבר.  גור. הוציא. מהחיה"
+],
+"athlete": [
+"גור שלף"
+]
+},
+"senses": [
+"answer",
+"athlete"
+]
+},
 "גוש": {
 "evidence": {
 "answer": [
@@ -13375,6 +15617,20 @@
 "common_word",
 "song_word",
 "surname"
+]
+},
+"גושחלב": {
+"evidence": {
+"answer": [
+"שחל בתוך גוב"
+],
+"city_il": [
+"גוש חלב"
+]
+},
+"senses": [
+"answer",
+"city_il"
 ]
 },
 "גושנ": {
@@ -13424,23 +15680,11 @@
 "common_word"
 ]
 },
-"גזוז": {
-"evidence": {
-"artist": [
-"גזוז"
-],
-"song": [
-"גזוז"
-]
-},
-"senses": [
-"artist",
-"common_word",
-"song"
-]
-},
 "גזית": {
 "evidence": {
+"kibbutz": [
+"גזית"
+],
 "surname": [
 "דודי גזית",
 "ישי גזית"
@@ -13448,6 +15692,7 @@
 },
 "senses": [
 "common_word",
+"kibbutz",
 "surname"
 ]
 },
@@ -13544,6 +15789,17 @@
 "surname"
 ]
 },
+"גיבוטי": {
+"evidence": {
+"nation": [
+"ג'יבוטי"
+]
+},
+"senses": [
+"common_word",
+"nation"
+]
+},
 "גיבוס": {
 "evidence": {
 "answer": [
@@ -13638,6 +15894,20 @@
 "song"
 ]
 },
+"גידיגוב": {
+"evidence": {
+"actor": [
+"גידי גוב"
+],
+"artist": [
+"גידי גוב"
+]
+},
+"senses": [
+"actor",
+"artist"
+]
+},
 "גיורא": {
 "evidence": {
 "given_name": [
@@ -13687,9 +15957,9 @@
 "גיל ההתבגרות"
 ],
 "surname": [
-"אבי גיל",
 "אביעד גיל",
-"גאולה גיל"
+"גאולה גיל",
+"יעקב גיל"
 ]
 },
 "senses": [
@@ -13698,6 +15968,20 @@
 "given_name",
 "song_word",
 "surname"
+]
+},
+"גילאלונ": {
+"evidence": {
+"actor": [
+"גיל אלון"
+],
+"artist": [
+"גיל אלון"
+]
+},
+"senses": [
+"actor",
+"artist"
 ]
 },
 "גילה": {
@@ -13710,6 +15994,9 @@
 "גילה אלמגור",
 "גילה חסיד"
 ],
+"neighborhood": [
+"גילה"
+],
 "song_word": [
 "הבה נגילה גילה"
 ]
@@ -13718,7 +16005,26 @@
 "answer",
 "common_word",
 "given_name",
+"neighborhood",
 "song_word"
+]
+},
+"גילהאלמגור": {
+"evidence": {
+"actor": [
+"גילה אלמגור"
+],
+"artist": [
+"גילה אלמגור"
+],
+"author": [
+"גילה אלמגור"
+]
+},
+"senses": [
+"actor",
+"artist",
+"author"
 ]
 },
 "גילוח": {
@@ -13782,6 +16088,20 @@
 "given_name"
 ]
 },
+"גילידנונ": {
+"evidence": {
+"actor": [
+"גילי דנון"
+],
+"author": [
+"גילי דנון"
+]
+},
+"senses": [
+"actor",
+"author"
+]
+},
 "גיליוטינה": {
 "evidence": {
 "answer": [
@@ -13793,16 +16113,34 @@
 "common_word"
 ]
 },
+"גיליקימור": {
+"evidence": {
+"artist": [
+"גילי קימור"
+],
+"author": [
+"גילי קימור"
+]
+},
+"senses": [
+"artist",
+"author"
+]
+},
 "גילת": {
 "evidence": {
 "answer": [
 "אוניברסיטת יל בתוך קיבוץ גת. גילת יישוב ליד אופקים",
 "אניברסיטת יל בתוך מושב גת"
+],
+"kibbutz": [
+"גילת"
 ]
 },
 "senses": [
 "answer",
-"common_word"
+"common_word",
+"kibbutz"
 ]
 },
 "גימיק": {
@@ -13829,6 +16167,17 @@
 "answer",
 "common_word",
 "song_word"
+]
+},
+"גינאה": {
+"evidence": {
+"nation": [
+"גינאה"
+]
+},
+"senses": [
+"common_word",
+"nation"
 ]
 },
 "גינאי": {
@@ -13862,12 +16211,16 @@
 "answer": [
 "גינו  סר"
 ],
+"kibbutz": [
+"גינוסר"
+],
 "surname": [
 "רוני גינוסר"
 ]
 },
 "senses": [
 "answer",
+"kibbutz",
 "surname"
 ]
 },
@@ -13953,17 +16306,6 @@
 "song_word"
 ]
 },
-"גירפות": {
-"evidence": {
-"artist": [
-"ג'ירפות"
-]
-},
-"senses": [
-"artist",
-"common_word"
-]
-},
 "גישוש": {
 "evidence": {
 "answer": [
@@ -13973,6 +16315,20 @@
 "senses": [
 "answer",
 "common_word"
+]
+},
+"גיתית": {
+"evidence": {
+"given_name": [
+"גיתית שובל"
+],
+"kibbutz": [
+"גיתית"
+]
+},
+"senses": [
+"given_name",
+"kibbutz"
 ]
 },
 "גל": {
@@ -14001,6 +16357,20 @@
 "given_name",
 "role_noun",
 "song_word",
+"surname"
+]
+},
+"גלאונ": {
+"evidence": {
+"kibbutz": [
+"גלאון"
+],
+"surname": [
+"זהבה גלאון"
+]
+},
+"senses": [
+"kibbutz",
 "surname"
 ]
 },
@@ -14047,6 +16417,31 @@
 },
 "senses": [
 "answer",
+"common_word"
+]
+},
+"גלגדות": {
+"evidence": {
+"actor": [
+"גל גדות"
+],
+"song": [
+"גל גדות"
+]
+},
+"senses": [
+"actor",
+"song"
+]
+},
+"גלגוליה": {
+"evidence": {
+"city_il": [
+"ג'לג'וליה"
+]
+},
+"senses": [
+"city_il",
 "common_word"
 ]
 },
@@ -14156,6 +16551,20 @@
 "song_word"
 ]
 },
+"גליהאלבינ": {
+"evidence": {
+"actor": [
+"גליה אלבין"
+],
+"author": [
+"גליה אלבין"
+]
+},
+"senses": [
+"actor",
+"author"
+]
+},
 "גליל": {
 "evidence": {
 "answer": [
@@ -14184,6 +16593,17 @@
 "senses": [
 "common_word",
 "surname"
+]
+},
+"גלילימ": {
+"evidence": {
+"kibbutz": [
+"גליל ים"
+]
+},
+"senses": [
+"common_word",
+"kibbutz"
 ]
 },
 "גלימגלימ": {
@@ -14220,6 +16640,9 @@
 },
 "גליתגיאת": {
 "evidence": {
+"actor": [
+"גלית גיאת"
+],
 "answer": [
 "גלי תגי (תוויות המגזין) את, שחקנית"
 ],
@@ -14228,12 +16651,30 @@
 ]
 },
 "senses": [
+"actor",
 "answer",
 "artist"
 ]
 },
+"גליתדיסטלאטבריאנ": {
+"evidence": {
+"author": [
+"גלית דיסטל-אטבריאן"
+],
+"politician": [
+"גלית דיסטל-אטבריאן"
+]
+},
+"senses": [
+"author",
+"politician"
+]
+},
 "גלמלכה": {
 "evidence": {
+"actor": [
+"גל מלכה"
+],
 "answer": [
 "חומר שמנוני גל. מנוזל ציפוי  מלכה השחקנית גל מלכה"
 ],
@@ -14242,8 +16683,23 @@
 ]
 },
 "senses": [
+"actor",
 "answer",
 "artist"
+]
+},
+"גלמקל": {
+"evidence": {
+"answer": [
+"בתוך גלל יש מק שזה ריקבון גל מקל שחקן כדור סל ישראלי"
+],
+"athlete": [
+"גל מקל"
+]
+},
+"senses": [
+"answer",
+"athlete"
 ]
 },
 "גלעד": {
@@ -14263,6 +16719,24 @@
 "common_word",
 "given_name",
 "surname"
+]
+},
+"גלעדכהנא": {
+"evidence": {
+"actor": [
+"גלעד כהנא"
+],
+"artist": [
+"גלעד כהנא"
+],
+"author": [
+"גלעד כהנא"
+]
+},
+"senses": [
+"actor",
+"artist",
+"author"
 ]
 },
 "גלשנ": {
@@ -14313,6 +16787,17 @@
 "senses": [
 "answer",
 "common_word"
+]
+},
+"גמביה": {
+"evidence": {
+"nation": [
+"גמביה"
+]
+},
+"senses": [
+"common_word",
+"nation"
 ]
 },
 "גמד": {
@@ -14588,6 +17073,17 @@
 "common_word"
 ]
 },
+"גנות": {
+"evidence": {
+"kibbutz": [
+"גנות"
+]
+},
+"senses": [
+"common_word",
+"kibbutz"
+]
+},
 "גנטלמנ": {
 "evidence": {
 "answer": [
@@ -14615,6 +17111,45 @@
 "given_name"
 ]
 },
+"גנינ": {
+"evidence": {
+"city_il": [
+"ג'נין"
+]
+},
+"senses": [
+"city_il",
+"common_word"
+]
+},
+"גניסרביבו": {
+"evidence": {
+"artist": [
+"ג'ניס רביבו"
+],
+"author": [
+"ג'ניס רביבו"
+]
+},
+"senses": [
+"artist",
+"author"
+]
+},
+"גנלאומיביתשאנ": {
+"evidence": {
+"park": [
+"גן לאומי בית שאן"
+],
+"site": [
+"גן לאומי בית שאן"
+]
+},
+"senses": [
+"park",
+"site"
+]
+},
 "גנעדנ": {
 "evidence": {
 "artist": [
@@ -14627,6 +17162,20 @@
 "senses": [
 "artist",
 "song"
+]
+},
+"גנשמואל": {
+"evidence": {
+"answer": [
+"גנש אל הודי מואל החזר של לאום(הודי זה לאום)"
+],
+"kibbutz": [
+"גן שמואל"
+]
+},
+"senses": [
+"answer",
+"kibbutz"
 ]
 },
 "גס": {
@@ -14791,6 +17340,17 @@
 "common_word"
 ]
 },
+"גרבה": {
+"evidence": {
+"island": [
+"ג'רבה"
+]
+},
+"senses": [
+"common_word",
+"island"
+]
+},
 "גרבו": {
 "evidence": {
 "answer": [
@@ -14881,6 +17441,9 @@
 "answer": [
 "יהודי - גר מניה שוחט"
 ],
+"nation": [
+"גרמניה"
+],
 "song": [
 "גרמניה"
 ]
@@ -14888,6 +17451,7 @@
 "senses": [
 "answer",
 "common_word",
+"nation",
 "song"
 ]
 },
@@ -15013,6 +17577,17 @@
 "surname"
 ]
 },
+"גש": {
+"evidence": {
+"city_il": [
+"ג'ש"
+]
+},
+"senses": [
+"city_il",
+"common_word"
+]
+},
 "גשמ": {
 "evidence": {
 "answer": [
@@ -15057,12 +17632,15 @@
 },
 "גת": {
 "evidence": {
+"city_il": [
+"ג'ת"
+],
 "surname": [
-"מקס גת מור",
-"מקס גת-מור"
+"מקס גת מור"
 ]
 },
 "senses": [
+"city_il",
 "common_word",
 "surname"
 ]
@@ -15138,6 +17716,20 @@
 "surname"
 ]
 },
+"דאנהאיבגי": {
+"evidence": {
+"actor": [
+"דאנה איבגי"
+],
+"artist": [
+"דאנה איבגי"
+]
+},
+"senses": [
+"actor",
+"artist"
+]
+},
 "דב": {
 "evidence": {
 "given_name": [
@@ -15173,15 +17765,25 @@
 "דבורה דותן",
 "דבורה ביטון",
 "דבורה נצר"
-],
-"song": [
-"דבורה"
 ]
 },
 "senses": [
 "common_word",
-"given_name",
-"song"
+"given_name"
+]
+},
+"דבורהדותנ": {
+"evidence": {
+"actor": [
+"דבורה דותן"
+],
+"artist": [
+"דבורה דותן"
+]
+},
+"senses": [
+"actor",
+"artist"
 ]
 },
 "דבורימ": {
@@ -15216,6 +17818,20 @@
 "senses": [
 "answer",
 "common_word"
+]
+},
+"דבמילמנ": {
+"evidence": {
+"athlete": [
+"דב מילמן"
+],
+"politician": [
+"דב מילמן"
+]
+},
+"senses": [
+"athlete",
+"politician"
 ]
 },
 "דבק": {
@@ -15331,6 +17947,20 @@
 "senses": [
 "answer",
 "common_word"
+]
+},
+"דברת": {
+"evidence": {
+"kibbutz": [
+"דברת"
+],
+"surname": [
+"נתניה דברת"
+]
+},
+"senses": [
+"kibbutz",
+"surname"
 ]
 },
 "דבש": {
@@ -15528,6 +18158,20 @@
 "given_name"
 ]
 },
+"דדיזהר": {
+"evidence": {
+"actor": [
+"דדי זהר"
+],
+"artist": [
+"דדי זהר"
+]
+},
+"senses": [
+"actor",
+"artist"
+]
+},
 "דדנית": {
 "evidence": {
 "answer": [
@@ -15632,6 +18276,17 @@
 "song"
 ]
 },
+"דובב": {
+"evidence": {
+"kibbutz": [
+"דוב\"ב"
+]
+},
+"senses": [
+"common_word",
+"kibbutz"
+]
+},
 "דובדבנימ": {
 "evidence": {
 "song": [
@@ -15651,6 +18306,20 @@
 },
 "senses": [
 "common_word",
+"song"
+]
+},
+"דוביגל": {
+"evidence": {
+"actor": [
+"דובי גל"
+],
+"song": [
+"דוביגל"
+]
+},
+"senses": [
+"actor",
 "song"
 ]
 },
@@ -15721,6 +18390,9 @@
 "מלה משותפת",
 ""
 ],
+"bible": [
+"דוד"
+],
 "given_name": [
 "דוד אבידן",
 "דוד אגמון",
@@ -15739,12 +18411,13 @@
 ],
 "surname": [
 "אמיר בן דוד",
-"אמיר בן-דוד",
-"דודי בר דוד"
+"דודי בר דוד",
+"יוריק בן דוד"
 ]
 },
 "senses": [
 "answer",
+"bible",
 "common_word",
 "given_name",
 "role_noun",
@@ -15760,11 +18433,29 @@
 ],
 "artist": [
 "דוד אבידן"
+],
+"author": [
+"דוד אבידן"
 ]
 },
 "senses": [
 "answer",
-"artist"
+"artist",
+"author"
+]
+},
+"דודברבי": {
+"evidence": {
+"artist": [
+"דוד ברבי"
+],
+"author": [
+"דוד ברבי"
+]
+},
+"senses": [
+"artist",
+"author"
 ]
 },
 "דודה": {
@@ -15796,6 +18487,52 @@
 "senses": [
 "answer",
 "given_name"
+]
+},
+"דודוזר": {
+"evidence": {
+"actor": [
+"דודו זר"
+],
+"artist": [
+"דודו זר"
+]
+},
+"senses": [
+"actor",
+"artist"
+]
+},
+"דודוטופז": {
+"evidence": {
+"actor": [
+"דודו טופז"
+],
+"artist": [
+"דודו טופז"
+],
+"author": [
+"דודו טופז"
+]
+},
+"senses": [
+"actor",
+"artist",
+"author"
+]
+},
+"דודופארוק": {
+"evidence": {
+"actor": [
+"דודו פארוק"
+],
+"artist": [
+"דודו פארוק"
+]
+},
+"senses": [
+"actor",
+"artist"
 ]
 },
 "דודטל": {
@@ -15835,6 +18572,62 @@
 "senses": [
 "answer",
 "common_word"
+]
+},
+"דודלביא": {
+"evidence": {
+"artist": [
+"דוד לביא"
+],
+"athlete": [
+"דוד לביא"
+]
+},
+"senses": [
+"artist",
+"athlete"
+]
+},
+"דודלוי": {
+"evidence": {
+"athlete": [
+"דוד לוי"
+],
+"politician": [
+"דוד לוי"
+]
+},
+"senses": [
+"athlete",
+"politician"
+]
+},
+"דודפאיאנס": {
+"evidence": {
+"artist": [
+"דוד פאיאנס"
+],
+"author": [
+"דוד פאיאנס"
+]
+},
+"senses": [
+"artist",
+"author"
+]
+},
+"דודשמעוני": {
+"evidence": {
+"artist": [
+"דוד שמעוני"
+],
+"author": [
+"דוד שמעוני"
+]
+},
+"senses": [
+"artist",
+"author"
 ]
 },
 "דוהימ": {
@@ -16107,6 +18900,20 @@
 "surname"
 ]
 },
+"דורהררי": {
+"evidence": {
+"actor": [
+"דור הררי"
+],
+"artist": [
+"דור הררי"
+]
+},
+"senses": [
+"actor",
+"artist"
+]
+},
 "דורונ": {
 "evidence": {
 "given_name": [
@@ -16125,6 +18932,31 @@
 "surname"
 ]
 },
+"דורונביטונ": {
+"evidence": {
+"actor": [
+"דורון ביטון"
+],
+"artist": [
+"דורון ביטון"
+]
+},
+"senses": [
+"actor",
+"artist"
+]
+},
+"דורות": {
+"evidence": {
+"kibbutz": [
+"דורות"
+]
+},
+"senses": [
+"common_word",
+"kibbutz"
+]
+},
 "דורי": {
 "evidence": {
 "given_name": [
@@ -16134,6 +18966,20 @@
 "senses": [
 "common_word",
 "given_name"
+]
+},
+"דוריבנזאב": {
+"evidence": {
+"actor": [
+"דורי בן זאב"
+],
+"artist": [
+"דורי בן זאב"
+]
+},
+"senses": [
+"actor",
+"artist"
 ]
 },
 "דורית": {
@@ -16151,9 +18997,6 @@
 },
 "דותנ": {
 "evidence": {
-"artist": [
-"דותן"
-],
 "song_word": [
 "הולכים לנדנדות עם עירית דותן"
 ],
@@ -16164,7 +19007,6 @@
 ]
 },
 "senses": [
-"artist",
 "common_word",
 "song_word",
 "surname"
@@ -16191,6 +19033,17 @@
 "senses": [
 "answer",
 "common_word"
+]
+},
+"דטרויט": {
+"evidence": {
+"world_city": [
+"דטרויט"
+]
+},
+"senses": [
+"common_word",
+"world_city"
 ]
 },
 "די": {
@@ -16241,6 +19094,20 @@
 "senses": [
 "given_name",
 "song"
+]
+},
+"דיאנהגולבי": {
+"evidence": {
+"actor": [
+"דיאנה גולבי"
+],
+"artist": [
+"דיאנה גולבי"
+]
+},
+"senses": [
+"actor",
+"artist"
 ]
 },
 "דיאפרגמה": {
@@ -16325,6 +19192,34 @@
 "senses": [
 "common_word",
 "given_name"
+]
+},
+"דידימנוסי": {
+"evidence": {
+"artist": [
+"דידי מנוסי"
+],
+"author": [
+"דידי מנוסי"
+]
+},
+"senses": [
+"artist",
+"author"
+]
+},
+"דידישחר": {
+"evidence": {
+"artist": [
+"דידי שחר"
+],
+"author": [
+"דידי שחר"
+]
+},
+"senses": [
+"artist",
+"author"
 ]
 },
 "דיה": {
@@ -16486,15 +19381,29 @@
 "surname"
 ]
 },
+"דילנדרור": {
+"evidence": {
+"actor": [
+"דילן דרור"
+],
+"artist": [
+"דילן דרור"
+]
+},
+"senses": [
+"actor",
+"artist"
+]
+},
 "דימונה": {
 "evidence": {
-"place": [
+"city_il": [
 "דימונה"
 ]
 },
 "senses": [
-"common_word",
-"place"
+"city_il",
+"common_word"
 ]
 },
 "דינ": {
@@ -16782,14 +19691,28 @@
 "דליה": {
 "evidence": {
 "given_name": [
-"דליה כהן",
 "דליה לביא",
-"דליה למדני"
+"דליה למדני",
+"דליה עמיהוד"
 ]
 },
 "senses": [
 "common_word",
 "given_name"
+]
+},
+"דליהרביקוביצ": {
+"evidence": {
+"artist": [
+"דליה רביקוביץ'"
+],
+"author": [
+"דליה רביקוביץ"
+]
+},
+"senses": [
+"artist",
+"author"
 ]
 },
 "דליימ": {
@@ -16899,9 +19822,6 @@
 },
 "דמ": {
 "evidence": {
-"given_name": [
-"דם חם"
-],
 "song": [
 "דם"
 ],
@@ -16913,7 +19833,6 @@
 },
 "senses": [
 "common_word",
-"given_name",
 "song",
 "song_word"
 ]
@@ -16981,20 +19900,6 @@
 "senses": [
 "answer",
 "common_word"
-]
-},
-"דמחמ": {
-"evidence": {
-"artist": [
-"דם חם"
-],
-"song": [
-"דם חם"
-]
-},
-"senses": [
-"artist",
-"song"
 ]
 },
 "דמי": {
@@ -17144,15 +20049,40 @@
 "song_word"
 ]
 },
+"דנאלמגור": {
+"evidence": {
+"artist": [
+"דן אלמגור"
+],
+"author": [
+"דן אלמגור"
+]
+},
+"senses": [
+"artist",
+"author"
+]
+},
+"דנבנאמוצ": {
+"evidence": {
+"actor": [
+"דן בן אמוץ"
+],
+"author": [
+"דן בן אמוץ"
+]
+},
+"senses": [
+"actor",
+"author"
+]
+},
 "דנה": {
 "evidence": {
 "given_name": [
 "דנה אינטרנשיונל",
 "דנה ברגר",
 "דנה לב"
-],
-"song": [
-"דנה"
 ],
 "song_word": [
 "דנה אינטרנשיונל",
@@ -17163,7 +20093,6 @@
 "senses": [
 "common_word",
 "given_name",
-"song",
 "song_word"
 ]
 },
@@ -17183,6 +20112,9 @@
 },
 "דנהברגר": {
 "evidence": {
+"actor": [
+"דנה ברגר"
+],
 "answer": [
 "דנה (העלתה לסדר היום את  מקס) רגר (מלחין ונגן עוגב גרמני), ז"
 ],
@@ -17194,6 +20126,7 @@
 ]
 },
 "senses": [
+"actor",
 "answer",
 "artist",
 "song"
@@ -17217,11 +20150,15 @@
 "evidence": {
 "answer": [
 "דנו  בה"
+],
+"river": [
+"דנובה"
 ]
 },
 "senses": [
 "answer",
-"common_word"
+"common_word",
+"river"
 ]
 },
 "דנטליימ": {
@@ -17244,7 +20181,7 @@
 "given_name": [
 "דני אמיר",
 "דני בן ישראל",
-"דני גולן"
+"דני גפני"
 ],
 "song_word": [
 "דני גיבור",
@@ -17287,6 +20224,20 @@
 "surname"
 ]
 },
+"דניאלבנסימונ": {
+"evidence": {
+"author": [
+"דניאל בן סימון"
+],
+"politician": [
+"דניאל בן סימון"
+]
+},
+"senses": [
+"author",
+"politician"
+]
+},
 "דניאלה": {
 "evidence": {
 "answer": [
@@ -17325,6 +20276,9 @@
 },
 "דניליטני": {
 "evidence": {
+"actor": [
+"דני ליטני"
+],
 "answer": [
 "(מבצע) דני + (מבצע) ליטני"
 ],
@@ -17333,6 +20287,7 @@
 ]
 },
 "senses": [
+"actor",
 "answer",
 "artist"
 ]
@@ -17353,11 +20308,15 @@
 "answer": [
 "דן  מרק",
 "ד-נמר-ק"
+],
+"nation": [
+"דנמרק"
 ]
 },
 "senses": [
 "answer",
-"common_word"
+"common_word",
+"nation"
 ]
 },
 "דע": {
@@ -17426,6 +20385,9 @@
 },
 "דפנהארמוני": {
 "evidence": {
+"actor": [
+"דפנה ארמוני"
+],
 "artist": [
 "דפנה ארמוני"
 ],
@@ -17434,8 +20396,23 @@
 ]
 },
 "senses": [
+"actor",
 "artist",
 "song"
+]
+},
+"דפנהדקל": {
+"evidence": {
+"actor": [
+"דפנה דקל"
+],
+"artist": [
+"דפנה דקל"
+]
+},
+"senses": [
+"actor",
+"artist"
 ]
 },
 "דפנהוהעוגיות": {
@@ -17510,8 +20487,7 @@
 "דקות": {
 "evidence": {
 "song": [
-"15 דקות",
-"2 דקות"
+"15 דקות"
 ],
 "song_word": [
 "דקות מאושרות"
@@ -17565,8 +20541,7 @@
 "דר": {
 "evidence": {
 "song_word": [
-"מופע הארנבות של ד\"ר קספר",
-"מופע הארנבות של ד\"ר קספר 2"
+"מופע הארנבות של ד\"ר קספר"
 ],
 "surname": [
 "מופע הארנבות של ד\"ר קספר"
@@ -18650,6 +21625,20 @@
 "given_name"
 ]
 },
+"הדרעמ": {
+"evidence": {
+"answer": [
+"הד + רעם, ישוב ליד נתניה"
+],
+"kibbutz": [
+"הדר עם"
+]
+},
+"senses": [
+"answer",
+"kibbutz"
+]
+},
 "הוא": {
 "evidence": {
 "song": [
@@ -18737,14 +21726,29 @@
 "surname"
 ]
 },
+"הודו": {
+"evidence": {
+"nation": [
+"הודו"
+]
+},
+"senses": [
+"common_word",
+"nation"
+]
+},
 "הודיה": {
 "evidence": {
+"kibbutz": [
+"הודיה"
+],
 "song": [
 "הודיה"
 ]
 },
 "senses": [
 "common_word",
+"kibbutz",
 "song"
 ]
 },
@@ -18789,6 +21793,17 @@
 "common_word",
 "song",
 "song_word"
+]
+},
+"הולנד": {
+"evidence": {
+"nation": [
+"הולנד"
+]
+},
+"senses": [
+"common_word",
+"nation"
 ]
 },
 "הומוריסט": {
@@ -18836,6 +21851,17 @@
 "common_word"
 ]
 },
+"הונגריה": {
+"evidence": {
+"nation": [
+"הונגריה"
+]
+},
+"senses": [
+"common_word",
+"nation"
+]
+},
 "הונדורס": {
 "evidence": {
 "answer": [
@@ -18856,6 +21882,17 @@
 "senses": [
 "answer",
 "common_word"
+]
+},
+"הונולולו": {
+"evidence": {
+"world_city": [
+"הונולולו"
+]
+},
+"senses": [
+"common_word",
+"world_city"
 ]
 },
 "הונחת": {
@@ -19125,6 +22162,21 @@
 "senses": [
 "answer",
 "common_word"
+]
+},
+"הזורעימ": {
+"evidence": {
+"answer": [
+"הזו + רעים",
+"אנגרמה מושב הזורעים"
+],
+"kibbutz": [
+"הזורעים"
+]
+},
+"senses": [
+"answer",
+"kibbutz"
 ]
 },
 "הזז": {
@@ -19482,6 +22534,20 @@
 "senses": [
 "common_word",
 "song"
+]
+},
+"היליילונ": {
+"evidence": {
+"actor": [
+"הילי ילון"
+],
+"artist": [
+"הילי ילון"
+]
+},
+"senses": [
+"actor",
+"artist"
 ]
 },
 "הילר": {
@@ -20841,6 +23907,20 @@
 "common_word"
 ]
 },
+"הרודיונ": {
+"evidence": {
+"answer": [
+"רצף אותיות הר ודיונ  ה"
+],
+"site": [
+"הרודיון"
+]
+},
+"senses": [
+"answer",
+"site"
+]
+},
 "הרחתמ": {
 "evidence": {
 "answer": [
@@ -20990,6 +24070,20 @@
 "surname"
 ]
 },
+"הרצובה": {
+"evidence": {
+"answer": [
+"הרצו בה (דוצנט - מרצה); הר צובה - הר וגן לאומי בישראל סמוך ל"
+],
+"park": [
+"הר צובה"
+]
+},
+"senses": [
+"answer",
+"park"
+]
+},
 "הרצוג": {
 "evidence": {
 "role_noun": [
@@ -21037,7 +24131,7 @@
 },
 "הרצליה": {
 "evidence": {
-"place": [
+"city_il": [
 "הרצליה"
 ],
 "song": [
@@ -21045,8 +24139,8 @@
 ]
 },
 "senses": [
+"city_il",
 "common_word",
-"place",
 "song"
 ]
 },
@@ -21144,7 +24238,6 @@
 "הַשַּׁחַר; הַשְׁחֵר"
 ],
 "song_word": [
-"איילת השחר",
 "בפרוש השחר"
 ]
 },
@@ -21244,17 +24337,6 @@
 "senses": [
 "answer",
 "common_word"
-]
-},
-"השמשות": {
-"evidence": {
-"surname": [
-"בין השמשות"
-]
-},
-"senses": [
-"common_word",
-"surname"
 ]
 },
 "השפריצ": {
@@ -21623,26 +24705,6 @@
 "common_word"
 ]
 },
-"התקווה": {
-"evidence": {
-"song": [
-"התקווה 2.0",
-"התקווה 6",
-"התקווה 6 Live"
-],
-"song_word": [
-"בחזית שכונת התקווה"
-],
-"surname": [
-"כיף התקווה הטובה"
-]
-},
-"senses": [
-"song",
-"song_word",
-"surname"
-]
-},
 "התראינו": {
 "evidence": {
 "answer": [
@@ -21685,6 +24747,20 @@
 "senses": [
 "answer",
 "common_word"
+]
+},
+"ואננויינ": {
+"evidence": {
+"actor": [
+"ואן נויין"
+],
+"author": [
+"ואן נויין"
+]
+},
+"senses": [
+"actor",
+"author"
 ]
 },
 "וביניהמ": {
@@ -21882,6 +24958,17 @@
 "surname"
 ]
 },
+"וייטנאמ": {
+"evidence": {
+"nation": [
+"וייטנאם"
+]
+},
+"senses": [
+"common_word",
+"nation"
+]
+},
 "וילונ": {
 "evidence": {
 "answer": [
@@ -21980,16 +25067,12 @@
 "answer": [
 "ויק - דוגמנית"
 ],
-"artist": [
-"ויק"
-],
 "given_name": [
 "ויק אוחנה ג'אן"
 ]
 },
 "senses": [
 "answer",
-"artist",
 "given_name"
 ]
 },
@@ -22304,6 +25387,20 @@
 "role_noun",
 "song_word",
 "surname"
+]
+},
+"זאבחפצ": {
+"evidence": {
+"artist": [
+"זאב חפץ"
+],
+"author": [
+"זאב חפץ"
+]
+},
+"senses": [
+"artist",
+"author"
 ]
 },
 "זאבימ": {
@@ -22798,6 +25895,20 @@
 "surname"
 ]
 },
+"זיורובינשטיינ": {
+"evidence": {
+"artist": [
+"זיו רובינשטיין"
+],
+"author": [
+"זיו רובינשטיין"
+]
+},
+"senses": [
+"artist",
+"author"
+]
+},
 "זיכרונות": {
 "evidence": {
 "song": [
@@ -22869,6 +25980,17 @@
 "common_word"
 ]
 },
+"זיפ": {
+"evidence": {
+"city_il": [
+"זיף"
+]
+},
+"senses": [
+"city_il",
+"common_word"
+]
+},
 "זיפימ": {
 "evidence": {
 "answer": [
@@ -22906,11 +26028,15 @@
 "evidence": {
 "answer": [
 ""
+],
+"kibbutz": [
+"זיקים"
 ]
 },
 "senses": [
 "answer",
-"common_word"
+"common_word",
+"kibbutz"
 ]
 },
 "זית": {
@@ -23019,6 +26145,24 @@
 "given_name"
 ]
 },
+"זלדה": {
+"evidence": {
+"author": [
+"זלדה"
+],
+"given_name": [
+"זלדה מישקובסקי"
+],
+"song_word": [
+"אי במערבולת: שרות זלדה"
+]
+},
+"senses": [
+"author",
+"given_name",
+"song_word"
+]
+},
 "זלזול": {
 "evidence": {
 "answer": [
@@ -23047,6 +26191,34 @@
 "surname"
 ]
 },
+"זלמנחנ": {
+"evidence": {
+"artist": [
+"זלמן חן"
+],
+"author": [
+"זלמן חן"
+]
+},
+"senses": [
+"artist",
+"author"
+]
+},
+"זלמנשניאור": {
+"evidence": {
+"artist": [
+"זלמן שניאור"
+],
+"author": [
+"זלמן שניאור"
+]
+},
+"senses": [
+"artist",
+"author"
+]
+},
 "זלצבורג": {
 "evidence": {
 "answer": [
@@ -23056,6 +26228,17 @@
 "senses": [
 "answer",
 "common_word"
+]
+},
+"זמביה": {
+"evidence": {
+"nation": [
+"זמביה"
+]
+},
+"senses": [
+"common_word",
+"nation"
 ]
 },
 "זמורה": {
@@ -23229,6 +26412,17 @@
 "senses": [
 "common_word",
 "surname"
+]
+},
+"זנוח": {
+"evidence": {
+"kibbutz": [
+"זנוח"
+]
+},
+"senses": [
+"common_word",
+"kibbutz"
 ]
 },
 "זנימ": {
@@ -23437,6 +26631,20 @@
 "given_name"
 ]
 },
+"זרובבלהששונקינ": {
+"evidence": {
+"artist": [
+"זרובבלה ששונקין"
+],
+"author": [
+"זרובבלה ששונקין"
+]
+},
+"senses": [
+"artist",
+"author"
+]
+},
 "זרוע": {
 "evidence": {
 "answer": [
@@ -23446,6 +26654,17 @@
 "senses": [
 "answer",
 "common_word"
+]
+},
+"זרועה": {
+"evidence": {
+"kibbutz": [
+"זרועה"
+]
+},
+"senses": [
+"common_word",
+"kibbutz"
 ]
 },
 "זרזיפימ": {
@@ -23536,6 +26755,20 @@
 "senses": [
 "answer",
 "common_word"
+]
+},
+"זרעית": {
+"evidence": {
+"answer": [
+"רע ב-זית"
+],
+"kibbutz": [
+"זרעית"
+]
+},
+"senses": [
+"answer",
+"kibbutz"
 ]
 },
 "זרקור": {
@@ -23735,7 +26968,6 @@
 "חברה"
 ],
 "song_word": [
-"אתה חברה שלי",
 "יש לי חברה"
 ]
 },
@@ -23749,10 +26981,14 @@
 "evidence": {
 "answer": [
 ""
+],
+"city_il": [
+"חברון"
 ]
 },
 "senses": [
 "answer",
+"city_il",
 "common_word"
 ]
 },
@@ -23821,6 +27057,17 @@
 "senses": [
 "answer",
 "common_word"
+]
+},
+"חגור": {
+"evidence": {
+"kibbutz": [
+"חגור"
+]
+},
+"senses": [
+"common_word",
+"kibbutz"
 ]
 },
 "חגורה": {
@@ -23948,6 +27195,20 @@
 "song_word"
 ]
 },
+"חדוההרכבי": {
+"evidence": {
+"artist": [
+"חדוה הרכבי"
+],
+"author": [
+"חדוה הרכבי"
+]
+},
+"senses": [
+"artist",
+"author"
+]
+},
 "חדישימ": {
 "evidence": {
 "answer": [
@@ -23961,7 +27222,7 @@
 },
 "חדרה": {
 "evidence": {
-"place": [
+"city_il": [
 "חדרה"
 ],
 "song_word": [
@@ -23969,8 +27230,8 @@
 ]
 },
 "senses": [
+"city_il",
 "common_word",
-"place",
 "song_word"
 ]
 },
@@ -24046,6 +27307,9 @@
 },
 "חוה": {
 "evidence": {
+"bible": [
+"חוה"
+],
 "given_name": [
 "חוה אלברשטיין",
 "חוה יעקובר"
@@ -24057,9 +27321,24 @@
 ]
 },
 "senses": [
+"bible",
 "common_word",
 "given_name",
 "song_word"
+]
+},
+"חוהאלברשטיינ": {
+"evidence": {
+"actor": [
+"חוה אלברשטיין"
+],
+"artist": [
+"חוה אלברשטיין"
+]
+},
+"senses": [
+"actor",
+"artist"
 ]
 },
 "חווילות": {
@@ -24235,6 +27514,17 @@
 "surname"
 ]
 },
+"חוסנ": {
+"evidence": {
+"kibbutz": [
+"חוסן"
+]
+},
+"senses": [
+"common_word",
+"kibbutz"
+]
+},
 "חופ": {
 "evidence": {
 "answer": [
@@ -24341,6 +27631,17 @@
 "surname"
 ]
 },
+"חורה": {
+"evidence": {
+"city_il": [
+"חורה"
+]
+},
+"senses": [
+"city_il",
+"common_word"
+]
+},
 "חורפ": {
 "evidence": {
 "song": [
@@ -24367,6 +27668,17 @@
 "senses": [
 "common_word",
 "surname"
+]
+},
+"חורשימ": {
+"evidence": {
+"kibbutz": [
+"חורשים"
+]
+},
+"senses": [
+"common_word",
+"kibbutz"
 ]
 },
 "חושי": {
@@ -24501,11 +27813,15 @@
 },
 "חזקיהו": {
 "evidence": {
+"bible": [
+"חזקיהו"
+],
 "surname": [
 "אבנר חזקיהו"
 ]
 },
 "senses": [
+"bible",
 "common_word",
 "surname"
 ]
@@ -24597,6 +27913,20 @@
 "common_word",
 "given_name",
 "song_word"
+]
+},
+"חיהשנהב": {
+"evidence": {
+"artist": [
+"חיה שנהב"
+],
+"author": [
+"חיה שנהב"
+]
+},
+"senses": [
+"artist",
+"author"
 ]
 },
 "חיו": {
@@ -24747,6 +28077,80 @@
 "surname"
 ]
 },
+"חיימבאר": {
+"evidence": {
+"answer": [
+"חיי (הספר של גולדה מאיר) + מבאר (נותן פירושים), סופר"
+],
+"author": [
+"חיים באר"
+]
+},
+"senses": [
+"answer",
+"author"
+]
+},
+"חיימגורי": {
+"evidence": {
+"artist": [
+"חיים גורי"
+],
+"author": [
+"חיים גורי"
+]
+},
+"senses": [
+"artist",
+"author"
+]
+},
+"חיימהרצוג": {
+"evidence": {
+"author": [
+"חיים הרצוג"
+],
+"politician": [
+"חיים הרצוג"
+]
+},
+"senses": [
+"author",
+"politician"
+]
+},
+"חיימחפר": {
+"evidence": {
+"artist": [
+"חיים חפר"
+],
+"author": [
+"חיים חפר"
+]
+},
+"senses": [
+"artist",
+"author"
+]
+},
+"חיימטופול": {
+"evidence": {
+"actor": [
+"חיים טופול"
+],
+"artist": [
+"חיים טופול"
+],
+"author": [
+"חיים טופול"
+]
+},
+"senses": [
+"actor",
+"artist",
+"author"
+]
+},
 "חייממשה": {
 "evidence": {
 "answer": [
@@ -24838,6 +28242,20 @@
 "common_word"
 ]
 },
+"חינגהליטבאקסמילר": {
+"evidence": {
+"artist": [
+"חינגה ליטבאק-סמילר"
+],
+"author": [
+"חינגה ליטבאק-סמילר"
+]
+},
+"senses": [
+"artist",
+"author"
+]
+},
 "חינה": {
 "evidence": {
 "answer": [
@@ -24899,12 +28317,8 @@
 },
 "חיפה": {
 "evidence": {
-"place": [
-"חיפה"
-],
 "song": [
-"חיפה 87",
-"חיפה 87'"
+"חיפה 87"
 ],
 "song_word": [
 "חיפה חיפה",
@@ -24914,7 +28328,6 @@
 },
 "senses": [
 "common_word",
-"place",
 "song",
 "song_word"
 ]
@@ -25122,8 +28535,7 @@
 "חלומות": {
 "evidence": {
 "song": [
-"חלומות",
-"חלומות 34"
+"חלומות"
 ],
 "song_word": [
 "איש חלומות",
@@ -25204,6 +28616,20 @@
 "common_word"
 ]
 },
+"חליגולדנברג": {
+"evidence": {
+"actor": [
+"חלי גולדנברג"
+],
+"author": [
+"חלי גולדנברג"
+]
+},
+"senses": [
+"actor",
+"author"
+]
+},
 "חליל": {
 "evidence": {
 "given_name": [
@@ -25279,6 +28705,17 @@
 "surname"
 ]
 },
+"חלצ": {
+"evidence": {
+"kibbutz": [
+"חלץ"
+]
+},
+"senses": [
+"common_word",
+"kibbutz"
+]
+},
 "חלקי": {
 "evidence": {
 "surname": [
@@ -25298,17 +28735,13 @@
 "song_word": [
 "אהבה בלילה חם",
 "בית חם",
-"דם חם"
-],
-"surname": [
-"דם חם"
+"חי / בית חם"
 ]
 },
 "senses": [
 "common_word",
 "given_name",
-"song_word",
-"surname"
+"song_word"
 ]
 },
 "חמד": {
@@ -25361,9 +28794,6 @@
 "answer": [
 "מילה משותפת"
 ],
-"song": [
-"חמה"
-],
 "song_word": [
 "יד חמה"
 ],
@@ -25374,7 +28804,6 @@
 "senses": [
 "answer",
 "common_word",
-"song",
 "song_word",
 "surname"
 ]
@@ -25622,6 +29051,20 @@
 "song_word"
 ]
 },
+"חמתטבריה": {
+"evidence": {
+"park": [
+"חמת טבריה"
+],
+"site": [
+"חמת טבריה"
+]
+},
+"senses": [
+"park",
+"site"
+]
+},
 "חנ": {
 "evidence": {
 "given_name": [
@@ -25669,10 +29112,13 @@
 "answer": [
 "חנה זמר"
 ],
+"bible": [
+"חנה"
+],
 "given_name": [
-"חנה אהרוני",
 "חנה גולדברג",
-"חנה לסלאו"
+"חנה לסלאו",
+"חנה סנש"
 ],
 "surname": [
 "ויקטוריה חנה"
@@ -25680,9 +29126,38 @@
 },
 "senses": [
 "answer",
+"bible",
 "common_word",
 "given_name",
 "surname"
+]
+},
+"חנהגולדברג": {
+"evidence": {
+"artist": [
+"חנה גולדברג"
+],
+"author": [
+"חנה גולדברג"
+]
+},
+"senses": [
+"artist",
+"author"
+]
+},
+"חנהלסלאו": {
+"evidence": {
+"actor": [
+"חנה לסלאו"
+],
+"artist": [
+"חנה לסלאו"
+]
+},
+"senses": [
+"actor",
+"artist"
 ]
 },
 "חנוכ": {
@@ -25709,6 +29184,20 @@
 "given_name",
 "song_word",
 "surname"
+]
+},
+"חנוכלוינ": {
+"evidence": {
+"artist": [
+"חנוך לוין"
+],
+"author": [
+"חנוך לוין"
+]
+},
+"senses": [
+"artist",
+"author"
 ]
 },
 "חני": {
@@ -25768,6 +29257,20 @@
 "surname"
 ]
 },
+"חנינחמיאס": {
+"evidence": {
+"actor": [
+"חני נחמיאס"
+],
+"artist": [
+"חני נחמיאס"
+]
+},
+"senses": [
+"actor",
+"artist"
+]
+},
 "חננ": {
 "evidence": {
 "given_name": [
@@ -25785,9 +29288,26 @@
 "song_word"
 ]
 },
+"חננגולדבלט": {
+"evidence": {
+"actor": [
+"חנן גולדבלט"
+],
+"artist": [
+"חנן גולדבלט"
+]
+},
+"senses": [
+"actor",
+"artist"
+]
+},
 "חנניהישראלבוהדנה": {
 "evidence": {
 "artist": [
+"חנן-יה ישראל בוהדנה"
+],
+"author": [
 "חנן-יה ישראל בוהדנה"
 ],
 "song": [
@@ -25796,7 +29316,22 @@
 },
 "senses": [
 "artist",
+"author",
 "song"
+]
+},
+"חננשדמי": {
+"evidence": {
+"artist": [
+"חנן שדמי"
+],
+"author": [
+"חנן שדמי"
+]
+},
+"senses": [
+"artist",
+"author"
 ]
 },
 "חנפנימ": {
@@ -25967,6 +29502,17 @@
 "senses": [
 "answer",
 "common_word"
+]
+},
+"חצבה": {
+"evidence": {
+"kibbutz": [
+"חצבה"
+]
+},
+"senses": [
+"common_word",
+"kibbutz"
 ]
 },
 "חצבימ": {
@@ -26204,14 +29750,29 @@
 "common_word"
 ]
 },
+"חרטומ": {
+"evidence": {
+"world_city": [
+"ח'רטום"
+]
+},
+"senses": [
+"common_word",
+"world_city"
+]
+},
 "חרטומימ": {
 "evidence": {
 "answer": [
 "(לפיד) טומי ב- חרם (רשת החרם או רשת גריפה (בערבית \"ג'רף\" - ר"
+],
+"bible": [
+"חרטומים"
 ]
 },
 "senses": [
 "answer",
+"bible",
 "common_word"
 ]
 },
@@ -26611,13 +30172,13 @@
 },
 "טבריה": {
 "evidence": {
-"place": [
+"city_il": [
 "טבריה"
 ]
 },
 "senses": [
-"common_word",
-"place"
+"city_il",
+"common_word"
 ]
 },
 "טברנה": {
@@ -26641,6 +30202,17 @@
 "senses": [
 "common_word",
 "surname"
+]
+},
+"טגיקיסטנ": {
+"evidence": {
+"nation": [
+"טג'יקיסטן"
+]
+},
+"senses": [
+"common_word",
+"nation"
 ]
 },
 "טדי": {
@@ -26794,11 +30366,15 @@
 "evidence": {
 "answer": [
 "רשת to go; טוגו - מדינה באפריקה"
+],
+"nation": [
+"טוגו"
 ]
 },
 "senses": [
 "answer",
-"common_word"
+"common_word",
+"nation"
 ]
 },
 "טוהר": {
@@ -26820,6 +30396,28 @@
 },
 "senses": [
 "answer",
+"common_word"
+]
+},
+"טונגה": {
+"evidence": {
+"nation": [
+"טונגה"
+]
+},
+"senses": [
+"common_word",
+"nation"
+]
+},
+"טונה": {
+"evidence": {
+"actor": [
+"טונה"
+]
+},
+"senses": [
+"actor",
 "common_word"
 ]
 },
@@ -26936,6 +30534,17 @@
 "common_word"
 ]
 },
+"טורקיה": {
+"evidence": {
+"nation": [
+"טורקיה"
+]
+},
+"senses": [
+"common_word",
+"nation"
+]
+},
 "טורקימ": {
 "evidence": {
 "answer": [
@@ -26945,6 +30554,17 @@
 "senses": [
 "answer",
 "common_word"
+]
+},
+"טורקמניסטנ": {
+"evidence": {
+"nation": [
+"טורקמניסטן"
+]
+},
+"senses": [
+"common_word",
+"nation"
 ]
 },
 "טושימ": {
@@ -27023,24 +30643,42 @@
 },
 "טייבה": {
 "evidence": {
-"place": [
+"city_il": [
 "טייבה"
 ]
 },
 "senses": [
-"common_word",
-"place"
+"city_il",
+"common_word"
+]
+},
+"טיילורמלכוב": {
+"evidence": {
+"actor": [
+"טיילור מלכוב"
+],
+"artist": [
+"טיילור מלכוב"
+]
+},
+"senses": [
+"actor",
+"artist"
 ]
 },
 "טייפה": {
 "evidence": {
 "answer": [
 "(צומת) טי + יפה, בירת טיוואן"
+],
+"island": [
+"טייפה"
 ]
 },
 "senses": [
 "answer",
-"common_word"
+"common_word",
+"island"
 ]
 },
 "טימור": {
@@ -27148,17 +30786,6 @@
 "song"
 ]
 },
-"טירה": {
-"evidence": {
-"place": [
-"טירה"
-]
-},
-"senses": [
-"common_word",
-"place"
-]
-},
 "טל": {
 "evidence": {
 "given_name": [
@@ -27170,14 +30797,13 @@
 "dew / given name Tal"
 ],
 "song_word": [
-"אברהם טל",
 "אגלי טל",
 "טל סונדק"
 ],
 "surname": [
-"אברהם טל",
 "אלונה טל",
-"דוד טל"
+"דוד טל",
+"הראל טל"
 ]
 },
 "senses": [
@@ -27265,8 +30891,36 @@
 "given_name"
 ]
 },
+"טלירימי": {
+"evidence": {
+"actor": [
+"טל ירימי"
+],
+"artist": [
+"טל ירימי"
+]
+},
+"senses": [
+"actor",
+"artist"
+]
+},
+"טללימ": {
+"evidence": {
+"kibbutz": [
+"טללים"
+]
+},
+"senses": [
+"common_word",
+"kibbutz"
+]
+},
 "טלמוסרי": {
 "evidence": {
+"actor": [
+"טל מוסרי"
+],
 "answer": [
 "טל משקע\r\nמוסרי אתי"
 ],
@@ -27275,6 +30929,7 @@
 ]
 },
 "senses": [
+"actor",
 "answer",
 "artist"
 ]
@@ -27313,6 +30968,20 @@
 "senses": [
 "answer",
 "common_word"
+]
+},
+"טלרוסו": {
+"evidence": {
+"athlete": [
+"טל רוסו"
+],
+"politician": [
+"טל רוסו"
+]
+},
+"senses": [
+"athlete",
+"politician"
 ]
 },
 "טמבל": {
@@ -27371,6 +31040,17 @@
 "artist",
 "common_word",
 "song_word"
+]
+},
+"טנזניה": {
+"evidence": {
+"nation": [
+"טנזניה"
+]
+},
+"senses": [
+"common_word",
+"nation"
 ]
 },
 "טניס": {
@@ -27827,6 +31507,17 @@
 "common_word"
 ]
 },
+"טרנסילבניה": {
+"evidence": {
+"region": [
+"טרנסילבניה"
+]
+},
+"senses": [
+"common_word",
+"region"
+]
+},
 "טרפז": {
 "evidence": {
 "answer": [
@@ -27893,8 +31584,7 @@
 "לילה כיום יאיר"
 ],
 "surname": [
-"שירלי יובל יאיר",
-"שירלי יובל-יאיר"
+"שירלי יובל יאיר"
 ]
 },
 "senses": [
@@ -27904,22 +31594,11 @@
 "surname"
 ]
 },
-"יאירלוי": {
-"evidence": {
-"artist": [
-"יאיר לוי"
-],
-"politician": [
-"יאיר לוי"
-]
-},
-"senses": [
-"artist",
-"politician"
-]
-},
 "יאירלפיד": {
 "evidence": {
+"actor": [
+"יאיר לפיד"
+],
 "artist": [
 "יאיר לפיד"
 ],
@@ -27928,8 +31607,23 @@
 ]
 },
 "senses": [
+"actor",
 "artist",
 "politician"
+]
+},
+"יאירניצני": {
+"evidence": {
+"actor": [
+"יאיר ניצני"
+],
+"artist": [
+"יאיר ניצני"
+]
+},
+"senses": [
+"actor",
+"artist"
 ]
 },
 "יאללה": {
@@ -27970,6 +31664,17 @@
 "common_word"
 ]
 },
+"יאסופ": {
+"evidence": {
+"city_il": [
+"יאסוף"
+]
+},
+"senses": [
+"city_il",
+"common_word"
+]
+},
 "יבואנימ": {
 "evidence": {
 "answer": [
@@ -27990,6 +31695,20 @@
 "senses": [
 "answer",
 "common_word"
+]
+},
+"יבי": {
+"evidence": {
+"answer": [
+"מיסד הארץ\r\nיבי הוא גם דו כיווני"
+],
+"author": [
+"יבי"
+]
+},
+"senses": [
+"answer",
+"author"
 ]
 },
 "יבייש": {
@@ -28028,7 +31747,7 @@
 },
 "יבנה": {
 "evidence": {
-"place": [
+"city_il": [
 "יבנה"
 ],
 "song_word": [
@@ -28038,8 +31757,8 @@
 ]
 },
 "senses": [
+"city_il",
 "common_word",
-"place",
 "song_word"
 ]
 },
@@ -28109,6 +31828,20 @@
 "politician"
 ]
 },
+"יגאלגלאי": {
+"evidence": {
+"artist": [
+"יגאל גלאי"
+],
+"author": [
+"יגאל גלאי"
+]
+},
+"senses": [
+"artist",
+"author"
+]
+},
 "יגבהו": {
 "evidence": {
 "answer": [
@@ -28169,11 +31902,15 @@
 "evidence": {
 "answer": [
 "הגדרה שגויה - יגור ויחיה הם בעלי פרוש שונה. מוטב היה: ישכון "
+],
+"kibbutz": [
+"יגור"
 ]
 },
 "senses": [
 "answer",
-"common_word"
+"common_word",
+"kibbutz"
 ]
 },
 "יגל": {
@@ -28183,11 +31920,15 @@
 ],
 "given_name": [
 "יגל אושרי"
+],
+"kibbutz": [
+"יגל"
 ]
 },
 "senses": [
 "answer",
-"given_name"
+"given_name",
+"kibbutz"
 ]
 },
 "יגלוש": {
@@ -28314,6 +32055,20 @@
 "surname"
 ]
 },
+"ידידיהבלחסנ": {
+"evidence": {
+"artist": [
+"ידידיה בלחסן"
+],
+"author": [
+"ידידיה בלחסן"
+]
+},
+"senses": [
+"artist",
+"author"
+]
+},
 "ידידנפש": {
 "evidence": {
 "answer": [
@@ -28373,6 +32128,35 @@
 "answer",
 "common_word",
 "song_word"
+]
+},
+"ידמרדכי": {
+"evidence": {
+"answer": [
+"אנגרם די דרכים",
+"(בכדורגל לא ניתן לבקיע שער ב-) יד + מרדכי (שפיגלר הכדורגלן),"
+],
+"kibbutz": [
+"יד מרדכי"
+]
+},
+"senses": [
+"answer",
+"kibbutz"
+]
+},
+"ידנתנ": {
+"evidence": {
+"answer": [
+"מושב בישראל"
+],
+"kibbutz": [
+"יד נתן"
+]
+},
+"senses": [
+"answer",
+"kibbutz"
 ]
 },
 "ידע": {
@@ -28436,24 +32220,28 @@
 "answer": [
 "י(שיבה)  הוא"
 ],
+"bible": [
+"יהוא"
+],
 "given_name": [
 "יהוא ירון"
 ]
 },
 "senses": [
 "answer",
+"bible",
 "given_name"
 ]
 },
 "יהוד": {
 "evidence": {
-"place": [
+"city_il": [
 "יהוד"
 ]
 },
 "senses": [
-"common_word",
-"place"
+"city_il",
+"common_word"
 ]
 },
 "יהודה": {
@@ -28479,6 +32267,90 @@
 "given_name",
 "song_word",
 "surname"
+]
+},
+"יהודהאופנ": {
+"evidence": {
+"artist": [
+"יהודה אופן"
+],
+"author": [
+"יהודה אופן"
+]
+},
+"senses": [
+"artist",
+"author"
+]
+},
+"יהודהאטלס": {
+"evidence": {
+"artist": [
+"יהודה אטלס"
+],
+"author": [
+"יהודה אטלס"
+]
+},
+"senses": [
+"artist",
+"author"
+]
+},
+"יהודהבורלא": {
+"evidence": {
+"artist": [
+"יהודה בורלא"
+],
+"author": [
+"יהודה בורלא"
+]
+},
+"senses": [
+"artist",
+"author"
+]
+},
+"יהודההראל": {
+"evidence": {
+"author": [
+"יהודה הראל"
+],
+"politician": [
+"יהודה הראל"
+]
+},
+"senses": [
+"author",
+"politician"
+]
+},
+"יהודהעמיחי": {
+"evidence": {
+"artist": [
+"יהודה עמיחי"
+],
+"author": [
+"יהודה עמיחי"
+]
+},
+"senses": [
+"artist",
+"author"
+]
+},
+"יהודהקרני": {
+"evidence": {
+"artist": [
+"יהודה קרני"
+],
+"author": [
+"יהודה קרני"
+]
+},
+"senses": [
+"artist",
+"author"
 ]
 },
 "יהודית": {
@@ -28513,6 +32385,28 @@
 "song"
 ]
 },
+"יהויכינ": {
+"evidence": {
+"bible": [
+"יהויכין"
+]
+},
+"senses": [
+"bible",
+"common_word"
+]
+},
+"יהויקימ": {
+"evidence": {
+"bible": [
+"יהויקים"
+]
+},
+"senses": [
+"bible",
+"common_word"
+]
+},
 "יהונתנ": {
 "evidence": {
 "answer": [
@@ -28530,6 +32424,34 @@
 "given_name"
 ]
 },
+"יהונתנגטרו": {
+"evidence": {
+"actor": [
+"יהונתן גטרו"
+],
+"artist": [
+"יהונתן גטרו"
+]
+},
+"senses": [
+"actor",
+"artist"
+]
+},
+"יהונתנגפנ": {
+"evidence": {
+"artist": [
+"יהונתן גפן"
+],
+"author": [
+"יהונתן גפן"
+]
+},
+"senses": [
+"artist",
+"author"
+]
+},
 "יהורמ": {
 "evidence": {
 "answer": [
@@ -28543,6 +32465,20 @@
 "answer",
 "common_word",
 "given_name"
+]
+},
+"יהורמגאונ": {
+"evidence": {
+"actor": [
+"יהורם גאון"
+],
+"artist": [
+"יהורם גאון"
+]
+},
+"senses": [
+"actor",
+"artist"
 ]
 },
 "יהושע": {
@@ -28561,6 +32497,20 @@
 "common_word",
 "given_name",
 "song_word"
+]
+},
+"יהושערבינוב": {
+"evidence": {
+"artist": [
+"יהושע רבינוב"
+],
+"author": [
+"יהושע רבינוב"
+]
+},
+"senses": [
+"artist",
+"author"
 ]
 },
 "יהי": {
@@ -28595,12 +32545,16 @@
 },
 "יהל": {
 "evidence": {
+"kibbutz": [
+"יהל"
+],
 "surname": [
 "דורון יהל"
 ]
 },
 "senses": [
 "common_word",
+"kibbutz",
 "surname"
 ]
 },
@@ -28669,13 +32623,27 @@
 "evidence": {
 "given_name": [
 "יואב גינאי",
-"יואב יצחק",
-"יואב פורת"
+"יואב פורת",
+"יואב בן צור"
 ]
 },
 "senses": [
 "common_word",
 "given_name"
+]
+},
+"יואבכצ": {
+"evidence": {
+"athlete": [
+"יואב כץ"
+],
+"author": [
+"יואב כ\"ץ"
+]
+},
+"senses": [
+"athlete",
+"author"
 ]
 },
 "יואבקיש": {
@@ -28697,9 +32665,9 @@
 "יואל": {
 "evidence": {
 "given_name": [
-"יואל לרנר",
 "יואל ריפל",
-"יואל חסון"
+"יואל חסון",
+"יואל רזבוזוב"
 ],
 "song_word": [
 "הבלדה על יואל משה סלומון"
@@ -28765,8 +32733,7 @@
 ],
 "surname": [
 "חנן יובל",
-"שירלי יובל יאיר",
-"שירלי יובל-יאיר"
+"שירלי יובל יאיר"
 ]
 },
 "senses": [
@@ -28776,6 +32743,20 @@
 "song",
 "song_word",
 "surname"
+]
+},
+"יובלאברמוביצ": {
+"evidence": {
+"actor": [
+"יובל אברמוביץ'"
+],
+"author": [
+"יובל אברמוביץ'"
+]
+},
+"senses": [
+"actor",
+"author"
 ]
 },
 "יובלבנאי": {
@@ -28818,6 +32799,34 @@
 "senses": [
 "artist",
 "song"
+]
+},
+"יובלזמיר": {
+"evidence": {
+"actor": [
+"יובל זמיר"
+],
+"artist": [
+"יובל זמיר"
+]
+},
+"senses": [
+"actor",
+"artist"
+]
+},
+"יובלמנדלסונ": {
+"evidence": {
+"actor": [
+"יובל מנדלסון"
+],
+"artist": [
+"יובל מנדלסון"
+]
+},
+"senses": [
+"actor",
+"artist"
 ]
 },
 "יובלנאמנ": {
@@ -28889,6 +32898,28 @@
 "answer",
 "common_word",
 "song_word"
+]
+},
+"יודפת": {
+"evidence": {
+"kibbutz": [
+"יודפת"
+]
+},
+"senses": [
+"common_word",
+"kibbutz"
+]
+},
+"יוונ": {
+"evidence": {
+"nation": [
+"יוון"
+]
+},
+"senses": [
+"common_word",
+"nation"
 ]
 },
 "יוחאי": {
@@ -29066,6 +33097,20 @@
 "surname"
 ]
 },
+"יונהוולכ": {
+"evidence": {
+"artist": [
+"יונה וולך"
+],
+"author": [
+"יונה וולך"
+]
+},
+"senses": [
+"artist",
+"author"
+]
+},
 "יוני": {
 "evidence": {
 "answer": [
@@ -29086,6 +33131,20 @@
 "common_word",
 "given_name",
 "song_word"
+]
+},
+"יוניזיכהולצ": {
+"evidence": {
+"actor": [
+"יוני זיכהולץ"
+],
+"artist": [
+"יוני זיכהולץ"
+]
+},
+"senses": [
+"actor",
+"artist"
 ]
 },
 "יונית": {
@@ -29142,9 +33201,6 @@
 "יונתן ביטון",
 "יונתן כנען"
 ],
-"song": [
-"יונתן"
-],
 "song_word": [
 "יונתן סע הביתה"
 ],
@@ -29156,9 +33212,22 @@
 "answer",
 "common_word",
 "given_name",
-"song",
 "song_word",
 "surname"
+]
+},
+"יונתנרטוש": {
+"evidence": {
+"artist": [
+"יונתן רטוש"
+],
+"author": [
+"יונתן רטוש"
+]
+},
+"senses": [
+"artist",
+"author"
 ]
 },
 "יוסטונ": {
@@ -29179,7 +33248,7 @@
 "given_name": [
 "יוסי אלפי",
 "יוסי בבליקי",
-"יוסי בכר"
+"יוסי בן טוב"
 ],
 "song_word": [
 "השיר על התוכי יוסי",
@@ -29193,8 +33262,71 @@
 "song_word"
 ]
 },
+"יוסיאלפי": {
+"evidence": {
+"actor": [
+"יוסי אלפי"
+],
+"artist": [
+"יוסי אלפי"
+],
+"author": [
+"יוסי אלפי"
+]
+},
+"senses": [
+"actor",
+"artist",
+"author"
+]
+},
+"יוסיבנאי": {
+"evidence": {
+"actor": [
+"יוסי בנאי"
+],
+"artist": [
+"יוסי בנאי"
+]
+},
+"senses": [
+"actor",
+"artist"
+]
+},
+"יוסיבניונ": {
+"evidence": {
+"answer": [
+"יו (גרנט, שחקן) + סיבן (ניקה) + יון (עוף)"
+],
+"athlete": [
+"יוסי בניון"
+]
+},
+"senses": [
+"answer",
+"athlete"
+]
+},
+"יוסיגמזו": {
+"evidence": {
+"artist": [
+"יוסי גמזו"
+],
+"author": [
+"יוסי גמזו"
+]
+},
+"senses": [
+"artist",
+"author"
+]
+},
 "יוספ": {
 "evidence": {
+"bible": [
+"יוסף"
+],
 "given_name": [
 "יוסף אלדרור",
 "יוסף בן ישראל",
@@ -29214,6 +33346,7 @@
 ]
 },
 "senses": [
+"bible",
 "common_word",
 "given_name",
 "song",
@@ -29245,6 +33378,20 @@
 "senses": [
 "answer",
 "surname"
+]
+},
+"יוספכהנצדק": {
+"evidence": {
+"artist": [
+"יוסף כהן צדק"
+],
+"author": [
+"יוסף כהן-צדק"
+]
+},
+"senses": [
+"artist",
+"author"
 ]
 },
 "יוסר": {
@@ -29404,6 +33551,34 @@
 "given_name"
 ]
 },
+"יורמבוקר": {
+"evidence": {
+"actor": [
+"יורם בוקר"
+],
+"answer": [
+"יו\"ר מבוקר; יורם בוקר היה פנטומימאי ישראלי, במאי, שחקן, פרופ"
+]
+},
+"senses": [
+"actor",
+"answer"
+]
+},
+"יורמטהרלב": {
+"evidence": {
+"artist": [
+"יורם טהרלב"
+],
+"author": [
+"יורם טהרלב"
+]
+},
+"senses": [
+"artist",
+"author"
+]
+},
 "יורעל": {
 "evidence": {
 "answer": [
@@ -29482,6 +33657,20 @@
 "common_word",
 "song",
 "song_word"
+]
+},
+"יושגרנות": {
+"evidence": {
+"artist": [
+"יוש גרנות"
+],
+"author": [
+"יוש גרנות"
+]
+},
+"senses": [
+"artist",
+"author"
 ]
 },
 "יושי": {
@@ -29582,6 +33771,9 @@
 "answer": [
 "אנגרם ילד חזור קרא"
 ],
+"bible": [
+"יחזקאל"
+],
 "given_name": [
 "יחזקאל הן",
 "יחזקאל זכאי",
@@ -29596,6 +33788,7 @@
 },
 "senses": [
 "answer",
+"bible",
 "common_word",
 "given_name",
 "song",
@@ -29605,9 +33798,9 @@
 "יחיאל": {
 "evidence": {
 "given_name": [
-"יחיאל הלפרין",
 "יחיאל חגיז",
-"יחיאל מוהר"
+"יחיאל מוהר",
+"יחיאל מר"
 ]
 },
 "senses": [
@@ -29615,15 +33808,33 @@
 "given_name"
 ]
 },
+"יחיאלמר": {
+"evidence": {
+"artist": [
+"יחיאל מר"
+],
+"author": [
+"יחיאל מר"
+]
+},
+"senses": [
+"artist",
+"author"
+]
+},
 "יחיעמ": {
 "evidence": {
 "answer": [
 "מעי חי בקריאה הפוכה (מקום מפעל לייצור נקניקים)"
+],
+"kibbutz": [
+"יחיעם"
 ]
 },
 "senses": [
 "answer",
-"common_word"
+"common_word",
+"kibbutz"
 ]
 },
 "יחל": {
@@ -29720,11 +33931,15 @@
 "evidence": {
 "answer": [
 "י-טבת-ה"
+],
+"kibbutz": [
+"יטבתה"
 ]
 },
 "senses": [
 "answer",
-"common_word"
+"common_word",
+"kibbutz"
 ]
 },
 "יטריד": {
@@ -29736,6 +33951,17 @@
 "senses": [
 "answer",
 "common_word"
+]
+},
+"ייטב": {
+"evidence": {
+"kibbutz": [
+"ייט\"ב"
+]
+},
+"senses": [
+"common_word",
+"kibbutz"
 ]
 },
 "ייצור": {
@@ -29895,8 +34121,7 @@
 "ילדי": {
 "evidence": {
 "song": [
-"ילדי",
-"ילדי 67"
+"ילדי"
 ],
 "song_word": [
 "אלוהים מרחם על ילדי הגן",
@@ -29969,7 +34194,6 @@
 "ילין דוד ( היה מורה, חוקר העברית ואיש ציבור, מראשי היישוב, מ"
 ],
 "surname": [
-"חיים ילין",
 "נתן ילין-מור"
 ]
 },
@@ -30101,6 +34325,20 @@
 "surname"
 ]
 },
+"ימינמשה": {
+"evidence": {
+"answer": [
+"(יצור) ימי  נמשה"
+],
+"neighborhood": [
+"ימין משה"
+]
+},
+"senses": [
+"answer",
+"neighborhood"
+]
+},
 "ימית": {
 "evidence": {
 "answer": [
@@ -30177,6 +34415,20 @@
 "senses": [
 "answer",
 "common_word"
+]
+},
+"ינוב": {
+"evidence": {
+"answer": [
+"בוני (טיילר, זמרת ולשית) בהיפוך, מושב ליד נתניה"
+],
+"kibbutz": [
+"ינוב"
+]
+},
+"senses": [
+"answer",
+"kibbutz"
 ]
 },
 "ינודו": {
@@ -30265,6 +34517,20 @@
 "song_word"
 ]
 },
+"יסמינאבנ": {
+"evidence": {
+"artist": [
+"יסמין אבן"
+],
+"author": [
+"יסמין אבן"
+]
+},
+"senses": [
+"artist",
+"author"
+]
+},
 "יסמינימ": {
 "evidence": {
 "answer": [
@@ -30278,6 +34544,20 @@
 "answer",
 "common_word",
 "song_word"
+]
+},
+"יסמינלוי": {
+"evidence": {
+"artist": [
+"יסמין לוי"
+],
+"author": [
+"יסמין לוי"
+]
+},
+"senses": [
+"artist",
+"author"
 ]
 },
 "יסמנ": {
@@ -30301,6 +34581,17 @@
 "senses": [
 "answer",
 "common_word"
+]
+},
+"יעד": {
+"evidence": {
+"kibbutz": [
+"יעד"
+]
+},
+"senses": [
+"common_word",
+"kibbutz"
 ]
 },
 "יעדנו": {
@@ -30354,10 +34645,73 @@
 "song_word"
 ]
 },
+"יעלאיזנברג": {
+"evidence": {
+"actor": [
+"יעל איזנברג"
+],
+"artist": [
+"יעל איזנברג"
+],
+"author": [
+"יעל איזנברג"
+]
+},
+"senses": [
+"actor",
+"artist",
+"author"
+]
+},
+"יעלבדש": {
+"evidence": {
+"actor": [
+"יעל בדש"
+],
+"artist": [
+"יעל בדש"
+]
+},
+"senses": [
+"actor",
+"artist"
+]
+},
+"יעלבירנבאומ": {
+"evidence": {
+"artist": [
+"יעל בירנבאום"
+],
+"author": [
+"יעל בירנבאום"
+]
+},
+"senses": [
+"artist",
+"author"
+]
+},
+"יעלברזוהר": {
+"evidence": {
+"actor": [
+"יעל בר זוהר"
+],
+"artist": [
+"יעל בר זוהר"
+]
+},
+"senses": [
+"actor",
+"artist"
+]
+},
 "יעלדיינ": {
 "evidence": {
 "answer": [
 "יע(י)ל (אפקטיבי) דיין (שופט), סופרת וחברת הכנסת לשעבר מטעם מ"
+],
+"author": [
+"יעל דיין"
 ],
 "politician": [
 "יעל דיין"
@@ -30365,6 +34719,7 @@
 },
 "senses": [
 "answer",
+"author",
 "politician"
 ]
 },
@@ -30387,6 +34742,20 @@
 "common_word",
 "given_name",
 "song_word"
+]
+},
+"יעלטבתקלגסבלד": {
+"evidence": {
+"artist": [
+"יעל טבת קלגסבלד"
+],
+"author": [
+"יעל טבת קלגסבלד"
+]
+},
+"senses": [
+"artist",
+"author"
 ]
 },
 "יעלימ": {
@@ -30458,8 +34827,25 @@
 "song"
 ]
 },
+"יענקלהרוטבליט": {
+"evidence": {
+"artist": [
+"יענקל'ה רוטבליט"
+],
+"author": [
+"יענקל'ה רוטבליט"
+]
+},
+"senses": [
+"artist",
+"author"
+]
+},
 "יעקב": {
 "evidence": {
+"bible": [
+"יעקב"
+],
 "given_name": [
 "יעקב אביצוק",
 "יעקב אורלנד",
@@ -30477,24 +34863,81 @@
 ]
 },
 "senses": [
+"bible",
 "common_word",
 "given_name",
 "song_word",
 "surname"
 ]
 },
-"יעקבכהנ": {
+"יעקבאביצוק": {
 "evidence": {
 "artist": [
-"יעקב כהן"
+"יעקב אביצוק"
 ],
-"politician": [
-"יעקב כהן"
+"author": [
+"יעקב אביצוק"
 ]
 },
 "senses": [
 "artist",
-"politician"
+"author"
+]
+},
+"יעקבאורלנד": {
+"evidence": {
+"artist": [
+"יעקב אורלנד"
+],
+"author": [
+"יעקב אורלנד"
+]
+},
+"senses": [
+"artist",
+"author"
+]
+},
+"יעקבאיילי": {
+"evidence": {
+"actor": [
+"יעקב איילי"
+],
+"author": [
+"יעקב איילי"
+]
+},
+"senses": [
+"actor",
+"author"
+]
+},
+"יעקבבודו": {
+"evidence": {
+"actor": [
+"יעקב בודו"
+],
+"artist": [
+"יעקב בודו"
+]
+},
+"senses": [
+"actor",
+"artist"
+]
+},
+"יעקבדודקמזונ": {
+"evidence": {
+"artist": [
+"יעקב דוד קמזון"
+],
+"author": [
+"יעקב דוד קמזון"
+]
+},
+"senses": [
+"artist",
+"author"
 ]
 },
 "יעקבליצמנ": {
@@ -30509,6 +34952,34 @@
 "senses": [
 "answer",
 "politician"
+]
+},
+"יעקבנוי": {
+"evidence": {
+"actor": [
+"יעקב נוי"
+],
+"artist": [
+"יעקב נוי"
+]
+},
+"senses": [
+"actor",
+"artist"
+]
+},
+"יעקבפיכמנ": {
+"evidence": {
+"artist": [
+"יעקב פיכמן"
+],
+"author": [
+"יעקב פיכמן"
+]
+},
+"senses": [
+"artist",
+"author"
 ]
 },
 "יער": {
@@ -30530,13 +35001,21 @@
 },
 "יערה": {
 "evidence": {
+"city_il": [
+"יערה"
+],
 "given_name": [
 "יערה שאוליאן"
+],
+"kibbutz": [
+"יערה"
 ]
 },
 "senses": [
+"city_il",
 "common_word",
-"given_name"
+"given_name",
+"kibbutz"
 ]
 },
 "יערוב": {
@@ -30610,6 +35089,20 @@
 "given_name",
 "song_word",
 "surname"
+]
+},
+"יפהקרינקינ": {
+"evidence": {
+"artist": [
+"יפה קרינקין"
+],
+"author": [
+"יפה קרינקין"
+]
+},
+"senses": [
+"artist",
+"author"
 ]
 },
 "יפו": {
@@ -30694,6 +35187,9 @@
 },
 "יפית": {
 "evidence": {
+"kibbutz": [
+"יפית"
+],
 "song": [
 "יפית"
 ],
@@ -30703,6 +35199,7 @@
 },
 "senses": [
 "common_word",
+"kibbutz",
 "song",
 "song_word"
 ]
@@ -30720,12 +35217,16 @@
 },
 "יפנ": {
 "evidence": {
+"nation": [
+"יפן"
+],
 "song": [
 "יפן"
 ]
 },
 "senses": [
 "common_word",
+"nation",
 "song"
 ]
 },
@@ -30749,6 +35250,9 @@
 "יפעת בן דרור",
 "יפעת נץ"
 ],
+"kibbutz": [
+"יפעת"
+],
 "song": [
 "יפעת"
 ]
@@ -30756,6 +35260,7 @@
 "senses": [
 "common_word",
 "given_name",
+"kibbutz",
 "song"
 ]
 },
@@ -30861,6 +35366,9 @@
 },
 "יצחק": {
 "evidence": {
+"bible": [
+"יצחק"
+],
 "given_name": [
 "יצחק אסולין",
 "יצחק אשכנזי",
@@ -30875,11 +35383,12 @@
 ],
 "surname": [
 "אברהם הכהן קוק יצחק",
-"יואב יצחק",
-"יצחק יצחק"
+"יצחק יצחק",
+"ליאורה יצחק"
 ]
 },
 "senses": [
+"bible",
 "common_word",
 "given_name",
 "song",
@@ -30887,9 +35396,54 @@
 "surname"
 ]
 },
+"יצחקאשכנזי": {
+"evidence": {
+"artist": [
+"יצחק אשכנזי"
+],
+"athlete": [
+"יצחק אשכנזי"
+]
+},
+"senses": [
+"artist",
+"athlete"
+]
+},
+"יצחקחייק": {
+"evidence": {
+"athlete": [
+"יצחק חייק"
+],
+"author": [
+"יצחק חייק"
+]
+},
+"senses": [
+"athlete",
+"author"
+]
+},
+"יצחקיצחק": {
+"evidence": {
+"artist": [
+"יצחק יצחק"
+],
+"author": [
+"יצחק יצחק"
+]
+},
+"senses": [
+"artist",
+"author"
+]
+},
 "יצחקיצחקי": {
 "evidence": {
 "artist": [
+"יצחק יצחקי"
+],
+"author": [
 "יצחק יצחקי"
 ],
 "politician": [
@@ -30898,6 +35452,7 @@
 },
 "senses": [
 "artist",
+"author",
 "politician"
 ]
 },
@@ -30915,6 +35470,34 @@
 "politician"
 ]
 },
+"יצחקעגנ": {
+"evidence": {
+"artist": [
+"יצחק עגן"
+],
+"author": [
+"יצחק עגן"
+]
+},
+"senses": [
+"artist",
+"author"
+]
+},
+"יצחקקיננ": {
+"evidence": {
+"artist": [
+"יצחק קינן"
+],
+"author": [
+"יצחק קינן"
+]
+},
+"senses": [
+"artist",
+"author"
+]
+},
 "יצחקרבינ": {
 "evidence": {
 "artist": [
@@ -30927,6 +35510,20 @@
 "senses": [
 "artist",
 "politician"
+]
+},
+"יצחקשנהר": {
+"evidence": {
+"artist": [
+"יצחק שנהר"
+],
+"author": [
+"יצחק שנהר"
+]
+},
+"senses": [
+"artist",
+"author"
 ]
 },
 "יציב": {
@@ -30950,6 +35547,17 @@
 "senses": [
 "answer",
 "common_word"
+]
+},
+"יציצ": {
+"evidence": {
+"kibbutz": [
+"יציץ"
+]
+},
+"senses": [
+"common_word",
+"kibbutz"
 ]
 },
 "יצרימ": {
@@ -31122,6 +35730,21 @@
 "common_word"
 ]
 },
+"ירד": {
+"evidence": {
+"bible": [
+"ירד"
+],
+"song_word": [
+"אלעד ירד אל הירדן"
+]
+},
+"senses": [
+"bible",
+"common_word",
+"song_word"
+]
+},
 "ירדו": {
 "evidence": {
 "answer": [
@@ -31138,6 +35761,9 @@
 "given_name": [
 "ירדן בר-כוכבא"
 ],
+"nation": [
+"ירדן"
+],
 "song_word": [
 "הלאה ירדן"
 ]
@@ -31145,7 +35771,22 @@
 "senses": [
 "common_word",
 "given_name",
+"nation",
 "song_word"
+]
+},
+"ירדנברכוכבא": {
+"evidence": {
+"actor": [
+"ירדן בר-כוכבא"
+],
+"artist": [
+"ירדן בר-כוכבא"
+]
+},
+"senses": [
+"actor",
+"artist"
 ]
 },
 "ירדנה": {
@@ -31153,11 +35794,29 @@
 "given_name": [
 "ירדנה ארזי",
 "ירדנה שלומי"
+],
+"kibbutz": [
+"ירדנה"
 ]
 },
 "senses": [
 "common_word",
-"given_name"
+"given_name",
+"kibbutz"
+]
+},
+"ירדנהארזי": {
+"evidence": {
+"actor": [
+"ירדנה ארזי"
+],
+"artist": [
+"ירדנה ארזי"
+]
+},
+"senses": [
+"actor",
+"artist"
 ]
 },
 "ירדנו": {
@@ -31237,6 +35896,20 @@
 "common_word",
 "given_name",
 "surname"
+]
+},
+"ירונלונדונ": {
+"evidence": {
+"actor": [
+"ירון לונדון"
+],
+"artist": [
+"ירון לונדון"
+]
+},
+"senses": [
+"actor",
+"artist"
 ]
 },
 "ירוק": {
@@ -31358,11 +36031,15 @@
 "evidence": {
 "answer": [
 "ירחיב אופקים"
+],
+"kibbutz": [
+"ירחיב"
 ]
 },
 "senses": [
 "answer",
-"common_word"
+"common_word",
+"kibbutz"
 ]
 },
 "ירחמיאל": {
@@ -31440,12 +36117,16 @@
 "answer": [
 ""
 ],
+"city_il": [
+"יריחו"
+],
 "song_word": [
 "חייכה יריחו בירוק"
 ]
 },
 "senses": [
 "answer",
+"city_il",
 "common_word",
 "song_word"
 ]
@@ -31488,12 +36169,16 @@
 "answer": [
 "אנגרם של היורים"
 ],
+"bible": [
+"ירמיהו"
+],
 "given_name": [
 "ירמיהו פיחה"
 ]
 },
 "senses": [
 "answer",
+"bible",
 "common_word",
 "given_name"
 ]
@@ -31519,6 +36204,20 @@
 "senses": [
 "answer",
 "common_word"
+]
+},
+"ירקונה": {
+"evidence": {
+"answer": [
+"רק בתוך יונה"
+],
+"kibbutz": [
+"ירקונה"
+]
+},
+"senses": [
+"answer",
+"kibbutz"
 ]
 },
 "ירקוני": {
@@ -31864,15 +36563,22 @@
 "evidence": {
 "answer": [
 "יש ע(עין) לפקחים"
+],
+"kibbutz": [
+"ישע"
 ]
 },
 "senses": [
 "answer",
-"common_word"
+"common_word",
+"kibbutz"
 ]
 },
 "ישעיהו": {
 "evidence": {
+"bible": [
+"ישעיהו"
+],
 "given_name": [
 "ישעיהו פורדר"
 ],
@@ -31882,6 +36588,7 @@
 ]
 },
 "senses": [
+"bible",
 "common_word",
 "given_name",
 "surname"
@@ -31930,6 +36637,9 @@
 "ישראל בונדק",
 "ישראל ברייט"
 ],
+"nation": [
+"ישראל"
+],
 "song_word": [
 "אבא אמא וארץ ישראל",
 "אחינו כל בית ישראל",
@@ -31945,8 +36655,23 @@
 "artist",
 "common_word",
 "given_name",
+"nation",
 "song_word",
 "surname"
+]
+},
+"ישראלגוריונ": {
+"evidence": {
+"actor": [
+"ישראל גוריון"
+],
+"artist": [
+"ישראל גוריון"
+]
+},
+"senses": [
+"actor",
+"artist"
 ]
 },
 "ישראלה": {
@@ -32025,21 +36750,6 @@
 "song"
 ]
 },
-"ישראלכצ": {
-"evidence": {
-"answer": [
-"",
-"אנגרם"
-],
-"politician": [
-"ישראל כ\"ץ"
-]
-},
-"senses": [
-"answer",
-"politician"
-]
-},
 "ישרה": {
 "evidence": {
 "answer": [
@@ -32088,11 +36798,15 @@
 "evidence": {
 "answer": [
 "יש רש = ישרש (מושב)"
+],
+"kibbutz": [
+"ישרש"
 ]
 },
 "senses": [
 "answer",
-"common_word"
+"common_word",
+"kibbutz"
 ]
 },
 "ישתאה": {
@@ -32237,6 +36951,17 @@
 "senses": [
 "answer",
 "common_word"
+]
+},
+"יתד": {
+"evidence": {
+"kibbutz": [
+"יתד"
+]
+},
+"senses": [
+"common_word",
+"kibbutz"
 ]
 },
 "יתהפכ": {
@@ -32469,6 +37194,20 @@
 "common_word"
 ]
 },
+"כאבול": {
+"evidence": {
+"answer": [
+"א' ב' ו' ב-כל"
+],
+"city_il": [
+"כאבול"
+]
+},
+"senses": [
+"answer",
+"city_il"
+]
+},
 "כאנ": {
 "evidence": {
 "song": [
@@ -32576,17 +37315,11 @@
 "evidence": {
 "answer": [
 "כביש לנהגים\r\nכביש ניתן לכבוש אותו בחומץ או מלח"
-],
-"place": [
-"כביש 4",
-"כביש 804",
-"כביש 805"
 ]
 },
 "senses": [
 "answer",
-"common_word",
-"place"
+"common_word"
 ]
 },
 "כבל": {
@@ -32602,17 +37335,6 @@
 "answer",
 "common_word",
 "surname"
-]
-},
-"כבלימ": {
-"evidence": {
-"artist": [
-"כבלים"
-]
-},
-"senses": [
-"artist",
-"common_word"
 ]
 },
 "כבר": {
@@ -32759,9 +37481,9 @@
 "מזי כהן"
 ],
 "surname": [
-"אבישי כהן",
 "אבשלום כהן",
-"אופיר כהן"
+"אור כהן",
+"אושר כהן"
 ]
 },
 "senses": [
@@ -32991,6 +37713,17 @@
 "surname"
 ]
 },
+"כורש": {
+"evidence": {
+"bible": [
+"כורש"
+]
+},
+"senses": [
+"bible",
+"common_word"
+]
+},
 "כזבניות": {
 "evidence": {
 "answer": [
@@ -33095,6 +37828,17 @@
 "answer",
 "common_word",
 "song_word"
+]
+},
+"כיוס": {
+"evidence": {
+"island": [
+"כיוס"
+]
+},
+"senses": [
+"common_word",
+"island"
 ]
 },
 "כיכר": {
@@ -33205,12 +37949,16 @@
 },
 "כיסופימ": {
 "evidence": {
+"kibbutz": [
+"כיסופים"
+],
 "song": [
 "כיסופים"
 ]
 },
 "senses": [
 "common_word",
+"kibbutz",
 "song"
 ]
 },
@@ -33227,9 +37975,6 @@
 },
 "כיפ": {
 "evidence": {
-"given_name": [
-"כיף התקווה הטובה"
-],
 "song": [
 "כיף"
 ],
@@ -33240,7 +37985,6 @@
 },
 "senses": [
 "common_word",
-"given_name",
 "song",
 "song_word"
 ]
@@ -33598,8 +38342,7 @@
 "מילה משותפת"
 ],
 "given_name": [
-"כמו גדולים",
-"כמו גדולים 2"
+"כמו גדולים"
 ],
 "song_word": [
 "אהבה זה כמו סוכר",
@@ -33909,6 +38652,48 @@
 "song_word"
 ]
 },
+"כפראזר": {
+"evidence": {
+"answer": [
+"כ(מו) פרא  זר"
+],
+"kibbutz": [
+"כפר אז\"ר"
+]
+},
+"senses": [
+"answer",
+"kibbutz"
+]
+},
+"כפרבלומ": {
+"evidence": {
+"answer": [
+""
+],
+"kibbutz": [
+"כפר בלום"
+]
+},
+"senses": [
+"answer",
+"kibbutz"
+]
+},
+"כפרברוכ": {
+"evidence": {
+"answer": [
+"משמעות כפולה: 1) מושב בארץ 2) כפר (באשמה) ברוך (בעדינות)"
+],
+"kibbutz": [
+"כפר ברוך"
+]
+},
+"senses": [
+"answer",
+"kibbutz"
+]
+},
 "כפרה": {
 "evidence": {
 "answer": [
@@ -33922,6 +38707,20 @@
 "answer",
 "common_word",
 "song_word"
+]
+},
+"כפרהמכבי": {
+"evidence": {
+"answer": [
+"כפרה מכבי, קיבוץ ליד קריית אתא"
+],
+"kibbutz": [
+"כפר המכבי"
+]
+},
+"senses": [
+"answer",
+"kibbutz"
 ]
 },
 "כפרי": {
@@ -33944,6 +38743,20 @@
 "surname"
 ]
 },
+"כפריהושע": {
+"evidence": {
+"answer": [
+"כנדב פרי="
+],
+"kibbutz": [
+"כפר יהושע"
+]
+},
+"senses": [
+"answer",
+"kibbutz"
+]
+},
 "כפריימ": {
 "evidence": {
 "answer": [
@@ -33955,18 +38768,46 @@
 "common_word"
 ]
 },
+"כפרמלל": {
+"evidence": {
+"answer": [
+"פרם בתוך כלל"
+],
+"kibbutz": [
+"כפר מל\"ל"
+]
+},
+"senses": [
+"answer",
+"kibbutz"
+]
+},
+"כפרמעש": {
+"evidence": {
+"answer": [
+"כ - פר מ- עש"
+],
+"kibbutz": [
+"כפר מעש"
+]
+},
+"senses": [
+"answer",
+"kibbutz"
+]
+},
 "כפרסבא": {
 "evidence": {
 "answer": [
 ""
 ],
-"place": [
+"city_il": [
 "כפר סבא"
 ]
 },
 "senses": [
 "answer",
-"place"
+"city_il"
 ]
 },
 "כרבולות": {
@@ -34129,13 +38970,24 @@
 },
 "כרמיאל": {
 "evidence": {
-"place": [
+"city_il": [
 "כרמיאל"
 ]
 },
 "senses": [
+"city_il",
+"common_word"
+]
+},
+"כרמימ": {
+"evidence": {
+"kibbutz": [
+"כרמים"
+]
+},
+"senses": [
 "common_word",
-"place"
+"kibbutz"
 ]
 },
 "כרמית": {
@@ -34213,6 +39065,17 @@
 "answer",
 "common_word",
 "song_word"
+]
+},
+"כרתימ": {
+"evidence": {
+"island": [
+"כרתים"
+]
+},
+"senses": [
+"common_word",
+"island"
 ]
 },
 "כשדימ": {
@@ -34350,6 +39213,9 @@
 "answer": [
 "לאה (נאור - פזמונאית), לֵאֶה ⋮ עייף, מותש"
 ],
+"bible": [
+"לאה"
+],
 "given_name": [
 "לאה גולדברג",
 "לאה דגנית",
@@ -34363,9 +39229,24 @@
 },
 "senses": [
 "answer",
+"bible",
 "common_word",
 "given_name",
 "song_word"
+]
+},
+"לאהגולדברג": {
+"evidence": {
+"artist": [
+"לאה גולדברג"
+],
+"author": [
+"לאה גולדברג"
+]
+},
+"senses": [
+"artist",
+"author"
 ]
 },
 "לאהוב": {
@@ -34383,6 +39264,20 @@
 "common_word",
 "song",
 "song_word"
+]
+},
+"לאהלופנפלד": {
+"evidence": {
+"artist": [
+"לאה לופנפלד"
+],
+"author": [
+"לאה לופנפלד"
+]
+},
+"senses": [
+"artist",
+"author"
 ]
 },
 "לאו": {
@@ -34408,6 +39303,17 @@
 "senses": [
 "answer",
 "common_word"
+]
+},
+"לאוס": {
+"evidence": {
+"nation": [
+"לאוס"
+]
+},
+"senses": [
+"common_word",
+"nation"
 ]
 },
 "לאושש": {
@@ -34904,18 +39810,18 @@
 "answer": [
 "(ג׳ון) לנון סביב ל-ב"
 ],
+"nation": [
+"לבנון"
+],
 "song_word": [
 "שלום לך לבנון"
-],
-"surname": [
-"מרדכי לבנון"
 ]
 },
 "senses": [
 "answer",
 "common_word",
-"song_word",
-"surname"
+"nation",
+"song_word"
 ]
 },
 "לבנוני": {
@@ -35214,6 +40120,20 @@
 "common_word"
 ]
 },
+"להבותחביבה": {
+"evidence": {
+"answer": [
+"להבות לדקור בחהב\r\nחביבה מישהי"
+],
+"kibbutz": [
+"להבות חביבה"
+]
+},
+"senses": [
+"answer",
+"kibbutz"
+]
+},
 "להבטיח": {
 "evidence": {
 "answer": [
@@ -35378,15 +40298,11 @@
 "evidence": {
 "song": [
 "להרים"
-],
-"song_word": [
-"מעבר להרים"
 ]
 },
 "senses": [
 "common_word",
-"song",
-"song_word"
+"song"
 ]
 },
 "להרע": {
@@ -35517,17 +40433,35 @@
 "song_word"
 ]
 },
+"לואנדה": {
+"evidence": {
+"answer": [
+"ל\"ו  אֲנַדֶּה; לואנדה - בירת אנגולה"
+],
+"world_city": [
+"לואנדה"
+]
+},
+"senses": [
+"answer",
+"world_city"
+]
+},
 "לוב": {
 "evidence": {
 "answer": [
 "",
 "הפוך:  בנהר ול",
 "לו ב(בעל הבית)"
+],
+"nation": [
+"לוב"
 ]
 },
 "senses": [
 "answer",
-"common_word"
+"common_word",
+"nation"
 ]
 },
 "לובה": {
@@ -35566,13 +40500,13 @@
 },
 "לוד": {
 "evidence": {
-"place": [
+"city_il": [
 "לוד"
 ]
 },
 "senses": [
-"common_word",
-"place"
+"city_il",
+"common_word"
 ]
 },
 "לוז": {
@@ -35583,6 +40517,20 @@
 },
 "senses": [
 "common_word",
+"surname"
+]
+},
+"לוזונ": {
+"evidence": {
+"island": [
+"לוזון"
+],
+"surname": [
+"אלי לוזון"
+]
+},
+"senses": [
+"island",
 "surname"
 ]
 },
@@ -35662,6 +40610,20 @@
 "common_word"
 ]
 },
+"לוטנ": {
+"evidence": {
+"kibbutz": [
+"לוטן"
+],
+"surname": [
+"שירי לוטן"
+]
+},
+"senses": [
+"kibbutz",
+"surname"
+]
+},
 "לוי": {
 "evidence": {
 "answer": [
@@ -35708,6 +40670,20 @@
 "senses": [
 "given_name",
 "surname"
+]
+},
+"לוינקיפניס": {
+"evidence": {
+"artist": [
+"לוין קיפניס"
+],
+"author": [
+"לוין קיפניס"
+]
+},
+"senses": [
+"artist",
+"author"
 ]
 },
 "לול": {
@@ -35898,11 +40874,15 @@
 "evidence": {
 "answer": [
 ""
+],
+"nation": [
+"לוקסמבורג"
 ]
 },
 "senses": [
 "answer",
-"common_word"
+"common_word",
+"nation"
 ]
 },
 "לורד": {
@@ -36128,11 +41108,15 @@
 "answer": [
 "נשמע לטוויה\r\nמי לטווי ה\r\nמי לחותים אלי במובן אל",
 ""
+],
+"nation": [
+"לטביה"
 ]
 },
 "senses": [
 "answer",
-"common_word"
+"common_word",
+"nation"
 ]
 },
 "לטנטי": {
@@ -36194,6 +41178,34 @@
 "surname"
 ]
 },
+"ליאוראנגלמנ": {
+"evidence": {
+"artist": [
+"ליאור אנגלמן"
+],
+"author": [
+"ליאור אנגלמן"
+]
+},
+"senses": [
+"artist",
+"author"
+]
+},
+"ליאורדטאוקר": {
+"evidence": {
+"actor": [
+"ליאור דטאוקר"
+],
+"artist": [
+"ליאור דטאוקר"
+]
+},
+"senses": [
+"actor",
+"artist"
+]
+},
 "ליאורה": {
 "evidence": {
 "artist": [
@@ -36208,6 +41220,20 @@
 "artist",
 "common_word",
 "given_name"
+]
+},
+"ליאורייני": {
+"evidence": {
+"actor": [
+"ליאור ייני"
+],
+"artist": [
+"ליאור ייני"
+]
+},
+"senses": [
+"actor",
+"artist"
 ]
 },
 "ליאת": {
@@ -36287,6 +41313,20 @@
 "common_word"
 ]
 },
+"ליבירנ": {
+"evidence": {
+"actor": [
+"לי בירן"
+],
+"artist": [
+"לי בירן"
+]
+},
+"senses": [
+"actor",
+"artist"
+]
+},
 "ליבנה": {
 "evidence": {
 "surname": [
@@ -36297,6 +41337,17 @@
 "senses": [
 "common_word",
 "surname"
+]
+},
+"ליבריה": {
+"evidence": {
+"nation": [
+"ליבריה"
+]
+},
+"senses": [
+"common_word",
+"nation"
 ]
 },
 "ליברמנ": {
@@ -36341,11 +41392,15 @@
 "answer": [
 "",
 "ההיפך: אטיל"
+],
+"nation": [
+"ליטא"
 ]
 },
 "senses": [
 "answer",
-"common_word"
+"common_word",
+"nation"
 ]
 },
 "ליטאי": {
@@ -36368,6 +41423,20 @@
 "senses": [
 "answer",
 "common_word"
+]
+},
+"ליטלרוק": {
+"evidence": {
+"answer": [
+"בירת ארקנסו ארה\"ב\r\nלי טל (רסיסי הלילה) רוק(ריר)"
+],
+"world_city": [
+"ליטל רוק"
+]
+},
+"senses": [
+"answer",
+"world_city"
 ]
 },
 "לייב": {
@@ -36406,6 +41475,17 @@
 "senses": [
 "answer",
 "common_word"
+]
+},
+"ליכטנשטיינ": {
+"evidence": {
+"nation": [
+"ליכטנשטיין"
+]
+},
+"senses": [
+"common_word",
+"nation"
 ]
 },
 "ליל": {
@@ -36679,6 +41759,20 @@
 "given_name"
 ]
 },
+"לירונלב": {
+"evidence": {
+"actor": [
+"לירון לב"
+],
+"artist": [
+"לירון לב"
+]
+},
+"senses": [
+"actor",
+"artist"
+]
+},
 "לירז": {
 "evidence": {
 "given_name": [
@@ -36738,6 +41832,20 @@
 "common_word",
 "given_name",
 "song_word"
+]
+},
+"לירנדוד": {
+"evidence": {
+"actor": [
+"לירן דוד"
+],
+"artist": [
+"לירן דוד"
+]
+},
+"senses": [
+"actor",
+"artist"
 ]
 },
 "לירנדנינו": {
@@ -37296,6 +42404,9 @@
 },
 "לפידות": {
 "evidence": {
+"kibbutz": [
+"לפידות"
+],
 "song_word": [
 "דנה לפידות"
 ],
@@ -37305,6 +42416,7 @@
 },
 "senses": [
 "common_word",
+"kibbutz",
 "song_word",
 "surname"
 ]
@@ -37541,6 +42653,17 @@
 },
 "senses": [
 "answer",
+"common_word"
+]
+},
+"לקייה": {
+"evidence": {
+"city_il": [
+"לקייה"
+]
+},
+"senses": [
+"city_il",
 "common_word"
 ]
 },
@@ -37874,6 +42997,9 @@
 "מאור כהן",
 "מאור תיתון"
 ],
+"kibbutz": [
+"מאור"
+],
 "surname": [
 "ענת מאור"
 ]
@@ -37882,6 +43008,7 @@
 "answer",
 "common_word",
 "given_name",
+"kibbutz",
 "surname"
 ]
 },
@@ -37894,6 +43021,56 @@
 "senses": [
 "answer",
 "common_word"
+]
+},
+"מאוריטניה": {
+"evidence": {
+"nation": [
+"מאוריטניה"
+]
+},
+"senses": [
+"common_word",
+"nation"
+]
+},
+"מאוריציוס": {
+"evidence": {
+"nation": [
+"מאוריציוס"
+]
+},
+"senses": [
+"common_word",
+"nation"
+]
+},
+"מאורכהנ": {
+"evidence": {
+"actor": [
+"מאור כהן"
+],
+"artist": [
+"מאור כהן"
+]
+},
+"senses": [
+"actor",
+"artist"
+]
+},
+"מאורלוי": {
+"evidence": {
+"actor": [
+"מאור לוי"
+],
+"athlete": [
+"מאור לוי"
+]
+},
+"senses": [
+"actor",
+"athlete"
 ]
 },
 "מאושר": {
@@ -38003,6 +43180,20 @@
 "surname"
 ]
 },
+"מאיהבוסקילה": {
+"evidence": {
+"actor": [
+"מאיה בוסקילה"
+],
+"artist": [
+"מאיה בוסקילה"
+]
+},
+"senses": [
+"actor",
+"artist"
+]
+},
 "מאיר": {
 "evidence": {
 "given_name": [
@@ -38027,8 +43218,25 @@
 "surname"
 ]
 },
+"מאיראגסי": {
+"evidence": {
+"artist": [
+"מאיר אגסי"
+],
+"author": [
+"מאיר אגסי"
+]
+},
+"senses": [
+"artist",
+"author"
+]
+},
 "מאירבנאי": {
 "evidence": {
+"actor": [
+"מאיר בנאי"
+],
 "artist": [
 "מאיר בנאי"
 ],
@@ -38037,8 +43245,23 @@
 ]
 },
 "senses": [
+"actor",
 "artist",
 "song"
+]
+},
+"מאירגולדברג": {
+"evidence": {
+"artist": [
+"מאיר גולדברג"
+],
+"author": [
+"מאיר גולדברג"
+]
+},
+"senses": [
+"artist",
+"author"
 ]
 },
 "מאירה": {
@@ -38054,6 +43277,20 @@
 "common_word",
 "given_name",
 "song_word"
+]
+},
+"מאירכהנ": {
+"evidence": {
+"athlete": [
+"מאיר כהן"
+],
+"politician": [
+"מאיר כהן"
+]
+},
+"senses": [
+"athlete",
+"politician"
 ]
 },
 "מאירשלו": {
@@ -38075,11 +43312,15 @@
 "evidence": {
 "answer": [
 "מ\"א (מוסמך אוניברסיטה) לי"
+],
+"nation": [
+"מאלי"
 ]
 },
 "senses": [
 "answer",
-"common_word"
+"common_word",
+"nation"
 ]
 },
 "מאלפ": {
@@ -38432,6 +43673,17 @@
 "common_word"
 ]
 },
+"מבקיעימ": {
+"evidence": {
+"kibbutz": [
+"מבקיעים"
+]
+},
+"senses": [
+"common_word",
+"kibbutz"
+]
+},
 "מבריק": {
 "evidence": {
 "answer": [
@@ -38549,6 +43801,17 @@
 "senses": [
 "answer",
 "common_word"
+]
+},
+"מגדימ": {
+"evidence": {
+"kibbutz": [
+"מגדים"
+]
+},
+"senses": [
+"common_word",
+"kibbutz"
 ]
 },
 "מגדל": {
@@ -38894,11 +44157,15 @@
 "answer": [
 "מגשי מים.  מגשימים. מושב במרכז הארץ",
 "מגשי מים"
+],
+"kibbutz": [
+"מגשימים"
 ]
 },
 "senses": [
 "answer",
-"common_word"
+"common_word",
+"kibbutz"
 ]
 },
 "מדבר": {
@@ -38949,11 +44216,15 @@
 "evidence": {
 "answer": [
 "מה דג אס קר"
+],
+"nation": [
+"מדגסקר"
 ]
 },
 "senses": [
 "answer",
-"common_word"
+"common_word",
+"nation"
 ]
 },
 "מדדות": {
@@ -39262,17 +44533,6 @@
 "common_word"
 ]
 },
-"מהפכ": {
-"evidence": {
-"artist": [
-"מהפך"
-]
-},
-"senses": [
-"artist",
-"common_word"
-]
-},
 "מהפכימ": {
 "evidence": {
 "answer": [
@@ -39379,6 +44639,17 @@
 "common_word"
 ]
 },
+"מוגדישו": {
+"evidence": {
+"world_city": [
+"מוגדישו"
+]
+},
+"senses": [
+"common_word",
+"world_city"
+]
+},
 "מודה": {
 "evidence": {
 "answer": [
@@ -39482,6 +44753,17 @@
 "common_word"
 ]
 },
+"מוזמביק": {
+"evidence": {
+"nation": [
+"מוזמביק"
+]
+},
+"senses": [
+"common_word",
+"nation"
+]
+},
 "מוזנח": {
 "evidence": {
 "answer": [
@@ -39541,6 +44823,20 @@
 "song_word"
 ]
 },
+"מוחמדכנעאנ": {
+"evidence": {
+"athlete": [
+"מוחמד כנעאן"
+],
+"politician": [
+"מוחמד כנעאן"
+]
+},
+"senses": [
+"athlete",
+"politician"
+]
+},
 "מוטבע": {
 "evidence": {
 "answer": [
@@ -39550,6 +44846,48 @@
 "senses": [
 "answer",
 "common_word"
+]
+},
+"מוטיבהרב": {
+"evidence": {
+"actor": [
+"מוטי בהרב"
+],
+"author": [
+"מוטי בהרב"
+]
+},
+"senses": [
+"actor",
+"author"
+]
+},
+"מוטיברכאנ": {
+"evidence": {
+"actor": [
+"מוטי ברכאן"
+],
+"artist": [
+"מוטי ברכאן"
+]
+},
+"senses": [
+"actor",
+"artist"
+]
+},
+"מוטיגלעדי": {
+"evidence": {
+"actor": [
+"מוטי גלעדי"
+],
+"artist": [
+"מוטי גלעדי"
+]
+},
+"senses": [
+"actor",
+"artist"
 ]
 },
 "מויאל": {
@@ -39599,6 +44937,17 @@
 "senses": [
 "common_word",
 "surname"
+]
+},
+"מולדובה": {
+"evidence": {
+"nation": [
+"מולדובה"
+]
+},
+"senses": [
+"common_word",
+"nation"
 ]
 },
 "מולה": {
@@ -39667,6 +45016,17 @@
 "common_word"
 ]
 },
+"מונגוליה": {
+"evidence": {
+"nation": [
+"מונגוליה"
+]
+},
+"senses": [
+"common_word",
+"nation"
+]
+},
 "מונחה": {
 "evidence": {
 "answer": [
@@ -39689,6 +45049,17 @@
 "common_word"
 ]
 },
+"מונטנגרו": {
+"evidence": {
+"nation": [
+"מונטנגרו"
+]
+},
+"senses": [
+"common_word",
+"nation"
+]
+},
 "מונסונ": {
 "evidence": {
 "song": [
@@ -39704,11 +45075,26 @@
 "evidence": {
 "answer": [
 ""
+],
+"nation": [
+"מונקו"
 ]
 },
 "senses": [
 "answer",
-"common_word"
+"common_word",
+"nation"
+]
+},
+"מונרוביה": {
+"evidence": {
+"world_city": [
+"מונרוביה"
+]
+},
+"senses": [
+"common_word",
+"world_city"
 ]
 },
 "מוס": {
@@ -39902,8 +45288,7 @@
 "מופע הארנבות של ד\"ר קספר"
 ],
 "song_word": [
-"מופע הארנבות של ד\"ר קספר",
-"מופע הארנבות של ד\"ר קספר 2"
+"מופע הארנבות של ד\"ר קספר"
 ]
 },
 "senses": [
@@ -39918,8 +45303,7 @@
 "מופע הארנבות של ד\"ר קספר"
 ],
 "song": [
-"מופע הארנבות של ד\"ר קספר",
-"מופע הארנבות של ד\"ר קספר 2"
+"מופע הארנבות של ד\"ר קספר"
 ]
 },
 "senses": [
@@ -39943,6 +45327,9 @@
 "answer": [
 "מלה משותפת"
 ],
+"neighborhood": [
+"מוצא"
+],
 "song_word": [
 "אין מוצא",
 "דרך ללא מוצא",
@@ -39952,7 +45339,36 @@
 "senses": [
 "answer",
 "common_word",
+"neighborhood",
 "song_word"
+]
+},
+"מוציאביב": {
+"evidence": {
+"actor": [
+"מוצי אביב"
+],
+"artist": [
+"מוצי אביב"
+]
+},
+"senses": [
+"actor",
+"artist"
+]
+},
+"מוקי": {
+"evidence": {
+"actor": [
+"מוקי"
+],
+"artist": [
+"מוקי"
+]
+},
+"senses": [
+"actor",
+"artist"
 ]
 },
 "מוקיע": {
@@ -39972,9 +45388,6 @@
 "מילה משותפת",
 "ההיפך: רום"
 ],
-"artist": [
-"מור"
-],
 "given_name": [
 "מור קרבסי"
 ],
@@ -39983,13 +45396,12 @@
 ],
 "surname": [
 "מקס גת מור",
-"מקס גת-מור",
-"ציפי מור"
+"ציפי מור",
+"שלום מור"
 ]
 },
 "senses": [
 "answer",
-"artist",
 "common_word",
 "given_name",
 "role_noun",
@@ -40296,6 +45708,9 @@
 "given_name": [
 "מזור בהיינה"
 ],
+"kibbutz": [
+"מזור"
+],
 "surname": [
 "מורן מזור",
 "אליהו מזור"
@@ -40304,6 +45719,7 @@
 "senses": [
 "common_word",
 "given_name",
+"kibbutz",
 "surname"
 ]
 },
@@ -40431,6 +45847,17 @@
 "common_word"
 ]
 },
+"מזרעה": {
+"evidence": {
+"city_il": [
+"מזרעה"
+]
+},
+"senses": [
+"city_il",
+"common_word"
+]
+},
 "מחא": {
 "evidence": {
 "answer": [
@@ -40511,6 +45938,17 @@
 "common_word",
 "song_word",
 "surname"
+]
+},
+"מחולה": {
+"evidence": {
+"kibbutz": [
+"מחולה"
+]
+},
+"senses": [
+"common_word",
+"kibbutz"
 ]
 },
 "מחולל": {
@@ -40714,6 +46152,17 @@
 "senses": [
 "answer",
 "common_word"
+]
+},
+"מחניימ": {
+"evidence": {
+"kibbutz": [
+"מחניים"
+]
+},
+"senses": [
+"common_word",
+"kibbutz"
 ]
 },
 "מחניק": {
@@ -40999,6 +46448,17 @@
 "common_word"
 ]
 },
+"מיאנמר": {
+"evidence": {
+"nation": [
+"מיאנמר"
+]
+},
+"senses": [
+"common_word",
+"nation"
+]
+},
 "מיגונ": {
 "evidence": {
 "answer": [
@@ -41049,6 +46509,20 @@
 "song_word"
 ]
 },
+"מיהדגנ": {
+"evidence": {
+"actor": [
+"מיה דגן"
+],
+"artist": [
+"מיה דגן"
+]
+},
+"senses": [
+"actor",
+"artist"
+]
+},
 "מיוחדת": {
 "evidence": {
 "song": [
@@ -41069,6 +46543,17 @@
 "senses": [
 "answer",
 "common_word"
+]
+},
+"מיורקה": {
+"evidence": {
+"island": [
+"מיורקה"
+]
+},
+"senses": [
+"common_word",
+"island"
 ]
 },
 "מיושבימ": {
@@ -41104,6 +46589,17 @@
 "common_word"
 ]
 },
+"מייסר": {
+"evidence": {
+"city_il": [
+"מייסר"
+]
+},
+"senses": [
+"city_il",
+"common_word"
+]
+},
 "מייעל": {
 "evidence": {
 "answer": [
@@ -41113,6 +46609,20 @@
 "senses": [
 "answer",
 "common_word"
+]
+},
+"מייקבורשטיינ": {
+"evidence": {
+"actor": [
+"מייק בורשטיין"
+],
+"artist": [
+"מייק בורשטיין"
+]
+},
+"senses": [
+"actor",
+"artist"
 ]
 },
 "מייקל": {
@@ -41129,6 +46639,20 @@
 "senses": [
 "answer",
 "given_name"
+]
+},
+"מייקלהרפז": {
+"evidence": {
+"actor": [
+"מייקל הרפז"
+],
+"artist": [
+"מייקל הרפז"
+]
+},
+"senses": [
+"actor",
+"artist"
 ]
 },
 "מיכאל": {
@@ -41151,6 +46675,62 @@
 "given_name",
 "song",
 "surname"
+]
+},
+"מיכאלאלוני": {
+"evidence": {
+"actor": [
+"מיכאל אלוני"
+],
+"author": [
+"מיכאל אלוני"
+]
+},
+"senses": [
+"actor",
+"author"
+]
+},
+"מיכאלברזוהר": {
+"evidence": {
+"author": [
+"מיכאל בר-זוהר"
+],
+"politician": [
+"מיכאל בר-זוהר"
+]
+},
+"senses": [
+"author",
+"politician"
+]
+},
+"מיכאלמושונוב": {
+"evidence": {
+"actor": [
+"מיכאל מושונוב"
+],
+"artist": [
+"מיכאל מושונוב"
+]
+},
+"senses": [
+"actor",
+"artist"
+]
+},
+"מיכאלקשטנ": {
+"evidence": {
+"artist": [
+"מיכאל קשטן"
+],
+"author": [
+"מיכאל קשטן"
+]
+},
+"senses": [
+"artist",
+"author"
 ]
 },
 "מיכה": {
@@ -41192,6 +46772,76 @@
 "common_word",
 "given_name",
 "song"
+]
+},
+"מיכלאמדורסקי": {
+"evidence": {
+"actor": [
+"מיכל אמדורסקי"
+],
+"artist": [
+"מיכל אמדורסקי"
+]
+},
+"senses": [
+"actor",
+"artist"
+]
+},
+"מיכלבתאדמ": {
+"evidence": {
+"actor": [
+"מיכל בת-אדם"
+],
+"author": [
+"מיכל בת-אדם"
+]
+},
+"senses": [
+"actor",
+"author"
+]
+},
+"מיכלחזונ": {
+"evidence": {
+"artist": [
+"מיכל חזון"
+],
+"author": [
+"מיכל חזון"
+]
+},
+"senses": [
+"artist",
+"author"
+]
+},
+"מיכלינאי": {
+"evidence": {
+"actor": [
+"מיכל ינאי"
+],
+"artist": [
+"מיכל ינאי"
+]
+},
+"senses": [
+"actor",
+"artist"
+]
+},
+"מיכלמוכתר": {
+"evidence": {
+"actor": [
+"מיכל מוכתר"
+],
+"artist": [
+"מיכל מוכתר"
+]
+},
+"senses": [
+"actor",
+"artist"
 ]
 },
 "מיל": {
@@ -41490,6 +47140,20 @@
 "common_word"
 ]
 },
+"מיעמי": {
+"evidence": {
+"answer": [
+"משמעות כפולה: 1) מי ע(י)מי? 2) מושב  מי עמי ליד ואדי ערה"
+],
+"kibbutz": [
+"מי עמי"
+]
+},
+"senses": [
+"answer",
+"kibbutz"
+]
+},
 "מיפה": {
 "evidence": {
 "answer": [
@@ -41612,6 +47276,33 @@
 "common_word"
 ]
 },
+"מיקרונזיה": {
+"evidence": {
+"nation": [
+"מיקרונזיה"
+]
+},
+"senses": [
+"common_word",
+"nation"
+]
+},
+"מירב": {
+"evidence": {
+"given_name": [
+"מירב הלינגר",
+"מירב בן ארי",
+"מירב כהן"
+],
+"kibbutz": [
+"מירב"
+]
+},
+"senses": [
+"given_name",
+"kibbutz"
+]
+},
 "מירה": {
 "evidence": {
 "given_name": [
@@ -41623,6 +47314,20 @@
 "senses": [
 "common_word",
 "given_name"
+]
+},
+"מירהמאיר": {
+"evidence": {
+"artist": [
+"מירה מאיר"
+],
+"author": [
+"מירה מאיר"
+]
+},
+"senses": [
+"artist",
+"author"
 ]
 },
 "מירונ": {
@@ -41673,6 +47378,20 @@
 "senses": [
 "artist",
 "song"
+]
+},
+"מיריקשניר": {
+"evidence": {
+"artist": [
+"מיריק שניר"
+],
+"author": [
+"מיריק שניר"
+]
+},
+"senses": [
+"artist",
+"author"
 ]
 },
 "מירירגב": {
@@ -41817,15 +47536,11 @@
 "evidence": {
 "answer": [
 "מכים מחוץ ל-ב(ית)"
-],
-"place": [
-"מכבים"
 ]
 },
 "senses": [
 "answer",
-"common_word",
-"place"
+"common_word"
 ]
 },
 "מכה": {
@@ -41874,11 +47589,15 @@
 "evidence": {
 "answer": [
 ""
+],
+"kibbutz": [
+"מכורה"
 ]
 },
 "senses": [
 "answer",
-"common_word"
+"common_word",
+"kibbutz"
 ]
 },
 "מכחכח": {
@@ -41912,6 +47631,17 @@
 "senses": [
 "answer",
 "common_word"
+]
+},
+"מכמורת": {
+"evidence": {
+"kibbutz": [
+"מכמורת"
+]
+},
+"senses": [
+"common_word",
+"kibbutz"
 ]
 },
 "מכנה": {
@@ -42021,11 +47751,15 @@
 "evidence": {
 "answer": [
 "מ- לאה (שבת היוצרת והזמרת), מעייפת"
+],
+"kibbutz": [
+"מלאה"
 ]
 },
 "senses": [
 "answer",
-"common_word"
+"common_word",
+"kibbutz"
 ]
 },
 "מלאימ": {
@@ -42116,6 +47850,17 @@
 "common_word"
 ]
 },
+"מלזיה": {
+"evidence": {
+"nation": [
+"מלזיה"
+]
+},
+"senses": [
+"common_word",
+"nation"
+]
+},
 "מלח": {
 "evidence": {
 "answer": [
@@ -42162,6 +47907,17 @@
 "senses": [
 "answer",
 "common_word"
+]
+},
+"מלטה": {
+"evidence": {
+"nation": [
+"מלטה"
+]
+},
+"senses": [
+"common_word",
+"nation"
 ]
 },
 "מלכ": {
@@ -42237,8 +47993,7 @@
 "אברה'מלה מלמד"
 ],
 "surname": [
-"ניסן כהן-מלמד",
-"אברהם מלמד"
+"ניסן כהן-מלמד"
 ]
 },
 "senses": [
@@ -42824,6 +48579,9 @@
 },
 "מנוחה": {
 "evidence": {
+"kibbutz": [
+"מנוחה"
+],
 "song": [
 "מנוחה"
 ],
@@ -42833,6 +48591,7 @@
 },
 "senses": [
 "common_word",
+"kibbutz",
 "song",
 "song_word"
 ]
@@ -42858,6 +48617,17 @@
 "senses": [
 "answer",
 "common_word"
+]
+},
+"מנות": {
+"evidence": {
+"kibbutz": [
+"מנות"
+]
+},
+"senses": [
+"common_word",
+"kibbutz"
 ]
 },
 "מנותחת": {
@@ -43051,11 +48821,28 @@
 "surname"
 ]
 },
+"מנרה": {
+"evidence": {
+"answer": [
+"נר בתוך מה - קיבוץ מנרה"
+],
+"kibbutz": [
+"מנרה"
+]
+},
+"senses": [
+"answer",
+"kibbutz"
+]
+},
 "מנשה": {
 "evidence": {
 "answer": [
 "(סופר)מן + שה (תמים), רז מנשה מנחה טלוויזיה",
 ""
+],
+"bible": [
+"מנשה"
 ],
 "surname": [
 "דורון מנשה"
@@ -43063,6 +48850,7 @@
 },
 "senses": [
 "answer",
+"bible",
 "common_word",
 "surname"
 ]
@@ -43234,17 +49022,6 @@
 "common_word"
 ]
 },
-"מסורתי": {
-"evidence": {
-"artist": [
-"מסורתי"
-]
-},
-"senses": [
-"artist",
-"common_word"
-]
-},
 "מסותתות": {
 "evidence": {
 "answer": [
@@ -43281,6 +49058,17 @@
 "senses": [
 "answer",
 "common_word"
+]
+},
+"מסילות": {
+"evidence": {
+"kibbutz": [
+"מסילות"
+]
+},
+"senses": [
+"common_word",
+"kibbutz"
 ]
 },
 "מסיקה": {
@@ -43534,6 +49322,17 @@
 "common_word"
 ]
 },
+"מסרו": {
+"evidence": {
+"world_city": [
+"מסרו"
+]
+},
+"senses": [
+"common_word",
+"world_city"
+]
+},
 "מסרי": {
 "evidence": {
 "surname": [
@@ -43636,7 +49435,6 @@
 ],
 "song_word": [
 "מעבר להרי העמלק",
-"מעבר להרים",
 "מעבר לכל שבר"
 ]
 },
@@ -43644,6 +49442,17 @@
 "answer",
 "common_word",
 "song_word"
+]
+},
+"מעברות": {
+"evidence": {
+"kibbutz": [
+"מעברות"
+]
+},
+"senses": [
+"common_word",
+"kibbutz"
 ]
 },
 "מעגל": {
@@ -43717,6 +49526,17 @@
 "senses": [
 "common_word",
 "surname"
+]
+},
+"מעונה": {
+"evidence": {
+"kibbutz": [
+"מעונה"
+]
+},
+"senses": [
+"common_word",
+"kibbutz"
 ]
 },
 "מעוניינימ": {
@@ -43817,6 +49637,17 @@
 },
 "senses": [
 "answer",
+"common_word"
+]
+},
+"מעכה": {
+"evidence": {
+"bible": [
+"מעכה"
+]
+},
+"senses": [
+"bible",
 "common_word"
 ]
 },
@@ -44125,6 +49956,17 @@
 "common_word"
 ]
 },
+"מפלסימ": {
+"evidence": {
+"kibbutz": [
+"מפלסים"
+]
+},
+"senses": [
+"common_word",
+"kibbutz"
+]
+},
 "מפלרטטת": {
 "evidence": {
 "answer": [
@@ -44156,6 +49998,17 @@
 "senses": [
 "answer",
 "common_word"
+]
+},
+"מפרצונ": {
+"evidence": {
+"lake_sea": [
+"מפרצון"
+]
+},
+"senses": [
+"common_word",
+"lake_sea"
 ]
 },
 "מפרש": {
@@ -44401,6 +50254,9 @@
 "answer": [
 "צלי ב-מח(יר)"
 ],
+"kibbutz": [
+"מצליח"
+],
 "song_word": [
 "תמיד מצליח"
 ]
@@ -44408,6 +50264,7 @@
 "senses": [
 "answer",
 "common_word",
+"kibbutz",
 "song_word"
 ]
 },
@@ -44462,6 +50319,9 @@
 "מילה משותפת\r\nמצרים קבלה 10 מכות",
 "מ- צרים"
 ],
+"nation": [
+"מצרים"
+],
 "song_word": [
 "יציאת מצרים"
 ]
@@ -44469,6 +50329,7 @@
 "senses": [
 "answer",
 "common_word",
+"nation",
 "song_word"
 ]
 },
@@ -44807,20 +50668,6 @@
 "common_word"
 ]
 },
-"מרגי": {
-"evidence": {
-"artist": [
-"מרגי"
-],
-"surname": [
-"יעקב מרגי"
-]
-},
-"senses": [
-"artist",
-"surname"
-]
-},
 "מרגיע": {
 "evidence": {
 "answer": [
@@ -44862,11 +50709,15 @@
 "evidence": {
 "answer": [
 "(נעלי) גלי בתוך מרות (שליטה)"
+],
+"kibbutz": [
+"מרגליות"
 ]
 },
 "senses": [
 "answer",
-"common_word"
+"common_word",
+"kibbutz"
 ]
 },
 "מרגלית": {
@@ -44880,7 +50731,6 @@
 ],
 "surname": [
 "גיא מרגלית",
-"שירה מרגלית",
 "אראל מרגלית"
 ]
 },
@@ -44889,6 +50739,20 @@
 "common_word",
 "given_name",
 "surname"
+]
+},
+"מרגליתאנקורי": {
+"evidence": {
+"actor": [
+"מרגלית אנקורי"
+],
+"artist": [
+"מרגלית אנקורי"
+]
+},
+"senses": [
+"actor",
+"artist"
 ]
 },
 "מרגניות": {
@@ -44900,6 +50764,20 @@
 "senses": [
 "common_word",
 "song"
+]
+},
+"מרגעיונ": {
+"evidence": {
+"answer": [
+"רגע ב-מיון"
+],
+"city_il": [
+"מרג' עיון"
+]
+},
+"senses": [
+"answer",
+"city_il"
 ]
 },
 "מרד": {
@@ -44928,6 +50806,20 @@
 "common_word",
 "given_name",
 "surname"
+]
+},
+"מרדכיארנונ": {
+"evidence": {
+"actor": [
+"מרדכי ארנון"
+],
+"artist": [
+"מרדכי ארנון"
+]
+},
+"senses": [
+"actor",
+"artist"
 ]
 },
 "מרדני": {
@@ -44992,6 +50884,17 @@
 "surname"
 ]
 },
+"מרוקו": {
+"evidence": {
+"nation": [
+"מרוקו"
+]
+},
+"senses": [
+"common_word",
+"nation"
+]
+},
 "מרחוק": {
 "evidence": {
 "song": [
@@ -45028,6 +50931,20 @@
 "senses": [
 "answer",
 "common_word"
+]
+},
+"מרטינאומנסקי": {
+"evidence": {
+"actor": [
+"מרטין אומנסקי"
+],
+"artist": [
+"מרטין אומנסקי"
+]
+},
+"senses": [
+"actor",
+"artist"
 ]
 },
 "מרי": {
@@ -45115,6 +51032,34 @@
 "given_name",
 "song",
 "song_word"
+]
+},
+"מרימברנשטיינכהנ": {
+"evidence": {
+"actor": [
+"מרים ברנשטיין-כהן"
+],
+"author": [
+"מרים ברנשטיין-כהן"
+]
+},
+"senses": [
+"actor",
+"author"
+]
+},
+"מרימילנשטקליס": {
+"evidence": {
+"artist": [
+"מרים ילן שטקליס"
+],
+"author": [
+"מרים ילן-שטקליס"
+]
+},
+"senses": [
+"artist",
+"author"
 ]
 },
 "מרינה": {
@@ -45333,11 +51278,15 @@
 "evidence": {
 "given_name": [
 "מרשה פרידמן"
+],
+"site": [
+"מרשה"
 ]
 },
 "senses": [
 "common_word",
-"given_name"
+"given_name",
+"site"
 ]
 },
 "מרשמלו": {
@@ -45348,6 +51297,17 @@
 },
 "senses": [
 "answer",
+"common_word"
+]
+},
+"משא": {
+"evidence": {
+"bible": [
+"משא"
+]
+},
+"senses": [
+"bible",
 "common_word"
 ]
 },
@@ -45407,6 +51367,20 @@
 "song_word"
 ]
 },
+"משגבעמ": {
+"evidence": {
+"answer": [
+"(קיבוץ) גבע ב-משם"
+],
+"kibbutz": [
+"משגב עם"
+]
+},
+"senses": [
+"answer",
+"kibbutz"
+]
+},
 "משגר": {
 "evidence": {
 "answer": [
@@ -45442,6 +51416,9 @@
 },
 "משה": {
 "evidence": {
+"bible": [
+"משה"
+],
 "given_name": [
 "משה אליהו",
 "משה אלימלך",
@@ -45459,10 +51436,95 @@
 ]
 },
 "senses": [
+"bible",
 "common_word",
 "given_name",
 "song_word",
 "surname"
+]
+},
+"משהאבוטבול": {
+"evidence": {
+"athlete": [
+"משה אבוטבול"
+],
+"politician": [
+"משה אבוטבול"
+]
+},
+"senses": [
+"athlete",
+"politician"
+]
+},
+"משהבנבסט": {
+"evidence": {
+"actor": [
+"משה בן-בסט"
+],
+"artist": [
+"משה בן-בסט"
+]
+},
+"senses": [
+"actor",
+"artist"
+]
+},
+"משהבנשאול": {
+"evidence": {
+"artist": [
+"משה בן שאול"
+],
+"author": [
+"משה בן-שאול"
+]
+},
+"senses": [
+"artist",
+"author"
+]
+},
+"משהדור": {
+"evidence": {
+"artist": [
+"משה דור"
+],
+"author": [
+"משה דור"
+]
+},
+"senses": [
+"artist",
+"author"
+]
+},
+"משהדפנא": {
+"evidence": {
+"artist": [
+"משה דפנא"
+],
+"author": [
+"משה דפנא"
+]
+},
+"senses": [
+"artist",
+"author"
+]
+},
+"משהדצ": {
+"evidence": {
+"actor": [
+"משה דץ"
+],
+"artist": [
+"משה דץ"
+]
+},
+"senses": [
+"actor",
+"artist"
 ]
 },
 "משהה": {
@@ -45474,6 +51536,20 @@
 "senses": [
 "answer",
 "common_word"
+]
+},
+"משהטימור": {
+"evidence": {
+"actor": [
+"משה טימור"
+],
+"artist": [
+"משה טימור"
+]
+},
+"senses": [
+"actor",
+"artist"
 ]
 },
 "משהקול": {
@@ -45488,6 +51564,21 @@
 "senses": [
 "answer",
 "politician"
+]
+},
+"משהשפריר": {
+"evidence": {
+"answer": [
+"משה הוציא מן המים\r\nשפריר אפיריון",
+"אפיריון = שפריר"
+],
+"author": [
+"משה שפריר"
+]
+},
+"senses": [
+"answer",
+"author"
 ]
 },
 "משוחדימ": {
@@ -45814,11 +51905,30 @@
 "evidence": {
 "answer": [
 ""
+],
+"kibbutz": [
+"משמרות"
 ]
 },
 "senses": [
 "answer",
-"common_word"
+"common_word",
+"kibbutz"
+]
+},
+"משמרת": {
+"evidence": {
+"kibbutz": [
+"משמרת"
+],
+"song_word": [
+"משמרת לילה"
+]
+},
+"senses": [
+"common_word",
+"kibbutz",
+"song_word"
 ]
 },
 "משמשה": {
@@ -45889,6 +51999,17 @@
 "common_word",
 "song",
 "song_word"
+]
+},
+"משענ": {
+"evidence": {
+"kibbutz": [
+"משען"
+]
+},
+"senses": [
+"common_word",
+"kibbutz"
 ]
 },
 "משערת": {
@@ -46329,6 +52450,17 @@
 },
 "senses": [
 "answer",
+"common_word"
+]
+},
+"מתושלח": {
+"evidence": {
+"bible": [
+"מתושלח"
+]
+},
+"senses": [
+"bible",
 "common_word"
 ]
 },
@@ -46878,6 +53010,20 @@
 "given_name"
 ]
 },
+"מתתיהושלמ": {
+"evidence": {
+"artist": [
+"מתתיהו שלם"
+],
+"author": [
+"מתתיהו שלם"
+]
+},
+"senses": [
+"artist",
+"author"
+]
+},
 "נאהב": {
 "evidence": {
 "song": [
@@ -46927,6 +53073,31 @@
 "common_word",
 "given_name",
 "surname"
+]
+},
+"נאורדנינ": {
+"evidence": {
+"actor": [
+"נאור דנין"
+],
+"artist": [
+"נאור דנין"
+]
+},
+"senses": [
+"actor",
+"artist"
+]
+},
+"נאורו": {
+"evidence": {
+"nation": [
+"נאורו"
+]
+},
+"senses": [
+"common_word",
+"nation"
 ]
 },
 "נאות": {
@@ -47167,9 +53338,6 @@
 "שיכול אותיות",
 "אנגרם"
 ],
-"place": [
-"נביעות"
-],
 "song_word": [
 "פסטיבל נביעות 1978"
 ]
@@ -47177,7 +53345,6 @@
 "senses": [
 "answer",
 "common_word",
-"place",
 "song_word"
 ]
 },
@@ -47316,6 +53483,17 @@
 "common_word"
 ]
 },
+"נגבה": {
+"evidence": {
+"kibbutz": [
+"נגבה"
+]
+},
+"senses": [
+"common_word",
+"kibbutz"
+]
+},
 "נגד": {
 "evidence": {
 "answer": [
@@ -47375,6 +53553,20 @@
 "common_word",
 "given_name",
 "surname"
+]
+},
+"נגהארז": {
+"evidence": {
+"actor": [
+"נגה ארז"
+],
+"artist": [
+"נגה ארז"
+]
+},
+"senses": [
+"actor",
+"artist"
 ]
 },
 "נגוסה": {
@@ -47539,6 +53731,20 @@
 "common_word",
 "given_name",
 "song_word"
+]
+},
+"נדבגדג": {
+"evidence": {
+"actor": [
+"נדב גדג'"
+],
+"artist": [
+"נדב גדג'"
+]
+},
+"senses": [
+"actor",
+"artist"
 ]
 },
 "נדה": {
@@ -47726,6 +53932,17 @@
 "surname"
 ]
 },
+"נהלל": {
+"evidence": {
+"kibbutz": [
+"נהלל"
+]
+},
+"senses": [
+"common_word",
+"kibbutz"
+]
+},
 "נהנה": {
 "evidence": {
 "answer": [
@@ -47768,13 +53985,13 @@
 },
 "נהריה": {
 "evidence": {
-"place": [
+"city_il": [
 "נהריה"
 ]
 },
 "senses": [
-"common_word",
-"place"
+"city_il",
+"common_word"
 ]
 },
 "נו": {
@@ -47806,12 +54023,16 @@
 "(ד\"ר) נו + ב; נוב - מושב דתי לאומי בדרום רמת הגולן",
 "מושב נוב בהיפוך העיר בון"
 ],
+"kibbutz": [
+"נוב"
+],
 "surname": [
 "פורת נוב"
 ]
 },
 "senses": [
 "answer",
+"kibbutz",
 "surname"
 ]
 },
@@ -48137,17 +54358,6 @@
 "surname"
 ]
 },
-"נוער": {
-"evidence": {
-"given_name": [
-"נוער שוליים"
-]
-},
-"senses": [
-"common_word",
-"given_name"
-]
-},
 "נופ": {
 "evidence": {
 "answer": [
@@ -48167,20 +54377,6 @@
 "common_word",
 "song_word",
 "surname"
-]
-},
-"נופהגליל": {
-"evidence": {
-"answer": [
-"נוף ערי מצרים הקדומה\r\nהג עיר בהולנד\r\nליל עיר בצרפת"
-],
-"place": [
-"נוף הגליל"
-]
-},
-"senses": [
-"answer",
-"place"
 ]
 },
 "נופלימ": {
@@ -48281,6 +54477,31 @@
 "common_word"
 ]
 },
+"נורווגיה": {
+"evidence": {
+"nation": [
+"נורווגיה"
+]
+},
+"senses": [
+"common_word",
+"nation"
+]
+},
+"נורוז": {
+"evidence": {
+"actor": [
+"נורוז"
+],
+"artist": [
+"נורוז"
+]
+},
+"senses": [
+"actor",
+"artist"
+]
+},
 "נורית": {
 "evidence": {
 "given_name": [
@@ -48292,6 +54513,20 @@
 "senses": [
 "common_word",
 "given_name"
+]
+},
+"נוריתזרחי": {
+"evidence": {
+"artist": [
+"נורית זרחי"
+],
+"author": [
+"נורית זרחי"
+]
+},
+"senses": [
+"artist",
+"author"
 ]
 },
 "נורמלי": {
@@ -48396,6 +54631,31 @@
 "common_word"
 ]
 },
+"נח": {
+"evidence": {
+"bible": [
+"נח"
+]
+},
+"senses": [
+"bible",
+"common_word"
+]
+},
+"נחאנגלהרד": {
+"evidence": {
+"actor": [
+"נח אנגלהרד"
+],
+"author": [
+"נח אנגלהרד"
+]
+},
+"senses": [
+"actor",
+"author"
+]
+},
 "נחבא": {
 "evidence": {
 "answer": [
@@ -48439,6 +54699,20 @@
 "surname"
 ]
 },
+"נחיוייס": {
+"evidence": {
+"artist": [
+"נחי וייס"
+],
+"author": [
+"נחי וייס"
+]
+},
+"senses": [
+"artist",
+"author"
+]
+},
 "נחל": {
 "evidence": {
 "answer": [
@@ -48458,6 +54732,20 @@
 "common_word",
 "role_noun",
 "song_word"
+]
+},
+"נחלאות": {
+"evidence": {
+"answer": [
+"נחל זה ירש\r\nאות זה בית"
+],
+"neighborhood": [
+"נחלאות"
+]
+},
+"senses": [
+"answer",
+"neighborhood"
 ]
 },
 "נחלה": {
@@ -48515,6 +54803,49 @@
 "common_word"
 ]
 },
+"נחלימ": {
+"evidence": {
+"kibbutz": [
+"נחלים"
+],
+"song_word": [
+"שיר על נחלים"
+]
+},
+"senses": [
+"common_word",
+"kibbutz",
+"song_word"
+]
+},
+"נחלעיונ": {
+"evidence": {
+"answer": [
+"(פרשת) נח  לעיון"
+],
+"stream": [
+"נחל עיון"
+]
+},
+"senses": [
+"answer",
+"stream"
+]
+},
+"נחלעמוד": {
+"evidence": {
+"answer": [
+"נחל זה חיל הנחל\r\nעמוד זה עצור"
+],
+"stream": [
+"נחל עמוד"
+]
+},
+"senses": [
+"answer",
+"stream"
+]
+},
 "נחלת": {
 "evidence": {
 "answer": [
@@ -48528,6 +54859,31 @@
 "answer",
 "common_word",
 "given_name"
+]
+},
+"נחלתנינימ": {
+"evidence": {
+"answer": [
+"נחלת נינים; נחל תנינים"
+],
+"stream": [
+"נחל תנינים"
+]
+},
+"senses": [
+"answer",
+"stream"
+]
+},
+"נחמ": {
+"evidence": {
+"kibbutz": [
+"נחם"
+]
+},
+"senses": [
+"common_word",
+"kibbutz"
 ]
 },
 "נחמד": {
@@ -48689,11 +55045,15 @@
 "evidence": {
 "answer": [
 "נח הצדיק\r\nשולים מושים"
+],
+"kibbutz": [
+"נחשולים"
 ]
 },
 "senses": [
 "answer",
-"common_word"
+"common_word",
+"kibbutz"
 ]
 },
 "נחשוני": {
@@ -48705,6 +55065,17 @@
 "senses": [
 "answer",
 "common_word"
+]
+},
+"נחשונימ": {
+"evidence": {
+"kibbutz": [
+"נחשונים"
+]
+},
+"senses": [
+"common_word",
+"kibbutz"
 ]
 },
 "נחשפה": {
@@ -48753,6 +55124,28 @@
 "senses": [
 "answer",
 "common_word"
+]
+},
+"נטועה": {
+"evidence": {
+"kibbutz": [
+"נטועה"
+]
+},
+"senses": [
+"common_word",
+"kibbutz"
+]
+},
+"נטור": {
+"evidence": {
+"kibbutz": [
+"נטור"
+]
+},
+"senses": [
+"common_word",
+"kibbutz"
 ]
 },
 "נטיפ": {
@@ -48814,6 +55207,17 @@
 "senses": [
 "common_word",
 "given_name"
+]
+},
+"נטעימ": {
+"evidence": {
+"kibbutz": [
+"נטעים"
+]
+},
+"senses": [
+"common_word",
+"kibbutz"
 ]
 },
 "נטפ": {
@@ -48879,6 +55283,28 @@
 "song"
 ]
 },
+"ניגריה": {
+"evidence": {
+"nation": [
+"ניגריה"
+]
+},
+"senses": [
+"common_word",
+"nation"
+]
+},
+"ניזר": {
+"evidence": {
+"nation": [
+"ניז'ר"
+]
+},
+"senses": [
+"common_word",
+"nation"
+]
+},
 "ניילונ": {
 "evidence": {
 "answer": [
@@ -48889,6 +55315,17 @@
 "senses": [
 "answer",
 "common_word"
+]
+},
+"ניירובי": {
+"evidence": {
+"world_city": [
+"ניירובי"
+]
+},
+"senses": [
+"common_word",
+"world_city"
 ]
 },
 "ניכוש": {
@@ -48946,6 +55383,20 @@
 "senses": [
 "answer",
 "common_word"
+]
+},
+"נינטטייב": {
+"evidence": {
+"actor": [
+"נינט טייב"
+],
+"artist": [
+"נינט טייב"
+]
+},
+"senses": [
+"actor",
+"artist"
 ]
 },
 "ניני": {
@@ -49163,6 +55614,17 @@
 "surname"
 ]
 },
+"ניצנימ": {
+"evidence": {
+"kibbutz": [
+"ניצנים"
+]
+},
+"senses": [
+"common_word",
+"kibbutz"
+]
+},
 "ניקה": {
 "evidence": {
 "artist": [
@@ -49235,6 +55697,22 @@
 "surname"
 ]
 },
+"ניראליהו": {
+"evidence": {
+"answer": [
+"ראליה זה מציאות\r\nבתוך ניו",
+"אליה (זנב) ב-נירו (לוי)",
+"ראלי (מרוץ מוטורי) ב- ניהו, קיבוץ באזור השרון"
+],
+"kibbutz": [
+"ניר אליהו"
+]
+},
+"senses": [
+"answer",
+"kibbutz"
+]
+},
 "נירה": {
 "evidence": {
 "given_name": [
@@ -49251,6 +55729,17 @@
 "song"
 ]
 },
+"נירימ": {
+"evidence": {
+"kibbutz": [
+"נירים"
+]
+},
+"senses": [
+"common_word",
+"kibbutz"
+]
+},
 "נירית": {
 "evidence": {
 "given_name": [
@@ -49260,6 +55749,20 @@
 "senses": [
 "common_word",
 "given_name"
+]
+},
+"נירעמ": {
+"evidence": {
+"answer": [
+"ירע (יפגע) בתוך נם"
+],
+"kibbutz": [
+"ניר עם"
+]
+},
+"senses": [
+"answer",
+"kibbutz"
 ]
 },
 "נכה": {
@@ -49425,11 +55928,15 @@
 "evidence": {
 "answer": [
 ""
+],
+"nation": [
+"נמיביה"
 ]
 },
 "senses": [
 "answer",
-"common_word"
+"common_word",
+"nation"
 ]
 },
 "נמימ": {
@@ -49740,6 +56247,20 @@
 "surname"
 ]
 },
+"נסימזוהר": {
+"evidence": {
+"actor": [
+"נסים זוהר"
+],
+"author": [
+"נסים זוהר"
+]
+},
+"senses": [
+"actor",
+"author"
+]
+},
 "נסמיק": {
 "evidence": {
 "answer": [
@@ -49808,7 +56329,7 @@
 },
 "נסציונה": {
 "evidence": {
-"place": [
+"city_il": [
 "נס ציונה"
 ],
 "song": [
@@ -49816,7 +56337,7 @@
 ]
 },
 "senses": [
-"place",
+"city_il",
 "song"
 ]
 },
@@ -49984,6 +56505,20 @@
 "song"
 ]
 },
+"נעמהכהנ": {
+"evidence": {
+"artist": [
+"נעמה כהן"
+],
+"athlete": [
+"נעמה כהן"
+]
+},
+"senses": [
+"artist",
+"athlete"
+]
+},
 "נעמי": {
 "evidence": {
 "given_name": [
@@ -50007,6 +56542,49 @@
 "role_noun",
 "song_word",
 "surname"
+]
+},
+"נעמיחשמונאי": {
+"evidence": {
+"artist": [
+"נעמי חשמונאי"
+],
+"author": [
+"נעמי חשמונאי"
+]
+},
+"senses": [
+"artist",
+"author"
+]
+},
+"נעמיעקובסונ": {
+"evidence": {
+"actor": [
+"נעם יעקובסון"
+],
+"artist": [
+"נעם יעקובסון"
+]
+},
+"senses": [
+"actor",
+"artist"
+]
+},
+"נענ": {
+"evidence": {
+"kibbutz": [
+"נען"
+],
+"song_word": [
+"הורה נען"
+]
+},
+"senses": [
+"common_word",
+"kibbutz",
+"song_word"
 ]
 },
 "נענימ": {
@@ -50104,12 +56682,16 @@
 },
 "נפאל": {
 "evidence": {
+"nation": [
+"נפאל"
+],
 "song": [
 "נפאל"
 ]
 },
 "senses": [
 "common_word",
+"nation",
 "song"
 ]
 },
@@ -50339,6 +56921,20 @@
 "surname"
 ]
 },
+"נפתלייבינ": {
+"evidence": {
+"actor": [
+"נפתלי יבין"
+],
+"author": [
+"נפתלי יבין"
+]
+},
+"senses": [
+"actor",
+"author"
+]
+},
 "נצ": {
 "evidence": {
 "surname": [
@@ -50415,13 +57011,13 @@
 },
 "נצרת": {
 "evidence": {
-"place": [
+"city_il": [
 "נצרת"
 ]
 },
 "senses": [
-"common_word",
-"place"
+"city_il",
+"common_word"
 ]
 },
 "נקודה": {
@@ -50829,12 +57425,16 @@
 "answer": [
 "נ שיא."
 ],
+"bible": [
+"נשיא"
+],
 "role_noun": [
 "president / prince"
 ]
 },
 "senses": [
 "answer",
+"bible",
 "common_word",
 "role_noun"
 ]
@@ -51027,9 +57627,6 @@
 "answer": [
 "העיר הצפונית נשר , סוג של בירה = נשר"
 ],
-"place": [
-"נשר"
-],
 "role_noun": [
 "eagle / he fell out"
 ],
@@ -51043,7 +57640,6 @@
 "senses": [
 "answer",
 "common_word",
-"place",
 "role_noun",
 "song",
 "surname"
@@ -51150,15 +57746,29 @@
 "common_word"
 ]
 },
+"נתיאורננ": {
+"evidence": {
+"actor": [
+"נתי אורנן"
+],
+"artist": [
+"נתי אורנן"
+]
+},
+"senses": [
+"actor",
+"artist"
+]
+},
 "נתיבות": {
 "evidence": {
-"place": [
+"city_il": [
 "נתיבות"
 ]
 },
 "senses": [
-"common_word",
-"place"
+"city_il",
+"common_word"
 ]
 },
 "נתיכ": {
@@ -51224,11 +57834,15 @@
 ],
 "artist": [
 "נתן אלתרמן"
+],
+"author": [
+"נתן אלתרמן"
 ]
 },
 "senses": [
 "answer",
-"artist"
+"artist",
+"author"
 ]
 },
 "נתנגב": {
@@ -51242,6 +57856,20 @@
 "common_word"
 ]
 },
+"נתנגושנ": {
+"evidence": {
+"actor": [
+"נתן גושן"
+],
+"artist": [
+"נתן גושן"
+]
+},
+"senses": [
+"actor",
+"artist"
+]
+},
 "נתנדב": {
 "evidence": {
 "answer": [
@@ -51253,19 +57881,33 @@
 "common_word"
 ]
 },
-"נתניה": {
+"נתנזכ": {
 "evidence": {
-"given_name": [
-"נתניה דברת"
+"artist": [
+"נתן זך"
 ],
-"place": [
-"נתניה"
+"author": [
+"נתן זך"
 ]
 },
 "senses": [
+"artist",
+"author"
+]
+},
+"נתניה": {
+"evidence": {
+"city_il": [
+"נתניה"
+],
+"given_name": [
+"נתניה דברת"
+]
+},
+"senses": [
+"city_il",
 "common_word",
-"given_name",
-"place"
+"given_name"
 ]
 },
 "נתניהו": {
@@ -51277,6 +57919,20 @@
 "senses": [
 "common_word",
 "surname"
+]
+},
+"נתניונתנ": {
+"evidence": {
+"artist": [
+"נתן יונתן"
+],
+"author": [
+"נתן יונתן"
+]
+},
+"senses": [
+"artist",
+"author"
 ]
 },
 "נתנצח": {
@@ -51377,6 +58033,20 @@
 "senses": [
 "answer",
 "common_word"
+]
+},
+"סאבלימינל": {
+"evidence": {
+"actor": [
+"סאבלימינל"
+],
+"artist": [
+"סאבלימינל"
+]
+},
+"senses": [
+"actor",
+"artist"
 ]
 },
 "סאונה": {
@@ -51508,6 +58178,20 @@
 "senses": [
 "answer",
 "common_word"
+]
+},
+"סבינהמסג": {
+"evidence": {
+"artist": [
+"סבינה מסג"
+],
+"author": [
+"סבינה מסג"
+]
+},
+"senses": [
+"artist",
+"author"
 ]
 },
 "סביר": {
@@ -51679,8 +58363,7 @@
 ],
 "surname": [
 "מרים סגל",
-"עומרי סגל",
-"שמואל סגל"
+"עומרי סגל"
 ]
 },
 "senses": [
@@ -51847,6 +58530,17 @@
 "song"
 ]
 },
+"סודאנ": {
+"evidence": {
+"nation": [
+"סודאן"
+]
+},
+"senses": [
+"common_word",
+"nation"
+]
+},
 "סוזי": {
 "evidence": {
 "given_name": [
@@ -51943,6 +58637,31 @@
 "senses": [
 "answer",
 "common_word"
+]
+},
+"סומליה": {
+"evidence": {
+"nation": [
+"סומליה"
+]
+},
+"senses": [
+"common_word",
+"nation"
+]
+},
+"סומלילנד": {
+"evidence": {
+"answer": [
+"אנגרם לו סנדלים"
+],
+"nation": [
+"סומלילנד"
+]
+},
+"senses": [
+"answer",
+"nation"
 ]
 },
 "סוס": {
@@ -52049,6 +58768,17 @@
 "common_word"
 ]
 },
+"סוריה": {
+"evidence": {
+"nation": [
+"סוריה"
+]
+},
+"senses": [
+"common_word",
+"nation"
+]
+},
 "סורינמ": {
 "evidence": {
 "answer": [
@@ -52093,17 +58823,6 @@
 "senses": [
 "answer",
 "common_word"
-]
-},
-"סחנינ": {
-"evidence": {
-"place": [
-"סח'נין"
-]
-},
-"senses": [
-"common_word",
-"place"
 ]
 },
 "סחר": {
@@ -52445,6 +59164,32 @@
 "common_word"
 ]
 },
+"סיירהלאונ": {
+"evidence": {
+"answer": [
+"אנגרם הרסני אולי",
+"ירה (טיל) לאו ב-סין; סיירה לאון - מדינה במערב אפריקה"
+],
+"nation": [
+"סיירה לאון"
+]
+},
+"senses": [
+"answer",
+"nation"
+]
+},
+"סיישל": {
+"evidence": {
+"nation": [
+"סיישל"
+]
+},
+"senses": [
+"common_word",
+"nation"
+]
+},
 "סיכה": {
 "evidence": {
 "answer": [
@@ -52536,6 +59281,20 @@
 "given_name"
 ]
 },
+"סימהאליהו": {
+"evidence": {
+"actor": [
+"סימה אליהו"
+],
+"artist": [
+"סימה אליהו"
+]
+},
+"senses": [
+"actor",
+"artist"
+]
+},
 "סימולטנית": {
 "evidence": {
 "answer": [
@@ -52605,6 +59364,17 @@
 "senses": [
 "answer",
 "common_word"
+]
+},
+"סינגפור": {
+"evidence": {
+"nation": [
+"סינגפור"
+]
+},
+"senses": [
+"common_word",
+"nation"
 ]
 },
 "סינגפורי": {
@@ -52709,6 +59479,17 @@
 "song_word"
 ]
 },
+"סיציליה": {
+"evidence": {
+"island": [
+"סיציליה"
+]
+},
+"senses": [
+"common_word",
+"island"
+]
+},
 "סירבו": {
 "evidence": {
 "answer": [
@@ -52794,11 +59575,26 @@
 "evidence": {
 "answer": [
 "נ נכשל יוחלף לקוף\r\nנקבל סלובקיה"
+],
+"nation": [
+"סלובניה"
 ]
 },
 "senses": [
 "answer",
-"common_word"
+"common_word",
+"nation"
+]
+},
+"סלובקיה": {
+"evidence": {
+"nation": [
+"סלובקיה"
+]
+},
+"senses": [
+"common_word",
+"nation"
 ]
 },
 "סלוני": {
@@ -52971,6 +59767,31 @@
 "surname"
 ]
 },
+"סמואה": {
+"evidence": {
+"nation": [
+"סמואה"
+]
+},
+"senses": [
+"common_word",
+"nation"
+]
+},
+"סמיהורי": {
+"evidence": {
+"actor": [
+"סמי הורי"
+],
+"answer": [
+"מיה בתוך סורי"
+]
+},
+"senses": [
+"actor",
+"answer"
+]
+},
 "סמיילי": {
 "evidence": {
 "answer": [
@@ -53096,6 +59917,17 @@
 "common_word"
 ]
 },
+"סנגל": {
+"evidence": {
+"nation": [
+"סנגל"
+]
+},
+"senses": [
+"common_word",
+"nation"
+]
+},
 "סנדוויצ": {
 "evidence": {
 "answer": [
@@ -53116,6 +59948,17 @@
 "senses": [
 "common_word",
 "surname"
+]
+},
+"סנדלה": {
+"evidence": {
+"city_il": [
+"סנדלה"
+]
+},
+"senses": [
+"city_il",
+"common_word"
 ]
 },
 "סנה": {
@@ -53224,6 +60067,9 @@
 },
 "סעד": {
 "evidence": {
+"kibbutz": [
+"סעד"
+],
 "surname": [
 "אחמד סעד",
 "סאלח סעד"
@@ -53231,6 +60077,7 @@
 },
 "senses": [
 "common_word",
+"kibbutz",
 "surname"
 ]
 },
@@ -53247,6 +60094,20 @@
 "common_word",
 "given_name",
 "surname"
+]
+},
+"סעדהצובירי": {
+"evidence": {
+"artist": [
+"סעדה צובירי"
+],
+"author": [
+"סעדה צובירי"
+]
+},
+"senses": [
+"artist",
+"author"
 ]
 },
 "סעדו": {
@@ -53311,6 +60172,9 @@
 "given_name": [
 "סער בדישי"
 ],
+"kibbutz": [
+"סער"
+],
 "role_noun": [
 "storm / surname Saar"
 ],
@@ -53322,8 +60186,23 @@
 "senses": [
 "common_word",
 "given_name",
+"kibbutz",
 "role_noun",
 "surname"
+]
+},
+"סערבדישי": {
+"evidence": {
+"actor": [
+"סער בדישי"
+],
+"artist": [
+"סער בדישי"
+]
+},
+"senses": [
+"actor",
+"artist"
 ]
 },
 "סערה": {
@@ -53432,6 +60311,20 @@
 "given_name"
 ]
 },
+"ספיאפרתי": {
+"evidence": {
+"actor": [
+"ספי אפרתי"
+],
+"artist": [
+"ספי אפרתי"
+]
+},
+"senses": [
+"actor",
+"artist"
+]
+},
 "ספיח": {
 "evidence": {
 "answer": [
@@ -53512,6 +60405,17 @@
 "common_word",
 "song",
 "song_word"
+]
+},
+"ספרד": {
+"evidence": {
+"nation": [
+"ספרד"
+]
+},
+"senses": [
+"common_word",
+"nation"
 ]
 },
 "ספרדימ": {
@@ -53677,11 +60581,15 @@
 "evidence": {
 "answer": [
 ""
+],
+"nation": [
+"סרביה"
 ]
 },
 "senses": [
 "answer",
-"common_word"
+"common_word",
+"nation"
 ]
 },
 "סרבימ": {
@@ -54017,6 +60925,20 @@
 "surname"
 ]
 },
+"עברונ": {
+"evidence": {
+"answer": [
+""
+],
+"kibbutz": [
+"עברון"
+]
+},
+"senses": [
+"answer",
+"kibbutz"
+]
+},
 "עברות": {
 "evidence": {
 "answer": [
@@ -54182,6 +61104,34 @@
 "given_name"
 ]
 },
+"עדיארד": {
+"evidence": {
+"actor": [
+"עדי ארד"
+],
+"artist": [
+"עדי ארד"
+]
+},
+"senses": [
+"actor",
+"artist"
+]
+},
+"עדיביטי": {
+"evidence": {
+"actor": [
+"עדי ביטי"
+],
+"artist": [
+"עדי ביטי"
+]
+},
+"senses": [
+"actor",
+"artist"
+]
+},
 "עדיליונ": {
 "evidence": {
 "answer": [
@@ -54202,6 +61152,20 @@
 "senses": [
 "answer",
 "common_word"
+]
+},
+"עדינאמנ": {
+"evidence": {
+"actor": [
+"עדי נאמן"
+],
+"artist": [
+"עדי נאמן"
+]
+},
+"senses": [
+"actor",
+"artist"
 ]
 },
 "עדיפ": {
@@ -54271,6 +61235,20 @@
 "given_name"
 ]
 },
+"עדנמאירי": {
+"evidence": {
+"actor": [
+"עדן מאירי"
+],
+"artist": [
+"עדן מאירי"
+]
+},
+"senses": [
+"actor",
+"artist"
+]
+},
 "עדר": {
 "evidence": {
 "song_word": [
@@ -54297,6 +61275,20 @@
 "senses": [
 "answer",
 "common_word"
+]
+},
+"עהלל": {
+"evidence": {
+"artist": [
+"ע. הלל"
+],
+"author": [
+"ע. הלל"
+]
+},
+"senses": [
+"artist",
+"author"
 ]
 },
 "עובד": {
@@ -54365,6 +61357,48 @@
 "answer",
 "common_word",
 "given_name"
+]
+},
+"עודדאבישר": {
+"evidence": {
+"artist": [
+"עודד אבישר"
+],
+"author": [
+"עודד אבישר"
+]
+},
+"senses": [
+"artist",
+"author"
+]
+},
+"עודדבארי": {
+"evidence": {
+"artist": [
+"עודד בארי"
+],
+"author": [
+"עודד בארי"
+]
+},
+"senses": [
+"artist",
+"author"
+]
+},
+"עודדבצר": {
+"evidence": {
+"artist": [
+"עודד בצר"
+],
+"author": [
+"עודד בצר"
+]
+},
+"senses": [
+"artist",
+"author"
 ]
 },
 "עודדתי": {
@@ -54485,12 +61519,16 @@
 "answer": [
 "המשך של 16 אופקי"
 ],
+"bible": [
+"עוזיהו"
+],
 "song_word": [
 "ויבן עוזיהו"
 ]
 },
 "senses": [
 "answer",
+"bible",
 "common_word",
 "song_word"
 ]
@@ -54543,6 +61581,17 @@
 "common_word"
 ]
 },
+"עומאנ": {
+"evidence": {
+"nation": [
+"עומאן"
+]
+},
+"senses": [
+"common_word",
+"nation"
+]
+},
 "עומד": {
 "evidence": {
 "answer": [
@@ -54571,6 +61620,20 @@
 "senses": [
 "common_word",
 "given_name"
+]
+},
+"עומרדרור": {
+"evidence": {
+"actor": [
+"עומר דרור"
+],
+"artist": [
+"עומר דרור"
+]
+},
+"senses": [
+"actor",
+"artist"
 ]
 },
 "עונשימ": {
@@ -54663,6 +61726,17 @@
 "surname"
 ]
 },
+"עוצמ": {
+"evidence": {
+"kibbutz": [
+"עוצם"
+]
+},
+"senses": [
+"common_word",
+"kibbutz"
+]
+},
 "עורבבו": {
 "evidence": {
 "answer": [
@@ -54683,6 +61757,21 @@
 "senses": [
 "common_word",
 "song"
+]
+},
+"עזה": {
+"evidence": {
+"city_il": [
+"עזה"
+],
+"song_word": [
+"עזה החדשה"
+]
+},
+"senses": [
+"city_il",
+"common_word",
+"song_word"
 ]
 },
 "עזוב": {
@@ -54737,6 +61826,35 @@
 "senses": [
 "common_word",
 "given_name",
+"surname"
+]
+},
+"עזראדגנ": {
+"evidence": {
+"actor": [
+"עזרא דגן"
+],
+"answer": [
+"נשמע אזרה דגן\r\nהפלאח זורע דגן"
+]
+},
+"senses": [
+"actor",
+"answer"
+]
+},
+"עזריה": {
+"evidence": {
+"kibbutz": [
+"עזריה"
+],
+"surname": [
+"תמי עזריה",
+"רחל עזריה"
+]
+},
+"senses": [
+"kibbutz",
 "surname"
 ]
 },
@@ -54841,11 +61959,24 @@
 "given_name"
 ]
 },
+"עידואבנגריונ": {
+"evidence": {
+"artist": [
+"עידוא בן גריון"
+],
+"author": [
+"עידוא בן גריון"
+]
+},
+"senses": [
+"artist",
+"author"
+]
+},
 "עידית": {
 "evidence": {
 "given_name": [
 "עידית חכמוביץ",
-"עידית חכמוביץ'",
 "עידית סילמן"
 ],
 "song_word": [
@@ -54856,6 +61987,20 @@
 "common_word",
 "given_name",
 "song_word"
+]
+},
+"עידיתחכמוביצ": {
+"evidence": {
+"artist": [
+"עידית חכמוביץ"
+],
+"author": [
+"עידית חכמוביץ"
+]
+},
+"senses": [
+"artist",
+"author"
 ]
 },
 "עידנ": {
@@ -54879,6 +62024,20 @@
 "common_word",
 "given_name",
 "song_word"
+]
+},
+"עידנרפאלחביב": {
+"evidence": {
+"actor": [
+"עידן רפאל חביב"
+],
+"artist": [
+"עידן רפאל חביב"
+]
+},
+"senses": [
+"actor",
+"artist"
 ]
 },
 "עיוני": {
@@ -55011,7 +62170,7 @@
 "song_word": [
 "אוזן לא שומעת עין לא רואה",
 "בלי עין הרע",
-"עין גדי"
+"עין הנמר"
 ],
 "surname": [
 "ניצן עין הבר"
@@ -55040,6 +62199,20 @@
 "surname"
 ]
 },
+"עינגב": {
+"evidence": {
+"kibbutz": [
+"עין גב"
+],
+"site": [
+"עין גב I"
+]
+},
+"senses": [
+"kibbutz",
+"site"
+]
+},
 "עינה": {
 "evidence": {
 "answer": [
@@ -55051,6 +62224,48 @@
 "common_word"
 ]
 },
+"עינורד": {
+"evidence": {
+"answer": [
+"רוני  רוזנטל בתוך עד"
+],
+"kibbutz": [
+"עין ורד"
+]
+},
+"senses": [
+"answer",
+"kibbutz"
+]
+},
+"עינכרמל": {
+"evidence": {
+"answer": [
+"יביא לאי שייכות - ינכר.  בתוך רשת - עמל."
+],
+"kibbutz": [
+"עין כרמל"
+]
+},
+"senses": [
+"answer",
+"kibbutz"
+]
+},
+"עינשמר": {
+"evidence": {
+"answer": [
+"בתוך עי    ר , נשם= עיןשמר"
+],
+"kibbutz": [
+"עין שמר"
+]
+},
+"senses": [
+"answer",
+"kibbutz"
+]
+},
 "עינת": {
 "evidence": {
 "answer": [
@@ -55060,12 +62275,44 @@
 "עינת ארליך",
 "עינת הולנדר",
 "עינת שרוף"
+],
+"kibbutz": [
+"עינת"
 ]
 },
 "senses": [
 "answer",
 "common_word",
-"given_name"
+"given_name",
+"kibbutz"
+]
+},
+"עינתארליכ": {
+"evidence": {
+"actor": [
+"עינת ארליך"
+],
+"artist": [
+"עינת ארליך"
+]
+},
+"senses": [
+"actor",
+"artist"
+]
+},
+"עינתמר": {
+"evidence": {
+"answer": [
+"עין מהמילה עוין לא אהב\r\nתמר בת דוד המלך"
+],
+"kibbutz": [
+"עין תמר"
+]
+},
+"senses": [
+"answer",
+"kibbutz"
 ]
 },
 "עינתשרופ": {
@@ -55114,6 +62361,17 @@
 "senses": [
 "answer",
 "common_word"
+]
+},
+"עיראק": {
+"evidence": {
+"nation": [
+"עיראק"
+]
+},
+"senses": [
+"common_word",
+"nation"
 ]
 },
 "עירבה": {
@@ -55168,6 +62426,20 @@
 "common_word",
 "given_name",
 "song_word"
+]
+},
+"עיריתלינור": {
+"evidence": {
+"artist": [
+"עירית לינור"
+],
+"author": [
+"עירית לינור"
+]
+},
+"senses": [
+"artist",
+"author"
 ]
 },
 "עירמקלט": {
@@ -55231,13 +62503,13 @@
 },
 "עכו": {
 "evidence": {
-"place": [
+"city_il": [
 "עכו"
 ]
 },
 "senses": [
-"common_word",
-"place"
+"city_il",
+"common_word"
 ]
 },
 "עכשווית": {
@@ -55392,9 +62664,6 @@
 "עלמה גוב",
 "עלמה זהר"
 ],
-"song": [
-"עלמה"
-],
 "song_word": [
 "לילה כר ודמות עלמה...",
 "סיפור מותם של עלמה ועלם"
@@ -55403,7 +62672,6 @@
 "senses": [
 "common_word",
 "given_name",
-"song",
 "song_word"
 ]
 },
@@ -55505,6 +62773,20 @@
 "given_name"
 ]
 },
+"עמוסטלשיר": {
+"evidence": {
+"actor": [
+"עמוס טלשיר"
+],
+"artist": [
+"עמוס טלשיר"
+]
+},
+"senses": [
+"actor",
+"artist"
+]
+},
 "עמוסקולק": {
 "evidence": {
 "answer": [
@@ -55517,6 +62799,20 @@
 "senses": [
 "answer",
 "artist"
+]
+},
+"עמוסקיננ": {
+"evidence": {
+"artist": [
+"עמוס קינן"
+],
+"author": [
+"עמוס קינן"
+]
+},
+"senses": [
+"artist",
+"author"
 ]
 },
 "עמי": {
@@ -55548,15 +62844,11 @@
 },
 "עמיאל": {
 "evidence": {
-"artist": [
-"עמיאל"
-],
 "surname": [
 "סימה עמיאל"
 ]
 },
 "senses": [
-"artist",
 "common_word",
 "surname"
 ]
@@ -55599,12 +62891,51 @@
 "surname"
 ]
 },
+"עמינדב": {
+"evidence": {
+"kibbutz": [
+"עמינדב"
+]
+},
+"senses": [
+"common_word",
+"kibbutz"
+]
+},
+"עמיעד": {
+"evidence": {
+"answer": [
+"יעד זה מושב/עמיעד זה קבוץ"
+],
+"kibbutz": [
+"עמיעד"
+]
+},
+"senses": [
+"answer",
+"kibbutz"
+]
+},
+"עמיקמ": {
+"evidence": {
+"kibbutz": [
+"עמיקם"
+]
+},
+"senses": [
+"common_word",
+"kibbutz"
+]
+},
 "עמיר": {
 "evidence": {
 "given_name": [
 "עמיר בניון",
 "עמיר חדד",
 "עמיר לב"
+],
+"kibbutz": [
+"עמיר"
 ],
 "surname": [
 "אנדה עמיר"
@@ -55613,6 +62944,7 @@
 "senses": [
 "common_word",
 "given_name",
+"kibbutz",
 "surname"
 ]
 },
@@ -55678,6 +63010,34 @@
 "surname"
 ]
 },
+"עמיתליאור": {
+"evidence": {
+"actor": [
+"עמית ליאור"
+],
+"artist": [
+"עמית ליאור"
+]
+},
+"senses": [
+"actor",
+"artist"
+]
+},
+"עמיתמורשת": {
+"evidence": {
+"actor": [
+"עמית מורשת"
+],
+"artist": [
+"עמית מורשת"
+]
+},
+"senses": [
+"actor",
+"artist"
+]
+},
 "עממי": {
 "evidence": {
 "artist": [
@@ -55709,6 +63069,20 @@
 "common_word",
 "given_name",
 "surname"
+]
+},
+"עמנואלהרוסי": {
+"evidence": {
+"artist": [
+"עמנואל הרוסי"
+],
+"author": [
+"עמנואל הרוסי"
+]
+},
+"senses": [
+"artist",
+"author"
 ]
 },
 "עמר": {
@@ -55747,6 +63121,9 @@
 "answer": [
 "עם רי"
 ],
+"bible": [
+"עמרי"
+],
 "given_name": [
 "עמרי גליקמן",
 "עמרי הנגבי",
@@ -55755,6 +63132,7 @@
 },
 "senses": [
 "answer",
+"bible",
 "common_word",
 "given_name"
 ]
@@ -55789,6 +63167,20 @@
 "senses": [
 "answer",
 "surname"
+]
+},
+"עמשילוינ": {
+"evidence": {
+"artist": [
+"עמשי לוין"
+],
+"author": [
+"עמשי לוין"
+]
+},
+"senses": [
+"artist",
+"author"
 ]
 },
 "ענבי": {
@@ -55827,6 +63219,20 @@
 "song"
 ]
 },
+"ענבלביבי": {
+"evidence": {
+"actor": [
+"ענבל ביבי"
+],
+"artist": [
+"ענבל ביבי"
+]
+},
+"senses": [
+"actor",
+"artist"
+]
+},
 "ענבר": {
 "evidence": {
 "given_name": [
@@ -55858,11 +63264,15 @@
 },
 "ענה": {
 "evidence": {
+"bible": [
+"ענה"
+],
 "song": [
 "ענה"
 ]
 },
 "senses": [
+"bible",
 "common_word",
 "song"
 ]
@@ -55990,13 +63400,13 @@
 },
 "עפולה": {
 "evidence": {
-"place": [
+"city_il": [
 "עפולה"
 ]
 },
 "senses": [
-"common_word",
-"place"
+"city_il",
+"common_word"
 ]
 },
 "עפר": {
@@ -56029,6 +63439,20 @@
 "senses": [
 "common_word",
 "given_name"
+]
+},
+"עפרעציונ": {
+"evidence": {
+"artist": [
+"עפר עציון"
+],
+"author": [
+"עפר עציון"
+]
+},
+"senses": [
+"artist",
+"author"
 ]
 },
 "עצ": {
@@ -56330,13 +63754,24 @@
 },
 "ערד": {
 "evidence": {
-"place": [
+"city_il": [
 "ערד"
 ]
 },
 "senses": [
+"city_il",
+"common_word"
+]
+},
+"ערוגות": {
+"evidence": {
+"kibbutz": [
+"ערוגות"
+]
+},
+"senses": [
 "common_word",
-"place"
+"kibbutz"
 ]
 },
 "ערכ": {
@@ -56427,6 +63862,17 @@
 "common_word"
 ]
 },
+"ערערה": {
+"evidence": {
+"city_il": [
+"ערערה"
+]
+},
+"senses": [
+"city_il",
+"common_word"
+]
+},
 "ערפד": {
 "evidence": {
 "song": [
@@ -56508,32 +63954,19 @@
 "song_word"
 ]
 },
-"עשרה": {
-"evidence": {
-"song_word": [
-"ארבע-עשרה אוקטבות",
-"את בת שש עשרה",
-"בת שש עשרה"
-],
-"surname": [
-"ארבע-עשרה אוקטבות"
-]
-},
-"senses": [
-"common_word",
-"song_word",
-"surname"
-]
-},
 "עשרת": {
 "evidence": {
 "answer": [
 "ע״ש (על שם) ר״ת (ב- ראשי תיבות), יישוב ליד גדרה"
+],
+"kibbutz": [
+"עשרת"
 ]
 },
 "senses": [
 "answer",
-"common_word"
+"common_word",
+"kibbutz"
 ]
 },
 "עתה": {
@@ -56590,17 +64023,18 @@
 "song_word"
 ]
 },
-"פארס": {
+"פארנ": {
 "evidence": {
-"given_name": [
-"פארס חמדאן"
+"kibbutz": [
+"פארן"
 ],
 "surname": [
-"חסיין פארס"
+"נועה פארן",
+"יעל כהן-פארן"
 ]
 },
 "senses": [
-"given_name",
+"kibbutz",
 "surname"
 ]
 },
@@ -56663,6 +64097,17 @@
 "senses": [
 "answer",
 "common_word"
+]
+},
+"פדויימ": {
+"evidence": {
+"kibbutz": [
+"פדויים"
+]
+},
+"senses": [
+"common_word",
+"kibbutz"
 ]
 },
 "פדי": {
@@ -56853,11 +64298,15 @@
 "evidence": {
 "answer": [
 "אנגרם"
+],
+"nation": [
+"פולין"
 ]
 },
 "senses": [
 "answer",
-"common_word"
+"common_word",
+"nation"
 ]
 },
 "פוליסה": {
@@ -56963,14 +64412,10 @@
 "evidence": {
 "answer": [
 "פו הדוב + נץ"
-],
-"artist": [
-"פונץ'"
 ]
 },
 "senses": [
 "answer",
-"artist",
 "common_word"
 ]
 },
@@ -57021,6 +64466,17 @@
 "common_word"
 ]
 },
+"פוצו": {
+"evidence": {
+"author": [
+"פוצ'ו"
+]
+},
+"senses": [
+"author",
+"common_word"
+]
+},
 "פור": {
 "evidence": {
 "surname": [
@@ -57041,6 +64497,17 @@
 "senses": [
 "common_word",
 "surname"
+]
+},
+"פורטוגל": {
+"evidence": {
+"nation": [
+"פורטוגל"
+]
+},
+"senses": [
+"common_word",
+"nation"
 ]
 },
 "פורטונה": {
@@ -57122,6 +64589,9 @@
 "given_name": [
 "פורת נוב"
 ],
+"kibbutz": [
+"פורת"
+],
 "surname": [
 "יואב פורת",
 "חנן פורת",
@@ -57131,6 +64601,7 @@
 "senses": [
 "common_word",
 "given_name",
+"kibbutz",
 "surname"
 ]
 },
@@ -57391,6 +64862,17 @@
 "common_word"
 ]
 },
+"פיגי": {
+"evidence": {
+"nation": [
+"פיג'י"
+]
+},
+"senses": [
+"common_word",
+"nation"
+]
+},
 "פיוז": {
 "evidence": {
 "answer": [
@@ -57569,6 +65051,31 @@
 "given_name"
 ]
 },
+"פיניבלילי": {
+"evidence": {
+"answer": [
+"יניב (קטן הכדורגלן) ב- פלילי, כדורגלן עבר"
+],
+"athlete": [
+"פיני בלילי"
+]
+},
+"senses": [
+"answer",
+"athlete"
+]
+},
+"פינלנד": {
+"evidence": {
+"nation": [
+"פינלנד"
+]
+},
+"senses": [
+"common_word",
+"nation"
+]
+},
 "פיננסי": {
 "evidence": {
 "answer": [
@@ -57630,12 +65137,16 @@
 "answer": [
 "פיק - צורת \"עלה\" בקלפים; פיק ברכיים"
 ],
+"city_il": [
+"פיק"
+],
 "surname": [
 "צביקה פיק"
 ]
 },
 "senses": [
 "answer",
+"city_il",
 "common_word",
 "surname"
 ]
@@ -57683,6 +65194,17 @@
 "senses": [
 "answer",
 "common_word"
+]
+},
+"פיר": {
+"evidence": {
+"world_city": [
+"פיר"
+]
+},
+"senses": [
+"common_word",
+"world_city"
 ]
 },
 "פירונ": {
@@ -57814,6 +65336,20 @@
 "song_word"
 ]
 },
+"פלאו": {
+"evidence": {
+"answer": [
+"(ה)פלא (של)ו; פלאו - מדינת איים במערב האוקיינוס השקט"
+],
+"nation": [
+"פלאו"
+]
+},
+"senses": [
+"answer",
+"nation"
+]
+},
 "פלאפונ": {
 "evidence": {
 "answer": [
@@ -57851,22 +65387,6 @@
 "senses": [
 "answer",
 "common_word"
-]
-},
-"פלד": {
-"evidence": {
-"artist": [
-"פלד"
-],
-"surname": [
-"אילן פלד",
-"לורן פלד",
-"יוסי פלד"
-]
-},
-"senses": [
-"artist",
-"surname"
 ]
 },
 "פלומבה": {
@@ -58101,6 +65621,34 @@
 "given_name"
 ]
 },
+"פנחסלנדר": {
+"evidence": {
+"artist": [
+"פנחס לנדר"
+],
+"author": [
+"פנחס לנדר"
+]
+},
+"senses": [
+"artist",
+"author"
+]
+},
+"פנחסשדה": {
+"evidence": {
+"artist": [
+"פנחס שדה"
+],
+"author": [
+"פנחס שדה"
+]
+},
+"senses": [
+"artist",
+"author"
+]
+},
 "פנט": {
 "evidence": {
 "answer": [
@@ -58109,17 +65657,6 @@
 },
 "senses": [
 "answer",
-"common_word"
-]
-},
-"פנטגונ": {
-"evidence": {
-"artist": [
-"פנטגון"
-]
-},
-"senses": [
-"artist",
 "common_word"
 ]
 },
@@ -58143,6 +65680,20 @@
 "senses": [
 "answer",
 "common_word"
+]
+},
+"פניהברגשטיינ": {
+"evidence": {
+"artist": [
+"פניה ברגשטיין"
+],
+"author": [
+"פניה ברגשטיין"
+]
+},
+"senses": [
+"artist",
+"author"
 ]
 },
 "פנימ": {
@@ -58197,6 +65748,20 @@
 "senses": [
 "common_word",
 "given_name"
+]
+},
+"פנינהרינצלר": {
+"evidence": {
+"artist": [
+"פנינה רינצלר"
+],
+"author": [
+"פנינה רינצלר"
+]
+},
+"senses": [
+"artist",
+"author"
 ]
 },
 "פנינו": {
@@ -58345,6 +65910,20 @@
 "senses": [
 "common_word",
 "given_name"
+]
+},
+"פסחבורשטיינ": {
+"evidence": {
+"actor": [
+"פסח בורשטיין"
+],
+"artist": [
+"פסח בורשטיין"
+]
+},
+"senses": [
+"actor",
+"artist"
 ]
 },
 "פסטה": {
@@ -58543,6 +66122,20 @@
 "common_word"
 ]
 },
+"פצאל": {
+"evidence": {
+"kibbutz": [
+"פצאל"
+],
+"site": [
+"פצאל 2"
+]
+},
+"senses": [
+"kibbutz",
+"site"
+]
+},
 "פצצות": {
 "evidence": {
 "answer": [
@@ -58558,10 +66151,25 @@
 "evidence": {
 "answer": [
 "(ספרדי) סט בתוך פקין"
+],
+"nation": [
+"פקיסטן"
 ]
 },
 "senses": [
 "answer",
+"common_word",
+"nation"
+]
+},
+"פקיעינ": {
+"evidence": {
+"city_il": [
+"פקיעין"
+]
+},
+"senses": [
+"city_il",
 "common_word"
 ]
 },
@@ -58839,6 +66447,17 @@
 "song_word"
 ]
 },
+"פרטוריה": {
+"evidence": {
+"world_city": [
+"פרטוריה"
+]
+},
+"senses": [
+"common_word",
+"world_city"
+]
+},
 "פרטנר": {
 "evidence": {
 "answer": [
@@ -58857,7 +66476,6 @@
 ],
 "surname": [
 "יובל פרי",
-"אליעזר פרי",
 "יעקב פרי"
 ]
 },
@@ -58995,6 +66613,17 @@
 "common_word"
 ]
 },
+"פרנקפורט": {
+"evidence": {
+"world_city": [
+"פרנקפורט"
+]
+},
+"senses": [
+"common_word",
+"world_city"
+]
+},
 "פרס": {
 "evidence": {
 "given_name": [
@@ -59090,9 +66719,9 @@
 "פרץ נפתלי"
 ],
 "surname": [
-"אבי פרץ",
 "אביב פרץ",
-"איתן פרץ"
+"איתן פרץ",
+"אלון פרץ"
 ]
 },
 "senses": [
@@ -59259,7 +66888,7 @@
 },
 "פתחתקווה": {
 "evidence": {
-"place": [
+"city_il": [
 "פתח תקווה"
 ],
 "song": [
@@ -59267,7 +66896,7 @@
 ]
 },
 "senses": [
-"place",
+"city_il",
 "song"
 ]
 },
@@ -59343,6 +66972,17 @@
 "common_word"
 ]
 },
+"צאד": {
+"evidence": {
+"nation": [
+"צ'אד"
+]
+},
+"senses": [
+"common_word",
+"nation"
+]
+},
 "צאו": {
 "evidence": {
 "answer": [
@@ -59356,6 +66996,20 @@
 "answer",
 "common_word",
 "song_word"
+]
+},
+"צאלימ": {
+"evidence": {
+"answer": [
+""
+],
+"kibbutz": [
+"צאלים"
+]
+},
+"senses": [
+"answer",
+"kibbutz"
 ]
 },
 "צבט": {
@@ -59423,6 +67077,20 @@
 "common_word"
 ]
 },
+"צביזליקוביצ": {
+"evidence": {
+"artist": [
+"צבי זליקוביץ'"
+],
+"author": [
+"צבי זליקוביץ'"
+]
+},
+"senses": [
+"artist",
+"author"
+]
+},
 "צביקה": {
 "evidence": {
 "given_name": [
@@ -59438,35 +67106,6 @@
 "common_word",
 "given_name",
 "song_word"
-]
-},
-"צבעוני": {
-"evidence": {
-"given_name": [
-"צבעוני שחור"
-],
-"song_word": [
-"צבעוני שחור"
-]
-},
-"senses": [
-"common_word",
-"given_name",
-"song_word"
-]
-},
-"צבעונישחור": {
-"evidence": {
-"artist": [
-"צבעוני שחור"
-],
-"song": [
-"צבעוני שחור"
-]
-},
-"senses": [
-"artist",
-"song"
 ]
 },
 "צבעימ": {
@@ -59496,9 +67135,6 @@
 "answer": [
 "מילה משותפת"
 ],
-"song": [
-"צבר"
-],
 "surname": [
 "שלום צבר"
 ]
@@ -59506,7 +67142,6 @@
 "senses": [
 "answer",
 "common_word",
-"song",
 "surname"
 ]
 },
@@ -59583,8 +67218,7 @@
 "אין צדק בעולם"
 ],
 "surname": [
-"יוסף כהן צדק",
-"יוסף כהן-צדק"
+"יוסף כהן צדק"
 ]
 },
 "senses": [
@@ -59603,6 +67237,17 @@
 "senses": [
 "common_word",
 "surname"
+]
+},
+"צדקיהו": {
+"evidence": {
+"bible": [
+"צדקיהו"
+]
+},
+"senses": [
+"bible",
+"common_word"
 ]
 },
 "צדקנ": {
@@ -59626,6 +67271,17 @@
 "senses": [
 "answer",
 "common_word"
+]
+},
+"צובה": {
+"evidence": {
+"kibbutz": [
+"צובה"
+]
+},
+"senses": [
+"common_word",
+"kibbutz"
 ]
 },
 "צוללנימ": {
@@ -59762,12 +67418,16 @@
 },
 "צוריאל": {
 "evidence": {
+"kibbutz": [
+"צוריאל"
+],
 "surname": [
 "שרי צוריאל"
 ]
 },
 "senses": [
 "common_word",
+"kibbutz",
 "surname"
 ]
 },
@@ -59816,6 +67476,34 @@
 "senses": [
 "common_word",
 "given_name"
+]
+},
+"צחיגראד": {
+"evidence": {
+"actor": [
+"צחי גראד"
+],
+"answer": [
+"חיגר ב-צ׳אד; צחי גראד - שחקן קולנוע ישראלי"
+]
+},
+"senses": [
+"actor",
+"answer"
+]
+},
+"צחיהלוי": {
+"evidence": {
+"actor": [
+"צחי הלוי"
+],
+"artist": [
+"צחי הלוי"
+]
+},
+"senses": [
+"actor",
+"artist"
 ]
 },
 "צחיחות": {
@@ -60017,6 +67705,28 @@
 "senses": [
 "answer",
 "common_word"
+]
+},
+"צכוסלובקיה": {
+"evidence": {
+"nation": [
+"צ'כוסלובקיה"
+]
+},
+"senses": [
+"common_word",
+"nation"
+]
+},
+"צכיה": {
+"evidence": {
+"nation": [
+"צ'כיה"
+]
+},
+"senses": [
+"common_word",
+"nation"
 ]
 },
 "צלו": {
@@ -60256,9 +67966,20 @@
 "surname"
 ]
 },
+"צפרירימ": {
+"evidence": {
+"kibbutz": [
+"צפרירים"
+]
+},
+"senses": [
+"common_word",
+"kibbutz"
+]
+},
 "צפת": {
 "evidence": {
-"place": [
+"city_il": [
 "צפת"
 ],
 "song_word": [
@@ -60269,8 +67990,8 @@
 ]
 },
 "senses": [
+"city_il",
 "common_word",
-"place",
 "song_word",
 "surname"
 ]
@@ -60331,22 +68052,30 @@
 ],
 "artist": [
 "צרויה להב"
+],
+"author": [
+"צרויה להב"
 ]
 },
 "senses": [
 "answer",
-"artist"
+"artist",
+"author"
 ]
 },
 "צרופה": {
 "evidence": {
 "answer": [
 "הפורץ זה השודד, ובאימייל יש צרופה"
+],
+"kibbutz": [
+"צרופה"
 ]
 },
 "senses": [
 "answer",
-"common_word"
+"common_word",
+"kibbutz"
 ]
 },
 "צרכי": {
@@ -60362,6 +68091,17 @@
 "answer",
 "common_word",
 "surname"
+]
+},
+"צרפת": {
+"evidence": {
+"nation": [
+"צרפת"
+]
+},
+"senses": [
+"common_word",
+"nation"
 ]
 },
 "צרפתי": {
@@ -60530,6 +68270,21 @@
 "surname"
 ]
 },
+"קדרונ": {
+"evidence": {
+"answer": [
+"דרו בתוך קן",
+"דרו בתוך קן. ישוב ליד גדרה"
+],
+"kibbutz": [
+"קדרון"
+]
+},
+"senses": [
+"answer",
+"kibbutz"
+]
+},
 "קדרי": {
 "evidence": {
 "surname": [
@@ -60545,11 +68300,15 @@
 "evidence": {
 "answer": [
 "קדרים-קיבוץ בגליל--שמיעה כמו דרים"
+],
+"kibbutz": [
+"קדרים"
 ]
 },
 "senses": [
 "answer",
-"common_word"
+"common_word",
+"kibbutz"
 ]
 },
 "קהילה": {
@@ -60561,6 +68320,17 @@
 "senses": [
 "answer",
 "common_word"
+]
+},
+"קהיר": {
+"evidence": {
+"world_city": [
+"קהיר"
+]
+},
+"senses": [
+"common_word",
+"world_city"
 ]
 },
 "קהל": {
@@ -60616,11 +68386,29 @@
 ],
 "artist": [
 "קובי אוז"
+],
+"author": [
+"קובי אוז"
 ]
 },
 "senses": [
 "answer",
-"artist"
+"artist",
+"author"
+]
+},
+"קובילוי": {
+"evidence": {
+"artist": [
+"קובי לוי"
+],
+"author": [
+"קובי לוי"
+]
+},
+"senses": [
+"artist",
+"author"
 ]
 },
 "קובלט": {
@@ -60947,6 +68735,17 @@
 "common_word"
 ]
 },
+"קוממיות": {
+"evidence": {
+"kibbutz": [
+"קוממיות"
+]
+},
+"senses": [
+"common_word",
+"kibbutz"
+]
+},
 "קומצ": {
 "evidence": {
 "answer": [
@@ -60956,6 +68755,20 @@
 "senses": [
 "answer",
 "common_word"
+]
+},
+"קומראנ": {
+"evidence": {
+"answer": [
+"ראש ממשלה זה האות מ\r\nהאות מ בתוך קוראן"
+],
+"site": [
+"קומראן"
+]
+},
+"senses": [
+"answer",
+"site"
 ]
 },
 "קונגו": {
@@ -61049,6 +68862,17 @@
 "answer",
 "common_word",
 "song_word"
+]
+},
+"קוסובו": {
+"evidence": {
+"nation": [
+"קוסובו"
+]
+},
+"senses": [
+"common_word",
+"nation"
 ]
 },
 "קוסינוס": {
@@ -61292,11 +69116,15 @@
 "evidence": {
 "answer": [
 "צינה זה קור . דוקרת זה סיכה. ביחד שם של אי בים התיכון"
+],
+"island": [
+"קורסיקה"
 ]
 },
 "senses": [
 "answer",
-"common_word"
+"common_word",
+"island"
 ]
 },
 "קורפו": {
@@ -61319,6 +69147,17 @@
 "senses": [
 "answer",
 "common_word"
+]
+},
+"קזחסטנ": {
+"evidence": {
+"nation": [
+"קזחסטן"
+]
+},
+"senses": [
+"common_word",
+"nation"
 ]
 },
 "קטב": {
@@ -61363,6 +69202,20 @@
 "senses": [
 "answer",
 "common_word"
+]
+},
+"קטמונ": {
+"evidence": {
+"answer": [
+"ק-טמון"
+],
+"neighborhood": [
+"קטמון"
+]
+},
+"senses": [
+"answer",
+"neighborhood"
 ]
 },
 "קטנה": {
@@ -61448,6 +69301,17 @@
 "senses": [
 "answer",
 "common_word"
+]
+},
+"קי": {
+"evidence": {
+"island": [
+"קי"
+]
+},
+"senses": [
+"common_word",
+"island"
 ]
 },
 "קיבול": {
@@ -61550,6 +69414,17 @@
 "common_word"
 ]
 },
+"קייפטאונ": {
+"evidence": {
+"world_city": [
+"קייפטאון"
+]
+},
+"senses": [
+"common_word",
+"world_city"
+]
+},
 "קילומטר": {
 "evidence": {
 "song": [
@@ -61559,6 +69434,20 @@
 "senses": [
 "common_word",
 "song"
+]
+},
+"קילימנגרו": {
+"evidence": {
+"answer": [
+"אנגרם של מייקל ג׳ורדן ללא האות ד׳, באנג (Bong) הוא מקטרת מים"
+],
+"mountain": [
+"קילימנג'רו"
+]
+},
+"senses": [
+"answer",
+"mountain"
 ]
 },
 "קימונו": {
@@ -61650,6 +69539,9 @@
 "answer": [
 "צ\"ל קינן. כסף-ין בבית-קן. עמוס קינן"
 ],
+"bible": [
+"קינן"
+],
 "surname": [
 "אסתי קינן-עופרי",
 "חיים קינן",
@@ -61658,6 +69550,7 @@
 },
 "senses": [
 "answer",
+"bible",
 "common_word",
 "surname"
 ]
@@ -61816,6 +69709,20 @@
 "surname"
 ]
 },
+"קלהארי": {
+"evidence": {
+"answer": [
+"אנגרם"
+],
+"desert": [
+"קלהארי"
+]
+},
+"senses": [
+"answer",
+"desert"
+]
+},
 "קלו": {
 "evidence": {
 "answer": [
@@ -61854,11 +69761,15 @@
 "evidence": {
 "answer": [
 "אנגרם"
+],
+"kibbutz": [
+"קלחים"
 ]
 },
 "senses": [
 "answer",
-"common_word"
+"common_word",
+"kibbutz"
 ]
 },
 "קלטרת": {
@@ -61986,13 +69897,13 @@
 },
 "קלנסווה": {
 "evidence": {
-"place": [
+"city_il": [
 "קלנסווה"
 ]
 },
 "senses": [
-"common_word",
-"place"
+"city_il",
+"common_word"
 ]
 },
 "קלפ": {
@@ -62049,11 +69960,15 @@
 "evidence": {
 "answer": [
 "אנגרם"
+],
+"nation": [
+"קמבודיה"
 ]
 },
 "senses": [
 "answer",
-"common_word"
+"common_word",
+"nation"
 ]
 },
 "קמה": {
@@ -62142,6 +70057,17 @@
 "surname"
 ]
 },
+"קמרונ": {
+"evidence": {
+"nation": [
+"קמרון"
+]
+},
+"senses": [
+"common_word",
+"nation"
+]
+},
 "קנ": {
 "evidence": {
 "given_name": [
@@ -62162,6 +70088,20 @@
 "senses": [
 "answer",
 "common_word"
+]
+},
+"קנגלובוס": {
+"evidence": {
+"actor": [
+"קן גלובוס"
+],
+"artist": [
+"קן גלובוס"
+]
+},
+"senses": [
+"actor",
+"artist"
 ]
 },
 "קנדי": {
@@ -62203,15 +70143,11 @@
 "answer": [
 "קן(בית) טור(נועם)=שרון קנטור",
 "קן + טור (נועם)"
-],
-"surname": [
-"שרון קנטור"
 ]
 },
 "senses": [
 "answer",
-"common_word",
-"surname"
+"common_word"
 ]
 },
 "קנטקי": {
@@ -62234,6 +70170,17 @@
 "senses": [
 "answer",
 "common_word"
+]
+},
+"קניה": {
+"evidence": {
+"nation": [
+"קניה"
+]
+},
+"senses": [
+"common_word",
+"nation"
 ]
 },
 "קניונ": {
@@ -62366,6 +70313,21 @@
 "senses": [
 "answer",
 "common_word"
+]
+},
+"קפריסינ": {
+"evidence": {
+"island": [
+"קפריסין"
+],
+"nation": [
+"קפריסין"
+]
+},
+"senses": [
+"common_word",
+"island",
+"nation"
 ]
 },
 "קצב": {
@@ -62537,6 +70499,17 @@
 "answer",
 "common_word",
 "song_word"
+]
+},
+"קרואטיה": {
+"evidence": {
+"nation": [
+"קרואטיה"
+]
+},
+"senses": [
+"common_word",
+"nation"
 ]
 },
 "קרואסונ": {
@@ -62985,6 +70958,24 @@
 "common_word"
 ]
 },
+"ראב": {
+"evidence": {
+"island": [
+"ראב"
+],
+"song_word": [
+"אח יא ראב"
+],
+"surname": [
+"אסתר ראב"
+]
+},
+"senses": [
+"island",
+"song_word",
+"surname"
+]
+},
 "ראובנ": {
 "evidence": {
 "given_name": [
@@ -63141,15 +71132,30 @@
 "common_word"
 ]
 },
+"רבאט": {
+"evidence": {
+"world_city": [
+"רבאט"
+]
+},
+"senses": [
+"common_word",
+"world_city"
+]
+},
 "רבדימ": {
 "evidence": {
 "answer": [
 "רב דים, קיבוץ רבדים"
+],
+"kibbutz": [
+"רבדים"
 ]
 },
 "senses": [
 "answer",
-"common_word"
+"common_word",
+"kibbutz"
 ]
 },
 "רבי": {
@@ -63176,8 +71182,8 @@
 ],
 "surname": [
 "בצלאל רביב",
-"דן רביב",
-"זאב רביב"
+"זאב רביב",
+"טולי רביב"
 ]
 },
 "senses": [
@@ -63190,11 +71196,15 @@
 "evidence": {
 "answer": [
 "ביבי בתוך ר\"מ ראש ממשלה"
+],
+"kibbutz": [
+"רביבים"
 ]
 },
 "senses": [
 "answer",
-"common_word"
+"common_word",
+"kibbutz"
 ]
 },
 "רביד": {
@@ -63205,12 +71215,16 @@
 ],
 "given_name": [
 "רביד כחלני"
+],
+"kibbutz": [
+"רביד"
 ]
 },
 "senses": [
 "answer",
 "common_word",
-"given_name"
+"given_name",
+"kibbutz"
 ]
 },
 "רביולי": {
@@ -63382,6 +71396,9 @@
 "ר ב-קה זה קרה\r\nרבקה היא אם עשו שהוא אדום",
 "אנגרם"
 ],
+"bible": [
+"רבקה"
+],
 "given_name": [
 "רבקה דוידית",
 "רבקה זהר",
@@ -63394,6 +71411,7 @@
 },
 "senses": [
 "answer",
+"bible",
 "common_word",
 "given_name",
 "song_word"
@@ -63439,17 +71457,35 @@
 "surname"
 ]
 },
+"רגבה": {
+"evidence": {
+"answer": [
+"בשטח שיפוטה יש עיר - רמת גן בה"
+],
+"kibbutz": [
+"רגבה"
+]
+},
+"senses": [
+"answer",
+"kibbutz"
+]
+},
 "רגבימ": {
 "evidence": {
 "answer": [
 "ר\"ג + ב + י-ם",
 "ר\"ג  בי-ם",
 "ר\"ג(עיר) + בים (במערב) = רגבים (קיבוץ בצפון)"
+],
+"kibbutz": [
+"רגבים"
 ]
 },
 "senses": [
 "answer",
-"common_word"
+"common_word",
+"kibbutz"
 ]
 },
 "רגזנו": {
@@ -63701,13 +71737,13 @@
 },
 "רהט": {
 "evidence": {
-"place": [
+"city_il": [
 "רהט"
 ]
 },
 "senses": [
-"common_word",
-"place"
+"city_il",
+"common_word"
 ]
 },
 "רואי": {
@@ -63726,11 +71762,15 @@
 "evidence": {
 "answer": [
 "אנגרם"
+],
+"nation": [
+"רואנדה"
 ]
 },
 "senses": [
 "answer",
-"common_word"
+"common_word",
+"nation"
 ]
 },
 "רוב": {
@@ -63884,6 +71924,28 @@
 "song_word"
 ]
 },
+"רודוס": {
+"evidence": {
+"island": [
+"רודוס"
+]
+},
+"senses": [
+"common_word",
+"island"
+]
+},
+"רודזיה": {
+"evidence": {
+"nation": [
+"רודזיה"
+]
+},
+"senses": [
+"common_word",
+"nation"
+]
+},
 "רודימ": {
 "evidence": {
 "answer": [
@@ -63915,17 +71977,6 @@
 "surname": [
 "אילקה רווה",
 "דני רווה"
-]
-},
-"senses": [
-"common_word",
-"surname"
-]
-},
-"רווח": {
-"evidence": {
-"surname": [
-"אורי רווח"
 ]
 },
 "senses": [
@@ -64026,6 +72077,9 @@
 "רוחמה רז",
 "רוחמה אברהם"
 ],
+"kibbutz": [
+"רוחמה"
+],
 "song_word": [
 "אחותי רוחמה"
 ]
@@ -64033,6 +72087,7 @@
 "senses": [
 "common_word",
 "given_name",
+"kibbutz",
 "song_word"
 ]
 },
@@ -64136,6 +72191,20 @@
 "given_name"
 ]
 },
+"רויתיעקב": {
+"evidence": {
+"actor": [
+"רוית יעקב"
+],
+"artist": [
+"רוית יעקב"
+]
+},
+"senses": [
+"actor",
+"artist"
+]
+},
 "רוכ": {
 "evidence": {
 "answer": [
@@ -64231,6 +72300,17 @@
 "common_word"
 ]
 },
+"רוממה": {
+"evidence": {
+"neighborhood": [
+"רוממה"
+]
+},
+"senses": [
+"common_word",
+"neighborhood"
+]
+},
 "רומנ": {
 "evidence": {
 "given_name": [
@@ -64241,6 +72321,20 @@
 "senses": [
 "common_word",
 "given_name"
+]
+},
+"רומנאייזנברג": {
+"evidence": {
+"artist": [
+"רומן אייזנברג"
+],
+"author": [
+"רומן אייזנברג"
+]
+},
+"senses": [
+"artist",
+"author"
 ]
 },
 "רומנטי": {
@@ -64257,6 +72351,17 @@
 "answer",
 "common_word",
 "song_word"
+]
+},
+"רומניה": {
+"evidence": {
+"nation": [
+"רומניה"
+]
+},
+"senses": [
+"common_word",
+"nation"
 ]
 },
 "רומניות": {
@@ -64343,6 +72448,20 @@
 "common_word"
 ]
 },
+"רונהבקרמנ": {
+"evidence": {
+"actor": [
+"רונה בקרמן"
+],
+"artist": [
+"רונה בקרמן"
+]
+},
+"senses": [
+"actor",
+"artist"
+]
+},
 "רוני": {
 "evidence": {
 "given_name": [
@@ -64379,6 +72498,62 @@
 "politician"
 ]
 },
+"רונידואני": {
+"evidence": {
+"actor": [
+"רוני דואני"
+],
+"artist": [
+"רוני דואני"
+]
+},
+"senses": [
+"actor",
+"artist"
+]
+},
+"רונידותנ": {
+"evidence": {
+"actor": [
+"רוני דותן"
+],
+"artist": [
+"רוני דותן"
+]
+},
+"senses": [
+"actor",
+"artist"
+]
+},
+"רונידלומי": {
+"evidence": {
+"actor": [
+"רוני דלומי"
+],
+"artist": [
+"רוני דלומי"
+]
+},
+"senses": [
+"actor",
+"artist"
+]
+},
+"רונינדלר": {
+"evidence": {
+"actor": [
+"רוני נדלר"
+],
+"artist": [
+"רוני נדלר"
+]
+},
+"senses": [
+"actor",
+"artist"
+]
+},
 "רונית": {
 "evidence": {
 "given_name": [
@@ -64390,6 +72565,20 @@
 "senses": [
 "common_word",
 "given_name"
+]
+},
+"רוניתאשרי": {
+"evidence": {
+"actor": [
+"רונית אשרי"
+],
+"artist": [
+"רונית אשרי"
+]
+},
+"senses": [
+"actor",
+"artist"
 ]
 },
 "רוננ": {
@@ -64409,6 +72598,31 @@
 "common_word",
 "given_name",
 "surname"
+]
+},
+"רוננחרזי": {
+"evidence": {
+"answer": [
+"רון (ארד) נח (הצדיק) רזי (סודי), כדורגל חלוץ בעבר"
+],
+"athlete": [
+"רונן חרזי"
+]
+},
+"senses": [
+"answer",
+"athlete"
+]
+},
+"רוסיה": {
+"evidence": {
+"nation": [
+"רוסיה"
+]
+},
+"senses": [
+"common_word",
+"nation"
 ]
 },
 "רועדימ": {
@@ -64435,6 +72649,20 @@
 "common_word",
 "song_word",
 "surname"
+]
+},
+"רועיציקיארד": {
+"evidence": {
+"artist": [
+"רועי צ'יקי ארד"
+],
+"author": [
+"רועי צ'יקי ארד"
+]
+},
+"senses": [
+"artist",
+"author"
 ]
 },
 "רועשת": {
@@ -64578,6 +72806,9 @@
 "answer": [
 "(גד)רות; מרים רות - סופרת ילדים ישראלית"
 ],
+"bible": [
+"רות"
+],
 "given_name": [
 "רות דולורס וייס",
 "רות חשמן",
@@ -64596,6 +72827,7 @@
 },
 "senses": [
 "answer",
+"bible",
 "common_word",
 "given_name",
 "role_noun",
@@ -64610,9 +72842,6 @@
 "רותי בן יהודה",
 "רותי הולצמן"
 ],
-"place": [
-"רותי"
-],
 "song_word": [
 "הבלדה על רותי וגיא",
 "הכל קרה בגלל רותי"
@@ -64621,8 +72850,35 @@
 "senses": [
 "common_word",
 "given_name",
-"place",
 "song_word"
+]
+},
+"רותיאלאל": {
+"evidence": {
+"artist": [
+"רותי אלאל"
+],
+"author": [
+"רותי אלאל"
+]
+},
+"senses": [
+"artist",
+"author"
+]
+},
+"רותינבונ": {
+"evidence": {
+"actor": [
+"רותי נבון"
+],
+"artist": [
+"רותי נבון"
+]
+},
+"senses": [
+"actor",
+"artist"
 ]
 },
 "רותמ": {
@@ -64658,8 +72914,8 @@
 ],
 "surname": [
 "ענבל רז",
-"רבקה רז",
-"רוחמה רז"
+"רוחמה רז",
+"רננה רז"
 ]
 },
 "senses": [
@@ -64704,7 +72960,7 @@
 },
 "רחובות": {
 "evidence": {
-"place": [
+"city_il": [
 "רחובות"
 ],
 "song_word": [
@@ -64712,14 +72968,17 @@
 ]
 },
 "senses": [
+"city_il",
 "common_word",
-"place",
 "song_word"
 ]
 },
 "רחל": {
 "evidence": {
 "artist": [
+"רחל"
+],
+"bible": [
 "רחל"
 ],
 "given_name": [
@@ -64733,9 +72992,24 @@
 },
 "senses": [
 "artist",
+"bible",
 "common_word",
 "given_name",
 "song"
+]
+},
+"רחלחלפי": {
+"evidence": {
+"answer": [
+"בתוך רםי פעמים חל (חומה כפולה)"
+],
+"author": [
+"רחל חלפי"
+]
+},
+"senses": [
+"answer",
+"author"
 ]
 },
 "רחמ": {
@@ -64957,6 +73231,20 @@
 "common_word"
 ]
 },
+"רימונהדינור": {
+"evidence": {
+"artist": [
+"רימונה די-נור"
+],
+"author": [
+"רימונה די-נור"
+]
+},
+"senses": [
+"artist",
+"author"
+]
+},
 "רימונימ": {
 "evidence": {
 "answer": [
@@ -64981,6 +73269,20 @@
 "common_word",
 "given_name",
 "song"
+]
+},
+"רינתגבאי": {
+"evidence": {
+"actor": [
+"רינת גבאי"
+],
+"artist": [
+"רינת גבאי"
+]
+},
+"senses": [
+"actor",
+"artist"
 ]
 },
 "ריסונ": {
@@ -65070,6 +73372,20 @@
 "surname"
 ]
 },
+"ריקהברקוביצ": {
+"evidence": {
+"artist": [
+"ריקה ברקוביץ'"
+],
+"author": [
+"ריקה ברקוביץ"
+]
+},
+"senses": [
+"artist",
+"author"
+]
+},
 "ריקוד": {
 "evidence": {
 "answer": [
@@ -65124,6 +73440,20 @@
 "senses": [
 "given_name",
 "song"
+]
+},
+"ריקיגל": {
+"evidence": {
+"actor": [
+"ריקי גל"
+],
+"artist": [
+"ריקי גל"
+]
+},
+"senses": [
+"actor",
+"artist"
 ]
 },
 "ריקניות": {
@@ -65273,6 +73603,22 @@
 "surname"
 ]
 },
+"רמאורנ": {
+"evidence": {
+"answer": [
+"מאו (הנרי) בתוך ררן נותן רם אורן",
+"בתוך ררן להכניס מ-או(הנרי)",
+"רם אורן (סופר ישראלי)+ורן (סופר צרפתי)"
+],
+"author": [
+"רם אורן"
+]
+},
+"senses": [
+"answer",
+"author"
+]
+},
 "רמאי": {
 "evidence": {
 "answer": [
@@ -65363,15 +73709,73 @@
 "given_name"
 ]
 },
+"רמידוידופ": {
+"evidence": {
+"actor": [
+"רמי דוידוף"
+],
+"artist": [
+"רמי דוידוף"
+]
+},
+"senses": [
+"actor",
+"artist"
+]
+},
+"רמידנונ": {
+"evidence": {
+"actor": [
+"רמי דנון"
+],
+"answer": [
+"(קובי) מידן ב-רון"
+]
+},
+"senses": [
+"actor",
+"answer"
+]
+},
+"רמיורד": {
+"evidence": {
+"actor": [
+"רמי ורד"
+],
+"answer": [
+"רם (כספי) יורד (פוחת בערכו); רמי ורד - שחקן, קומיקאי, תסריטא",
+"",
+"רם , יורד"
+]
+},
+"senses": [
+"actor",
+"answer"
+]
+},
+"רמילוי": {
+"evidence": {
+"answer": [
+"אנגרם"
+],
+"athlete": [
+"רמי לוי"
+]
+},
+"senses": [
+"answer",
+"athlete"
+]
+},
 "רמלה": {
 "evidence": {
-"place": [
+"city_il": [
 "רמלה"
 ]
 },
 "senses": [
-"common_word",
-"place"
+"city_il",
+"common_word"
 ]
 },
 "רמקול": {
@@ -65383,6 +73787,62 @@
 "senses": [
 "answer",
 "common_word"
+]
+},
+"רמתהשופט": {
+"evidence": {
+"answer": [
+"רמתה שופט"
+],
+"kibbutz": [
+"רמת השופט"
+]
+},
+"senses": [
+"answer",
+"kibbutz"
+]
+},
+"רמתטיומקינ": {
+"evidence": {
+"city_il": [
+"רמת טיומקין"
+],
+"kibbutz": [
+"רמת טיומקין"
+]
+},
+"senses": [
+"city_il",
+"kibbutz"
+]
+},
+"רמתצבי": {
+"evidence": {
+"answer": [
+"משחק עם האותיות בית צמר"
+],
+"kibbutz": [
+"רמת צבי"
+]
+},
+"senses": [
+"answer",
+"kibbutz"
+]
+},
+"רמתרחל": {
+"evidence": {
+"answer": [
+"רמת (הכתיבה של) רחל (המשוררת); רָמַת רָחֵל הוא קיבוץ שהקימו "
+],
+"kibbutz": [
+"רמת רחל"
+]
+},
+"senses": [
+"answer",
+"kibbutz"
 ]
 },
 "רנ": {
@@ -65433,6 +73893,9 @@
 },
 "רנדנקר": {
 "evidence": {
+"actor": [
+"רן דנקר"
+],
 "answer": [
 "(שולי) רנד + נקר"
 ],
@@ -65441,6 +73904,7 @@
 ]
 },
 "senses": [
+"actor",
 "answer",
 "artist"
 ]
@@ -65479,6 +73943,17 @@
 "senses": [
 "artist",
 "politician"
+]
+},
+"רננ": {
+"evidence": {
+"kibbutz": [
+"רנן"
+]
+},
+"senses": [
+"common_word",
+"kibbutz"
 ]
 },
 "רננה": {
@@ -65578,6 +74053,20 @@
 "song_word"
 ]
 },
+"רעיההרניק": {
+"evidence": {
+"answer": [
+"אנגרם קרעה הנייר"
+],
+"author": [
+"רעיה הרניק"
+]
+},
+"senses": [
+"answer",
+"author"
+]
+},
 "רעיוני": {
 "evidence": {
 "answer": [
@@ -65587,6 +74076,22 @@
 "senses": [
 "answer",
 "common_word"
+]
+},
+"רעימ": {
+"evidence": {
+"kibbutz": [
+"רעים"
+],
+"song_word": [
+"הרגלים רעים",
+"הרגלים רעים: הקלטות מוקדמות"
+]
+},
+"senses": [
+"common_word",
+"kibbutz",
+"song_word"
 ]
 },
 "רעל": {
@@ -65645,14 +74150,14 @@
 "answer": [
 "ב- (שחקנית ישראלית - רז) רננה ע׳ (יר)"
 ],
-"place": [
+"city_il": [
 "רעננה"
 ]
 },
 "senses": [
 "answer",
-"common_word",
-"place"
+"city_il",
+"common_word"
 ]
 },
 "רעפ": {
@@ -65750,6 +74255,20 @@
 "common_word",
 "given_name",
 "surname"
+]
+},
+"רפאלאליעז": {
+"evidence": {
+"artist": [
+"רפאל אליעז"
+],
+"author": [
+"רפאל אליעז"
+]
+},
+"senses": [
+"artist",
+"author"
 ]
 },
 "רפאלי": {
@@ -66101,6 +74620,31 @@
 "surname"
 ]
 },
+"רשפונ": {
+"evidence": {
+"answer": [
+"שף בתוך רון- שמחה"
+],
+"kibbutz": [
+"רשפון"
+]
+},
+"senses": [
+"answer",
+"kibbutz"
+]
+},
+"רשפימ": {
+"evidence": {
+"kibbutz": [
+"רשפים"
+]
+},
+"senses": [
+"common_word",
+"kibbutz"
+]
+},
 "רשתות": {
 "evidence": {
 "answer": [
@@ -66158,6 +74702,9 @@
 },
 "שאול": {
 "evidence": {
+"bible": [
+"שאול"
+],
 "given_name": [
 "שאול אפריק",
 "שאול ביבר",
@@ -66169,9 +74716,28 @@
 ]
 },
 "senses": [
+"bible",
 "common_word",
 "given_name",
 "surname"
+]
+},
+"שאולמזרחי": {
+"evidence": {
+"actor": [
+"שאול מזרחי"
+],
+"answer": [
+"שאול (נלקח בהשאלה) מ(את נורית) זרחי (משוררת); שאול מזרחי - ש"
+],
+"athlete": [
+"שאול מזרחי"
+]
+},
+"senses": [
+"actor",
+"answer",
+"athlete"
 ]
 },
 "שאלות": {
@@ -66208,6 +74774,26 @@
 "senses": [
 "answer",
 "common_word",
+"song_word"
+]
+},
+"שבא": {
+"evidence": {
+"answer": [
+"שב(יום) א'; מבצע שבא או מבצע יהושע היה מבצע שהתרחש בימים 28 "
+],
+"nation": [
+"שבא"
+],
+"song_word": [
+"איך יודעים שבא אביב",
+"חי איך שבא לי",
+"כמו השיר הזה שבא"
+]
+},
+"senses": [
+"answer",
+"nation",
 "song_word"
 ]
 },
@@ -66523,6 +75109,20 @@
 "common_word"
 ]
 },
+"שגיתאמת": {
+"evidence": {
+"actor": [
+"שגית אמת"
+],
+"author": [
+"שגית אמת"
+]
+},
+"senses": [
+"actor",
+"author"
+]
+},
 "שגרתי": {
 "evidence": {
 "answer": [
@@ -66567,13 +75167,44 @@
 "surname"
 ]
 },
+"שדות": {
+"evidence": {
+"kibbutz": [
+"שדות"
+],
+"song_word": [
+"בין שדות",
+"שדות גולדברג",
+"שדות זהב"
+]
+},
+"senses": [
+"common_word",
+"kibbutz",
+"song_word"
+]
+},
+"שדותימ": {
+"evidence": {
+"answer": [
+"אנגרם של יש דמות"
+],
+"kibbutz": [
+"שדות ים"
+]
+},
+"senses": [
+"answer",
+"kibbutz"
+]
+},
 "שדרות": {
 "evidence": {
 "answer": [
 "שד רות",
 "עובד (סבו של דוד המלך) היה בנה של רות"
 ],
-"place": [
+"city_il": [
 "שדרות"
 ],
 "song_word": [
@@ -66582,9 +75213,20 @@
 },
 "senses": [
 "answer",
+"city_il",
 "common_word",
-"place",
 "song_word"
+]
+},
+"שואבה": {
+"evidence": {
+"kibbutz": [
+"שואבה"
+]
+},
+"senses": [
+"common_word",
+"kibbutz"
 ]
 },
 "שואפ": {
@@ -66624,6 +75266,21 @@
 "senses": [
 "common_word",
 "given_name"
+]
+},
+"שובה": {
+"evidence": {
+"kibbutz": [
+"שובה"
+],
+"song_word": [
+"שובה אלי"
+]
+},
+"senses": [
+"common_word",
+"kibbutz",
+"song_word"
 ]
 },
 "שוביניסטי": {
@@ -66705,6 +75362,28 @@
 "common_word"
 ]
 },
+"שוודיה": {
+"evidence": {
+"nation": [
+"שוודיה"
+]
+},
+"senses": [
+"common_word",
+"nation"
+]
+},
+"שווייצ": {
+"evidence": {
+"nation": [
+"שווייץ"
+]
+},
+"senses": [
+"common_word",
+"nation"
+]
+},
 "שוויצר": {
 "evidence": {
 "answer": [
@@ -66775,17 +75454,6 @@
 "common_word",
 "given_name",
 "song_word"
-]
-},
-"שוליימ": {
-"evidence": {
-"surname": [
-"נוער שוליים"
-]
-},
-"senses": [
-"common_word",
-"surname"
 ]
 },
 "שולירנד": {
@@ -67012,6 +75680,17 @@
 "song"
 ]
 },
+"שזור": {
+"evidence": {
+"kibbutz": [
+"שזור"
+]
+},
+"senses": [
+"common_word",
+"kibbutz"
+]
+},
 "שזיפ": {
 "evidence": {
 "song": [
@@ -67034,7 +75713,6 @@
 "יום שחור"
 ],
 "surname": [
-"צבעוני שחור",
 "קפה שחור חזק"
 ]
 },
@@ -67239,6 +75917,34 @@
 "song"
 ]
 },
+"שחרטבוכ": {
+"evidence": {
+"actor": [
+"שחר טבוך"
+],
+"artist": [
+"שחר טבוך"
+]
+},
+"senses": [
+"actor",
+"artist"
+]
+},
+"שחרישי": {
+"evidence": {
+"actor": [
+"שחר ישי"
+],
+"artist": [
+"שחר ישי"
+]
+},
+"senses": [
+"actor",
+"artist"
+]
+},
 "שטח": {
 "evidence": {
 "answer": [
@@ -67360,6 +76066,17 @@
 "song"
 ]
 },
+"שיאנ": {
+"evidence": {
+"world_city": [
+"שיאן"
+]
+},
+"senses": [
+"common_word",
+"world_city"
+]
+},
 "שיאצו": {
 "evidence": {
 "answer": [
@@ -67369,6 +76086,17 @@
 "senses": [
 "answer",
 "common_word"
+]
+},
+"שיבולימ": {
+"evidence": {
+"kibbutz": [
+"שיבולים"
+]
+},
+"senses": [
+"common_word",
+"kibbutz"
 ]
 },
 "שיבולת": {
@@ -67471,6 +76199,35 @@
 "common_word"
 ]
 },
+"שיהראל": {
+"evidence": {
+"actor": [
+"שי הראל"
+],
+"artist": [
+"שי הראל"
+]
+},
+"senses": [
+"actor",
+"artist"
+]
+},
+"שיחי": {
+"evidence": {
+"actor": [
+"שי חי"
+],
+"author": [
+"שי חי"
+]
+},
+"senses": [
+"actor",
+"author",
+"common_word"
+]
+},
 "שיחתנו": {
 "evidence": {
 "answer": [
@@ -67495,6 +76252,34 @@
 "common_word",
 "given_name",
 "song_word"
+]
+},
+"שייכמואיזו": {
+"evidence": {
+"artist": [
+"שייך מואיז'ו"
+],
+"author": [
+"שייך מואיז'ו"
+]
+},
+"senses": [
+"artist",
+"author"
+]
+},
+"שייקהלוי": {
+"evidence": {
+"actor": [
+"שייקה לוי"
+],
+"artist": [
+"שייקה לוי"
+]
+},
+"senses": [
+"actor",
+"artist"
 ]
 },
 "שייקספיר": {
@@ -67579,20 +76364,6 @@
 "senses": [
 "answer",
 "common_word"
-]
-},
-"שילה": {
-"evidence": {
-"given_name": [
-"שילה פרבר"
-],
-"song": [
-"שילה"
-]
-},
-"senses": [
-"given_name",
-"song"
 ]
 },
 "שילוח": {
@@ -67791,6 +76562,20 @@
 "song"
 ]
 },
+"שירגוטליב": {
+"evidence": {
+"actor": [
+"שיר גוטליב"
+],
+"artist": [
+"שיר גוטליב"
+]
+},
+"senses": [
+"actor",
+"artist"
+]
+},
 "שירה": {
 "evidence": {
 "given_name": [
@@ -67806,6 +76591,24 @@
 "common_word",
 "given_name",
 "song_word"
+]
+},
+"שירהגפנ": {
+"evidence": {
+"actor": [
+"שירה גפן"
+],
+"artist": [
+"שירה גפן"
+],
+"author": [
+"שירה גפן"
+]
+},
+"senses": [
+"actor",
+"artist",
+"author"
 ]
 },
 "שירהעמק": {
@@ -67867,8 +76670,39 @@
 "song_word"
 ]
 },
+"שיריארצי": {
+"evidence": {
+"artist": [
+"שירי ארצי"
+],
+"author": [
+"שירי ארצי"
+]
+},
+"senses": [
+"artist",
+"author"
+]
+},
+"שירילוטנ": {
+"evidence": {
+"actor": [
+"שירי לוטן"
+],
+"artist": [
+"שירי לוטן"
+]
+},
+"senses": [
+"actor",
+"artist"
+]
+},
 "שירימימונ": {
 "evidence": {
+"actor": [
+"שירי מימון"
+],
 "answer": [
 "שְׁיָרֵי (השיירים של) מימון (הקצאת כספים); שירי מימון - זמרת",
 "משמעות כפולה: - זמרת - שי(י)רי (שארית) מימון"
@@ -67878,6 +76712,7 @@
 ]
 },
 "senses": [
+"actor",
 "answer",
 "artist"
 ]
@@ -67886,8 +76721,8 @@
 "evidence": {
 "given_name": [
 "שירלי יובל יאיר",
-"שירלי יובל-יאיר",
-"שירלי לילו"
+"שירלי לילו",
+"שירלי פינטו קדוש"
 ]
 },
 "senses": [
@@ -68102,6 +76937,17 @@
 "song"
 ]
 },
+"שלוחות": {
+"evidence": {
+"kibbutz": [
+"שלוחות"
+]
+},
+"senses": [
+"common_word",
+"kibbutz"
+]
+},
 "שלומ": {
 "evidence": {
 "answer": [
@@ -68135,6 +76981,20 @@
 "song",
 "song_word",
 "surname"
+]
+},
+"שלומחנוכ": {
+"evidence": {
+"actor": [
+"שלום חנוך"
+],
+"artist": [
+"שלום חנוך"
+]
+},
+"senses": [
+"actor",
+"artist"
 ]
 },
 "שלומי": {
@@ -68183,6 +77043,20 @@
 "given_name"
 ]
 },
+"שלוממיכאלשווילי": {
+"evidence": {
+"actor": [
+"שלום מיכאלשווילי"
+],
+"artist": [
+"שלום מיכאלשווילי"
+]
+},
+"senses": [
+"actor",
+"artist"
+]
+},
 "שלומעליכמ": {
 "evidence": {
 "answer": [
@@ -68221,6 +77095,20 @@
 "senses": [
 "answer",
 "common_word"
+]
+},
+"שלומצברי": {
+"evidence": {
+"artist": [
+"שלום צברי"
+],
+"author": [
+"שלום צברי"
+]
+},
+"senses": [
+"artist",
+"author"
 ]
 },
 "שלופה": {
@@ -68426,6 +77314,9 @@
 "answer": [
 "מלה משותפת"
 ],
+"bible": [
+"שלמה"
+],
 "given_name": [
 "שלמה אבן גבירול",
 "שלמה אלקבץ",
@@ -68444,10 +77335,25 @@
 },
 "senses": [
 "answer",
+"bible",
 "common_word",
 "given_name",
 "song_word",
 "surname"
+]
+},
+"שלמהבנעמי": {
+"evidence": {
+"author": [
+"שלמה בן עמי"
+],
+"politician": [
+"שלמה בן עמי"
+]
+},
+"senses": [
+"author",
+"politician"
 ]
 },
 "שלמהבר": {
@@ -68462,6 +77368,76 @@
 "senses": [
 "answer",
 "artist"
+]
+},
+"שלמהבראבא": {
+"evidence": {
+"actor": [
+"שלמה בראבא"
+],
+"answer": [
+"(הזמר ארצי) שלמה + בר אבא (אבן), שחקן"
+]
+},
+"senses": [
+"actor",
+"answer"
+]
+},
+"שלמהגולדברג": {
+"evidence": {
+"actor": [
+"שלמה גולדברג"
+],
+"athlete": [
+"שלמה גולדברג"
+]
+},
+"senses": [
+"actor",
+"athlete"
+]
+},
+"שלמהלביא": {
+"evidence": {
+"author": [
+"שלמה לביא"
+],
+"politician": [
+"שלמה לביא"
+]
+},
+"senses": [
+"author",
+"politician"
+]
+},
+"שלמהניצנ": {
+"evidence": {
+"actor": [
+"שלמה ניצן"
+],
+"artist": [
+"שלמה ניצן"
+]
+},
+"senses": [
+"actor",
+"artist"
+]
+},
+"שלמהשפאנ": {
+"evidence": {
+"artist": [
+"שלמה שפאן"
+],
+"author": [
+"שלמה שפאן"
+]
+},
+"senses": [
+"artist",
+"author"
 ]
 },
 "שלמונימ": {
@@ -68513,6 +77489,20 @@
 "common_word"
 ]
 },
+"שמאיגולנ": {
+"evidence": {
+"answer": [
+"ש מאי גולן חכית"
+],
+"author": [
+"שמאי גולן"
+]
+},
+"senses": [
+"answer",
+"author"
+]
+},
 "שמאימ": {
 "evidence": {
 "answer": [
@@ -68557,7 +77547,7 @@
 "given_name": [
 "שמואל בס",
 "שמואל הספרי",
-"שמואל סגל"
+"שמואל פישר"
 ],
 "song_word": [
 "מדינת ישראל נגד קראוז שמואל"
@@ -68569,6 +77559,20 @@
 "common_word",
 "given_name",
 "song_word"
+]
+},
+"שמואלבס": {
+"evidence": {
+"artist": [
+"שמואל בס"
+],
+"author": [
+"שמואל בס"
+]
+},
+"senses": [
+"artist",
+"author"
 ]
 },
 "שמוט": {
@@ -68601,6 +77605,20 @@
 "common_word",
 "given_name",
 "song_word"
+]
+},
+"שמוליקלוי": {
+"evidence": {
+"actor": [
+"שמוליק לוי"
+],
+"artist": [
+"שמוליק לוי"
+]
+},
+"senses": [
+"actor",
+"artist"
 ]
 },
 "שמור": {
@@ -68704,6 +77722,20 @@
 "surname"
 ]
 },
+"שמיזרחינ": {
+"evidence": {
+"artist": [
+"שמי זרחין"
+],
+"author": [
+"שמי זרחין"
+]
+},
+"senses": [
+"artist",
+"author"
+]
+},
 "שמיימ": {
 "evidence": {
 "song": [
@@ -68734,6 +77766,20 @@
 "answer",
 "common_word",
 "song_word"
+]
+},
+"שמילבנארי": {
+"evidence": {
+"actor": [
+"שמיל בן ארי"
+],
+"answer": [
+"אנגרם של מבני ישראל"
+]
+},
+"senses": [
+"actor",
+"answer"
 ]
 },
 "שמימ": {
@@ -68891,6 +77937,48 @@
 "surname"
 ]
 },
+"שמעונאדפ": {
+"evidence": {
+"artist": [
+"שמעון אדף"
+],
+"author": [
+"שמעון אדף"
+]
+},
+"senses": [
+"artist",
+"author"
+]
+},
+"שמעונבר": {
+"evidence": {
+"actor": [
+"שמעון בר"
+],
+"artist": [
+"שמעון בר"
+]
+},
+"senses": [
+"actor",
+"artist"
+]
+},
+"שמעונישראלי": {
+"evidence": {
+"artist": [
+"שמעון ישראלי"
+],
+"author": [
+"שמעון ישראלי"
+]
+},
+"senses": [
+"artist",
+"author"
+]
+},
 "שמעונפרס": {
 "evidence": {
 "artist": [
@@ -68903,6 +77991,17 @@
 "senses": [
 "artist",
 "politician"
+]
+},
+"שמעי": {
+"evidence": {
+"bible": [
+"שמעי"
+]
+},
+"senses": [
+"bible",
+"common_word"
 ]
 },
 "שמפניה": {
@@ -68943,6 +78042,17 @@
 "artist"
 ]
 },
+"שמרת": {
+"evidence": {
+"kibbutz": [
+"שמרת"
+]
+},
+"senses": [
+"common_word",
+"kibbutz"
+]
+},
 "שמש": {
 "evidence": {
 "song_word": [
@@ -68962,6 +78072,9 @@
 },
 "שמשונ": {
 "evidence": {
+"bible": [
+"שמשון"
+],
 "given_name": [
 "שמשון בר-נוי",
 "שמשון חלפי",
@@ -68969,6 +78082,7 @@
 ]
 },
 "senses": [
+"bible",
 "common_word",
 "given_name"
 ]
@@ -69136,12 +78250,16 @@
 "given_name": [
 "שניר ימין"
 ],
+"kibbutz": [
+"שניר"
+],
 "surname": [
 "מיריק שניר"
 ]
 },
 "senses": [
 "given_name",
+"kibbutz",
 "surname"
 ]
 },
@@ -69183,6 +78301,32 @@
 "common_word"
 ]
 },
+"שעל": {
+"evidence": {
+"kibbutz": [
+"שעל"
+]
+},
+"senses": [
+"common_word",
+"kibbutz"
+]
+},
+"שעלבימ": {
+"evidence": {
+"answer": [
+"שעל בי-ם",
+"(מושב) שעל בים (במערב), שעלבים קיבוץ דתי במרכז ליד מודיעין"
+],
+"kibbutz": [
+"שעלבים"
+]
+},
+"senses": [
+"answer",
+"kibbutz"
+]
+},
 "שעמ": {
 "evidence": {
 "answer": [
@@ -69192,6 +78336,20 @@
 "senses": [
 "answer",
 "common_word"
+]
+},
+"שערהגולנ": {
+"evidence": {
+"answer": [
+"אנגרם"
+],
+"kibbutz": [
+"שער הגולן"
+]
+},
+"senses": [
+"answer",
+"kibbutz"
 ]
 },
 "שפי": {
@@ -69225,17 +78383,6 @@
 "given_name"
 ]
 },
-"שפיטה": {
-"evidence": {
-"artist": [
-"שפיטה"
-]
-},
-"senses": [
-"artist",
-"common_word"
-]
-},
 "שפיפונ": {
 "evidence": {
 "answer": [
@@ -69251,11 +78398,15 @@
 "evidence": {
 "answer": [
 "פי ב-שר; הרצל שפיר - היה אלוף בצה\"ל והמפכ\"ל ה-7 של משטרת ישר"
+],
+"kibbutz": [
+"שפיר"
 ]
 },
 "senses": [
 "answer",
-"common_word"
+"common_word",
+"kibbutz"
 ]
 },
 "שפירא": {
@@ -69316,6 +78467,17 @@
 "song"
 ]
 },
+"שפר": {
+"evidence": {
+"kibbutz": [
+"שפר"
+]
+},
+"senses": [
+"common_word",
+"kibbutz"
+]
+},
 "שפרה": {
 "evidence": {
 "answer": [
@@ -69328,19 +78490,29 @@
 "common_word"
 ]
 },
+"שפרירהזכאי": {
+"evidence": {
+"actor": [
+"שפרירה זכאי"
+],
+"artist": [
+"שפרירה זכאי"
+]
+},
+"senses": [
+"actor",
+"artist"
+]
+},
 "שפרעמ": {
 "evidence": {
 "answer": [
 ""
-],
-"place": [
-"שפרעם"
 ]
 },
 "senses": [
 "answer",
-"common_word",
-"place"
+"common_word"
 ]
 },
 "שקד": {
@@ -69530,6 +78702,9 @@
 "artist": [
 "שרה"
 ],
+"bible": [
+"שרה"
+],
 "given_name": [
 "שרה ב\"ק",
 "שרה בדישי",
@@ -69549,6 +78724,7 @@
 },
 "senses": [
 "artist",
+"bible",
 "common_word",
 "given_name",
 "role_noun",
@@ -69590,6 +78766,48 @@
 "surname"
 ]
 },
+"שרונדוראני": {
+"evidence": {
+"actor": [
+"שרון דוראני"
+],
+"author": [
+"שרון דוראני"
+]
+},
+"senses": [
+"actor",
+"author"
+]
+},
+"שרונהאלימלכ": {
+"evidence": {
+"actor": [
+"שרונה אלימלך"
+],
+"artist": [
+"שרונה אלימלך"
+]
+},
+"senses": [
+"actor",
+"artist"
+]
+},
+"שרונטל": {
+"evidence": {
+"actor": [
+"שרון טל"
+],
+"athlete": [
+"שרון טל"
+]
+},
+"senses": [
+"actor",
+"athlete"
+]
+},
 "שרופ": {
 "evidence": {
 "surname": [
@@ -69603,9 +78821,6 @@
 },
 "שרי": {
 "evidence": {
-"artist": [
-"שרי"
-],
 "given_name": [
 "שרי אלפי",
 "שרי גבעתי",
@@ -69617,10 +78832,23 @@
 ]
 },
 "senses": [
-"artist",
 "common_word",
 "given_name",
 "song_word"
+]
+},
+"שריאלפי": {
+"evidence": {
+"actor": [
+"שרי אלפי"
+],
+"artist": [
+"שרי אלפי"
+]
+},
+"senses": [
+"actor",
+"artist"
 ]
 },
 "שריג": {
@@ -69637,6 +78865,9 @@
 },
 "שריגבעתי": {
 "evidence": {
+"actor": [
+"שרי גבעתי"
+],
 "answer": [
 "שריג (ענף) בעתי (בתקופתי), שחקנית ומלחינה ישראלית"
 ],
@@ -69645,8 +78876,24 @@
 ]
 },
 "senses": [
+"actor",
 "answer",
 "artist"
+]
+},
+"שריד": {
+"evidence": {
+"kibbutz": [
+"שריד"
+],
+"song_word": [
+"שלישיית שריד"
+]
+},
+"senses": [
+"common_word",
+"kibbutz",
+"song_word"
 ]
 },
 "שרימ": {
@@ -69801,6 +79048,20 @@
 "surname"
 ]
 },
+"ששלומ": {
+"evidence": {
+"author": [
+"ש. שלום"
+],
+"song": [
+"ש שלום"
+]
+},
+"senses": [
+"author",
+"song"
+]
+},
 "ששת": {
 "evidence": {
 "artist": [
@@ -69809,6 +79070,17 @@
 },
 "senses": [
 "artist",
+"common_word"
+]
+},
+"שת": {
+"evidence": {
+"bible": [
+"שת"
+]
+},
+"senses": [
+"bible",
 "common_word"
 ]
 },
@@ -69827,22 +79099,30 @@
 "evidence": {
 "answer": [
 "מושב שתולה; שעושה תלייה"
+],
+"kibbutz": [
+"שתולה"
 ]
 },
 "senses": [
 "answer",
-"common_word"
+"common_word",
+"kibbutz"
 ]
 },
 "שתולימ": {
 "evidence": {
 "answer": [
 "ש-תולים (מוציאים להורג) וגם שתולים(אנשי ריגול)"
+],
+"kibbutz": [
+"שתולים"
 ]
 },
 "senses": [
 "answer",
-"common_word"
+"common_word",
+"kibbutz"
 ]
 },
 "שתיינות": {
@@ -69952,11 +79232,15 @@
 "answer": [
 "",
 ""
+],
+"nation": [
+"תאילנד"
 ]
 },
 "senses": [
 "answer",
-"common_word"
+"common_word",
+"nation"
 ]
 },
 "תאימ": {
@@ -69981,6 +79265,34 @@
 "senses": [
 "common_word",
 "given_name"
+]
+},
+"תאירסיבוני": {
+"evidence": {
+"artist": [
+"תאיר סיבוני"
+],
+"author": [
+"תאיר סיבוני"
+]
+},
+"senses": [
+"artist",
+"author"
+]
+},
+"תאשור": {
+"evidence": {
+"answer": [
+"ת אשור"
+],
+"kibbutz": [
+"תאשור"
+]
+},
+"senses": [
+"answer",
+"kibbutz"
 ]
 },
 "תבוסתנ": {
@@ -70101,6 +79413,9 @@
 "משמעות כפולה",
 "עץ : תדהר"
 ],
+"kibbutz": [
+"תדהר"
+],
 "surname": [
 "אליאנה תדהר"
 ]
@@ -70108,6 +79423,7 @@
 "senses": [
 "answer",
 "common_word",
+"kibbutz",
 "surname"
 ]
 },
@@ -70236,11 +79552,15 @@
 "evidence": {
 "answer": [
 ""
+],
+"kibbutz": [
+"תובל"
 ]
 },
 "senses": [
 "answer",
-"common_word"
+"common_word",
+"kibbutz"
 ]
 },
 "תובעימ": {
@@ -70432,6 +79752,56 @@
 "senses": [
 "answer",
 "artist"
+]
+},
+"תומרגלרונ": {
+"evidence": {
+"actor": [
+"תומר גלרון"
+],
+"artist": [
+"תומר גלרון"
+]
+},
+"senses": [
+"actor",
+"artist"
+]
+},
+"תומריוספ": {
+"evidence": {
+"actor": [
+"תומר יוסף"
+],
+"artist": [
+"תומר יוסף"
+]
+},
+"senses": [
+"actor",
+"artist"
+]
+},
+"תוניס": {
+"evidence": {
+"world_city": [
+"תוניס"
+]
+},
+"senses": [
+"common_word",
+"world_city"
+]
+},
+"תוניסיה": {
+"evidence": {
+"nation": [
+"תוניסיה"
+]
+},
+"senses": [
+"common_word",
+"nation"
 ]
 },
 "תוססות": {
@@ -70791,6 +80161,17 @@
 "surname"
 ]
 },
+"תימורימ": {
+"evidence": {
+"kibbutz": [
+"תימורים"
+]
+},
+"senses": [
+"common_word",
+"kibbutz"
+]
+},
 "תימינ": {
 "evidence": {
 "answer": [
@@ -70808,6 +80189,9 @@
 "לא חיה מוקפת ים אלא להיפך- ים מוקף חיה: תן+ים",
 "תימן # נמית"
 ],
+"nation": [
+"תימן"
+],
 "song_word": [
 "בכרם תימן",
 "בכרמי תימן"
@@ -70816,6 +80200,7 @@
 "senses": [
 "answer",
 "common_word",
+"nation",
 "song_word"
 ]
 },
@@ -70880,6 +80265,20 @@
 "senses": [
 "answer",
 "common_word"
+]
+},
+"תיקידיינ": {
+"evidence": {
+"actor": [
+"תיקי דיין"
+],
+"artist": [
+"תיקי דיין"
+]
+},
+"senses": [
+"actor",
+"artist"
 ]
 },
 "תיקנ": {
@@ -71011,6 +80410,20 @@
 "song"
 ]
 },
+"תלבארשבע": {
+"evidence": {
+"park": [
+"תל באר שבע"
+],
+"site": [
+"תל באר שבע"
+]
+},
+"senses": [
+"park",
+"site"
+]
+},
 "תלחיצי": {
 "evidence": {
 "answer": [
@@ -71020,6 +80433,20 @@
 "senses": [
 "answer",
 "common_word"
+]
+},
+"תלחצור": {
+"evidence": {
+"park": [
+"תל חצור"
+],
+"site": [
+"תל חצור"
+]
+},
+"senses": [
+"park",
+"site"
 ]
 },
 "תלכדו": {
@@ -71046,6 +80473,56 @@
 "answer",
 "common_word",
 "surname"
+]
+},
+"תלמהאליגונרוז": {
+"evidence": {
+"artist": [
+"תלמה אליגון רוז"
+],
+"author": [
+"תלמה אליגון-רוז"
+]
+},
+"senses": [
+"artist",
+"author"
+]
+},
+"תלמימ": {
+"evidence": {
+"kibbutz": [
+"תלמים"
+]
+},
+"senses": [
+"common_word",
+"kibbutz"
+]
+},
+"תלפיות": {
+"evidence": {
+"neighborhood": [
+"תלפיות"
+]
+},
+"senses": [
+"common_word",
+"neighborhood"
+]
+},
+"תלקדש": {
+"evidence": {
+"park": [
+"תל קדש"
+],
+"site": [
+"תל קדש"
+]
+},
+"senses": [
+"park",
+"site"
 ]
 },
 "תמה": {
@@ -71099,6 +80576,20 @@
 "artist",
 "common_word",
 "song_word"
+]
+},
+"תמזה": {
+"evidence": {
+"answer": [
+"עבודת גמר - תזה. ״מספיק״ - מ"
+],
+"river": [
+"תמזה"
+]
+},
+"senses": [
+"answer",
+"river"
 ]
 },
 "תמחור": {
@@ -71220,17 +80711,6 @@
 "song_word"
 ]
 },
-"תמרה": {
-"evidence": {
-"song": [
-"תמרה"
-]
-},
-"senses": [
-"common_word",
-"song"
-]
-},
 "תמריצ": {
 "evidence": {
 "answer": [
@@ -71330,6 +80810,17 @@
 "senses": [
 "answer",
 "common_word"
+]
+},
+"תנובות": {
+"evidence": {
+"kibbutz": [
+"תנובות"
+]
+},
+"senses": [
+"common_word",
+"kibbutz"
 ]
 },
 "תנודתי": {
@@ -71488,6 +80979,20 @@
 "given_name"
 ]
 },
+"תעוז": {
+"evidence": {
+"answer": [
+"נשמע: תא (קובי) אוז"
+],
+"kibbutz": [
+"תעוז"
+]
+},
+"senses": [
+"answer",
+"kibbutz"
+]
+},
 "תעלולימ": {
 "evidence": {
 "answer": [
@@ -71644,6 +81149,17 @@
 "common_word"
 ]
 },
+"תפרח": {
+"evidence": {
+"kibbutz": [
+"תפרח"
+]
+},
+"senses": [
+"common_word",
+"kibbutz"
+]
+},
 "תפריט": {
 "evidence": {
 "answer": [
@@ -71681,11 +81197,15 @@
 "evidence": {
 "answer": [
 "קו זה ישר\r\nבתוך קמה שזה ישרה"
+],
+"kibbutz": [
+"תקומה"
 ]
 },
 "senses": [
 "answer",
-"common_word"
+"common_word",
+"kibbutz"
 ]
 },
 "תקינות": {
@@ -71856,6 +81376,17 @@
 "senses": [
 "answer",
 "common_word"
+]
+},
+"תרומ": {
+"evidence": {
+"kibbutz": [
+"תרום"
+]
+},
+"senses": [
+"common_word",
+"kibbutz"
 ]
 },
 "תרוצ": {
