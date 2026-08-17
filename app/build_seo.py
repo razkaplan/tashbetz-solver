@@ -7,9 +7,9 @@ nobody serves entity pages or the "זמרת 4 אותיות" query shape. We gene
   /milon/<cat>-<len>/          category-length lists (זמרים ב-4 אותיות...)
   /milon/e/<name>/             entity pages for entities with rich data
 All content is derived (names from wikipedia/shironet titles, our own stats).
-No newspaper clue text is published — the line the whole project keeps.
+No newspaper clue text is published: the line the whole project keeps.
 """
-import json, os, re, urllib.parse
+import html, json, os, re, urllib.parse
 
 os.chdir(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 OUT='docs/milon'; os.makedirs(OUT,exist_ok=True)
@@ -63,9 +63,15 @@ CATS={'song':('שירים','שיר'),'artist':('זמרים ולהקות','זמר
       'region':('חבלי ארץ','חבל ארץ'),'site':('אתרים עתיקים וגנים לאומיים','אתר'),
       'military':('מונחים צבאיים','מונח צבאי'),
       'common':('תשובות נפוצות בתשבצים','תשובה נפוצה')}
-HEBSENSE={'common_word':'מילה מן המילון','given_name':'שם פרטי','surname':'שם משפחה',
+# Sense labels are shown to readers (entity tables and meta descriptions), so
+# every key in ambiguities.json needs Hebrew. Most are category ids that CATS
+# already names, so derive those and only spell out the ones CATS has no entry
+# for; an unmapped key used to fall through and print raw English ("bible")
+# in the middle of a Hebrew sentence.
+HEBSENSE={k:single for k,(plural,single) in CATS.items()}
+HEBSENSE.update({'common_word':'מילה מן המילון','given_name':'שם פרטי','surname':'שם משפחה',
  'role_noun':'תפקיד/פועל וגם שם','song':'שם שיר','song_word':'מילה מתוך שיר','artist':'זמר/להקה',
- 'politician':'פוליטיקאי/ת','place':'מקום','answer':'הופיעה כתשובה בתשבצים'}
+ 'politician':'פוליטיקאי/ת','place':'מקום','answer':'הופיעה כתשובה בתשבצים'})
 
 STYLE="""<style>*{box-sizing:border-box}body{margin:0;background:#fff;color:#121212;font-family:'Frank Ruhl Libre','Arial Hebrew',serif;line-height:1.6}
 .w{max-width:52rem;margin:0 auto;padding:1rem 1.2rem}header{border-bottom:1px solid #121212;box-shadow:0 3px 0 -1px #121212;padding:.8rem 0}
@@ -78,20 +84,27 @@ footer{margin:2.5rem 0 1.5rem;border-top:1px solid #dcdcdc;padding-top:.8rem;fon
 .crumb{font-size:.8rem;color:#5c5c5c;margin:.6rem 0}input{font:inherit;padding:.5rem;border:1.5px solid #121212;border-radius:3px;width:100%}
 @media(prefers-color-scheme:dark){body{background:#161616;color:#f2f0ec}.grid li{background:#222}td,th{border-color:#3a3a3a}}</style>"""
 
-def page(path,title,desc,body,jsonld=None):
+def page(path,title,desc,body,jsonld=None,crumb=None):
     os.makedirs(os.path.dirname(path),exist_ok=True)
     rel='/'+os.path.relpath(path,'docs').replace('index.html','').replace(os.sep,'/')
     crumbs=[("דף הבית",BASE+"/"),("מילון",BASE+"/milon/")]
-    if rel not in ('/milon/','/'): crumbs.append((title.split(' — ')[0],BASE+rel))
+    # crumb is passed explicitly: deriving it by splitting the title on a
+    # separator silently breaks the moment a title's punctuation changes.
+    if rel not in ('/milon/','/'): crumbs.append((crumb or title,BASE+rel))
     bc={"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[
         {"@type":"ListItem","position":i+1,"name":n,"item":u} for i,(n,u) in enumerate(crumbs)]}
     ld=f'<script type="application/ld+json">{json.dumps(bc,ensure_ascii=False)}</script>'
     if jsonld: ld+=f'<script type="application/ld+json">{json.dumps(jsonld,ensure_ascii=False)}</script>'
     canon=BASE+'/'+os.path.relpath(path,'docs').replace('index.html','').replace(os.sep,'/')
+    # Escape before interpolating: entry names legitimately contain quotes
+    # (song titles like "ציפור נדירה"), which silently truncated the meta
+    # description mid-attribute and left Google with no snippet to read.
+    esc_title=html.escape(title,quote=True)
+    esc_desc=html.escape(desc,quote=True)
     open(path,'w').write(f"""<!doctype html><html lang="he" dir="rtl"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1"><title>{title}</title>
-<meta name="description" content="{desc}"><link rel="canonical" href="{canon}">{ld}{STYLE}</head><body><div class="w">
-<header><span class="k">מילון תשבץ · פותרים ביחד</span><h1>{title}</h1>
+<meta name="viewport" content="width=device-width,initial-scale=1"><title>{esc_title}</title>
+<meta name="description" content="{esc_desc}"><link rel="canonical" href="{canon}">{ld}{STYLE}</head><body><div class="w">
+<header><span class="k">מילון תשבץ · פותרים ביחד</span><h1>{esc_title}</h1>
 <div class="crumb"><a href="/milon/">מילון</a> · <a href="/solve/">עוזר הפתירה</a> · <a href="/">דף הבית</a></div></header>
 {body}
 <footer>מבוסס על אינדקס פתוח (ויקיפדיה/ויקימילון/שירונט, CC BY-SA, עם קישור למקור) וניתוח סטטיסטי מקורי · לא מתפרסמות הגדרות מעיתונים ·
@@ -115,7 +128,7 @@ def get_desc(cat,t,n):
     if t in DESC: return DESC[t].removeprefix('[ויקימילון] ')
     if cat=='song' and n in song_rel: return f"שיר של {song_rel[n]['artist']}"
     if cat=='artist' and n in artist_rel:
-        ss=artist_rel[n]['songs'][:3]
+        ss=list(dict.fromkeys(artist_rel[n]['songs']))[:3]   # the source list repeats titles
         return 'בין השירים: '+', '.join(f'"{x}"' for x in ss) if ss else ''
     if cat=='military': return MIL.get(t,'')
     if cat=='common':
@@ -124,6 +137,48 @@ def get_desc(cat,t,n):
             uniq=list(dict.fromkeys(x[0] for x in prs))[:3]
             return 'בהסברי תשבצים מקושרת ל: '+', '.join(uniq)
     return ''
+
+
+SNIPPET_MAX=155   # Google truncates around here; anything past it is wasted.
+
+def meta_desc(t,n,single,d,c,a,sb,related=()):
+    """Per-entry snippet built from whatever signals THIS word actually has.
+
+    The old line was one template with a fixed tail ("לפותרי תשבצים ותשחצים"),
+    which made 4,912 of 5,301 descriptions end identically and left a ~90 char
+    median against a ~155 char budget. Google rewrites boilerplate snippets,
+    and the search console queries showed why it matters: people arrive on
+    "<word> פירוש" (what does it mean) and on clue-shaped queries (what is the
+    N-letter answer). So: definition first, because that is the intent, then
+    the crossword facts, then whichever extra signal this entry carries, so
+    two entries never read the same.
+    """
+    facts=[]
+    lead=f'{t}: {d}.' if d else f'איך כותבים {t} בתשבץ?'
+    facts.append(f'{single} ב-{len(n)} אותיות, כתיב ברשת: {n}.')
+    if c>=2: facts.append(f'הופיע {c} פעמים במדגם של 362 תשבצים.')
+    if sb:
+        uniq=list(dict.fromkeys(x[0] for x in sb))[:3]
+        if uniq: facts.append('מרומז בתשבצים גם כ: '+', '.join(uniq)+'.')
+    if a and a.get('senses'):
+        extra=[HEBSENSE.get(x,x) for x in a['senses']][:3]
+        if extra: facts.append('משמעויות נוספות: '+', '.join(extra)+'.')
+    out=lead[:SNIPPET_MAX]
+    for f in facts:
+        if len(out)+1+len(f)>SNIPPET_MAX: break
+        out=f'{out} {f}'
+    # Sparse entries (a bare definition and nothing else) would otherwise sit
+    # at ~55 chars and waste two thirds of the snippet. Same-length neighbours
+    # fill it with something that both varies per entry and is the next thing
+    # a stuck solver wants anyway.
+    if len(out)<110 and related:
+        room=SNIPPET_MAX-len(out)-len(' ערכים באותו אורך: .')
+        picks=[]
+        for r in related:
+            if sum(len(x)+2 for x in picks)+len(r)>room: break
+            picks.append(r)
+        if picks: out=f'{out} ערכים באותו אורך: '+', '.join(picks)+'.'
+    return out
 
 
 urls=[]
@@ -144,10 +199,10 @@ for cat,(plural,single) in CATS.items():
             return f'<li id="{n}"><b>{t}</b>{b}{dd}<br><small style="font-family:monospace;color:#5c5c5c">{n}</small></li>'
         lis=''.join(_li(t,n) for t,n in items)
         body=f"""<p><b>{len(items)} {plural}</b> שהשם שלהם נכתב ברשת התשבץ ב-<b>{L} אותיות</b>
-(בתשבץ אין אותיות סופיות — ם/ן/ץ/ף/ך נכתבות מ/נ/צ/פ/כ, והכתיב מוצג מתחת לכל שם).</p>
+(בתשבץ אין אותיות סופיות: ם/ן/ץ/ף/ך נכתבות מ/נ/צ/פ/כ, והכתיב מוצג מתחת לכל שם).</p>
 <ul class="grid">{lis}</ul>"""
         page(f'{OUT}/{slug}/index.html',
-             f'{plural} ב-{L} אותיות לתשבץ ותשחץ — {len(items)} פתרונות',
+             f'{plural} ב-{L} אותיות לתשבץ ותשחץ: {len(items)} פתרונות',
              f'{single} ב-{L} אותיות? הרשימה המלאה לפתרון תשבצים: {len(items)} {plural}, ממוינים לפי שכיחות בתשבצים, עם הכתיב המדויק ללא אותיות סופיות.',
              body,
              {"@context":"https://schema.org","@type":"ItemList","name":f"{plural} ב-{L} אותיות",
@@ -247,10 +302,9 @@ for cat,t in sorted(page_set):
     ext=[v[1] for k,v in refs if k=='ext']
     if ext: ld["sameAs"]=ext
     page(f'{OUT}/e/{urllib.parse.quote(t,safe="")}/index.html',
-         f'{t} בתשבץ — {single} ב-{len(n)} אותיות (כתיב: {n})',
-         (f'{t}: {get_desc(cat,t,n)}. {single} ב-{len(n)} אותיות, כתיב רשת: {n}. לפותרי תשבצים ותשחצים.' if get_desc(cat,t,n) else
-          f'איך כותבים {t} בתשבץ? {single} ב-{len(n)} אותיות, כתיב רשת: {n}. משמעויות, שכיחות ורפרנסים.'),
-         body, ld)
+         f'{t} בתשבץ: {single} ב-{len(n)} אותיות (כתיב: {n})',
+         meta_desc(t,n,single,d,c,a,sb,related),
+         body, ld, crumb=t)
     urls.append(f'/milon/e/{urllib.parse.quote(t,safe="")}/')
 
 # ---------- ORPHAN CLEANUP: entity pages whose entity no longer exists ----------
@@ -278,7 +332,7 @@ for cat,(plural,_) in CATS.items():
     links=' '.join(f'<a href="/milon/{cat}-{L}/">{L}</a>' for L in Ls if f'/milon/{cat}-{L}/' in urls)
     cat_links+=f'<p><b>{plural}</b> לפי אורך: {links}</p>'
 cat_json=json.dumps({c:v[1] for c,v in CATS.items()},ensure_ascii=False)
-hub=f"""<p>מנוע חיפוש לפותרי תשבצים: שמות של שירים, זמרים, פוליטיקאים ומקומות — עם הכתיב המדויק ברשת
+hub=f"""<p>מנוע חיפוש לפותרי תשבצים: שמות של שירים, זמרים, פוליטיקאים ומקומות, עם הכתיב המדויק ברשת
 (ללא אותיות סופיות), אורך, ומשמעויות כפולות. {len(ent_index):,} ערכים.</p>
 <input id="q" placeholder="חיפוש שם, או תבנית: ? או . לאות חסרה (למשל: ?ו?ה)" autocomplete="off">
 <p style="margin:.5rem 0"><a href="/milon/anagram/"><b>יש לכם אותיות מבולבלות? → חיפוש אנגרם</b></a></p>
@@ -297,7 +351,7 @@ else hits=E.filter(e=>e.t.includes(v)||e.n.includes(v.replace(/[ךםןףץ]/g,m=
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}}[c]));res.innerHTML=hits.slice(0,60).map(e=>{{const u=e.p?('/milon/e/'+encodeURIComponent(e.t)+'/'):('/milon/'+e.c+'-'+e.l+'/#'+encodeURIComponent(e.n));return '<li><a href="'+u+'" style="text-decoration:none;color:inherit"><b style="color:#f22b39">'+esc(e.t)+'</b>'+(e.d?'<br><small>'+esc(e.d)+'</small>':'')+'<br><small>'+esc(CAT[e.c]||'')+' · '+esc(e.l)+' אותיות · <span style="font-family:monospace">'+esc(e.n)+'</span></small></a></li>'}}).join('');
 }};
 </script>"""
-page(f'{OUT}/index.html','מילון תשבץ — חיפוש לפי אורך, תבנית ואנגרם',
+page(f'{OUT}/index.html','מילון תשבץ: חיפוש לפי אורך, תבנית ואנגרם',
      f'מנוע חיפוש לפותרי תשבצים: {len(ent_index):,} שירים, זמרים, פוליטיקאים ומקומות עם כתיב תשבץ מדויק, אורך ותבניות.',
      hub,[{"@context":"https://schema.org","@type":"DefinedTermSet","name":"מילון תשבץ",
       "url":f"{BASE}/milon/","description":f"{len(ent_index):,} ערכים לפותרי תשבצים"},
@@ -332,7 +386,7 @@ ares.innerHTML=out.join('')||'<li>לא נמצאה פרמוטציה. נסו לכ�
 a.oninput=run;
 </script>"""
 page(f'{OUT}/anagram/index.html',
-     'חיפוש אנגרם לתשבץ — מי מסתתר באותיות המבולבלות',
+     'חיפוש אנגרם לתשבץ: מי מסתתר באותיות המבולבלות',
      'פותר אנגרמות לתשבצי היגיון: מקלידים את האותיות ומקבלים כל שם, מקום ומילה שהם פרמוטציה שלהן. כולל לקסיקון של 141 אלף מילים וכתיב רשת מדויק.',
      ana_body,{"@context":"https://schema.org","@type":"WebApplication","name":"חיפוש אנגרם לתשבץ",
      "url":f"{BASE}/milon/anagram/","applicationCategory":"Utility"})
