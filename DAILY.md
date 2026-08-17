@@ -313,3 +313,8 @@ Measure each lever on dev (fixed enums) with run_eval.py before/after; one lever
   ~100%, rounds heavy on culture/multi-step-story commits score ~33-67%. NEXT TIGHTENING
   CANDIDATE: cap commits to mechanically-generated candidates (from a tool output list),
   treat purely narrative derivations as suggestions regardless of confidence.
+- POST-PUZZLE INGESTION IS MANDATORY (user rule 2026-08-16): after every solved/keyed
+  puzzle, ALWAYS fold it back: (1) key -> answers_parsed + by_date; (2) clue text ->
+  dataset clues.jsonl as split=train (spent for eval); (3) rebuild crosswordese +
+  re-mine substitutions; (4) rebuild client bundle. Done today for 31/07, 07/08, 14/08
+  (84 new train clues; corpus now 55 puzzles). This is step 7 of every solve flow.
