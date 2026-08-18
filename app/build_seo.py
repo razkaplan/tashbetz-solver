@@ -110,9 +110,20 @@ def page(path,title,desc,body,jsonld=None,crumb=None):
     # description mid-attribute and left Google with no snippet to read.
     esc_title=html.escape(title,quote=True)
     esc_desc=html.escape(desc,quote=True)
+    # Social cards: every generated page carries og/twitter tags. Without them a
+    # shared link renders as a bare URL, which is most of these pages' first
+    # impression. Titles and descriptions are already per page, so only the
+    # image is shared.
+    og=f"""<meta property="og:type" content="article"><meta property="og:site_name" content="מילון תשבץ">
+<meta property="og:title" content="{esc_title}"><meta property="og:description" content="{esc_desc}">
+<meta property="og:url" content="{canon}"><meta property="og:image" content="{BASE}/milon/og.png">
+<meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta property="og:locale" content="he_IL"><meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="{esc_title}"><meta name="twitter:description" content="{esc_desc}">
+<meta name="twitter:image" content="{BASE}/milon/og.png">"""
     open(path,'w').write(f"""<!doctype html><html lang="he" dir="rtl"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1"><title>{esc_title}</title>
-<meta name="description" content="{esc_desc}"><link rel="canonical" href="{canon}">{ld}{STYLE}</head><body><div class="w">
+<meta name="description" content="{esc_desc}"><link rel="canonical" href="{canon}">{og}{ld}{STYLE}</head><body><div class="w">
 <header><span class="k">מילון תשבץ · פותרים ביחד</span><h1>{esc_title}</h1>
 <div class="crumb"><a href="/milon/">מילון</a> · <a href="/solve/">עוזר הפתירה</a> · <a href="/">דף הבית</a></div></header>
 {body}
