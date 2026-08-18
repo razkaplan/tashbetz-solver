@@ -16,9 +16,25 @@ This module does exactly that, per clue, with no LLM involved:
   - reversal_candidates: same search, reversed.
   - pattern_candidates:  wraps lexicon.py's crossing-pattern lookup, for when grid
                           letters are already known.
+  - substitution_candidates: a single clue token maps, via the setters' own mined
+                          equivalence table (substitutions.py, 2,220 head words from
+                          11,931 crowd explanations), straight to a full-length answer.
+                          Distinct from charade.py's multi-part assembly (which requires
+                          >=2 parts and was measured negative for full-answer generation,
+                          DAILY.md 2026-08-08): this is the ONE-token, ONE-hit case that
+                          search never reaches, because it only records results at
+                          len(parts) >= 2.
   - split_candidates:    for multi-part enums (e.g. (5,2)), splits a hit at the enum
                           boundary and flags whether BOTH pieces are real words — the
                           precondition prove.py's word_order() needs to succeed.
+
+A homograph-aware mechanism (queue item 1b's other half) was considered and NOT added:
+Hebrew homographs (homographs.py) share identical spelling across senses (שרה is always
+שרה whether "she sings" or "Sarah") and the alternate-sense words are already folded
+into the lexicon as culture entities, so pattern_candidates already surfaces them —
+a dedicated homograph mechanism would emit no candidate STRING that pattern_candidates
+doesn't already produce. Homographs are a definition-matching aid (which sense fits the
+clue), not a source of new letter-level candidates; that is a different kind of lever.
 
 None of this asserts an answer is CORRECT — it only asserts an answer is POSSIBLE by a
 named mechanism. Selecting among candidates and proving one is still prove.py's job.
@@ -78,6 +94,48 @@ def joined_letters(clue_text):
 
 
 _BY_LEN = None
+
+
+_SUBS = None
+
+
+def subs():
+    global _SUBS
+    if _SUBS is None:
+        p = os.path.join(HERE, 'lex/substitutions.json')
+        _SUBS = json.load(open(p)) if os.path.exists(p) else {'fwd': {}, 'rev': {}}
+    return _SUBS
+
+
+# The mined pairs are keyed on bare stems (charade.py found the same prefixes needed
+# stripping before lookup): ו/ב/ל/מ/ש/כ/ה and their two-letter combinations.
+SUB_PREFIXES = ('וה', 'שה', 'כש', 'מה', 'לה', 'בה', 'ו', 'ב', 'ל', 'מ', 'ש', 'כ', 'ה')
+
+
+def _stems(tok):
+    t = norm(tok)
+    stems = {t}
+    for p in SUB_PREFIXES:
+        if t.startswith(p) and len(t) - len(p) >= 2:
+            stems.add(t[len(p):])
+    return stems
+
+
+def substitution_candidates(clue_text, target_len):
+    """Each clue token, and its prefix-stripped stems, looked up in BOTH directions of
+    the mined substitution table. A hit whose length equals the enum total is a
+    whole-answer candidate: the setter used this exact word to stand for that one."""
+    s = subs()
+    out = []
+    for tok in words_of(clue_text):
+        for stem in _stems(tok):
+            for direction in ('fwd', 'rev'):
+                for cand, cnt in s[direction].get(stem, []):
+                    cand = norm(cand)
+                    if len(cand) == target_len and cand != stem:
+                        out.append({'answer': cand, 'mechanism': 'substitution',
+                                    'fodder': tok, 'weight': cnt})
+    return out
 
 
 def by_len():
@@ -182,6 +240,7 @@ def generate(clue_text, enum, pattern=None, max_n=25):
     cands += anagram_candidates(clue_text, target_len)
     cands += hidden_candidates(clue_text, target_len)
     cands += reversal_candidates(clue_text, target_len)
+    cands += substitution_candidates(clue_text, target_len)
     if pattern:
         cands += pattern_candidates(pattern)
 
@@ -270,6 +329,16 @@ def selftest():
     hits = pattern_candidates('של?ם')
     found = any(h['answer'] == norm('שלום') for h in hits)
     print(f'  found שלום matching pattern של?ם: {found} (expected True)')
+    ok &= found
+
+    print('--- substitution device: a mined single-token equivalence, not a puzzle answer ---')
+    # 'טומי' -> 'לפיד' is a substitution pair actually mined from the crowd explanations
+    # (it appears verbatim in SOLVE_PROTOCOL.md's own worked example), not a dev/eval
+    # gold answer — using it here is the same discipline as testing prove.py's `means`
+    # against a real recorded equivalence.
+    hits = substitution_candidates('טומי הגיע מוקדם', 4)
+    found = any(h['answer'] == norm('לפיד') for h in hits)
+    print(f'  found לפיד as a substitution of טומי: {found} (expected True)')
     ok &= found
 
     print('--- split_candidates: flags whether a multi-part answer is two real words ---')

@@ -68,3 +68,62 @@ implemented — candidate generation is upstream of that and had to come first).
 where "candidate" means "any dictionary word of the right length crossing existing
 letters" — there is no wordplay-decoding step, which is the entire difficulty of this
 project's puzzles. Confirms DAILY.md's standing skepticism.
+
+## 2026-08-18
+
+**"Orthographic Constraint Satisfaction and Human Difficulty Alignment in Large Language
+Models"** (arXiv 2511.21086, 2025). https://arxiv.org/html/2511.21086
+Uses the NYT Spelling Bee (generate valid words from 7 fixed letters, 1 mandatory, min
+length 4) as a testbed for how well LLMs respect hard character-level constraints when
+generating candidate words directly. Finding: all models keep near-perfect PRECISION
+(a word they claim fits, does fit the letter set) but RECALL is poor and gets worse
+with word length (up to 71x degradation for small models vs 1.3x for humans); failures
+concentrate on common words with atypical-looking orthography (e.g. "data", "loll") —
+models lean on distributional plausibility over actually checking the constraint,
+even though the constraint check is trivial to do exactly.
+**Transfer: strong, and it is a confirmation, not a new direction.** This is
+independent evidence for a design choice this project already made: `candidates.py`
+generates anagram/hidden/reversal candidates MECHANICALLY (Python string ops over the
+lexicon), specifically because asking an LLM to directly produce "words of length N
+using exactly these letters" is exactly the failure mode this paper measures — good
+precision, bad and length-sensitive recall, worst on the internally-common (headline)
+cases. Nothing to change here; it argues for staying the course (grow the mechanical
+generator, keep the LLM out of the character-constraint-satisfaction step) rather than
+reverting to LLM-native candidate generation.
+
+**"Sampling More, Getting Less: Calibration is the Diversity Bottleneck in LLMs"**
+(arXiv 2605.11128, 2026). https://arxiv.org/pdf/2605.11128
+Finds that a model's own calibration (how well its confidence tracks correctness)
+caps the diversity gained from sampling more candidates: well-calibrated sampling
+concentrates around the model's single best guess, so drawing more samples does not
+proportionally widen the correct-candidate pool the way a diversity-seeking search
+would. **Transfer: confirms two decisions already made and logged, does not open a
+new one.** (1) DAILY.md's "Things already tried — do not repeat" already found
+majority-vote / confidence-weighted consensus reverses sign with run quality — this
+paper gives a mechanism for why naive multi-sampling under-delivers diversity; the
+project's actual fix (`candidates.py`'s exhaustive mechanical enumeration, independent
+of any model's self-confidence) sidesteps the bottleneck entirely rather than fighting
+it. (2) It reinforces the "hypothesis breadth" lever (research-informed queue,
+2026-08-08 log): breadth has to come from an enumeration procedure, not from asking
+one LLM to sample more times at a fixed temperature.
+
+**Definition-span position, re-checked against this project's own corpus (not new
+literature — a sanity check on 2026-08-06's queue item 2).** `solver/PLAYBOOK.md`
+section 2.4, built empirically from the 728-clue corpus with crowd explanations
+already in hand, states plainly: "No fixed rule. Definition can be at the start, the
+end, or *interleaved*." This is the setter's own idiom working against the standard
+English-cryptic heuristic ("definition sits entirely at one end") that queue item 2
+and the calling task's priority (b) both assume. **Judgement: the classic
+one-end-definition heuristic does not transfer to יורם הרועה as a hard classifier.**
+A rule/heuristic-based "first-N-words vs last-N-words" span detector, scored by
+whether the other end's residual parses as a wordplay device (the approach floated in
+the 2026-08-06 entry as the only feasible non-learned version for Hebrew), would be
+built on a premise this project's own data already contradicts for a meaningful
+fraction of clues — double-definitions (14% of the corpus, both ends ARE
+definitions), interleaved clues, and pun-definitions where the whole surface is the
+definition. Not implemented today for this reason: it would be shipping a classifier
+whose core assumption this corpus falsifies, which is exactly the kind of thing
+DAILY.md asks to be honest about rather than paper over with a lever that "sounds
+right." Queue item (a)'s own logged next step — extend `candidates.py` with
+substitution- and homograph-aware mechanisms — has no such contradiction and is
+today's implemented lever instead (see DAILY.md log).
