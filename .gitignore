@@ -12,6 +12,8 @@ data/
 !docs/solve/data/**
 solver/lex/hspell.txt
 # scratch / tooling
+__pycache__/
+*.pyc
 scraper/*.json
 web/site_data.json.bak
 node_modules/
