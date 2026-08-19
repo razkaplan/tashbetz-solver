@@ -191,11 +191,26 @@ def position_bucket(loc, edge_tolerance=0):
     return 'interior'
 
 
+def classifier_agrees(clue_text, bucket):
+    """Does the classifier's TOP (definition, wordplay) hypothesis put the WORDPLAY on
+    the same edge where the fodder was mechanically located? 'interior' can never agree
+    -- a start/end-only classifier has no hypothesis that puts wordplay in the middle,
+    so those cases are a structural miss, not a classifier bug. Returns None for those
+    (excluded from the accuracy denominator, reported separately) so the accuracy number
+    is not silently deflated by a case the classifier design cannot address at all."""
+    if bucket not in ('start', 'end'):
+        return None
+    top = split(clue_text, top_n=1)[0]
+    wordplay_end = 'start' if top['def_end'] == 'end' else 'end'
+    return wordplay_end == bucket
+
+
 def stats(dataset_path, split_name=None):
     total = located = 0
     buckets = Counter()
     by_mech = Counter()
     examples = []
+    clf_correct = clf_total = 0
     for line in open(dataset_path):
         r = json.loads(line)
         if split_name and r['split'] != split_name:
@@ -210,6 +225,10 @@ def stats(dataset_path, split_name=None):
         b = position_bucket(loc)
         buckets[b] += 1
         by_mech[loc['mechanism']] += 1
+        agree = classifier_agrees(r['clue_text'], b)
+        if agree is not None:
+            clf_total += 1
+            clf_correct += agree
         if len(examples) < 8:
             examples.append((r['clue_number'], r['direction'], b, loc['mechanism'], r['clue_text']))
     return {
@@ -218,6 +237,7 @@ def stats(dataset_path, split_name=None):
         'position_buckets': dict(buckets),
         'by_mechanism': dict(by_mech),
         'examples': examples,
+        'classifier_agreement': f'{clf_correct}/{clf_total}' if clf_total else 'n/a (no start/end cases)',
     }
 
 
@@ -279,6 +299,16 @@ def selftest():
     print(f'  bucket: {b} (expected interior)')
     ok &= b == 'interior'
 
+    print('--- classifier_agrees: interior bucket is excluded (None), not scored as wrong ---')
+    agree = classifier_agrees('כלשהו טקסט לדוגמה כאן', 'interior')
+    print(f'  agree: {agree} (expected None)')
+    ok &= agree is None
+
+    print('--- classifier_agrees: an indicator-carrying clue can be checked against a bucket ---')
+    agree = classifier_agrees('להפך ראש הממשלה', 'start')
+    print(f'  agree: {agree} (expected True — wordplay/reversal-indicator is at the start)')
+    ok &= agree is True
+
     print(f'\n{"ALL PASSED" if ok else "FAILURES ABOVE"}')
     return ok
 
@@ -302,6 +332,8 @@ def main():
               f"of clues have a mechanically-locatable wordplay window")
         print('position of that window within the clue:', res['position_buckets'])
         print('by mechanism:', res['by_mechanism'])
+        print('classifier top-hypothesis agreement (start/end cases only):',
+              res['classifier_agreement'])
         if res['examples']:
             print('\nexamples (clue_number, direction, position, mechanism, text):')
             for num, direction, b, mech, text in res['examples']:
