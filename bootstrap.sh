@@ -28,6 +28,14 @@ fi
 wc -l < solver/lex/hspell.txt | xargs echo "    words:"
 
 echo "==> 2/6  answers corpus from 14across (52 puzzles, ~1,450 clues)"
+echo "    NOTE: 14across.co.il intermittently serves a bot-check redirect (HTTP 202,"
+echo "    sgcaptcha) instead of the real page -- observed on roughly half of requests"
+echo "    in one run, at random, unrelated to request rate. scraper/parse_answers.py"
+echo "    retries with backoff and recovers cleanly (52/52 last confirmed 2026-08-06)."
+echo "    If a run still comes up short, see step 6 below for a fallback needing no"
+echo "    14across access at all: the newspaper's own CDN images embed the PREVIOUS"
+echo "    week's solution grid, enough to reconstruct one full gold dev puzzle per"
+echo "    two consecutive weekly images."
 mkdir -p data/answers/by_date data/dataset
 if [ ! -s data/answers/answers_parsed.json ]; then
   python3 - <<'PY'
@@ -99,6 +107,33 @@ cat <<'NOTE'
       b) VALIDATE: sum(enum) must equal the answer's Hebrew letter count from
          data/answers/by_date/<puzzle-date>.json. Beware REVERSED enumerations — 6 of 50
          puzzles printed them in visual rather than word order. solver/fix_enums.py detects this.
+
+    NO-14ACROSS ALTERNATIVE (found 2026-08-03, needed while the captcha wall in step 2
+    is up): every week's image ALSO prints the filled SOLUTION grid for the *previous*
+    week's puzzle, in a small box next to the title, captioned "פתרון תשבץ ההיגיון
+    מהשבוע שעבר" (solution to last week's logic crossword). That box gives you gold
+    per-cell letters for a puzzle whose CLUES you transcribed from the prior week's own
+    image (step a, above) — i.e. two consecutive weekly images together give you one
+    fully gold-verified puzzle with no 14across access at all:
+      1. Transcribe that small filled grid the same way as (c) below (11x15, RTL,
+         crop+zoom each row — a single crop of the whole grid drifts row-by-row at this
+         resolution; find the actual gridline y-coordinates first, e.g. by scanning a
+         thin vertical strip for dark rows, don't assume a uniform row height from the
+         crop's outer bounding box).
+      2. Cross-check its black-cell pattern cell-for-cell against the ALREADY-COMMITTED
+         data/grids/<puzzle-date>.json for the puzzle one week before the current one —
+         an exact match (this is a strong signature over 15x11 cells) confirms which
+         puzzle it solves and that your transcription is correct.
+      3. Run solver/grid_tools.slots() over that grid to cut the filled letters into
+         per-(number,direction) answers. Cross-validate every one against the enum you
+         transcribed in step (a): every single sum must match the derived answer length,
+         or something in the transcription is wrong (28/28 matched on 2026-05-29, which
+         is strong confirmation the whole pipeline — grid, clues, and solution — is
+         mutually consistent). Write data/answers/by_date/<date>.json from the result
+         (explanations: [] — this source has no crowd commentary, only letters).
+      4. This puzzle is gold but UNEXPLAINED (no crowd wordplay commentary), so it is
+         good for eval/dev scoring but does not feed solver/substitutions.py or
+         retrieve.py, which need the explanation text.
       c) Grid: transcribe the black/white pattern (11 wide x 15 tall), row 0 top, string
          index 0 = RIGHTMOST cell (RTL). Then run:
            python3 solver/grid_tools.py validate data/grids/<date>.json data/dataset/inputs/<date>.json

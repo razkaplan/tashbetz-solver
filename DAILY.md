@@ -27,6 +27,18 @@ literal anagram/hidden/reversal — it leans on substitution and homograph devic
 (consistent with PLAYBOOK.md). The generator is real infrastructure for the proof gate
 to use, but by itself it is a small piece of the coverage problem, not the whole fix.
 
+**INFRASTRUCTURE UPDATE (2026-08-06): 14across.co.il access is intermittent, not blocked.**
+Earlier (2026-08-03) it looked like a hard bot-protection wall (`/.well-known/sgcaptcha/`
+on every request, 0/52 puzzles). A later run found it's actually a random ~50%-of-requests
+bot-check redirect, unrelated to rate — `scraper/parse_answers.py` now retries with
+backoff and recovers all 52/52 puzzles reliably. If a future run still comes up short
+anyway, there's a fallback needing zero 14across access: each week's puzzle image also
+prints the FILLED SOLUTION GRID for the *previous* week's puzzle ("פתרון תשבץ ההיגיון
+מהשבוע שעבר"), so two consecutive weekly images give one fully gold-verified puzzle
+(clue text from week N's image, solution letters from week N+1's image). Documented in
+bootstrap.sh step 6; used once (2026-08-03) to reconstruct 2026-05-29 as real, audited
+dev data before the retry fix existed — see log.
+
 ## The policy that governs everything
 A blank beats a wrong answer. Wrong letters corrupt crossings and poison later passes.
 Three tiers: `committed` (asserted, proof must execute), `suggestion` (unverified, never
@@ -82,6 +94,31 @@ propagated), `blank`. Score with `python3 evals/run_eval.py <file>`.
 - 2026-07-28: proof gate added. Rejected 3 candidates on 06-05: 2 were genuine errors,
   1 was a correct answer lost. Precision 100%, coverage flat. Concluded candidate
   generation is the bottleneck.
+- 2026-08-03: `./bootstrap.sh --dev-only` step 2 (14across scrape) returned 0/52
+  puzzles that day — looked at the time like a hard bot-protection wall (see
+  2026-08-06 entry below for the corrected diagnosis: it's intermittent, and a retry
+  fix now recovers all 52/52). Found a working alternative for gold data that needs no
+  14across access at all, useful independent of that fix: each week's puzzle image also
+  prints the filled SOLUTION grid for the *previous* week's puzzle. Used it to
+  reconstruct 2026-05-29 as real, audited dev data: transcribed clue text from
+  `data/images/2026-05-28.jpg` (its own week) and solution letters from the small grid
+  in `data/images/2026-06-04.jpg` (captioned "solution to last week's puzzle");
+  cross-validated the solution grid's black-cell pattern cell-for-cell against the
+  already-committed `data/grids/2026-05-29.json` (exact match, a strong signature over
+  15x11 cells) and every one of the 28 enumerations against the grid-derived answer
+  length (28/28 match, zero mismatches). This is gold letters, not crowd explanations
+  (the solution box has no commentary) — good for scoring, not for
+  `substitutions.py`/`retrieve.py`. Full technique documented in bootstrap.sh step 6 as
+  a fallback for future runs. Also caught and reverted an unrelated near-miss that day:
+  manually running `scraper/harvest_culture.py` without its bootstrap guard clobbered
+  the committed `solver/lex/culture.json`; reverted via `git checkout` before it reached
+  any measurement or commit.
+
+  Independently built a first version of a candidate-generation lever this same day
+  (two word-level mechanical generators, anagram-window + hidden-run; 1/28 recall on
+  the same 2026-05-29 puzzle). Superseded by the more complete character-level version
+  built 2026-08-06 below (anagram/hidden/reversal/pattern) — not kept separately to
+  avoid two competing implementations of the same lever.
 - 2026-08-06: **candidate generation** (`solver/candidates.py`), lever 1 from the queue.
   Bootstrap first: `./bootstrap.sh --dev-only` hit an intermittent bot-check on
   14across.co.il (HTTP 202 sgcaptcha redirect on ~half of requests, random, not
