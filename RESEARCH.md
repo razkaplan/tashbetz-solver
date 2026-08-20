@@ -68,3 +68,51 @@ implemented — candidate generation is upstream of that and had to come first).
 where "candidate" means "any dictionary word of the right length crossing existing
 letters" — there is no wordplay-decoding step, which is the entire difficulty of this
 project's puzzles. Confirms DAILY.md's standing skepticism.
+
+## 2026-08-20
+
+Re-checked for anything new since 2026-08-06 on: cryptic definition-span detection,
+candidate generation, and Hebrew NLP/morphology.
+
+**"Proving that Cryptic Crossword Clue Answers are Correct"** (arXiv 2407.08824, Andrews
+& Witteveen, ICML 2024 workshop). https://arxiv.org/abs/2407.08824
+The direct predecessor of the already-adopted 2506.04824 pipeline, by the same authors:
+LLM proposes an answer + informal wordplay, a second LLM formalises it as a Python proof,
+a prover checks it executes. **Transfer: none new** — this project's `solver/prove.py`
+already implements this half (credited in RESEARCH.md 2026-08-06), and the newer paper
+supersedes this one. Surfaced only because it clarifies the lineage: the "prove, don't
+merely persuade" idea predates the "generate many candidates first" idea in this same
+research line, which matches this project's own history (proof gate shipped 2026-07-28,
+candidate generation only started 2026-08-06) — independent confirmation the ordering
+DAILY.md picked (verification before generation) tracks how the field itself arrived at
+the combined pipeline, not a coincidence of this project's own priorities.
+
+**Definition-span detection, general search.** No new paper beyond 2412.09012 (already
+logged 2026-08-06). One search result restates the standard human-solver heuristic more
+concretely: an LLM-generated candidate definition is used to re-rank answer candidates by
+semantic closeness to the marked span (via FastText/embedding similarity), i.e.
+definition-span detection is used to SCORE candidates a separate mechanism already
+produced, not to generate answers on its own. **Transfer: clarifies scope, doesn't change
+the plan.** This confirms queue item 2 (definition-span detection) is correctly understood
+here as a companion to candidate generation, not a replacement for it: the span tells you
+WHICH candidate to prefer, not what the candidates are. Still no Hebrew-tuned embedding
+space to port the scoring half with; the rule-based version (classify which end, check
+whether the OTHER end's residual parses as wordplay) remains the only feasible variant
+here, unbuilt, still queued.
+
+**Hebrew morphology / NLP** — no new resource found beyond the 2025 items already logged
+(RFTokenizer, HebPipe, the root-pattern morphology evaluation). No update.
+
+**Conclusion for today's lever.** Nothing found this cycle changes the queue's priority
+order. DAILY.md's own queue (2026-08-06 entry) already named the correct next step in
+plain language before I went looking: "add substitution- and homograph-aware generation
+... the setter leans on these, not literal anagram/hidden/reversal, per the 3.6% result
+and PLAYBOOK.md." That diagnosis is internal (this project's own measured recall
+breakdown + PLAYBOOK.md's empirically-mined mechanism distribution — charade/substitution
+devices are ~35-40%+27% of clues vs. anagram's 16%), not something the external
+literature has an opinion on either way, since none of the papers above study a
+morphologically rich, unvocalized, small-corpus language. Implemented today: candidate
+generation extended with `substitution_candidates` and `homograph_candidates`
+mechanisms in `solver/candidates.py` (queue item 1(b)), plus a held-out-safety fix to
+`solver/substitutions.py` that the new mechanism's use of that table required (see
+DAILY.md log for the measured result and the audit).
