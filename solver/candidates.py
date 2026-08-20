@@ -9,37 +9,34 @@ enumerate every candidate a mechanism can produce and hand the LIST to the proof
 rather than have the solver guess once and rationalize.
 
 This module does exactly that, per clue, with no LLM involved:
-  - anagram_candidates:      every contiguous word-window whose letter count matches
-                              the enum total, checked against the lexicon for
-                              real-word anagrams.
-  - hidden_candidates:       a contiguous run inside the space-removed clue that is
-                              itself a real word (the "hidden word" device).
-  - reversal_candidates:     same search, reversed.
-  - substitution_candidates: anagram/hidden/reversal again, but over fodder where ONE
-                              clue word has first been replaced by one of its mined
-                              substitutions.json equivalents (the setter's private
-                              vocabulary — §2.3/C.3 of PLAYBOOK.md, ~27-40% of clues).
-                              Targets the charade/assembly device, which the literal
-                              mechanisms above structurally cannot reach because the
-                              substituted letters never appear in the clue itself.
-  - homograph_candidates:    a clue word whose length already equals the enum and
-                              which ambiguities.json records as having 2+ senses —
-                              the setter's double-definition move of reusing a clue
-                              word AS THE ANSWER under its other sense (PLAYBOOK.md
-                              §1.2, 14% of clues). Carries the sense evidence so the
-                              definition half (which a bare anagram/hidden hit does
-                              not explain) has something to point to.
-  - pattern_candidates:      wraps lexicon.py's crossing-pattern lookup, for when grid
-                              letters are already known.
-  - split_candidates:        for multi-part enums (e.g. (5,2)), splits a hit at the
-                              enum boundary and flags whether BOTH pieces are real
-                              words — the precondition prove.py's word_order() needs.
+  - anagram_candidates:  every contiguous word-window whose letter count matches the
+                          enum total, checked against the lexicon for real-word anagrams.
+  - hidden_candidates:   a contiguous run inside the space-removed clue that is itself
+                          a real word (the "hidden word" device).
+  - reversal_candidates: same search, reversed.
+  - substitution_candidates: the setter's private-vocabulary device — a clue word (or two
+                          adjacent ones) substituted for a fragment mined from crowd
+                          explanations (solver/substitutions.py), when the substitute(s)
+                          cover the FULL answer length. Rebuilt in-memory with held-out
+                          clues excluded (see sub_fwd()) rather than trusting the
+                          committed lex/substitutions.json, which predates that exclusion.
+  - homograph_candidates: the setter's signature device — a clue word already has another
+                          sense (lex/ambiguities.json) that matches the enum length, so it
+                          IS the answer undisguised. Cannot invent an answer that isn't
+                          already a literal clue substring.
+  - pattern_candidates:  wraps lexicon.py's crossing-pattern lookup, for when grid
+                          letters are already known.
+  - split_candidates:    for multi-part enums (e.g. (5,2)), splits a hit at the enum
+                          boundary and flags whether BOTH pieces are real words — the
+                          precondition prove.py's word_order() needs to succeed.
 
 None of this asserts an answer is CORRECT — it only asserts an answer is POSSIBLE by a
 named mechanism. Selecting among candidates and proving one is still prove.py's job.
 Held-out dev/eval answers are excluded from the lexicon by lexicon.held_out_answers(),
-so this generator cannot recover a dev/eval gold answer by looking it up — only by
-actually deriving it mechanically, same discipline as the rest of the solver.
+and (for substitution_candidates) from the mined equivalence table by
+substitutions.held_out(), so this generator cannot recover a dev/eval gold answer by
+looking it up — only by actually deriving it mechanically, same discipline as the rest
+of the solver.
 
 CLI:
   python3 solver/candidates.py clue "<text>" <enum...>            # e.g. ... "7,2"
@@ -154,99 +151,116 @@ def reversal_candidates(clue_text, target_len):
     return out
 
 
-_SUBS = None
+_SUB_FWD = None
 
 
-def subs():
-    """The mined substitution table (substitutions.py build): {'fwd': {...}, 'rev': {...}},
-    both directions of clue-word <-> answer-fragment equivalence."""
-    global _SUBS
-    if _SUBS is None:
-        p = os.path.join(HERE, 'lex/substitutions.json')
-        _SUBS = json.load(open(p)) if os.path.exists(p) else {'fwd': {}, 'rev': {}}
-    return _SUBS
+def sub_fwd():
+    """Clue-word -> answer-fragment equivalences, rebuilt IN-MEMORY from the currently
+    available corpus with held-out (dev/eval) clues excluded (substitutions.held_out()).
+    Deliberately does NOT load the committed solver/lex/substitutions.json: that file was
+    built at an earlier date, from a corpus mix that likely included dev/eval puzzles'
+    own crowd explanations, without this exclusion — using it here would risk crediting a
+    substitution pair with 'solving' the very clue its own explanation was mined from,
+    the same leak shape RESULTS.md's INTEGRITY FINDING already caught once via lexicon.py.
+    In-memory rebuild costs a few hundred ms and is the only way to make this mechanism
+    honestly measurable."""
+    global _SUB_FWD
+    if _SUB_FWD is None:
+        sys.path.insert(0, HERE)
+        import substitutions
+        cwd = os.getcwd()
+        try:
+            os.chdir(ROOT)
+            pairs = substitutions.mine(substitutions.explanations())
+        finally:
+            os.chdir(cwd)
+        fwd = {}
+        for (a, b), n in pairs.items():
+            fwd.setdefault(a, []).append((b, n))
+        for k in fwd:
+            fwd[k].sort(key=lambda x: -x[1])
+        _SUB_FWD = fwd
+    return _SUB_FWD
 
 
-def sub_targets(word, max_n=6):
-    """Every recorded substitution equivalent of one clue word, either direction,
-    deduped and sorted by corpus frequency (highest first)."""
-    s = subs()
-    w = norm(word)
-    out = {}
-    for d in (s['fwd'], s['rev']):
-        for frag, cnt in d.get(w, []):
-            frag = norm(frag)
-            if frag:
-                out[frag] = max(out.get(frag, 0), cnt)
-    return sorted(out.items(), key=lambda kv: -kv[1])[:max_n]
-
-
-def _substituted_windows(clue_text, target_len, max_subs_per_word=6):
-    """Every target_len-character window over a version of the clue where exactly ONE
-    word has been replaced by one of its mined substitution equivalents. Yields
-    (window_text, orig_word, sub_fragment) so a hit can carry a ready `means()` proof
-    step alongside the mechanism's own assertion. Single-substitution only (not every
-    combination of every word) — combinatorial chaining is charade.py's job and was
-    already measured negative as a full-answer generator (DAILY.md 2026-08-08); this
-    stays a small, tractable, attributable addition to the three literal mechanisms."""
-    words = words_of(clue_text)
-    for i, w in enumerate(words):
-        for frag, cnt in sub_targets(w, max_subs_per_word):
-            alt = [norm(x) for x in words]
-            alt[i] = frag
-            joined = ''.join(alt)
-            for j in range(len(joined) - target_len + 1):
-                yield joined[j:j + target_len], w, frag
-
-
-def substitution_candidates(clue_text, target_len):
-    """anagram/hidden/reversal over fodder where one clue word has been swapped for a
-    mined substitution equivalent first (see module docstring)."""
+def substitution_candidates(clue_text, target_len, table=None):
+    """The setter's private-vocabulary device (SOLVE_PROTOCOL.md 'Substitutions'): a clue
+    word stands in for a fragment mined from crowd explanations (a name completed by a
+    surname, an abbreviation, a gloss). Two shapes:
+      (a) one clue word's substitute already has the FULL target length -- propose it
+          directly, filtered to real words/names (lex()) to cut noise;
+      (b) two ADJACENT clue words' substitutes concatenate, in clue order, to the full
+          target length -- a tightly scoped two-part charade. Deliberately NOT the
+          open-ended every-enum-split search charade.py already tried and measured weak
+          (2.8% recall, DAILY.md 2026-08-08): unrestricted part search over a sparse table
+          combinatorially explodes false positives. Adjacency + full-length coverage keeps
+          this mechanism precise instead.
+    `table` is injectable (tests / callers) instead of always hitting sub_fwd()."""
+    fwd = table if table is not None else sub_fwd()
     words = lex()
+    ws = words_of(clue_text)
+    subs_of = lambda w: [b for b, n in fwd.get(norm(w), [])]
     out = []
-    for sub, orig, frag in _substituted_windows(clue_text, target_len):
-        note = f'{orig}~{frag}'
-        if sub in words:
-            out.append({'answer': sub, 'mechanism': 'hidden+sub', 'fodder': sub, 'sub': note})
-        for hit in anagram_lookup(sub, target_len):
-            if hit == sub:
-                continue
-            out.append({'answer': hit, 'mechanism': 'anagram+sub', 'fodder': sub, 'sub': note})
-        rev = sub[::-1]
-        if rev in words:
-            out.append({'answer': rev, 'mechanism': 'reversal+sub', 'fodder': sub, 'sub': note})
+    for w in ws:
+        for b in subs_of(w):
+            if len(b) == target_len and b in words:
+                out.append({'answer': b, 'mechanism': 'substitution', 'fodder': w})
+    for i in range(len(ws) - 1):
+        for b1 in subs_of(ws[i]):
+            for b2 in subs_of(ws[i + 1]):
+                joined = b1 + b2
+                if len(joined) == target_len and joined in words:
+                    out.append({'answer': joined, 'mechanism': 'substitution',
+                                'fodder': f'{ws[i]}+{ws[i + 1]}'})
     return out
 
 
-_AMB = None
+_AMBIG = None
 
 
 def ambiguities():
-    """The homograph/ambiguity index (homographs.py build): {token: {senses:[...], ...}}."""
-    global _AMB
-    if _AMB is None:
+    global _AMBIG
+    if _AMBIG is None:
         p = os.path.join(HERE, 'lex/ambiguities.json')
-        _AMB = json.load(open(p)) if os.path.exists(p) else {}
-    return _AMB
+        _AMBIG = json.load(open(p)) if os.path.exists(p) else {}
+    return _AMBIG
 
 
-def homograph_candidates(clue_text, target_len):
-    """A clue word whose length already equals the enum, and which the ambiguity
-    index records as having 2+ senses, is a strong double-definition candidate: the
-    setter's move of reusing one clue word AS THE ANSWER under its other sense,
-    letters unchanged (PLAYBOOK.md §1.2). If the word sits verbatim in the joined
-    clue text, hidden_candidates already finds the LETTERS; what this adds is the
-    SENSE evidence a bare hidden-word hit carries no explanation for."""
-    amb = ambiguities()
+HOMO_PREFIXES = ['ו', 'ה', 'ב', 'ל', 'מ', 'ש', 'כ', 'וה', 'ול', 'וב', 'שה', 'מה', 'כש', 'לה', 'בה']
+HOMO_SUFFIXES = ['ים', 'ות', 'י', 'ה', 'ו', 'ת', 'נו', 'כם', 'יו']
+
+
+def _destem(w):
+    """A clue word may carry a prefix/suffix the ambiguous STEM does not (mirrors
+    homographs.py's variants(), duplicated rather than imported so this mechanism stays
+    self-contained and independently testable)."""
+    out = {w}
+    for p in HOMO_PREFIXES:
+        if w.startswith(p) and len(w) - len(p) >= 2:
+            out.add(w[len(p):])
+    for s in HOMO_SUFFIXES:
+        if w.endswith(s) and len(w) - len(s) >= 2:
+            out.add(w[:-len(s)])
+    return out
+
+
+def homograph_candidates(clue_text, target_len, idx=None):
+    """The setter's signature device (PLAYBOOK.md / SOLVE_PROTOCOL.md 'Homographs'): a
+    word already sitting in the clue, read in its OTHER sense, simply IS the answer -- no
+    letter manipulation, just a second meaning (שרה = she sings / a minister / Sarah).
+    Any clue token (or its de-affixed stem) that is a recorded ambiguity in
+    lex/ambiguities.json and matches the enum length exactly is a candidate. Because the
+    candidate is always a literal substring of the clue text itself, this cannot leak a
+    held-out answer that ISN'T already sitting undisguised in the clue -- the same
+    no-invention guarantee hidden_candidates has.
+    `idx` is injectable (tests / callers) instead of always hitting ambiguities()."""
+    table = idx if idx is not None else ambiguities()
     out = []
     for w in words_of(clue_text):
         nw = norm(w)
-        if len(nw) != target_len:
-            continue
-        d = amb.get(nw)
-        if not d:
-            continue
-        out.append({'answer': nw, 'mechanism': 'homograph', 'fodder': w, 'senses': d['senses']})
+        for stem in _destem(nw):
+            if len(stem) == target_len and stem in table:
+                out.append({'answer': stem, 'mechanism': 'homograph', 'fodder': w})
     return out
 
 
@@ -287,16 +301,28 @@ def split_candidates(cands, enum):
 
 
 def generate(clue_text, enum, pattern=None, max_n=25):
-    """Diverse candidates for one clue. Never consults the answer."""
+    """Diverse candidates for one clue. Never consults the answer.
+
+    Mechanism order here is a PRIORITY order, not just an accumulation order: dedup +
+    the max_n cap keep a prefix of whichever list is built first, so whatever is listed
+    first survives truncation. Measured bug (2026-08-20): with substitution/homograph
+    appended last, a character-level anagram/hidden window scan alone routinely produces
+    40-50+ raw hits on a short target length (lots of short real words exist), crowding
+    every substitution/homograph candidate for that clue out of the top max_n before the
+    proof gate — or a recall eval — ever sees them, even when they were found. Homograph
+    and substitution are comparatively RARE and higher-precision (a token already sitting
+    in the clue, or a mined equivalence, either fires or it doesn't — there's no
+    combinatorial window scan inflating their count), so they go first; the cheap,
+    high-volume window-scan mechanisms fill whatever budget is left."""
     target_len = sum(enum)
     cands = []
+    cands += homograph_candidates(clue_text, target_len)
+    cands += substitution_candidates(clue_text, target_len)
+    if pattern:
+        cands += pattern_candidates(pattern)
     cands += anagram_candidates(clue_text, target_len)
     cands += hidden_candidates(clue_text, target_len)
     cands += reversal_candidates(clue_text, target_len)
-    cands += substitution_candidates(clue_text, target_len)
-    cands += homograph_candidates(clue_text, target_len)
-    if pattern:
-        cands += pattern_candidates(pattern)
 
     seen, uniq = set(), []
     for c in cands:
@@ -379,30 +405,37 @@ def selftest():
     print(f'  found בר as a reversal of רב: {found} (expected True)')
     ok &= found
 
-    print('--- substitution device: hidden word found only after swapping a clue word ---')
-    # 'שר' is mined as substitutable for 'זמר' (solver/lex/substitutions.json). The
-    # literal clue letters never contain זמר; only after the swap does the 3-letter
-    # window land exactly on the inserted fragment.
-    hits = substitution_candidates('הוא שר טוב היום', 3)
-    found = any(h['answer'] == norm('זמר') and h['mechanism'] == 'hidden+sub' for h in hits)
-    print(f'  found זמר via שר~זמר substitution: {found} (expected True)')
-    ok &= found
-
-    print('--- homograph device: an ambiguous clue word proposed as the answer itself ---')
-    # 'שרה' is a curated ROLE_NOUNS entry (homographs.py) with senses beyond
-    # common_word (she sings / a female minister / the name Sarah) — deterministic,
-    # independent of any harvested corpus.
-    hits = homograph_candidates('הביטו אל שרה עכשיו', 3)
-    found = any(h['answer'] == norm('שרה') and h['mechanism'] == 'homograph'
-                and len(h['senses']) >= 2 for h in hits)
-    print(f'  found שרה flagged ambiguous ({[h["senses"] for h in hits if h["answer"] == norm("שרה")]}):'
-          f' {found} (expected True)')
-    ok &= found
-
     print('--- pattern device: crossing-pattern lookup wraps lexicon.pattern ---')
     hits = pattern_candidates('של?ם')
     found = any(h['answer'] == norm('שלום') for h in hits)
     print(f'  found שלום matching pattern של?ם: {found} (expected True)')
+    ok &= found
+
+    print('--- substitution device: one clue word\'s mined substitute covers the full length ---')
+    # injected table, independent of the live corpus — same discipline as the mechanical
+    # tests above, and it also means this check cannot pass by accidentally hitting a
+    # held-out answer: the table is synthetic, not sub_fwd()'s corpus rebuild.
+    sub_table = {norm('טרמפ'): [(norm('שלום'), 5)]}
+    hits = substitution_candidates('קיבלתי טרמפ הביתה', 4, table=sub_table)
+    found = any(h['answer'] == norm('שלום') for h in hits)
+    print(f'  found שלום as the substitute of טרמפ: {found} (expected True)')
+    ok &= found
+
+    print('--- substitution device: two ADJACENT clue words\' substitutes concatenate ---')
+    sub_table2 = {norm('אחד'): [(norm('של'), 1)], norm('שני'): [(norm('ום'), 1)]}
+    hits = substitution_candidates('אחד שני משהו', 4, table=sub_table2)
+    found = any(h['answer'] == norm('שלום') for h in hits)
+    print(f'  found שלום as של+ום from two adjacent words: {found} (expected True)')
+    ok &= found
+
+    print('--- homograph device: a clue word, de-prefixed, already IS the answer ---')
+    # שרה is the canonical example (PLAYBOOK.md/SOLVE_PROTOCOL.md): she sings / a female
+    # minister / the name Sarah. Here it appears with a ו- prefix glued on ('ושרה'); the
+    # mechanism must strip the prefix to find the 3-letter ambiguous stem.
+    homo_idx = {norm('שרה'): {'senses': ['role_noun', 'given_name']}}
+    hits = homograph_candidates('ושרה בבוקר את השיר', 3, idx=homo_idx)
+    found = any(h['answer'] == norm('שרה') for h in hits)
+    print(f'  found שרה (destemmed from ושרה) as a homograph: {found} (expected True)')
     ok &= found
 
     print('--- split_candidates: flags whether a multi-part answer is two real words ---')
