@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <rect width="1200" height="630" fill="#ffffff"/>
+  <style>@import url("https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@700&amp;display=swap");</style>
+  <rect x="70" y="78" width="1060" height="3" fill="#121212"/>
+  <rect x="70" y="86" width="1060" height="1.5" fill="#121212"/>
+  <rect x="880" y="106" width="250" height="34" fill="#f22b39"/>
+  <text x="1005" y="129" font-family="Menlo, monospace" font-size="16" letter-spacing="3" fill="#ffffff" text-anchor="middle">תרגול תשבץ</text>
+  <text x="1130" y="215" font-family="'Frank Ruhl Libre','Arial Hebrew',serif" font-size="76" font-weight="700" fill="#121212" text-anchor="start" direction="rtl">100 תשבצי אימון</text>
+  <text x="1130" y="268" font-family="'Frank Ruhl Libre','Arial Hebrew',serif" font-size="30" fill="#5c5c5c" text-anchor="start" direction="rtl">פותרים בדפדפן, וכל תשובה מגיעה עם ההוכחה שלה</text>
+  <text x="1130" y="345" font-family="Menlo, monospace" font-size="24" fill="#121212" text-anchor="start" direction="rtl">הגדרה · היפוך · אנגרמה · מילה מוסתרת</text>
+  <!-- filled mini grid -->
+  <g transform="translate(78,392)">
+    <rect x="-4" y="-4" width="188" height="148" fill="#121212"/>
+    <g fill="#ffffff">
+      <rect x="0" y="0" width="42" height="34"/><rect x="48" y="0" width="42" height="34"/>
+      <rect x="96" y="0" width="42" height="34"/><rect x="144" y="0" width="36" height="34"/>
+      <rect x="0" y="40" width="42" height="34"/><rect x="48" y="40" width="42" height="34"/>
+      <rect x="144" y="40" width="36" height="34"/>
+      <rect x="0" y="80" width="42" height="34"/><rect x="96" y="80" width="42" height="34"/>
+      <rect x="144" y="80" width="36" height="34"/>
+      <rect x="48" y="80" width="42" height="34"/>
+    </g>
+    <text x="21" y="26" font-family="'Frank Ruhl Libre',serif" font-size="26" fill="#121212" text-anchor="middle">ת</text>
+    <text x="69" y="26" font-family="'Frank Ruhl Libre',serif" font-size="26" fill="#f22b39" text-anchor="middle">ר</text>
+    <text x="117" y="26" font-family="'Frank Ruhl Libre',serif" font-size="26" fill="#121212" text-anchor="middle">ג</text>
+    <text x="162" y="26" font-family="'Frank Ruhl Libre',serif" font-size="26" fill="#121212" text-anchor="middle">ו</text>
+  </g>
+  <rect x="70" y="556" width="1060" height="1.5" fill="#121212"/>
+  <text x="1130" y="588" font-family="Menlo, monospace" font-size="18" fill="#5c5c5c" text-anchor="start" direction="rtl">tashbetz.gtmascode.dev/tirgul</text>
+</svg>

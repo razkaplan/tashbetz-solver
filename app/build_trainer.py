@@ -85,9 +85,18 @@ def page(path, title, desc, body, jsonld=None, crumb=None):
     ld = f'<script type="application/ld+json">{json.dumps(bc, ensure_ascii=False)}</script>'
     if jsonld:
         ld += f'<script type="application/ld+json">{json.dumps(jsonld, ensure_ascii=False)}</script>'
+    # Social card per puzzle: title and description already differ per page, so
+    # only the image is shared. A shared trainer link with no card is a bare URL.
+    og = f"""<meta property="og:type" content="article"><meta property="og:site_name" content="תרגול תשבץ">
+<meta property="og:title" content="{esc(title)}"><meta property="og:description" content="{esc(desc)}">
+<meta property="og:url" content="{BASE}{rel}"><meta property="og:image" content="{BASE}/tirgul/og.png">
+<meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta property="og:locale" content="he_IL"><meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="{esc(title)}"><meta name="twitter:description" content="{esc(desc)}">
+<meta name="twitter:image" content="{BASE}/tirgul/og.png">"""
     open(path, 'w', encoding='utf-8').write(f"""<!doctype html><html lang="he" dir="rtl"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1"><title>{esc(title)}</title>
-<meta name="description" content="{esc(desc)}"><link rel="canonical" href="{BASE}{rel}">{ld}{STYLE}</head><body><div class="w">
+<meta name="description" content="{esc(desc)}"><link rel="canonical" href="{BASE}{rel}">{og}{ld}{STYLE}</head><body><div class="w">
 <header><span class="k">תרגול תשבץ · פותרים ביחד</span><h1>{esc(title)}</h1>
 <div class="crumb"><a href="/tirgul/">תרגול</a> · <a href="/milon/">מילון</a> · <a href="/solve/">עוזר הפתירה</a> · <a href="/">דף הבית</a></div></header>
 {body}
