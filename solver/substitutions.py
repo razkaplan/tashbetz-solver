@@ -28,6 +28,20 @@ FIN = str.maketrans('ךםןףץ', 'כמנפצ')
 def norm(s):
     return re.sub(r'[^א-ת]', '', s or '').translate(FIN)
 
+def held_out():
+    """Dev/eval gold answers (same rule as lexicon.py / retrieve_defs.py). A clue's own
+    crowd explanation is exactly what a held-out eval would need to NOT have seen — mining
+    a substitution pair from a dev/eval clue's own explanation and then crediting that pair
+    with recovering the SAME clue's answer is circular, not solving power."""
+    out = set()
+    p = os.path.join(ROOT, 'data/dataset/clues.jsonl')
+    if os.path.exists(p):
+        for line in open(p):
+            r = json.loads(line)
+            if r.get('split') in ('dev', 'eval') and r.get('answer_raw'):
+                out.add(norm(r['answer_raw']))
+    return out
+
 def explanations():
     out = []
     p = 'data/answers/answers_parsed.json'
@@ -44,9 +58,12 @@ def explanations():
                     out.append((e, c.get('answer', '')))
     return out
 
-def mine(expls):
+def mine(expls, exclude=None):
+    ho = held_out() if exclude is None else exclude
     pairs = Counter()
     for e, ans in expls:
+        if norm(ans) in ho:
+            continue  # held-out clue's own explanation — would leak its answer, see held_out()
         if not e or len(e) > 200:
             continue
         # 1. parenthetical completion:  word (completion)
