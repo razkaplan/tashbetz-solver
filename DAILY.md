@@ -12,6 +12,7 @@ Read this first each run. It is the handoff between days.
 | Best single puzzle | 2026-05-29: 95% / 71% / 68% ✓ all targets | |
 | Hardest puzzle | 2026-06-05: 100% / 43% / 43% | coverage stuck |
 | **Candidate recall@N (new, offline, mechanical only)** | **3.6% (1/28)**, avg 11.6 candidates/clue (capped), on 2026-05-29 — UNCHANGED after adding substitution+homograph mechanisms | not yet a target — diagnostic |
+| **Definition-span locatable rate (new, offline, diagnostic)** | **25% (7/28)** have mechanically-locatable single-window wordplay; of those 29% (2/7) are interior, not edge; classifier agreement on edge cases **1/5** | not a target — this diagnostic KILLED the lever, see log |
 
 Baseline for comparison: v2 = 41% raw with untraceable errors.
 Last lever added (2026-08-20): **substitution- and homograph-aware candidate generation**
@@ -41,6 +42,10 @@ prints the FILLED SOLUTION GRID for the *previous* week's puzzle ("פתרון ת
 (clue text from week N's image, solution letters from week N+1's image). Documented in
 bootstrap.sh step 6; used once (2026-08-03) to reconstruct 2026-05-29 as real, audited
 dev data before the retry fix existed — see log.
+
+2026-08-19 lever (definition-span detection, `solver/defspan.py`): NEGATIVE result,
+measured not assumed — see log below. Queue item 2 struck; do not re-attempt with the
+same indicator-density signal.
 
 ## The policy that governs everything
 A blank beats a wrong answer. Wrong letters corrupt crossings and poison later passes.
@@ -86,9 +91,9 @@ propagated), `blank`. Score with `python3 evals/run_eval.py <file>`.
    proof-gates the generated list instead of one guess — still not done, every recall
    measurement so far has been pure offline generator + recall, never plugged into a
    live solve+prove loop.
-2. **Definition-span detection** — a cryptic clue's definition sits at one END. Classify
-   which end, then solve the wordplay from the remainder. Standard in the literature,
-   never tried here.
+2. ~~Definition-span detection~~ — TRIED 2026-08-19, NEGATIVE. See log and "already
+   tried" below. Do not re-attempt without a fundamentally different signal (not
+   indicator-word density).
 3. **Grow the corpus** — 8,249 clue-answer pairs vs ~470k used by the SOTA system. The
    tartey_mashma Google Group posts weekly scans of easier setters; transcribing those
    unlocks both retrieval and any future fine-tune. This is the long game.
@@ -103,6 +108,16 @@ propagated), `blank`. Score with `python3 evals/run_eval.py <file>`.
 - LLM verifiers judging plausibility: superseded by the executable proof gate.
 - Majority-vote consensus: reverses sign with run quality — helps weak runs, hurts strong ones.
 - More passes: coverage went 36 -> 46 -> 57 -> 55 -> 43; passes are exhausted.
+- **Definition-span detection via indicator-word density** (2026-08-19, `solver/defspan.py`):
+  measured, not just implemented — see log entry. Only 25% of clues even have a
+  mechanically-locatable single-window wordplay span to test the premise against; of
+  those, 29% are interior (breaking the one-end model outright); and on the remaining
+  edge cases the indicator-density classifier scored 1/5 — because most of these clues
+  carry NO indicator word at all (this setter's anagram signal is mechanical, not
+  lexical, exactly as PLAYBOOK.md already noted), so the classifier degenerates to a
+  fixed default that loses to the actual distribution. Do not re-attempt with the same
+  signal; a different approach (e.g. scoring by whether each end's residual is anagram-
+  matchable) would have to be validated the same way before trusting it.
 
 ## Log
 - 2026-07-28: proof gate added. Rejected 3 candidates on 06-05: 2 were genuine errors,
@@ -452,6 +467,70 @@ Measure each lever on dev (fixed enums) with run_eval.py before/after; one lever
   out weaker-but-correct literal hits on clues where both fire heavily (flagged as a
   concrete next refinement, not implemented); wiring `candidates.py` into a live solve
   pass (still item (a) from the queue, unchanged).
+- 2026-08-19: **definition-span detection** (`solver/defspan.py`), lever 2 from the queue
+  — NEGATIVE, killed by measurement, nothing shipped downstream. Bootstrap this run only
+  recovered 5/52 puzzle answer pages (14across's bot-check engaged hard partway through
+  and never cleared — confirmed by 15 straight curl retries and a Playwright/Chromium
+  attempt, both still 202/sg-captcha; documented as a new bootstrap failure mode, worse
+  than 2026-08-06's "~half of requests" description). None of the 5 recovered answer
+  dates matched a downloaded dev image, so transcribed a NEW puzzle instead: 2026-06-19,
+  which already had a committed grid (`data/grids/2026-06-19.json`) and, after fetching
+  its article image directly from the public Haaretz CDN (bypassing 14across entirely for
+  this step), gold answers were separately recovered for it too. Transcribed all 28
+  clues from `data/images/2026-06-18.jpg`; validated every enum sum against the gold
+  answer's letter count — 0/28 mismatches. Not committed (data/ is gitignored by design;
+  a future run must redo this exactly as prior runs' transcriptions were never persisted).
+
+  Before building a classifier, tested the premise: PLAYBOOK.md 2.4 already claims,
+  qualitatively, that this setter does not confine the definition to one end of the
+  clue ("No fixed rule... can be interleaved"). `defspan.py stats` locates each gold
+  answer's own anagram/hidden/reversal fodder window in its clue and buckets its
+  position. MEASURED (executed, not estimated) on the 28 transcribed clues: only
+  **7/28 (25%)** have a mechanically-locatable single-window wordplay span at all (the
+  rest use charade/culture-pun/double-def devices this check can't even test, consistent
+  with PLAYBOOK's mechanism table). Of those 7: 4 start, 1 end, **2 interior (29%)** —
+  interior cases mechanically falsify the one-end premise for those clues, independent
+  confirmation of PLAYBOOK's qualitative claim from a different angle than 08-06's
+  candidate-generation finding.
+
+  Built the classifier anyway (`split`, scores (definition, wordplay) hypotheses by
+  indicator-word density from indicators.json) since a majority of the locatable subset
+  DID sit at an edge, so the premise wasn't fully dead — the question was whether the
+  classifier could actually find that edge. Fixed a real bug while building it: naive
+  substring matching against indicator phrases (many of which are 1-2 characters, e.g.
+  'מ', 'ב', 'או') fired inside unrelated words (e.g. 'מ' inside 'ממשלה'); switched to
+  word-set membership for single-token indicators. Selftest (`python3 solver/defspan.py
+  selftest`, 10 checks) passes, synthetic examples only.
+
+  MEASURED classifier accuracy against the 5 edge-bucketed cases (excluding the 2
+  interior ones a start/end-only classifier structurally cannot address):
+  **1/5 correct — worse than a coin flip.** Root cause, inspected directly: all 5 clues
+  had ZERO indicator-word hits on either side (`wordplay_indicators: []`), so the
+  classifier's tiebreak (prefer the shortest definition) degenerated to a FIXED guess
+  (wordplay=end) every time, and the true distribution (4 start / 1 end) made that fixed
+  guess wrong 4 times out of 5. This is not a small implementation bug to patch — it is
+  the expected consequence of a fact this project's own PLAYBOOK.md already states:
+  "the strongest anagram signal is mechanical, not lexical" for this setter (85% of
+  anagram fodder is found by exact character-window matching, not by spotting an
+  indicator word). An indicator-density signal has almost nothing to score against for
+  the dominant mechanical-wordplay clues.
+
+  AUDIT: `defspan.py` never reads 14across or any solution site; the `stats` measurement
+  runs only against the ONE puzzle transcribed this session (same pattern candidates.py's
+  `recall` used on 08-06), not a lookup against held-out data — `lexicon.held_out_answers()`
+  is untouched by this tool. No jump to explain (25% locatable, 1/5 classifier accuracy
+  are both low, unsurprising numbers, not a suspicious spike).
+
+  HONEST READ: definition-span detection via indicator-word density does not work on
+  this corpus and should not be pursued further with this signal. Combined finding with
+  08-06: on this setter, wordplay position AND wordplay type are both mechanically hard
+  to pin down from surface indicators alone — the setter's toolkit (mechanical anagram
+  fodder + substitution/homograph devices) resists exactly the kind of lexical-marker
+  heuristics that work on more conventional English cryptics. Queue item 2 is struck.
+  Sample size caveat: n=7 located / n=5 classifier-scored, on one puzzle — the
+  *direction* (mostly-edge-but-not-all, indicators mostly absent) is unlikely to be pure
+  noise given it corroborates PLAYBOOK's independent qualitative read, but a second
+  puzzle's worth of data would strengthen this before treating it as fully settled.
 - 2026-08-20: **substitution- and homograph-aware candidate generation**, lever 1(b) from
   the queue. BOOTSTRAP FRICTION (new, worth flagging): `./bootstrap.sh --dev-only`'s
   14across fetch (scraper/parse_answers.py) hit a much harder bot wall today than the
