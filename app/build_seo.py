@@ -191,6 +191,27 @@ def meta_desc(t,n,single,d,c,a,sb,related=()):
 
 
 urls=[]
+
+# Which category-letter pages will exist. Computed before the length pages so
+# those can link to them: #17 shipped 248 letter pages with no inbound internal
+# link anywhere on the site, discoverable only through the sitemap. They took 0
+# impressions in the two days after deploy while the length pages kept absorbing
+# the letter-shaped queries at position ~57.
+LETTER_ITEMS={}
+for cat in CATS:
+    _by={}
+    for t in cult.get(cat,[]):
+        n=norm(t)
+        if 2<=len(n)<=12 and n: _by.setdefault(n[0],[]).append((t,n))
+    LETTER_ITEMS[cat]={ch:it for ch,it in _by.items() if len(it)>=5}
+
+def letter_nav(cat,here=None):
+    """links to the sibling category-letter pages; '' when the category has none"""
+    chs=[ch for ch in sorted(LETTER_ITEMS.get(cat,{})) if ch!=here]
+    if not chs: return ''
+    ls=' · '.join(f'<a href="/milon/{urllib.parse.quote(f"{cat}-letter-{ch}")}/">{ch}</a>' for ch in chs)
+    return f'<p style="font-size:.9rem">לפי אות פותחת: {ls}</p>\n'
+
 # ---------- category-length pages ----------
 for cat,(plural,single) in CATS.items():
     by_len={}
@@ -209,7 +230,7 @@ for cat,(plural,single) in CATS.items():
         lis=''.join(_li(t,n) for t,n in items)
         body=f"""<p><b>{len(items)} {plural}</b> שהשם שלהם נכתב ברשת התשבץ ב-<b>{L} אותיות</b>
 (בתשבץ אין אותיות סופיות: ם/ן/ץ/ף/ך נכתבות מ/נ/צ/פ/כ, והכתיב מוצג מתחת לכל שם).</p>
-<ul class="grid">{lis}</ul>"""
+{letter_nav(cat)}<ul class="grid">{lis}</ul>"""
         page(f'{OUT}/{slug}/index.html',
              f'{plural} ב-{L} אותיות לתשבץ ותשחץ: {len(items)} פתרונות',
              f'{single} ב-{L} אותיות? הרשימה המלאה לפתרון תשבצים: {len(items)} {plural}, ממוינים לפי שכיחות בתשבצים, עם הכתיב המדויק ללא אותיות סופיות.',
@@ -225,12 +246,7 @@ for cat,(plural,single) in CATS.items():
 # באות מ"). Those queries currently land on a length page that does not answer
 # them, at position ~60. Index the dimension people actually type.
 for cat,(plural,single) in CATS.items():
-    by_letter={}
-    for t in cult.get(cat,[]):
-        n=norm(t)
-        if 2<=len(n)<=12 and n: by_letter.setdefault(n[0],[]).append((t,n))
-    for ch,items in sorted(by_letter.items()):
-        if len(items)<5: continue
+    for ch,items in sorted(LETTER_ITEMS[cat].items()):
         items.sort(key=lambda x:(-cw.get(x[1],0),x[0]))
         slug=f'{cat}-letter-{ch}'
         lis=''.join(
@@ -243,7 +259,7 @@ for cat,(plural,single) in CATS.items():
         body=f"""<p><b>{len(items)} {plural}</b> שמתחילים באות <b>{ch}</b>, עם מספר האותיות של כל אחד
 ברשת התשבץ (בתשבץ אין אותיות סופיות: ם/ן/ץ/ף/ך נכתבות מ/נ/צ/פ/כ).</p>
 <p style="font-size:.9rem">אורכים זמינים: {', '.join(f'<a href="/milon/{urllib.parse.quote(f"{cat}-{L}")}/">{L}</a>' for L in lens if L>=2)}</p>
-<ul class="grid">{lis}</ul>"""
+{letter_nav(cat,here=ch)}<ul class="grid">{lis}</ul>"""
         page(f'{OUT}/{slug}/index.html',
              f'{plural} באות {ch}: {len(items)} תשובות לתשבץ ותשחץ',
              f'{single} שמתחיל באות {ch}? {len(items)} אפשרויות עם מספר האותיות והכתיב המדויק ברשת, '
@@ -378,14 +394,14 @@ cat_links=''
 for cat,(plural,_) in CATS.items():
     Ls=sorted({e['l'] for e in ent_index if e['c']==cat and 2<=e['l']<=12})
     links=' '.join(f'<a href="/milon/{cat}-{L}/">{L}</a>' for L in Ls if f'/milon/{cat}-{L}/' in urls)
-    cat_links+=f'<p><b>{plural}</b> לפי אורך: {links}</p>'
+    cat_links+=f'<p><b>{plural}</b> לפי אורך: {links}</p>'+letter_nav(cat)
 cat_json=json.dumps({c:v[1] for c,v in CATS.items()},ensure_ascii=False)
 hub=f"""<p>מנוע חיפוש לפותרי תשבצים: שמות של שירים, זמרים, פוליטיקאים ומקומות, עם הכתיב המדויק ברשת
 (ללא אותיות סופיות), אורך, ומשמעויות כפולות. {len(ent_index):,} ערכים.</p>
 <input id="q" placeholder="חיפוש שם, או תבנית: ? או . לאות חסרה (למשל: ?ו?ה)" autocomplete="off">
 <p style="margin:.5rem 0"><a href="/milon/anagram/"><b>יש לכם אותיות מבולבלות? → חיפוש אנגרם</b></a></p>
 <div id="res" class="grid" style="margin-top:.8rem"></div>
-<h2>עיון לפי קטגוריה ואורך</h2>{cat_links}
+<h2>עיון לפי קטגוריה, אורך ואות פותחת</h2>{cat_links}
 <p style="margin-top:1.4rem">חסרה לכם תשובה שלמה? <a href="/solve/">עוזר הפתירה</a> פותר איתכם עם רמזים מדורגים והוכחות.</p>
 <script>
 let E=null;const q=document.getElementById('q'),res=document.getElementById('res');
