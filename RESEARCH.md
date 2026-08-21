@@ -307,6 +307,57 @@ mechanisms in `solver/candidates.py` (queue item 1(b)), plus a held-out-safety f
 `solver/substitutions.py` that the new mechanism's use of that table required (see
 DAILY.md log for the measured result and the audit).
 
+## 2026-08-21
+
+Re-checked for anything new since 2026-08-20 on: cryptic candidate generation,
+definition-span detection, and Hebrew NLP/morphology, plus a general sweep for any new
+cryptic-solving system.
+
+**General search: "cryptic crossword solver LLM candidate generation 2026".** Surfaced
+only papers already logged here (2406.09043 NAACL 2025, 2412.09012, 2506.04824) plus one
+new item worth checking: Sadallah et al. (2025) reports ChatGPT few-shot accuracy of
+9.5% on English cryptics vs. 99% human-expert — a bigger accuracy gap than this project's
+own numbers, on an easier language (English cryptics have a stable one-end definition
+convention this setter explicitly does not follow, per the already-measured 08-19
+finding). **Transfer: confirms rather than changes anything** — if frontier LLMs
+struggle this much on the *easier*, well-studied version of this task even with full
+in-context few-shot prompting (no external candidate generator, no proof gate), it's
+consistent with this project's standing diagnosis that the wordplay-cracking step itself,
+not tooling, is the hard part, and that a bare LLM without this project's harness would
+do worse here, not better. Also surfaced this project's own public page again in a
+general search (as on 2026-08-20) — spot-checked that it still correctly represents the
+96% figure as retracted, not fixed by omission.
+
+**Definition-span detection, general search.** No new academic result; general
+crossword-advice pages restate the same one-end convention already known to not hold for
+this setter (killed 2026-08-19, queue item 2 struck). **Transfer: none** — nothing here
+contradicts or should reopen that finding.
+
+**Hebrew morphology / NLP.** Same landscape as 2026-08-06/08-20 (RFTokenizer, HebPipe,
+YAP), plus one tool not previously named directly: **DictaBERT-seg**, a Hebrew
+transformer fine-tuned specifically for the prefix-segmentation task (splitting off
+ב/ל/מ/ש/ה/ו/כ clitics), more targeted than YAP's full morpho-syntactic parse for this
+project's narrow need. **Transfer: still plausible, still not attempted, still not the
+bottleneck.** Same reasoning as the last two research entries — this project's own
+measured numbers (candidate recall 3.6-7.1% across three independent puzzles/
+implementations, defspan classifier 1/5) point at wordplay-mechanism coverage and
+definition-fit judgment as the gap, not tokenization quality; the ad hoc prefix lists
+already in `homographs.py`/`charade.py` are not where the last three levers' failures
+traced to. Not queued above candidate-generation-shape work without a concrete case where
+a prefix-list miss caused a specific measured failure.
+
+**Conclusion for today's lever.** No new external finding changes the queue's priority
+order or reopens either struck item. Given the queue's top code lever (candidate
+generation, item 1) has now been tried in three independently-written shapes across three
+different dev puzzles with the same null result (3.6% / 7.1% / 4.0% recall, all flat
+before/after adding substitution+homograph mechanisms), and item 2 is struck, today's
+lever is the lowest-risk, best-evidenced item actually still open: queue item 7, fixing
+`lexicon.held_out_answers()`'s coverage gap. It is not a research-literature lever — it's
+an internal integrity fix flagged twice already (2026-08-16, 2026-08-17 log entries) as a
+real, unaddressed leak vector, and this project's own history (the 96% leak) is the
+reason leak-vector fixes get priority over one more speculative recall experiment on a
+lever already measured negative three times running.
+
 ## 2026-08-22
 
 Swept for anything new since 2026-08-20 on: cryptic candidate generation, definition-span
