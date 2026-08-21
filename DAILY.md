@@ -14,9 +14,14 @@ Read this first each run. It is the handoff between days.
 | **Candidate recall@N (new, offline, mechanical only)** | **3.6% (1/28)**, avg 11.6 candidates/clue (capped), on 2026-05-29 — UNCHANGED after adding substitution+homograph mechanisms | not yet a target — diagnostic |
 | **Definition-span locatable rate (new, offline, diagnostic)** | **25% (7/28)** have mechanically-locatable single-window wordplay; of those 29% (2/7) are interior, not edge; classifier agreement on edge cases **1/5** | not a target — this diagnostic KILLED the lever, see log |
 | **`solve_pass.py` LIVE blind trial (2026-08-16)** | **50% precision (1/2 committed)**, 9.5% coverage, 4.8% yield, on a partial 21/28-clue puzzle (2026-06-12) | n=2 — NOT a reliable estimate, see log |
+| **`held_out_answers()` leak-vector fix (2026-08-21, code + audit, not a score)** | Measured on a real partial transcription (2026-06-05, 10/28 clues transcribed): 18/18 previously-leaked untranscribed-slot gold answers now correctly excluded from the corpus/culture lexicon tiers | queue item 7 CLOSED — see log |
 
 Baseline for comparison: v2 = 41% raw with untraceable errors.
-Last lever added (2026-08-20): **substitution- and homograph-aware candidate generation**
+Last lever added (2026-08-21): **`lexicon.held_out_answers()` coverage-gap fix** (queue item 7)
+— blocks every gold answer for a held-out puzzle DATE, not just clues with a transcribed
+row. No precision/coverage/yield number changes (this is an integrity fix, not a solving
+lever); see log for the real, measured before/after leak closure.
+Prior lever (2026-08-20): **substitution- and homograph-aware candidate generation**
 (`solver/candidates.py`: `substitution_candidates`, `homograph_candidates`) — queue item
 1(b). Also fixed a truncation-priority bug the new mechanisms exposed (see log) and added
 held-out-safety filtering to `solver/substitutions.py` (`held_out()`), which the new
@@ -114,19 +119,25 @@ propagated), `blank`. Score with `python3 evals/run_eval.py <file>`.
    grid (Berkeley Crossword Solver approach). Worth doing once candidate lists are good.
 5. **Validate on the easier tier** (דקל בנו) — where 80% is realistic; tells us whether
    the harness is sound and this setter is simply hard.
-6. **[NEW 2026-08-16] Merge or close the PR backlog.** 8 open PRs (#1,#2,#6-#12), none
-   merged since 2026-08-06 — every subsequent day rebuilds from the same stale main and
-   several independently re-derived the same negative result. This is a process fix, not
-   a code lever, but it is now the single highest-leverage thing blocking this loop from
-   compounding day over day. Not something a daily agent can do unilaterally (PRs need
-   the project owner's review/merge) — flagging so it gets attention.
-7. **[NEW 2026-08-16] Fix `lexicon.held_out_answers()`'s coverage gap.** It only blocks
-   an answer when its clue has a row in `data/dataset/clues.jsonl` — an untranscribed
-   clue's gold answer stays fully exposed in the lexicon at corpus/culture priority. Fix:
-   derive the block set from every (puzzle_date, clue_number, direction) implied by a
-   dev/eval puzzle's committed GRID (all slots), not just the clues that happened to get
-   transcribed. Low effort, real leak risk if a future run ever pattern-matches an
-   untranscribed slot's crossing letters.
+6. ~~Merge or close the PR backlog.~~ RESOLVED by the time of the 2026-08-21 run:
+   `list_pull_requests` returned 0 open PRs (all of #1,#2,#6-#13,#16,#18,#20-#22 have since
+   merged or closed). No action needed from a daily agent; noting so a future run doesn't
+   re-flag it without checking first.
+7. ~~Fix `lexicon.held_out_answers()`'s coverage gap.~~ DONE 2026-08-21 — see log. It only
+   blocked an answer when its clue had a row in `data/dataset/clues.jsonl`; an untranscribed
+   clue's gold answer stayed fully exposed in the lexicon at corpus/culture priority. Fixed
+   by blocking every answer in a held-out puzzle's full answer key
+   (`data/answers/by_date/<date>.json`) once any one of its clues is known to be dev/eval,
+   not just the transcribed ones. Measured end-to-end on a real partial transcription
+   (2026-06-05, 10/28 clues): 18/18 previously-leaked untranscribed-slot answers closed.
+7b. **[NEW 2026-08-21] The identical gap exists in `substitutions.held_out()`
+   (`solver/substitutions.py`) and `retrieve_defs.held_out()` (`solver/retrieve_defs.py`)**
+   — both build their block set the same way the old `lexicon.held_out_answers()` did
+   (iterate `clues.jsonl` rows only), so an untranscribed dev/eval clue's answer can still
+   leak through the substitution-mining or retrieval-index paths even after today's
+   lexicon.py fix. Not fixed today (one lever per run) — same fix shape applies: block
+   every answer in a held-out puzzle's full `data/answers/by_date/<date>.json`, not just
+   transcribed rows. Flagging explicitly since it's the same bug pattern, already diagnosed.
 8. **[NEW 2026-08-16] Audit whether across clues 1-13 were ever legitimately sourced.**
    4 different weeks' dev images (2026-06-11, 2026-06-18, 2026-05-21, 2026-05-28) all show
    the identical gap: the printed clue column starts at across ~13-15 and never contains
@@ -139,7 +150,12 @@ propagated), `blank`. Score with `python3 evals/run_eval.py <file>`.
    confirmed 2026-06-05's and 2026-06-12's committed grids are byte-identical — so an enum
    match there is NOT evidence of being the right week's text). If those older
    transcriptions used the wrong week's clues, some historical dev numbers may need
-   re-measurement.
+   re-measurement. **PARTIAL DATA POINT (2026-08-21):** 2026-06-05's own image
+   (`data/images/2026-06-04.jpg`) does NOT have this gap — its אופקי column prints across
+   clues starting at 1 (1,7,8,9,10,11,12,13,14,16 all legibly transcribed and enum-validated
+   this run, 0 mismatches). So the gap is not universal across all weeks; it may be specific
+   to whichever weeks were checked before, or alternate week-to-week. Worth checking a
+   larger sample before concluding either way.
 
 ## Things already tried — do not repeat
 - More knowledge tooling (wiki, culture lexicon, shironet titles): helped early, now saturated.
@@ -897,3 +913,89 @@ Measure each lever on dev (fixed enums) with run_eval.py before/after; one lever
   just 1-2 pieces covering the full length) — `charade.py`'s open-ended version of that
   was already measured weak (2.8%, 2026-08-08) due to combinatorial false positives, so a
   redesign needs a way to keep multi-part assembly PRECISE, not just broaden it further.
+- 2026-08-20 (continued into 2026-08-21, autonomous cloud run): **`lexicon.held_out_answers()`
+  coverage-gap fix**, queue item 7. Chose this over a fourth attempt at candidate generation:
+  RESEARCH.md's 2026-08-21 pass found nothing new in the literature that changes the queue
+  order, and item 1 (candidate generation) has now measured negative in three independently
+  written implementations across three different dev puzzles (3.6% / 7.1% / 4.0% recall, all
+  flat before/after substitution+homograph mechanisms) — a fourth attempt on the same shape
+  isn't attributable to anything new. Item 7 was flagged twice (2026-08-16, 2026-08-17) as a
+  real, unfixed leak vector and never actioned, so it was the best-evidenced item still open.
+
+  **Also found, before touching any lever**: `list_pull_requests` returned **0 open PRs** —
+  the 8-PR backlog flagged 2026-08-16 as blocking this loop from compounding has been cleared
+  since. Struck queue item 6. Good sign the loop is now building on prior work rather than
+  re-deriving it.
+
+  **BOOTSTRAP**: `./bootstrap.sh --dev-only` itself timed out at 300s still inside step 2
+  (14across) with no output — killed by the tool wrapper, not a script bug. Split the steps
+  manually instead: hspell (already committed, instant), the 4 canonical dev images (instant,
+  confirming images are still unaffected by 14across's block), then two separate 14across
+  attempts run in parallel in the background — a full 52-URL pass (`scraper/parse_answers.py`
+  as-is) and a targeted 60-retry single-date fetch for 2026-06-12 (chosen to test the fix on
+  the specific puzzle DAILY.md documents as having a partial-transcription gap). **The full
+  pass recovered only 3/52 puzzles** (2025-11-28, 2025-10-03, and — the useful one —
+  **2026-06-05**, a canonical dev date) after ~15 minutes; 49/52 failed the bot-check even
+  with retries. Consistent with the harder-wall pattern reported 2026-08-15/08-19/08-20, not
+  the original "~50% random" description — worth continuing to monitor, not yet re-actioned
+  (still not attempting to defeat the challenge itself, per 2026-08-20's standing decision).
+  The targeted 2026-06-12 fetch never returned inside its own timeout window; abandoned in
+  favor of the 2026-06-05 puzzle the full pass did recover, which turned out to be a BETTER
+  test case (see below). Did not commit any bootstrap regressions (culture.json/
+  substitutions.json were never reached by this run, no `git checkout` needed).
+
+  **THE FIX** (`solver/lexicon.py`): `held_out_answers()` used to build its block set by
+  iterating `data/dataset/clues.jsonl` rows only — so an untranscribed clue in a dev/eval
+  puzzle (real, documented: several weeks' images are missing across 1-13) left that slot's
+  gold answer fully exposed in the corpus/culture lexicon tiers, reachable by any pattern
+  lookup. Now: once a puzzle date is known to be dev/eval from any one transcribed row,
+  EVERY answer in that puzzle's full answer key (`data/answers/by_date/<date>.json`,
+  independent of transcription) is blocked. Simpler than the originally-proposed grid-slot
+  approach (no need to touch `grid_tools.py` at all — a puzzle's full by_date answer file
+  already covers every real slot) and avoids any risk of a grid-numbering/by_date-numbering
+  mismatch. Added `python3 solver/lexicon.py selftest` (4 checks, synthetic fixture files in
+  a temp dir, same discipline `candidates.py`/`defspan.py` already enforce) — all pass.
+  `solver/prove.py selftest` and `solver/candidates.py selftest` re-run clean, no regression.
+
+  **MEASURED END-TO-END ON REAL DATA (executed, not estimated).** Transcribed 10 of 28 across
+  clues (1,7,8,9,10,11,12,13,14,16) for 2026-06-05 from `data/images/2026-06-04.jpg`,
+  deliberately leaving 19,20,22,23,24 across and all 13 down clues untranscribed to recreate
+  the exact partial-puzzle scenario this fix targets. All 10 enum sums validated against the
+  freshly-fetched gold answer lengths — 0 mismatches — and `solver/grid_tools.py validate`
+  confirmed clean (the only 18 reported "problems" are the expected "grid slot but no printed
+  clue" for the deliberately-untranscribed slots; zero enum-sum or slot-existence mismatches).
+  `python3 solver/build_dataset.py` produced 10 rows, split=eval (sole transcribed puzzle).
+
+  Then compared OLD vs NEW block sets and ran the REAL, unmodified `lexicon.load()` both ways:
+  OLD block = 10 answers (the transcribed rows only); NEW block = 28 (the full puzzle).
+  **18/18 untranscribed-slot gold answers that were unblocked under OLD are blocked under
+  NEW.** Checked live-lexicon impact on 4 of them directly: `הונדורס` (2D) and `טרובדור`
+  (17D) go from corpus-tier priority 2 (elevated, exploitable) under OLD to plain-dictionary
+  priority 1 under NEW — correct, since they really are ordinary dictionary words and the
+  project's own policy (RESULTS.md) says legitimate dictionary words should stay; `קשימלהפרדה`
+  (24A) and `שוקהכרמל` (11D) — multi-word fused phrases NOT in the plain dictionary — go from
+  priority 2 to **absent entirely** under NEW, meaning a pattern lookup can no longer retrieve
+  them at all. The previously-transcribed clue (`כלהכבודלשר`, 1A) stays blocked under both —
+  no regression to existing behaviour.
+
+  AUDIT: no forbidden reads (14across via the documented scraper, public CDN images); this
+  run's own gold-answer reads were for auditing the leak fix itself, not a blind-solve attempt
+  on 2026-06-05 — no live solve was performed or claimed on this puzzle this run, so there is
+  no blind-solve contamination to disclose (unlike the 2026-08-16 integrity note, which
+  applied to an actual solve attempt). Not a score/precision claim, so no ~15-point-jump check
+  applies; the "jump" here is a leak-closure count (18/18), which is exactly the expected
+  result of the fix's own logic, not a surprise. Confirmed `substitutions.held_out()` and
+  `retrieve_defs.held_out()` were NOT touched by this change and still have the identical gap
+  — flagged as new queue item 7b, not fixed today (one lever per run).
+
+  SIDE FINDING: `list_pull_requests` also showed the PR backlog is clear (see above) — worth
+  a small process note: the last several runs' branches (2026-08-16 through 2026-08-20, some
+  independently re-deriving negative candidate-generation results) evidently did get merged
+  or closed since. This run's branch continues that base rather than re-deriving anything.
+
+  NOT DONE, honestly: did not re-measure precision/coverage/yield on any puzzle (this lever
+  is an integrity fix, not a solving lever — no such number was expected to move, and none is
+  claimed); did not fix the sibling gap in `substitutions.py`/`retrieve_defs.py` (queue item
+  7b, flagged for a future run); did not resolve queue item 8's "was across 1-13 ever
+  legitimately sourced" question in general, though today's 2026-06-05 data point (across 1-13
+  present and clean in that week's own image) is evidence the gap isn't universal across weeks.
