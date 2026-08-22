@@ -13,10 +13,19 @@ Read this first each run. It is the handoff between days.
 | Hardest puzzle | 2026-06-05: 100% / 43% / 43% | coverage stuck |
 | **Candidate recall@N (new, offline, mechanical only)** | **3.6% (1/28)**, avg 11.6 candidates/clue (capped), on 2026-05-29 — UNCHANGED after adding substitution+homograph mechanisms | not yet a target — diagnostic |
 | **Definition-span locatable rate (new, offline, diagnostic)** | **25% (7/28)** have mechanically-locatable single-window wordplay; of those 29% (2/7) are interior, not edge; classifier agreement on edge cases **1/5** | not a target — this diagnostic KILLED the lever, see log |
-| **`solve_pass.py` LIVE blind trial (2026-08-16)** | **50% precision (1/2 committed)**, 9.5% coverage, 4.8% yield, on a partial 21/28-clue puzzle (2026-06-12) | n=2 — NOT a reliable estimate, see log |
+| **`solve_pass.py` LIVE blind trial — cumulative (2 trials)** | **25% precision (1/4 committed)**: 2026-08-16 was 1/2 on a partial 21/28-clue puzzle (2026-06-12); 2026-08-22 (today) is **0/2**, 7.1% coverage, 0% yield, on a FULL 28/28-clue puzzle (2026-05-15) — first full-puzzle live trial, see log | n=4 — still small, but both trials together now argue the proof gate alone is not a reliable confidence signal; see log |
 
 Baseline for comparison: v2 = 41% raw with untraceable errors.
-Last lever added (2026-08-20): **substitution- and homograph-aware candidate generation**
+Last lever added (2026-08-22): **first full-puzzle LIVE blind trial of `solve_pass.py`**
+(queue item 1(a)'s remaining gap, flagged since 2026-08-16). MEASURED 0/2 precision
+(both committed answers wrong), 7.1% coverage, 0% yield on 2026-05-15 (28/28 clues
+transcribed, all enum sums validated against grid geometry, 0 mismatches). Both misses
+were a mechanically-real device (hidden-word, reversal) landing on a real Hebrew word
+that was NOT the setter's intended answer — root-cause detail in the log. Combined with
+2026-08-16's trial, cumulative live precision is now 1/4 = 25%, well below the proof
+gate's promise; see log for the full audit and honest read.
+
+Previous lever (2026-08-20): **substitution- and homograph-aware candidate generation**
 (`solver/candidates.py`: `substitution_candidates`, `homograph_candidates`) — queue item
 1(b). Also fixed a truncation-priority bug the new mechanisms exposed (see log) and added
 held-out-safety filtering to `solver/substitutions.py` (`held_out()`), which the new
@@ -114,20 +123,17 @@ propagated), `blank`. Score with `python3 evals/run_eval.py <file>`.
    grid (Berkeley Crossword Solver approach). Worth doing once candidate lists are good.
 5. **Validate on the easier tier** (דקל בנו) — where 80% is realistic; tells us whether
    the harness is sound and this setter is simply hard.
-6. **[NEW 2026-08-16] Merge or close the PR backlog.** 8 open PRs (#1,#2,#6-#12), none
-   merged since 2026-08-06 — every subsequent day rebuilds from the same stale main and
-   several independently re-derived the same negative result. This is a process fix, not
-   a code lever, but it is now the single highest-leverage thing blocking this loop from
-   compounding day over day. Not something a daily agent can do unilaterally (PRs need
-   the project owner's review/merge) — flagging so it gets attention.
-7. **[NEW 2026-08-16] Fix `lexicon.held_out_answers()`'s coverage gap.** It only blocks
-   an answer when its clue has a row in `data/dataset/clues.jsonl` — an untranscribed
-   clue's gold answer stays fully exposed in the lexicon at corpus/culture priority. Fix:
-   derive the block set from every (puzzle_date, clue_number, direction) implied by a
-   dev/eval puzzle's committed GRID (all slots), not just the clues that happened to get
-   transcribed. Low effort, real leak risk if a future run ever pattern-matches an
-   untranscribed slot's crossing letters.
-8. **[NEW 2026-08-16] Audit whether across clues 1-13 were ever legitimately sourced.**
+6. ~~Merge or close the PR backlog~~ — STRUCK 2026-08-21 (see PR #23's own log): backlog
+   is now down to a single open PR (#23 itself, not yet merged as of 2026-08-22). Re-check
+   `list_pull_requests` each run in case it grows again, but the compounding-loss problem
+   this item flagged is resolved for now.
+7. **Fix `lexicon.held_out_answers()`'s coverage gap.** ADDRESSED 2026-08-21, PR #23
+   (`daily/2026-08-21-held-out-answers-leak-fix`), open but NOT YET MERGED as of
+   2026-08-22 — a future run should check whether it landed and, if so, strike this item.
+   Today's own live trial (2026-05-15) was unaffected either way since all 28 of that
+   puzzle's clues were transcribed, so the old and new logic block the same set for it.
+   Sibling gap flagged in substitutions.py/retrieve_defs.py as new item 7b, still open.
+8. **Audit whether across clues 1-13 were ever legitimately sourced.**
    4 different weeks' dev images (2026-06-11, 2026-06-18, 2026-05-21, 2026-05-28) all show
    the identical gap: the printed clue column starts at across ~13-15 and never contains
    across 1-12. Several prior PRs (#2, #6, #8, #9, #10, #11) claim "28/28 transcribed, 0
@@ -137,7 +143,10 @@ propagated), `blank`. Score with `python3 evals/run_eval.py <file>`.
    block that sits next to a filled solution grid on the same page (which shares identical
    enum lengths at every slot only because this setter reuses one fixed grid template —
    confirmed 2026-06-05's and 2026-06-12's committed grids are byte-identical — so an enum
-   match there is NOT evidence of being the right week's text). If those older
+   match there is NOT evidence of being the right week's text). NEW DATA POINT 2026-08-22:
+   2026-05-15's own image (`data/images/2026-05-14.jpg`) prints across clues 1 THROUGH 13
+   cleanly, no gap — the second date (after PR #23's 2026-06-05 finding) confirming the
+   gap is not universal, it's specific to certain weeks' layouts. If those older
    transcriptions used the wrong week's clues, some historical dev numbers may need
    re-measurement.
 
@@ -244,6 +253,115 @@ propagated), `blank`. Score with `python3 evals/run_eval.py <file>`.
   so the LLM proof-gates a generated list instead of a single guess, and extend
   generation to use `substitutions.py`/`homographs.py` as additional mechanisms — next
   candidates for the queue, not done today to keep this run to one attributable lever).
+- 2026-08-22: **first FULL-puzzle live blind trial of `solve_pass.py`**, closing the gap
+  flagged since 2026-08-16 ("solve_pass.py is not yet wired into a live blind solve that
+  produces a reliable precision/coverage/yield number ... that full-puzzle trial is the
+  honest next step"). Chose this over another candidate-generation/defspan attempt because
+  `list_pull_requests` showed the backlog down to 1 open PR (#23, item 7's fix, opened
+  2026-08-21) and RESEARCH.md's sweep this run (see its own 2026-08-22 entry) found nothing
+  new to extend either struck-or-negative lever — the queue's own explicitly-named
+  remaining gap under item 1(a) was the best-evidenced next step.
+
+  BOOTSTRAP: `./bootstrap.sh --dev-only` succeeded cleanly this run (51/52 puzzles, 1429
+  clues; the 14across bot-wall that blocked recent runs did not engage today). Reverted
+  the regressed `solver/lex/substitutions.json` rebuild (528 vs committed 2,220 head
+  words) per the standing warning, as every prior run has had to.
+
+  PUZZLE CHOICE: 2026-05-15, deliberately — it is the one puzzle DAILY.md's own log
+  explicitly flags as still safe for a genuinely blind trial (2026-08-16's agent partially
+  transcribed its image but never touched its answer key or wrote clue text; 2026-05-21 and
+  2026-05-29, the other candidate dev dates, both have SPECIFIC gold answers quoted
+  in-line in this very file's log from earlier runs' enum-reversal/recall write-ups, which
+  would have burned them for MY blind attempt the moment I read this file — checked this
+  explicitly before picking a puzzle, since DAILY.md itself is required reading each run
+  and is therefore a leak vector its own instructions don't flag).
+
+  TRANSCRIBED all 28 clues (15 across, 13 down) from `data/images/2026-05-14.jpg` myself,
+  cross-cropping/zooming ambiguous words multiple times. Validated every enum sum against
+  `data/grids/2026-05-15.json` via `solver/grid_tools.py validate` (grid geometry only,
+  no gold answer read) — **0/28 mismatches**, strong independent confirmation the
+  transcription is accurate before any gold was touched. Only after that did
+  `solver/build_dataset.py` join clue text with the (already-bootstrapped)
+  `data/answers/by_date/2026-05-15.json` — I did not read that file myself; the join step
+  reported **0 len mismatches, 0 missing answers** across all 28 rows, again computed by
+  code, not read.
+
+  DELEGATED the actual solving to a fresh subagent (no memory of this session, so no
+  chance of the puzzle-selection reasoning above leaking anything) with SOLVE_PROTOCOL.md
+  as its method and an explicit, repeated hard rule never to touch `data/answers/**`,
+  `data/dataset/**`, `14across.co.il`, or search the clue text verbatim. It used
+  `homographs.py scan` + `solve_pass.py clue` per clue, `prove.py check` before every
+  commit, and applied the self-flag-your-weakest-commit rule (downgraded 8A from committed
+  to suggestion). Output: 2 committed, 11 suggestion, 15 blank — archived at
+  `evals/runs/live/2026-08-22_2026-05-15_blind.json`.
+
+  MEASURED (executed): `python3 evals/run_eval.py evals/runs/live/2026-08-22_2026-05-15_blind.json`
+  — **PRECISION 0/2 = 0%, COVERAGE 7.1% (2/28), YIELD 0%**, suggestion hit-rate 0/11.
+  Both committed answers were WRONG. Error report at
+  `evals/runs/live/2026-08-22_2026-05-15_blind_errors.json`.
+
+  HONEST ROOT-CAUSE, inspected directly, not just the number. Both misses are the SAME
+  failure mode 2026-08-16 already predicted from the literature: a mechanically-verified
+  device landing on a real Hebrew word that is not the setter's intended answer.
+  - **9A** `הבהמה צריכה מים גם למזוג` (3): committed `גמל` (camel) via a hidden-word device
+    spanning a word boundary (`גם ל`(מזוג) -> גמל), definition "the animal that needs
+    water." Gold is `תאו` (water buffalo) — an equally-valid, arguably BETTER fit for
+    "the animal that needs water" (water buffaloes wallow), that the hidden-word scan
+    structurally cannot find because it isn't a literal substring of the clue at all.
+    `prove.py`'s `is_hidden` genuinely passed; the mechanism was never the problem, the
+    candidate it happened to surface was the wrong one for this definition.
+  - **24A** `בגב שער ירושלמי` (3): committed `רעש` (noise) via a clean letter-reversal of
+    `שער` (gate reversed = noise), self-contained pun. Gold is `שכמ` (Shechem/"shoulder") —
+    `שער שכם` is the literal Hebrew name for Damascus Gate (Shechem Gate), and `שכם` also
+    literally means "shoulder/back," so `בגב` ("on the back") is a double-definition
+    pointing straight at `שכם` via Jerusalem-gate culture knowledge the reversal mechanism
+    has no way to compete with. Again a real, passing proof — on the wrong candidate.
+
+  Combined with 2026-08-16's trial (1/2, also correctly attributable to a definition-fit
+  misjudgment on the wrong side, per that day's own log), **cumulative live precision
+  across the only two full/partial live trials this project has run is now 1/4 = 25%** —
+  well below both the 96.9% batch-dev number (which is not a blind measurement in the same
+  sense; see RESULTS.md) and the ~50-95% precision this project's earlier hand-solved
+  rounds report. This is the sharpest evidence yet, across two independent trials on two
+  independent puzzles, that **the proof gate's real limitation is exactly what
+  SOLVE_PROTOCOL.md already states in prose but this project had not yet measured live at
+  n>2**: `prove.py` proves a wordplay MECHANISM is internally consistent, never that a
+  candidate is THE answer, and `solve_pass.py`'s ranking (lexicon-tier, split-feasibility)
+  does not currently touch definition-fit at all — which is precisely the gap definition-
+  span detection was meant to close, and which the 2026-08-19 attempt at that (indicator-
+  word density) already measured as not working on this corpus. The queue does not
+  currently have a replacement idea for definition-fit scoring; RESEARCH.md's literature
+  sweeps have not found a Hebrew-portable one either. Flagging as the sharpest open
+  question this project has, not solving it today.
+
+  COVERAGE, separately: 7.1% (2/28) is well below every historical dev number (36-57%) and
+  below 2026-08-16's 9.5% — expected, not concerning: this was a genuinely cold, unassisted
+  puzzle with no crossing letters ever available (0 answers reached confidence 0.6, so
+  SOLVE_PROTOCOL's grid-propagation loop never got to run at all), a materially harder
+  setting than any prior dev/eval score, most of which had some crossings by the time they
+  were scored. Blank rate (15/28, 54%) is the policy working as intended — PRECISION FIRST
+  means most of a genuinely stuck puzzle should be blank, not guessed, and today's 2
+  committed answers (both wrong) show even the deliberately-conservative 0.75 confidence
+  bar was not conservative enough this trial.
+
+  AUDIT (mandatory gate). No forbidden reads: grepped the subagent's own tool-call log for
+  literal `data/answers`, `data/dataset`, and `14across` path arguments in Bash/Read
+  invocations (not just any mention, which would also catch the guardrail instructions
+  echoed back) — zero hits; the only matches were the rule text itself. `held_out_answers()`
+  correctly blocked all 28 of this puzzle's own gold answers regardless of whether PR #23's
+  fix is merged, because all 28 clues were transcribed (the fix only matters for PARTIAL
+  puzzles, which this wasn't). No jump to explain — 0% and 7.1% are both drops from every
+  prior number, the opposite direction a leak would produce; if anything, a wrong-on-both
+  live result is easier to trust than a suspiciously high one, and is itself indirect
+  evidence against contamination (a leaked gold answer would very likely have scored a hit,
+  not two misses). Puzzle-selection leak risk (DAILY.md's own log text) is disclosed above
+  and was checked before picking 2026-05-15, not after.
+
+  NOT DONE, honestly: did not attempt a second live puzzle for a larger sample (would
+  dilute today's one-lever discipline and this trial alone took the full run); did not
+  build a definition-fit scorer (flagged above as the real gap, not attempted — no
+  validated approach exists yet per RESEARCH.md); did not merge or otherwise act on PR #23
+  (out of scope for this lever, flagged for whoever reviews next).
 
 ---
 
