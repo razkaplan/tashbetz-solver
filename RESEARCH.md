@@ -307,6 +307,69 @@ mechanisms in `solver/candidates.py` (queue item 1(b)), plus a held-out-safety f
 `solver/substitutions.py` that the new mechanism's use of that table required (see
 DAILY.md log for the measured result and the audit).
 
+## 2026-08-23
+
+Two open PRs exist on top of this main (#23, 2026-08-21: `held_out_answers()` coverage
+gap fix, queue item 7; #24, 2026-08-22: first full-puzzle live blind trial of
+`solve_pass.py`, 0/2 precision) — neither merged, so main still lacks both. Read both in
+full via `pull_request_read` before choosing today's lever, per the standing "don't
+re-derive a result already sitting in an unmerged PR" lesson from the 2026-08-16 PR-pileup
+finding. PR #24's root-cause trace is the most important thing either surfaces:
+**cumulative live precision across the only two live trials this project has run
+(2026-08-16, 2026-08-22) is 1/4 = 25%**, and both misses share one shape — `prove.py`
+correctly verified a real mechanism (a hidden word, a reversal) on a plausible-but-wrong
+Hebrew answer; the gap is definition-FIT judgment, not mechanism verification.
+
+**Searched specifically for that gap: definition-candidate semantic-fit scoring for
+cryptic solving, general and Hebrew-specific.** Confirms the existing 2412.09012/
+2506.04824 finding already logged here (2026-08-06/08-15): the established technique is
+FastText/embedding cosine similarity between a located definition span and each candidate,
+used to RANK a candidate pool a separate generator already produced. **Transfer: still no
+new mechanism** — no 2026 paper found that changes this, and this project still has no
+Hebrew embedding space tuned for the genre (checked again: general-purpose Hebrew
+embeddings exist — fastText/GloVe/Word2Vec/AlephBERT vectors are documented resources —
+but none is crossword-register-tuned, and integrating any of them is a materially larger
+lift than a text-only fix, out of scope to even prototype today alongside a second lever).
+
+**Checked one specific new lead: Hebrew WordNet**, since English rule-based cryptic
+solvers use WordNet path-similarity for exactly this definition-vs-candidate scoring role
+(surfaced in today's search on general cryptic-solver definition-ranking approaches).
+Hebrew WordNet (MultiWordNet-aligned, built at IRST/Ben-Gurion) exists in principle but
+search results describe its canonical host as unavailable; the Open Multilingual WordNet
+mirror project lists a Hebrew component but the reference itself could not be confirmed
+reachable in the time budget for a research check (not attempted as a bootstrap step —
+would need its own reconstructibility story before ever being wired in, matching this
+project's standing rule that nothing gets committed unless bootstrap.sh can rebuild it).
+**Transfer: plausible, unbuilt, flagged for a dedicated future lever** — path-similarity
+over a Hebrew WordNet (if a working mirror exists) is the closest thing to a validated
+technique for definition-fit scoring that the literature actually offers, more promising
+than trying to hand-roll a heuristic the way `defspan.py`'s indicator-density classifier
+did (which already measured 1/5, worse than chance, on the structurally adjacent
+definition-*location* problem). Not started today: confirming a real, licensable,
+scriptable download is its own investigation, and this run's one-lever budget went
+elsewhere (see DAILY.md).
+
+**Conclusion for today's lever.** No new external finding is buildable today: the one
+concrete idea it points to (WordNet-based definition-fit scoring) needs a resource
+whose availability this session couldn't confirm, so implementing a stub around it would
+be exactly the kind of filler this project's own log explicitly says not to ship. Chose
+the best-evidenced internal item instead: queue item 7b, flagged-not-fixed twice already
+(2026-08-16 log entry named the gap; PR #23, 2026-08-21, fixed the `lexicon.py` half and
+explicitly flagged the identical gap in `substitutions.py`/`retrieve_defs.py` as 7b,
+unfixed). Checked directly before trusting that "identical" label: `substitutions.py`'s
+`held_out()` has the EXACT same shape as `lexicon.py`'s old bug (its `explanations()`
+sources `data/answers/answers_parsed.json` — every one of the 52 puzzles unconditionally —
+while the old `held_out()` only blocked rows with a transcribed `clues.jsonl` entry), so
+that half is a real, currently-exploitable leak on this main. `retrieve_defs.py`'s
+`held_out()` has the same narrow row-only shape, but its only caller (`build_index()`)
+sources dev/eval-adjacent docs exclusively from `clues.jsonl` rows marked `split=='train'`
+— which an untranscribed slot can never have, by construction — so that half is a
+name-only match to lexicon.py's bug, not an actively exploitable one under today's call
+graph. Fixed both anyway (defense-in-depth, and to keep both functions on the same
+by_date-expanded contract as `lexicon.held_out_answers()` rather than a narrower one that
+happens to be safe only by luck of the current call sites) — see DAILY.md for the measured
+before/after and the audit.
+
 ## 2026-08-21
 
 Re-checked for anything new since 2026-08-20 on: cryptic candidate generation,
