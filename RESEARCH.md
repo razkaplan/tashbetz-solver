@@ -471,3 +471,62 @@ flagged remaining gap under item 1(a) — a full-puzzle LIVE blind trial of `sol
 (the previous live trial, 2026-08-16, was n=2 and explicitly flagged as too small to be a
 reliable estimate) — not a new mechanism, since neither today's research nor the last three
 runs' mechanism attempts found anything to extend.
+
+## 2026-08-24
+
+Continuing the sharpest open question flagged 2026-08-22 (and, per PR #25's own unmerged
+description read directly during this run's PR-backlog check, apparently also picked up
+2026-08-23 by a still-open PR): **definition-fit / candidate-semantic-scoring** — the two
+live trials so far (1/4 cumulative precision) both failed because a mechanically-valid
+wordplay device landed on a real word that was not the setter's intended answer, and
+neither trial's miss was even reachable by this project's candidate generator in the first
+place (see DAILY.md's 2026-08-22 root-cause: gold תאו/שכמ are not literal anagram/hidden/
+reversal fodder of their clues at all). That reframes the question from "how do we SCORE
+candidates by definition fit" to "how do we GENERATE a candidate from the definition side
+at all" — re-checked the literature with that reframing in mind.
+
+**Definition-span embedding re-rank (2412.09012, already logged 2026-08-06/2026-08-20)** —
+re-read specifically for whether it generates or only reranks. Confirmed once more: it
+reranks a candidate list a separate mechanism already produced (FastText cosine similarity
+between the marked definition span and each candidate). **Still not a generator**, and
+still no Hebrew-tuned embedding space exists to port even the rerank half. No change to
+the standing judgement.
+
+**Hebrew WordNet — checked directly rather than left as an unconfirmed lead (queue item 9,
+per PR #25's description).** `github.com/NLPH/HebrewWordnetShuly` is real: a mirror of
+Shuly Wintner/University of Haifa's Hebrew WordNet (MultiWordNet methodology, aligned to
+Princeton WordNet, "Complete" status, non-commercial license). This resolves queue item 9's
+own condition ("confirm the resource is real and fetchable before building anything on
+it") — it is real. **Not fetched or integrated today**: even confirmed-real, WordNet gives
+synset/synonym relations, not the ROLE-CATEGORY lookup (this clue names a *singer*, a
+*kibbutz*, a *minister*) that a Hebrew cryptic setter's culture-reference clues actually
+need — mapping "the singer" to the word שרה is a homograph/role fact this project's own
+HOMOGRAPHS.md already encodes, not a synonym-set fact WordNet encodes. Flagging as
+possibly useful for a DIFFERENT lever (synonym-based `means()` expansion in prove.py,
+Track record: RESULTS.md's PLAYBOOK diagnosis is that vocabulary breadth was never this
+setter's bottleneck) rather than today's.
+
+**BM25 vs. dense retrieval, general IR literature (new sighting, not previously logged)**
+— a 2026 scaling study found BM25 leads a strong commercial embedding model
+(text-embedding-3-large) on most metrics past roughly 10M corpus tokens. **Transfer:
+narrow but real** — it's independent confirmation that `retrieve_defs.py`'s existing
+choice of BM25 over an embedding index was the right call for this project's small corpus,
+not a shortcut that should be revisited once more compute is available. Does not unstick
+the definition-fit problem (retrieve_defs.py already measured gold@25=5.4% on its own
+index, ceiling 27% — the bottleneck there is corpus coverage, not the ranking function).
+
+**Conclusion, and the lever this run actually built.** No paper or resource found this
+cycle turns into a working DEFINITION-DRIVEN GENERATOR usable today: the two real external
+options (a Hebrew embedding space, Hebrew WordNet) either don't exist in a form this
+project can reach, or answer the wrong question (synonymy, not role-category membership).
+Rather than ship nothing on this front for a third run running, built the one
+definition-driven source this project's OWN committed data already supports without any
+new scrape or external dependency: `solver/candidates.py`'s new `culture_category_candidates`
+— a hand-curated Hebrew role/genre/geography trigger vocabulary (honestly NOT corpus-mined,
+disclosed in the code and here rather than dressed up as empirical) that maps a clue's
+named category ("the singer", "a kibbutz") to solver/lex/culture.json's own named-entity
+lists, filtered to the enum length. This is deliberately narrow and almost certainly not a
+full solution to the definition-fit problem (see DAILY.md for the measured recall number
+and an honest read of how far it goes) — it is the smallest real step available today given
+what did and didn't turn up in this run's literature/resource check, not a claim that the
+underlying research gap is closed.
