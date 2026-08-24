@@ -357,3 +357,54 @@ an internal integrity fix flagged twice already (2026-08-16, 2026-08-17 log entr
 real, unaddressed leak vector, and this project's own history (the 96% leak) is the
 reason leak-vector fixes get priority over one more speculative recall experiment on a
 lever already measured negative three times running.
+
+## 2026-08-22
+
+Swept for anything new since 2026-08-20 on: cryptic candidate generation, definition-span
+detection, Hebrew NLP/morphology, and (new angle this run) any existing Hebrew-specific
+cryptic-solving tooling that might already exist and be worth learning from.
+
+**General cryptic-solving literature** — re-searched broadly (arXiv, "August 2026 cryptic
+crossword reasoning"). No new paper beyond the set already logged (2406.09043, 2412.09012,
+2403.12094, 2407.08824, 2506.04824). **Transfer: none new.** The field's SOTA is still the
+same generate-candidates -> formalise -> prove pipeline this project already mirrors
+structurally (candidates.py + prove.py), and its own published ceiling on a MATURE English
+candidate pool (~38-40% true positive per 2026-08-15's RESEARCH note on 2407.08824) is a
+useful sanity check on how much headroom "better proving" alone has left here — not much;
+this project's bottleneck, as DAILY.md's own measurements keep confirming, is candidates,
+not verification.
+
+**Hebrew morphology/NLP** — no new 2026 resource beyond RFTokenizer/HebPipe/the root-pattern
+evaluation already logged. **Transfer: none new.**
+
+**NEW THIS RUN: existing Hebrew crossword tooling, checked directly rather than assumed.**
+Search for "תשבץ היגיון AI" surfaced a Hebrew cryptic-crossword *platform*
+(https://dvd848.github.io/cryptic-crossword/, code at github.com/Dvd848/cryptic-crossword)
+that looked, from the title alone, like it could be a solver for exactly this puzzle genre.
+Fetched and read directly (not just the search snippet, per the 2026-08-08 lesson about
+trusting search summaries over primary sources): it is an **interactive puzzle archive and
+manual-entry UI** (started as an internal Intel project), with explicitly no automated
+solving mechanism — users type answers into cells themselves. **Transfer: none** — it solves
+a different problem (rendering/UX for weekly puzzles since 2013), not answer derivation.
+
+Also checked a second, adjacent repo the same author links, github.com/Dvd848/Crossword-Solver,
+which sounded more promising by name. Fetched directly: it is a **plain pattern-matching word
+finder** over a DAWG-encoded Hebrew dictionary (letters + `?` wildcards -> matching dictionary
+words), with **no wordplay, anagram, or definition handling at all** — functionally a
+faster/more compact version of what `solver/lexicon.py pattern` already does here.
+**Transfer: none for solving**, but its dictionary source list is worth noting for a possible
+future lexicon-expansion lever (not today's): it aggregates Wiktionary, Wikipedia, Hebrew
+WordNet, and Hspell under CC-BY-SA/MIT/AGPL — Hebrew WordNet in particular is a source this
+project's `solver/lexicon.py` does not currently draw from and hspell already does; low
+priority since PLAYBOOK.md's diagnosis is that this setter's difficulty is wordplay-device
+coverage, not raw vocabulary size (RESULTS.md: this project's own corpus already covers most
+attempted answers' definitions; the gap is deriving them from wordplay, not defining them).
+
+**Conclusion for today.** No literature or tooling finding changes the queue's priority
+order or unsticks either struck lever (definition-span detection, indicator-density
+version; substitution/homograph candidate generation in the shape already tried twice).
+Today's implementation lever (see DAILY.md log) is therefore the queue's own explicitly-
+flagged remaining gap under item 1(a) — a full-puzzle LIVE blind trial of `solve_pass.py`
+(the previous live trial, 2026-08-16, was n=2 and explicitly flagged as too small to be a
+reliable estimate) — not a new mechanism, since neither today's research nor the last three
+runs' mechanism attempts found anything to extend.
