@@ -540,3 +540,49 @@ full solution to the definition-fit problem (see DAILY.md for the measured recal
 and an honest read of how far it goes) — it is the smallest real step available today given
 what did and didn't turn up in this run's literature/resource check, not a claim that the
 underlying research gap is closed.
+
+## 2026-08-25
+
+Also began by consolidating a 3-PR backlog (#23, #25, #26, all open against the same main,
+none merged) before touching a lever — see DAILY.md's log for that housekeeping. Research
+this run focused on the queue's two live threads: (1) whether ranked retrieval belongs in
+`candidates.py`'s pool at all (queue item 1, still not attempted as of yesterday despite
+`retrieve_defs.py` existing since 2026-08-08), and (2) one more check for anything new on
+definition-fit scoring (queue item 9) before assuming yesterday's negative finding still
+holds.
+
+**General search: "cryptic crossword solver LLM candidate generation retrieval 2026".**
+Surfaced only the same paper set already logged here (2506.04824, 2406.09043, 2403.12094)
+plus a genuinely noteworthy repeat of the 2026-08-20 finding: this project's OWN public
+page (tashbetz-solver.vercel.app) appears again in general search results, and the search
+tool's auto-summary again stated "[a] v6 solver version returned 27 of 28 clues correct on
+2026-06-05" as if it were a standing result — that is the RETRACTED 96% leak number
+(RESULTS.md's INTEGRITY FINDING), presented with zero retraction context by the summarizer,
+for the SECOND time this project has caught it happening (first: 2026-08-20). **Transfer:
+this is not a one-off search-engine quirk, it is a recurring failure mode of trusting
+search summaries over primary sources on a project with its own public writeup** — worth
+stating plainly for whoever reads this project's own summarized coverage anywhere (a
+teammate, a future agent, a casual search) rather than the live page's dedicated Retraction
+section: do not trust a summary of this project's own results, read RESULTS.md directly.
+
+**BM25 vs. embedding retrieval, re-checked.** Same conclusion as 2026-08-24's entry,
+independently reconfirmed by a fresh search: BM25 remains the stronger default at this
+corpus's scale, hybrid approaches add complexity without a demonstrated gain here.
+**Transfer: no change** — `retrieve_defs.py`'s existing BM25 choice stays right; this
+reconfirms rather than motivates any new work.
+
+**Definition-fit scoring (queue item 9), re-checked once more.** No new resource found
+this cycle beyond yesterday's Hebrew WordNet finding (real but answers the wrong question
+— synonymy, not role-category membership). **Transfer: none new** — the standing
+2026-08-24 conclusion holds: no external generator or scorer exists to build on here today.
+
+**Conclusion, and the lever this run actually built.** Neither research thread produced a
+new EXTERNAL resource to build on, so today's lever (see DAILY.md) is the queue's own
+long-open internal gap instead: `solver/retrieve_defs.py` (BM25 ranked retrieval, built
+2026-08-08, measured standalone at gold@25=5.4%) has never once been wired into
+`candidates.py`'s `generate()` pool alongside the mechanical mechanisms, despite being
+exactly the "RANKED RETRIEVAL" item the 2026-08-08 research-informed queue named as
+priority 2. Wiring in an already-built, already-audited tool as one more candidate SOURCE
+is not itself a research question — it is closing a gap between what the project's own
+research queue prioritized in 2026-08-08 and what got implemented, which is worth doing
+regardless of whether today's literature sweep turned up anything new.

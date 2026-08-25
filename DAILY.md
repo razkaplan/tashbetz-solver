@@ -13,12 +13,34 @@ Read this first each run. It is the handoff between days.
 | Best single puzzle | 2026-05-29: 95% / 71% / 68% ✓ all targets | |
 | Hardest puzzle | 2026-06-05: 100% / 43% / 43% | coverage stuck |
 | **Candidate recall@N (new, offline, mechanical only)** | **3.6% (1/28)**, avg 11.6 candidates/clue (capped), on 2026-05-29 — UNCHANGED after adding substitution+homograph mechanisms | not yet a target — diagnostic |
+| **Candidate recall@N with `retrieval_candidates` added (new, offline, BM25 definition retrieval)** | **7.1% (2/28)** on 2026-05-29, up from the 3.6% (1/28) mechanical-only baseline on the SAME re-measured puzzle — a real, positive, re-derived-from-scratch measurement, see log | not yet a target — diagnostic, but the first candidate-gen sub-lever to move recall since 2026-08-06 |
 | **Definition-span locatable rate (new, offline, diagnostic)** | **25% (7/28)** have mechanically-locatable single-window wordplay; of those 29% (2/7) are interior, not edge; classifier agreement on edge cases **1/5** | not a target — this diagnostic KILLED the lever, see log |
 | **`solve_pass.py` LIVE blind trial — cumulative (2 trials)** | **25% precision (1/4 committed)**: 2026-08-16 was 1/2 on a partial 21/28-clue puzzle (2026-06-12); 2026-08-22 is **0/2**, 7.1% coverage, 0% yield, on a FULL 28/28-clue puzzle (2026-05-15) — first full-puzzle live trial, see log | n=4 — still small, but both trials together now argue the proof gate alone is not a reliable confidence signal; see log |
 | **Candidate recall@N with `culture_category_candidates` added (new, offline, definition-driven)** | **0% (0/28)**, on 2026-06-19 — mechanism fired on only 1/28 clues (avg candidates/clue 10.5 → 11.4); its one firing (339 raw candidates, an "author" category hit) matched 0 gold | not yet a target — small-n diagnostic, see log |
 
 Baseline for comparison: v2 = 41% raw with untraceable errors.
-Last lever added (2026-08-24): **definition-driven candidate generation** (`solver/candidates.py`:
+Last lever added (2026-08-25): **wired `solver/retrieve_defs.py` (BM25 ranked retrieval over
+definition->answer pairs, built 2026-08-08) into `candidates.py`'s `generate()` pool as a new
+`retrieval_candidates` source** — queue item 1's "RANKED RETRIEVAL" sub-lever, open since
+2026-08-08 and never attempted despite the tool existing. Rebuilt the external private_defs
+corpus this run (`scraper/crawl_defs.py mordo`, ~3 min for 9,685 definition->answer pairs from
+pitaronfree.blogspot.com — gitignored, so future runs must redo this too, same as every other
+gitignored asset). Re-transcribed the canonical dev puzzle (2026-05-29) via the documented
+image-fallback technique (grid_tools 0/15 pattern mismatches + 28/28 enum matches against the
+following week's printed solution grid) rather than waiting out today's slow 14across bot-check.
+MEASURED, controlled before/after on the SAME re-derived puzzle: mechanical-only baseline
+**1/28 = 3.6%** (exactly reproduces the 2026-08-06 historical number — strong cross-check that
+today's independently-redone transcription is correct); **+ retrieval: 2/28 = 7.1%**, a real
+gain from ONE new hit (26 across, `יהונתן גפן ויהודה פוליקר על ברית מילה` -> `פחותאבלכואב`, a
+real Yehonatan Geffen/Yehuda Poliker song title the mechanical mechanisms structurally cannot
+reach since it shares no letters with the clue). Audited: the hit comes from an external,
+independent source doc (pid=None, a generic "works by Yehonatan Geffen" listing), not a leak of
+this project's own puzzle; `lexicon.held_out_answers()` confirmed to still block all 28 of this
+puzzle's own gold answers. Small sample (n=1 puzzle, +1 hit) — a real, positive, first-of-its-
+kind move on this lever, not proof retrieval solves candidate generation; see log for the full
+transcription/audit trail, including one real transcription error caught and fixed mid-run.
+
+Previous lever (2026-08-24): **definition-driven candidate generation** (`solver/candidates.py`:
 `culture_category_candidates`) — a new generator, orthogonal to every existing mechanism, that
 derives a candidate from the clue's MEANING (a role/genre/geography category it names, e.g. "the
 singer") rather than its letters, by matching hand-curated Hebrew category trigger words against
@@ -173,7 +195,15 @@ propagated), `blank`. Score with `python3 evals/run_eval.py <file>`.
    definition-by-category pointers, which a surface trigger-word match can't distinguish.
    A corpus-mined trigger vocabulary (vs. today's hand-curated one) and a second puzzle's
    data point are the concrete next steps if this is revisited, not a redesign from
-   scratch.
+   scratch. (d) `retrieval_candidates` (BM25 over `solver/retrieve_defs.py`'s definition
+   index) — WIRED IN 2026-08-25 (see log): the queue's own "RANKED RETRIEVAL" item from
+   2026-08-08, never previously combined with the other mechanisms. MEASURED POSITIVE:
+   3.6% -> 7.1% recall on a controlled re-derivation of the 2026-05-29 baseline (+1 hit,
+   a culture-reference song title with zero letters in common with its clue). Small
+   sample (n=1 puzzle, +1 hit) but the first candidate-gen sub-lever to move the number
+   at all since 2026-08-06 — worth a second puzzle's data point before calling this
+   settled, and worth trying `crawl_defs.py note` (the OTHER external source, not yet
+   crawled this project's lifetime as far as this log shows) for a larger index.
 2. ~~Definition-span detection~~ — TRIED 2026-08-19, NEGATIVE. See log and "already
    tried" below. Do not re-attempt without a fundamentally different signal (not
    indicator-word density).
@@ -1303,3 +1333,143 @@ Measure each lever on dev (fixed enums) with run_eval.py before/after; one lever
   worth of clue text to mine reliably — today's is hand-curated and disclosed as such); did
   not merge PRs #23/#25 (queue items 7/7b, both still open as of this run, out of scope for
   today's lever); did not act on queue item 8 (audit of across 1-13 sourcing) this run.
+- 2026-08-25: **backlog consolidation, then wired ranked retrieval into candidate
+  generation** (queue item 1's long-open "RANKED RETRIEVAL" sub-lever).
+
+  **CONSOLIDATION FIRST.** `list_pull_requests` showed 3 open PRs against the same main:
+  #23 (2026-08-21, item 7 fix), #25 (2026-08-23, item 7b fix, cherry-picks #23), #26
+  (2026-08-24, `culture_category_candidates`) — the PR-pileup pattern flagged 2026-08-16,
+  struck 2026-08-21, and now recurred twice more at smaller scale, exactly as 2026-08-24's
+  own log warned it might. Verified #25's `lexicon.py` diff is byte-identical to #23's
+  (`diff` on both branches vs main, 0 lines) confirming #25 fully supersedes #23. Cherry-
+  picked the real code+RESEARCH.md commits from #25 (`7ad01cf05`, `a9838aa0d`) and #26
+  (`0db509665`) onto one fresh branch off current main — all applied clean or with a
+  trivial RESEARCH.md append-conflict, resolved by keeping both entries in chronological
+  order (git's 3-way merge put 2026-08-22's entry before 2026-08-21's since the two PRs
+  diverged from different points in main's history; fixed by hand). Hand-merged
+  DAILY.md's state table, "Last lever" narrative, and Log section from all three PRs'
+  branches (their DAILY.md-only commits were NOT cherry-picked, to avoid a 3-way header
+  conflict — the state/log content was instead copied in directly) so no day's
+  measurement or audit trail was dropped. Re-ran every affected module's selftest
+  (`candidates.py`, `lexicon.py`, `substitutions.py`, `retrieve_defs.py`) post-merge — all
+  pass, 0 regressions. This branch/PR supersedes #23, #25, and #26; the project owner can
+  close those three once this one is reviewed instead of merging four times.
+
+  **RESEARCH.** No new external finding either research thread turned up (see RESEARCH.md):
+  general cryptic-solving literature unchanged; BM25-over-embeddings reconfirmed as the
+  right call at this corpus's scale; Hebrew WordNet re-confirmed real but wrong-shaped for
+  definition-fit. One recurring, worth-repeating finding: a plain web search's own summary
+  presented this project's RETRACTED 96% leak number as a standing result AGAIN (second
+  time, after 2026-08-20) — the live page itself fully caveats it, the summarizer drops
+  that context every time. Since neither thread produced anything new to build ON, today's
+  lever is the queue's own long-open INTERNAL gap instead: `solver/retrieve_defs.py` (BM25
+  ranked retrieval, built 2026-08-08, the 2026-08-08 research queue's own priority-2 item)
+  has never once been wired into `candidates.py`'s `generate()` pool — every measurement of
+  it so far (5.4% gold@25, 2026-08-08) was standalone, never combined with the mechanical
+  mechanisms to see if the UNION recall improves, which is exactly the logic that made
+  RESULTS.md's consensus-merge experiments work (independent signals miss on different
+  clues).
+
+  **BOOTSTRAP.** `./bootstrap.sh --dev-only` hit the same severe 14across bot-wall
+  documented since 2026-08-19/08-20/08-24 (only ~35/52 answer pages recovered after 45+
+  minutes, still running in the background when this run's measurement was taken — not
+  waited on, see below). hspell, culture.json, substitutions.json, and all 4 dev images
+  came through the unaffected CDN/API paths cleanly. Reverted the regressed
+  `solver/lex/substitutions.json` rebuild per the standing warning, as every prior run has.
+
+  **BUILT `retrieval_candidates` in `solver/candidates.py`**: wraps
+  `solver/retrieve_defs.py`'s existing `candidates()` (BM25 over private_defs + train-split
+  clue explanations, held-out safe by construction via `retrieve_defs.held_out()`) as one
+  more source in `generate()`, behind a `use_retrieval` toggle (default on, same pattern as
+  `use_culture`) so before/after ablation needs no second copy of the function. `solve_pass.py`
+  needed no changes — a retrieval hit ranks by the same lexicon-tier logic as every other
+  candidate. Selftest extended with 2 new checks using an injected synthetic `docs_df`
+  (independent of the real corpus, same discipline as every other mechanism here); all 12
+  checks pass.
+
+  **REBUILT THE EXTERNAL RETRIEVAL CORPUS** (`data/answers/private_defs/`, gitignored, so
+  every run needing it must redo this): `python3 scraper/crawl_defs.py mordo` — a Blogspot
+  JSON feed of pitaronfree.blogspot.com posts, 150 at a time — recovered 10,346 raw posts /
+  9,685 parsed definition->answer pairs in under 3 minutes before being stopped (the feed is
+  effectively unbounded and this run did not need a full crawl). Did NOT run `crawl_defs.py
+  note` (the other source, note.co.il — a much slower per-page crawl per its own code) —
+  flagged as a concrete next step for a bigger index, not attempted today to keep this run
+  to one lever. `build_index()` confirmed to load all 9,685 pairs (0 from train-split, since
+  today's only transcribed puzzle is eval-split — the external corpus alone is what's being
+  tested here).
+
+  **RE-TRANSCRIBED THE CANONICAL DEV PUZZLE (2026-05-29)** via the documented image-fallback
+  technique (bootstrap.sh step 6's "NO-14ACROSS ALTERNATIVE") rather than wait out today's
+  slow scrape: clue text from `data/images/2026-05-28.jpg` (28/28 clues, all enum sums
+  validated by eye against the printed enumerations); solution letters from the small filled
+  grid in `data/images/2026-06-04.jpg` (captioned "solution to last week's puzzle"),
+  transcribed cell-by-cell and cross-validated PROGRAMMATICALLY (not just visually) against
+  `data/grids/2026-05-29.json`: **0/15 row pattern mismatches** on the black/white cell
+  geometry, and **28/28 enum sums matched** the grid-derived slot lengths independently
+  computed from both sources. Both checks passing together is strong evidence this is really
+  2026-05-29 and the transcription is accurate, matching the technique's 2026-08-03
+  precedent.
+
+  **ONE REAL TRANSCRIPTION ERROR CAUGHT AND FIXED, disclosed rather than hidden.** The
+  initial pixel-cropped read of one cell (grid row 0, column 8 in left-to-right display
+  order — shared by 1-across and 2-down) came out as ל, giving 2-down = `לחפניות`. This
+  didn't match this file's own 2026-08-06 citation of the historical anagram hit
+  (`יחפניות`) for the same slot on the same puzzle. Rather than silently trust either
+  source, checked directly: `לחפניות` is absent from `solver/lex/hspell.txt`; `יחפניות` is
+  present AND is an exact-multiset anagram of the clue's fodder "פחות יין" — strong evidence
+  of a misread, not a citation error. Root-caused it: naive linear cell-boundary estimation
+  (assuming 11 equal-width columns across a fixed pixel span) drifted by roughly a full
+  cell-width by the 9th column, because the true grid boundary sits ~76px short of where a
+  naive right-margin estimate placed it (that margin is blank space before the page's
+  vertical caption text, not part of the grid). Fixed by detecting actual gridlines
+  programmatically (column darkness profile across many rows) rather than assuming uniform
+  spacing, re-cropped the disputed cell precisely, and confirmed it visually reads י, not ל.
+  Re-validated the corrected grid: still 0/15 pattern mismatches (the fix doesn't change any
+  slot's length, only one letter). **This is a real, general lesson worth keeping**: pixel-
+  math cell-boundary estimates for this fallback technique should be calibrated from
+  detected gridlines, not assumed-uniform spacing, especially past the first few columns.
+
+  **MEASURED (executed, not estimated), controlled before/after on the re-derived
+  2026-05-29 (`python3 solver/candidates.py recall data/dataset/clues.jsonl eval
+  [--no-retrieval] [--no-culture]`):**
+  - Mechanical-only baseline (`--no-culture --no-retrieval`): **1/28 = 3.6%**, the SAME
+    single anagram hit (`יחפניות`, 2 down) as the 2026-08-06 baseline on this exact puzzle
+    — this exact reproduction of a 2.5-week-old number, from an independently redone
+    transcription, is itself a strong sanity check that today's re-transcription is
+    correct, beyond the pattern/enum validation above.
+  - `+ culture_category_candidates` alone: 1/28 = 3.6%, unchanged (consistent with
+    2026-08-24's finding that this mechanism is narrow and puzzle-dependent).
+  - `+ retrieval_candidates` alone: **2/28 = 7.1%** — the new hit is 26 across
+    (`יהונתן גפן ויהודה פוליקר על ברית מילה (עפ"י עפר קציר)` -> `פחותאבלכואב`), a real
+    Yehonatan Geffen / Yehuda Poliker song title ("less but hurts") that shares ZERO
+    letters with the clue text — structurally unreachable by anagram/hidden/reversal/
+    substitution/homograph, exactly the failure mode `culture_category_candidates` was
+    built to address on 2026-08-24 but didn't catch on that puzzle. Recall DOUBLED.
+  - Both together: 2/28 = 7.1% (culture_category still contributes nothing extra on this
+    puzzle; the two mechanisms did not stack here, but neither hurt the other).
+
+  **HONEST READ.** This is the first candidate-generation sub-lever since 2026-08-06 to
+  move recall at all — every other attempt (substitution/homograph twice, culture_category
+  once) measured flat or near-flat. One hit on one puzzle is a small sample; it does not
+  establish retrieval as a reliable source, only that it CAN catch a real class of miss
+  (culture-reference answers sharing no letters with the clue) that a hand-curated category
+  list did not catch on this same puzzle. The private_defs corpus used today (mordo/
+  pitaronfree only, 9,685 pairs) is a fraction of what `crawl_defs.py note` could add; a
+  fuller index and a second dev puzzle are the natural next steps, not attempted today to
+  keep this run to one lever plus the consolidation housekeeping.
+
+  **AUDIT (mandatory gate).** No forbidden reads: 2026-05-29's gold data came entirely from
+  public CDN images (the sanctioned fallback), never from 14across for this specific
+  puzzle — the background bootstrap's own (still-incomplete, unused) 14across scrape was
+  for the general corpus, not this measurement. Tool-leak check: `lexicon.held_out_answers()`
+  confirmed to block all 28 of this puzzle's own gold answers (`gold_norm - blocked` is the
+  empty set, checked directly). The retrieval hit's source document was inspected directly
+  (`pid=None`, a generic "works by Yehonatan Geffen" listing from the external mordo corpus,
+  not this project's own puzzle text) — genuine independent knowledge, not a leak, the same
+  "controlled fact lookup" SOLVE_PROTOCOL.md already sanctions for culture clues. No jump to
+  explain: 3.6% -> 7.1% is a small, explicable move (one legitimate external hit), nowhere
+  near the ~15-point implausibility bar. All affected selftests re-run clean post-fix.
+
+  NOT DONE, honestly: did not crawl `note.co.il` for a bigger retrieval index; did not
+  re-measure on a second puzzle; did not merge this branch to main (only the project owner
+  can); did not act on queue items 8 or 9 this run.

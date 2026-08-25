@@ -31,6 +31,14 @@ This module does exactly that, per clue, with no LLM involved:
                           from the clue's LETTERS; this derives one from the clue's MEANING
                           (a category the clue names, e.g. "the singer", matched against
                           solver/lex/culture.json's named-entity lists).
+  - retrieval_candidates: also DEFINITION-driven, but by ranked BM25 retrieval
+                          (solver/retrieve_defs.py) over independent definition->answer
+                          pairs (private_defs) plus this project's own train-split clue
+                          explanations, rather than a hand-curated category list. Measured
+                          standalone on 2026-08-08 (gold@25=5.4%, ceiling 27%) but never
+                          before combined with the mechanisms above as one candidate pool —
+                          see its own docstring for why the union, not either number alone,
+                          is the point of wiring it in here.
   - split_candidates:    for multi-part enums (e.g. (5,2)), splits a hit at the enum
                           boundary and flags whether BOTH pieces are real words — the
                           precondition prove.py's word_order() needs to succeed.
@@ -47,6 +55,7 @@ CLI:
   python3 solver/candidates.py clue "<text>" <enum...>            # e.g. ... "7,2"
   python3 solver/candidates.py recall data/dataset/clues.jsonl eval   # offline recall@N
   python3 solver/candidates.py recall data/dataset/clues.jsonl eval --no-culture  # ablation
+  python3 solver/candidates.py recall data/dataset/clues.jsonl eval --no-retrieval  # ablation
   python3 solver/candidates.py selftest
 """
 import sys, os, re, json
@@ -370,6 +379,50 @@ def culture_category_candidates(clue_text, target_len, table=None, triggers=None
     return out
 
 
+_RETRIEVE_DOCS_DF = None
+
+
+def retrieval_candidates(clue_text, target_len, topk=25, docs_df=None):
+    """DEFINITION-hypothesis candidate generation via ranked BM25 retrieval (queue item 1
+    / "RANKED RETRIEVAL", 2026-08-08's research-informed lever queue) — solver/retrieve_defs.py
+    scores independent definition->answer pairs (private_defs: note.co.il/mordo crawls) plus
+    this project's own train-split clue->answer explanations against the clue text, ranked by
+    BM25 over word tokens (+ de-prefixed stems). Held-out safe by construction:
+    retrieve_defs.build_index() excludes every dev/eval answer via retrieve_defs.held_out()
+    (the by_date-expanded contract, fixed 2026-08-23/folded in 2026-08-25 to match
+    lexicon.held_out_answers()) before this function ever sees the index — unlike
+    culture_category_candidates, this file does not need its own extra filter here because
+    the filtering already happened inside build_index().
+
+    This was measured STANDALONE on 2026-08-08: gold@25 = 5.4%, ceiling 27% (share of dev
+    answers that exist in the index at all — most of this setter's coined/multi-word answers
+    never will). That number alone reads as weak. The reason to wire it in here anyway,
+    for the first time, is the same reason RESULTS.md's consensus experiments raised score
+    by MERGING independent runs rather than trusting any one: this is the only mechanism in
+    this file driven by BM25 lexical overlap with a DEFINITION corpus rather than either the
+    clue's own letters (anagram/hidden/reversal/substitution/homograph) or a hand-curated
+    category list (culture_category) — a different signal is likely to miss on a different
+    subset of clues, so the interesting number is the UNION's recall, not this mechanism's
+    own gold@25 in isolation. `docs_df` is injectable (tests / callers) so a selftest can
+    supply a tiny synthetic index instead of loading the real corpus."""
+    sys.path.insert(0, HERE)
+    import retrieve_defs
+    cwd = os.getcwd()
+    try:
+        os.chdir(ROOT)
+        if docs_df is not None:
+            hits = retrieve_defs.candidates(clue_text, target_len, topk=topk, docs_df=docs_df)
+        else:
+            global _RETRIEVE_DOCS_DF
+            if _RETRIEVE_DOCS_DF is None:
+                _RETRIEVE_DOCS_DF = retrieve_defs.build_index()
+            hits = retrieve_defs.candidates(clue_text, target_len, topk=topk,
+                                             docs_df=_RETRIEVE_DOCS_DF)
+    finally:
+        os.chdir(cwd)
+    return [{'answer': a, 'mechanism': 'retrieval', 'fodder': None} for a, _score in hits]
+
+
 def pattern_candidates(pattern):
     """pattern like '?ו?ר??' — '?' or '_' = unknown crossing letter. The lexicon folds
     final letters (ם/ן/ץ/ף/ך -> מ/נ/צ/פ/כ) everywhere, so fixed cells must be folded
@@ -406,7 +459,7 @@ def split_candidates(cands, enum):
     return out
 
 
-def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True):
+def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retrieval=True):
     """Diverse candidates for one clue. Never consults the answer.
 
     Mechanism order here is a PRIORITY order, not just an accumulation order: dedup +
@@ -419,18 +472,22 @@ def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True):
     and substitution are comparatively RARE and higher-precision (a token already sitting
     in the clue, or a mined equivalence, either fires or it doesn't — there's no
     combinatorial window scan inflating their count), so they go first; the cheap,
-    high-volume window-scan mechanisms fill whatever budget is left. culture_category
-    candidates are DEFINITION-driven rather than letter-driven (see its own docstring) —
-    placed in the same early tier as homograph/substitution since a fired category is also
-    comparatively rare and each hit is a real named entity, not an arbitrary dictionary word.
-    `use_culture` is a plain on/off switch so a controlled before/after recall measurement
-    doesn't need two copies of this function."""
+    high-volume window-scan mechanisms fill whatever budget is left. culture_category and
+    retrieval candidates are DEFINITION-driven rather than letter-driven (see their own
+    docstrings) — placed in the same early tier as homograph/substitution: culture_category
+    fires rarely and each hit is a real named entity; retrieval is capped at its own topk
+    (25 by default) and ranked, not an unbounded window scan, so it does not need to wait
+    behind the cheap mechanisms either. `use_culture`/`use_retrieval` are plain on/off
+    switches so a controlled before/after recall measurement doesn't need extra copies of
+    this function."""
     target_len = sum(enum)
     cands = []
     cands += homograph_candidates(clue_text, target_len)
     cands += substitution_candidates(clue_text, target_len)
     if use_culture:
         cands += culture_category_candidates(clue_text, target_len)
+    if use_retrieval:
+        cands += retrieval_candidates(clue_text, target_len)
     if pattern:
         cands += pattern_candidates(pattern)
     cands += anagram_candidates(clue_text, target_len)
@@ -454,7 +511,7 @@ def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True):
 # isolation, BEFORE it is wired into a live solve+proof loop (which is a
 # separate integration step, not done by this lever).
 # ---------------------------------------------------------------------------
-def recall_eval(dataset_path, split=None, max_n=25, use_culture=True):
+def recall_eval(dataset_path, split=None, max_n=25, use_culture=True, use_retrieval=True):
     total = 0
     hit = 0
     by_mech = Counter()
@@ -467,7 +524,8 @@ def recall_eval(dataset_path, split=None, max_n=25, use_culture=True):
         if not r.get('answer_raw'):
             continue
         total += 1
-        cands = generate(r['clue_text'], r['enum'], max_n=max_n, use_culture=use_culture)
+        cands = generate(r['clue_text'], r['enum'], max_n=max_n, use_culture=use_culture,
+                          use_retrieval=use_retrieval)
         sizes.append(len(cands))
         gold = norm(r['answer_raw'])
         found = [c for c in cands if c['answer'] == gold]
@@ -578,6 +636,26 @@ def selftest():
           f'not here): {len(off) == 1} (expected True)')
     ok &= len(off) == 1
 
+    print('--- retrieval device: BM25 over an injected definition->answer index, no '
+          'letters shared with the clue ---')
+    # synthetic (tokens, answers, puzzle_id) docs, independent of the real corpus — same
+    # discipline as every other mechanism's selftest. The query clue shares no letters
+    # with the candidate answer at all, same point as the culture_category check above.
+    docs_df = ([
+        (['נשיא', 'ראשון', 'מדינה'], [norm('וייצמן')], None),
+        (['פרח', 'לאומי', 'ישראל'], [norm('כלנית')], None),
+    ], {'נשיא': 1, 'ראשון': 1, 'מדינה': 1, 'פרח': 1, 'לאומי': 1, 'ישראל': 1})
+    hits = retrieval_candidates('מי היה הנשיא הראשון של המדינה', 6, docs_df=docs_df)
+    found = any(h['answer'] == norm('וייצמן') for h in hits)
+    print(f'  found וייצמן via BM25 definition retrieval, sharing no letters with the '
+          f'clue: {found} (expected True)')
+    ok &= found
+    print('--- retrieval device: use_retrieval=False in generate() disables it ---')
+    off = retrieval_candidates('מי היה הנשיא הראשון של המדינה', 6, docs_df=docs_df)
+    print(f'  standalone call still fires (sanity check the toggle lives in generate(), '
+          f'not here): {len(off) >= 1} (expected True)')
+    ok &= len(off) >= 1
+
     print('--- split_candidates: flags whether a multi-part answer is two real words ---')
     split = split_candidates([{'answer': norm('שלוםעליכם'), 'mechanism': 'test'}], [4, 5])
     print(f'  split result: {split[0]["split"]} (expected two real words, not None)')
@@ -602,14 +680,15 @@ def main():
     elif cmd == 'recall':
         rest = sys.argv[2:]
         use_culture = '--no-culture' not in rest
-        rest = [a for a in rest if a != '--no-culture']
+        use_retrieval = '--no-retrieval' not in rest
+        rest = [a for a in rest if a not in ('--no-culture', '--no-retrieval')]
         path = rest[0] if len(rest) > 0 else 'data/dataset/clues.jsonl'
         split = rest[1] if len(rest) > 1 else None
         os.chdir(ROOT)
-        res = recall_eval(path, split, use_culture=use_culture)
+        res = recall_eval(path, split, use_culture=use_culture, use_retrieval=use_retrieval)
         print(f"recall@N: {res['hit']}/{res['total']} = {res['recall']:.1%}  "
               f"(avg {res['avg_candidates']:.1f} candidates/clue, "
-              f"use_culture={use_culture})")
+              f"use_culture={use_culture}, use_retrieval={use_retrieval})")
         print('hits by mechanism:', res['by_mechanism'])
         if res['misses']:
             print(f"\n{len(res['misses'])} misses (clue_number, direction, gold):")
