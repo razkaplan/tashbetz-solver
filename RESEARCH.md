@@ -6,6 +6,7 @@ crossword-AI work targets non-cryptic (American-style) puzzles and does not tran
 
 ## 2026-08-06
 
+
 **"A Reasoning-Based Approach to Cryptic Crossword Clue Solving"** (arXiv 2506.04824,
 ICML 2025). https://arxiv.org/html/2506.04824v1
 Pipeline: an LM hypothesises answer candidates + wordplay explanations, a second LM
@@ -61,6 +62,7 @@ lever.
 
 ## 2026-08-15
 
+
 **"Proving that Cryptic Crossword Clue Answers are Correct"** (arXiv 2407.08824). The
 direct precursor to the ICML 2025 paper already credited in this log (2506.04824) — same
 proving-framework lineage `solver/prove.py` was adapted from. Read it specifically for two
@@ -100,6 +102,7 @@ Hebrew morphological tooling): no further new transferable results beyond what t
 dataset tooling, not directly reusable for Hebrew, no action taken.
 
 ## 2026-08-16
+
 
 Before searching, read the full run history first: 9 prior daily runs (PRs #1, #2, #6-#11
 plus RESULTS/DAILY's own logs) already implemented and measured mechanical candidate
@@ -161,6 +164,7 @@ candidate list, measuring real precision/coverage/yield rather than offline reca
 DAILY.md's log for what that trial found.
 ## 2026-08-17
 
+
 **"Are LLMs Good Cryptic Crossword Solvers?"** (arXiv 2403.12094, Sadallah/Kotova/
 Kochmar; NAACL-adjacent, revised Jan 2025). https://arxiv.org/pdf/2403.12094
 Benchmarks LLaMA2, Mistral, and vanilla ChatGPT on English cryptics with no special
@@ -203,6 +207,7 @@ concrete reminder for this project's own research step: read primary sources in 
 don't trust a search summary's framing, especially for anything self-referential.
 
 ## 2026-08-19
+
 
 **"Proving that Cryptic Crossword Clue Answers are Correct"** (arXiv 2407.08824).
 https://arxiv.org/html/2407.08824v1
@@ -261,6 +266,7 @@ project's puzzles. Confirms DAILY.md's standing skepticism.
 
 ## 2026-08-20
 
+
 Re-checked for anything new since 2026-08-06 on: cryptic definition-span detection,
 candidate generation, and Hebrew NLP/morphology.
 
@@ -307,7 +313,112 @@ mechanisms in `solver/candidates.py` (queue item 1(b)), plus a held-out-safety f
 `solver/substitutions.py` that the new mechanism's use of that table required (see
 DAILY.md log for the measured result and the audit).
 
+## 2026-08-21
+
+
+Re-checked for anything new since 2026-08-20 on: cryptic candidate generation,
+definition-span detection, and Hebrew NLP/morphology, plus a general sweep for any new
+cryptic-solving system.
+
+**General search: "cryptic crossword solver LLM candidate generation 2026".** Surfaced
+only papers already logged here (2406.09043 NAACL 2025, 2412.09012, 2506.04824) plus one
+new item worth checking: Sadallah et al. (2025) reports ChatGPT few-shot accuracy of
+9.5% on English cryptics vs. 99% human-expert — a bigger accuracy gap than this project's
+own numbers, on an easier language (English cryptics have a stable one-end definition
+convention this setter explicitly does not follow, per the already-measured 08-19
+finding). **Transfer: confirms rather than changes anything** — if frontier LLMs
+struggle this much on the *easier*, well-studied version of this task even with full
+in-context few-shot prompting (no external candidate generator, no proof gate), it's
+consistent with this project's standing diagnosis that the wordplay-cracking step itself,
+not tooling, is the hard part, and that a bare LLM without this project's harness would
+do worse here, not better. Also surfaced this project's own public page again in a
+general search (as on 2026-08-20) — spot-checked that it still correctly represents the
+96% figure as retracted, not fixed by omission.
+
+**Definition-span detection, general search.** No new academic result; general
+crossword-advice pages restate the same one-end convention already known to not hold for
+this setter (killed 2026-08-19, queue item 2 struck). **Transfer: none** — nothing here
+contradicts or should reopen that finding.
+
+**Hebrew morphology / NLP.** Same landscape as 2026-08-06/08-20 (RFTokenizer, HebPipe,
+YAP), plus one tool not previously named directly: **DictaBERT-seg**, a Hebrew
+transformer fine-tuned specifically for the prefix-segmentation task (splitting off
+ב/ל/מ/ש/ה/ו/כ clitics), more targeted than YAP's full morpho-syntactic parse for this
+project's narrow need. **Transfer: still plausible, still not attempted, still not the
+bottleneck.** Same reasoning as the last two research entries — this project's own
+measured numbers (candidate recall 3.6-7.1% across three independent puzzles/
+implementations, defspan classifier 1/5) point at wordplay-mechanism coverage and
+definition-fit judgment as the gap, not tokenization quality; the ad hoc prefix lists
+already in `homographs.py`/`charade.py` are not where the last three levers' failures
+traced to. Not queued above candidate-generation-shape work without a concrete case where
+a prefix-list miss caused a specific measured failure.
+
+**Conclusion for today's lever.** No new external finding changes the queue's priority
+order or reopens either struck item. Given the queue's top code lever (candidate
+generation, item 1) has now been tried in three independently-written shapes across three
+different dev puzzles with the same null result (3.6% / 7.1% / 4.0% recall, all flat
+before/after adding substitution+homograph mechanisms), and item 2 is struck, today's
+lever is the lowest-risk, best-evidenced item actually still open: queue item 7, fixing
+`lexicon.held_out_answers()`'s coverage gap. It is not a research-literature lever — it's
+an internal integrity fix flagged twice already (2026-08-16, 2026-08-17 log entries) as a
+real, unaddressed leak vector, and this project's own history (the 96% leak) is the
+reason leak-vector fixes get priority over one more speculative recall experiment on a
+lever already measured negative three times running.
+
+## 2026-08-22
+
+
+Swept for anything new since 2026-08-20 on: cryptic candidate generation, definition-span
+detection, Hebrew NLP/morphology, and (new angle this run) any existing Hebrew-specific
+cryptic-solving tooling that might already exist and be worth learning from.
+
+**General cryptic-solving literature** — re-searched broadly (arXiv, "August 2026 cryptic
+crossword reasoning"). No new paper beyond the set already logged (2406.09043, 2412.09012,
+2403.12094, 2407.08824, 2506.04824). **Transfer: none new.** The field's SOTA is still the
+same generate-candidates -> formalise -> prove pipeline this project already mirrors
+structurally (candidates.py + prove.py), and its own published ceiling on a MATURE English
+candidate pool (~38-40% true positive per 2026-08-15's RESEARCH note on 2407.08824) is a
+useful sanity check on how much headroom "better proving" alone has left here — not much;
+this project's bottleneck, as DAILY.md's own measurements keep confirming, is candidates,
+not verification.
+
+**Hebrew morphology/NLP** — no new 2026 resource beyond RFTokenizer/HebPipe/the root-pattern
+evaluation already logged. **Transfer: none new.**
+
+**NEW THIS RUN: existing Hebrew crossword tooling, checked directly rather than assumed.**
+Search for "תשבץ היגיון AI" surfaced a Hebrew cryptic-crossword *platform*
+(https://dvd848.github.io/cryptic-crossword/, code at github.com/Dvd848/cryptic-crossword)
+that looked, from the title alone, like it could be a solver for exactly this puzzle genre.
+Fetched and read directly (not just the search snippet, per the 2026-08-08 lesson about
+trusting search summaries over primary sources): it is an **interactive puzzle archive and
+manual-entry UI** (started as an internal Intel project), with explicitly no automated
+solving mechanism — users type answers into cells themselves. **Transfer: none** — it solves
+a different problem (rendering/UX for weekly puzzles since 2013), not answer derivation.
+
+Also checked a second, adjacent repo the same author links, github.com/Dvd848/Crossword-Solver,
+which sounded more promising by name. Fetched directly: it is a **plain pattern-matching word
+finder** over a DAWG-encoded Hebrew dictionary (letters + `?` wildcards -> matching dictionary
+words), with **no wordplay, anagram, or definition handling at all** — functionally a
+faster/more compact version of what `solver/lexicon.py pattern` already does here.
+**Transfer: none for solving**, but its dictionary source list is worth noting for a possible
+future lexicon-expansion lever (not today's): it aggregates Wiktionary, Wikipedia, Hebrew
+WordNet, and Hspell under CC-BY-SA/MIT/AGPL — Hebrew WordNet in particular is a source this
+project's `solver/lexicon.py` does not currently draw from and hspell already does; low
+priority since PLAYBOOK.md's diagnosis is that this setter's difficulty is wordplay-device
+coverage, not raw vocabulary size (RESULTS.md: this project's own corpus already covers most
+attempted answers' definitions; the gap is deriving them from wordplay, not defining them).
+
+**Conclusion for today.** No literature or tooling finding changes the queue's priority
+order or unsticks either struck lever (definition-span detection, indicator-density
+version; substitution/homograph candidate generation in the shape already tried twice).
+Today's implementation lever (see DAILY.md log) is therefore the queue's own explicitly-
+flagged remaining gap under item 1(a) — a full-puzzle LIVE blind trial of `solve_pass.py`
+(the previous live trial, 2026-08-16, was n=2 and explicitly flagged as too small to be a
+reliable estimate) — not a new mechanism, since neither today's research nor the last three
+runs' mechanism attempts found anything to extend.
+
 ## 2026-08-23
+
 
 Two open PRs exist on top of this main (#23, 2026-08-21: `held_out_answers()` coverage
 gap fix, queue item 7; #24, 2026-08-22: first full-puzzle live blind trial of
@@ -370,109 +481,8 @@ by_date-expanded contract as `lexicon.held_out_answers()` rather than a narrower
 happens to be safe only by luck of the current call sites) — see DAILY.md for the measured
 before/after and the audit.
 
-## 2026-08-21
-
-Re-checked for anything new since 2026-08-20 on: cryptic candidate generation,
-definition-span detection, and Hebrew NLP/morphology, plus a general sweep for any new
-cryptic-solving system.
-
-**General search: "cryptic crossword solver LLM candidate generation 2026".** Surfaced
-only papers already logged here (2406.09043 NAACL 2025, 2412.09012, 2506.04824) plus one
-new item worth checking: Sadallah et al. (2025) reports ChatGPT few-shot accuracy of
-9.5% on English cryptics vs. 99% human-expert — a bigger accuracy gap than this project's
-own numbers, on an easier language (English cryptics have a stable one-end definition
-convention this setter explicitly does not follow, per the already-measured 08-19
-finding). **Transfer: confirms rather than changes anything** — if frontier LLMs
-struggle this much on the *easier*, well-studied version of this task even with full
-in-context few-shot prompting (no external candidate generator, no proof gate), it's
-consistent with this project's standing diagnosis that the wordplay-cracking step itself,
-not tooling, is the hard part, and that a bare LLM without this project's harness would
-do worse here, not better. Also surfaced this project's own public page again in a
-general search (as on 2026-08-20) — spot-checked that it still correctly represents the
-96% figure as retracted, not fixed by omission.
-
-**Definition-span detection, general search.** No new academic result; general
-crossword-advice pages restate the same one-end convention already known to not hold for
-this setter (killed 2026-08-19, queue item 2 struck). **Transfer: none** — nothing here
-contradicts or should reopen that finding.
-
-**Hebrew morphology / NLP.** Same landscape as 2026-08-06/08-20 (RFTokenizer, HebPipe,
-YAP), plus one tool not previously named directly: **DictaBERT-seg**, a Hebrew
-transformer fine-tuned specifically for the prefix-segmentation task (splitting off
-ב/ל/מ/ש/ה/ו/כ clitics), more targeted than YAP's full morpho-syntactic parse for this
-project's narrow need. **Transfer: still plausible, still not attempted, still not the
-bottleneck.** Same reasoning as the last two research entries — this project's own
-measured numbers (candidate recall 3.6-7.1% across three independent puzzles/
-implementations, defspan classifier 1/5) point at wordplay-mechanism coverage and
-definition-fit judgment as the gap, not tokenization quality; the ad hoc prefix lists
-already in `homographs.py`/`charade.py` are not where the last three levers' failures
-traced to. Not queued above candidate-generation-shape work without a concrete case where
-a prefix-list miss caused a specific measured failure.
-
-**Conclusion for today's lever.** No new external finding changes the queue's priority
-order or reopens either struck item. Given the queue's top code lever (candidate
-generation, item 1) has now been tried in three independently-written shapes across three
-different dev puzzles with the same null result (3.6% / 7.1% / 4.0% recall, all flat
-before/after adding substitution+homograph mechanisms), and item 2 is struck, today's
-lever is the lowest-risk, best-evidenced item actually still open: queue item 7, fixing
-`lexicon.held_out_answers()`'s coverage gap. It is not a research-literature lever — it's
-an internal integrity fix flagged twice already (2026-08-16, 2026-08-17 log entries) as a
-real, unaddressed leak vector, and this project's own history (the 96% leak) is the
-reason leak-vector fixes get priority over one more speculative recall experiment on a
-lever already measured negative three times running.
-
-## 2026-08-22
-
-Swept for anything new since 2026-08-20 on: cryptic candidate generation, definition-span
-detection, Hebrew NLP/morphology, and (new angle this run) any existing Hebrew-specific
-cryptic-solving tooling that might already exist and be worth learning from.
-
-**General cryptic-solving literature** — re-searched broadly (arXiv, "August 2026 cryptic
-crossword reasoning"). No new paper beyond the set already logged (2406.09043, 2412.09012,
-2403.12094, 2407.08824, 2506.04824). **Transfer: none new.** The field's SOTA is still the
-same generate-candidates -> formalise -> prove pipeline this project already mirrors
-structurally (candidates.py + prove.py), and its own published ceiling on a MATURE English
-candidate pool (~38-40% true positive per 2026-08-15's RESEARCH note on 2407.08824) is a
-useful sanity check on how much headroom "better proving" alone has left here — not much;
-this project's bottleneck, as DAILY.md's own measurements keep confirming, is candidates,
-not verification.
-
-**Hebrew morphology/NLP** — no new 2026 resource beyond RFTokenizer/HebPipe/the root-pattern
-evaluation already logged. **Transfer: none new.**
-
-**NEW THIS RUN: existing Hebrew crossword tooling, checked directly rather than assumed.**
-Search for "תשבץ היגיון AI" surfaced a Hebrew cryptic-crossword *platform*
-(https://dvd848.github.io/cryptic-crossword/, code at github.com/Dvd848/cryptic-crossword)
-that looked, from the title alone, like it could be a solver for exactly this puzzle genre.
-Fetched and read directly (not just the search snippet, per the 2026-08-08 lesson about
-trusting search summaries over primary sources): it is an **interactive puzzle archive and
-manual-entry UI** (started as an internal Intel project), with explicitly no automated
-solving mechanism — users type answers into cells themselves. **Transfer: none** — it solves
-a different problem (rendering/UX for weekly puzzles since 2013), not answer derivation.
-
-Also checked a second, adjacent repo the same author links, github.com/Dvd848/Crossword-Solver,
-which sounded more promising by name. Fetched directly: it is a **plain pattern-matching word
-finder** over a DAWG-encoded Hebrew dictionary (letters + `?` wildcards -> matching dictionary
-words), with **no wordplay, anagram, or definition handling at all** — functionally a
-faster/more compact version of what `solver/lexicon.py pattern` already does here.
-**Transfer: none for solving**, but its dictionary source list is worth noting for a possible
-future lexicon-expansion lever (not today's): it aggregates Wiktionary, Wikipedia, Hebrew
-WordNet, and Hspell under CC-BY-SA/MIT/AGPL — Hebrew WordNet in particular is a source this
-project's `solver/lexicon.py` does not currently draw from and hspell already does; low
-priority since PLAYBOOK.md's diagnosis is that this setter's difficulty is wordplay-device
-coverage, not raw vocabulary size (RESULTS.md: this project's own corpus already covers most
-attempted answers' definitions; the gap is deriving them from wordplay, not defining them).
-
-**Conclusion for today.** No literature or tooling finding changes the queue's priority
-order or unsticks either struck lever (definition-span detection, indicator-density
-version; substitution/homograph candidate generation in the shape already tried twice).
-Today's implementation lever (see DAILY.md log) is therefore the queue's own explicitly-
-flagged remaining gap under item 1(a) — a full-puzzle LIVE blind trial of `solve_pass.py`
-(the previous live trial, 2026-08-16, was n=2 and explicitly flagged as too small to be a
-reliable estimate) — not a new mechanism, since neither today's research nor the last three
-runs' mechanism attempts found anything to extend.
-
 ## 2026-08-24
+
 
 Continuing the sharpest open question flagged 2026-08-22 (and, per PR #25's own unmerged
 description read directly during this run's PR-backlog check, apparently also picked up

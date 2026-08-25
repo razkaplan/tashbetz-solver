@@ -1,5 +1,6 @@
 # Daily improvement runbook — tashbetz solver
 
+
 Read this first each run. It is the handoff between days.
 
 ## Current state (update this section every run)
@@ -13,10 +14,27 @@ Read this first each run. It is the handoff between days.
 | Hardest puzzle | 2026-06-05: 100% / 43% / 43% | coverage stuck |
 | **Candidate recall@N (new, offline, mechanical only)** | **3.6% (1/28)**, avg 11.6 candidates/clue (capped), on 2026-05-29 — UNCHANGED after adding substitution+homograph mechanisms | not yet a target — diagnostic |
 | **Definition-span locatable rate (new, offline, diagnostic)** | **25% (7/28)** have mechanically-locatable single-window wordplay; of those 29% (2/7) are interior, not edge; classifier agreement on edge cases **1/5** | not a target — this diagnostic KILLED the lever, see log |
-| **`solve_pass.py` LIVE blind trial — cumulative (2 trials)** | **25% precision (1/4 committed)**: 2026-08-16 was 1/2 on a partial 21/28-clue puzzle (2026-06-12); 2026-08-22 (today) is **0/2**, 7.1% coverage, 0% yield, on a FULL 28/28-clue puzzle (2026-05-15) — first full-puzzle live trial, see log | n=4 — still small, but both trials together now argue the proof gate alone is not a reliable confidence signal; see log |
+| **`solve_pass.py` LIVE blind trial — cumulative (2 trials)** | **25% precision (1/4 committed)**: 2026-08-16 was 1/2 on a partial 21/28-clue puzzle (2026-06-12); 2026-08-22 is **0/2**, 7.1% coverage, 0% yield, on a FULL 28/28-clue puzzle (2026-05-15) — first full-puzzle live trial, see log | n=4 — still small, but both trials together now argue the proof gate alone is not a reliable confidence signal; see log |
+| **Candidate recall@N with `culture_category_candidates` added (new, offline, definition-driven)** | **0% (0/28)**, on 2026-06-19 — mechanism fired on only 1/28 clues (avg candidates/clue 10.5 → 11.4); its one firing (339 raw candidates, an "author" category hit) matched 0 gold | not yet a target — small-n diagnostic, see log |
 
 Baseline for comparison: v2 = 41% raw with untraceable errors.
-Last lever added (2026-08-22): **first full-puzzle LIVE blind trial of `solve_pass.py`**
+Last lever added (2026-08-24): **definition-driven candidate generation** (`solver/candidates.py`:
+`culture_category_candidates`) — a new generator, orthogonal to every existing mechanism, that
+derives a candidate from the clue's MEANING (a role/genre/geography category it names, e.g. "the
+singer") rather than its letters, by matching hand-curated Hebrew category trigger words against
+`solver/lex/culture.json`'s named-entity lists. MEASURED on a freshly transcribed puzzle
+(2026-06-19, 28/28 clues, all enum sums validated against grid geometry AND cross-checked against
+the real 14across gold answer lengths, 0 mismatches either way): **0/28 recall, unchanged from the
+0/28 mechanical-only baseline on this same (unusually hard) puzzle** — the new mechanism fired on
+only 1 of 28 clues, and that one firing (339 raw "author"-category candidates) matched nothing.
+n=1 fired-clue is too small to call this dead, but it is a real, honest, mostly-negative result —
+see log for the root-cause read (this setter's category words are often homograph/wordplay fodder,
+not literal definition-by-category pointers) and a genuinely important AUDIT finding: the
+un-filtered `solver/lex/culture.json` actually contained 5 of this puzzle's own 28 gold answers,
+which the new mechanism could have leaked had it not been given the same held-out filter
+`lexicon.load()` already uses — caught and fixed before any measurement, not after.
+
+Earlier lever (2026-08-22): **first full-puzzle LIVE blind trial of `solve_pass.py`**
 (queue item 1(a)'s remaining gap, flagged since 2026-08-16). MEASURED 0/2 precision
 (both committed answers wrong), 7.1% coverage, 0% yield on 2026-05-15 (28/28 clues
 transcribed, all enum sums validated against grid geometry, 0 mismatches). Both misses
@@ -40,6 +58,39 @@ but today's specific implementation of them did not move recall on this puzzle. 
 finding (2026-08-06) still holds: coverage is bounded by CANDIDATE GENERATION, not
 verification, and this setter leans on devices (substitution/homograph, but evidently
 not in the SHAPE this lever implemented them) that plain anagram/hidden/reversal miss.
+
+**2026-08-23 lever: closed queue items 7 and 7b — `held_out()` coverage gap, all three
+places it lives.** Two PRs were open and unmerged on top of this main when this run
+started: #23 (2026-08-21, fixes `lexicon.held_out_answers()`, queue item 7, and flags the
+identical gap in `substitutions.py`/`retrieve_defs.py` as new item 7b) and #24 (2026-08-22,
+first full-puzzle live blind trial of `solve_pass.py`, 0/2 precision — merged mid-run, see
+note below). Cherry-picked #23's `lexicon.py` fix onto this branch rather than re-deriving it,
+then did the ONE new thing left open: item 7b. `substitutions.py`'s `held_out()` had the
+exact same row-only shape `lexicon.py`'s did before the fix — a REAL, currently-exploitable
+gap, since `explanations()` sources `data/answers/answers_parsed.json` unconditionally for
+all 52 puzzles regardless of transcription state. MEASURED on real data (2026-05-29, a
+canonical dev puzzle, using its real `data/answers/by_date/2026-05-29.json`): simulating
+only 1 of its 28 clues transcribed (the old row-only block set), 10 substitution pairs were
+mined directly out of this held-out puzzle's own remaining 27 (still-"untranscribed")
+crowd explanations and would have entered the committed substitution table — e.g.
+`מסר~נתנ`, `אושכפ~סנדלר`, `ימ~ירושלימ`. Under the fix (by_date-expanded block set, all 28
+answers blocked once any one row marks the date dev/eval), all 10 are correctly excluded;
+total mined pairs corpus-wide drop from 323 to 313, exactly the 10 closed. `retrieve_defs.py`
+got the same interface change for consistency/defense-in-depth, but inspection showed its
+one caller (`build_index()`) sources docs only from `clues.jsonl` rows marked
+`split=='train'` — which an untranscribed slot can never have — so unlike `substitutions.py`
+this was not shown to be actively exploitable under the current call graph; recorded
+honestly rather than claimed as a second real leak. Both files gained a `selftest`
+subcommand (synthetic fixtures only). Not a solving lever — no precision/coverage/yield
+number was expected to move and none did; this is an integrity fix. See log for the full
+audit and RESEARCH.md for today's search (definition-fit scoring, the gap #24 surfaced —
+no buildable-today mechanism found, Hebrew WordNet flagged as the one lead).
+
+**PR #24 update: merged to main partway through this run** (after this branch was
+created off the pre-#24 main, hence the merge above). Its finding — cumulative live
+precision 1/4 = 25%, the sharpest evidence that definition-FIT judgment, not mechanism
+verification, is the remaining gap — is now the state table's own row (above) and its
+2026-08-22 log entry (below), not just a flagged-for-later note.
 
 **INFRASTRUCTURE UPDATE (2026-08-06): 14across.co.il access is intermittent, not blocked.**
 Earlier (2026-08-03) it looked like a hard bot-protection wall (`/.well-known/sgcaptcha/`
@@ -109,10 +160,20 @@ propagated), `blank`. Score with `python3 evals/run_eval.py <file>`.
    version of these two mechanisms — two different implementations, two different
    puzzles, same null result, which strengthens rather than weakens the standing
    diagnosis that this specific shape of substitution/homograph generation isn't the
-   fix. Remaining work: (a) wire the generator into an actual solve pass so an LLM
-   proof-gates the generated list instead of one guess — still not done, every recall
-   measurement so far has been pure offline generator + recall, never plugged into a
-   live solve+prove loop.
+   fix. (a) wiring the generator into an actual solve pass (`solver/solve_pass.py`) was
+   DONE 2026-08-16 and live-trialed twice (2026-08-16, 2026-08-22) — see the state table's
+   `solve_pass.py` row: cumulative 1/4 = 25% precision, well below the proof gate's
+   promise, root-caused to definition-FIT not being scored at all, not to a candidate-
+   generation gap on those two trials specifically (both misses were mechanically-real
+   devices landing on the wrong real word). (c) `culture_category_candidates` — a
+   DEFINITION-driven generator (as opposed to (a)/(b)'s letter-driven ones) — ADDED
+   2026-08-24 (see log): 0/28 recall, fired on only 1/28 clues on that puzzle, n too small
+   to call dead but a real, mostly-negative result; root-caused to category words in this
+   setter's clues often being homograph/wordplay fodder rather than literal
+   definition-by-category pointers, which a surface trigger-word match can't distinguish.
+   A corpus-mined trigger vocabulary (vs. today's hand-curated one) and a second puzzle's
+   data point are the concrete next steps if this is revisited, not a redesign from
+   scratch.
 2. ~~Definition-span detection~~ — TRIED 2026-08-19, NEGATIVE. See log and "already
    tried" below. Do not re-attempt without a fundamentally different signal (not
    indicator-word density).
@@ -123,17 +184,31 @@ propagated), `blank`. Score with `python3 evals/run_eval.py <file>`.
    grid (Berkeley Crossword Solver approach). Worth doing once candidate lists are good.
 5. **Validate on the easier tier** (דקל בנו) — where 80% is realistic; tells us whether
    the harness is sound and this setter is simply hard.
-6. ~~Merge or close the PR backlog~~ — STRUCK 2026-08-21 (see PR #23's own log): backlog
-   is now down to a single open PR (#23 itself, not yet merged as of 2026-08-22). Re-check
-   `list_pull_requests` each run in case it grows again, but the compounding-loss problem
-   this item flagged is resolved for now.
-7. **Fix `lexicon.held_out_answers()`'s coverage gap.** ADDRESSED 2026-08-21, PR #23
-   (`daily/2026-08-21-held-out-answers-leak-fix`), open but NOT YET MERGED as of
-   2026-08-22 — a future run should check whether it landed and, if so, strike this item.
-   Today's own live trial (2026-05-15) was unaffected either way since all 28 of that
-   puzzle's clues were transcribed, so the old and new logic block the same set for it.
-   Sibling gap flagged in substitutions.py/retrieve_defs.py as new item 7b, still open.
-8. **Audit whether across clues 1-13 were ever legitimately sourced.**
+6. ~~Merge or close the PR backlog~~ — STRUCK 2026-08-21, RECURRED 2026-08-24, CONSOLIDATED
+   2026-08-25. Three PRs were open and unmerged against the same main simultaneously (#23
+   2026-08-21, #25 2026-08-23, #26 2026-08-24) because none of them had been merged by the
+   project owner and each day's agent branches off main, not off yesterday's PR — the exact
+   compounding-loss pattern this item has now flagged three times. This run cherry-picked
+   the real code commits from all three (verified #25's `lexicon.py` diff is byte-identical
+   to #23's, i.e. #25 already supersedes #23; #26's `candidates.py` commit applied clean, no
+   conflicts) onto one branch and reconciled DAILY.md/RESEARCH.md by hand (chronological
+   log merge, no content dropped) rather than re-deriving any of the three days' work. Only
+   the project owner can merge PRs; this run's branch is offered as the single PR that
+   supersedes #23/#25/#26 so they can close those three instead of merging four times.
+7. ~~Fix `lexicon.held_out_answers()`'s coverage gap~~ — FIXED 2026-08-21 (PR #23),
+   confirmed byte-identical in PR #25's cherry-pick, both folded into this branch
+   2026-08-25. It only blocked an answer when its clue had a row in
+   `data/dataset/clues.jsonl`; fix blocks every answer in the puzzle's full
+   `data/answers/by_date/<date>.json` once any one row marks the date dev/eval. Measured:
+   18/18 previously-unblocked untranscribed-slot answers now blocked (2026-06-05 test).
+   See log.
+   - **7b** (flagged by PR #23, fixed 2026-08-23 PR #25, folded in 2026-08-25): the
+     identical gap in `substitutions.py`/`retrieve_defs.py`. `substitutions.py`'s half was
+     a REAL, currently-exploitable leak (its `explanations()` sources ALL 52 puzzles
+     unconditionally); measured 10 substitution pairs closed on 2026-05-29's real data.
+     `retrieve_defs.py`'s half was name-only — its caller can't reach an untranscribed
+     slot by construction — fixed anyway for a consistent contract. See log.
+8. **[NEW 2026-08-16] Audit whether across clues 1-13 were ever legitimately sourced.**
    4 different weeks' dev images (2026-06-11, 2026-06-18, 2026-05-21, 2026-05-28) all show
    the identical gap: the printed clue column starts at across ~13-15 and never contains
    across 1-12. Several prior PRs (#2, #6, #8, #9, #10, #11) claim "28/28 transcribed, 0
@@ -146,9 +221,30 @@ propagated), `blank`. Score with `python3 evals/run_eval.py <file>`.
    match there is NOT evidence of being the right week's text). NEW DATA POINT 2026-08-22:
    2026-05-15's own image (`data/images/2026-05-14.jpg`) prints across clues 1 THROUGH 13
    cleanly, no gap — the second date (after PR #23's 2026-06-05 finding) confirming the
-   gap is not universal, it's specific to certain weeks' layouts. If those older
-   transcriptions used the wrong week's clues, some historical dev numbers may need
-   re-measurement.
+   gap is not universal, it's specific to certain weeks' layouts. PARTIAL RESOLUTION
+   2026-08-24: 2026-06-19's image (`data/images/2026-06-18.jpg`) also turned out NOT to be
+   missing clues 1/7-13 — they're present in a separate column next to the small
+   "previous week's solution" grid graphic, easy to miss if only the main clue-text column
+   is read. Changes the most likely explanation for at least this date from "no legitimate
+   source" to "earlier transcriptions missed a column." The other 3 named dates and
+   whether the specific historical PRs actually used this column are still unverified.
+9. **[NEW 2026-08-23] Definition-fit scoring — the sharpest gap PR #24 surfaced.**
+   Cumulative live precision across this project's only two live trials is 1/4 (25%); both
+   misses are `prove.py` correctly verifying a real mechanism on a plausible-but-wrong
+   answer — the gap is judging whether a candidate matches the DEFINITION, not whether the
+   wordplay executes. `defspan.py`'s indicator-density approach to the adjacent
+   definition-*location* problem already measured 1/5 (worse than chance) — a naive rule-
+   based definition-fit scorer risks the same fate. UPDATE 2026-08-24: the Hebrew WordNet
+   lead was CHECKED DIRECTLY, not left unconfirmed — `github.com/NLPH/HebrewWordnetShuly`
+   is real, fetchable, MultiWordNet-aligned. But it answers the wrong question: it gives
+   synset/synonym relations, not the ROLE-CATEGORY lookup ("the singer" -> שרה) this
+   setter's culture clues actually need, which is a homograph/role fact this project's own
+   HOMOGRAPHS.md already encodes by hand, not a synonym-set fact WordNet encodes. Possibly
+   useful later for a `means()`/synonym expansion in `prove.py`, not for this item. No
+   generator-shaped external resource has been found across three research passes
+   (2026-08-22/23/24) — the next attempt on this item should assume none exists and work
+   from the project's own data (as `culture_category_candidates`, 2026-08-24, did) or be
+   scoped as a genuinely new internal idea, not another literature sweep.
 
 ## Things already tried — do not repeat
 - More knowledge tooling (wiki, culture lexicon, shironet titles): helped early, now saturated.
@@ -1015,3 +1111,195 @@ Measure each lever on dev (fixed enums) with run_eval.py before/after; one lever
   just 1-2 pieces covering the full length) — `charade.py`'s open-ended version of that
   was already measured weak (2.8%, 2026-08-08) due to combinatorial false positives, so a
   redesign needs a way to keep multi-part assembly PRECISE, not just broaden it further.
+- 2026-08-23: **closed queue items 7 and 7b — `held_out()` coverage gap.** Bootstrap ran
+  clean this session: `./bootstrap.sh --dev-only` recovered 25/52 answer pages with real
+  dates (the usual intermittent 14across bot-check, not a hard wall today), including
+  2026-05-29, a canonical dev date, with its full real answer key. hspell, culture, and
+  the 4 dev images all fetched without incident.
+
+  Before touching a lever: `pull_request_read` on both open PRs. #23 (2026-08-21) fixes
+  `lexicon.held_out_answers()`'s coverage gap (queue item 7) and explicitly flags the
+  identical gap in `substitutions.py`/`retrieve_defs.py` as new item 7b, not fixed that
+  run. #24 (2026-08-22) is a full-puzzle live blind trial, 0/2 precision — logged above in
+  the state section for the next run's awareness, not re-verified today (out of scope for
+  a one-lever integrity fix).
+
+  Rather than re-derive #23's fix from scratch (the exact mistake the 2026-08-16 PR-pileup
+  finding warned against), cherry-picked its `lexicon.py` commit onto a fresh branch off
+  current main (`git cherry-pick b36c79f01`, clean apply after resolving one
+  purely-additive RESEARCH.md conflict from a prior day's unrelated entry) and verified its
+  own selftest still passes. Then did the one new thing left open: **item 7b**.
+
+  Checked directly, before trusting PR #23's "identical gap" label, whether both halves
+  were equally real:
+  - `substitutions.py`'s `held_out()` had the exact same row-only shape `lexicon.py`'s
+    bug did — but its severity is actually WORSE, because `explanations()` sources
+    `data/answers/answers_parsed.json` **unconditionally for all 52 puzzles regardless of
+    transcription state** (lexicon.py's old bug filtered a similarly-unconditional bulk
+    load). This is a real, currently-exploitable leak on this main: an untranscribed
+    dev/eval slot's own crowd explanation could be mined into the committed substitution
+    table.
+  - `retrieve_defs.py`'s `held_out()` has the same narrow shape, but its only caller
+    (`build_index()`) sources dev/eval-adjacent docs exclusively from `clues.jsonl` rows
+    marked `split=='train'` — which an untranscribed slot can never have by construction
+    (transcription is what creates a clues.jsonl row at all). This half was a name-only
+    match to the bug shape, not shown to be actively exploitable under today's call graph.
+
+  FIXED both to the same by_date-expansion contract as the already-fixed `lexicon.py`
+  (block every answer in a held-out puzzle's full `data/answers/by_date/<date>.json` once
+  any one row marks that date dev/eval, not just transcribed rows). Added a `selftest`
+  subcommand to each (synthetic fixtures in a temp dir, never touches real puzzle data —
+  same discipline `lexicon.py`/`candidates.py`/`defspan.py` already enforce). All four
+  files' selftests pass together (`lexicon.py`, `substitutions.py`, `retrieve_defs.py`
+  clean; `candidates.py`/`defspan.py`/`prove.py` re-run clean, no regression).
+
+  **MEASURED on real data, not estimated.** Used 2026-05-29 (this session's real,
+  freshly-scraped `data/answers/by_date/2026-05-29.json`, 28 real clues with real crowd
+  explanations) without transcribing any clue text — this measurement only needs
+  `puzzle_date` + `answer`, which `substitutions.py`'s bug touches directly, so clue text
+  is irrelevant to it. Simulated the exact partial-transcription scenario the bug depends
+  on: only 1 of 28 clues "transcribed" (the old row-only block set = 1 answer). Ran
+  `substitutions.mine(substitutions.explanations(), exclude=...)` corpus-wide (1,304 real
+  explanations from all scraped puzzles) under OLD vs NEW `held_out()`:
+  - OLD block set for this puzzle: 1 answer. NEW (by_date-expanded): 28 answers.
+  - Mined pairs corpus-wide: 323 (OLD) -> 313 (NEW).
+  - **10 pairs mined directly from this held-out puzzle's own remaining 27
+    "untranscribed" crowd explanations under OLD are correctly excluded under NEW** —
+    e.g. `מסר~נתנ`, `אושכפ~סנדלר`, `ביוט~ביומ`, `ימ~ירושלימ`. 323 - 313 = 10, exactly
+    matching the excluded set — the fix removes precisely what it should and nothing else.
+
+  AUDIT: this run read `data/answers/by_date/2026-05-29.json` directly (real gold data),
+  but only to construct a fixture proving the fix — as with prior runs' "spot-checked N
+  directly" audits, this is validating the LEAK-PREVENTION CODE, not attempting to solve
+  or score any clue with foreknowledge of its answer; no solve was performed this run, so
+  there is no blind-solve contamination to disclose. No forbidden reads beyond that
+  (14across via the documented scraper, public CDN images fetched by bootstrap but not
+  read/transcribed this run — not needed for this lever). Not a precision/coverage/yield
+  claim, so the ~15-point-jump check doesn't apply; the 323->313 drop is the expected
+  direct consequence of the fix's own logic, not a surprise requiring explanation.
+
+  RESEARCH.md: searched specifically for a definition-fit / candidate-semantic-scoring
+  lever (the gap PR #24's root-cause trace surfaces as the project's sharpest open
+  question). No new 2026 paper found beyond the already-logged 2412.09012/2506.04824
+  (embedding-similarity ranking of a definition span against candidates); no Hebrew
+  embedding space tuned for this genre exists or was found. One concrete lead — Hebrew
+  WordNet, which English rule-based cryptic solvers use for exactly this role via
+  path-similarity — could not be confirmed as a real, reachable, scriptable resource in
+  today's research budget. Judged: implementing a stub around an unconfirmed resource
+  would be exactly the filler this project's own log says not to ship, so nothing was
+  built on that lead today; recorded as new queue item 9 instead of attempted.
+
+  HONEST READ: a real leak closed with real, direct evidence (not a diagnostic scan that
+  came back clean, which is a weaker kind of "measured") — this is the more convincing
+  half of today's two fixes. The `retrieve_defs.py` half is honestly weaker evidence
+  (hardened, not shown broken) and is reported as such rather than folded into the same
+  claim. No solving-metric lever attempted today; PR #24's definition-fit gap remains the
+  single most important open direction for a future run, and item 9 above is a concrete,
+  honest starting point (confirm the WordNet resource exists and is licensable/fetchable
+  BEFORE building anything on top of it) rather than a vague "someone should look into
+  this."
+- 2026-08-24: **definition-driven candidate generation** (`solver/candidates.py`:
+  `culture_category_candidates`), a new sub-item under lever queue item 1. Chose this over
+  re-attempting definition-span detection (queue item 2, struck 2026-08-19) because
+  RESEARCH.md's sweep this run (see its own 2026-08-24 entry) confirmed no external
+  resource (Hebrew embedding space, Hebrew WordNet — checked directly and found real but
+  answering the wrong question) exists to build a definition-fit SCORER on, but this
+  project's own committed `solver/lex/culture.json` supports a definition-driven
+  GENERATOR without any new scrape: every mechanism in `candidates.py` so far derives an
+  answer from the clue's letters; this is the first one to derive it from the clue's
+  meaning instead, generalizing SOLVE_PROTOCOL.md's homograph rule ("the singer" may mean
+  the word שרה) from single ambiguous tokens to whole culture-namelist categories, and
+  PLAYBOOK.md 1.8's own "creator/genre" recipe from song titles specifically to every
+  category `lex/culture.json` tracks.
+
+  BOOTSTRAP: `./bootstrap.sh --dev-only` hit a hard 14across bot-wall today, the same
+  failure mode as 2026-08-19/2026-08-20 (not the "~half of requests" intermittent
+  behavior from 2026-08-06) — of 52 staged answer pages, only **2 recovered** after the
+  full retry-with-backoff loop ran to completion (~25 minutes). Hspell, culture.json, and
+  the 4 dev images all came through the unaffected CDN/API paths as always. Reverted the
+  regressed `solver/lex/substitutions.json` rebuild (528→116 head words this run) per the
+  standing warning, as every prior run has had to.
+
+  PUZZLE CHOICE: one of the 2 puzzles 14across did return this run was **2026-06-19** —
+  fetched its clue-text image directly from the public Haaretz CDN (`data/images/
+  2026-06-18.jpg`, bypassing 14across for the clue-text step entirely, same pattern prior
+  runs used when the standard 4 dev dates failed to scrape) and transcribed all 28 clues
+  (15 across, 13 down) by eye. Cross-cropped/zoomed ambiguous line-wraps multiple times —
+  this puzzle's printed clue column wraps enum numbers across line breaks in a way that
+  first read as off-by-one (an enum appearing to sit next to the WRONG clue number); caught
+  and corrected before trusting it by cross-validating **every one of the 28 enum sums
+  against `data/grids/2026-06-19.json`'s own derived slot lengths** (computed independently
+  in Python from the grid's black/white pattern, not read off the image) — 0/28 mismatches
+  once corrected, and a second independent check against this puzzle's real 14across gold
+  answer lengths (which the bootstrap run happened to recover) also came back 0/28
+  mismatches. Both checks passing independently is strong confirmation the transcription is
+  accurate, not merely self-consistent.
+
+  BUILT `culture_category_candidates` in `solver/candidates.py`: a hand-curated (NOT
+  corpus-mined — disclosed in the code and RESEARCH.md rather than dressed up as
+  empirical) Hebrew role/genre/geography trigger vocabulary mapping a clue's named
+  category to the matching `lex/culture.json` bucket, filtered to the enum length. Wired
+  into `generate()` behind a `use_culture` toggle (default on) so a controlled before/after
+  recall measurement needs no second copy of the function; `solve_pass.py` needed NO
+  changes at all — it already ranks by lexicon tier, and a culture-entity hit is
+  automatically tier 3, so the new mechanism's candidates are already prioritized above
+  plain-dictionary hits without any new ranking logic. Selftest extended with 3 new
+  synthetic checks (a clue sharing NO letters with its candidate answer — the entire point
+  of this device, contrasted with every other mechanism's selftest); all 10 checks pass.
+
+  **AUDIT FINDING, caught DURING implementation, before any measurement — not a
+  hypothetical.** The first version of `culture()` loaded `solver/lex/culture.json`
+  directly, with no held-out filtering, unlike every other corpus-backed source in this
+  file (`lexicon.load()`, `sub_fwd()`). Checked directly before running any eval: **5 of
+  2026-06-19's own 28 gold answers (ישע, דונשבנלברט, בתשלמה, שמאיגולנ, אורהירח) were
+  sitting unfiltered in the raw committed culture.json.** This is exactly the leak shape
+  RESULTS.md's INTEGRITY FINDING already caught once in `lexicon.py` (a retrieval tool
+  built from the same corpus as the eval set leaks even when file-access rules are
+  perfectly obeyed) — fixed by giving `culture()` the same `lexicon.held_out_answers()`
+  filter `lexicon.load()` uses, verified directly (`candidates.culture()`'s output no
+  longer contains any of the 5 formerly-leaked answers; the mechanism's own hit list for
+  the one clue it fired on does not contain that clue's gold answer either) before trusting
+  any recall number below.
+
+  MEASURED (executed, not estimated), controlled before/after on the same 28 clues:
+  `python3 solver/candidates.py recall data/dataset/clues.jsonl eval --no-culture` →
+  **0/28 = 0.0%** (avg 10.5 candidates/clue) — the mechanical-only baseline on this
+  puzzle, notably lower than 2026-05-29's 3.6% or 2026-05-21's 7.1%, consistent with this
+  being a harder-than-average puzzle (no anagram/hidden/reversal hits at all this time).
+  `python3 solver/candidates.py recall data/dataset/clues.jsonl eval` (culture ON) →
+  **still 0/28 = 0.0%** (avg 11.4 candidates/clue). Diagnostic breakdown: the new
+  mechanism fired on only **1 of 28 clues** (6 down, triggered by "סופר" = author),
+  generating 339 raw candidates before truncation, 0 of which matched gold.
+
+  HONEST READ, root-cause not just the number: n=1 fired-clue is far too small a sample
+  to call this mechanism dead, but the ONE case it did fire is genuinely informative. The
+  clue text was "רואים שהשרה היא בכלל סופר שכתב על השואה" (gold `שמאיגולנ`, not a real
+  author's name) — it contains BOTH "השרה" (a homograph — she sings / the (female)
+  minister / Sarah) AND "סופר" (author), and PLAYBOOK.md's own worked examples (§1.8-1.9)
+  show this setter routinely uses a category word like "סופר" as HOMOGRAPH/WORDPLAY
+  fodder (a pun, a combo device) rather than as a literal pointer to a real author's name.
+  My trigger vocabulary can't tell those two uses apart — it fires on the surface word
+  regardless of whether the setter means it literally or as misdirection, which is exactly
+  the ambiguity a genuinely cryptic clue is designed to exploit. This is a smaller, more
+  specific version of the same standing finding from 2026-08-19's definition-span
+  measurement and 2026-08-22's live-trial root-cause: this setter's clues resist
+  surface-level heuristics (indicator words, category nouns) precisely because the
+  misdirection is the point. A second puzzle's worth of data would help distinguish "this
+  mechanism doesn't work here" from "this puzzle just had few category-noun clues," but
+  building that costs a full independent transcription and this run's one-lever budget
+  went to measuring and auditing what's here rather than a second data point.
+
+  AUDIT (mandatory gate): the held-out leak above was found and fixed before any recall
+  number was computed, not after — re-verified clean post-fix (see finding above). No
+  forbidden reads: only `data/images/2026-06-18.jpg` (public CDN, transcription) and
+  `data/answers/by_date/2026-06-19.json` (enum-length validation per protocol, plus the
+  held-out audit check above — never fed to the generator itself). No jump to explain:
+  0/28 to 0/28 is not a jump at all, the least suspicious result a controlled before/after
+  can produce. All pre-existing selftests (`candidates.py`, `solve_pass.py`, `prove.py`,
+  `defspan.py`, `substitutions.py`) re-run clean, no regressions.
+
+  NOT DONE, honestly: no second puzzle for a larger sample (see above); did not build a
+  corpus-mined version of the trigger vocabulary (would need many transcribed puzzles'
+  worth of clue text to mine reliably — today's is hand-curated and disclosed as such); did
+  not merge PRs #23/#25 (queue items 7/7b, both still open as of this run, out of scope for
+  today's lever); did not act on queue item 8 (audit of across 1-13 sourcing) this run.
