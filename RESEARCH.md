@@ -417,6 +417,79 @@ flagged remaining gap under item 1(a) — a full-puzzle LIVE blind trial of `sol
 reliable estimate) — not a new mechanism, since neither today's research nor the last three
 runs' mechanism attempts found anything to extend.
 
+## 2026-08-26
+
+Read the full unmerged-PR state first (per the standing "don't re-derive a result already
+sitting in an unmerged PR" lesson): PR #27 (2026-08-25) consolidates the whole backlog
+(#23/#25/#26) and adds `retrieval_candidates` (BM25 over `retrieve_defs.py`'s definition
+index) to `candidates.py`, MEASURING a real positive move (3.6% -> 7.1% recall) on the
+2026-05-29 dev puzzle — the first candidate-gen sub-lever to move the number at all since
+2026-08-06. Its own log explicitly flags the open gap: "worth a second puzzle's data
+point before calling this settled." Searched today with that gap specifically in mind —
+is there new evidence for or against ranked-retrieval-augmented candidate generation
+generalizing, and is there anything new on definition-fit scoring (queue item 9, still the
+project's sharpest open question per the 2026-08-22/23 live-trial root-cause)?
+
+**General search: "cryptic crossword solver LLM candidate generation definition-fit
+scoring 2026".** Surfaced the same paper family already logged here, but through two new
+paths worth checking directly rather than assumed duplicate: an OpenReview forum page
+(`openreview.net/forum?id=Bo5eKnJPML`, titled "A Reasoning-Based Approach to Cryptic
+Crossword Clue Solving") and a second OpenReview entry (`id=2nC7zy7adD`, "Generating Code
+to Verify Cryptic Crossword Reasoning", ICLR 2025 Workshop on Deep Learning for Code).
+Both direct PDF/forum fetches were blocked by OpenReview's bot-verification page (could
+not read content directly, unlike arXiv mirrors); cross-checked via search instead —
+both resolve to the same Andrews & Witteveen authorship and arXiv ID (2506.04824) already
+logged 2026-08-06, the ICLR workshop entry being an earlier version of the same paper.
+**Transfer: none new** — not two additional data points, one paper found twice.
+
+**NEW CITATION, not previously logged by name: "Decrypting Cryptic Crosswords:
+Semantically Complex Wordplay Puzzles as a Target for NLP"** (Rozner, Potts, Mahowald,
+2021; arXiv 2104.08620). This is the origin paper for the Cryptonite dataset that every
+other paper in this log's citation chain (2506.04824, 2407.08824, 2406.09043, 2403.12094)
+benchmarks against — a T5 baseline fine-tuned on Cryptonite's 470k clues reaches only
+7.6% accuracy, and their own curriculum pretraining (unscrambling-word pretasks) improves
+on that but still falls well short of human performance. **Transfer: confirms rather than
+adds** — it is the historical baseline the entire "generate then verify" pipeline this
+project already mirrors was built specifically to beat; no new technique here that isn't
+already superseded by the more recent papers in this log, but worth citing by name now
+that it surfaced directly rather than only by inherited reference.
+
+**Checked one adjacent research area for queue item 4 (global constraint optimization,
+still correctly sequenced after candidate quality per 2026-08-16's finding): "LLM-Solve
+2026"** (sites.google.com/view/llm-solve-2026), an FLoC'26 workshop (Lisbon, July 2026) on
+LLM + constraint-solving (CP/SAT/SMT/MIP) integration generally. **Transfer: none
+concrete** — it is a general venue for the LLM+solver research area converging, not a
+crossword-specific result or a technique with a reported number; confirms the area is
+active but gives nothing to port today. Queue item 4's sequencing (after candidate
+quality clears a materially higher bar) is unaffected.
+
+**Definition-fit scoring (queue item 9), re-checked once more.** No new resource beyond
+2026-08-23/24's findings (embedding-rerank techniques need a Hebrew crossword-tuned
+embedding space that doesn't exist; Hebrew WordNet is real but answers synonymy, not the
+role-category lookup this setter's culture clues need). **Transfer: none new** — third
+consecutive research pass with nothing buildable-today on this item; the standing
+2026-08-24 conclusion (next attempt should be a new internal idea, not another literature
+sweep) still holds.
+
+**Meta-finding, re-checked for the third time (2026-08-20, 2026-08-25, today): does search
+summarization still drop this project's own retraction context?** This run's general
+search surfaced the project's own public page again, and this time the auto-summary
+correctly cited "43 percent per run and 64 percent merged, against a 25 percent baseline"
+— the real, audited v8 numbers, NOT the retracted 96%. **Worth recording as a data point,
+not a reversal of the standing caution**: the summarizer's behavior is inconsistent
+run-to-run (query-phrasing-dependent, presumably), which if anything argues MORE strongly
+for always reading RESULTS.md directly rather than trusting any single summary's framing,
+good or bad, since the same page produced a materially different (and this time correct)
+summary than 2026-08-20/2026-08-25's runs got.
+
+**Conclusion for today's lever.** No literature or resource finding today unsticks queue
+item 9 (definition-fit) or adds a new candidate-generation mechanism. The best-evidenced
+next step is therefore PR #27's own explicitly flagged gap: re-measure
+`retrieval_candidates` on a SECOND, independent dev puzzle before treating the 3.6% -> 7.1%
+result as more than an n=1 anecdote — exactly the kind of skepticism this project's own
+"treat any jump over ~15 points as suspect" discipline calls for applied to a smaller,
+real jump. See DAILY.md for the measurement.
+
 ## 2026-08-23
 
 
