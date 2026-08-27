@@ -26,6 +26,19 @@ This module does exactly that, per clue, with no LLM involved:
                           already a literal clue substring.
   - pattern_candidates:  wraps lexicon.py's crossing-pattern lookup, for when grid
                           letters are already known.
+  - culture_category_candidates: a DEFINITION-hypothesis mechanism, not a wordplay one —
+                          see its own docstring. Every mechanism above derives an answer
+                          from the clue's LETTERS; this derives one from the clue's MEANING
+                          (a category the clue names, e.g. "the singer", matched against
+                          solver/lex/culture.json's named-entity lists).
+  - retrieval_candidates: also DEFINITION-driven, but by ranked BM25 retrieval
+                          (solver/retrieve_defs.py) over independent definition->answer
+                          pairs (private_defs) plus this project's own train-split clue
+                          explanations, rather than a hand-curated category list. Measured
+                          standalone on 2026-08-08 (gold@25=5.4%, ceiling 27%) but never
+                          before combined with the mechanisms above as one candidate pool —
+                          see its own docstring for why the union, not either number alone,
+                          is the point of wiring it in here.
   - split_candidates:    for multi-part enums (e.g. (5,2)), splits a hit at the enum
                           boundary and flags whether BOTH pieces are real words — the
                           precondition prove.py's word_order() needs to succeed.
@@ -41,6 +54,8 @@ of the solver.
 CLI:
   python3 solver/candidates.py clue "<text>" <enum...>            # e.g. ... "7,2"
   python3 solver/candidates.py recall data/dataset/clues.jsonl eval   # offline recall@N
+  python3 solver/candidates.py recall data/dataset/clues.jsonl eval --no-culture  # ablation
+  python3 solver/candidates.py recall data/dataset/clues.jsonl eval --no-retrieval  # ablation
   python3 solver/candidates.py selftest
 """
 import sys, os, re, json
@@ -264,6 +279,150 @@ def homograph_candidates(clue_text, target_len, idx=None):
     return out
 
 
+_CULTURE = None
+
+
+def culture():
+    """solver/lex/culture.json, HELD-OUT FILTERED. This is the leak vector every other
+    corpus-backed source in this file already guards against (lexicon.load() filters
+    culture.json the same way; sub_fwd() rebuilds substitutions.json in-memory with the
+    equivalent filter) — culture_category_candidates does NOT require the candidate to
+    already be a literal substring of the clue (unlike homograph_candidates, which is
+    leak-safe by construction because it can only surface a string already sitting in the
+    clue text), so this is the one place in this generator that could otherwise hand back
+    a dev/eval puzzle's own gold answer. Filtered exactly like lexicon.py's own load()."""
+    global _CULTURE
+    if _CULTURE is None:
+        p = os.path.join(HERE, 'lex/culture.json')
+        raw = json.load(open(p)) if os.path.exists(p) else {}
+        sys.path.insert(0, HERE)
+        import lexicon
+        cwd = os.getcwd()
+        try:
+            os.chdir(ROOT)
+            block = lexicon.held_out_answers()
+        finally:
+            os.chdir(cwd)
+        _CULTURE = {cat: [t for t in items if norm(t) not in block]
+                    for cat, items in raw.items()}
+    return _CULTURE
+
+
+# Hand-curated Hebrew role/genre/geography vocabulary — NOT mined from this project's own
+# corpus the way indicators.json's word lists are (disclosed here rather than left implicit;
+# see RESEARCH.md/DAILY.md for the caveat and why a corpus-mined version wasn't attempted
+# today). A trigger can legitimately point at more than one category (e.g. שר/שרה is both
+# "minister" and "sings" — see PLAYBOOK.md/HOMOGRAPHS.md); listing it under several
+# categories is deliberate over-generation, not an error, since this is a RECALL mechanism.
+CATEGORY_TRIGGERS = {
+    'song': ['שיר', 'שירה', 'שירים', 'פזמון', 'להיט', 'לחן', 'סינגל', 'אלבום'],
+    'artist': ['זמר', 'זמרת', 'זמרים', 'זמרות', 'מוזיקאי', 'מוזיקאית', 'אמן', 'אמנית', 'להקה'],
+    'politician': ['שר', 'שרה', 'ח"כ', 'נשיא', 'נשיאה', 'פוליטיקאי', 'ציר'],
+    'bible': ['מקראי', 'מקראית', 'תנכי', 'תנכית'],
+    'neighborhood': ['שכונה', 'שכונת'],
+    'park': ['פארק', 'שמורה'],
+    'museum': ['מוזיאון'],
+    'nation': ['מדינה', 'מדינת'],
+    'world_city': ['בירה', 'בירת'],
+    'athlete': ['ספורטאי', 'ספורטאית', 'אתלט'],
+    'author': ['סופר', 'סופרת', 'מחבר', 'מחברת', 'משורר', 'משוררת'],
+    'actor': ['שחקן', 'שחקנית'],
+    'kibbutz': ['קיבוץ', 'קיבוצניק'],
+    'city_il': ['עיר', 'עיירה', 'יישוב'],
+    'mountain': ['הר'],
+    'stream': ['נחל'],
+    'river': ['נהר'],
+    'valley': ['בקעה', 'עמק'],
+    'lake_sea': ['ים', 'אגם'],
+    'desert': ['מדבר'],
+    'island': ['אי'],
+    'region': ['אזור', 'מחוז'],
+    'site': ['תל'],
+}
+
+
+def culture_category_candidates(clue_text, target_len, table=None, triggers=None):
+    """DEFINITION-hypothesis candidate generation — the odd one out in this file: every
+    other mechanism derives an answer from the clue's LETTERS (anagram/hidden/reversal
+    fodder, a mined substitution, a homograph already sitting in the clue text); this one
+    derives it from the clue's MEANING. If a clue names a role/genre/geography category
+    ("the singer", "a kibbutz", "the minister"), the setter is very often pointing straight
+    at a named entity from that category (solver/lex/culture.json), with the rest of the
+    clue surface doing wordplay/misdirection duty this generator does not attempt to parse.
+    This generalizes SOLVE_PROTOCOL.md's homograph rule ("the singer" may mean the WORD שרה)
+    from single ambiguous tokens to the full committed culture namelists, and is the only
+    mechanism in this file that can surface a long culture showpiece answer with ZERO
+    letters of the clue in common with it — exactly the class of answer RESULTS.md's error
+    analysis calls the unsolved "hard tail" and every mechanical mechanism above structurally
+    cannot reach (a real anagram/hidden/reversal must share every letter with the clue).
+
+    `table`/`triggers` are injectable (tests / callers), same discipline as every other
+    mechanism here — this must never be able to pass its own selftest by accidentally
+    hitting a real dev/eval answer via the committed culture.json.
+    """
+    cats = table if table is not None else culture()
+    trig = triggers if triggers is not None else CATEGORY_TRIGGERS
+    ws = set(words_of(clue_text))
+    stripped = strip_credit(clue_text)
+    fired = set()
+    for cat, words in trig.items():
+        for t in words:
+            if (' ' in t and t in stripped) or (' ' not in t and t in ws):
+                fired.add(cat)
+                break
+    out = []
+    for cat in fired:
+        for name in cats.get(cat, []):
+            n = norm(name)
+            if len(n) == target_len:
+                out.append({'answer': n, 'mechanism': 'culture_category', 'fodder': cat})
+    return out
+
+
+_RETRIEVE_DOCS_DF = None
+
+
+def retrieval_candidates(clue_text, target_len, topk=25, docs_df=None):
+    """DEFINITION-hypothesis candidate generation via ranked BM25 retrieval (queue item 1
+    / "RANKED RETRIEVAL", 2026-08-08's research-informed lever queue) — solver/retrieve_defs.py
+    scores independent definition->answer pairs (private_defs: note.co.il/mordo crawls) plus
+    this project's own train-split clue->answer explanations against the clue text, ranked by
+    BM25 over word tokens (+ de-prefixed stems). Held-out safe by construction:
+    retrieve_defs.build_index() excludes every dev/eval answer via retrieve_defs.held_out()
+    (the by_date-expanded contract, fixed 2026-08-23/folded in 2026-08-25 to match
+    lexicon.held_out_answers()) before this function ever sees the index — unlike
+    culture_category_candidates, this file does not need its own extra filter here because
+    the filtering already happened inside build_index().
+
+    This was measured STANDALONE on 2026-08-08: gold@25 = 5.4%, ceiling 27% (share of dev
+    answers that exist in the index at all — most of this setter's coined/multi-word answers
+    never will). That number alone reads as weak. The reason to wire it in here anyway,
+    for the first time, is the same reason RESULTS.md's consensus experiments raised score
+    by MERGING independent runs rather than trusting any one: this is the only mechanism in
+    this file driven by BM25 lexical overlap with a DEFINITION corpus rather than either the
+    clue's own letters (anagram/hidden/reversal/substitution/homograph) or a hand-curated
+    category list (culture_category) — a different signal is likely to miss on a different
+    subset of clues, so the interesting number is the UNION's recall, not this mechanism's
+    own gold@25 in isolation. `docs_df` is injectable (tests / callers) so a selftest can
+    supply a tiny synthetic index instead of loading the real corpus."""
+    sys.path.insert(0, HERE)
+    import retrieve_defs
+    cwd = os.getcwd()
+    try:
+        os.chdir(ROOT)
+        if docs_df is not None:
+            hits = retrieve_defs.candidates(clue_text, target_len, topk=topk, docs_df=docs_df)
+        else:
+            global _RETRIEVE_DOCS_DF
+            if _RETRIEVE_DOCS_DF is None:
+                _RETRIEVE_DOCS_DF = retrieve_defs.build_index()
+            hits = retrieve_defs.candidates(clue_text, target_len, topk=topk,
+                                             docs_df=_RETRIEVE_DOCS_DF)
+    finally:
+        os.chdir(cwd)
+    return [{'answer': a, 'mechanism': 'retrieval', 'fodder': None} for a, _score in hits]
+
+
 def pattern_candidates(pattern):
     """pattern like '?ו?ר??' — '?' or '_' = unknown crossing letter. The lexicon folds
     final letters (ם/ן/ץ/ף/ך -> מ/נ/צ/פ/כ) everywhere, so fixed cells must be folded
@@ -300,7 +459,7 @@ def split_candidates(cands, enum):
     return out
 
 
-def generate(clue_text, enum, pattern=None, max_n=25):
+def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retrieval=True):
     """Diverse candidates for one clue. Never consults the answer.
 
     Mechanism order here is a PRIORITY order, not just an accumulation order: dedup +
@@ -313,11 +472,22 @@ def generate(clue_text, enum, pattern=None, max_n=25):
     and substitution are comparatively RARE and higher-precision (a token already sitting
     in the clue, or a mined equivalence, either fires or it doesn't — there's no
     combinatorial window scan inflating their count), so they go first; the cheap,
-    high-volume window-scan mechanisms fill whatever budget is left."""
+    high-volume window-scan mechanisms fill whatever budget is left. culture_category and
+    retrieval candidates are DEFINITION-driven rather than letter-driven (see their own
+    docstrings) — placed in the same early tier as homograph/substitution: culture_category
+    fires rarely and each hit is a real named entity; retrieval is capped at its own topk
+    (25 by default) and ranked, not an unbounded window scan, so it does not need to wait
+    behind the cheap mechanisms either. `use_culture`/`use_retrieval` are plain on/off
+    switches so a controlled before/after recall measurement doesn't need extra copies of
+    this function."""
     target_len = sum(enum)
     cands = []
     cands += homograph_candidates(clue_text, target_len)
     cands += substitution_candidates(clue_text, target_len)
+    if use_culture:
+        cands += culture_category_candidates(clue_text, target_len)
+    if use_retrieval:
+        cands += retrieval_candidates(clue_text, target_len)
     if pattern:
         cands += pattern_candidates(pattern)
     cands += anagram_candidates(clue_text, target_len)
@@ -341,7 +511,7 @@ def generate(clue_text, enum, pattern=None, max_n=25):
 # isolation, BEFORE it is wired into a live solve+proof loop (which is a
 # separate integration step, not done by this lever).
 # ---------------------------------------------------------------------------
-def recall_eval(dataset_path, split=None, max_n=25):
+def recall_eval(dataset_path, split=None, max_n=25, use_culture=True, use_retrieval=True):
     total = 0
     hit = 0
     by_mech = Counter()
@@ -354,7 +524,8 @@ def recall_eval(dataset_path, split=None, max_n=25):
         if not r.get('answer_raw'):
             continue
         total += 1
-        cands = generate(r['clue_text'], r['enum'], max_n=max_n)
+        cands = generate(r['clue_text'], r['enum'], max_n=max_n, use_culture=use_culture,
+                          use_retrieval=use_retrieval)
         sizes.append(len(cands))
         gold = norm(r['answer_raw'])
         found = [c for c in cands if c['answer'] == gold]
@@ -438,6 +609,53 @@ def selftest():
     print(f'  found שרה (destemmed from ושרה) as a homograph: {found} (expected True)')
     ok &= found
 
+    print('--- culture_category device: a category the clue NAMES surfaces its namelist,'
+          ' matched by MEANING not letters ---')
+    # synthetic table + triggers, independent of the live corpus and its real entities —
+    # same discipline as every mechanism above. The clue text shares NO letters with the
+    # candidate answer at all, which is the entire point of this mechanism (contrast with
+    # every other device's selftest, where the answer is derived from the clue's letters).
+    culture_table = {'song': [norm('כוכבים'), norm('אחר')], 'artist': [norm('זמרת')]}
+    triggers = {'song': ['פזמון'], 'artist': ['הזמרת']}
+    hits = culture_category_candidates('זהו פזמון ישן וידוע', 6, table=culture_table,
+                                        triggers=triggers)
+    found = any(h['answer'] == norm('כוכבים') for h in hits)
+    print(f'  found כוכבים via the song category trigger פזמון, sharing no letters with '
+          f'the clue: {found} (expected True)')
+    ok &= found
+    print('--- culture_category device: a trigger absent from the clue fires nothing ---')
+    hits2 = culture_category_candidates('משהו שלא קשור בכלל', 6, table=culture_table,
+                                         triggers=triggers)
+    print(f'  no category fires: {hits2 == []} (expected True)')
+    ok &= hits2 == []
+    print('--- culture_category device: use_culture=False in generate() disables it ---')
+    only_culture = {'song': [norm('כוכבים')]}
+    off = culture_category_candidates('זהו פזמון ישן', 6, table=only_culture,
+                                       triggers={'song': ['פזמון']})
+    print(f'  standalone call still fires (sanity check the toggle lives in generate(), '
+          f'not here): {len(off) == 1} (expected True)')
+    ok &= len(off) == 1
+
+    print('--- retrieval device: BM25 over an injected definition->answer index, no '
+          'letters shared with the clue ---')
+    # synthetic (tokens, answers, puzzle_id) docs, independent of the real corpus — same
+    # discipline as every other mechanism's selftest. The query clue shares no letters
+    # with the candidate answer at all, same point as the culture_category check above.
+    docs_df = ([
+        (['נשיא', 'ראשון', 'מדינה'], [norm('וייצמן')], None),
+        (['פרח', 'לאומי', 'ישראל'], [norm('כלנית')], None),
+    ], {'נשיא': 1, 'ראשון': 1, 'מדינה': 1, 'פרח': 1, 'לאומי': 1, 'ישראל': 1})
+    hits = retrieval_candidates('מי היה הנשיא הראשון של המדינה', 6, docs_df=docs_df)
+    found = any(h['answer'] == norm('וייצמן') for h in hits)
+    print(f'  found וייצמן via BM25 definition retrieval, sharing no letters with the '
+          f'clue: {found} (expected True)')
+    ok &= found
+    print('--- retrieval device: use_retrieval=False in generate() disables it ---')
+    off = retrieval_candidates('מי היה הנשיא הראשון של המדינה', 6, docs_df=docs_df)
+    print(f'  standalone call still fires (sanity check the toggle lives in generate(), '
+          f'not here): {len(off) >= 1} (expected True)')
+    ok &= len(off) >= 1
+
     print('--- split_candidates: flags whether a multi-part answer is two real words ---')
     split = split_candidates([{'answer': norm('שלוםעליכם'), 'mechanism': 'test'}], [4, 5])
     print(f'  split result: {split[0]["split"]} (expected two real words, not None)')
@@ -460,12 +678,17 @@ def main():
         for c in generate(text, enum):
             print(c)
     elif cmd == 'recall':
-        path = sys.argv[2] if len(sys.argv) > 2 else 'data/dataset/clues.jsonl'
-        split = sys.argv[3] if len(sys.argv) > 3 else None
+        rest = sys.argv[2:]
+        use_culture = '--no-culture' not in rest
+        use_retrieval = '--no-retrieval' not in rest
+        rest = [a for a in rest if a not in ('--no-culture', '--no-retrieval')]
+        path = rest[0] if len(rest) > 0 else 'data/dataset/clues.jsonl'
+        split = rest[1] if len(rest) > 1 else None
         os.chdir(ROOT)
-        res = recall_eval(path, split)
+        res = recall_eval(path, split, use_culture=use_culture, use_retrieval=use_retrieval)
         print(f"recall@N: {res['hit']}/{res['total']} = {res['recall']:.1%}  "
-              f"(avg {res['avg_candidates']:.1f} candidates/clue)")
+              f"(avg {res['avg_candidates']:.1f} candidates/clue, "
+              f"use_culture={use_culture}, use_retrieval={use_retrieval})")
         print('hits by mechanism:', res['by_mechanism'])
         if res['misses']:
             print(f"\n{len(res['misses'])} misses (clue_number, direction, gold):")

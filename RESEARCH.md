@@ -6,6 +6,7 @@ crossword-AI work targets non-cryptic (American-style) puzzles and does not tran
 
 ## 2026-08-06
 
+
 **"A Reasoning-Based Approach to Cryptic Crossword Clue Solving"** (arXiv 2506.04824,
 ICML 2025). https://arxiv.org/html/2506.04824v1
 Pipeline: an LM hypothesises answer candidates + wordplay explanations, a second LM
@@ -61,6 +62,7 @@ lever.
 
 ## 2026-08-15
 
+
 **"Proving that Cryptic Crossword Clue Answers are Correct"** (arXiv 2407.08824). The
 direct precursor to the ICML 2025 paper already credited in this log (2506.04824) — same
 proving-framework lineage `solver/prove.py` was adapted from. Read it specifically for two
@@ -100,6 +102,7 @@ Hebrew morphological tooling): no further new transferable results beyond what t
 dataset tooling, not directly reusable for Hebrew, no action taken.
 
 ## 2026-08-16
+
 
 Before searching, read the full run history first: 9 prior daily runs (PRs #1, #2, #6-#11
 plus RESULTS/DAILY's own logs) already implemented and measured mechanical candidate
@@ -161,6 +164,7 @@ candidate list, measuring real precision/coverage/yield rather than offline reca
 DAILY.md's log for what that trial found.
 ## 2026-08-17
 
+
 **"Are LLMs Good Cryptic Crossword Solvers?"** (arXiv 2403.12094, Sadallah/Kotova/
 Kochmar; NAACL-adjacent, revised Jan 2025). https://arxiv.org/pdf/2403.12094
 Benchmarks LLaMA2, Mistral, and vanilla ChatGPT on English cryptics with no special
@@ -203,6 +207,7 @@ concrete reminder for this project's own research step: read primary sources in 
 don't trust a search summary's framing, especially for anything self-referential.
 
 ## 2026-08-19
+
 
 **"Proving that Cryptic Crossword Clue Answers are Correct"** (arXiv 2407.08824).
 https://arxiv.org/html/2407.08824v1
@@ -261,6 +266,7 @@ project's puzzles. Confirms DAILY.md's standing skepticism.
 
 ## 2026-08-20
 
+
 Re-checked for anything new since 2026-08-06 on: cryptic definition-span detection,
 candidate generation, and Hebrew NLP/morphology.
 
@@ -307,7 +313,60 @@ mechanisms in `solver/candidates.py` (queue item 1(b)), plus a held-out-safety f
 `solver/substitutions.py` that the new mechanism's use of that table required (see
 DAILY.md log for the measured result and the audit).
 
+## 2026-08-21
+
+
+Re-checked for anything new since 2026-08-20 on: cryptic candidate generation,
+definition-span detection, and Hebrew NLP/morphology, plus a general sweep for any new
+cryptic-solving system.
+
+**General search: "cryptic crossword solver LLM candidate generation 2026".** Surfaced
+only papers already logged here (2406.09043 NAACL 2025, 2412.09012, 2506.04824) plus one
+new item worth checking: Sadallah et al. (2025) reports ChatGPT few-shot accuracy of
+9.5% on English cryptics vs. 99% human-expert — a bigger accuracy gap than this project's
+own numbers, on an easier language (English cryptics have a stable one-end definition
+convention this setter explicitly does not follow, per the already-measured 08-19
+finding). **Transfer: confirms rather than changes anything** — if frontier LLMs
+struggle this much on the *easier*, well-studied version of this task even with full
+in-context few-shot prompting (no external candidate generator, no proof gate), it's
+consistent with this project's standing diagnosis that the wordplay-cracking step itself,
+not tooling, is the hard part, and that a bare LLM without this project's harness would
+do worse here, not better. Also surfaced this project's own public page again in a
+general search (as on 2026-08-20) — spot-checked that it still correctly represents the
+96% figure as retracted, not fixed by omission.
+
+**Definition-span detection, general search.** No new academic result; general
+crossword-advice pages restate the same one-end convention already known to not hold for
+this setter (killed 2026-08-19, queue item 2 struck). **Transfer: none** — nothing here
+contradicts or should reopen that finding.
+
+**Hebrew morphology / NLP.** Same landscape as 2026-08-06/08-20 (RFTokenizer, HebPipe,
+YAP), plus one tool not previously named directly: **DictaBERT-seg**, a Hebrew
+transformer fine-tuned specifically for the prefix-segmentation task (splitting off
+ב/ל/מ/ש/ה/ו/כ clitics), more targeted than YAP's full morpho-syntactic parse for this
+project's narrow need. **Transfer: still plausible, still not attempted, still not the
+bottleneck.** Same reasoning as the last two research entries — this project's own
+measured numbers (candidate recall 3.6-7.1% across three independent puzzles/
+implementations, defspan classifier 1/5) point at wordplay-mechanism coverage and
+definition-fit judgment as the gap, not tokenization quality; the ad hoc prefix lists
+already in `homographs.py`/`charade.py` are not where the last three levers' failures
+traced to. Not queued above candidate-generation-shape work without a concrete case where
+a prefix-list miss caused a specific measured failure.
+
+**Conclusion for today's lever.** No new external finding changes the queue's priority
+order or reopens either struck item. Given the queue's top code lever (candidate
+generation, item 1) has now been tried in three independently-written shapes across three
+different dev puzzles with the same null result (3.6% / 7.1% / 4.0% recall, all flat
+before/after adding substitution+homograph mechanisms), and item 2 is struck, today's
+lever is the lowest-risk, best-evidenced item actually still open: queue item 7, fixing
+`lexicon.held_out_answers()`'s coverage gap. It is not a research-literature lever — it's
+an internal integrity fix flagged twice already (2026-08-16, 2026-08-17 log entries) as a
+real, unaddressed leak vector, and this project's own history (the 96% leak) is the
+reason leak-vector fixes get priority over one more speculative recall experiment on a
+lever already measured negative three times running.
+
 ## 2026-08-22
+
 
 Swept for anything new since 2026-08-20 on: cryptic candidate generation, definition-span
 detection, Hebrew NLP/morphology, and (new angle this run) any existing Hebrew-specific
@@ -357,3 +416,246 @@ flagged remaining gap under item 1(a) — a full-puzzle LIVE blind trial of `sol
 (the previous live trial, 2026-08-16, was n=2 and explicitly flagged as too small to be a
 reliable estimate) — not a new mechanism, since neither today's research nor the last three
 runs' mechanism attempts found anything to extend.
+
+## 2026-08-26
+
+Read the full unmerged-PR state first (per the standing "don't re-derive a result already
+sitting in an unmerged PR" lesson): PR #27 (2026-08-25) consolidates the whole backlog
+(#23/#25/#26) and adds `retrieval_candidates` (BM25 over `retrieve_defs.py`'s definition
+index) to `candidates.py`, MEASURING a real positive move (3.6% -> 7.1% recall) on the
+2026-05-29 dev puzzle — the first candidate-gen sub-lever to move the number at all since
+2026-08-06. Its own log explicitly flags the open gap: "worth a second puzzle's data
+point before calling this settled." Searched today with that gap specifically in mind —
+is there new evidence for or against ranked-retrieval-augmented candidate generation
+generalizing, and is there anything new on definition-fit scoring (queue item 9, still the
+project's sharpest open question per the 2026-08-22/23 live-trial root-cause)?
+
+**General search: "cryptic crossword solver LLM candidate generation definition-fit
+scoring 2026".** Surfaced the same paper family already logged here, but through two new
+paths worth checking directly rather than assumed duplicate: an OpenReview forum page
+(`openreview.net/forum?id=Bo5eKnJPML`, titled "A Reasoning-Based Approach to Cryptic
+Crossword Clue Solving") and a second OpenReview entry (`id=2nC7zy7adD`, "Generating Code
+to Verify Cryptic Crossword Reasoning", ICLR 2025 Workshop on Deep Learning for Code).
+Both direct PDF/forum fetches were blocked by OpenReview's bot-verification page (could
+not read content directly, unlike arXiv mirrors); cross-checked via search instead —
+both resolve to the same Andrews & Witteveen authorship and arXiv ID (2506.04824) already
+logged 2026-08-06, the ICLR workshop entry being an earlier version of the same paper.
+**Transfer: none new** — not two additional data points, one paper found twice.
+
+**NEW CITATION, not previously logged by name: "Decrypting Cryptic Crosswords:
+Semantically Complex Wordplay Puzzles as a Target for NLP"** (Rozner, Potts, Mahowald,
+2021; arXiv 2104.08620). This is the origin paper for the Cryptonite dataset that every
+other paper in this log's citation chain (2506.04824, 2407.08824, 2406.09043, 2403.12094)
+benchmarks against — a T5 baseline fine-tuned on Cryptonite's 470k clues reaches only
+7.6% accuracy, and their own curriculum pretraining (unscrambling-word pretasks) improves
+on that but still falls well short of human performance. **Transfer: confirms rather than
+adds** — it is the historical baseline the entire "generate then verify" pipeline this
+project already mirrors was built specifically to beat; no new technique here that isn't
+already superseded by the more recent papers in this log, but worth citing by name now
+that it surfaced directly rather than only by inherited reference.
+
+**Checked one adjacent research area for queue item 4 (global constraint optimization,
+still correctly sequenced after candidate quality per 2026-08-16's finding): "LLM-Solve
+2026"** (sites.google.com/view/llm-solve-2026), an FLoC'26 workshop (Lisbon, July 2026) on
+LLM + constraint-solving (CP/SAT/SMT/MIP) integration generally. **Transfer: none
+concrete** — it is a general venue for the LLM+solver research area converging, not a
+crossword-specific result or a technique with a reported number; confirms the area is
+active but gives nothing to port today. Queue item 4's sequencing (after candidate
+quality clears a materially higher bar) is unaffected.
+
+**Definition-fit scoring (queue item 9), re-checked once more.** No new resource beyond
+2026-08-23/24's findings (embedding-rerank techniques need a Hebrew crossword-tuned
+embedding space that doesn't exist; Hebrew WordNet is real but answers synonymy, not the
+role-category lookup this setter's culture clues need). **Transfer: none new** — third
+consecutive research pass with nothing buildable-today on this item; the standing
+2026-08-24 conclusion (next attempt should be a new internal idea, not another literature
+sweep) still holds.
+
+**Meta-finding, re-checked for the third time (2026-08-20, 2026-08-25, today): does search
+summarization still drop this project's own retraction context?** This run's general
+search surfaced the project's own public page again, and this time the auto-summary
+correctly cited "43 percent per run and 64 percent merged, against a 25 percent baseline"
+— the real, audited v8 numbers, NOT the retracted 96%. **Worth recording as a data point,
+not a reversal of the standing caution**: the summarizer's behavior is inconsistent
+run-to-run (query-phrasing-dependent, presumably), which if anything argues MORE strongly
+for always reading RESULTS.md directly rather than trusting any single summary's framing,
+good or bad, since the same page produced a materially different (and this time correct)
+summary than 2026-08-20/2026-08-25's runs got.
+
+**Conclusion for today's lever.** No literature or resource finding today unsticks queue
+item 9 (definition-fit) or adds a new candidate-generation mechanism. The best-evidenced
+next step is therefore PR #27's own explicitly flagged gap: re-measure
+`retrieval_candidates` on a SECOND, independent dev puzzle before treating the 3.6% -> 7.1%
+result as more than an n=1 anecdote — exactly the kind of skepticism this project's own
+"treat any jump over ~15 points as suspect" discipline calls for applied to a smaller,
+real jump. See DAILY.md for the measurement.
+
+## 2026-08-23
+
+
+Two open PRs exist on top of this main (#23, 2026-08-21: `held_out_answers()` coverage
+gap fix, queue item 7; #24, 2026-08-22: first full-puzzle live blind trial of
+`solve_pass.py`, 0/2 precision) — neither merged, so main still lacks both. Read both in
+full via `pull_request_read` before choosing today's lever, per the standing "don't
+re-derive a result already sitting in an unmerged PR" lesson from the 2026-08-16 PR-pileup
+finding. PR #24's root-cause trace is the most important thing either surfaces:
+**cumulative live precision across the only two live trials this project has run
+(2026-08-16, 2026-08-22) is 1/4 = 25%**, and both misses share one shape — `prove.py`
+correctly verified a real mechanism (a hidden word, a reversal) on a plausible-but-wrong
+Hebrew answer; the gap is definition-FIT judgment, not mechanism verification.
+
+**Searched specifically for that gap: definition-candidate semantic-fit scoring for
+cryptic solving, general and Hebrew-specific.** Confirms the existing 2412.09012/
+2506.04824 finding already logged here (2026-08-06/08-15): the established technique is
+FastText/embedding cosine similarity between a located definition span and each candidate,
+used to RANK a candidate pool a separate generator already produced. **Transfer: still no
+new mechanism** — no 2026 paper found that changes this, and this project still has no
+Hebrew embedding space tuned for the genre (checked again: general-purpose Hebrew
+embeddings exist — fastText/GloVe/Word2Vec/AlephBERT vectors are documented resources —
+but none is crossword-register-tuned, and integrating any of them is a materially larger
+lift than a text-only fix, out of scope to even prototype today alongside a second lever).
+
+**Checked one specific new lead: Hebrew WordNet**, since English rule-based cryptic
+solvers use WordNet path-similarity for exactly this definition-vs-candidate scoring role
+(surfaced in today's search on general cryptic-solver definition-ranking approaches).
+Hebrew WordNet (MultiWordNet-aligned, built at IRST/Ben-Gurion) exists in principle but
+search results describe its canonical host as unavailable; the Open Multilingual WordNet
+mirror project lists a Hebrew component but the reference itself could not be confirmed
+reachable in the time budget for a research check (not attempted as a bootstrap step —
+would need its own reconstructibility story before ever being wired in, matching this
+project's standing rule that nothing gets committed unless bootstrap.sh can rebuild it).
+**Transfer: plausible, unbuilt, flagged for a dedicated future lever** — path-similarity
+over a Hebrew WordNet (if a working mirror exists) is the closest thing to a validated
+technique for definition-fit scoring that the literature actually offers, more promising
+than trying to hand-roll a heuristic the way `defspan.py`'s indicator-density classifier
+did (which already measured 1/5, worse than chance, on the structurally adjacent
+definition-*location* problem). Not started today: confirming a real, licensable,
+scriptable download is its own investigation, and this run's one-lever budget went
+elsewhere (see DAILY.md).
+
+**Conclusion for today's lever.** No new external finding is buildable today: the one
+concrete idea it points to (WordNet-based definition-fit scoring) needs a resource
+whose availability this session couldn't confirm, so implementing a stub around it would
+be exactly the kind of filler this project's own log explicitly says not to ship. Chose
+the best-evidenced internal item instead: queue item 7b, flagged-not-fixed twice already
+(2026-08-16 log entry named the gap; PR #23, 2026-08-21, fixed the `lexicon.py` half and
+explicitly flagged the identical gap in `substitutions.py`/`retrieve_defs.py` as 7b,
+unfixed). Checked directly before trusting that "identical" label: `substitutions.py`'s
+`held_out()` has the EXACT same shape as `lexicon.py`'s old bug (its `explanations()`
+sources `data/answers/answers_parsed.json` — every one of the 52 puzzles unconditionally —
+while the old `held_out()` only blocked rows with a transcribed `clues.jsonl` entry), so
+that half is a real, currently-exploitable leak on this main. `retrieve_defs.py`'s
+`held_out()` has the same narrow row-only shape, but its only caller (`build_index()`)
+sources dev/eval-adjacent docs exclusively from `clues.jsonl` rows marked `split=='train'`
+— which an untranscribed slot can never have, by construction — so that half is a
+name-only match to lexicon.py's bug, not an actively exploitable one under today's call
+graph. Fixed both anyway (defense-in-depth, and to keep both functions on the same
+by_date-expanded contract as `lexicon.held_out_answers()` rather than a narrower one that
+happens to be safe only by luck of the current call sites) — see DAILY.md for the measured
+before/after and the audit.
+
+## 2026-08-24
+
+
+Continuing the sharpest open question flagged 2026-08-22 (and, per PR #25's own unmerged
+description read directly during this run's PR-backlog check, apparently also picked up
+2026-08-23 by a still-open PR): **definition-fit / candidate-semantic-scoring** — the two
+live trials so far (1/4 cumulative precision) both failed because a mechanically-valid
+wordplay device landed on a real word that was not the setter's intended answer, and
+neither trial's miss was even reachable by this project's candidate generator in the first
+place (see DAILY.md's 2026-08-22 root-cause: gold תאו/שכמ are not literal anagram/hidden/
+reversal fodder of their clues at all). That reframes the question from "how do we SCORE
+candidates by definition fit" to "how do we GENERATE a candidate from the definition side
+at all" — re-checked the literature with that reframing in mind.
+
+**Definition-span embedding re-rank (2412.09012, already logged 2026-08-06/2026-08-20)** —
+re-read specifically for whether it generates or only reranks. Confirmed once more: it
+reranks a candidate list a separate mechanism already produced (FastText cosine similarity
+between the marked definition span and each candidate). **Still not a generator**, and
+still no Hebrew-tuned embedding space exists to port even the rerank half. No change to
+the standing judgement.
+
+**Hebrew WordNet — checked directly rather than left as an unconfirmed lead (queue item 9,
+per PR #25's description).** `github.com/NLPH/HebrewWordnetShuly` is real: a mirror of
+Shuly Wintner/University of Haifa's Hebrew WordNet (MultiWordNet methodology, aligned to
+Princeton WordNet, "Complete" status, non-commercial license). This resolves queue item 9's
+own condition ("confirm the resource is real and fetchable before building anything on
+it") — it is real. **Not fetched or integrated today**: even confirmed-real, WordNet gives
+synset/synonym relations, not the ROLE-CATEGORY lookup (this clue names a *singer*, a
+*kibbutz*, a *minister*) that a Hebrew cryptic setter's culture-reference clues actually
+need — mapping "the singer" to the word שרה is a homograph/role fact this project's own
+HOMOGRAPHS.md already encodes, not a synonym-set fact WordNet encodes. Flagging as
+possibly useful for a DIFFERENT lever (synonym-based `means()` expansion in prove.py,
+Track record: RESULTS.md's PLAYBOOK diagnosis is that vocabulary breadth was never this
+setter's bottleneck) rather than today's.
+
+**BM25 vs. dense retrieval, general IR literature (new sighting, not previously logged)**
+— a 2026 scaling study found BM25 leads a strong commercial embedding model
+(text-embedding-3-large) on most metrics past roughly 10M corpus tokens. **Transfer:
+narrow but real** — it's independent confirmation that `retrieve_defs.py`'s existing
+choice of BM25 over an embedding index was the right call for this project's small corpus,
+not a shortcut that should be revisited once more compute is available. Does not unstick
+the definition-fit problem (retrieve_defs.py already measured gold@25=5.4% on its own
+index, ceiling 27% — the bottleneck there is corpus coverage, not the ranking function).
+
+**Conclusion, and the lever this run actually built.** No paper or resource found this
+cycle turns into a working DEFINITION-DRIVEN GENERATOR usable today: the two real external
+options (a Hebrew embedding space, Hebrew WordNet) either don't exist in a form this
+project can reach, or answer the wrong question (synonymy, not role-category membership).
+Rather than ship nothing on this front for a third run running, built the one
+definition-driven source this project's OWN committed data already supports without any
+new scrape or external dependency: `solver/candidates.py`'s new `culture_category_candidates`
+— a hand-curated Hebrew role/genre/geography trigger vocabulary (honestly NOT corpus-mined,
+disclosed in the code and here rather than dressed up as empirical) that maps a clue's
+named category ("the singer", "a kibbutz") to solver/lex/culture.json's own named-entity
+lists, filtered to the enum length. This is deliberately narrow and almost certainly not a
+full solution to the definition-fit problem (see DAILY.md for the measured recall number
+and an honest read of how far it goes) — it is the smallest real step available today given
+what did and didn't turn up in this run's literature/resource check, not a claim that the
+underlying research gap is closed.
+
+## 2026-08-25
+
+Also began by consolidating a 3-PR backlog (#23, #25, #26, all open against the same main,
+none merged) before touching a lever — see DAILY.md's log for that housekeeping. Research
+this run focused on the queue's two live threads: (1) whether ranked retrieval belongs in
+`candidates.py`'s pool at all (queue item 1, still not attempted as of yesterday despite
+`retrieve_defs.py` existing since 2026-08-08), and (2) one more check for anything new on
+definition-fit scoring (queue item 9) before assuming yesterday's negative finding still
+holds.
+
+**General search: "cryptic crossword solver LLM candidate generation retrieval 2026".**
+Surfaced only the same paper set already logged here (2506.04824, 2406.09043, 2403.12094)
+plus a genuinely noteworthy repeat of the 2026-08-20 finding: this project's OWN public
+page (tashbetz-solver.vercel.app) appears again in general search results, and the search
+tool's auto-summary again stated "[a] v6 solver version returned 27 of 28 clues correct on
+2026-06-05" as if it were a standing result — that is the RETRACTED 96% leak number
+(RESULTS.md's INTEGRITY FINDING), presented with zero retraction context by the summarizer,
+for the SECOND time this project has caught it happening (first: 2026-08-20). **Transfer:
+this is not a one-off search-engine quirk, it is a recurring failure mode of trusting
+search summaries over primary sources on a project with its own public writeup** — worth
+stating plainly for whoever reads this project's own summarized coverage anywhere (a
+teammate, a future agent, a casual search) rather than the live page's dedicated Retraction
+section: do not trust a summary of this project's own results, read RESULTS.md directly.
+
+**BM25 vs. embedding retrieval, re-checked.** Same conclusion as 2026-08-24's entry,
+independently reconfirmed by a fresh search: BM25 remains the stronger default at this
+corpus's scale, hybrid approaches add complexity without a demonstrated gain here.
+**Transfer: no change** — `retrieve_defs.py`'s existing BM25 choice stays right; this
+reconfirms rather than motivates any new work.
+
+**Definition-fit scoring (queue item 9), re-checked once more.** No new resource found
+this cycle beyond yesterday's Hebrew WordNet finding (real but answers the wrong question
+— synonymy, not role-category membership). **Transfer: none new** — the standing
+2026-08-24 conclusion holds: no external generator or scorer exists to build on here today.
+
+**Conclusion, and the lever this run actually built.** Neither research thread produced a
+new EXTERNAL resource to build on, so today's lever (see DAILY.md) is the queue's own
+long-open internal gap instead: `solver/retrieve_defs.py` (BM25 ranked retrieval, built
+2026-08-08, measured standalone at gold@25=5.4%) has never once been wired into
+`candidates.py`'s `generate()` pool alongside the mechanical mechanisms, despite being
+exactly the "RANKED RETRIEVAL" item the 2026-08-08 research-informed queue named as
+priority 2. Wiring in an already-built, already-audited tool as one more candidate SOURCE
+is not itself a research question — it is closing a gap between what the project's own
+research queue prioritized in 2026-08-08 and what got implemented, which is worth doing
+regardless of whether today's literature sweep turned up anything new.

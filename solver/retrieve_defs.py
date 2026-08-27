@@ -9,6 +9,7 @@ over word tokens + de-prefixed stems.
 CLI:
   python3 solver/retrieve.py candidates "<clue>" <len>     # ranked answers
   python3 solver/retrieve.py eval                          # dev-split hit-rate (honest)
+  python3 solver/retrieve.py selftest                      # held_out() unit checks
 """
 import json, math, os, re, sys, glob
 from collections import defaultdict
@@ -29,12 +30,37 @@ def toks(s):
                 out.append(w[len(p):]); break
     return out
 
-def held_out():
+def held_out(clues_path='data/dataset/clues.jsonl', by_date_dir='data/answers/by_date'):
+    """Mirrors lexicon.held_out_answers()'s by_date expansion (queue item 7, fixed
+    2026-08-21; item 7b flagged the identical gap here, fixed now). NOTE, checked directly
+    while fixing this: build_index() below only ever adds a (tokens, answers, puzzle_id)
+    doc for a clues.jsonl row explicitly marked split=='train' — an untranscribed dev/eval
+    slot has NO clues.jsonl row of any split, so it could never reach `docs` in the first
+    place, unlike lexicon.py's old bug (which filtered a bulk `answers_parsed.json` load
+    covering every puzzle regardless of transcription). This function's row-only version
+    was therefore not actually exploitable through today's build_index() call site — but
+    it is still hardened to the by_date-expanded form here, both for defense-in-depth
+    against a future caller that sources more broadly (as substitutions.py's
+    explanations() already does, which is where the real, exploitable half of item 7b
+    lived) and so this file keeps the same contract as lexicon.py/substitutions.py rather
+    than a narrower one that happens to be safe only by the current call graph's luck."""
     ho = set()
-    for line in open('data/dataset/clues.jsonl'):
-        c = json.loads(line)
-        if c.get('split') in ('dev', 'eval'):
-            ho.add(norm(c['answer_raw']))
+    dates = set()
+    if os.path.exists(clues_path):
+        for line in open(clues_path):
+            c = json.loads(line)
+            if c.get('split') in ('dev', 'eval'):
+                dates.add(c['puzzle_date'])
+                if c.get('answer_raw'):
+                    ho.add(norm(c['answer_raw']))
+    for d in dates:
+        af = os.path.join(by_date_dir, f'{d}.json')
+        if not os.path.exists(af):
+            continue
+        for c in json.load(open(af)).get('clues', []):
+            w = c.get('answer')
+            if w:
+                ho.add(norm(w))
     return ho
 
 def build_index(exclude_puzzle=None):
@@ -96,8 +122,54 @@ def end_candidates(clue, length, docs_df=None, skip_puzzle=None):
             best[a] = max(best.get(a, 0), sc)
     return sorted(best.items(), key=lambda x: -x[1])[:25]
 
+def selftest():
+    """Unit-level check on synthetic fixture files in a temp dir — never touches real
+    puzzle data, same discipline lexicon.py/substitutions.py enforce for theirs."""
+    import tempfile, shutil
+    ok = True
+    tmp = tempfile.mkdtemp()
+    try:
+        clues_p = os.path.join(tmp, 'clues.jsonl')
+        by_date_dir = os.path.join(tmp, 'by_date')
+        os.makedirs(by_date_dir)
+        with open(clues_p, 'w', encoding='utf-8') as f:
+            f.write(json.dumps({'puzzle_date': '2099-01-01', 'clue_number': 1,
+                                 'direction': 'across', 'split': 'dev',
+                                 'answer_raw': 'שלום'}, ensure_ascii=False) + '\n')
+            f.write(json.dumps({'puzzle_date': '2099-06-01', 'clue_number': 1,
+                                 'direction': 'across', 'split': 'train',
+                                 'answer_raw': 'תפוח'}, ensure_ascii=False) + '\n')
+        with open(os.path.join(by_date_dir, '2099-01-01.json'), 'w', encoding='utf-8') as f:
+            json.dump({'clues': [
+                {'clue_number': 1, 'direction': 'across', 'answer': 'שלום'},
+                {'clue_number': 2, 'direction': 'across', 'answer': 'ערב'},  # untranscribed slot
+            ]}, f, ensure_ascii=False)
+
+        ho = held_out(clues_p, by_date_dir)
+        print('--- transcribed dev-puzzle answer is blocked ---')
+        found = norm('שלום') in ho
+        print(f'  שלום blocked: {found} (expected True)')
+        ok &= found
+
+        print('--- untranscribed dev-puzzle SLOT answer is ALSO blocked (the fix) ---')
+        found = norm('ערב') in ho
+        print(f'  ערב blocked even with no clues.jsonl row: {found} (expected True)')
+        ok &= found
+
+        print('--- train-split puzzle answer is NOT blocked ---')
+        found = norm('תפוח') not in ho
+        print(f'  תפוח left unblocked: {found} (expected True)')
+        ok &= found
+    finally:
+        shutil.rmtree(tmp)
+
+    print(f'\n{"ALL PASSED" if ok else "FAILURES ABOVE"}')
+    return ok
+
 def main():
-    if sys.argv[1] == 'candidates':
+    if sys.argv[1] == 'selftest':
+        sys.exit(0 if selftest() else 1)
+    elif sys.argv[1] == 'candidates':
         for a, s in candidates(sys.argv[2], int(sys.argv[3])):
             print(f'[{s:.2f}] {a}')
     elif sys.argv[1] == 'eval':
