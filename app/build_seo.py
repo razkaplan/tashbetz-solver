@@ -91,7 +91,9 @@ a{color:#f22b39}h2{border-bottom:3px solid #f22b39;display:inline-block;font-siz
 table{border-collapse:collapse;width:100%}td,th{border-bottom:1px solid #dcdcdc;padding:.4rem .5rem;text-align:right}
 footer{margin:2.5rem 0 1.5rem;border-top:1px solid #dcdcdc;padding-top:.8rem;font-size:.8rem;color:#5c5c5c}
 .crumb{font-size:.8rem;color:#5c5c5c;margin:.6rem 0}input{font:inherit;padding:.5rem;border:1.5px solid #121212;border-radius:3px;width:100%}
-@media(prefers-color-scheme:dark){body{background:#161616;color:#f2f0ec}.grid li{background:#222}td,th{border-color:#3a3a3a}}</style>"""
+.promo{background:#fff4d6;border:1.5px solid #121212;border-radius:3px;padding:.45rem .7rem;margin:.7rem 0 0;font-size:.9rem}
+.promo a{font-weight:700}
+@media(prefers-color-scheme:dark){body{background:#161616;color:#f2f0ec}.grid li{background:#222}td,th{border-color:#3a3a3a}.promo{background:#3a3115;border-color:#f2f0ec}}</style>"""
 
 def page(path,title,desc,body,jsonld=None,crumb=None):
     os.makedirs(os.path.dirname(path),exist_ok=True)
@@ -125,7 +127,8 @@ def page(path,title,desc,body,jsonld=None,crumb=None):
 <meta name="viewport" content="width=device-width,initial-scale=1"><title>{esc_title}</title>
 <meta name="description" content="{esc_desc}"><link rel="canonical" href="{canon}">{og}{ld}{STYLE}</head><body><div class="w">
 <header><span class="k">מילון תשבץ · פותרים ביחד</span><h1>{esc_title}</h1>
-<div class="crumb"><a href="/milon/">מילון</a> · <a href="/solve/">עוזר הפתירה</a> · <a href="/">דף הבית</a></div></header>
+<div class="crumb"><a href="/milon/">מילון</a> · <a href="/nativ/">המשחק היומי</a> · <a href="/solve/">עוזר הפתירה</a> · <a href="/">דף הבית</a></div>
+<div class="promo">☀️ <a href="/nativ/">נתיב - המשחק היומי הטוב לחובבי תשבצים</a> · חידה חדשה כל יום, עכשיו גם במצב קל</div></header>
 {body}
 <footer>מבוסס על אינדקס פתוח (ויקיפדיה/ויקימילון/שירונט, CC BY-SA, עם קישור למקור) וניתוח סטטיסטי מקורי · לא מתפרסמות הגדרות מעיתונים ·
 <a href="https://www.linkedin.com/in/razkaplan/">פרויקט של רז קפלן</a> · <a href="/nativ/">🪄 נתיב, המשחק היומי</a></footer></div></body></html>""")
@@ -476,7 +479,7 @@ if os.path.isdir('docs/tirgul'):
     trainer=['/tirgul/']+[f'/tirgul/{d}/' for d in sorted(os.listdir('docs/tirgul'),
              key=lambda x:(not x.isdigit(), int(x) if x.isdigit() else x))
              if os.path.exists(f'docs/tirgul/{d}/index.html')]
-for u in ['/','/solve/','/methods/','/research/','/research/he/']+trainer+urls:
+for u in ['/','/nativ/','/solve/','/methods/','/research/','/research/he/']+trainer+urls:
     sm+=f'  <url><loc>{BASE}{u}</loc></url>\n'
 sm+='</urlset>'
 open('docs/sitemap.xml','w').write(sm)

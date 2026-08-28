@@ -18,7 +18,9 @@ const PREFIX = "nativ-lb/";
 const TOP_N = 50;
 const MAX_ENTRIES = 2000; // hard cap per day, keeps the blob tiny
 
-const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+// A plain date is the regular daily board; "<date>-easy" is the easy board's
+// own leaderboard (separate blob, same shape).
+const DATE_RE = /^\d{4}-\d{2}-\d{2}(-easy)?$/;
 
 function token() {
   return process.env.BLOB_READ_WRITE_TOKEN || "";
