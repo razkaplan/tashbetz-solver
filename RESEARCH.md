@@ -4,6 +4,140 @@ One entry per run: what was found, one-line summary, and an honest judgement of 
 it transfers to a Hebrew cryptic solver with an 8k-clue corpus. Default skepticism: most
 crossword-AI work targets non-cryptic (American-style) puzzles and does not transfer.
 
+## 2026-08-28
+
+Bootstrap: `./bootstrap.sh --dev-only` hit the same hard 14across wall as
+2026-08-19/08-26/08-27 (killed after 170s with only 1/52 puzzles recovered, the rest
+`None: 0 clues`) — not fought further, per standing precedent; worked entirely from the
+public-CDN image fallback (fetched `data/images/2026-05-28.jpg` and `2026-06-04.jpg`
+directly, bypassing bootstrap's sequential step order, since steps 3-6 do not depend on
+step 2 finishing). Research this run focused on today's scheduled-task priority (candidate
+generation, diverse-hypothesis and definition-span framing) and, failing new material,
+queue item 1(d)'s own repeatedly-flagged concrete next step: `crawl_defs.py note`, the one
+external definitions source never crawled this project's lifetime.
+
+**General search: "cryptic crossword clue definition location structural parser 2026
+arxiv", "arxiv September 2026 cryptic crossword wordplay generation candidates".**
+Surfaced only the same paper family already logged repeatedly (2506.04824, 2412.09012,
+2407.08824, 2104.08620, 2403.12094) — 2506.04824 (ICML 2025, "A Reasoning-Based Approach
+to Cryptic Crossword Clue Solving") re-confirmed as the closest SOTA match to this
+project's own generate-candidates -> formalise -> prove structure (20 answer candidates x
+10 wordplay guesses per candidate, then a code-formalising verifier), already logged
+2026-08-15 and cited again 2026-08-27. **Transfer: none new** — fifth-plus consecutive
+pass over this literature finding nothing not already logged; the field has not produced
+a new diverse-candidate-generation or definition-location technique since this project
+started tracking it.
+
+**Considered and rejected today's "definition-span hypothesis" framing from the scheduled
+task's own wording** before touching code: the idea would be to hypothesize each CLUE END
+as the definition and restrict `candidates.py`'s anagram/hidden/reversal character-window
+scan to the residual (non-definition) letters, generating one candidate set per hypothesis
+instead of scanning the whole clue at once. Checked directly whether this could add
+recall, not just assumed: `_char_windows()` already slides across the FULL joined-clue
+string, so windows built from a residual (one end's words removed) are a STRICT SUBSET of
+what the full scan already finds — end-word removal only shrinks which windows exist, it
+does not create new adjacencies unless the definition sits in the interior (item 8/17's
+own 2026-08-19 finding: only 25% of clues even have a mechanically-locatable single-window
+span, and 29% of those are interior). So this framing could only ever restrict/re-rank
+existing candidates, not grow `recall@N` — and re-ranking without a live solve pass to
+score against is not independently measurable today. **Transfer: a real idea, but not a
+recall-moving one, and 2026-08-19's defspan finding (do not re-attempt without a
+fundamentally different signal) already covers the "classify-and-restrict" shape of it.**
+Not implemented — recorded as a considered-and-rejected path rather than silently dropped.
+
+**Hebrew morphology / NLP** — no new 2026 resource beyond RFTokenizer/HebPipe/DictaBERT-seg/
+YAP already logged repeatedly since 2026-08-06. **Transfer: none new.**
+
+**Conclusion for today's lever.** No new external finding reopens either struck queue item
+or unseats the standing diagnosis (candidate generation, not verification, is the
+bottleneck; `retrieval_candidates` is the only sub-lever of it that has moved recall at
+all across three independent measurements). Today's lever is therefore the queue's own
+long-flagged, still-open internal gap: `scraper/crawl_defs.py note` (note.co.il) has never
+been crawled this project's lifetime, despite being named as the concrete next step in
+three consecutive log entries (2026-08-25, 2026-08-26, 2026-08-27). Growing the
+`private_defs` retrieval corpus with a second, independent source is not a literature
+lever, but it is the best-evidenced use of today's one-lever budget given what did and
+did not turn up above.
+
+## 2026-08-27
+
+Bootstrap found 14across fully walled today (0/52, matching the 2026-08-19/08-26
+hard-wall failure mode, not the ~50%-random one) — a direct single-URL fetch of
+2026-07-17's answer page also failed after 8 retries, confirming this wasn't just
+slow, it was blocked. Worked entirely from the public-CDN image fallback (see
+DAILY.md's log entry for the transcription/gold-recovery trail). Research this run
+focused on today's queue priority per the scheduled task itself: candidate
+generation (diverse candidates per clue by mechanism/definition-span) and, failing
+new material there, closing PR #27/#28's own flagged gap (retrieval_candidates never
+live-trialed).
+
+**"Diverse candidate generation cryptic crossword LLM 2026" / "charade segmentation
+dynamic programming wordplay decomposition" (general search).** Surfaced only the
+same paper family already logged repeatedly here (2506.04824, 2412.09012, 2406.09043,
+2407.08824, 2104.08620 — the Cryptonite origin paper, now cited directly rather than
+only by inheritance). **Transfer: none new** — fourth-plus consecutive pass over this
+literature turning up nothing not already logged; the field has not produced a new
+candidate-generation-by-diverse-hypothesis technique since this project started
+tracking it.
+
+**Charade/segmentation background (crosswordunclued.com, cryptichelper.com,
+bestforpuzzles.com — solver-education sites, not research).** Confirmed the general
+human-solver heuristic this project's PLAYBOOK.md already encodes: charades often
+carry NO indicator word (breakpoints found by testing divisions, not by a lexical
+cue), consistent with the 2026-08-19 defspan finding that this setter's devices are
+often unmarked. **Transfer: none new** — restates, does not add to, the standing
+diagnosis.
+
+**NEW: "Splintering Nonconcatenative Languages for Better Tokenization" (Gazit,
+Shmidman, Shmidman, Pinter; arXiv 2503.14433).**
+https://arxiv.org/abs/2503.14433 , code at github.com/MeLeLBGU/Splintering
+A pre-processing step ("SPLINTER") that rearranges Hebrew/Arabic/Malay/Georgian text
+before BPE/UnigramLM tokenization so a subword tokenizer's contiguous-substring
+assumption stops fighting Hebrew's proclitic-stacking morphology (up to 2-5 letters
+of ב/ל/מ/ש/ה/ו/כ chained onto a word, 100+ possible prefix permutations, most too
+sparse to earn their own vocabulary token). Evaluated via BERT-architecture Hebrew
+LM downstream tasks. **Transfer: interesting but does not apply here.** This is a
+tokenizer-pretraining technique for training a language model from scratch — this
+project has no LM to pretrain and does no subword tokenization anywhere in the
+pipeline (`candidates.py`'s fodder search is character-window based, not token-
+based). It is adjacent to, but not the same problem as, PLAN_V2.md item F's flagged
+gap (`homographs.py`/`candidates.py` don't systematically strip proclitic prefixes
+before matching) — that gap needs a Hebrew morphological ANALYZER at solve time
+(YAP, confirmed real and available per 2026-08-06's entry, still not integrated),
+not a tokenizer pre-processing step for model training. No change to the standing
+"not attempted, flagged for later" status of that item.
+
+**"A crossword solving system based on Monte Carlo tree search" (ScienceDirect,
+2024).** Relevant to queue item 4 (global constraint optimization over ranked
+candidates), not candidate generation — MCTS as an alternative to belief propagation
+for the joint-grid-optimization stage. **Transfer: filed for later, not now** —
+2026-08-16's finding (candidate quality must clear a materially higher bar before
+optimization-over-candidates is worth building) still holds; this is one more
+concrete technique to consider WHEN that stage is reached, not a reason to reorder
+the queue today.
+
+**"Towards a Semantic Approach for Candidate Answer Generation in Solving Crossword
+Puzzles" (ResearchGate).** WordNet-relation-based candidate generation for
+definition-type (non-cryptic) clues. **Transfer: none, confirms a closed door** —
+this is exactly the shape of resource 2026-08-23/24's Hebrew WordNet check already
+ruled out for this project (gives synonym/synset relations, not the ROLE-CATEGORY
+membership — "the singer" -> שרה — this setter's culture clues actually need). Same
+conclusion, different paper.
+
+**Conclusion for today's lever.** Fourth-plus consecutive literature pass with
+nothing new and buildable on either candidate generation or definition-fit scoring.
+Per the queue's own explicitly-named next step (DAILY.md 2026-08-26: "did not wire
+`retrieval_candidates` into a live `solve_pass.py` blind trial ... a standing gap
+this queue keeps naming and no run has yet closed"), and per today's own finding
+that 14across is walled (forcing the image-fallback transcription route anyway, so
+a fresh dev puzzle was being built regardless of which lever this run picked),
+today's lever is that live trial: `solve_pass.py` already calls `candidates.py`'s
+`generate()` with `use_retrieval=True` by default (confirmed by reading
+`solve_pass.py`'s `rank()` — no new wiring code needed), so today's build work was
+transcription/gold-recovery for a genuinely fresh puzzle (2026-07-10, previously
+untouched by this project) rather than a `solver/*.py` code change. See DAILY.md for
+the live-trial measurement and the third-puzzle offline recall@N data point.
+
 ## 2026-08-06
 
 
