@@ -1,0 +1,83 @@
+{
+  "industry": "Hebrew crossword help",
+  "research_date": "2026-08-28",
+  "keyword_classes": [
+    {
+      "class": "head_tools",
+      "intent": "navigational/tool",
+      "examples": ["מילון תשבצים", "פתרון תשבצים", "פתרון תשחצים", "עזרה בפתרון תשבצים", "פותר תשבצים", "פתרון תשבצים לפי אותיות", "מילים לתשבץ לפי אותיות"],
+      "serp_owners": ["mordo", "note.co.il", "14across", "yo-yoo", "zolo", "snopi"],
+      "difficulty": "high",
+      "opportunity": "medium — winnable with a genuinely better interactive solver (our 129k lexicon) + brand building",
+      "our_asset": "solver/lexicon.py pattern/anagram lookup beats snopi/yo-yoo tools in coverage"
+    },
+    {
+      "class": "clue_longtail",
+      "intent": "informational — the core traffic engine of every incumbent",
+      "pattern": "<clue text> [תשחץ|תשבץ] , e.g. 'קיבוץ בצפון תשחץ', 'עיר באיטליה תשבץ', 'סופר ישראלי תשחץ', 'משירי אריק איינשטיין'",
+      "volume_shape": "thousands of distinct clues × low volume each; the aggregate is the market",
+      "serp_owners": ["mordo (2-3 slots)", "note.co.il (2 slots)", "yo-yoo", "arrowword", "wikipedia categories"],
+      "difficulty": "medium (long tail is weakly defended; spam domains rank)",
+      "opportunity": "HIGH — we have zero pages in this shape; competitors' whole traffic is here",
+      "our_asset": "data/culture.json + geo datasets + mordo-style corpus let us generate per-clue pages with grouped-by-length answers AND per-answer descriptions nobody else shows"
+    },
+    {
+      "class": "clue_plus_length",
+      "intent": "informational, sharper",
+      "pattern": "<clue> N אותיות, e.g. 'עיר באיטליה 5 אותיות', 'קיבוץ בצפון 4 אותיות'",
+      "serp_owners": ["yo-yoo per-length subpages (only structural player)", "mordo ביטויים דומים"],
+      "difficulty": "low-medium",
+      "opportunity": "HIGH — only one competitor targets it structurally; our data is already length-indexed",
+      "our_asset": "existing /milon/<category>-<N>/ pages are exactly this data, just titled by category instead of clue phrasing"
+    },
+    {
+      "class": "newspaper_solutions",
+      "intent": "weekly recurring — 'פתרונות תשבץ היגיון הארץ', 'תשחץ ישראל היום פתרונות', 'תשבץ היגיון יורם הרועה פתרונות'",
+      "serp_owners": ["14across (sole owner)", "newspapers (puzzle pages, no solutions)"],
+      "difficulty": "low (single incumbent, weak on-page SEO)",
+      "opportunity": "HIGH and differentiating — we already solve the Haaretz cryptic weekly; 14across gives bare answers, we can give explained wordplay (respecting copyright: explanations + partial reveals, not clue reproduction)",
+      "our_asset": "the entire solver pipeline + PLAYBOOK; unique 'explained solutions' content nobody has"
+    },
+    {
+      "class": "cryptic_education",
+      "intent": "informational/evergreen — 'איך לפתור תשבץ היגיון', 'הגדרות תשבץ היגיון', 'תשבץ היגיון כללים'",
+      "serp_owners": ["wikipedia", "maariv article", "higayonbarie.co.il", "ravmilim blog", "ynet youtube"],
+      "difficulty": "medium",
+      "opportunity": "medium-high — thin incumbent content; our PLAYBOOK.md is the deepest device taxonomy in Hebrew",
+      "our_asset": "PLAYBOOK/SOLVE_PROTOCOL derived from hundreds of real clues; tirgul/ practice pages already exist"
+    },
+    {
+      "class": "answer_lookup",
+      "intent": "reverse lookup — 'מה זה X', 'X פירוש'",
+      "serp_owners": ["milog", "milononline", "wikipedia"],
+      "difficulty": "high (dictionary giants)",
+      "opportunity": "LOW as query target — keep /milon/e/ pages as supporting nodes (link targets from clue pages), not as primary landers",
+      "our_asset": "5,168 existing per-answer pages"
+    },
+    {
+      "class": "play_online",
+      "intent": "play — 'תשחץ אונליין', 'תשבצים אונליין', 'תשחץ יומי'",
+      "serp_owners": ["xword.co.il + app", "yo-yoo", "israelhayom", "14across"],
+      "difficulty": "high",
+      "opportunity": "LOW for now — different product; /tirgul/ partially serves it for cryptic practice"
+    }
+  ],
+  "tracking_query_set": [
+    "מילון תשבצים",
+    "פתרון תשבצים אונליין",
+    "עזרה בפתרון תשבצים",
+    "פתרון תשבצים לפי אותיות",
+    "קיבוץ בצפון הארץ תשבץ",
+    "עיר באיטליה תשחץ",
+    "סופר ישראלי תשחץ",
+    "שחקן ישראלי תשחץ",
+    "זמרת ישראלית תשחץ",
+    "משירי אריק איינשטיין",
+    "עיר באיטליה 5 אותיות",
+    "קיבוץ בצפון 4 אותיות",
+    "פתרונות תשבץ היגיון הארץ",
+    "תשבץ היגיון יורם הרועה",
+    "איך לפתור תשבץ היגיון",
+    "site:tashbetz.gtmascode.dev"
+  ]
+}

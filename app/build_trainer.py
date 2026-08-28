@@ -62,7 +62,10 @@ button.act.ghost{background:#fff;color:#121212;border:1.5px solid #121212}
 .lvl{display:grid;grid-template-columns:repeat(auto-fill,minmax(4.2rem,1fr));gap:.4rem;padding:0;list-style:none;margin:.6rem 0 1.4rem}
 .lvl a{display:block;text-align:center;background:#f6f5f3;border-radius:3px;padding:.5rem .2rem;text-decoration:none;font-family:monospace}
 .msg{font-weight:700;margin:.5rem 0;min-height:1.4rem}
+.promo{background:#fff4d6;border:1.5px solid #121212;border-radius:3px;padding:.45rem .7rem;margin:.7rem 0 0;font-size:.9rem}
+.promo a{font-weight:700}
 @media(prefers-color-scheme:dark){body{background:#161616;color:#f2f0ec}.cell input{color:#f2f0ec}
+.promo{background:#3a3115;border-color:#f2f0ec}
 /* Open and blocked cells must stay obviously different in dark mode; at
    #222 against #121212 the grid read as one solid block. */
 .cell{background:#3c3c3c}.cell.black{background:#0a0a0a}
@@ -98,7 +101,8 @@ def page(path, title, desc, body, jsonld=None, crumb=None):
 <meta name="viewport" content="width=device-width,initial-scale=1"><title>{esc(title)}</title>
 <meta name="description" content="{esc(desc)}"><link rel="canonical" href="{BASE}{rel}">{og}{ld}{STYLE}</head><body><div class="w">
 <header><span class="k">תרגול תשבץ · פותרים ביחד</span><h1>{esc(title)}</h1>
-<div class="crumb"><a href="/tirgul/">תרגול</a> · <a href="/milon/">מילון</a> · <a href="/solve/">עוזר הפתירה</a> · <a href="/">דף הבית</a></div></header>
+<div class="crumb"><a href="/tirgul/">תרגול</a> · <a href="/nativ/">המשחק היומי</a> · <a href="/milon/">מילון</a> · <a href="/solve/">עוזר הפתירה</a> · <a href="/">דף הבית</a></div>
+<div class="promo">☀️ <a href="/nativ/">נתיב - המשחק היומי הטוב לחובבי תשבצים</a> · חידה חדשה כל יום, עכשיו גם במצב קל</div></header>
 {body}
 <footer>תשבצי האימון נוצרו אוטומטית מהלקסיקון של הפרויקט (hspell) ומאינדקס ההגדרות (ויקימילון/ויקיפדיה, CC BY-SA).
 לא מתפרסמות הגדרות מעיתונים · <a href="https://www.linkedin.com/in/razkaplan/">פרויקט של רז קפלן</a></footer></div></body></html>""")

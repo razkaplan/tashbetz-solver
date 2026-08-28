@@ -1,0 +1,175 @@
+{
+  "company": "tashbetz.gtmascode.dev (מילון תשבץ)",
+  "industry": "Hebrew crossword (תשבץ/תשחץ) help: dictionaries, glossaries, solvers",
+  "research_date": "2026-08-28",
+  "method": "Google IL SERP scraping (8 head + long-tail queries) + full-page scrapes of top-ranking competitor templates",
+  "competitors": [
+    {
+      "name": "מורדו (Mordo)",
+      "website": "https://pitaronfree.blogspot.com/",
+      "tier": "leader",
+      "description": "The dominant Hebrew crossword-definitions dictionary. A Blogspot blog with thousands of per-definition posts, built since ~2012. Ranks #1-2 and often takes 2-3 slots per definition SERP.",
+      "url_structure": "/YYYY/MM/blog-post_NNNN.html — one post per definition, often multiple posts per definition variant",
+      "page_template": "H1 = definition + variant ('קיבוץ בצפון | קיבוץ בצפון הארץ תשחץ'); branded intro paragraph; answers grouped by letter count then multi-word; bolded answers; inline links to related definition posts; 'ביטויים דומים' block listing query variants (X תשחץ, X מילון, שם של X 5 אותיות); comments used to crowdsource missing answers; on-page search box",
+      "strengths": [
+        "13+ years of accumulated pages and backlinks; strong brand ('הוסיפו מורדו לכל הגדרה')",
+        "Multiple posts per definition variant capture many phrasings of the same query",
+        "'ביטויים דומים' footer targets long-tail variants explicitly",
+        "Active comment section = free content updates + freshness signals",
+        "Cross-linking between related definitions inside answer lists",
+        "Facebook page with 11K+ likes drives brand queries",
+        "Content marketing pages (tips, brain training, history of crosswords) broaden topical authority"
+      ],
+      "weaknesses": [
+        "Blogspot platform: dated design, no HTTPS custom domain, poor mobile UX, heavy ads",
+        "No structured grouping by category or length beyond flat lists",
+        "No interactive pattern solver",
+        "Answers unverified; comments show missing answers (e.g. missing kibbutzim)"
+      ],
+      "notes": "Their answer corpus is what solver/retrieve_defs.py scrapes (mordo.jsonl, 31K pairs). They are the benchmark for the per-definition page pattern."
+    },
+    {
+      "name": "Note (note.co.il)",
+      "website": "https://www.note.co.il/",
+      "tier": "leader",
+      "description": "'עזרה בפתרון תשחצים ותשבצים - המילון הכי שימושי בישראל'. Dedicated .co.il crossword-answers dictionary; consistently #1-3, frequently two slots per SERP (dual /solution/ and /solutions/ paths).",
+      "url_structure": "/solutions/<definition_with_underscores> and /solution/<definition-with-hyphens>/ (two parallel page sets); /abc/<letter> alef-bet index pages",
+      "page_template": "H1 = definition; intro paragraph naming the newspapers where the clue appears (ידיעות 7 ימים, מעריב, הארץ, לאישה, ישראל היום — great keyword bait); answers grouped 'פתרון של N אותיות' then 'פתרון של 2 מילים, N אותיות'; user-submission CTA; 'ערכים אחרונים שנוספו' fresh-links module; full alef-bet nav on every page",
+      "strengths": [
+        "Exact-match .co.il domain fully dedicated to the niche",
+        "Cleanest information architecture: letter index -> definition pages",
+        "Newspaper names in boilerplate capture 'תשחץ ידיעות אחרונות פתרונות'-type queries",
+        "Recent-additions module gives every page fresh internal links",
+        "Two URL variants per definition double SERP presence"
+      ],
+      "weaknesses": [
+        "Thin content: no explanations of answers, no per-answer detail",
+        "No length-specific pages (loses 'X 5 אותיות' queries to yo-yoo)",
+        "Ad-heavy ('קישורים ממומנים' above content)"
+      ]
+    },
+    {
+      "name": "יויו תשבצים (yo-yoo.co.il/crossword)",
+      "website": "https://www.yo-yoo.co.il/crossword/",
+      "tier": "leader",
+      "description": "Crossword-solutions section of a large games/leisure portal. Ranks top-5 with the most sophisticated URL architecture in the niche.",
+      "url_structure": "/crossword/solution/<id> (definition page); /crossword/pages/solution-N.php?id= (per-length subpage: 'X N אותיות'); /crossword/pages/solution-2w.php?id= ('X 2 מילים'); /crossword/list/<letter>; /crossword/category/<id> (topic categories); /crossword/search (interactive pattern solver); /crossword/searchN/ (words by length)",
+      "page_template": "H1 = definition (+synonym variants); category chip (גאוגרפיה); answers by length; keyword-rich paragraph; links to every per-length subpage of the same definition; user-submission CTA; alef-bet nav; related-entries block; sitewide footer to tools (פותר תשחצים, פותר וורדל, חרוזים, גימטריה)",
+      "strengths": [
+        "Per-length subpages win the '<clue> N אותיות' long tail nobody else targets",
+        "Interactive automatic solver (pattern search א?א) — a tool, not just lists",
+        "Category taxonomy + huge internal-link mesh from portal with existing domain authority",
+        "Covers adjacent intents: Wordle solver, rhymes, acronyms, gematria — topical breadth"
+      ],
+      "weaknesses": [
+        "Portal branding (kids games site) dilutes trust for the crossword audience",
+        "Dated PHP UX; per-length pages are near-duplicates (thin)",
+        "Definition coverage smaller than mordo's"
+      ]
+    },
+    {
+      "name": "14across (14across.co.il)",
+      "website": "https://14across.co.il/",
+      "tier": "leader-adjacent",
+      "description": "THE community site for serious Israeli solvers: user-created puzzles, and crowd-sourced full solutions to newspaper crosswords — including the Haaretz תשבץ היגיון by יורם הרועה, this repo's exact subject. Owns 'פתרונות תשבץ היגיון <עיתון>' queries.",
+      "url_structure": "/answers.php?crossword=<id>&name=<paper+setter> — per-issue solution threads, fresh page every week; also puzzle-play pages",
+      "page_template": "Per-newspaper-crossword answer threads dated per issue; users pick a clue and propose/see solutions; app promotion (XWordScan)",
+      "strengths": [
+        "Weekly fresh, date-stamped pages for every major newspaper puzzle = owns all 'פתרונות תשבץ היגיון הארץ/מעריב/ידיעות' queries",
+        "Real community with recurring contributors; network effects",
+        "Covers cryptics (תשבצי היגיון), which the dictionaries ignore"
+      ],
+      "weaknesses": [
+        "Solutions are bare answers — no explanations of the wordplay",
+        "Old-school PHP site, weak on-page SEO (query-string URLs)",
+        "No definition-dictionary (loses the huge 'הגדרה X' long tail)"
+      ],
+      "notes": "Direct competitor for our niche differentiator (Haaretz cryptic). Their weakness — unexplained answers — is exactly what our solver's wordplay explanations can beat."
+    },
+    {
+      "name": "תשחציישן (arrowword.co.il)",
+      "website": "https://arrowword.co.il/",
+      "tier": "challenger",
+      "description": "Modern WordPress challenger (est. ~2021) proving the niche is winnable: already ranks page-1 on major definition queries against 10-year incumbents.",
+      "url_structure": "/<definition>-תשחץ/ pretty Hebrew slugs; /category/<topic>/ (music, mythology, cities, kibbutzim, moshavim, synonyms...)",
+      "page_template": "H1 'עיר באיטליה תשחץ / תשבץ'; breadcrumbs; intro; answers by length with inline links to related definition pages; long unique 'מידע מעניין' section (e.g. 10 Italian cities described) = real content depth; comment box for missing answers; category mesh; prev/next nav; result-count in title tag ('120+ פתרונות אפשריים')",
+      "strengths": [
+        "Proof of concept: a new site broke into these SERPs with WordPress + clean slugs + content depth",
+        "Unique prose sections make pages non-thin — likely why Google rewards it",
+        "Dense category taxonomy and internal anchor links inside answer lists",
+        "Curiosity-gap titles with answer counts improve CTR"
+      ],
+      "weaknesses": [
+        "Much smaller coverage than mordo/note",
+        "Ad placeholders everywhere; generic template",
+        "Content sections read as AI/outsourced filler — vulnerable to quality updates"
+      ],
+      "notes": "The best template to study: it's what 'winning as a newcomer' looks like in this niche."
+    },
+    {
+      "name": "זולו - מנוע התשבצים (zolo.co.il)",
+      "website": "https://www.zolo.co.il/calc/puzzle_new/",
+      "tier": "niche-tool",
+      "description": "'מנוע התשבצים הגדול' — a professional crossword definitions/answers engine on the Zolo portal, aimed at both solvers and constructors.",
+      "url_structure": "Single tool page + huge indexed definition list pages",
+      "page_template": "Search engine over definition->answer pairs; massive on-page word lists (אבדה - חפץ שאבד...)",
+      "strengths": ["Large definition->answer database", "Serves constructors too (unique audience)", "Portal domain authority"],
+      "weaknesses": ["Tool-first, few crawlable per-definition pages", "Dated UX", "No community or content"]
+    },
+    {
+      "name": "Snopi crossword dictionary",
+      "website": "https://snopi.com/xDic/CrossWordDic.aspx",
+      "tier": "niche-tool",
+      "description": "Pattern-based word finder (מד??ה -> מדבקה, מדגרה) + Wordle helper. Ranks top-10 on 'מילים לתשבץ לפי אותיות' tool queries.",
+      "strengths": ["Owns the pattern-search intent", "Simple and fast"],
+      "weaknesses": ["Single-page tool, no definition dictionary, no content moat"]
+    },
+    {
+      "name": "פשר (pesher.net)",
+      "website": "https://pesher.net/",
+      "tier": "challenger",
+      "description": "Definition-answers site with Hebrew-slug WordPress URLs (e.g. /סופר-ישראלי-תשחץ-תשבץ/), appearing on page 1 for some definition queries.",
+      "strengths": ["Clean per-definition pages with answers by length"],
+      "weaknesses": ["Small coverage, little differentiation"]
+    },
+    {
+      "name": "פתרותי (ptoroti.blogspot.com)",
+      "website": "https://ptoroti.blogspot.com/",
+      "tier": "long-tail",
+      "description": "Mordo-imitator Blogspot with prose-style answer posts; picks up scraps on some SERPs.",
+      "strengths": ["Prose explanations around answers"],
+      "weaknesses": ["Blogspot, small, no brand"]
+    },
+    {
+      "name": "התשחץ שלי (xword.co.il) + app",
+      "website": "https://xword.co.il/",
+      "tier": "adjacent",
+      "description": "Play-crosswords site + top Google Play app ('התשחץ שלי'). Competes for 'תשחץ אונליין/יומי' play intent, not dictionary intent.",
+      "strengths": ["Daily puzzle habit loop, app-store presence", "Owns play-intent SERPs"],
+      "weaknesses": ["No definitions dictionary — different intent"]
+    },
+    {
+      "name": "Newspaper puzzle sections (haaretz.co.il, israelhayom.co.il, maariv)",
+      "website": "https://www.haaretz.co.il/gallery/xword",
+      "tier": "adjacent",
+      "description": "Official puzzle pages (תשחץ היומי, תשבץ היגיון PDF). Own brand queries and 'תשחץ היום' plays; also the source material everyone else answers.",
+      "strengths": ["Domain authority, brand demand, daily freshness"],
+      "weaknesses": ["Never publish solution explanations — leave that traffic to 14across and us"]
+    },
+    {
+      "name": "Generic dictionaries + UGC (milog.co.il, milononline.net, Wikipedia categories, YouTube answer videos, shironet)",
+      "website": "https://milog.co.il/",
+      "tier": "SERP-absorbers",
+      "description": "Not crossword sites, but absorb SERP slots: Wikipedia categories (קטגוריה:קיבוצים במחוז הצפון) rank on nearly every definition query; YouTube 'פתרונות תשחץ' timeline videos now appear; milog/milononline take 'מה זה X' intents.",
+      "notes": "Also observed: spam/parasite SEO (schlossmalberg.de ranking for קיבוץ במחוז הצפון תשחץ) — a sign these SERPs are weakly defended and freshly winnable."
+    }
+  ],
+  "market_observations": [
+    "The atomic search unit in this niche is the CLUE TEXT, not the answer and not the category: users type '<הגדרה> תשחץ' or '<הגדרה> תשבץ' or '<הגדרה> N אותיות'.",
+    "Every winning page follows the same skeleton: H1=definition, newspapers-mention intro, answers grouped by letter count then word count, variant-phrase block, submission CTA, alef-bet/category nav.",
+    "Freshness + UGC (comments, submissions) are universal among winners.",
+    "Two structural gaps nobody fills well: (1) explained answers (WHY the answer fits — especially cryptics), (2) a modern, fast, ad-light UX.",
+    "arrowword.co.il proves a newcomer can reach page 1 in ~2-3 years with clean slugs + per-definition pages + unique prose.",
+    "tashbetz.gtmascode.dev currently appears in ZERO competitive SERPs despite being indexed: pages target category×length and per-answer units that users don't search, and the dev-subdomain has no authority."
+  ]
+}

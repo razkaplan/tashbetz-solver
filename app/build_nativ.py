@@ -26,6 +26,13 @@ MIN_LEN, MAX_LEN = 4, 8
 COLS = 5
 TOTALS = (25, 30)  # 5x5 or 6x5
 
+# Easy mode (נתיב קל): smaller board, fewer words, and every word must carry a
+# description so the player gets a clue up front. Generated with its own rng and
+# used-set so the regular puzzles stay byte-identical across rebuilds.
+EASY_WORDS = 3
+EASY_COLS = 4
+EASY_TOTALS = (16,)  # 4x4
+
 ROTATION = [
     "artist", "nation", "city_il", "mountain", "bible", "kibbutz",
     "politician", "athlete", "author", "actor", "world_city", "common",
@@ -64,7 +71,8 @@ def load_candidates():
             continue
         bucket = by_cat.setdefault(cat, {})
         if n not in bucket:  # dedupe by normalized name
-            bucket[n] = {"n": n, "t": e.get("t", n), "d": e.get("d", "")}
+            bucket[n] = {"n": n, "t": e.get("t", n), "d": e.get("d", ""),
+                         "p": e.get("p", 0)}
     return {cat: list(v.values()) for cat, v in by_cat.items()}
 
 
@@ -113,18 +121,27 @@ def hamiltonian_path(rows, cols, rng, restarts=60, budget=80000):
     return None
 
 
-def pick_words(cands, total, rng, used_global):
-    """Pick WORDS_PER_PUZZLE distinct words with lengths summing to total.
-    Prefer words not used on earlier days."""
-    order = sorted(cands, key=lambda e: (e["n"] in used_global, rng.random()))
+def pick_words(cands, total, rng, used_global, n_words=WORDS_PER_PUZZLE,
+               forbid=frozenset(), require_desc=False, prefer_rich=False):
+    """Pick n_words distinct words with lengths summing to total.
+    Prefer words not used on earlier days; never pick words in forbid.
+    prefer_rich additionally prefers entities with rich milon pages, a
+    notability proxy that keeps the easy board recognizable."""
+    pool = [e for e in cands
+            if e["n"] not in forbid and (not require_desc or e.get("d"))]
+    if prefer_rich:
+        order = sorted(pool, key=lambda e: (e["n"] in used_global,
+                                            not e.get("p"), rng.random()))
+    else:
+        order = sorted(pool, key=lambda e: (e["n"] in used_global, rng.random()))
 
     def dfs(start, chosen, s):
-        if len(chosen) == WORDS_PER_PUZZLE:
+        if len(chosen) == n_words:
             return list(chosen) if s == total else None
         for i in range(start, len(order)):
             e = order[i]
             length = len(e["n"])
-            rem = WORDS_PER_PUZZLE - len(chosen) - 1
+            rem = n_words - len(chosen) - 1
             if s + length + rem * MIN_LEN > total:
                 continue
             if s + length + rem * MAX_LEN < total:
@@ -157,30 +174,36 @@ def validate(puzzle):
         assert MIN_LEN <= len(w["n"]) <= MAX_LEN, "word length out of range"
 
 
-def build_day(day_index, cands, rng, used_global):
+def build_day(day_index, cands, rng, used_global, n_words=WORDS_PER_PUZZLE,
+              cols=COLS, day_totals=TOTALS, forbid=frozenset(),
+              require_desc=False, prefer_rich=False):
     cat = ROTATION[day_index % len(ROTATION)]
     theme, emoji = THEMES[cat]
-    totals = list(TOTALS)
+    totals = list(day_totals)
     rng.shuffle(totals)
     for total in totals:
         for _attempt in range(40):
-            words = pick_words(cands[cat], total, rng, used_global)
+            words = pick_words(cands[cat], total, rng, used_global, n_words,
+                               forbid, require_desc, prefer_rich)
             if not words:
                 break
-            rows = total // COLS
-            path = hamiltonian_path(rows, COLS, rng)
+            rows = total // cols
+            path = hamiltonian_path(rows, cols, rng)
             if not path:
                 continue
             letters = "".join(w["n"] for w in words)
             grid = [""] * total
             for pos, cell in enumerate(path):
                 grid[cell] = letters[pos]
+            # p (rich-page flag) steers picking only; keep it out of the
+            # published file so the schema the page reads stays stable.
+            words = [{k: v for k, v in w.items() if k != "p"} for w in words]
             puzzle = {
                 "cat": cat,
                 "theme": theme,
                 "emoji": emoji,
                 "rows": rows,
-                "cols": COLS,
+                "cols": cols,
                 "grid": grid,
                 "words": words,
                 "path": path,
@@ -210,7 +233,24 @@ def main():
         days[d] = puzzle
         stats[puzzle["cat"]] = stats.get(puzzle["cat"], 0) + 1
 
-    out = {"start": START.isoformat(), "days": days}
+    # Easy mode: separate rng + used-set so the regular puzzles above rebuild
+    # byte-identically. Same day-theme as the regular puzzle; the day's regular
+    # words are forbidden so the two boards never share a word. Every easy word
+    # must carry a description, which the page shows as an up-front clue.
+    easy_rng = random.Random("nativ-easy-v1")
+    easy_used = set()
+    easy = {}
+    for i in range(DAYS):
+        d = (START + timedelta(days=i)).isoformat()
+        day_words = frozenset(w["n"] for w in days[d]["words"])
+        puzzle = build_day(i, cands, easy_rng, easy_used, n_words=EASY_WORDS,
+                           cols=EASY_COLS, day_totals=EASY_TOTALS,
+                           forbid=day_words, require_desc=True, prefer_rich=True)
+        if puzzle is None:
+            sys.exit(f"FAILED to build easy puzzle for {d}")
+        easy[d] = puzzle
+
+    out = {"start": START.isoformat(), "days": days, "easy": easy}
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps(out, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
 
@@ -218,6 +258,9 @@ def main():
     reread = json.loads(OUT.read_text(encoding="utf-8"))
     for d, p in reread["days"].items():
         validate(p)
+    for d, p in reread["easy"].items():
+        validate(p)
+        assert all(w.get("d") for w in p["words"]), f"easy {d}: word without clue"
 
     sizes = {}
     for p in days.values():
