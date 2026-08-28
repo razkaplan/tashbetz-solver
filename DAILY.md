@@ -13,13 +13,59 @@ Read this first each run. It is the handoff between days.
 | Best single puzzle | 2026-05-29: 95% / 71% / 68% ✓ all targets | |
 | Hardest puzzle | 2026-06-05: 100% / 43% / 43% | coverage stuck |
 | **Candidate recall@N (new, offline, mechanical only)** | **3.6% (1/28)**, avg 11.6 candidates/clue (capped), on 2026-05-29 — UNCHANGED after adding substitution+homograph mechanisms | not yet a target — diagnostic |
-| **Candidate recall@N with `retrieval_candidates` added (new, offline, BM25 definition retrieval)** | **7.1% (2/28)** on 2026-05-29 (up from 3.6%); **SECOND puzzle, 2026-08-26: 0.0% (0/18) → 5.6% (1/18)** on 2026-06-26; **THIRD puzzle, 2026-08-27: 0.0% (0/19) → 0.0% (0/19), UNCHANGED** on 2026-07-10 — the streak breaks: 2 of 3 independent puzzles show a real gain, 1 shows none at all (retrieval never fired a candidate on this puzzle's 19 clues, offline or live — see the live-trial row below), see log | not yet a target — diagnostic; now 3 puzzles, 2 positive + 1 flat — a real but inconsistent, puzzle-dependent source, not a reliable lift |
+| **Candidate recall@N with `retrieval_candidates` added (new, offline, BM25 definition retrieval)** | **7.1% (2/28)** on 2026-05-29 (up from 3.6%); **SECOND puzzle, 2026-08-26: 0.0% (0/18) → 5.6% (1/18)** on 2026-06-26; **THIRD puzzle, 2026-08-27: 0.0% (0/19) → 0.0% (0/19), UNCHANGED** on 2026-07-10; **2026-08-28, RE-MEASURED on 2026-05-29 with a GROWN corpus (mordo re-crawled 13,646 raw pairs vs 9,685; `note.co.il` crawled for the first time this project's lifetime, 829 pairs): 3.6% (1/28) → 10.7% (3/28)**, up from the 7.1% this exact puzzle scored with the smaller corpus — see log | not yet a target — diagnostic; now 4 independent measurements, 3 positive + 1 flat, and the one puzzle re-measured twice shows corpus growth alone moving recall further |
 | **Definition-span locatable rate (new, offline, diagnostic)** | **25% (7/28)** have mechanically-locatable single-window wordplay; of those 29% (2/7) are interior, not edge; classifier agreement on edge cases **1/5** | not a target — this diagnostic KILLED the lever, see log |
 | **`solve_pass.py` LIVE blind trial — cumulative (3 trials)** | **40% precision (2/5 committed)**: 2026-08-16 was 1/2 on a partial 21/28-clue puzzle (2026-06-12); 2026-08-22 was **0/2**, 7.1% coverage, on a FULL 28/28-clue puzzle (2026-05-15); **2026-08-27 is 1/1 = 100% precision but 5.3% coverage (1/19), 0% suggestion hit-rate (0/10)**, on 2026-07-10 (19/28 clues) — FIRST trial run with `retrieval_candidates` live (wired 2026-08-25, never live-trialed since); it contributed ZERO candidates all puzzle (grepped the transcript for `(retrieval, fodder=` hits — none), matching today's own offline recall@N finding on this same puzzle (0/19 with or without retrieval); the one correct commit came from `wiki.py` culture-fact lookup, not from any candidate generator | n=5 — still small; retrieval's live debut is a null result on this puzzle, not a regression, but not the coverage lift the queue hoped for either; see log |
 | **Candidate recall@N with `culture_category_candidates` added (new, offline, definition-driven)** | **0% (0/28)**, on 2026-06-19 — mechanism fired on only 1/28 clues (avg candidates/clue 10.5 → 11.4); its one firing (339 raw candidates, an "author" category hit) matched 0 gold | not yet a target — small-n diagnostic, see log |
 
 Baseline for comparison: v2 = 41% raw with untraceable errors.
-Last lever added (2026-08-27): **first LIVE blind trial with `retrieval_candidates`
+Last lever added (2026-08-28): **crawled `note.co.il` for the first time this project's
+lifetime** (queue item 1(d)'s own next step, flagged unattempted in three consecutive log
+entries: 2026-08-25, 2026-08-26, 2026-08-27), and re-crawled `mordo` (pitaronfree)
+fresh alongside it, growing `private_defs` from the 9,685 mordo-only pairs 2026-08-25
+measured with to 13,646 raw mordo pairs (12,890 with parsed answers after
+`reparse_mordo()`) + 829 note.co.il pairs. No code change — `retrieve_defs.build_index()`
+already globs every `*.jsonl` under `data/answers/private_defs/`, so a new source file is
+picked up automatically, same as PR #29 found for the live-trial wiring. Bootstrap hit the
+same 14across hard wall as 2026-08-19/08-26/08-27 (killed after 170s, 1/52 recovered);
+worked entirely from the public-CDN image fallback, fetching `data/images/2026-05-28.jpg`
+and `2026-06-04.jpg` directly rather than waiting on bootstrap's sequential step order.
+RE-TRANSCRIBED THE CANONICAL DEV PUZZLE (2026-05-29) independently for a third time (after
+2026-08-06's original and 2026-08-25's redo), so today's number is directly comparable to
+both prior measurements on this exact puzzle. Caught and fixed one real transcription bug
+mid-run (clue 13 across's enum), disclosed in the log rather than silently corrected.
+MEASURED, controlled before/after (`python3 solver/candidates.py recall
+data/dataset/clues.jsonl eval [--no-culture --no-retrieval]`): mechanical-only baseline
+**3.6% (1/28)** — exactly reproduces the 2026-08-06/2026-08-25 number on this same puzzle,
+a strong cross-check that today's third independent transcription is correct; **+
+retrieval with the grown corpus: 10.7% (3/28)**, up from the 7.1% (2/28) this exact puzzle
+scored on 2026-08-25 with the smaller, mordo-only corpus. Isolated which source produced
+the gain (mordo alone / note alone, each tested standalone by moving the other file aside
+and re-running): mordo alone reproduces 10.7% (the SAME 2 retrieval hits, including a NEW
+one today — 1 down, `ברישניקוב`/Baryshnikov, absent from 2026-08-25's smaller mordo
+crawl); note.co.il alone reproduces exactly 7.1% (2026-08-25's original number, via a
+DIFFERENT source document than mordo's for the same gold answer, 26 across
+`פחותאבלכואב` — confirmed independently, not the same doc). Honest attribution: today's
+recall GAIN over 2026-08-25's 7.1% traces to mordo's corpus having grown (13,646 vs 9,685
+raw pairs — the blogspot feed has more indexed content now), not to note.co.il, which on
+this specific puzzle only reproduces a hit mordo already had. note.co.il is nonetheless
+confirmed a REAL, independent, working source (its own distinct document matched the gold
+answer) — worth having crawled, just not the source of today's specific number's movement.
+AUDITED: both hits' source docs confirmed `pid=None` (external private_defs, not this
+project's own puzzle text) directly by grep; `lexicon.held_out_answers()` and
+`retrieve_defs.held_out()` both confirmed to block all 28 of this puzzle's own gold
+answers (`gold_norm - blocked` empty for both). No forbidden reads: gold data came
+entirely from the two public CDN images, never 14across, for this puzzle. No jump to
+explain: 3.6% -> 10.7% (+7.1 points) is well under the ~15-point implausibility bar and
+fully explained by 2 legitimate external retrieval hits. All 5 affected selftests
+(`candidates.py`, `retrieve_defs.py`, `lexicon.py`, `prove.py`, `substitutions.py`)
+re-run clean. NOT DONE, honestly: did not re-measure the 2026-06-26/2026-07-10 puzzles
+with the grown corpus (would need re-transcribing them, out of scope for one lever); did
+not merge PR #29 or this branch (only the project owner can); note.co.il's crawl was
+bounded by a deliberate ~15-minute stop (934 candidate URLs discovered, 829 fetched), not
+exhausted — a fuller crawl is the natural next step if this lever is revisited.
+
+Previous lever (2026-08-27): **first LIVE blind trial with `retrieval_candidates`
 active** (queue item 1(d)'s own explicitly-flagged gap since 2026-08-25: "worth eventually
 wiring into a live solve pass — still true of every candidate-gen sub-lever so far").
 `solve_pass.py` already calls `candidates.py generate()` with `use_retrieval=True` by
@@ -292,10 +338,17 @@ propagated), `blank`. Score with `python3 evals/run_eval.py <file>`.
    the "worth eventually wiring into a live solve pass" gap named here since 2026-08-25):
    contributed ZERO candidates on that puzzle's 19 clues, live or offline, consistent
    with the flat offline result on the same puzzle — see the state table's live-trial row
-   and log for the full measurement. Worth trying `crawl_defs.py note` (the OTHER
-   external source, not yet crawled this project's lifetime) for a larger index — still
-   the concrete next step, now with sharper motivation (a bigger index is the natural fix
-   for "this puzzle's idioms aren't covered").
+   and log for the full measurement. `crawl_defs.py note` was CRAWLED FOR THE FIRST TIME
+   2026-08-28 (829 pairs, deliberately bounded, not exhausted), alongside a fresh mordo
+   re-crawl (13,646 raw pairs, up from 9,685) — re-measured on 2026-05-29 (the original
+   baseline puzzle): 3.6% -> 10.7% (3/28), up from 7.1% with the smaller corpus. Isolated:
+   the GAIN traces to mordo's growth (a new hit, `ברישניקוב`, absent from the smaller
+   mordo crawl), not to note.co.il, which reproduces the old 7.1% via its own independent
+   doc for the same answer mordo already had — note.co.il is confirmed real and working,
+   just not the source of today's specific movement. See log. Next concrete step: a
+   fuller (unbounded) note.co.il crawl, and re-measuring the 2026-06-26/2026-07-10
+   puzzles (which needed the corpus most, per 2026-08-27's flat result) with the grown
+   corpus — neither attempted today to keep this run to one lever.
 2. ~~Definition-span detection~~ — TRIED 2026-08-19, NEGATIVE. See log and "already
    tried" below. Do not re-attempt without a fundamentally different signal (not
    indicator-word density).
@@ -580,6 +633,99 @@ propagated), `blank`. Score with `python3 evals/run_eval.py <file>`.
   build a definition-fit scorer (flagged above as the real gap, not attempted — no
   validated approach exists yet per RESEARCH.md); did not merge or otherwise act on PR #23
   (out of scope for this lever, flagged for whoever reviews next).
+- 2026-08-28: **crawled `note.co.il` for the first time this project's lifetime**, closing
+  queue item 1(d)'s own next step (flagged unattempted in the 2026-08-25/08-26/08-27 log
+  entries). Branched from `origin/daily/2026-08-27-live-trial-retrieval` (PR #29, open,
+  unmerged, mergeable-clean) rather than from main, since main still lacks #29's work and
+  stacking on the latest unmerged PR is the standing fix for the PR-pileup pattern.
+
+  BOOTSTRAP: `./bootstrap.sh --dev-only` hit the same 14across hard wall as
+  2026-08-19/08-26/08-27 (killed by a 170s timeout with only 1/52 puzzles recovered, the
+  rest `None: 0 clues`) — not fought further. Fetched `data/images/2026-05-28.jpg` and
+  `data/images/2026-06-04.jpg` directly from the public CDN (bypassing bootstrap's
+  sequential step order, since steps 3-6 don't depend on step 2 finishing) rather than
+  waiting on the script.
+
+  CORPUS: ran `scraper/crawl_defs.py note` for the first time ever in this project —
+  discovered 934 candidate solution-page URLs across all 22 Hebrew letters, fetched 829 of
+  them before a deliberate ~15-minute stop (not exhausted). Also re-ran `crawl_defs.py
+  mordo` fresh: 13,646 raw entries (12,890 after `reparse_mordo()` populated their
+  `answers` field), up from 2026-08-25's 9,685 — the blogspot feed apparently has more
+  indexed content now. No code change needed: `retrieve_defs.build_index()` already globs
+  every `*.jsonl` under `private_defs/`, confirmed by reading the code before assuming it.
+
+  RE-TRANSCRIBED THE CANONICAL DEV PUZZLE (2026-05-29) a third independent time (after
+  2026-08-06's original and 2026-08-25's redo), via the documented image-fallback
+  technique, so today's number is directly comparable to both prior measurements on this
+  exact puzzle. Clue text from `data/images/2026-05-28.jpg` (28/28 clues); gold letters
+  from the small solved-grid recap in `data/images/2026-06-04.jpg` ("פתרון תשבץ ההיגיון
+  מהשבוע שעבר"), with the grid pixel geometry calibrated PROGRAMMATICALLY (darkness-
+  fraction column/row detection, not eyeballed): all 16 row-lines and all 12 column-lines
+  detected as continuous dark strokes, and after correcting the column read order to
+  RTL (index 0 = rightmost, per `grid_tools.py`'s own documented convention — the first
+  attempt was column-reversed, caught immediately by a full 8-row mirror-image mismatch,
+  the same symptom PR #27 and 2026-08-26's entry both already flag as this fallback
+  technique's characteristic bug), the reconstructed black/white pattern matched the
+  committed `data/grids/2026-05-29.json` with **0/15 row mismatches**. `grid_tools.py
+  validate` caught one real transcription bug before any measurement: clue 13 across's
+  enum was mistranscribed as (6) (mistaking clue 11's trailing enum for clue 13's own,
+  since clue 13's text wraps across the newspaper's column break) — the grid slot was
+  4, not 6; corrected to (4) once the actual clue-13-final enum was traced to a `(4)`
+  three words later in the wrapped text, re-validated clean. All 28 extracted gold answers'
+  letter-counts matched their enums exactly, an independent cross-check beyond the
+  grid-pattern match. Several extracted answers are recognizable real words/names
+  (`ברישניקוב`/Baryshnikov, `ליסט`/Liszt, `צרנוביל`/Chernobyl, and `ישפרחימ` for 7-across
+  — exactly the worked example `SOLVE_PROTOCOL.md` itself already cites for this clue),
+  further corroborating the transcription independent of the pixel/enum checks.
+
+  MEASURED (executed, not estimated), controlled before/after on the re-derived puzzle
+  (`python3 solver/candidates.py recall data/dataset/clues.jsonl eval [--no-culture]
+  [--no-retrieval]`):
+  - Mechanical-only baseline (`--no-culture --no-retrieval`): **3.6% (1/28)** — exactly
+    reproduces the 2026-08-06 and 2026-08-25 numbers on this same puzzle from two
+    independent prior transcriptions, a strong cross-check that today's third independent
+    transcription is correct.
+  - `+ retrieval_candidates` (`--no-culture`, grown corpus): **10.7% (3/28)** — up from
+    the 7.1% (2/28) this exact puzzle scored 2026-08-25 with the smaller, mordo-only
+    corpus. The new hit is 1 down (`באות לפני דקירת רקדן (עפ"י צבי ויצמן)` (9) ->
+    `ברישניקוב`, i.e. Mikhail Baryshnikov, "רקדן בלט ושחקן רוסי אמריקאי" in the matching
+    doc) plus the same 26-across hit 2026-08-25 already found (`פחותאבלכואב`).
+  - Full defaults (culture+retrieval): also 10.7% — `culture_category_candidates`
+    contributes nothing extra on this puzzle, consistent with its established narrow,
+    puzzle-dependent pattern.
+  - **Isolated which source produced the gain**, tested by moving each private_defs file
+    aside in turn and re-running: mordo ALONE reproduces the full 10.7% (both hits,
+    including the new `ברישניקוב` one — absent from 2026-08-25's smaller mordo crawl, so
+    genuinely new from mordo's own growth). note.co.il ALONE reproduces exactly 7.1%
+    (2/28) — the SAME 26-across answer, but via a DIFFERENT, independently-checked source
+    document (`note.co.il`'s own "שיר למילים של יהונתן גפן" entry listing `פחות אבל כואב`
+    among Geffen's song titles, distinct from mordo's matching doc) — confirming note.co.il
+    is a real, independently-working retrieval source, not dead weight, even though on
+    this specific puzzle it doesn't add a NET-NEW hit beyond what mordo's growth already
+    supplied.
+  - **Honest attribution**: today's recall gain over 2026-08-25's number (7.1% -> 10.7%)
+    traces to mordo's corpus having grown, not to today's note.co.il crawl specifically —
+    disclosed plainly rather than crediting the more novel-sounding half of today's work.
+
+  AUDIT (mandatory gate). Both retrieval hits' source docs confirmed `pid=None` (external
+  private_defs corpus, not this project's own puzzle text) by direct grep over
+  `retrieve_defs.build_index()`'s doc list. `lexicon.held_out_answers()` AND
+  `retrieve_defs.held_out()` both confirmed to block all 28 of this puzzle's own gold
+  answers (`gold_norm - blocked` empty for both, checked directly, not assumed from the
+  code path). No forbidden reads: gold data came entirely from the two public CDN images;
+  14across was never queried for this puzzle. No jump to explain: 3.6% -> 10.7%
+  (+7.1 points) is well under the ~15-point implausibility bar and fully accounted for by
+  2 legitimate external retrieval hits. All 5 affected selftests (`candidates.py`,
+  `retrieve_defs.py`, `lexicon.py`, `prove.py`, `substitutions.py`) re-run clean.
+
+  NOT DONE, honestly: did not run note.co.il's crawl to exhaustion (829/934 discovered
+  URLs fetched, deliberately stopped, not a hard limit); did not re-measure the
+  2026-06-26 or 2026-07-10 puzzles with the grown corpus (the two puzzles that most
+  needed a bigger index, per 2026-08-26's/08-27's own findings — out of scope to keep
+  this run to one lever); did not wire anything new into `solve_pass.py` (no code change
+  was needed — the existing wiring already picks up the grown corpus automatically); did
+  not merge PR #29 or this branch (only the project owner can); did not act on queue
+  items 8 or 9 this run.
 
 ---
 
