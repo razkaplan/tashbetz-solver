@@ -1591,3 +1591,39 @@ Measure each lever on dev (fixed enums) with run_eval.py before/after; one lever
   `solve_pass.py` blind trial (every candidate-gen sub-lever so far has stopped at offline
   recall@N, a standing gap this queue keeps naming and no run has yet closed); did not act
   on queue items 8 or 9; did not merge PR #27 or this branch (only the project owner can).
+- 2026-08-28: **LIVE BLIND SOLVE of today's puzzle (2026-08-28), from a user-supplied
+  newspaper photo.** The user shared the fresh Friday image in-session and asked to solve
+  and upload. No CDN manifest entry exists for this date; clues transcribed by eye from
+  the photo. GRID: matched the setter's known fixed template (identical to the committed
+  2026-05-15/05-29/06-26 grid) — clue-number sequence and ALL 28 slot lengths matched the
+  transcribed enums exactly (`grid_tools.py validate` = OK on the first try), re-confirming
+  the 2026-08-14 "fixed template" finding as a transcription validator.
+
+  ENUM-ORDER FINDING (new data point): this puzzle prints SOME multi-word enums in
+  reversed visual order but not all — 1 across is (2,3,3,3) printed (3,3,3,2) and 1 down
+  is (4,5) printed (5,4), while 25 across אגדת דשא is (4,3) printed (4,3). Conclusion:
+  treat printed enums as MULTISETS, not ordered tuples; word order must come from
+  crossings/idiom. This refines the older "6 of 50 puzzles reversed" per-puzzle model.
+
+  RESULT (key not yet published — Friday puzzle): 13 committed / 8 suggestions / 7 blanks
+  out of 28. Every commit passed prove.py. Anchors with full wordplay accounts:
+  1a עד סוף ימי אשא (Orland's היו לילות line; שמענו→homophone אשא~אסע for שרת התחבורה),
+  8+23a נפל דבר (עיתון דבר folded 21.5.1996 — verified), 9a מחט (מח"ט/קוף המחט),
+  10a עירוי דם (עיר+וידם), 11a יפה נוף (Jerusalem neighborhood hosting ex-MKs אברהם
+  יפה + עקיבא נוף — both verified), 22a עשה גלים (Caesar "עשה" את הגאלים), 24a ישש
+  (ישיש בקיצור), 1d עוזי מאירי (עוזי+מ"א+ירי — "מפריד בין הנשק ופעולתו"; singer verified),
+  2d סוגסטיה (סוג+סטיה), 4d מנת קרב, 6d אשלים (double def, Negev), 16d מרים ידים.
+  Self-flag (v15) applied: עריסה demoted committed→suggestion (loosest definition fit).
+  Honest blanks: 3d, 12d, 14d, 17a, 19a, 20d, 26a — each carries its crossing-derived
+  pattern in the JSON for a later pass or the published key.
+
+  PROCESS NOTES: candidates.py mechanical generators produced 0 candidates on all 28
+  clues (consistent with prior recall measurements — this setter's charade/culture style
+  evades them); the productive levers were lexicon pattern-search under committed
+  crossings (זיגוטות and אגדת דשא were unique lexicon fits to their patterns) and
+  entity-fact web lookups per the controlled-lookup rules (Orland line, דבר closure date,
+  יפה נוף + both MKs, עוזי מאירי, אגדת דשא provenance). No answer site was touched; the
+  key is not published yet in any case. Artifacts committed: data/grids/2026-08-28.json,
+  evals/runs/live/2026-08-28_blind.json. The clue-text transcription
+  (data/clues/2026-08-28.json) stays LOCAL-ONLY by design — data/ is gitignored because
+  this repo does not republish newspaper content; grids are whitelisted as factual layout.
