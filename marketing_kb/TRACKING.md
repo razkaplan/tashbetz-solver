@@ -41,6 +41,11 @@ updates the "Movement log" below. This file is the handoff between runs, DAILY.m
 
 ## Movement log
 
+- **2026-08-28 (later)** — Competitor top-keyword research added
+  (`competitor_keywords.md`): mordo's 76K-term label vocabulary mined, yo-yoo's
+  own popularity ranking captured, arrowword's 199-page inventory listed, and a
+  70-keyword consensus build-order produced. Re-run `scraper/keyword_research.py`
+  with each snapshot.
 - **2026-08-28** — Baseline established. Duopoly mordo+note on clue queries; yo-yoo owns
   per-length; 14across owns newspaper solutions (incl. יורם הרועה); arrowword the rising
   newcomer; spam (schlossmalberg.de) ranking = weak defense. We appear nowhere.
