@@ -58,7 +58,11 @@ def ents(cat, rx=None, ex=None, min_len=2, max_len=12):
 
 
 def curated(key):
-    return [{'t': t, 'n': norm(t), 'd': d, 'p': 0}
+    # _wiki rides on the items so build_page can render one sources line for
+    # hand-curated pages (CC BY-SA courtesy + entity signal); data-driven pages
+    # already link sources via their /milon/e/ entity pages.
+    wiki = CUR[key].get('wiki', '')
+    return [{'t': t, 'n': norm(t), 'd': d, 'p': 0, '_wiki': wiki}
             for t, d in CUR[key]['items'].items()]
 
 
@@ -207,6 +211,13 @@ def build_page(slug, phrase, variants, items, related):
         secs.append(f'<h2 id="len-{L}">{esc(phrase)} ב-{L} אותיות ({len(by_len[L])})</h2>\n'
                     f'<ul class="grid">{"".join(lis)}</ul>')
 
+    wiki = items[0].get('_wiki') if items else ''
+    src_line = ''
+    if wiki:
+        wurl = 'https://he.wikipedia.org/wiki/' + urllib.parse.quote(wiki.replace(' ', '_'))
+        src_line = (f'<p style="font-size:.85rem;color:#5c5c5c">מקורות והרחבה: '
+                    f'<a href="{wurl}">{esc(wiki)} בוויקיפדיה</a>. הרשימה נאספה ונבדקה ידנית.</p>\n')
+
     len_nav = ' · '.join(f'<a href="#len-{L}">{L} אותיות</a>' for L in lens)
     rel_links = ' · '.join(f'<a href="/milon/d/{r}/">{esc(PAGES[r][0])}</a>'
                            for r in related if r in PAGES)
@@ -234,7 +245,7 @@ def build_page(slug, phrase, variants, items, related):
 רוצים לחפש לפי תבנית אותיות (למשל ?ו?ה)? נסו את <a href="/milon/">חיפוש המילון</a>
 או את <a href="/milon/anagram/">חיפוש האנגרם</a>.</p>
 <p>הגדרות קרובות: {rel_links}</p>
-<div class="vars">ביטויים דומים שמחפשים: {var_text}, {esc(phrase)} מילון, {esc(phrase)} פתרון.</div>"""
+{src_line}<div class="vars">ביטויים דומים שמחפשים: {var_text}, {esc(phrase)} מילון, {esc(phrase)} פתרון.</div>"""
 
     os.makedirs(f'{OUT}/{slug}', exist_ok=True)
     open(f'{OUT}/{slug}/index.html', 'w', encoding='utf-8').write(f"""<!doctype html><html lang="he" dir="rtl"><head><meta charset="utf-8">
