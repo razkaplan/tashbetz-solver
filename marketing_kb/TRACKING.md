@@ -41,6 +41,8 @@ updates the "Movement log" below. This file is the handoff between runs, DAILY.m
 
 ## Movement log
 
+- **2026-08-29 (later)** - Vercel Root Directory set to docs; site now serves
+  from the correct root on every auto-deploy.
 - **2026-08-29** - Deploy pipeline fixed: the Vercel project was never
   git-linked, so nothing merged to main since 2026-08-28 had actually
   shipped (the /milon/d/ 404). Repo now connected in the Vercel dashboard;
