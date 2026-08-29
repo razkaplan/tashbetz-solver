@@ -1623,7 +1623,14 @@ Measure each lever on dev (fixed enums) with run_eval.py before/after; one lever
   crossings (זיגוטות and אגדת דשא were unique lexicon fits to their patterns) and
   entity-fact web lookups per the controlled-lookup rules (Orland line, דבר closure date,
   יפה נוף + both MKs, עוזי מאירי, אגדת דשא provenance). No answer site was touched; the
-  key is not published yet in any case. Artifacts committed: data/grids/2026-08-28.json,
+  key is not published yet in any case. GLOSSARY FOLLOW-UP (user asked): the session's
+  new equivalences/homographs were added to solver/PLAYBOOK.md as a dated,
+  pending-verification section — NOT hand-injected into solver/lex/substitutions.json
+  (corpus-derived, counts-based) or docs/milon/entities.json (requires the harvest +
+  validate_culture positive-confirmation pipeline). Two entity-glossary gaps recorded
+  for the next validated harvest: יפה נוף and אשלים (both absent from place categories;
+  most other entities this puzzle touched — עוזי מאירי, אגדת דשא, היו לילות, אברהם יפה,
+  עקיבא נוף — are already indexed). Artifacts committed: data/grids/2026-08-28.json,
   evals/runs/live/2026-08-28_blind.json. The clue-text transcription
   (data/clues/2026-08-28.json) stays LOCAL-ONLY by design — data/ is gitignored because
   this repo does not republish newspaper content; grids are whitelisted as factual layout.

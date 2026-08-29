@@ -721,3 +721,35 @@ The wordplay executed perfectly; the FORM was wrong. RULE: before committing, re
 definition side as a sentence and check the candidate can grammatically replace it
 (person, gender, number, tense). A candidate that only differs from a valid answer in its
 first letter is a red flag for exactly this error.
+
+
+**2026-08-28 SESSION ADDITIONS (live blind solve; PENDING KEY VERIFICATION — the
+published key arrives with the following week's paper; re-verify before promoting any
+of these into derived indexes).** New devices and equivalences observed in committed,
+proof-gated answers:
+
+- **Substitutions the setter used** (candidates for substitutions.json once the key
+  confirms; do NOT hand-inject into that file — it is corpus-derived with counts):
+  מוסמך = מ"א (academic degree as letters: עוזי+מ"א+ירי → עוזי מאירי);
+  אל תדבר = וידם (biblical וַיִּדֹּם אהרן: עיר+וידם → עירוי דם);
+  כמושב = עיר (settlement-type-for-settlement-type: "כמושב" clued עיר);
+  זוג = הזיווג שבזיגוטה (zygon; suggestion-tier only);
+  אחד = אס, נערץ = לואי (מלך צרפת) — both from the suggestion-tier א[לואי]ס.
+- **Homographs to know** (not yet in the homograph index):
+  קוף = the letter ק / monkey / קוף המחט — the needle-eye sense clued מחט ("קצין עם
+  קוף" = מח"ט);  במאי = film director / בחודש מאי;  דבר = thing / the defunct
+  newspaper (נפל דבר = the paper folded 21.5.1996 — date verified).
+- **Homophone device**: "שמענו" + a sung line quoted for how it SOUNDS
+  (אשא ~ אסע → "האהובה על שרת התחבורה"). The definition can be a JOKE about who would
+  love the line, not a synonym.
+- **Deletion device**: "בקיצור" = drop a letter from a synonym (ישיש → ישש), possibly
+  doubled ("בקיצור, בקיצור") for emphasis/second deletion.
+- **Enum-order caution (refines the reversed-enum rule)**: in the 2026-08-28 paper,
+  SOME multi-word enums printed in reversed visual order — (2,3,3,3) printed (3,3,3,2),
+  (4,5) printed (5,4) — while others printed true — אגדת דשא (4,3) printed (4,3).
+  Treat printed enums as MULTISETS; derive word order from crossings and idiom only.
+- **Entity-glossary gaps found** (for the next validated harvest run + validate_culture
+  pass — not hand-added to docs/milon/entities.json, which requires the positive-
+  confirmation pipeline): יפה נוף (שכונה, מערב ירושלים) and אשלים (יישוב, רמת הנגב)
+  are absent from the place categories; both were verified against Wikipedia/עיריית
+  ירושלים this session.
