@@ -41,6 +41,13 @@ updates the "Movement log" below. This file is the handoff between runs, DAILY.m
 
 ## Movement log
 
+- **2026-08-29 (later 3)** - /milon/anagram/ rebuilt: the inline script had
+  shipped with a JS SyntaxError (a Python `\n` became a real newline inside a
+  JS string in build_seo.py), so the page never returned results at all. Now:
+  both datasets (entities + lexicon) preload automatically, no checkbox,
+  signature-index lookups, how-to steps, clickable example chips, load-status
+  line, results grouped (names vs dictionary words) and linked to entity
+  pages, plus FAQPage JSON-LD.
 - **2026-08-29 (later 2)** - Production stomped by a parallel session's CLI
   deploy from the stale seo/category-hubs branch minutes after main went live;
   /milon/d/ 404'd again. Redeployed from main. Rule going forward: production

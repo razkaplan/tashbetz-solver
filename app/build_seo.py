@@ -453,31 +453,72 @@ page(f'{OUT}/index.html','מילון תשבץ: חיפוש לפי אורך, תב�
 urls.insert(0,'/milon/')
 
 # ---------- anagram page ----------
-ana_body="""<p>הפודר של אנגרם בתשבץ היגיון מופיע מילולית בהגדרה. מקלידים כאן את האותיות (ברצף, בלי רווחים)
-ומקבלים כל שם ומילה שהם פרמוטציה מדויקת שלהן. אפשר גם לכלול את הלקסיקון המלא: 125 אלף מילות מילון ועוד 22 אלף שמות וביטויי תשבץ.</p>
-<input id="a" placeholder="האותיות שיש לכם, למשל: ליבנוצר" autocomplete="off">
-<label style="display:block;margin:.5rem 0;font-size:.9rem"><input type="checkbox" id="uselex" style="width:auto"> כלול גם מילים רגילות מהלקסיקון (טעינה חד-פעמית של ~1.5MB)</label>
-<div id="ares" class="grid" style="margin-top:.8rem"></div>
+# The interactive script lives in a PLAIN (non-f, non-raw) triple-quoted
+# string, so every backslash meant for JavaScript must be doubled. A bare
+# '\n' here once shipped as a real newline inside a JS string literal,
+# which was a SyntaxError that silently killed the whole page script.
+ana_body="""<style>.how{background:#f6f5f3;border-radius:3px;padding:.7rem 1rem;margin:.8rem 0}
+.how ol{margin:.4rem 0 0;padding-inline-start:1.2rem}.how li{margin:.3rem 0}
+.bar{display:flex;justify-content:space-between;gap:1rem;font-size:.85rem;color:#5c5c5c;margin:.35rem 0;flex-wrap:wrap}
+#st.ok{color:#1a7f37}
+.chip{font:inherit;font-family:monospace;background:#f6f5f3;border:1.5px solid #121212;border-radius:3px;padding:.15rem .6rem;cursor:pointer;margin-inline-end:.35rem;color:inherit}
+.chip:hover{background:#fff4d6}.hint{color:#5c5c5c}
+@media(prefers-color-scheme:dark){.how{background:#222}.chip{background:#222;border-color:#f2f0ec}.chip:hover{background:#3a3115}#st.ok{color:#5fc57d}}</style>
+<p>בתשבץ היגיון, הגדרת אנגרם מסתירה את אותיות הפתרון בתוך ההגדרה עצמה, רק בסדר מבולבל.
+הכלי הזה עושה את העבודה: מקלידים את האותיות ומקבלים מיד כל שם, מקום ומילה שמורכבים בדיוק מהן.
+כל המאגר, שמות, ביטויים ומילות מילון, נטען אוטומטית ברקע ברגע שהעמוד נפתח. אין מה להפעיל ואין על מה ללחוץ.</p>
+<div class="how"><b>איך משתמשים? שלושה צעדים:</b><ol>
+<li>מאתרים בהגדרה את המילה או המילים שמהן מערבבים. רמזים נפוצים לאנגרם: "בבלגן", "מבולבל", "הרוס", "מפוזר", "השתגע", "אחרת".</li>
+<li>מקלידים כאן את האותיות, בכל סדר שהוא. רווחים לא מפריעים, ואותיות סופיות (ם ן ץ ף ך) מיושרות אוטומטית לכתיב רשת.</li>
+<li>התוצאות מופיעות מיד תוך כדי ההקלדה, החל מ-3 אותיות. בלי כפתור חיפוש ובלי המתנה.</li>
+</ol></div>
+<label for="a" style="display:block;font-weight:700;margin-top:1rem">האותיות שבידיכם:</label>
+<input id="a" placeholder="למשל: ליבנוצר" autocomplete="off">
+<div class="bar"><span id="cnt"></span><span id="st">טוען את המאגר ברקע... אפשר כבר להקליד.</span></div>
+<p style="font-size:.9rem;margin:.5rem 0">אין אותיות ביד? נסו דוגמה:
+<button type="button" class="chip">ליבנוצר</button><button type="button" class="chip">הצלרישאמ</button><button type="button" class="chip">שמיוילר</button></p>
+<div id="ares" style="margin-top:.8rem"></div>
 <p style="margin-top:1.4rem">רוצים גם הוכחה שהאנגרם נכון? <a href="/solve/">עוזר הפתירה</a> בודק מכנית כל טענה.</p>
 <script>
-let E=null,LEX=null;const a=document.getElementById('a'),ares=document.getElementById('ares'),ul=document.getElementById('uselex');
-fetch('/milon/entities.json').then(r=>r.json()).then(d=>E=d);
+const a=document.getElementById('a'),ares=document.getElementById('ares'),st=document.getElementById('st'),cnt=document.getElementById('cnt');
+let EIDX=null,LIDX=null,EN=0,LN=0;
+const CAT=__CATJSON__;
 const FIN={'ך':'כ','ם':'מ','ן':'נ','ף':'פ','ץ':'צ'};
 const sig=w=>w.replace(/[ךםןףץ]/g,m=>FIN[m]).split('').sort().join('');
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-ul.onchange=()=>{if(ul.checked&&!LEX)fetch('/solve/data/lexicon.txt').then(r=>r.text()).then(t=>{LEX=t.split('\n');run()});else run()};
-function run(){if(!E)return;const v=a.value.replace(/[^א-ת]/g,'');ares.innerHTML='';if(v.length<3)return;
-const target=sig(v);let out=[];
-for(const e of E){if(e.n.length===v.length&&sig(e.n)===target)out.push('<li><b>'+esc(e.t)+'</b><br><small style="font-family:monospace">'+esc(e.n)+'</small></li>');if(out.length>=40)break}
-if(ul.checked&&LEX){for(const w of LEX){if(w.length===v.length&&sig(w)===target)out.push('<li>'+esc(w)+'</li>');if(out.length>=80)break}}
-ares.innerHTML=out.join('')||'<li>לא נמצאה פרמוטציה. נסו לכלול את הלקסיקון המלא.</li>'}
+function upd(){if(EIDX&&LIDX){st.textContent='המאגר טעון במלואו: '+EN.toLocaleString()+' שמות וביטויים ו-'+LN.toLocaleString()+' מילות מילון.';st.className='ok'}}
+function fail(){st.textContent='חלק מהמאגר לא נטען. רעננו את העמוד ונסו שוב.';st.className=''}
+fetch('/milon/entities.json').then(r=>r.json()).then(d=>{EIDX=new Map();for(const e of d){const s=sig(e.n);const l=EIDX.get(s);l?l.push(e):EIDX.set(s,[e])}EN=d.length;upd();run()}).catch(fail);
+fetch('/solve/data/lexicon.txt').then(r=>r.text()).then(t=>{LIDX=new Map();for(const w of t.split(/\\r?\\n/)){if(!w)continue;LN++;const s=sig(w);const l=LIDX.get(s);l?l.push(w):LIDX.set(s,[w])}upd();run()}).catch(fail);
+function run(){const v=a.value.replace(/[^א-ת]/g,'');
+cnt.textContent=v?'הוקלדו '+v.length+' אותיות':'';
+if(v.length<3){ares.innerHTML=v?'<p class="hint">המשיכו להקליד, החיפוש מתחיל מ-3 אותיות.</p>':'';return}
+if(!EIDX){ares.innerHTML='<p class="hint">המאגר עוד בטעינה, התוצאות יופיעו כאן אוטומטית בעוד רגע.</p>';return}
+const t=sig(v),seen=new Set(),ents=[];
+for(const e of (EIDX.get(t)||[])){const k=e.t+'|'+e.n;if(seen.has(k))continue;seen.add(k);ents.push(e)}
+ents.sort((x,y)=>(y.p||0)-(x.p||0));
+const shown=new Set(ents.map(e=>e.n));
+const words=LIDX?(LIDX.get(t)||[]).filter(w=>!shown.has(w)):[];
+let h='';
+if(ents.length){h+='<h2>שמות וביטויים ('+ents.length+')</h2><ul class="grid">'+ents.slice(0,60).map(e=>{const u=e.p?('/milon/e/'+encodeURIComponent(e.t)+'/'):('/milon/'+e.c+'-'+e.l+'/#'+encodeURIComponent(e.n));return '<li><a href="'+u+'" style="text-decoration:none;color:inherit"><b style="color:#f22b39">'+esc(e.t)+'</b><br><small>'+esc(CAT[e.c]||'')+' · <span style="font-family:monospace">'+esc(e.n)+'</span></small></a></li>'}).join('')+'</ul>'}
+if(words.length){h+='<h2>מילים מהמילון ('+words.length+')</h2><ul class="grid">'+words.slice(0,60).map(w=>'<li>'+esc(w)+'</li>').join('')+'</ul>'}
+if(!h)h='<p class="hint">'+(LIDX?'לא נמצאה אף מילה או שם שמורכבים בדיוק מהאותיות האלה. בדקו שהוקלדו כל האותיות, בלי אות מיותרת.':'אין התאמה בשמות, והמילון המלא עוד בטעינה. התוצאות יתעדכנו אוטומטית כשיסתיים.')+'</p>';
+ares.innerHTML=h}
 a.oninput=run;
-</script>"""
+document.querySelectorAll('.chip').forEach(b=>b.onclick=()=>{a.value=b.textContent;a.focus();run()});
+</script>""".replace('__CATJSON__',cat_json)
 page(f'{OUT}/anagram/index.html',
      'חיפוש אנגרם לתשבץ: מי מסתתר באותיות המבולבלות',
-     'פותר אנגרמות לתשבצי היגיון: מקלידים את האותיות ומקבלים כל שם, מקום ומילה שהם פרמוטציה שלהן. כולל 125 אלף מילות מילון ו-22 אלף שמות וביטויים וכתיב רשת מדויק.',
-     ana_body,{"@context":"https://schema.org","@type":"WebApplication","name":"חיפוש אנגרם לתשבץ",
-     "url":f"{BASE}/milon/anagram/","applicationCategory":"Utility"})
+     'פותר אנגרמות לתשבצי היגיון: מקלידים את האותיות המבולבלות ומקבלים מיד כל שם, מקום ומילה שהם ערבוב מדויק שלהן. כל המאגר נטען אוטומטית, בלי כפתורים ובלי המתנה.',
+     ana_body,[{"@context":"https://schema.org","@type":"WebApplication","name":"חיפוש אנגרם לתשבץ",
+     "url":f"{BASE}/milon/anagram/","applicationCategory":"Utility"},
+     {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+      {"@type":"Question","name":"איך מזהים הגדרת אנגרם בתשבץ היגיון?",
+       "acceptedAnswer":{"@type":"Answer","text":"מחפשים בהגדרה מילת ערבוב כמו בבלגן, מבולבל, הרוס, מפוזר או השתגע. המילה שלידה מכילה בדיוק את אותיות הפתרון, בסדר אחר."}},
+      {"@type":"Question","name":"איך משתמשים בחיפוש האנגרם?",
+       "acceptedAnswer":{"@type":"Answer","text":"מקלידים את האותיות בכל סדר שהוא, והתוצאות מופיעות מיד תוך כדי הקלדה, החל מ-3 אותיות. אין צורך ללחוץ על כפתור, וכל המאגר נטען אוטומטית ברקע."}},
+      {"@type":"Question","name":"מה עושים עם רווחים ואותיות סופיות?",
+       "acceptedAnswer":{"@type":"Answer","text":"שום דבר. רווחים מסוננים אוטומטית, ואותיות סופיות (ם ן ץ ף ך) מיושרות לכתיב רשת (מ נ צ פ כ) כמקובל בתשבצים."}}]}])
 urls.insert(1,'/milon/anagram/')
 
 # ---------- sitemap + robots ----------
