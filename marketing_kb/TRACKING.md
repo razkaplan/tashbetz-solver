@@ -41,6 +41,11 @@ updates the "Movement log" below. This file is the handoff between runs, DAILY.m
 
 ## Movement log
 
+- **2026-08-29** - Deploy pipeline fixed: the Vercel project was never
+  git-linked, so nothing merged to main since 2026-08-28 had actually
+  shipped (the /milon/d/ 404). Repo now connected in the Vercel dashboard;
+  every merge to main auto-deploys, and the IndexNow workflow backfill is
+  fired after each first deploy of new page sets.
 - **2026-08-28 (later)** — Competitor top-keyword research added
   (`competitor_keywords.md`): mordo's 76K-term label vocabulary mined, yo-yoo's
   own popularity ranking captured, arrowword's 199-page inventory listed, and a
