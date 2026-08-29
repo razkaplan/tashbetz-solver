@@ -1,0 +1,83 @@
+name: IndexNow ping
+
+# Pushes site URLs to IndexNow (Bing, Yandex, Seznam, Naver - and via Bing,
+# DuckDuckGo/Ecosia) whenever the published site changes. Google has no
+# equivalent API (its Request Indexing is UI-only), so this covers every
+# engine that CAN be pinged programmatically. The key is public by design:
+# it must be served from the site root (docs/<key>.txt) so engines can
+# verify we own the host.
+
+on:
+  push:
+    branches: [main]
+    paths: ['docs/**']
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "changed = URLs touched by the last commit; all = every sitemap URL (backfill)"
+        default: all
+        type: choice
+        options: [changed, all]
+
+permissions:
+  contents: read
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - name: Submit URLs to IndexNow
+        env:
+          MODE: ${{ github.event_name == 'workflow_dispatch' && inputs.mode || 'changed' }}
+        run: |
+          python3 - <<'EOF'
+          import json, os, re, subprocess, urllib.request
+
+          HOST = 'tashbetz.gtmascode.dev'
+          BASE = f'https://{HOST}'
+          KEY = '22d4fd51aaaf4ca39b3a48b2bdf6a7da'
+
+          def sitemap_urls():
+              s = open('docs/sitemap.xml', encoding='utf-8').read()
+              return re.findall(r'<loc>([^<]+)</loc>', s)
+
+          def changed_urls():
+              try:
+                  diff = subprocess.run(
+                      ['git', 'diff', '--name-only', 'HEAD^', 'HEAD'],
+                      capture_output=True, text=True, check=True).stdout.split()
+              except subprocess.CalledProcessError:
+                  return sitemap_urls()  # first commit / shallow edge: backfill
+              urls = set()
+              for p in diff:
+                  if not p.startswith('docs/'):
+                      continue
+                  rel = p[len('docs/'):]
+                  if rel.endswith('index.html'):
+                      urls.add(BASE + '/' + rel[:-len('index.html')])
+                  elif rel.startswith('nativ/'):
+                      urls.add(BASE + '/nativ/')
+                  elif rel == 'sitemap.xml':
+                      urls.add(BASE + '/sitemap.xml')
+              return sorted(urls)
+
+          urls = sitemap_urls() if os.environ.get('MODE') == 'all' else changed_urls()
+          if not urls:
+              print('no site URLs changed; nothing to submit')
+              raise SystemExit(0)
+
+          # IndexNow accepts up to 10,000 URLs per POST
+          for i in range(0, len(urls), 9000):
+              chunk = urls[i:i + 9000]
+              body = json.dumps({'host': HOST, 'key': KEY,
+                                 'keyLocation': f'{BASE}/{KEY}.txt',
+                                 'urlList': chunk}).encode()
+              req = urllib.request.Request(
+                  'https://api.indexnow.org/indexnow', data=body,
+                  headers={'Content-Type': 'application/json; charset=utf-8'})
+              with urllib.request.urlopen(req, timeout=30) as r:
+                  print(f'submitted {len(chunk)} URLs -> HTTP {r.status}')
+          EOF
