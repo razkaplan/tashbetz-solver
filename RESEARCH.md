@@ -4,6 +4,50 @@ One entry per run: what was found, one-line summary, and an honest judgement of 
 it transfers to a Hebrew cryptic solver with an 8k-clue corpus. Default skepticism: most
 crossword-AI work targets non-cryptic (American-style) puzzles and does not transfer.
 
+## 2026-08-29
+
+Bootstrap this run actually succeeded fully at 14across (52/52 puzzles, 1,457 clues) —
+the first clean run in several consecutive attempts (2026-08-19/08-26/08-27/08-28 all hit
+a hard wall). Research this run followed the scheduled task's own priority order: general
+candidate-generation/definition-span literature first, then Hebrew morphology, then
+definition-fit scoring (item 9), each checked against what's already logged here before
+searching, to avoid repeating a dead search.
+
+**"cryptic crossword clue solving diverse candidate generation arxiv 2026" (general
+search).** Surfaced only the same paper family logged repeatedly since 2026-08-06/08-15
+(2506.04824 ICML 2025, 2406.09043, 2407.08824). **Transfer: none new** — this is now the
+sixth-plus consecutive research pass finding nothing beyond what's already logged; the
+field has not produced a new diverse-candidate-generation technique since this project
+started tracking it.
+
+**"Hebrew nonconcatenative morphology root pattern generation NLP 2026".** Surfaced the
+same Splintering paper (arXiv 2503.14433, logged 2026-08-27) plus one paper not
+previously found by name in this search but already independently logged here on
+2026-08-2x under a different query: arXiv 2603.15773 ("Morphemes Without Borders:
+Evaluating Root-Pattern Morphology in Arabic Tokenizers and LLMs") — confirmed via grep
+this is already in RESEARCH.md (Arabic, not Hebrew, tokenizer-evaluation not a
+generation tool this project could call). **Transfer: none new.**
+
+**"definition fit scoring candidate answer cryptic crossword semantic match 2026" (item
+9's own gap).** Surfaced only the existing paper family plus unrelated daily-cryptic
+hint-site pages (not research). One general solving-heuristic mention ("check semantic
+fit plus mechanical fit") restates what SOLVE_PROTOCOL.md and PLAYBOOK.md already encode
+by hand; no scorable/buildable resource. **Transfer: none** — this is the fourth research
+pass on this exact gap (after 2026-08-22/23/24) finding nothing new; per the queue's own
+note, item 9 should not be attempted again without a genuinely new finding, and today's
+search is one more confirmation there isn't one yet.
+
+**Conclusion for today's lever.** Fifth-plus consecutive literature pass with nothing
+new and buildable on candidate generation, Hebrew morphology, or definition-fit scoring.
+Per the queue's own explicitly-flagged next step for item 1(d) (2026-08-28: "a FULLER,
+unbounded `crawl_defs.py note` crawl... and re-measuring the 2026-06-26 and/or
+2026-07-10 puzzles... against the grown corpus"), and given 14across worked cleanly this
+run (simpler gold-answer path than the image-fallback grid technique), today's lever is
+that continuation: a genuinely unbounded `note.co.il` crawl (no 15-minute stop this
+time) alongside a fresh `mordo` re-crawl, re-measured on a freshly transcribed
+2026-07-10 (clue text from its image, gold answers from real 14across data this time,
+not the image-fallback solution-grid technique). See DAILY.md for the measurement.
+
 ## 2026-08-28
 
 Bootstrap: `./bootstrap.sh --dev-only` hit the same hard 14across wall as
