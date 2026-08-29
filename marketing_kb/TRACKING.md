@@ -35,7 +35,7 @@ updates the "Movement log" below. This file is the handoff between runs, DAILY.m
 | Metric | 2026-08-28 baseline | Target |
 |---|---|---|
 | Competitive queries where we appear (of 15) | **0** | 5 by +3 months of shipping clue pages |
-| Clue-shaped pages (H1 = clue text) on our site | **0** | 200+ (P1 of SEO_PLAN) |
+| Clue-shaped pages (H1 = clue text) on our site | **49** (shipped 2026-08-28, /milon/d/, 8,012 answers) | 200+ (P1 of SEO_PLAN) |
 | Newspaper-solutions pages | 0 | weekly, from first ship |
 | Indexed pages (site:) | ~6,190 sitemap / sample indexed OK | monitor index bloat from /milon/e/ |
 
