@@ -41,6 +41,16 @@ updates the "Movement log" below. This file is the handoff between runs, DAILY.m
 
 ## Movement log
 
+- **2026-08-29 (later 3)** - Kibbutz/moshav split shipped from user feedback:
+  the mixed "קיבוצים ומושבים" category is now two categories, 65 missing
+  kibbutzim added (דליה, בארי, עין גדי, פלמחים...) - kibbutz coverage now 271,
+  matching the real count. 26 new /milon/moshav-*/ pages, kibbutz-11 and 3
+  kibbutz letter pages dropped (under threshold after the split). Hub search
+  fixed: '.', '?' and '*' all work as pattern wildcards (the placeholder
+  promised '.' but only '?' worked) and exact name matches rank first.
+  Letter pages no longer link to length pages that don't exist (fix lands
+  site-wide on the next full build_seo run). /milon/d/ kibbutz clue pages
+  now list 267 kibbutzim (was 206 mixed-in).
 - **2026-08-29 (later 2)** - Production stomped by a parallel session's CLI
   deploy from the stale seo/category-hubs branch minutes after main went live;
   /milon/d/ 404'd again. Redeployed from main. Rule going forward: production
