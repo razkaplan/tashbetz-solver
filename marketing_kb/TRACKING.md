@@ -41,6 +41,10 @@ updates the "Movement log" below. This file is the handoff between runs, DAILY.m
 
 ## Movement log
 
+- **2026-08-29 (later 2)** - Production stomped by a parallel session's CLI
+  deploy from the stale seo/category-hubs branch minutes after main went live;
+  /milon/d/ 404'd again. Redeployed from main. Rule going forward: production
+  deploys ONLY via the git-linked main - no `vercel --prod` from branches.
 - **2026-08-29 (later)** - Vercel Root Directory set to docs; site now serves
   from the correct root on every auto-deploy.
 - **2026-08-29** - Deploy pipeline fixed: the Vercel project was never
