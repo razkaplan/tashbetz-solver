@@ -1628,7 +1628,17 @@ Measure each lever on dev (fixed enums) with run_eval.py before/after; one lever
   pending-verification section — NOT hand-injected into solver/lex/substitutions.json
   (corpus-derived, counts-based) or docs/milon/entities.json (requires the harvest +
   validate_culture positive-confirmation pipeline). Two entity-glossary gaps recorded
-  for the next validated harvest: יפה נוף and אשלים (both absent from place categories;
+  and then, at the owner's instruction, ADDED directly: יפה נוף (neighborhood) and אשלים
+  (city_il) — inserted format-preservingly into solver/lex/culture.json (source lists,
+  sorted) and docs/milon/entities.json (search-hub data), plus surgical edits to the three
+  affected static pages (neighborhood-6, city_il-5, city_il-letter-א: list item + all
+  count strings bumped). A FULL build_seo.py rebuild was deliberately AVOIDED: it would
+  regenerate every page with EMPTY descriptions because data/culture/descriptions.json is
+  gitignored and absent in this environment — rebuild only after re-running
+  scraper/fetch_descriptions.py. Known leftover for that rebuild: the neighborhood-letter-י
+  page does not exist yet (יפה נוף is the first י neighborhood), so it will appear on
+  letter navigation only after the next full build. Both entries were verified this
+  session (עיריית ירושלים / ויקיפדיה). Original gap note kept below: יפה נוף and אשלים (both absent from place categories;
   most other entities this puzzle touched — עוזי מאירי, אגדת דשא, היו לילות, אברהם יפה,
   עקיבא נוף — are already indexed). Artifacts committed: data/grids/2026-08-28.json,
   evals/runs/live/2026-08-28_blind.json. The clue-text transcription
