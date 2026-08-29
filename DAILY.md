@@ -1931,3 +1931,31 @@ Measure each lever on dev (fixed enums) with run_eval.py before/after; one lever
   trial — transcription, gold recovery, two bug-fixes, delegation, scoring, audit — took
   the full run); did not act on queue items 8 or 9 beyond what transcribing this
   puzzle incidentally reconfirmed about item 8's across-clue gap.
+
+- 2026-08-29: **nativ mobile bug-fix + virality pass** (branch
+  `claude/game-bugs-ux-bkcqsr`). Played the game under Playwright touch emulation
+  (Pixel 7) and confirmed four real bugs before touching code: (1) one grazed
+  wrong cell mid-drag wiped the ENTIRE trace — the single biggest "hard from the
+  phone" cause; now only the wrong cell is dropped (with red flash + vibration),
+  and a rejected cell is ignored while the finger lingers on it; (2) the natural
+  resume gesture — put finger on the trace head and keep dragging — POPPED the
+  head instead (pointerdown tap-undo); undo now waits for pointerup, so both
+  tap-undo and resume-drag work; (3) a mid-game reload lost all progress
+  (constant on mobile: tab eviction, pull-to-refresh) — in-progress state now
+  persists in `nativ.progress.v1` and restores on boot; (4) `?d=` leaked FUTURE
+  puzzles — clamped to <= today (past days stay playable so challenge links
+  survive the midnight rollover). Also: dead-zone hit-testing mid-drag (central
+  ~3/4 of a cell), pointercancel handling, `touch-action:manipulation` on
+  buttons, no more `window.prompt` for the leaderboard nickname (blocked the win
+  panel; broken in WhatsApp/Instagram webviews) — replaced with an inline form.
+  Virality, learned from a teardown of flashback-il.xyz (scraped + analyzed by a
+  subagent): two share flows with separate UTM campaigns (result/challenge vs
+  invite) so acquisition is measurable; share squares now Wordle-lingua 🟩/🟨;
+  "עקפתם X% מהשחקנים" percentile line gated the flashback way (>=5 players,
+  never demoralizing); countdown to the next puzzle after a win; first-visit
+  how-to modal. New beyond flashback: the shared URL is itself a CHALLENGE
+  (`?d&m&ct&ch&cn`) — the friend sees a "beat them?" banner and a head-to-head
+  verdict at the finish, no backend needed (nick rendered via textContent only —
+  it arrives from the URL). Leaderboard API time floor 10s→3s (legit sub-10s
+  easy-board solves were rejected). Verified with 27 Playwright checks
+  (touch + mouse): all pass.
