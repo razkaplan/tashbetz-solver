@@ -24,6 +24,16 @@ norm=lambda s:re.sub(r'[^א-ת]','',s or '').translate(FIN)
 BASE='https://tashbetz.gtmascode.dev'
 
 cult=json.load(open('solver/lex/culture.json'))
+# HARD GUARD (added after the 2026-08-28 incident): descriptions.json is
+# gitignored, so a fresh clone doesn't have it. Running this builder without it
+# silently strips 12K+ descriptions from entities.json and then the orphan
+# cleanup below deletes thousands of "poor" entity pages that were actually
+# rich. Refuse to run rather than publish a degraded milon; pass
+# ALLOW_BARE_MILON=1 only if a description-less build is truly intended.
+if not os.path.exists('data/culture/descriptions.json') and not os.environ.get('ALLOW_BARE_MILON'):
+    raise SystemExit('build_seo: data/culture/descriptions.json missing (gitignored corpus '
+                     'asset). Rebuilding without it destroys entity pages. Restore the data '
+                     'or set ALLOW_BARE_MILON=1 to override.')
 DESC=json.load(open('data/culture/descriptions.json')) if os.path.exists('data/culture/descriptions.json') else {}
 # Source descriptions occasionally carry an em-dash; the project publishes none,
 # so normalise at load rather than trusting upstream data to stay clean.
