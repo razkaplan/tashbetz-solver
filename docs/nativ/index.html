@@ -2,13 +2,13 @@
 <html dir="rtl" lang="he">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
 <title>נתיב - המשחק היומי הטוב לחובבי תשבצים</title>
 <meta name="description" content="נתיב: המשחק היומי הטוב לחובבי תשבצים. גררו מסלול בין האותיות וגלו מילים מנושא יומי מהמילון. מצב קל עם רמז לכל מילה, מצב רגיל לאלופים - חדש כל יום, בחינם.">
 <link rel="canonical" href="https://tashbetz.gtmascode.dev/nativ/">
 <meta property="og:image" content="https://tashbetz.gtmascode.dev/nativ/og.png">
 <meta property="og:title" content="נתיב - המשחק היומי הטוב לחובבי תשבצים">
-<meta property="og:description" content="גררו מסלול בין האותיות וגלו את מילות היום. מצב קל עם רמז לכל מילה, מצב רגיל לאלופים. חדש כל יום, בחינם.">
+<meta property="og:description" content="גררו מסלול בין האותיות וגלו את מילות היום. כמה מכם יסיימו בלי רמזים? חדש כל יום, בחינם.">
 <meta property="og:url" content="https://tashbetz.gtmascode.dev/nativ/">
 <meta property="og:type" content="website">
 <meta name="twitter:card" content="summary_large_image">
@@ -41,7 +41,8 @@ main{flex:1;width:100%;max-width:560px;margin:0 auto;padding:1.2rem 1rem 2rem}
 .tbtn{font-family:inherit;font-size:.95rem;font-weight:700;padding:.4rem .9rem;border:2px solid var(--ink);background:var(--paper);color:var(--ink);cursor:pointer}
 .tbtn:hover{border-color:var(--red);color:var(--red)}
 .tbtn:disabled{opacity:.4;cursor:default}
-#board{display:grid;gap:4px;background:var(--ink);border:3px solid var(--ink);width:100%;max-width:420px;margin:0 auto;direction:rtl;touch-action:none;user-select:none;-webkit-user-select:none}
+#board{display:grid;gap:4px;background:var(--ink);border:3px solid var(--ink);width:100%;max-width:420px;margin:0 auto;direction:rtl;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+button,.btn,.tbtn,.mbtn{touch-action:manipulation}
 #board.shake{animation:shk .4s}
 @keyframes shk{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-7px)}40%,80%{transform:translateX(7px)}}
 .cell{aspect-ratio:1;background:var(--cell);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:clamp(1.2rem,6vw,1.8rem);cursor:pointer;position:relative}
@@ -51,6 +52,8 @@ main{flex:1;width:100%;max-width:560px;margin:0 auto;padding:1.2rem 1rem 2rem}
 .cell.sel.hintcell{background:var(--red);color:#fff}
 .cell.pop{animation:pop .35s}
 @keyframes pop{0%{transform:scale(.5)}70%{transform:scale(1.15)}100%{transform:scale(1)}}
+.cell.bad{animation:badflash .4s}
+@keyframes badflash{0%{background:var(--red);color:#fff}100%{background:var(--cell)}}
 #words{margin:1rem auto 0;max-width:420px;display:flex;flex-direction:column;gap:.5rem}
 .wrow{display:flex;align-items:center;gap:.5rem;border:1px solid var(--line);padding:.45rem .7rem;min-height:2.6rem}
 .wrow.current{border-color:var(--red);border-width:2px}
@@ -103,6 +106,20 @@ main{flex:1;width:100%;max-width:560px;margin:0 auto;padding:1.2rem 1rem 2rem}
 .streakline{text-align:center;font-weight:700;margin:.4rem 0 0}
 .streakline b{color:var(--red)}
 .btn.wa{background:#25d366;border-color:#25d366;color:#fff}
+.challenge{border:2px solid var(--red);background:var(--sel);max-width:420px;margin:.6rem auto 0;padding:.5rem .8rem;text-align:center;font-weight:700;display:none}
+.challenge.show{display:block}
+.vsline{text-align:center;font-weight:700;margin:.4rem 0 0}
+.vsline b{color:var(--red)}
+.pctline{text-align:center;font-weight:700;margin:.3rem 0 0}
+.nickform{display:flex;gap:.5rem;justify-content:center;margin:.7rem 0 0;flex-wrap:wrap}
+.nickform input{font-family:inherit;font-size:1rem;padding:.45rem .7rem;border:2px solid var(--ink);background:var(--paper);color:var(--ink);width:11rem}
+.invite{text-align:center;margin-top:.9rem}
+.ob{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;z-index:20;padding:1rem}
+.ob.show{display:flex}
+.obcard{background:var(--paper);border:3px solid var(--ink);max-width:26rem;padding:1.2rem 1.4rem}
+.obcard h2{font-weight:900;font-size:1.4rem;margin-bottom:.6rem}
+.obcard h2 em{font-style:normal;color:var(--red)}
+.obcard ol{margin:0 0 .9rem 0;padding-inline-start:1.2rem;display:flex;flex-direction:column;gap:.45rem}
 footer{border-top:3px solid var(--ink);padding:1.2rem;text-align:center;font-size:.9rem;color:var(--muted)}
 footer a{color:var(--red)}
 @media(max-width:420px){.bar{gap:.4rem}.tbtn{padding:.35rem .7rem;font-size:.9rem}}
@@ -131,6 +148,8 @@ footer a{color:var(--red)}
     <div class="datemeta" id="datemeta"></div>
   </div>
 
+  <div class="challenge" id="challengeBar"></div>
+
   <div class="bar">
     <span class="timer" id="timer">00:00</span>
     <button class="tbtn" id="undoBtn" type="button">↩ ביטול</button>
@@ -141,6 +160,7 @@ footer a{color:var(--red)}
   <div id="board" aria-label="לוח המשחק"></div>
   <div id="words"></div>
   <p class="howto" id="howto">גררו או הקישו על אותיות סמוכות (למעלה, למטה, ימינה או שמאלה - בלי אלכסונים) כדי לאיית את מילות היום. מתחילים מכל אות שרוצים, בכל סדר שרוצים - כל אות בלוח שייכת בדיוק למילה אחת.</p>
+  <p class="invite"><button class="btn" id="inviteBtn" type="button">🤝 הזמינו חברים למשחק</button></p>
 
   <div class="panel" id="winPanel">
     <h2>כל הכבוד<em>!</em> סיימתם את הנתיב</h2>
@@ -150,6 +170,12 @@ footer a{color:var(--red)}
       <div><b id="resMiss">0</b><small>טעויות</small></div>
     </div>
     <p class="streakline" id="streakLine" hidden>🔥 רצף נוכחי: <b id="resStreak">0</b> ימים</p>
+    <p class="vsline" id="vsLine" hidden></p>
+    <p class="pctline" id="pctLine" hidden></p>
+    <div class="nickform" id="nickForm" hidden>
+      <input id="nickInput" maxlength="20" placeholder="כינוי לטבלת השיא" autocomplete="off">
+      <button class="btn primary" id="nickSave" type="button">רישום לטבלה</button>
+    </div>
     <div class="share-actions">
       <button class="btn wa" id="waBtn" type="button">💬 שיתוף בוואטסאפ</button>
       <button class="btn primary" id="shareBtn" type="button">📤 שיתוף</button>
@@ -163,7 +189,8 @@ footer a{color:var(--red)}
       <p class="note" id="globalTotal"></p>
     </div>
     <p class="note" id="globalSoon" hidden>🌍 טבלת שיא עולמית - בקרוב</p>
-    <p class="note">חידה חדשה מחר. אפשר בינתיים לחפור ב<a href="/milon/">מילון</a>.</p>
+    <p class="note" id="nextNote">חידה חדשה מחר.</p>
+    <p class="note">אפשר בינתיים לחפור ב<a href="/milon/">מילון</a>.</p>
   </div>
 
   <div class="panel" id="statsPanel">
@@ -181,6 +208,18 @@ footer a{color:var(--red)}
   </div>
 </main>
 
+<div class="ob" id="ob" role="dialog" aria-modal="true" aria-label="איך משחקים">
+  <div class="obcard">
+    <h2>איך משחקים<em>?</em></h2>
+    <ol>
+      <li>🖐️ גוררים אצבע (או מקישים) על אותיות סמוכות - למעלה, למטה, ימינה או שמאלה. בלי אלכסונים.</li>
+      <li>🧩 כל מסלול מאיית מילה מנושא היום. מתחילים מכל אות, בכל סדר - כל אות בלוח שייכת בדיוק למילה אחת.</li>
+      <li>💡 טעיתם? גררו אחורה או הקישו על אות קודמת במסלול. נתקעתם? כפתור הרמז יגלה את האות הבאה.</li>
+    </ol>
+    <div class="share-actions"><button class="btn primary" id="obGo" type="button">הבנתי, בואו נשחק!</button></div>
+  </div>
+</div>
+
 <div id="toast" role="status"></div>
 
 <footer>
@@ -194,7 +233,12 @@ var SITE_URL="https://tashbetz.gtmascode.dev/nativ/";
 var LS_KEY="nativ.results.v1";
 var NICK_KEY="nativ.nick.v1";
 var MODE_KEY="nativ.mode.v1";
+var PROG_KEY="nativ.progress.v1";
+var OB_KEY="nativ.onboard.v1";
 var LB_API="/api/leaderboard";
+// two share flows, two campaigns (flashback-style), so acquisition is measurable:
+// "challenge"/"result" from the win panel, "invite" from the standing invite button
+var UTM="utm_source=nativ_share&utm_medium=share";
 
 // Difficulty mode: "easy" (3 clued words, 4x4) or "full" (4 words, 5x5/6x5).
 // URL ?m= wins, then the last choice saved in this browser, then easy - the
@@ -207,6 +251,19 @@ var MODE=(function(){
   return m==="full"?"full":"easy";
 })();
 
+// A challenge link carries the sender's result in the URL - no backend needed:
+// ?d=DATE&m=MODE&ct=<seconds>&ch=<hints>&cn=<nick>. The receiver sees a
+// head-to-head banner, and after winning, who won the duel.
+var CHALLENGE=(function(){
+  try{
+    var q=new URLSearchParams(location.search);
+    var t=parseInt(q.get("ct"),10), h=parseInt(q.get("ch"),10);
+    var n=(q.get("cn")||"").replace(/[<>\\]/g,"").replace(/\s+/g," ").trim().slice(0,20);
+    if(isFinite(t)&&t>0&&t<36000&&isFinite(h)&&h>=0&&h<100)return {t:t,h:h,n:n||"מישהו"};
+  }catch(e){}
+  return null;
+})();
+
 var puzzle=null, dateKey=null;
 var adj=[];            // neighbor lists per cell
 var locked=[];         // locked flag per cell
@@ -217,6 +274,7 @@ var hints=0, mistakes=0;
 var solveOrder=[], wordHints={}; // solve order + which words needed a hint (for the share line)
 var startTs=0, elapsed=0, timerId=null, finished=false;
 var cellEls=[], wordRows=[];
+var lastReject=-1;     // cell just rejected mid-drag; ignored until the finger leaves it
 
 // Results are stored per day; easy-mode plays live under "<date>#easy" so a
 // day can hold one result per mode and old regular results stay readable.
@@ -235,6 +293,36 @@ function loadResults(){
 }
 function saveResults(r){
   try{localStorage.setItem(LS_KEY,JSON.stringify(r));}catch(e){}
+}
+// Mobile browsers reload pages constantly (tab eviction, app switching, an
+// accidental pull-to-refresh); without this, mid-game progress evaporated.
+// Only today's board (per mode) is kept - the key doubles as the validity check.
+function saveProgress(){
+  if(finished||!puzzle)return;
+  if(timerId&&startTs)elapsed=Math.floor((Date.now()-startTs)/1000);
+  var any=hints>0||mistakes>0||elapsed>0;
+  var lockedIdx=[],solvedIdx=[],i;
+  for(i=0;i<locked.length;i++)if(locked[i])lockedIdx.push(i);
+  for(i=0;i<solved.length;i++)if(solved[i]){solvedIdx.push(i);any=true;}
+  if(!any)return;
+  var o={};
+  o[resKey()]={l:lockedIdx,sv:solvedIdx,hc:Object.keys(hintCells).map(Number),
+    so:solveOrder,wh:Object.keys(wordHints).map(Number),h:hints,m:mistakes,t:elapsed};
+  try{localStorage.setItem(PROG_KEY,JSON.stringify(o));}catch(e){}
+}
+function restoreProgress(){
+  var o=null;
+  try{o=JSON.parse(localStorage.getItem(PROG_KEY)||"null");}catch(e){}
+  var p=o&&o[resKey()];
+  if(!p)return;
+  (p.l||[]).forEach(function(c){locked[c]=true;});
+  (p.sv||[]).forEach(function(i){solved[i]=true;});
+  (p.hc||[]).forEach(function(c){hintCells[c]=true;});
+  solveOrder=p.so||[];
+  (p.wh||[]).forEach(function(i){wordHints[i]=true;});
+  hints=p.h||0;mistakes=p.m||0;elapsed=p.t||0;
+  $("timer").textContent=fmtTime(elapsed);
+  refreshCells();refreshWords();
 }
 function toast(msg){
   var t=$("toast");
@@ -452,6 +540,7 @@ function selLetters(s){
 // keep going while it is still a prefix of some unsolved word; otherwise shake.
 function evaluateSel(){
   var letters=selLetters(sel);
+  var blocked=false;
   for(var i=0;i<puzzle.words.length;i++){
     if(solved[i]||puzzle.words[i].n!==letters)continue;
     var others=unsolvedSeqs(i);
@@ -461,35 +550,51 @@ function evaluateSel(){
       ok=(r==="cap")||(r!==null); // budget cap: give the player the benefit of the doubt
     }
     if(ok){acceptWord(i);return;}
-    // partition failed - maybe the trace continues into a longer word
+    blocked=true; // right word, but this path strands the remaining words
   }
   for(var j=0;j<puzzle.words.length;j++){
     if(!solved[j]&&puzzle.words[j].n.length>letters.length&&
        puzzle.words[j].n.slice(0,letters.length)===letters)return; // still viable
   }
-  mistake();
+  mistake(blocked);
 }
 function acceptWord(i){
   solveOrder.push(i);
   sel.forEach(function(c){locked[c]=true;});
   solved[i]=true;
   sel=[];
+  if(navigator.vibrate)try{navigator.vibrate([20,40,20]);}catch(e){}
   var left=false;
   for(var j=0;j<solved.length;j++)if(!solved[j])left=true;
   if(!left)finish();
+  else saveProgress();
   refreshCells();refreshWords();
 }
-function mistake(){
-  mistakes++;
+// A wrong cell drops ONLY itself - the trace so far survives. Wiping the whole
+// trace punished every fat-finger drag on mobile; one grazed cell cost a whole
+// word. The rejected cell is remembered so a lingering finger doesn't re-add it.
+function mistake(blocked){
+  var bad=sel[sel.length-1];
+  lastReject=bad;
+  sel.pop();
+  if(blocked){
+    // the word was right but the path strands the others - guide, don't punish
+    toast("המילה נכונה, אבל המסלול הזה חוסם את שאר המילים - נסו נתיב אחר");
+  }else{
+    mistakes++;
+  }
+  if(navigator.vibrate)try{navigator.vibrate(60);}catch(e){}
   var b=$("board");
   b.classList.remove("shake");
   void b.offsetWidth;
   b.classList.add("shake");
-  // keep any hint-revealed prefix so paid hints are not lost
-  var keep=-1;
-  for(var i=0;i<sel.length;i++)if(hintCells[sel[i]])keep=i;
-  sel=sel.slice(0,keep+1);
+  if(bad!==undefined&&cellEls[bad]){
+    cellEls[bad].classList.remove("bad");
+    void cellEls[bad].offsetWidth;
+    cellEls[bad].classList.add("bad");
+  }
   refreshCells();refreshWords();
+  saveProgress();
 }
 function undo(){
   if(finished)return;
@@ -525,6 +630,7 @@ function hint(){
   cellEls[next].classList.add("pop");
   refreshCells();refreshWords();
   evaluateSel();
+  saveProgress();
 }
 function emojiGrid(){
   var out=[];
@@ -539,13 +645,17 @@ function emojiGrid(){
   return out.join("\n");
 }
 function orderDots(){
-  return solveOrder.map(function(i){return wordHints[i]?"🟡":"🔵";}).join("");
+  // Wordle's lingua franca: 🟩 solved clean, 🟨 needed a hint (old results may
+  // still carry the former 🔵🟡 dots - they render fine either way)
+  return solveOrder.map(function(i){return wordHints[i]?"🟨":"🟩";}).join("");
 }
 function finish(){
   finished=true;
   stopTimer();
+  try{localStorage.removeItem(PROG_KEY);}catch(e){}
   $("undoBtn").disabled=true;
   $("hintBtn").disabled=true;
+  if(navigator.vibrate)try{navigator.vibrate([30,50,30,50,90]);}catch(e){}
   var results=loadResults();
   if(!results[resKey()]){
     results[resKey()]={t:elapsed,h:hints,m:mistakes,e:emojiGrid(),o:orderDots()};
@@ -555,35 +665,73 @@ function finish(){
     saveResults(results);
   }
   showWin(results[resKey()]);
-  submitScore(results[resKey()]);
+  // no window.prompt here: it blocked the win panel and is broken inside
+  // WhatsApp/Instagram webviews. Known nickname -> submit; else inline form.
+  if(getNick())submitScore(results[resKey()]);
+  else{$("nickForm").hidden=false;loadGlobal();}
 }
 function showWin(res){
   $("resTime").textContent=fmtTime(res.t);
   $("resHints").textContent=res.h;
   $("resMiss").textContent=res.m;
   if(res.s){$("resStreak").textContent=res.s;$("streakLine").hidden=false;}
+  showVersus(res);
+  var dq=(dateKey!==todayKey())?"&d="+dateKey:"";
   $("otherMode").innerHTML=MODE==="easy"
-    ?'מוכנים לאתגר אמיתי? <a href="?m=full">נסו את המצב הרגיל של היום</a>'
-    :'רוצים חימום קליל? <a href="?m=easy">יש גם גרסה קלה עם רמזים</a>';
+    ?'מוכנים לאתגר אמיתי? <a href="?m=full'+dq+'">נסו את המצב הרגיל</a>'
+    :'רוצים חימום קליל? <a href="?m=easy'+dq+'">יש גם גרסה קלה עם רמזים</a>';
+  startCountdown();
   $("winPanel").classList.add("show");
   $("winPanel").scrollIntoView({behavior:"smooth",block:"nearest"});
 }
+// Head-to-head verdict when this game was opened from a friend's challenge link.
+// Nick text goes through textContent only - it arrives from the URL.
+function showVersus(res){
+  if(!CHALLENGE)return;
+  var better=res.h<CHALLENGE.h||(res.h===CHALLENGE.h&&res.t<CHALLENGE.t);
+  var tie=res.h===CHALLENGE.h&&res.t===CHALLENGE.t;
+  var v=$("vsLine");
+  v.textContent="";
+  var b=document.createElement("b");
+  b.textContent=tie?"🤝 תיקו מושלם מול "+CHALLENGE.n+"!"
+    :better?"🏆 ניצחתם את "+CHALLENGE.n+"!"
+    :"😅 "+CHALLENGE.n+" עדיין בראש - סיבוב נוסף מחר?";
+  v.appendChild(b);
+  v.appendChild(document.createTextNode(
+    " אתם: "+fmtTime(res.t)+" · 💡"+res.h+" | "+CHALLENGE.n+": "+fmtTime(CHALLENGE.t)+" · 💡"+CHALLENGE.h));
+  v.hidden=false;
+}
+var cdId=null;
+function startCountdown(){
+  if(cdId||dateKey!==todayKey())return;
+  var el=$("nextNote");
+  function tick(){
+    var now=new Date();
+    var next=new Date(now.getFullYear(),now.getMonth(),now.getDate()+1,0,0,0);
+    var s=Math.max(0,Math.floor((next-now)/1000));
+    el.textContent="⏳ חידה חדשה בעוד "+pad2(Math.floor(s/3600))+":"+pad2(Math.floor(s%3600/60))+":"+pad2(s%60);
+  }
+  tick();
+  cdId=setInterval(tick,1000);
+}
 
 /* ---------- global leaderboard ---------- */
-function getNick(askIfMissing){
+function getNick(){
   var nick="";
   try{nick=localStorage.getItem(NICK_KEY)||"";}catch(e){}
-  if(!nick&&askIfMissing){
-    var raw=window.prompt("איך לרשום אתכם בטבלת השיא העולמית? (כינוי, עד 20 תווים)");
-    if(raw){
-      nick=raw.replace(/[<>\\]/g,"").replace(/\s+/g," ").trim().slice(0,20);
-      if(nick){try{localStorage.setItem(NICK_KEY,nick);}catch(e){}}
-    }
-  }
   return nick;
 }
+function saveNickAndSubmit(){
+  var raw=$("nickInput").value||"";
+  var nick=raw.replace(/[<>\\]/g,"").replace(/\s+/g," ").trim().slice(0,20);
+  if(!nick){toast("צריך כינוי כלשהו כדי להירשם");return;}
+  try{localStorage.setItem(NICK_KEY,nick);}catch(e){}
+  $("nickForm").hidden=true;
+  var res=currentRes();
+  if(res)submitScore(res);
+}
 function submitScore(res){
-  var nick=getNick(true); // prompt once; the nickname persists for next time
+  var nick=getNick();
   if(!nick){loadGlobal();return;}
   fetch(LB_API,{
     method:"POST",
@@ -605,7 +753,7 @@ function loadGlobal(){
   });
 }
 function renderGlobal(data){
-  var nick=getNick(false);
+  var nick=getNick();
   var list=$("globalList");
   list.textContent="";
   var top=data.top||[];
@@ -636,19 +784,59 @@ function renderGlobal(data){
   $("globalTotal").textContent=(data.total||0)+" שחקנים סיימו את החידה היום";
   $("globalSoon").hidden=true;
   $("globalWrap").hidden=false;
+  showPercentile(data,nick);
+}
+// "You beat X% of today's players" - shown only when it can encourage:
+// at least 5 players, a rank we actually know, and a percentage above zero.
+function showPercentile(data,nick){
+  if(!nick)return;
+  var total=data.total||0;
+  if(total<5)return;
+  var top=data.top||[];
+  var rank=-1;
+  for(var i=0;i<top.length;i++)if(top[i].name===nick){rank=i+1;break;}
+  if(rank<1)return;
+  var pct=Math.round((total-rank)/total*100);
+  if(pct<1)return;
+  $("pctLine").textContent="🚀 עקפתם "+pct+"% מהשחקנים היום";
+  $("pctLine").hidden=false;
 }
 
 /* ---------- share ---------- */
-// Wordle-style, spoiler-free: one dot per word in the order it was solved,
-// 🔵 clean, 🟡 needed a hint. Plus streak - the line friends actually compete on.
+// The shared URL IS the challenge: it carries date+mode+the sender's result,
+// so the friend lands on the same board with a "beat them?" banner.
+function shareURL(res){
+  var nick=getNick();
+  var p="?d="+dateKey+"&m="+MODE;
+  var camp="result";
+  if(res&&nick){
+    p+="&ct="+res.t+"&ch="+res.h+"&cn="+encodeURIComponent(nick);
+    camp="challenge";
+  }
+  return SITE_URL+p+"&"+UTM+"&utm_campaign="+camp;
+}
+// Wordle-style, spoiler-free: one square per word in the order it was solved,
+// 🟩 clean, 🟨 needed a hint. Plus streak - the line friends actually compete on.
 function shareText(res){
   var d=dateKey.slice(8,10)+"."+dateKey.slice(5,7);
   var lines=["נתיב "+puzzle.emoji+" "+d+" - המשחק היומי לחובבי תשבצים",
     "⏱ "+fmtTime(res.t)+" · 💡"+res.h+(MODE==="easy"?" · מצב קל":" · מצב רגיל")];
   if(res.o)lines.push(res.o);
   if(res.s>1)lines.push("🔥 רצף: "+res.s+" ימים");
-  lines.push(SITE_URL);
+  if(getNick())lines.push("תנצחו אותי? 👇");
+  lines.push(shareURL(res));
   return lines.join("\n");
+}
+var INVITE_TEXT="גיליתי משחק מילים יומי בעברית - מציירים נתיב על הלוח ומגלים את מילות היום. חידה חדשה כל יום, בחינם:\n"+
+  SITE_URL+"?"+UTM+"&utm_campaign=invite";
+function doInvite(){
+  if(navigator.share){
+    navigator.share({text:INVITE_TEXT}).catch(function(e){
+      if(!e||e.name!=="AbortError")copyText(INVITE_TEXT);
+    });
+  }else{
+    copyText(INVITE_TEXT);
+  }
 }
 function currentRes(){return loadResults()[resKey()];}
 function copyText(text){
@@ -664,7 +852,10 @@ function doShare(){
   if(!res)return;
   var text=shareText(res);
   if(navigator.share){
-    navigator.share({text:text}).catch(function(){});
+    // user closing the sheet (AbortError) is fine; real failures fall back to copy
+    navigator.share({text:text}).catch(function(e){
+      if(!e||e.name!=="AbortError")copyText(text);
+    });
   }else{
     copyText(text);
   }
@@ -749,44 +940,73 @@ function showStats(){
 }
 
 /* ---------- input: tap + drag ---------- */
-function cellFromEvent(ev){
-  var el=document.elementFromPoint(ev.clientX,ev.clientY);
+function cellFromPoint(x,y,strict){
+  var el=document.elementFromPoint(x,y);
   while(el&&el!==document.body){
-    if(el.classList&&el.classList.contains("cell"))return parseInt(el.dataset.i,10);
+    if(el.classList&&el.classList.contains("cell")){
+      var i=parseInt(el.dataset.i,10);
+      if(strict&&cellEls[i]){
+        // dead zone: mid-drag only the central ~3/4 of a cell counts, so a
+        // finger grazing a corner doesn't pick up an unintended neighbor
+        var r=cellEls[i].getBoundingClientRect();
+        if(Math.abs(x-(r.left+r.width/2))>r.width*0.38||
+           Math.abs(y-(r.top+r.height/2))>r.height*0.38)return -1;
+      }
+      return i;
+    }
     el=el.parentNode;
   }
   return -1;
 }
 function bindInput(){
   var board=$("board");
-  var dragging=false,moved=false;
+  var dragging=false,downCell=-1,tapUndoPending=false;
   board.addEventListener("pointerdown",function(ev){
     if(finished)return;
     ev.preventDefault();
-    var i=cellFromEvent(ev);
+    var i=cellFromPoint(ev.clientX,ev.clientY,false);
     if(i<0)return;
-    dragging=true;moved=false;
-    if(sel.length&&sel[sel.length-1]===i){
-      // tapping the last selected cell removes it (quick undo)
-      popCell();
-      dragging=false;
+    dragging=true;downCell=i;tapUndoPending=false;lastReject=-1;
+    var pos=sel.indexOf(i);
+    if(pos>=0){
+      if(pos===sel.length-1){
+        // could be a tap-undo OR the start of a drag continuing the path
+        // (the natural "put finger on the head and keep going" gesture) -
+        // decide on pointermove/pointerup instead of popping right away
+        tapUndoPending=true;
+      }else{
+        // tapping an earlier cell rewinds the trace back to it
+        sel=sel.slice(0,pos+1);
+        refreshCells();refreshWords();
+      }
       return;
+    }
+    if(sel.length&&!locked[i]&&adj[sel[sel.length-1]].indexOf(i)<0){
+      // a tap far from the trace means "start the next word here"
+      sel=[];
+      refreshCells();refreshWords();
     }
     addCell(i);
   });
   board.addEventListener("pointermove",function(ev){
     if(!dragging||finished)return;
     ev.preventDefault();
-    var i=cellFromEvent(ev);
+    var i=cellFromPoint(ev.clientX,ev.clientY,true);
     if(i<0)return;
-    moved=true;
+    if(i!==downCell)tapUndoPending=false; // the finger moved on: it's a drag
+    if(i===lastReject)return;
     if(sel.length>1&&sel[sel.length-2]===i){
       popCell(); // dragging back over the previous cell backtracks
       return;
     }
-    addCell(i);
+    if(addCell(i))lastReject=-1;
   });
-  window.addEventListener("pointerup",function(){dragging=false;});
+  function endDrag(){
+    if(tapUndoPending)popCell(); // it really was just a tap on the last cell
+    tapUndoPending=false;dragging=false;downCell=-1;lastReject=-1;
+  }
+  window.addEventListener("pointerup",endDrag);
+  window.addEventListener("pointercancel",endDrag);
   board.addEventListener("touchmove",function(ev){ev.preventDefault();},{passive:false});
   $("undoBtn").addEventListener("click",undo);
   $("hintBtn").addEventListener("click",hint);
@@ -795,13 +1015,24 @@ function bindInput(){
   $("shareBtn").addEventListener("click",doShare);
   $("waBtn").addEventListener("click",doWhatsapp);
   $("copyBtn").addEventListener("click",doCopy);
+  $("nickSave").addEventListener("click",saveNickAndSubmit);
+  $("inviteBtn").addEventListener("click",doInvite);
   $("modeEasy").addEventListener("click",function(){switchMode("easy");});
   $("modeFull").addEventListener("click",function(){switchMode("full");});
+  window.addEventListener("pagehide",saveProgress);
+  document.addEventListener("visibilitychange",function(){
+    if(document.visibilityState==="hidden")saveProgress();
+  });
 }
 function switchMode(m){
   if(m===MODE)return;
   try{localStorage.setItem(MODE_KEY,m);}catch(e){}
-  location.href=location.pathname+"?m="+m;
+  var q="?m="+m;
+  try{
+    var d=new URLSearchParams(location.search).get("d");
+    if(d)q+="&d="+encodeURIComponent(d);
+  }catch(e){}
+  location.href=location.pathname+q;
 }
 
 /* ---------- restore an already-played day ---------- */
@@ -834,7 +1065,9 @@ function pickDate(data){
   var keys=Object.keys(data.days).sort();
   var qd=null;
   try{qd=new URLSearchParams(location.search).get("d");}catch(e){}
-  var want=(qd&&data.days[qd])?qd:todayKey();
+  // past days are shareable (challenge links keep working tomorrow);
+  // future days must not leak
+  var want=(qd&&data.days[qd]&&qd<=todayKey())?qd:todayKey();
   if(data.days[want])return want;
   // fall back to the latest date not after today, else the last available
   var t=todayKey(),cand=null;
@@ -862,9 +1095,32 @@ function boot(data){
   renderWords();
   refreshCells();
   bindInput();
+  if(CHALLENGE){
+    var cb=$("challengeBar");
+    cb.textContent="🎯 "+CHALLENGE.n+" שלח/ה לכם קרב: ⏱ "+fmtTime(CHALLENGE.t)+
+      " · 💡"+CHALLENGE.h+" - אפשר יותר טוב?";
+    cb.classList.add("show");
+  }
   var res=loadResults()[resKey()];
   if(res)restorePlayed(res);
+  else{
+    restoreProgress();
+    maybeOnboard();
+  }
 }
+function maybeOnboard(){
+  var seen=null;
+  try{seen=localStorage.getItem(OB_KEY);}catch(e){}
+  if(seen||Object.keys(loadResults()).length)return;
+  $("ob").classList.add("show");
+}
+$("obGo").addEventListener("click",function(){
+  try{localStorage.setItem(OB_KEY,"1");}catch(e){}
+  $("ob").classList.remove("show");
+});
+$("ob").addEventListener("click",function(ev){
+  if(ev.target===this)$("obGo").click();
+});
 fetch("./puzzles.json").then(function(r){
   if(!r.ok)throw new Error("http "+r.status);
   return r.json();
