@@ -160,7 +160,8 @@ module.exports = async function handler(req, res) {
       }
       const date = String(body.date || "");
       const name = sanitizeName(body.name);
-      const timeSec = clampInt(body.timeSec, 10, 3600);
+      // 3s floor: the 4x4 easy board has legitimate sub-10s human solves
+      const timeSec = clampInt(body.timeSec, 3, 3600);
       const hints = clampInt(body.hints, 0, 10);
       const mistakes = clampInt(body.mistakes, 0, 50);
       if (!DATE_RE.test(date) || !name || timeSec === null || hints === null || mistakes === null) {
