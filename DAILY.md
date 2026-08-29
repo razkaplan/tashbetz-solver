@@ -3,6 +3,10 @@
 
 Read this first each run. It is the handoff between days.
 
+**Deploy rule:** production deploys ONLY by merging to main (git-linked
+Vercel, Root Directory=docs). Never `vercel --prod` from a branch or dirty
+tree - a stale CLI deploy overwrote the live site on 2026-08-29. See CLAUDE.md.
+
 ## Current state (update this section every run)
 
 | Metric | Value | Target |
