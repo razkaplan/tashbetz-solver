@@ -68,5 +68,29 @@ const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 };
 </script>
 <!-- defs-hub-start --><h2>הגדרות נפוצות</h2><p>כל הפתרונות לפי ההגדרה עצמה: <a href="/milon/d/zamar-israeli/">זמר ישראלי</a>, <a href="/milon/d/sachkan-israeli/">שחקן ישראלי</a>, <a href="/milon/d/sofer-israeli/">סופר ישראלי</a>, <a href="/milon/d/kibbutz-tzafon/">קיבוץ בצפון</a>, <a href="/milon/d/ir-italia/">עיר באיטליה</a>, <a href="/milon/d/medina-africa/">מדינה באפריקה</a>, <a href="/milon/d/yesod-chimi/">יסוד כימי</a>, <a href="/milon/d/ot-yevanit/">אות יוונית</a>, <a href="/milon/d/mitologia-yevanit/">דמות במיתולוגיה היוונית</a> ועוד - <a href="/milon/d/"><b>כל ההגדרות הנפוצות</b></a>.</p><!-- defs-hub-end -->
+<div id="reqmiss" style="display:none;margin-top:.6rem"></div>
+<script>
+(function(){
+var q=document.getElementById('q'),res=document.getElementById('res'),box=document.getElementById('reqmiss');
+if(!q||!res||!box)return;
+var t=null;
+q.addEventListener('input',function(){clearTimeout(t);t=setTimeout(check,700);});
+function check(){
+ var v=q.value.trim();
+ if(v.length<2||res.children.length>0){box.style.display='none';return;}
+ box.style.display='block';box.textContent='';
+ var b=document.createElement('button');
+ b.textContent='לא מצאתם? בקשו שנוסיף: "'+v+'"';
+ b.style.cssText='font:inherit;padding:.5rem 1rem;border:1.5px solid #121212;border-radius:3px;background:#fff4d6;cursor:pointer';
+ b.onclick=function(){
+  fetch('/api/define-request',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({q:v})})
+   .then(function(r){if(!r.ok)throw 0;return r.json();})
+   .then(function(){b.textContent='הבקשה התקבלה! ההגדרה תתווסף בקרוב';b.disabled=true;})
+   .catch(function(){b.textContent='שגיאה - נסו שוב מאוחר יותר';});
+ };
+ box.appendChild(b);
+}
+})();
+</script>
 <footer>מבוסס על אינדקס פתוח (ויקיפדיה/ויקימילון/שירונט, CC BY-SA, עם קישור למקור) וניתוח סטטיסטי מקורי · לא מתפרסמות הגדרות מעיתונים ·
 <a href="https://www.linkedin.com/in/razkaplan/">פרויקט של רז קפלן</a> · <a href="/nativ/">🪄 נתיב, המשחק היומי</a></footer></div></body></html>
