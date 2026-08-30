@@ -481,6 +481,30 @@ else{{const c=canon(v);hits=E.filter(e=>e.t.includes(v)||e.n.includes(c));
   const sc=e=>(e.t===v||e.n===c)?2:(e.t.startsWith(v)||e.n.startsWith(c))?1:0;hits.sort((a,b)=>sc(b)-sc(a));}}
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}}[c]));res.innerHTML=hits.slice(0,60).map(e=>{{const u=e.p?('/milon/e/'+encodeURIComponent(e.t)+'/'):('/milon/'+e.c+'-'+e.l+'/#'+encodeURIComponent(e.n));return '<li><a href="'+u+'" style="text-decoration:none;color:inherit"><b style="color:#f22b39">'+esc(e.t)+'</b>'+(e.d?'<br><small>'+esc(e.d)+'</small>':'')+'<br><small>'+esc(CAT[e.c]||'')+' · '+esc(e.l)+' אותיות · <span style="font-family:monospace">'+esc(e.n)+'</span></small></a></li>'}}).join('');
 }};
+</script>
+<div id="reqmiss" style="display:none;margin-top:.6rem"></div>
+<script>
+(function(){{
+var q=document.getElementById('q'),res=document.getElementById('res'),box=document.getElementById('reqmiss');
+if(!q||!res||!box)return;
+var t=null;
+q.addEventListener('input',function(){{clearTimeout(t);t=setTimeout(check,700);}});
+function check(){{
+ var v=q.value.trim();
+ if(v.length<2||res.children.length>0){{box.style.display='none';return;}}
+ box.style.display='block';box.textContent='';
+ var b=document.createElement('button');
+ b.textContent='לא מצאתם? בקשו שנוסיף: "'+v+'"';
+ b.style.cssText='font:inherit;padding:.5rem 1rem;border:1.5px solid #121212;border-radius:3px;background:#fff4d6;cursor:pointer';
+ b.onclick=function(){{
+  fetch('/api/define-request',{{method:'POST',headers:{{'Content-Type':'application/json'}},body:JSON.stringify({{q:v}})}})
+   .then(function(r){{if(!r.ok)throw 0;return r.json();}})
+   .then(function(){{b.textContent='הבקשה התקבלה! ההגדרה תתווסף בקרוב';b.disabled=true;}})
+   .catch(function(){{b.textContent='שגיאה - נסו שוב מאוחר יותר';}});
+ }};
+ box.appendChild(b);
+}}
+}})();
 </script>"""
 page(f'{OUT}/index.html','מילון תשבץ: חיפוש לפי אורך, תבנית ואנגרם',
      f'מנוע חיפוש לפותרי תשבצים: {len(ent_index):,} שירים, זמרים, פוליטיקאים ומקומות עם כתיב תשבץ מדויק, אורך ותבניות.',

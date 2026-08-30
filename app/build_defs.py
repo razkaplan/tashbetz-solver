@@ -172,6 +172,26 @@ PAGES = {
                      lambda: curated('river_russia'), ['nahar-italia', 'nahar-africa']),
 }
 
+# Reader-requested pages (the define-request queue -> app/drain_requests.py ->
+# this file). Each spec is data, no code edits per definition:
+#   {"<slug>": {"phrase": "עיר בהולנד", "variants": [...], "related": [...],
+#               EITHER "cat"/"rx"/"ex" (mechanical, from entities.json)
+#               OR "items": {name: desc} (+optional "wiki") (curated)}}
+REQ = json.load(open('solver/lex/defs_requested.json', encoding='utf-8'))
+for _slug, _spec in REQ.items():
+    if _slug in PAGES:
+        continue
+    def _src(spec=_spec):
+        if 'items' in spec:
+            wiki = spec.get('wiki', '')
+            return [{'t': t, 'n': norm(t), 'd': d, 'p': 0, '_wiki': wiki}
+                    for t, d in spec['items'].items()]
+        return ents(spec['cat'], spec.get('rx'), spec.get('ex'))
+    _phrase = _spec['phrase']
+    PAGES[_slug] = (_phrase,
+                    _spec.get('variants', [f'{_phrase} תשחץ', f'{_phrase} תשבץ']),
+                    _src, _spec.get('related', []))
+
 STYLE = """<style>*{box-sizing:border-box}body{margin:0;background:#fff;color:#121212;font-family:'Frank Ruhl Libre','Arial Hebrew',serif;line-height:1.6}
 .w{max-width:52rem;margin:0 auto;padding:1rem 1.2rem}header{border-bottom:1px solid #121212;box-shadow:0 3px 0 -1px #121212;padding:.8rem 0}
 h1{font-size:1.6rem;margin:.2rem 0}.k{font-family:monospace;font-size:.65rem;letter-spacing:.12em;color:#fff;background:#f22b39;display:inline-block;padding:.12rem .5rem}
@@ -280,6 +300,28 @@ def build_hub(counts):
 "קיבוץ בצפון", "עיר באיטליה". בכל עמוד כל הפתרונות ממוינים לפי מספר אותיות, עם כתיב הרשת
 המדויק והסבר קצר לכל תשובה.</p>
 <ul class="grid">{lis}</ul>
+<h2 style="margin-top:1.6rem">חסרה הגדרה?</h2>
+<p>כתבו כאן את ההגדרה שחיפשתם ולא מצאתם, ונוסיף אותה למילון:</p>
+<div style="display:flex;gap:.5rem;max-width:28rem">
+<input id="reqq" placeholder="למשל: עיר בהולנד" style="font:inherit;flex:1;padding:.5rem;border:1.5px solid #121212;border-radius:3px">
+<button id="reqbtn" style="font:inherit;font-weight:700;padding:.5rem 1.1rem;border:1.5px solid #121212;border-radius:3px;background:#fff4d6;cursor:pointer">שלחו</button>
+</div>
+<p id="reqmsg" style="min-height:1.4rem;font-size:.9rem"></p>
+<script>
+(function(){{
+var q=document.getElementById('reqq'),b=document.getElementById('reqbtn'),m=document.getElementById('reqmsg');
+b.onclick=function(){{
+ var v=q.value.trim();
+ if(v.length<2){{m.textContent='כתבו הגדרה קודם';return;}}
+ b.disabled=true;
+ fetch('/api/define-request',{{method:'POST',headers:{{'Content-Type':'application/json'}},body:JSON.stringify({{q:v}})}})
+  .then(function(r){{if(!r.ok)throw 0;return r.json();}})
+  .then(function(){{m.textContent='הבקשה התקבלה! ההגדרה תתווסף בעדכון הקרוב';q.value='';b.disabled=false;}})
+  .catch(function(){{m.textContent='שגיאה בשליחה - נסו שוב מאוחר יותר';b.disabled=false;}});
+}};
+q.addEventListener('keydown',function(e){{if(e.key==='Enter')b.onclick();}});
+}})();
+</script>
 <p style="margin-top:1.2rem">לא מצאתם את ההגדרה? <a href="/milon/">חיפוש חופשי במילון</a>
 (גם לפי תבנית אותיות), או <a href="/milon/anagram/">חיפוש אנגרם</a>.</p>"""
     bc = {'@context': 'https://schema.org', '@type': 'BreadcrumbList', 'itemListElement': [
