@@ -1,8 +1,21 @@
-# PR plan - earning the links that move the rankings
+# PR plan - phenomenon first, press after
 
-Goal: seed the domain's link profile and brand demand (SEO_PLAN P4). One good
-earned-media cycle plus community adoption beats months of on-page work for a
-young domain. Everything below uses assets that already exist in this repo.
+Revised thesis (owner call, 2026-08-29): press has no reason to cover this
+before it is a phenomenon - journalists report traction, they don't create
+it. So the plan inverts: GROW the game in the communities where Israeli
+solvers already live, measure until the numbers tell a story on their own,
+and only then let angles B/C pitch themselves. Press is the trophy, not the
+lever.
+
+The one exception that works at zero traction: the research story (angle A)
+in builder venues - a Show HN / r/artificial post needs novelty, not users,
+and can seed the first links while the game grows. Everything mainstream
+waits for the threshold below.
+
+**Press threshold (when pitching starts making sense):** a streak of days
+with 100+ organic daily players, or a week where shares (WhatsApp referrals
+in analytics) outnumber direct visits, or one community thread that takes
+off on its own. Until then, all effort goes to the growth track.
 
 ## The assets (what we can honestly pitch)
 
@@ -48,7 +61,26 @@ young domain. Everything below uses assets that already exist in this repo.
   republished, no answers before print, community sources respected. The
   copyright-respect stance is part of the story.
 
-## Community track (do this FIRST - cheap, compounding)
+## Growth track - making it a phenomenon (ALL effort goes here first)
+
+The share loop is built (WhatsApp button, streaks, spoiler-free result,
+daily leaderboard). What it needs is seeding and retention:
+
+1. Seed where solvers already are: 14across forum + the תשבצי היגיון
+   Facebook groups - post as a fellow solver sharing a free tool, answer
+   every comment for the first week. One genuine thread in the right group
+   IS the phenomenon engine.
+2. Family-and-friends WhatsApp groups: the emoji result is designed for
+   exactly this - a nightly "who beat whom" ritual in 5 groups seeds the
+   viral loop better than any post.
+3. Retention: the daily theme rotation and streaks exist; watch the easy
+   mode completion rate (leaderboard totals per day, free to read) and
+   tune difficulty where players drop.
+4. Measure daily players via the leaderboard totals + Vercel analytics;
+   log weekly numbers in TRACKING.md. When the threshold above is crossed,
+   open the press track.
+
+## Community track (part of growth, cheap, compounding)
 
 1. 14across forum + the תשבצי היגיון Facebook groups (the ones surfaced in
    the SERP research): share the free tools genuinely - the pattern solver
