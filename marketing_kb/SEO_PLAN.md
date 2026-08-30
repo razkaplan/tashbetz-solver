@@ -21,6 +21,7 @@ corpus, entity datasets **with descriptions**, and a solver that can **explain**
 - Wire Google Search Console + verify; confirm sitemap ingestion, watch index coverage.
 - Keep the monthly SERP snapshot loop (`TRACKING.md`).
 - Decide the domain question (see "Domain" below) **before** building links to the current one.
+  **Decided 2026-08-30: move, within two weeks - see `DOMAIN_AND_MONETIZATION.md`.**
 
 ## P1 — Ship clue-shaped pages (the core move)
 
@@ -72,9 +73,10 @@ phrasing ("שחקן ישראלי 5 אותיות — כל הפתרונות") and 
 
 ## P4 — Authority & links
 
-- **Domain**: recommend buying a dedicated Hebrew-facing domain (e.g. a .co.il) and 301 the
-  dev subdomain, *early* (before link building compounds on the wrong host). User decision —
-  flagged, not executed.
+- **Domain**: buy a dedicated Hebrew-facing domain (a .co.il if one is obtainable, else
+  `milontashbetz.com`) and 301 the dev subdomain, *early* (before link building compounds on
+  the wrong host). Candidate list, availability, migration checklist and code touchpoints:
+  `DOMAIN_AND_MONETIZATION.md`. Not executed yet.
 - The research note ("AI solves the hardest Hebrew cryptic") is genuinely newsworthy: pitch
   Geektime/Calcalist tech desks + the crossword community (14across forum, the תשבצי היגיון
   Facebook groups Israel's solvers actually use). One good story seeds the link profile.

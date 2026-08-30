@@ -41,6 +41,18 @@ updates the "Movement log" below. This file is the handoff between runs, DAILY.m
 
 ## Movement log
 
+- **2026-08-30** - Strategy, not a ship: `DOMAIN_AND_MONETIZATION.md` added.
+  Domain question (SEO_PLAN P0's open blocker) resolved: move off the dev
+  subdomain within two weeks, `.co.il` if obtainable (tashbetz.co.il is
+  registered but dormant, worth one offer) else `milontashbetz.com` ($11.25,
+  available), with the 301/Change-of-Address checklist and the seven code
+  locations that hardcode the host. Monetization modelled in
+  `app/monetization_model.py`: display ads are the floor ($3.6-18k/yr even at a
+  winning 100-300k pv/mo), gated behind ~30k pv/mo and Vercel Pro ($240/yr,
+  since ads make the project commercial and Hobby forbids that); the נתיב game
+  plus a subscription, a freemium hint tool, one direct sponsor (2-6x
+  programmatic) and B2B data licensing carry the real upside. Next SERP
+  snapshot should record the domain decision's execution date.
 - **2026-08-29 (later 3)** - Kibbutz/moshav split shipped from user feedback:
   the mixed "קיבוצים ומושבים" category is now two categories, 65 missing
   kibbutzim added (דליה, בארי, עין גדי, פלמחים...) - kibbutz coverage now 271,
