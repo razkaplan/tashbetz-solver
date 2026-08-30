@@ -76,16 +76,22 @@ def mechanical(phrase):
 def main():
     do_resolve = '--resolve' in sys.argv
     args = [a for a in sys.argv[1:] if a != '--resolve']
+    SNAP = 'solver/lex/defs_queue_snapshot.json'
     if args and os.path.exists(args[0]):
-        # sandbox path: queue JSON fetched separately (e.g. via Bright Data MCP)
+        # explicit file (e.g. fetched via Bright Data MCP)
         queue = json.load(open(args[0], encoding='utf-8'))['items']
+    elif os.path.exists(SNAP) and json.load(open(SNAP, encoding='utf-8'))['items']:
+        # committed mirror (.github/workflows/defreq-mirror.yml, Saturdays) -
+        # the egress-free default for sandboxed drain runs
+        queue = json.load(open(SNAP, encoding='utf-8'))['items']
+        print(f'using committed snapshot {SNAP}')
     else:
         try:
             with urllib.request.urlopen(API, timeout=30) as r:
                 queue = json.load(r)['items']
         except Exception as e:
-            sys.exit(f'queue fetch failed ({e}); fetch it another way and pass '
-                     f'the JSON as a file: drain_requests.py queue.json')
+            sys.exit(f'queue fetch failed ({e}) and no snapshot available; '
+                     f'fetch the JSON another way and pass it as a file')
 
     specs = json.load(open(SPECS, encoding='utf-8'))
     existing_phrases = {s['phrase'] for s in specs.values()}
