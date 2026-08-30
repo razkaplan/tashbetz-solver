@@ -38,6 +38,10 @@ DESC=json.load(open('data/culture/descriptions.json')) if os.path.exists('data/c
 # Source descriptions occasionally carry an em-dash; the project publishes none,
 # so normalise at load rather than trusting upstream data to stay clean.
 DESC={k:(v or '').replace('\u2014','-').replace('\u2013','-') for k,v in DESC.items()}
+# Curated descriptions (committed) for entities the wiki harvest missed - e.g. the
+# ~65 kibbutzim whose article titles carry a parenthetical ("\u05d3\u05dc\u05d9\u05d4 (\u05e7\u05d9\u05d1\u05d5\u05e5)") and fell
+# out of the category sweep. The scraped corpus wins when both exist.
+for k,v in json.load(open('solver/lex/descriptions_curated.json')).items(): DESC.setdefault(k,v)
 amb=json.load(open('solver/lex/ambiguities.json'))
 cw=json.load(open('solver/crosswordese.json')) if os.path.exists('solver/crosswordese.json') else {}
 subs=json.load(open('solver/lex/substitutions.json'))
@@ -74,7 +78,8 @@ CATS={'song':('שירים','שיר'),'artist':('זמרים ולהקות','זמר
       'museum':('מוזיאונים','מוזיאון'),'nation':('מדינות','מדינה'),
       'world_city':('ערים ובירות בעולם','עיר בעולם'),'athlete':('ספורטאים','ספורטאי/ת'),
       'bible':('דמויות מהתנ"ך','דמות מקראית'),'author':('סופרים ומשוררים','סופר/משורר'),
-      'actor':('שחקנים','שחקן/ית'),'kibbutz':('קיבוצים ומושבים','קיבוץ/מושב'),
+      'actor':('שחקנים','שחקן/ית'),'kibbutz':('קיבוצים','קיבוץ'),
+      'moshav':('מושבים','מושב'),
       'city_il':('ערים ויישובים בישראל','יישוב'),'mountain':('הרים ורכסים','הר'),
       'stream':('נחלים','נחל'),'river':('נהרות העולם','נהר'),
       'valley':('עמקים ובקעות','עמק'),'lake_sea':('ימים, אגמים ומפרצים','ים/אגם'),
@@ -282,7 +287,7 @@ for cat,(plural,single) in CATS.items():
         lens=sorted({len(n) for _,n in items})
         body=f"""<p><b>{len(items)} {plural}</b> שמתחילים באות <b>{ch}</b>, עם מספר האותיות של כל אחד
 ברשת התשבץ (בתשבץ אין אותיות סופיות: ם/ן/ץ/ף/ך נכתבות מ/נ/צ/פ/כ).</p>
-<p style="font-size:.9rem">אורכים זמינים: {', '.join(f'<a href="/milon/{urllib.parse.quote(f"{cat}-{L}")}/">{L}</a>' for L in lens if L>=2)}</p>
+<p style="font-size:.9rem">אורכים זמינים: {', '.join(f'<a href="/milon/{urllib.parse.quote(f"{cat}-{L}")}/">{L}</a>' for L in lens if f'/milon/{cat}-{L}/' in urls)}</p>
 {letter_nav(cat,here=ch)}<ul class="grid">{lis}</ul>"""
         page(f'{OUT}/{slug}/index.html',
              f'{plural} באות {ch}: {len(items)} תשובות לתשבץ ותשחץ',
@@ -422,7 +427,7 @@ for cat,(plural,_) in CATS.items():
 cat_json=json.dumps({c:v[1] for c,v in CATS.items()},ensure_ascii=False)
 hub=f"""<p>מנוע חיפוש לפותרי תשבצים: שמות של שירים, זמרים, פוליטיקאים ומקומות, עם הכתיב המדויק ברשת
 (ללא אותיות סופיות), אורך, ומשמעויות כפולות. {len(ent_index):,} ערכים.</p>
-<input id="q" placeholder="חיפוש שם, או תבנית: ? או . לאות חסרה (למשל: ?ו?ה)" autocomplete="off">
+<input id="q" placeholder="חיפוש שם, או תבנית: ? או . לאות חסרה (למשל: ד?יה, ?ו?ה)" autocomplete="off">
 <p style="margin:.5rem 0"><a href="/milon/anagram/"><b>יש לכם אותיות מבולבלות? → חיפוש אנגרם</b></a></p>
 <div id="res" class="grid" style="margin-top:.8rem"></div>
 <h2>עיון לפי קטגוריה, אורך ואות פותחת</h2>{cat_links}
@@ -431,11 +436,13 @@ hub=f"""<p>מנוע חיפוש לפותרי תשבצים: שמות של שירי
 let E=null;const q=document.getElementById('q'),res=document.getElementById('res');
 fetch('/milon/entities.json').then(r=>r.json()).then(d=>E=d);
 const CAT={cat_json};
+const FINMAP={{'ך':'כ','ם':'מ','ן':'נ','ף':'פ','ץ':'צ'}},canon=s=>s.replace(/[ךםןףץ]/g,m=>FINMAP[m]);
 q.oninput=()=>{{if(!E)return;const v=q.value.trim();res.innerHTML='';if(v.length<2)return;
 let hits;
-if(v.includes('?')){{const rx=new RegExp('^'+v.replace(/[א-ת]/g,m=>m).replace(/\\?/g,'.')+'$');
+if(/[?.*]/.test(v)){{const rx=new RegExp('^'+canon(v).split('').map(ch=>ch==='*'?'.*':(ch==='?'||ch==='.')?'.':(/[א-ת]/.test(ch)?ch:'')).join('')+'$');
   hits=E.filter(e=>rx.test(e.n));}}
-else hits=E.filter(e=>e.t.includes(v)||e.n.includes(v.replace(/[ךםןףץ]/g,m=>({{'ך':'כ','ם':'מ','ן':'נ','ף':'פ','ץ':'צ'}})[m])));
+else{{const c=canon(v);hits=E.filter(e=>e.t.includes(v)||e.n.includes(c));
+  const sc=e=>(e.t===v||e.n===c)?2:(e.t.startsWith(v)||e.n.startsWith(c))?1:0;hits.sort((a,b)=>sc(b)-sc(a));}}
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}}[c]));res.innerHTML=hits.slice(0,60).map(e=>{{const u=e.p?('/milon/e/'+encodeURIComponent(e.t)+'/'):('/milon/'+e.c+'-'+e.l+'/#'+encodeURIComponent(e.n));return '<li><a href="'+u+'" style="text-decoration:none;color:inherit"><b style="color:#f22b39">'+esc(e.t)+'</b>'+(e.d?'<br><small>'+esc(e.d)+'</small>':'')+'<br><small>'+esc(CAT[e.c]||'')+' · '+esc(e.l)+' אותיות · <span style="font-family:monospace">'+esc(e.n)+'</span></small></a></li>'}}).join('');
 }};
 </script>"""
