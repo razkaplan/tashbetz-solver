@@ -4,6 +4,79 @@ One entry per run: what was found, one-line summary, and an honest judgement of 
 it transfers to a Hebrew cryptic solver with an 8k-clue corpus. Default skepticism: most
 crossword-AI work targets non-cryptic (American-style) puzzles and does not transfer.
 
+## 2026-08-30
+
+Bootstrap hit the same hard 14across wall as 2026-08-19/08-26/08-27/08-28 (4 consecutive
+answer-page fetches returned `None: 0 clues` after several minutes of retry-with-backoff
+each — killed rather than waited out further, matching the established hard-wall failure
+mode rather than the intermittent ~50%-random one). Worked entirely from the no-14across
+image-fallback technique documented in bootstrap.sh step 6.
+
+Research this run followed the scheduled task's own stated priority order: candidate
+generation (diverse candidates by mechanism / by definition-span hypothesis) first, then
+Hebrew NLP/morphology, before falling back to the queue's own next concrete step.
+
+**"cryptic crossword clue solving candidate generation diversity 2026 arxiv" /
+"definition detection cryptic crossword clue span identification neural 2025 2026"
+(general search).** Surfaced only the same paper family logged repeatedly since
+2026-08-06 (2506.04824 ICML 2025 "A Reasoning-Based Approach to Cryptic Crossword Clue
+Solving", 2407.08824, 2104.08620, 2406.09043). One detail newly worth naming even though
+the paper itself isn't new to this log: 2506.04824's candidate generator hypothesizes
+ANSWERS directly (a fine-tuned Gemma2 9B proposes a word/phrase from clue+pattern, THEN a
+separate step searches for wordplay to justify it), which is the inverse of this
+project's `candidates.py` (mechanism-first: enumerate what anagram/hidden/reversal/
+substitution/homograph CAN produce, then check the lexicon). This project's live blind
+trials already do the answer-first version informally (a solver agent proposes an answer
+from reasoning, then `prove.py` checks it) — the paper doesn't add a new technique so
+much as name what the live trials are already doing versus what the offline mechanical
+generator does. **Transfer: none actionable today** — replicating the paper's version
+would mean fine-tuning a small LM on this project's own explanation corpus, which is a
+different, much larger effort than one day's lever, not a drop-in addition to
+`candidates.py`.
+
+**"non-English cryptic crossword solver templatic morphology candidate generation 2025
+2026".** Surfaced one genuinely new citation to this log: Zeinalipour et al.,
+"From Arabic Text to Puzzles: LLM-Driven Development of Arabic Educational Crosswords"
+(arXiv:2501.11035, ACL LoResLM 2025) and the related ArabIcros line of work. Checked
+directly, not assumed from the title: this is crossword-clue GENERATION from source text
+for educational use (fine-tuning Llama3-8B to turn a text passage into ordinary
+definition-style crossword clues), not cryptic-clue SOLVING, and the crosswords involved
+are standard (definition-only), not cryptic (no wordplay layer at all). Despite Arabic
+sharing Hebrew's root-and-pattern templatic morphology, this paper's task and direction
+(text -> clue) is the opposite of what this project needs (clue -> answer via wordplay),
+and it never touches wordplay decomposition. **Transfer: none** — surfaced by a search
+this project hadn't tried before, but doesn't apply once actually read.
+
+**"crossword definition always at start or end heuristic parser cryptic clue
+segmentation".** Reconfirmed the standard English-cryptic heuristic (definition is a
+prefix or suffix span; the rest is wordplay; clues parse via a restricted CFG) that
+`defspan.py` (2026-08-19) already tested against this setter's own clues and found does
+NOT hold well here: only 25% of clues even have a mechanically-locatable wordplay window,
+and 29% of those are interior, not edge. **Transfer: none new** — this is confirmation of
+the premise `defspan.py` already falsified for this specific setter, not a new lead;
+re-attempting definition-span classification on the strength of the ENGLISH-cryptic
+literature restating its own textbook heuristic would be re-fighting a already-measured
+loss with the same signal.
+
+**Hebrew morphology/NLP.** No new 2026 resource beyond RFTokenizer/HebPipe/DictaBERT-seg/
+YAP/Splintering (arXiv 2503.14433) already logged repeatedly since 2026-08-06/08-27.
+**Transfer: none new.**
+
+**Conclusion for today's lever.** Sixth-plus consecutive literature pass with nothing
+new and buildable on candidate generation or definition-fit/span scoring; the one new
+citation found (Arabic crossword generation) doesn't transfer once read past its title.
+Per DAILY.md's own explicitly-flagged, twice-repeated "NOT DONE" item under queue 1(d)
+(2026-08-28 and 2026-08-29 both name it: re-measure 2026-06-26 — the puzzle 2026-08-28's
+corpus-growth finding named as still needing a bigger corpus — with the grown
+private_defs corpus, which no run has done because 14across kept missing that date and a
+from-scratch re-transcription was never finished), today's lever is exactly that
+still-open gap: transcribe 2026-06-26 in full (28/28 clues this time, closing the
+18/28 partial gap 2026-08-26 left, since the across-clue column that's sometimes missing
+in other weeks turned out to be present in this week's own image once its column-wrap
+onto the next print column was tracked down) and re-measure `retrieval_candidates`
+against a freshly-crawled corpus. See DAILY.md for the transcription/audit/measurement
+trail.
+
 ## 2026-08-29
 
 Bootstrap this run actually succeeded fully at 14across (52/52 puzzles, 1,457 clues) —
