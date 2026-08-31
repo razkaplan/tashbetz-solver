@@ -55,8 +55,16 @@ Boards by subject and level, generated rather than scraped.
   checked at import: an entry with nowhere to print its clue, or a cell that
   belongs to no entry, raises instead of shipping.
 - `solver/topicgen.py` is the back end: `generate(topic, level, shape, seed)`.
-  Level 1-2 fill only from answers the corpus actually saw in printed puzzles;
-  3-4 open the whole lexicon. Every clue carries a checkable proof.
+  A LEVEL is a ceiling on mean clue difficulty plus which answers it may draw
+  on (level 1 the vocabulary we define plus printed-puzzle answers, 2 the
+  wider corpus-attested set, 3-4 the whole lexicon). It is deliberately not a
+  floor: a floor made the generator harden clues on purpose to reach it, and a
+  "medium" board came out as fifteen anagrams. Every clue carries a checkable
+  proof, and clue quality is enforced rather than hoped for - a hidden clue
+  must genuinely bury the answer inside a familiar word, an anagram must move
+  more than one adjacent pair, filler definitions come only from the neutral
+  vocabulary bank, and an entity description has to read as a clue (no
+  truncated prose, nothing shared with a second entity).
 - **`evals/topicgen_eval.py` is the gate. Run it before publishing a change to
   the generator, the grids or the banks** (`python3 evals/topicgen_eval.py`,
   or `--quick` while iterating). It re-derives every judgement from the

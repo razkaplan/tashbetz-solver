@@ -73,12 +73,12 @@ MIN_COMMON_SHARE = 0.9       # levels 1-2: answers people have actually met
 MIN_CLUE_LEN = 6
 STUB = ('פירושונים', 'דף פירושונים', 'ראו ערך')
 
-EXPECTED_MECHANISMS = {
-    1: {'definition', 'hidden'},
-    2: {'definition', 'hidden', 'reversal'},
-    3: {'definition', 'hidden', 'reversal', 'anagram'},
-    4: {'definition', 'hidden', 'reversal', 'anagram'},
-}
+# A level is a CEILING on mean difficulty, not a list of permitted mechanisms
+# and not a floor. A floor would be a demand that easy boards be made harder
+# than they need to be; the ramp is checked separately, across a subject's
+# four boards, where it belongs.
+LEVEL_CEILING = {1: 1.0, 2: 1.6, 3: 2.5, 4: 9.9}
+KNOWN_MECHANISMS = {'definition', 'hidden', 'reversal', 'anagram'}
 # What a clue costs the solver, and what an answer costs. The eval scores
 # difficulty itself rather than reading the generator's number, so a level
 # that quietly stopped ramping shows up here.
@@ -207,12 +207,18 @@ def check_proof(entry, ref):
             return f"reversal source {pr['from']!r} is not a word"
         return None
     if t == 'anagram':
-        if sorted(pr.get('from', '')) != sorted(a):
+        src = pr.get('from', '')
+        if sorted(src) != sorted(a):
             return 'anagram proof letters do not match'
-        if pr['from'] == a:
+        if src == a:
             return 'anagram of itself'
-        if pr['from'] not in ref['lex']:
-            return f"anagram source {pr['from']!r} is not a word"
+        if src not in ref['lex']:
+            return f'anagram source {src!r} is not a word'
+        # One adjacent swap is a typo, not wordplay: "ידו" from "דיו".
+        moved = [i for i, (x, y) in enumerate(zip(a, src)) if x != y]
+        if (len(moved) == 2 and moved[1] == moved[0] + 1
+                and a[moved[0]] == src[moved[1]] and a[moved[1]] == src[moved[0]]):
+            return f'anagram source {src!r} is one adjacent swap from the answer'
         return None
     if t == 'hidden':
         c, at = pr.get('carrier', ''), pr.get('at', -1)
@@ -220,6 +226,13 @@ def check_proof(entry, ref):
             return 'answer is not at the stated position in the carrier'
         if c == a or c not in ref['lex']:
             return f'carrier {c!r} is not a longer word'
+        # A hidden clue has to actually hide. "צלופן מסתתר בתוך צלופנים" and
+        # "יהי חבוי בתוך ליהי" name an inflection of the answer and tell the
+        # solver nothing; 99.5% of the first carrier index was that.
+        if c.startswith(a) or c.endswith(a):
+            return f'carrier {c!r} is the answer plus an affix, not a hiding place'
+        if at < 2 or len(c) - at - len(a) < 2:
+            return f'answer sits at the edge of {c!r} rather than inside it'
         return None
     return f'unknown proof type {t!r}'
 
@@ -291,9 +304,15 @@ def check_puzzle(p, ref, pool):
         err = check_proof(e, ref)
         if err:
             bad.append(f'{key}: {err}')
-        allowed = EXPECTED_MECHANISMS[p['level']]
-        if e.get('mechanism') not in allowed:
-            bad.append(f"{key}: mechanism {e.get('mechanism')!r} not allowed at level {p['level']}")
+        # Filler must be topic-neutral. A proper noun defined from the entity
+        # index or a curated closed list is subject matter, and as filler it
+        # turned a לשון board into a Bible quiz ("יהורם - בן אחאב").
+        if (e.get('mechanism') == 'definition' and a not in pool
+                and (e.get('proof') or {}).get('source') not in ('fill',)):
+            bad.append(f"{key}: off-topic proper noun as filler "
+                       f"(source {(e.get('proof') or {}).get('source')!r})")
+        if e.get('mechanism') not in KNOWN_MECHANISMS:
+            bad.append(f"{key}: unknown mechanism {e.get('mechanism')!r}")
         mechs[e.get('mechanism')] = mechs.get(e.get('mechanism'), 0) + 1
         if a in pool:
             topical += 1
@@ -313,6 +332,11 @@ def check_puzzle(p, ref, pool):
     if p['level'] <= 2 and common / n < MIN_COMMON_SHARE:
         bad.append(f'level {p["level"]} promises common answers but only '
                    f'{common / n:.0%} are (floor {MIN_COMMON_SHARE:.0%})')
+    mean_cost = cost / n
+    ceiling = LEVEL_CEILING[p['level']]
+    if mean_cost > ceiling + 0.01:
+        bad.append(f'mean difficulty {mean_cost:.2f} above level '
+                   f'{p["level"]}\'s ceiling of {ceiling}')
     stats = {'entries': len(got), 'topical': topical, 'topicality': topical / n,
              'long_topicality': long_topicality, 'common_share': common / n,
              'difficulty': cost / n,

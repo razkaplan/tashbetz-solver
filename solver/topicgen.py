@@ -67,15 +67,26 @@ CLUEABLE_CATS = {'city_il', 'world_city', 'nation', 'island', 'mountain', 'river
 MECH_COST = {'definition': 0.0, 'hidden': 1.0, 'reversal': 1.5, 'anagram': 2.0}
 COST_COMMON, COST_DEFINED, COST_RARE = 0.0, 0.4, 1.0
 
+# Every level may use every mechanism; what makes a level is the BAND its mean
+# difficulty has to land in, plus which answers it may use. Withholding
+# mechanisms from the easy levels only starved them: a clue is picked cheapest
+# first and raised only to reach the band's floor, so an expensive mechanism
+# appears at level 1 exactly when nothing cheaper exists, and the band's
+# ceiling stops that from happening often.
+MECHANISMS = ['definition', 'hidden', 'reversal', 'anagram']
+# A level is a CEILING on mean difficulty plus which answers it may use. It is
+# deliberately not a floor: an earlier version made the generator raise clues
+# until the mean reached a floor, and since an anagram is the cheapest way to
+# raise a mean, a "medium" board came out as fifteen anagrams of arbitrary
+# words. The ramp comes from the answers instead - each tier opens words that
+# fewer solvers know and fewer of which we hold a definition for, so the
+# wordplay share and the difficulty rise on their own. The eval checks that
+# they actually do.
 LEVELS = {
-    1: {'name': 'קל', 'mechanisms': ['definition', 'hidden'],
-        'tier': 'common', 'band': (0.0, 1.15)},
-    2: {'name': 'בינוני', 'mechanisms': ['definition', 'hidden', 'reversal'],
-        'tier': 'common', 'band': (0.9, 1.75)},
-    3: {'name': 'קשה', 'mechanisms': ['definition', 'hidden', 'reversal', 'anagram'],
-        'tier': 'all', 'band': (1.6, 2.6)},
-    4: {'name': 'אתגר', 'mechanisms': ['definition', 'hidden', 'reversal', 'anagram'],
-        'tier': 'all', 'band': (2.3, 4.0)},
+    1: {'name': 'קל', 'mechanisms': MECHANISMS, 'tier': 'easy', 'ceiling': 1.0},
+    2: {'name': 'בינוני', 'mechanisms': MECHANISMS, 'tier': 'common', 'ceiling': 1.6},
+    3: {'name': 'קשה', 'mechanisms': MECHANISMS, 'tier': 'all', 'ceiling': 2.5},
+    4: {'name': 'אתגר', 'mechanisms': MECHANISMS, 'tier': 'all', 'ceiling': 9.9},
 }
 DEFAULT_SHAPE = {1: 'classic7', 2: 'arrow9', 3: 'classic9', 4: 'arrow11'}
 THEME_SHARE = 0.55        # of the entries whose length the topic can reach
@@ -129,18 +140,12 @@ def load():
     curated = {k: v for k, v in json.load(
         open(os.path.join(ROOT, 'solver/lex/defs_curated.json'), encoding='utf-8')).items()
         if not k.startswith('_')}
-    for key in sorted(curated):
-        for w, d in sorted(curated[key].get('items', {}).items()):
-            n = norm(w)
-            if 2 <= len(n) <= 12 and len(d) >= 8 and n not in d and n not in general:
-                general[n] = (d, {'type': 'definition', 'source': 'curated',
-                                  'list': key, 'key': w}, w)
-    for e in sorted(ents, key=lambda x: (x['c'], x['t'])):
-        d = (e.get('d') or '').strip()
-        n = norm(e['t'])
-        if (e['c'] in CLUEABLE_CATS and len(d) >= 10 and shared[d] <= 3
-                and 2 <= len(n) <= 12 and n not in d and n not in general):
-            general[n] = (d, {'type': 'definition', 'source': 'entity', 'key': e['t']}, e['t'])
+    # Note what is NOT here: entity descriptions and the curated closed lists.
+    # Both are proper nouns tied to a subject, and as filler they made a
+    # grammar board read like a Bible quiz ("יהורם - בן אחאב" in a לשון
+    # puzzle). They stay available to any topic that ASKS for them, through
+    # the bank's own entity queries and curated references. General filler is
+    # everyday vocabulary, which belongs in any puzzle.
 
     # Definition pages readers asked for and someone curated: each is a
     # hand-checked list of answers for one clue phrase, which is exactly what a
@@ -188,27 +193,68 @@ def load():
     groups = {}
     for w in dictwords:            # common first, so the partner picked is common
         groups.setdefault(''.join(sorted(w)), []).append(w)
+    # An anagram clue is only a clue if the letters really move. "ידו" from
+    # "דיו" and "מדוד" from "מדדו" are one adjacent swap apart and read as a
+    # typo rather than as wordplay.
+    def one_swap(a, b):
+        d = [i for i, (x, y) in enumerate(zip(a, b)) if x != y]
+        return len(d) == 2 and d[1] == d[0] + 1 and a[d[0]] == b[d[1]] and a[d[1]] == b[d[0]]
+
     anagrams = {}
     for w in lex:
+        if len(w) < 4:
+            continue
         for x in groups.get(''.join(sorted(w)), ()):
-            if x != w:
+            if x != w and not one_swap(w, x):
                 anagrams[w] = x
                 break
     reversible = {w: w[::-1] for w in lex if w[::-1] != w and w[::-1] in dictset}
+    # A hidden clue is only a clue if the answer is genuinely buried. Taking
+    # the first carrier that contained the substring gave "צלופן מסתתר בתוך
+    # צלופנים" and "יהי חבוי בתוך ליהי" - an inflection of the answer, which
+    # tells the solver nothing. 99.5% of the old index was that. The answer now
+    # has to sit at least two letters in from both ends of a carrier that is
+    # neither answer-plus-suffix nor prefix-plus-answer.
+    # ...and the carrier itself has to be a word the reader has met. Without
+    # this the fallback carriers were forms like הזדיינויות and היחרשויות:
+    # real hspell entries, recognisable to nobody.
     carrier = {}
     for c in dictwords:
-        if not 4 <= len(c) <= 10:
+        if not 6 <= len(c) <= 11 or c not in common:
             continue
-        for L in range(2, len(c)):
-            for i in range(len(c) - L + 1):
+        for L in range(2, len(c) - 3):
+            for i in range(2, len(c) - L - 1):
                 sub = c[i:i + L]
-                if sub not in carrier and sub in lexset:
+                if (sub not in carrier and sub in lexset
+                        and not c.startswith(sub) and not c.endswith(sub)):
                     carrier[sub] = (c, i)
 
+    # The easy tier: what a casual solver has certainly met - our own defined
+    # vocabulary plus the answers the corpus saw more than once.
+    easy = (set(general) | set(freq)) & lexset
     return {'lex': lexset, 'general': general, 'topics': topics, 'curated': curated,
-            'requested': requested,
+            'requested': requested, 'easy': easy, 'dictwords': dictset,
+            'shared': shared,
             'ents': ents, 'reversible': reversible, 'carrier': carrier,
             'anagrams': anagrams, 'freq': freq, 'common': common}
+
+
+def usable_description(d, shared_count):
+    """Is this entity description printable as a clue?
+
+    The index carries whatever the source article opened with, so it holds
+    truncated prose ("...נכבש ונהרס במהלך מל"), labels that identify nobody
+    ("עיר בישראל", attached to hundreds), and stray biography with dates in
+    brackets. A clue has to point at ONE answer and read as a clue.
+    """
+    d = (d or '').strip()
+    if not 12 <= len(d) <= 90:
+        return False
+    if '. ' in d or '(' in d or ')' in d:
+        return False
+    if shared_count > 1:                 # a description shared with another
+        return False                     # entity identifies neither of them
+    return len(d.split()) >= 2
 
 
 def topic_terms(ctx, topic):
@@ -233,7 +279,8 @@ def topic_terms(ctx, topic):
                 if (cat and e['c'] != cat) or (rx and not re.search(rx, d)):
                     continue
                 n = norm(e['t'])
-                if len(d) >= 10 and 2 <= len(n) <= 12 and n not in d and n not in out:
+                if (usable_description(d, ctx['shared'].get(d, 1))
+                        and 2 <= len(n) <= 12 and n not in d and n not in out):
                     out[n] = (d, {'type': 'definition', 'source': 'entity',
                                   'key': e['t']}, e['t'])
         for key in bank.get('curated', []):
@@ -257,7 +304,8 @@ def topic_terms(ctx, topic):
             for e in sorted(ctx['ents'], key=lambda x: x['t']):
                 d = (e.get('d') or '').strip()
                 n = norm(e['t'])
-                if (e['c'] == cat and (not rx or re.search(rx, d)) and len(d) >= 10
+                if (e['c'] == cat and (not rx or re.search(rx, d))
+                        and usable_description(d, ctx['shared'].get(d, 1))
                         and 2 <= len(n) <= 12 and n not in d):
                     out.setdefault(n, (d, {'type': 'definition', 'source': 'entity',
                                            'key': e['t']}, e['t']))
@@ -290,7 +338,8 @@ def topic_terms(ctx, topic):
     for e in sorted(ctx['ents'], key=lambda x: x['t']):
         d = (e.get('d') or '').strip()
         n = norm(e['t'])
-        if len(d) >= 10 and re.search(rx, d) and 2 <= len(n) <= 12 and n not in d:
+        if (re.search(rx, d) and usable_description(d, ctx['shared'].get(d, 1))
+                and 2 <= len(n) <= 12 and n not in d):
             out.setdefault(n, (d, {'type': 'definition', 'source': 'entity',
                                    'key': e['t']}, e['t']))
     return out
@@ -346,8 +395,15 @@ def answer_cost(ctx, w, terms):
 
 
 def cluable(ctx, terms, allowed, tier):
-    """Every answer we could both place and clue at this level."""
-    base = ctx['common'] if tier == 'common' else ctx['lex']
+    """Every answer we could both place and clue at this level.
+
+    Filler has to be a DICTIONARY word or a bank entry. The corpus-attested
+    set also holds acronyms and names picked up from printed grids, and as
+    filler they read as noise: קק"ל clued as a reversal of לקק is not a clue.
+    A topic answer may still be a proper noun - that is the point of it.
+    """
+    base = {'easy': ctx['easy'], 'common': ctx['common']}.get(tier, ctx['lex'])
+    base = (base & ctx['dictwords']) | set(ctx['general']) | set(terms)
     pool = set()
     if 'definition' in allowed:
         pool |= set(terms) | set(ctx['general'])
@@ -484,14 +540,14 @@ def fill(grid, pi, rng, theme=frozenset(), budget=None, width=14):
 
 # ------------------------------------------------------------------ build
 
-def _clue_the_fill(ctx, sol, terms, allowed, band, level):
-    """Pick one clue per answer so the board lands inside the level's band.
+def _clue_the_fill(ctx, sol, terms, allowed, ceiling, level):
+    """Give every answer its EASIEST clue, and reject the board if that is
+    still harder than the level allows.
 
-    Starts every answer on its cheapest clue, then raises the dearest-first
-    until the mean reaches the floor. Returns entries or None if the fill
-    cannot be clued into this level at all.
+    There is deliberately no attempt to reach a minimum: making a clue harder
+    than it needs to be is not a feature of an easy level, it is a worse clue.
     """
-    lo, hi = band
+    hi = ceiling
     chosen, options = {}, {}
     for key, w in sorted(sol.items()):
         opts = clue_options(ctx, w, terms, allowed)
@@ -507,18 +563,6 @@ def _clue_the_fill(ctx, sol, terms, allowed, band, level):
 
     if mean() > hi:
         return None                          # too hard even at its easiest
-    # raise clues, cheapest answers first, until the level's floor is reached
-    order = sorted(chosen, key=lambda k: (acost[k], k))
-    i = 0
-    while mean() < lo and i < len(order) * 4:
-        k = order[i % len(order)]
-        i += 1
-        if chosen[k] + 1 < len(options[k]):
-            chosen[k] += 1
-            if mean() > hi:                  # overshot: put that one back
-                chosen[k] -= 1
-    if not lo <= mean() <= hi:
-        return None
     out = {}
     for key in chosen:
         mech, clue, proof, disp, _ = options[key][chosen[key]]
@@ -594,7 +638,7 @@ def generate(topic, level=1, shape=None, seed=None, attempts=3, work=None):
             left[0] -= per_attempt - slice_[0]
             if not sol or check_fill(grid, sol, None)[0]:
                 continue
-            entries = _clue_the_fill(ctx, sol, terms, allowed, spec['band'], level)
+            entries = _clue_the_fill(ctx, sol, terms, allowed, spec['ceiling'], level)
             if not entries:
                 continue
             texts = [e['clue'] for e in entries.values()]

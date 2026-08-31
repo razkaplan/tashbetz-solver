@@ -1,0 +1,65 @@
+name: Rebuild topic crosswords
+
+# Regenerating all the boards is tens of minutes of search - too long to sit
+# through in an agent session, and not something that should depend on one.
+# The runner does it, the eval gates it, and nothing is committed unless every
+# board passes.
+#
+#   python3 app/build_topics.py --generate     regenerate every board
+#   python3 evals/topicgen_eval.py --no-matrix the gate
+#
+# Run it after any change to solver/topicgen.py, solver/grids_topic.py or the
+# banks in solver/lex/. Dispatch only: boards should change when someone
+# decided they should, not on a timer.
+
+on:
+  workflow_dispatch:
+    inputs:
+      effort:
+        description: 'Search-node multiplier per board (1.0 = default)'
+        required: false
+        default: '1.0'
+      topic:
+        description: 'One topic slug, or blank for all of them'
+        required: false
+        default: ''
+
+permissions:
+  contents: write
+
+jobs:
+  rebuild:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Regenerate the boards
+        run: |
+          if [ -n "${{ inputs.topic }}" ]; then
+            python3 app/build_topics.py --generate --effort "${{ inputs.effort }}" \
+              --topic "${{ inputs.topic }}"
+          else
+            python3 app/build_topics.py --generate --effort "${{ inputs.effort }}"
+          fi
+
+      - name: Gate it
+        # A board that does not clear the gate is not published, and since the
+        # commit step is after this one, a failure here leaves the previous
+        # boards in place rather than replacing them with worse ones.
+        run: python3 evals/topicgen_eval.py --no-matrix
+
+      - name: Commit if anything changed
+        run: |
+          git config user.name 'topics-rebuild'
+          git config user.email 'noreply@github.com'
+          git add docs/nosim docs/bakasha docs/sitemap.xml evals/runs/topicgen
+          if git diff --cached --quiet; then
+            echo 'no board changes'
+          else
+            git commit -m "Rebuild topic crosswords (effort ${{ inputs.effort }})"
+            git push
+          fi
