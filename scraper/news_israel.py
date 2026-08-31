@@ -35,17 +35,22 @@ from html import unescape
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 os.chdir(ROOT)
 
+# Verified reachable from a GitHub runner on 2026-08-31. israelhayom returned
+# 403 to the runner and kan's news feed 404s, so they are out; a feed that
+# starts failing is skipped, not fatal.
 FEEDS = [
     'https://www.ynet.co.il/Integration/StoryRss2.xml',
-    'https://www.israelhayom.co.il/rss.xml',
-    'https://www.kan.org.il/rss/news.xml',
+    'https://www.ynet.co.il/Integration/StoryRss1854.xml',   # politics
+    'https://www.ynet.co.il/Integration/StoryRss3.xml',      # world
     'https://rss.walla.co.il/feed/1?type=main',
+    'https://rss.walla.co.il/feed/22?type=main',             # sport
     'https://www.maariv.co.il/Rss/RssFeedsMivzakiChadashot',
     'https://www.globes.co.il/webservice/rss/rssfeeder.asmx/FeederNode?iID=942',
 ]
 OUT = 'solver/lex/topics_news.json'
 MIN_MENTIONS = 1
 MAX_TERMS = 90
+MIN_TERMS = 20        # below this there is not enough for a board
 FIN = str.maketrans('ךםןףץ', 'כמנפצ')
 norm = lambda s: re.sub(r'[^א-ת]', '', s or '').translate(FIN)
 
@@ -64,10 +69,16 @@ def fetch(url, timeout=25):
         return r.read().decode('utf-8', 'replace')
 
 
-def titles(xml):
-    """The <title> texts only. They are read, counted and thrown away."""
-    return [unescape(re.sub(r'<[^>]+>', ' ', m))
-            for m in re.findall(r'<title>(.*?)</title>', xml, re.S)]
+def feed_text(xml):
+    """Feed text, read once to count names and then thrown away.
+
+    Titles alone gave two matches across a whole week's feeds, which is not a
+    board; descriptions roughly quadruple the text without changing what is
+    kept, since nothing from here is ever stored or published.
+    """
+    parts = re.findall(r'<title>(.*?)</title>', xml, re.S)
+    parts += re.findall(r'<description>(.*?)</description>', xml, re.S)
+    return [unescape(re.sub(r'<[^>]+>', ' ', m)) for m in parts]
 
 
 def index():
@@ -84,8 +95,20 @@ def index():
         # 3 letters or fewer matches far too much inside running text
         if (e['c'] in CLUEABLE and len(d) >= 12 and shared[d] <= 3
                 and 4 <= len(n) <= 11 and n not in d):
-            out.setdefault(e['t'], {'n': n, 'd': d, 'c': e['c']})
+            out.setdefault(e['t'], {'n': n, 'd': d, 'c': e['c'],
+                                    'rx': mention_rx(e['t'])})
     return out
+
+
+def mention_rx(name):
+    """Match the name as a word, tolerating one attached Hebrew prefix.
+
+    A plain substring test missed "באיראן" and "מתל אביב", which is most of
+    how a name actually appears in a headline, and matched names sitting
+    inside longer words. Both ends are anchored on a non-letter.
+    """
+    body = r'\s+'.join(re.escape(w) for w in name.split())
+    return re.compile(rf'(?<![א-ת])[בלמהוכשׁו]?{body}(?![א-ת])')
 
 
 def harvest(feeds=FEEDS, verbose=True):
@@ -99,10 +122,11 @@ def harvest(feeds=FEEDS, verbose=True):
                 print(f'  skip {url}: {e}')
             continue
         seen_feeds += 1
-        blob = ' ' + re.sub(r'\s+', ' ', ' '.join(titles(xml))) + ' '
+        blob = ' ' + re.sub(r'\s+', ' ', ' '.join(feed_text(xml))) + ' '
         for name, meta in ents.items():
-            if name in blob:
-                counts[name] = counts.get(name, 0) + blob.count(name)
+            hits = len(meta['rx'].findall(blob))
+            if hits:
+                counts[name] = counts.get(name, 0) + hits
     if verbose:
         print(f'feeds read: {seen_feeds}/{len(feeds)}; entities mentioned: {len(counts)}')
     return counts, ents
@@ -153,8 +177,9 @@ def main():
         print(f'  {counts[name]:>3}x  {name:<22} {terms[name][:50]}')
     if dry:
         return
-    if len(terms) < 25:
-        sys.exit(f'only {len(terms)} terms: too thin for a board, keeping the old bank')
+    if len(terms) < MIN_TERMS:
+        sys.exit(f'only {len(terms)} terms (need {MIN_TERMS}): too thin for a '
+                 f'board, keeping the old bank')
     json.dump(bank, open(OUT, 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
     print('wrote', OUT)
 
