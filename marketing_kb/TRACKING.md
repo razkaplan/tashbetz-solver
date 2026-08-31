@@ -41,6 +41,15 @@ updates the "Movement log" below. This file is the handoff between runs, DAILY.m
 
 ## Movement log
 
+- **2026-08-31** - Post-rebuild repair: the 2026-08-30 full rebuild (#35) ran
+  build_seo without build_defs after it, dropping all 51 /milon/d/ URLs from
+  the sitemap and the defs hub section from /milon/; and the by-bare-title
+  corpus fetch overwrote 59 curated kibbutz descriptions with wrong-article
+  text (דליה the flower, גזר the vegetable, "דף פירושונים"). Restored the /d/
+  sitemap block + hub section, curated descriptions now win for the kibbutz
+  category in build_seo, and the 59 descriptions were fixed across
+  entities.json, list pages and 28 entity pages. kibbutz clue page back to
+  267 answers (had silently dropped to 208).
 - **2026-08-29 (later 3)** - Kibbutz/moshav split shipped from user feedback:
   the mixed "קיבוצים ומושבים" category is now two categories, 65 missing
   kibbutzim added (דליה, בארי, עין גדי, פלמחים...) - kibbutz coverage now 271,

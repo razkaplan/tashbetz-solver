@@ -38,10 +38,15 @@ DESC=json.load(open('data/culture/descriptions.json')) if os.path.exists('data/c
 # Source descriptions occasionally carry an em-dash; the project publishes none,
 # so normalise at load rather than trusting upstream data to stay clean.
 DESC={k:(v or '').replace('\u2014','-').replace('\u2013','-') for k,v in DESC.items()}
-# Curated descriptions (committed) for entities the wiki harvest missed - e.g. the
-# ~65 kibbutzim whose article titles carry a parenthetical ("\u05d3\u05dc\u05d9\u05d4 (\u05e7\u05d9\u05d1\u05d5\u05e5)") and fell
-# out of the category sweep. The scraped corpus wins when both exist.
-for k,v in json.load(open('solver/lex/descriptions_curated.json')).items(): DESC.setdefault(k,v)
+# Curated descriptions (committed) for the ~65 kibbutzim the wiki harvest missed:
+# their article titles carry a parenthetical ("\u05d3\u05dc\u05d9\u05d4 (\u05e7\u05d9\u05d1\u05d5\u05e5)"), so they fell out
+# of the category sweep AND the by-bare-title corpus fetch returns a different
+# article for them (\u05d3\u05dc\u05d9\u05d4 the flower, \u05d2\u05d6\u05e8 the vegetable, or a disambiguation
+# stub) - the 2026-08-30 rebuild shipped 59 such wrong descriptions. So for the
+# kibbutz category these WIN over the corpus (see get_desc); every other
+# category keeps the corpus text - many of these names are also bible figures
+# (\u05d3\u05df, \u05d9\u05e4\u05ea\u05d7, \u05e0\u05d7\u05e9\u05d5\u05df) whose corpus description is the right one there.
+CURATED_KIBBUTZ=json.load(open('solver/lex/descriptions_curated.json'))
 amb=json.load(open('solver/lex/ambiguities.json'))
 cw=json.load(open('solver/crosswordese.json')) if os.path.exists('solver/crosswordese.json') else {}
 subs=json.load(open('solver/lex/substitutions.json'))
@@ -182,6 +187,7 @@ def sense_rank(cat):
 WIKI_CATS={c for c in CATS if c not in ('song','artist','common','military')}
 
 def get_desc(cat,t,n):
+    if cat=='kibbutz' and t in CURATED_KIBBUTZ: return CURATED_KIBBUTZ[t]
     if t in DESC: return DESC[t].removeprefix('[ויקימילון] ')
     if cat=='song' and n in song_rel: return f"שיר של {song_rel[n]['artist']}"
     if cat=='artist' and n in artist_rel:
