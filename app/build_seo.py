@@ -38,10 +38,15 @@ DESC=json.load(open('data/culture/descriptions.json')) if os.path.exists('data/c
 # Source descriptions occasionally carry an em-dash; the project publishes none,
 # so normalise at load rather than trusting upstream data to stay clean.
 DESC={k:(v or '').replace('\u2014','-').replace('\u2013','-') for k,v in DESC.items()}
-# Curated descriptions (committed) for entities the wiki harvest missed - e.g. the
-# ~65 kibbutzim whose article titles carry a parenthetical ("\u05d3\u05dc\u05d9\u05d4 (\u05e7\u05d9\u05d1\u05d5\u05e5)") and fell
-# out of the category sweep. The scraped corpus wins when both exist.
-for k,v in json.load(open('solver/lex/descriptions_curated.json')).items(): DESC.setdefault(k,v)
+# Curated descriptions (committed) for the ~65 kibbutzim the wiki harvest missed:
+# their article titles carry a parenthetical ("\u05d3\u05dc\u05d9\u05d4 (\u05e7\u05d9\u05d1\u05d5\u05e5)"), so they fell out
+# of the category sweep AND the by-bare-title corpus fetch returns a different
+# article for them (\u05d3\u05dc\u05d9\u05d4 the flower, \u05d2\u05d6\u05e8 the vegetable, or a disambiguation
+# stub) - the 2026-08-30 rebuild shipped 59 such wrong descriptions. So for the
+# kibbutz category these WIN over the corpus (see get_desc); every other
+# category keeps the corpus text - many of these names are also bible figures
+# (\u05d3\u05df, \u05d9\u05e4\u05ea\u05d7, \u05e0\u05d7\u05e9\u05d5\u05df) whose corpus description is the right one there.
+CURATED_KIBBUTZ=json.load(open('solver/lex/descriptions_curated.json'))
 amb=json.load(open('solver/lex/ambiguities.json'))
 cw=json.load(open('solver/crosswordese.json')) if os.path.exists('solver/crosswordese.json') else {}
 subs=json.load(open('solver/lex/substitutions.json'))
@@ -160,9 +165,29 @@ if os.path.exists('data/shironet_songs.json'):
             song_rel.setdefault(norm(st),{'artist':an,'url':r.get('product_page_url','')})
             artist_rel.setdefault(norm(an),{'name':an,'prfid':r.get('prfid',''),'songs':[]})
             artist_rel[norm(an)]['songs'].append(st)
+# A name can belong to several categories: אילת is a city AND a song title,
+# איטליה is a country AND a song, אדם is a biblical figure AND a song. The
+# entity page path is keyed on the NAME alone, so pass 2 used to write
+# /milon/e/<name>/ once per category and whichever category sorted last
+# alphabetically won the file. "song" sorts near the end, which is how the
+# country Italy and the city Eilat came to be served as songs, with song
+# titles as their "related entries". Measured 2026-08-30: 468 names collided,
+# 488 writes were thrown away, and the sitemap carried 488 duplicate <loc>.
+# Pick the sense deliberately instead: a real-world referent outranks a media
+# title, because a solver looking up אילת wants the city, not the song. The
+# senses that lose the URL are still listed on the page under משמעויות נוספות.
+SENSE_PRIORITY=['common','bible','nation','city_il','world_city','mountain',
+  'lake_sea','river','stream','valley','desert','island','region','site','park',
+  'museum','neighborhood','kibbutz','moshav','military','politician','author',
+  'artist','actor','athlete','song']
+_SENSE_RANK={c:i for i,c in enumerate(SENSE_PRIORITY)}
+def sense_rank(cat):
+    return _SENSE_RANK.get(cat,len(_SENSE_RANK))
+
 WIKI_CATS={c for c in CATS if c not in ('song','artist','common','military')}
 
 def get_desc(cat,t,n):
+    if cat=='kibbutz' and t in CURATED_KIBBUTZ: return CURATED_KIBBUTZ[t]
     if t in DESC: return DESC[t].removeprefix('[ויקימילון] ')
     if cat=='song' and n in song_rel: return f"שיר של {song_rel[n]['artist']}"
     if cat=='artist' and n in artist_rel:
@@ -179,7 +204,7 @@ def get_desc(cat,t,n):
 
 SNIPPET_MAX=155   # Google truncates around here; anything past it is wasted.
 
-def meta_desc(t,n,single,d,c,a,sb,related=()):
+def meta_desc(t,n,single,d,c,a,sb,related=(),senses=()):
     """Per-entry snippet built from whatever signals THIS word actually has.
 
     The old line was one template with a fixed tail ("לפותרי תשבצים ותשחצים"),
@@ -198,8 +223,8 @@ def meta_desc(t,n,single,d,c,a,sb,related=()):
     if sb:
         uniq=list(dict.fromkeys(x[0] for x in sb))[:3]
         if uniq: facts.append('מרומז בתשבצים גם כ: '+', '.join(uniq)+'.')
-    if a and a.get('senses'):
-        extra=[HEBSENSE.get(x,x) for x in a['senses']][:3]
+    if senses:
+        extra=list(dict.fromkeys(senses))[:3]
         if extra: facts.append('משמעויות נוספות: '+', '.join(extra)+'.')
     out=lead[:SNIPPET_MAX]
     for f in facts:
@@ -339,6 +364,15 @@ for cat,(plural,single) in CATS.items():
         ent_index.append({'t':t,'n':n,'c':cat,'l':len(n),'d':get_desc(cat,t,n)[:70],'r':rich})
         if rich and count<CAP:
             page_set.add((cat,t)); count+=1
+# One page per name, best sense wins; the rest become "משמעויות נוספות".
+alt_senses={}
+_best={}
+for cat,t in page_set:
+    if t not in _best or sense_rank(cat)<sense_rank(_best[t]): _best[t]=cat
+for cat,t in page_set:
+    if cat!=_best[t]: alt_senses.setdefault(t,[]).append(cat)
+page_set={(c,t) for t,c in _best.items()}
+
 by_norm={}
 for cat,t in page_set: by_norm.setdefault(norm(t),(cat,t))
 pages_norm={norm(t) for _,t in page_set}
@@ -364,7 +398,15 @@ for cat,t in sorted(page_set):
     if cat=='military' and t in MIL and MIL[t]!=d: rows+=f'<tr><th>פירוש</th><td>{MIL[t]}</td></tr>'
     rows+=f'<tr><th>כתיב בתשבץ</th><td style="font-family:monospace">{n}</td></tr>'
     if c: rows+=f'<tr><th>הופעות בתשבצים</th><td>{c} פעמים (מתוך מדגם של 362 תשבצים)</td></tr>'
-    if a: rows+=f'<tr><th>משמעויות נוספות</th><td>{", ".join(HEBSENSE.get(x,x) for x in a["senses"])}</td></tr>'
+    # The senses that lost the URL above are real meanings of this name, so they
+    # belong in the same row as the ambiguity data rather than vanishing.
+    # Both lists go through HEBSENSE so the same category cannot appear twice
+    # under two labels ("שיר" from CATS and "שם שיר" from the ambiguity file),
+    # and the sense already shown in the סוג row is not repeated back.
+    senses=[HEBSENSE.get(x,x) for x in (a["senses"] if a else [])]
+    senses+=[HEBSENSE.get(k,k) for k in sorted(alt_senses.get(t,[]),key=sense_rank)]
+    senses=[x for x in dict.fromkeys(senses) if x!=single]
+    if senses: rows+=f'<tr><th>משמעויות נוספות</th><td>{", ".join(senses)}</td></tr>'
     if sb:
         pairs=', '.join(f'{x[0]}' for x in sb[:5])
         rows+=f'<tr><th>תחליפים בתשבצים</th><td>{pairs}</td></tr>'
@@ -396,7 +438,7 @@ for cat,t in sorted(page_set):
     page(f'{OUT}/e/{urllib.parse.quote(t,safe="")}/index.html',
          (f'{t}: פירוש ומשמעות, {single} ב-{len(n)} אותיות בתשבץ' if d else
           f'{t} בתשבץ: {single} ב-{len(n)} אותיות (כתיב: {n})'),
-         meta_desc(t,n,single,d,c,a,sb,related),
+         meta_desc(t,n,single,d,c,a,sb,related,senses),
          body, ld, crumb=t)
     urls.append(f'/milon/e/{urllib.parse.quote(t,safe="")}/')
 
@@ -533,7 +575,9 @@ if os.path.isdir('docs/nosim'):
                  if os.path.exists(f'docs/nosim/{t}/{lv}/index.html')]
 if os.path.exists('docs/bakasha/index.html'):
     topics.append('/bakasha/')
-for u in ['/','/nativ/','/solve/','/methods/','/research/','/research/he/']+trainer+topics+urls:
+# dict.fromkeys, not set(): the sitemap should stay in a stable order so a
+# rebuild produces a reviewable diff rather than a reshuffle.
+for u in dict.fromkeys(['/','/nativ/','/solve/','/methods/','/research/','/research/he/']+trainer+topics+urls):
     sm+=f'  <url><loc>{BASE}{u}</loc></url>\n'
 sm+='</urlset>'
 open('docs/sitemap.xml','w').write(sm)
