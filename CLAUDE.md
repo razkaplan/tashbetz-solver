@@ -22,6 +22,30 @@ ALLOW_BARE_MILON=1 unless a description-less milon is truly intended.
 `app/build_defs.py` (clue pages, /milon/d/) and `app/build_nativ.py` use only
 committed data and are safe anywhere.
 
+## Definition requests (demand-driven /milon/d/ pages)
+
+Readers request missing definitions from the site (the milon hub's search-miss
+button and the /milon/d/ request box POST to /api/define-request). A weekly
+Routine drains the queue; the procedure, runnable by any session:
+
+1. `git pull`, then `python3 app/drain_requests.py` - it reads the committed
+   queue snapshot (solver/lex/defs_queue_snapshot.json, mirrored from the API
+   every Saturday by .github/workflows/defreq-mirror.yml, which also resolves
+   already-fulfilled phrases). No egress needed. A live GET of
+   https://tashbetz.gtmascode.dev/api/define-request works too when egress
+   allows.
+2. The script auto-fulfills mechanically into solver/lex/defs_requested.json.
+   REVIEW every AUTO spec: open the matched answers and drop any that don't
+   actually fit the phrase.
+3. Hand-curate the NEEDS-CURATION phrases (most-requested first, skip junk)
+   as "items" specs in the same file: verified facts only, 10-40 answers,
+   a short description each, optional "wiki" source article. Content rules
+   below apply.
+4. `python3 app/build_defs.py`, commit, merge to main (auto-deploys).
+5. If egress allows, `python3 app/drain_requests.py --resolve` to clear the
+   fulfilled phrases from the server queue; otherwise leave them (idempotent).
+6. Note the additions in marketing_kb/TRACKING.md's movement log.
+
 ## Content rules
 
 - No newspaper clue text is ever published (see README).

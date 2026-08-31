@@ -1,0 +1,60 @@
+name: Definition-request queue mirror
+
+# Mirrors the reader definition-request queue (/api/define-request) into the
+# repo every Saturday, so the Sunday drain Routine can read it without any
+# egress, and resolves phrases that already have specs (they are fulfilled -
+# keeps the server queue from silting up toward its cap). GitHub runners have
+# open egress; agent sandboxes often don't.
+
+on:
+  schedule:
+    - cron: '0 20 * * 6'  # Saturday 20:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Mirror queue and resolve fulfilled phrases
+        run: |
+          python3 - <<'EOF'
+          import json, urllib.request
+
+          API = 'https://tashbetz.gtmascode.dev/api/define-request'
+          SNAP = 'solver/lex/defs_queue_snapshot.json'
+          SPECS = 'solver/lex/defs_requested.json'
+
+          with urllib.request.urlopen(API, timeout=30) as r:
+              queue = json.load(r)
+
+          fulfilled_phrases = {s['phrase'] for s in
+                               json.load(open(SPECS, encoding='utf-8')).values()}
+          pending = [i for i in queue.get('items', []) if i['q'] not in fulfilled_phrases]
+          done = [i['q'] for i in queue.get('items', []) if i['q'] in fulfilled_phrases]
+
+          json.dump({'items': pending}, open(SNAP, 'w', encoding='utf-8'),
+                    ensure_ascii=False, indent=1)
+          print(f'pending: {len(pending)}, resolving fulfilled: {len(done)}')
+
+          if done:
+              body = json.dumps({'resolve': done}).encode()
+              req = urllib.request.Request(API, data=body,
+                  headers={'Content-Type': 'application/json'})
+              with urllib.request.urlopen(req, timeout=30) as r:
+                  print('resolve:', r.status)
+          EOF
+      - name: Commit snapshot if changed
+        run: |
+          git config user.name 'defreq-mirror'
+          git config user.email 'noreply@github.com'
+          git add solver/lex/defs_queue_snapshot.json
+          if git diff --cached --quiet; then
+            echo 'no queue changes'
+          else
+            git commit -m 'Mirror definition-request queue snapshot'
+            git push
+          fi

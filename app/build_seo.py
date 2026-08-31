@@ -160,6 +160,25 @@ if os.path.exists('data/shironet_songs.json'):
             song_rel.setdefault(norm(st),{'artist':an,'url':r.get('product_page_url','')})
             artist_rel.setdefault(norm(an),{'name':an,'prfid':r.get('prfid',''),'songs':[]})
             artist_rel[norm(an)]['songs'].append(st)
+# A name can belong to several categories: אילת is a city AND a song title,
+# איטליה is a country AND a song, אדם is a biblical figure AND a song. The
+# entity page path is keyed on the NAME alone, so pass 2 used to write
+# /milon/e/<name>/ once per category and whichever category sorted last
+# alphabetically won the file. "song" sorts near the end, which is how the
+# country Italy and the city Eilat came to be served as songs, with song
+# titles as their "related entries". Measured 2026-08-30: 468 names collided,
+# 488 writes were thrown away, and the sitemap carried 488 duplicate <loc>.
+# Pick the sense deliberately instead: a real-world referent outranks a media
+# title, because a solver looking up אילת wants the city, not the song. The
+# senses that lose the URL are still listed on the page under משמעויות נוספות.
+SENSE_PRIORITY=['common','bible','nation','city_il','world_city','mountain',
+  'lake_sea','river','stream','valley','desert','island','region','site','park',
+  'museum','neighborhood','kibbutz','moshav','military','politician','author',
+  'artist','actor','athlete','song']
+_SENSE_RANK={c:i for i,c in enumerate(SENSE_PRIORITY)}
+def sense_rank(cat):
+    return _SENSE_RANK.get(cat,len(_SENSE_RANK))
+
 WIKI_CATS={c for c in CATS if c not in ('song','artist','common','military')}
 
 def get_desc(cat,t,n):
@@ -179,7 +198,7 @@ def get_desc(cat,t,n):
 
 SNIPPET_MAX=155   # Google truncates around here; anything past it is wasted.
 
-def meta_desc(t,n,single,d,c,a,sb,related=()):
+def meta_desc(t,n,single,d,c,a,sb,related=(),senses=()):
     """Per-entry snippet built from whatever signals THIS word actually has.
 
     The old line was one template with a fixed tail ("לפותרי תשבצים ותשחצים"),
@@ -198,8 +217,8 @@ def meta_desc(t,n,single,d,c,a,sb,related=()):
     if sb:
         uniq=list(dict.fromkeys(x[0] for x in sb))[:3]
         if uniq: facts.append('מרומז בתשבצים גם כ: '+', '.join(uniq)+'.')
-    if a and a.get('senses'):
-        extra=[HEBSENSE.get(x,x) for x in a['senses']][:3]
+    if senses:
+        extra=list(dict.fromkeys(senses))[:3]
         if extra: facts.append('משמעויות נוספות: '+', '.join(extra)+'.')
     out=lead[:SNIPPET_MAX]
     for f in facts:
@@ -339,6 +358,15 @@ for cat,(plural,single) in CATS.items():
         ent_index.append({'t':t,'n':n,'c':cat,'l':len(n),'d':get_desc(cat,t,n)[:70],'r':rich})
         if rich and count<CAP:
             page_set.add((cat,t)); count+=1
+# One page per name, best sense wins; the rest become "משמעויות נוספות".
+alt_senses={}
+_best={}
+for cat,t in page_set:
+    if t not in _best or sense_rank(cat)<sense_rank(_best[t]): _best[t]=cat
+for cat,t in page_set:
+    if cat!=_best[t]: alt_senses.setdefault(t,[]).append(cat)
+page_set={(c,t) for t,c in _best.items()}
+
 by_norm={}
 for cat,t in page_set: by_norm.setdefault(norm(t),(cat,t))
 pages_norm={norm(t) for _,t in page_set}
@@ -364,7 +392,15 @@ for cat,t in sorted(page_set):
     if cat=='military' and t in MIL and MIL[t]!=d: rows+=f'<tr><th>פירוש</th><td>{MIL[t]}</td></tr>'
     rows+=f'<tr><th>כתיב בתשבץ</th><td style="font-family:monospace">{n}</td></tr>'
     if c: rows+=f'<tr><th>הופעות בתשבצים</th><td>{c} פעמים (מתוך מדגם של 362 תשבצים)</td></tr>'
-    if a: rows+=f'<tr><th>משמעויות נוספות</th><td>{", ".join(HEBSENSE.get(x,x) for x in a["senses"])}</td></tr>'
+    # The senses that lost the URL above are real meanings of this name, so they
+    # belong in the same row as the ambiguity data rather than vanishing.
+    # Both lists go through HEBSENSE so the same category cannot appear twice
+    # under two labels ("שיר" from CATS and "שם שיר" from the ambiguity file),
+    # and the sense already shown in the סוג row is not repeated back.
+    senses=[HEBSENSE.get(x,x) for x in (a["senses"] if a else [])]
+    senses+=[HEBSENSE.get(k,k) for k in sorted(alt_senses.get(t,[]),key=sense_rank)]
+    senses=[x for x in dict.fromkeys(senses) if x!=single]
+    if senses: rows+=f'<tr><th>משמעויות נוספות</th><td>{", ".join(senses)}</td></tr>'
     if sb:
         pairs=', '.join(f'{x[0]}' for x in sb[:5])
         rows+=f'<tr><th>תחליפים בתשבצים</th><td>{pairs}</td></tr>'
@@ -396,7 +432,7 @@ for cat,t in sorted(page_set):
     page(f'{OUT}/e/{urllib.parse.quote(t,safe="")}/index.html',
          (f'{t}: פירוש ומשמעות, {single} ב-{len(n)} אותיות בתשבץ' if d else
           f'{t} בתשבץ: {single} ב-{len(n)} אותיות (כתיב: {n})'),
-         meta_desc(t,n,single,d,c,a,sb,related),
+         meta_desc(t,n,single,d,c,a,sb,related,senses),
          body, ld, crumb=t)
     urls.append(f'/milon/e/{urllib.parse.quote(t,safe="")}/')
 
@@ -445,6 +481,30 @@ else{{const c=canon(v);hits=E.filter(e=>e.t.includes(v)||e.n.includes(c));
   const sc=e=>(e.t===v||e.n===c)?2:(e.t.startsWith(v)||e.n.startsWith(c))?1:0;hits.sort((a,b)=>sc(b)-sc(a));}}
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}}[c]));res.innerHTML=hits.slice(0,60).map(e=>{{const u=e.p?('/milon/e/'+encodeURIComponent(e.t)+'/'):('/milon/'+e.c+'-'+e.l+'/#'+encodeURIComponent(e.n));return '<li><a href="'+u+'" style="text-decoration:none;color:inherit"><b style="color:#f22b39">'+esc(e.t)+'</b>'+(e.d?'<br><small>'+esc(e.d)+'</small>':'')+'<br><small>'+esc(CAT[e.c]||'')+' · '+esc(e.l)+' אותיות · <span style="font-family:monospace">'+esc(e.n)+'</span></small></a></li>'}}).join('');
 }};
+</script>
+<div id="reqmiss" style="display:none;margin-top:.6rem"></div>
+<script>
+(function(){{
+var q=document.getElementById('q'),res=document.getElementById('res'),box=document.getElementById('reqmiss');
+if(!q||!res||!box)return;
+var t=null;
+q.addEventListener('input',function(){{clearTimeout(t);t=setTimeout(check,700);}});
+function check(){{
+ var v=q.value.trim();
+ if(v.length<2||res.children.length>0){{box.style.display='none';return;}}
+ box.style.display='block';box.textContent='';
+ var b=document.createElement('button');
+ b.textContent='לא מצאתם? בקשו שנוסיף: "'+v+'"';
+ b.style.cssText='font:inherit;padding:.5rem 1rem;border:1.5px solid #121212;border-radius:3px;background:#fff4d6;cursor:pointer';
+ b.onclick=function(){{
+  fetch('/api/define-request',{{method:'POST',headers:{{'Content-Type':'application/json'}},body:JSON.stringify({{q:v}})}})
+   .then(function(r){{if(!r.ok)throw 0;return r.json();}})
+   .then(function(){{b.textContent='הבקשה התקבלה! ההגדרה תתווסף בקרוב';b.disabled=true;}})
+   .catch(function(){{b.textContent='שגיאה - נסו שוב מאוחר יותר';}});
+ }};
+ box.appendChild(b);
+}}
+}})();
 </script>"""
 page(f'{OUT}/index.html','מילון תשבץ: חיפוש לפי אורך, תבנית ואנגרם',
      f'מנוע חיפוש לפותרי תשבצים: {len(ent_index):,} שירים, זמרים, פוליטיקאים ומקומות עם כתיב תשבץ מדויק, אורך ותבניות.',
@@ -496,7 +556,9 @@ if os.path.isdir('docs/tirgul'):
     trainer=['/tirgul/']+[f'/tirgul/{d}/' for d in sorted(os.listdir('docs/tirgul'),
              key=lambda x:(not x.isdigit(), int(x) if x.isdigit() else x))
              if os.path.exists(f'docs/tirgul/{d}/index.html')]
-for u in ['/','/nativ/','/solve/','/methods/','/research/','/research/he/']+trainer+urls:
+# dict.fromkeys, not set(): the sitemap should stay in a stable order so a
+# rebuild produces a reviewable diff rather than a reshuffle.
+for u in dict.fromkeys(['/','/nativ/','/solve/','/methods/','/research/','/research/he/']+trainer+urls):
     sm+=f'  <url><loc>{BASE}{u}</loc></url>\n'
 sm+='</urlset>'
 open('docs/sitemap.xml','w').write(sm)
