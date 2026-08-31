@@ -80,11 +80,15 @@ def main():
     if args and os.path.exists(args[0]):
         # explicit file (e.g. fetched via Bright Data MCP)
         queue = json.load(open(args[0], encoding='utf-8'))['items']
-    elif os.path.exists(SNAP) and json.load(open(SNAP, encoding='utf-8'))['items']:
+    elif os.path.exists(SNAP):
         # committed mirror (.github/workflows/defreq-mirror.yml, Saturdays) -
-        # the egress-free default for sandboxed drain runs
+        # the egress-free default for sandboxed drain runs. An EMPTY snapshot
+        # is an answer, not a miss: the mirror ran and nobody asked for
+        # anything. Treating it as a miss sent the weekly run to the network,
+        # where a sandbox has no egress, and failed it every week until the
+        # first request arrived.
         queue = json.load(open(SNAP, encoding='utf-8'))['items']
-        print(f'using committed snapshot {SNAP}')
+        print(f'using committed snapshot {SNAP}: {len(queue)} requests')
     else:
         try:
             with urllib.request.urlopen(API, timeout=30) as r:

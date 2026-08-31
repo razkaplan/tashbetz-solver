@@ -103,6 +103,9 @@ def load_reference():
     banks = {k: v for k, v in json.load(open('solver/lex/topics.json', encoding='utf-8')).items()
              if not k.startswith('_')}
     fillbank = json.load(open('solver/lex/fillbank.json', encoding='utf-8'))
+    requested = {}
+    if os.path.exists('solver/lex/defs_requested.json'):
+        requested = json.load(open('solver/lex/defs_requested.json', encoding='utf-8'))
     curated = {k: v for k, v in json.load(open('solver/lex/defs_curated.json',
                                                encoding='utf-8')).items()
                if not k.startswith('_')}
@@ -125,7 +128,7 @@ def load_reference():
     defined |= {norm(w) for c in curated.values() for w in c.get('items', {})}
     defined |= {n for n, e in ent_by_norm.items() if (e.get('d') or '').strip()}
     return {'lex': lex, 'ents': ents, 'ent_by_norm': ent_by_norm, 'ent_descs': ent_descs,
-            'fillbank': fillbank,
+            'fillbank': fillbank, 'requested': requested,
             'banks': banks, 'curated': curated, 'news': news,
             'common': (attested | crosswordese | defined), 'defined': defined}
 
@@ -175,6 +178,12 @@ def check_proof(entry, ref):
             got = ref['curated'].get(pr.get('list'), {}).get('items', {}).get(key)
         elif src == 'fill':
             got = ref['fillbank'].get(key)
+        elif src == 'requested':
+            got = None
+            for spec in ref['requested'].values():
+                if spec.get('phrase') == pr.get('phrase'):
+                    got = (spec.get('items') or {}).get(key)
+                    break
         else:
             return f'unknown definition source {src!r}'
         if not got:
@@ -374,13 +383,13 @@ def run(topics=None, quick=False, matrix=True):
                 # is what actually produces a published board. Judging a
                 # single-seed board against the published floors would be
                 # measuring something nobody ships.
-                one = topicgen.generate(topic, level, seed=4242, budget_s=12)
-                again = topicgen.generate(topic, level, seed=4242, budget_s=12)
+                one = topicgen.generate(topic, level, seed=4242)
+                again = topicgen.generate(topic, level, seed=4242)
                 if json.dumps(one, sort_keys=True, ensure_ascii=False) != \
                    json.dumps(again, sort_keys=True, ensure_ascii=False):
                     failures.append(f'matrix {topic} L{level}: '
                                     f'not deterministic for a fixed seed')
-                p = topicgen.generate_best(topic, level, budget_s=12)
+                p = topicgen.generate_best(topic, level)
                 if not p:
                     failures.append(f'matrix {topic} L{level}: generator returned nothing')
                     continue

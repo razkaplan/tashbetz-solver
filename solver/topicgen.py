@@ -44,7 +44,6 @@ import os
 import random
 import re
 import sys
-import time
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, 'solver'))
@@ -81,9 +80,18 @@ LEVELS = {
 DEFAULT_SHAPE = {1: 'classic7', 2: 'arrow9', 3: 'classic9', 4: 'arrow11'}
 THEME_SHARE = 0.55        # of the entries whose length the topic can reach
 MIN_THEME_CANDIDATES = 8  # a length with fewer topic answers is not themeable
+PHRASE_STOP = {'של', 'עם', 'על', 'או', 'גם', 'תשבץ', 'תשחץ', 'מילון', 'פתרון'}
 MAX_THEME_SLOTS = 14      # past this the search spends longer than the gain
 PROBE_TRIES = 9000        # search nodes when testing whether a theme count fits
-FULL_TRIES = 60000        # nodes for the second pass, if the short one found nothing
+FULL_TRIES = 60000        # nodes for the unconstrained fallback fill
+# Whole-board node allowance. A 32-entry board needs several times the search a
+# 16-entry one does; giving them the same allowance left the big boards with
+# two topic answers in them.
+# Calibrated so one board is tens of seconds, not minutes: a node on a
+# 32-entry board costs far more than one on a 16-entry board, so the counts do
+# not scale with the entry count the way the wall clock did.
+WORK = {'classic7': 400_000, 'arrow9': 700_000,
+        'classic9': 150_000, 'arrow11': 150_000}
 LONG_ENTRY = 5            # an entry this long reads as a theme entry
 
 
@@ -133,6 +141,17 @@ def load():
         if (e['c'] in CLUEABLE_CATS and len(d) >= 10 and shared[d] <= 3
                 and 2 <= len(n) <= 12 and n not in d and n not in general):
             general[n] = (d, {'type': 'definition', 'source': 'entity', 'key': e['t']}, e['t'])
+
+    # Definition pages readers asked for and someone curated: each is a
+    # hand-checked list of answers for one clue phrase, which is exactly what a
+    # requested crossword on that phrase needs. Keyed by phrase.
+    requested = {}
+    rpath = os.path.join(ROOT, 'solver/lex/defs_requested.json')
+    if os.path.exists(rpath):
+        for spec in json.load(open(rpath, encoding='utf-8')).values():
+            if isinstance(spec, dict) and spec.get('phrase'):
+                for phrase in [spec['phrase']] + list(spec.get('variants', ())):
+                    requested.setdefault(phrase.strip(), spec)
 
     topics = {}
     # topics.json is hand-curated; topics_news.json is written weekly by
@@ -187,6 +206,7 @@ def load():
                     carrier[sub] = (c, i)
 
     return {'lex': lexset, 'general': general, 'topics': topics, 'curated': curated,
+            'requested': requested,
             'ents': ents, 'reversible': reversible, 'carrier': carrier,
             'anagrams': anagrams, 'freq': freq, 'common': common}
 
@@ -223,10 +243,50 @@ def topic_terms(ctx, topic):
                     out[n] = (d, {'type': 'definition', 'source': 'curated',
                                   'list': key, 'key': w}, w)
         return out
-    toks = [re.escape(t) for t in topic.split() if len(t) > 1]
+    # A definition page already curated for this exact phrase is the best
+    # possible answer: someone checked those answers by hand.
+    spec = ctx['requested'].get(topic.strip())
+    if spec:
+        for w, d in sorted((spec.get('items') or {}).items()):
+            n = norm(w)
+            if 2 <= len(n) <= 12 and d and n not in d:
+                out.setdefault(n, (d, {'type': 'definition', 'source': 'requested',
+                                       'phrase': spec['phrase'], 'key': w}, w))
+        cat, rx = spec.get('cat'), spec.get('rx')
+        if cat:
+            for e in sorted(ctx['ents'], key=lambda x: x['t']):
+                d = (e.get('d') or '').strip()
+                n = norm(e['t'])
+                if (e['c'] == cat and (not rx or re.search(rx, d)) and len(d) >= 10
+                        and 2 <= len(n) <= 12 and n not in d):
+                    out.setdefault(n, (d, {'type': 'definition', 'source': 'entity',
+                                           'key': e['t']}, e['t']))
+    # A curated list whose title IS the phrase is the next best:
+    # "עיר באיטליה" is already a hand-checked list of 39 answers.
+    for key, spec in sorted(ctx['curated'].items()):
+        title = (spec.get('title') or '').strip()
+        if title and (title == topic.strip() or title in topic or topic in title):
+            for w, d in sorted(spec.get('items', {}).items()):
+                n = norm(w)
+                if 2 <= len(n) <= 12 and n not in d:
+                    out.setdefault(n, (d, {'type': 'definition', 'source': 'curated',
+                                           'list': key, 'key': w}, w))
+    # Then the entity index, matched the way app/drain_requests.py matches it:
+    # every content word must appear, with a one-letter prefix stripped, so
+    # "עיר באיטליה" also finds a description reading "עיר בצפון איטליה".
+    toks = []
+    for w in topic.split():
+        if len(w) > 3:
+            w = re.sub(r'^[בלמהוכש]', '', w)
+        if len(w) > 1 and w not in PHRASE_STOP:
+            toks.append(re.escape(w))
     if not toks:
         return out
-    rx = ''.join(f'(?=.*{t})' for t in toks)   # AND, not OR: see drain_requests.py
+    # AND, not OR (an OR join matched 'דרום אירופה' for 'דרום אמריקה'), and
+    # each token has to start a word, optionally behind a one-letter Hebrew
+    # prefix - otherwise 'בלה' matched every description with those three
+    # letters somewhere inside a longer word.
+    rx = ''.join(rf'(?=.*\b[בלמהוכש]?{t})' for t in toks)
     for e in sorted(ctx['ents'], key=lambda x: x['t']):
         d = (e.get('d') or '').strip()
         n = norm(e['t'])
@@ -331,7 +391,7 @@ def pool_index(ctx, pool, topical, rare_first, cache_key):
     return out
 
 
-def fill(grid, pi, rng, theme=frozenset(), tries=30000, width=14):
+def fill(grid, pi, rng, theme=frozenset(), budget=None, width=14):
     """Fill every slot from the pool index. Backtracking, most constrained first.
 
     `theme` names the slots that must take a topic answer. Reserving those
@@ -342,6 +402,12 @@ def fill(grid, pi, rng, theme=frozenset(), tries=30000, width=14):
     Candidate lists are cached per slot and refreshed only for the slots that
     cross the one just filled. Recomputing all of them at every node made a
     9x9 board take a minute.
+
+    `budget` is a one-element list of search nodes, SHARED with the caller and
+    decremented here, so one board's whole search is bounded by a count rather
+    than by a clock. That is what makes a seed reproducible: a wall-clock
+    deadline crosses at a different point on a busy machine and the same seed
+    then walks a different plan.
     """
     sl = slots(grid)
     keys = sorted(sl)
@@ -413,7 +479,7 @@ def fill(grid, pi, rng, theme=frozenset(), tries=30000, width=14):
                 del board[c]
         return False
 
-    return dict(assigned) if recurse([tries]) else None
+    return dict(assigned) if recurse(budget if budget is not None else [30000]) else None
 
 
 # ------------------------------------------------------------------ build
@@ -461,14 +527,14 @@ def _clue_the_fill(ctx, sol, terms, allowed, band, level):
     return out
 
 
-def generate(topic, level=1, shape=None, seed=None, attempts=3, budget_s=45):
+def generate(topic, level=1, shape=None, seed=None, attempts=3, work=None):
     """The back-end call: (topic, level) in, a finished puzzle out, or None.
 
-    `budget_s` bounds the search. Without it a board that is nearly fillable
-    holds the whole plan open for minutes, and a 40-board rebuild stops being
-    something anyone actually runs.
+    `work` is the search-node allowance for the whole board. Something has to
+    bound it - a nearly fillable board holds the plan open indefinitely, and a
+    40-board rebuild has to be something a person will actually run - and a
+    COUNT is the only bound that keeps a seed reproducible.
     """
-    started = time.monotonic()
     if level not in LEVELS:
         raise ValueError(f'level must be one of {sorted(LEVELS)}')
     shape = shape or DEFAULT_SHAPE[level]
@@ -507,18 +573,21 @@ def generate(topic, level=1, shape=None, seed=None, attempts=3, budget_s=45):
     supported = sorted(themeable,
                        key=lambda k: (-(min(support(k), 30) + 3 * len(sl[k])), k))
     base_seed = seed if seed is not None else 20260830
+    left = [int(work if work is not None else WORK.get(shape, 400_000))]
 
     # Walk the theme count down from the maximum and take the first count that
     # fills: that is the most of the board the topic can honestly carry. The
     # walk is affordable because a hopeless count is rejected on a short node
     # budget - the first version gave every count the full search and spent the
     # whole time allowance proving that fourteen was too many.
-    def attempt_at(order, k, tries, deadline):
+    def attempt_at(order, k, per_attempt, reserve=0):
         for attempt in range(attempts):
-            if time.monotonic() - started > deadline:
+            if left[0] - reserve < per_attempt:
                 return None
             rng = random.Random(base_seed * 1000 + k * 97 + attempt)
-            sol = fill(grid, pi, rng, theme=frozenset(order[:k]), tries=tries)
+            slice_ = [min(per_attempt, left[0] - reserve)]
+            sol = fill(grid, pi, rng, theme=frozenset(order[:k]), budget=slice_)
+            left[0] -= per_attempt - slice_[0]
             if not sol or check_fill(grid, sol, None)[0]:
                 continue
             entries = _clue_the_fill(ctx, sol, terms, allowed, spec['band'], level)
@@ -549,13 +618,13 @@ def generate(topic, level=1, shape=None, seed=None, attempts=3, budget_s=45):
     # winners are compared. Interleaving them took whichever ordering happened
     # to survive one slot longer, which was usually the one that themes the
     # short entries and leaves the long ones to the filler.
-    walk_deadline = budget_s * 0.7
+    # A third of the allowance is held back for the unconstrained fallback, so
+    # a topic that cannot carry any theme slot still gets a board.
+    reserve = FULL_TRIES
     candidates = []
     for order in (long_first, supported):
         for k in range(k0, 0, -1):
-            if time.monotonic() - started > walk_deadline:
-                break
-            got = attempt_at(order, k, PROBE_TRIES, walk_deadline)
+            got = attempt_at(order, k, PROBE_TRIES, reserve)
             if got:
                 candidates.append(got)
                 break
@@ -564,7 +633,7 @@ def generate(topic, level=1, shape=None, seed=None, attempts=3, budget_s=45):
         # No theme count fits: fall back to an unconstrained fill so the caller
         # gets a board rather than nothing. It will be short on topic answers,
         # which is exactly what the eval's floors are there to catch.
-        found = attempt_at(long_first, 0, FULL_TRIES, budget_s)
+        found = attempt_at(long_first, 0, FULL_TRIES)
 
     if found:
         entries, sol = found
@@ -596,9 +665,6 @@ def theme_share(p, long_entry=LONG_ENTRY):
             p['topicality'])
 
 
-# A 32-entry board takes several times the search a 16-entry one does; giving
-# them the same allowance is what left the big boards with two topic answers.
-SHAPE_EFFORT = {'classic7': 1.0, 'arrow9': 1.4, 'classic9': 2.5, 'arrow11': 2.5}
 # When the big board of a family cannot be made to carry the topic, the small
 # board of the same family is used instead. A 32-entry board with three topic
 # answers in it is not a topic crossword; a 16-entry one with seven is.
@@ -606,20 +672,21 @@ SMALLER = {'classic9': 'classic7', 'arrow11': 'arrow9'}
 MIN_LONG_SHARE = 0.35     # of the entries a solver reads as the theme
 
 
-def generate_best(topic, level, shape=None, seeds=(20260830, 7, 12345), budget_s=15):
+def generate_best(topic, level, shape=None, seeds=(20260830, 7, 12345), effort=1.0):
     """The board a reader should get: best of a few seeds.
 
     One seed is a lottery - measured spread on the same topic and level was 6%
     to 33% of entries on topic - and the published board is written once and
-    read many times, so it is worth three searches.
+    read many times, so it is worth three searches. `effort` scales each
+    seed's node allowance.
     """
     want = shape or DEFAULT_SHAPE[level]
-    effort = budget_s * SHAPE_EFFORT.get(want, 1.0)
-    made = [p for p in (generate(topic, level, want, seed=s, budget_s=effort)
+    work = int(WORK.get(want, 400_000) * effort)
+    made = [p for p in (generate(topic, level, want, seed=s, work=work)
                         for s in seeds) if p]
     best = max(made, key=theme_share) if made else None
     if (best is None or theme_share(best)[0] < MIN_LONG_SHARE) and want in SMALLER:
-        alt = generate_best(topic, level, SMALLER[want], seeds, budget_s)
+        alt = generate_best(topic, level, SMALLER[want], seeds, effort)
         if alt and (best is None or theme_share(alt) > theme_share(best)):
             return alt
     return best

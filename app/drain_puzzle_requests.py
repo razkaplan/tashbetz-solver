@@ -47,10 +47,13 @@ def load_queue(args):
     if args and os.path.exists(args[0]):
         return json.load(open(args[0], encoding='utf-8'))['items']
     if os.path.exists(SNAP):
+        # An EMPTY snapshot is an answer, not a miss: it means Saturday's
+        # mirror ran and nobody asked for anything. Falling through to the
+        # network here made the weekly run fail in a sandbox with no egress
+        # every week until the first request arrived.
         items = json.load(open(SNAP, encoding='utf-8')).get('items') or []
-        if items:
-            print(f'using committed snapshot {SNAP}')
-            return items
+        print(f'using committed snapshot {SNAP}: {len(items)} requests')
+        return items
     try:
         with urllib.request.urlopen(API, timeout=30) as r:
             return json.load(r)['items']
@@ -85,7 +88,9 @@ def main():
             needs_bank.append((item.get('count', 1) if isinstance(item, dict) else 1,
                                topic, len(terms)))
             continue
-        p = topicgen.generate(topic, level)
+        # same best-of-seeds search the published boards get: a requested
+        # board is written once and read many times too
+        p = topicgen.generate_best(topic, level)
         if not p:
             needs_bank.append((item.get('count', 1) if isinstance(item, dict) else 1,
                                topic, len(terms)))

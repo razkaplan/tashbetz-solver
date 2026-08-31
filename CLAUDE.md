@@ -64,8 +64,13 @@ Boards by subject and level, generated rather than scraped.
   "topic crossword" that came out with two on-topic answers in it. Runs land
   in `evals/runs/topicgen/`.
 - Rebuild: `python3 app/build_topics.py --generate` regenerates
-  `docs/nosim/puzzles.json` (minutes) and the pages; without `--generate` it
-  only re-renders from the committed JSON (seconds).
+  `docs/nosim/puzzles.json` (tens of minutes: it takes the best of three seeds
+  per board) and the pages; without `--generate` it only re-renders from the
+  committed JSON (seconds). `--effort 0.5` halves each board's search.
+- The search is bounded by a NODE COUNT, not a clock, so a seed reproduces.
+  The boards committed on 2026-08-31 were generated just before that change and
+  will not reproduce byte-for-byte; anything generated since does. Re-running
+  the full rebuild replaces them with reproducible equivalents when convenient.
 - Term banks live in `solver/lex/topics.json` (curated, ten bagrut subjects)
   and `solver/lex/fillbank.json` (common words for the filler). Content rules
   below apply to both: a description is published verbatim as a clue.

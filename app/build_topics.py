@@ -261,7 +261,7 @@ REQUEST_BOX = """<div class="ask"><b>רוצים תשבץ על נושא אחר?</
 
 # ---------------------------------------------------------------- generate
 
-def generate_set(levels=(1, 2, 3, 4), topics=None, budget_s=15):
+def generate_set(levels=(1, 2, 3, 4), topics=None, effort=1.0):
     """Regenerate boards. Slow (seconds per board), so the result is committed
     and the page build reads the JSON.
 
@@ -278,7 +278,7 @@ def generate_set(levels=(1, 2, 3, 4), topics=None, budget_s=15):
                if not (p['topic'] in topics and p['level'] in levels)]
     for topic in topics:
         for level in levels:
-            p = topicgen.generate_best(topic, level, budget_s=budget_s)
+            p = topicgen.generate_best(topic, level, effort=effort)
             if not p:
                 print(f'  !! {topic} level {level}: no puzzle')
                 continue
@@ -517,13 +517,13 @@ if __name__ == '__main__':
                     help='regenerate docs/nosim/puzzles.json first (slow)')
     ap.add_argument('--topic', action='append',
                     help='limit --generate to these topics and merge into the set')
-    ap.add_argument('--budget', type=float, default=15,
-                    help='seconds of search per seed per board')
+    ap.add_argument('--effort', type=float, default=1.0,
+                    help='multiplier on each board\'s search-node allowance')
     ap.add_argument('--level', type=int, action='append',
                     help='limit --generate to these levels and merge into the set')
     ap.add_argument('--pages', action='store_true', default=True)
     a = ap.parse_args()
     if a.generate:
         generate_set(levels=tuple(a.level) if a.level else (1, 2, 3, 4),
-                     topics=a.topic, budget_s=a.budget)
+                     topics=a.topic, effort=a.effort)
     build()
