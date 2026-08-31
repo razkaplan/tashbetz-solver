@@ -30,3 +30,6 @@ data/sessions/
 # local Vercel env pulls (secrets)
 .env.vercel
 docs/.env.vercel
+
+# Claude Code agent-tool isolated worktrees (per-session scratch checkouts)
+.claude/worktrees/
