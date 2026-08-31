@@ -315,15 +315,35 @@ def generate_set(levels=(1, 2, 3, 4), topics=None, effort=1.0):
             # away, which is why a build reporting a clean ramp handed the gate
             # boards that failed one.
             if not publishable(p, prev_difficulty):
-                for seed in RETRY_SEEDS:
-                    alt = topicgen.generate(topic, level, p['shape'], seed=seed)
-                    if not alt:
-                        continue
-                    if publishable(alt, prev_difficulty):
-                        p = alt
+                # The SHAPE is part of the search, not fixed by the level.
+                # Difficulty is a MEAN over entries and a bigger grid needs
+                # proportionally more filler, which is cheap, so a 33-entry
+                # arrowword is pressed below a dense 16-entry crossword however
+                # many seeds it is given: biologia L4 sat at 1.54 against an L3
+                # of 1.77 and no seed closed it, because the seed was never the
+                # constraint. Both shapes here are already legitimate for the
+                # level - the generator falls back to the smaller one by itself
+                # when the larger will not fill.
+                shapes = [p['shape']]
+                smaller = topicgen.SMALLER.get(p['shape'])
+                if smaller:
+                    shapes.append(smaller)
+                done = False
+                for shape in shapes:
+                    for seed in RETRY_SEEDS:
+                        alt = topicgen.generate(topic, level, shape, seed=seed)
+                        if not alt:
+                            continue
+                        if publishable(alt, prev_difficulty):
+                            p, done = alt, True
+                            break
+                        if topicgen.theme_share(alt) > topicgen.theme_share(p):
+                            p = alt
+                    if done:
                         break
-                    if topicgen.theme_share(alt) > topicgen.theme_share(p):
-                        p = alt
+                if not done:
+                    print(f'  !! {topic} L{level}: no publishable board in '
+                          f'{len(shapes)} shapes x {len(RETRY_SEEDS)} seeds')
             out.append(p)
             prev_difficulty = p['difficulty']
             long_share, _ = topicgen.theme_share(p)

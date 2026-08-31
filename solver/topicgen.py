@@ -141,7 +141,7 @@ def load():
                               encoding='utf-8'))
     for w in sorted(fillbank):
         n = norm(w)
-        if n in lexset:
+        if n in lexset and printable_clue(fillbank[w]):
             general[n] = (fillbank[w], {'type': 'definition', 'source': 'fill', 'key': w}, w)
     curated = {k: v for k, v in json.load(
         open(os.path.join(ROOT, 'solver/lex/defs_curated.json'), encoding='utf-8')).items()
@@ -299,21 +299,20 @@ def _label_only(words, tail_set):
     return all(w.strip(',.') in CATEGORY_WORD for w in words[:-1])
 
 
-def usable_description(d, shared_count):
-    """Is this entity description printable as a clue?
+def printable_clue(d):
+    """Does this text read as a clue, whatever wrote it?
 
-    The index carries whatever the source article opened with, so it holds
-    truncated prose ("...נכבש ונהרס במהלך מל"), labels that identify nobody
-    ("עיר בישראל", attached to hundreds), and stray biography with dates in
-    brackets. A clue has to point at ONE answer and read as a clue.
+    Applies to EVERY definition clue we publish - bank term, curated list,
+    requested phrase, fillbank word, entity description. It used to be
+    enforced on the entity path alone, so a hand-curated list shipped
+    "האות ה-22 (χ)" straight past it and the gate, which checks every clue,
+    rejected the board twenty minutes later.
     """
     d = (d or '').strip()
-    if not 12 <= len(d) <= 90:
+    if len(d) > 90:
         return False
     if '. ' in d or '(' in d or ')' in d:
         return False
-    if shared_count > 1:                 # a description shared with another
-        return False                     # entity identifies neither of them
     words = d.split()
     if len(words) < 2:
         return False
@@ -322,6 +321,26 @@ def usable_description(d, shared_count):
     if _label_only(words, EMPTY_TAIL):
         return False
     return True
+
+
+def usable_description(d, shared_count):
+    """Is this ENTITY-INDEX description printable as a clue?
+
+    Everything printable_clue asks, plus two things that are properties of the
+    index rather than of clues. The index carries whatever the source article
+    opened with, so a description under twelve characters is a label that
+    identifies nobody ("עיר בישראל", attached to hundreds) - which is why that
+    floor lives here and NOT in printable_clue: "ההפך מחושך" and "שלטון העם"
+    are ten and nine characters and are exactly what a clue should look like.
+    Applying the floor to hand-written text would have dropped 93 of 871
+    fillbank clues and 6 of the bagrut bank terms.
+    """
+    d = (d or '').strip()
+    if len(d) < 12:
+        return False
+    if shared_count > 1:                 # a description shared with another
+        return False                     # entity identifies neither of them
+    return printable_clue(d)
 
 
 def topic_terms(ctx, topic):
@@ -336,7 +355,7 @@ def topic_terms(ctx, topic):
     if bank:
         for w, d in sorted(bank.get('terms', {}).items()):
             n = norm(w)
-            if 2 <= len(n) <= 12:
+            if 2 <= len(n) <= 12 and printable_clue(d):
                 out.setdefault(n, (d, {'type': 'definition', 'source': 'bank',
                                        'topic': topic, 'key': w}, w))
         for q in bank.get('entities', []):
@@ -353,7 +372,8 @@ def topic_terms(ctx, topic):
         for key in bank.get('curated', []):
             for w, d in sorted(ctx['curated'].get(key, {}).get('items', {}).items()):
                 n = norm(w)
-                if 2 <= len(n) <= 12 and n not in d and n not in out:
+                if (2 <= len(n) <= 12 and n not in d and n not in out
+                        and printable_clue(d)):
                     out[n] = (d, {'type': 'definition', 'source': 'curated',
                                   'list': key, 'key': w}, w)
         return out
@@ -363,7 +383,7 @@ def topic_terms(ctx, topic):
     if spec:
         for w, d in sorted((spec.get('items') or {}).items()):
             n = norm(w)
-            if 2 <= len(n) <= 12 and d and n not in d:
+            if 2 <= len(n) <= 12 and d and n not in d and printable_clue(d):
                 out.setdefault(n, (d, {'type': 'definition', 'source': 'requested',
                                        'phrase': spec['phrase'], 'key': w}, w))
         cat, rx = spec.get('cat'), spec.get('rx')
@@ -383,7 +403,7 @@ def topic_terms(ctx, topic):
         if title and (title == topic.strip() or title in topic or topic in title):
             for w, d in sorted(spec.get('items', {}).items()):
                 n = norm(w)
-                if 2 <= len(n) <= 12 and n not in d:
+                if 2 <= len(n) <= 12 and n not in d and printable_clue(d):
                     out.setdefault(n, (d, {'type': 'definition', 'source': 'curated',
                                            'list': key, 'key': w}, w))
     # Then the entity index, matched the way app/drain_requests.py matches it:
