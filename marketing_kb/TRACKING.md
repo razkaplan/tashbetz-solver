@@ -41,6 +41,15 @@ updates the "Movement log" below. This file is the handoff between runs, DAILY.m
 
 ## Movement log
 
+- **2026-08-30 (later)** - New page family shipped: **topic crosswords**
+  (`/nosim/`). Ten bagrut subjects x four levels, each a playable board with an
+  explanation per answer, plus a subject landing page per subject, a weekly
+  news board (`/nosim/hadashot/`) and a request page (`/bakasha/`). Targets a
+  query family none of the tracked competitors covers: they publish clue->answer
+  lists, nobody publishes *playable* subject boards. Watch "תשבץ תנך",
+  "תשבץ ביולוגיה", "הכנה לבגרות תשבץ", "תשחץ להדפסה" and the per-subject
+  variants in the next snapshot.
+
 - **2026-08-29 (later 3)** - Kibbutz/moshav split shipped from user feedback:
   the mixed "קיבוצים ומושבים" category is now two categories, 65 missing
   kibbutzim added (דליה, בארי, עין גדי, פלמחים...) - kibbutz coverage now 271,
