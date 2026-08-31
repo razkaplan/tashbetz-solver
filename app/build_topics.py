@@ -35,10 +35,24 @@ BASE = 'https://tashbetz.gtmascode.dev'
 OUT = 'docs/nosim'
 DATA = f'{OUT}/puzzles.json'
 
-# The eval's floors, mirrored here so the build can re-roll a weak board
-# instead of handing the eval a set it will reject.
-MIN_LONG, MIN_ALL = 0.35, 0.12
-RETRY_SEEDS = (7, 12345, 99, 555, 2024, 31337)
+# What makes a board publishable, mirrored from evals/topicgen_eval.py. The
+# build searches for a board that MEETS these rather than producing one and
+# letting the gate reject it: a gate that only says no leaves the previous,
+# worse boards published, which is the outcome that matters least.
+# A margin inside the gate's own numbers, so a board that just scrapes past the
+# build does not then fail the gate on a rounding boundary - 3 of 26 entries is
+# 11.5%, which prints as "12%" and is below a 12% floor.
+MIN_LONG, MIN_ALL = 0.38, 0.12
+CEILING = {1: 1.15, 2: 1.6, 3: 2.4, 4: 9.9}
+RETRY_SEEDS = (7, 12345, 99, 555, 2024, 31337, 8080, 4242)
+
+
+def publishable(p, floor_difficulty):
+    """Floors, ceiling, and no easier than the level below it."""
+    return (topicgen.theme_share(p)[0] >= MIN_LONG
+            and p['topicality'] >= MIN_ALL
+            and p['difficulty'] <= CEILING[p['level']] + 1e-9
+            and p['difficulty'] >= floor_difficulty - 1e-9)
 
 MECH_HE = {'definition': 'הגדרה', 'reversal': 'היפוך',
            'anagram': 'אנגרמה', 'hidden': 'מילה מוסתרת'}
@@ -282,23 +296,29 @@ def generate_set(levels=(1, 2, 3, 4), topics=None, effort=1.0):
         out = [p for p in json.load(open(DATA, encoding='utf-8'))
                if not (p['topic'] in topics and p['level'] in levels)]
     for topic in topics:
-        for level in levels:
+        # levels ascend, so each board can be required to be no easier than the
+        # one before it: that is the ramp, built rather than hoped for
+        prev_difficulty = 0.0
+        for level in sorted(levels):
             p = topicgen.generate_best(topic, level, effort=effort)
             if not p:
                 print(f'  !! {topic} level {level}: no puzzle')
                 continue
             out.append(p)
-            # A board below the floors is re-rolled rather than shipped: the
-            # seed is a lottery, and one weak board must not be the reason a
-            # whole rebuild is rejected and the previous, worse boards stay up.
-            if (topicgen.theme_share(p)[0] < MIN_LONG or p['topicality'] < MIN_ALL):
+            # Re-roll until the board is publishable. The seed is a lottery -
+            # measured spread on one topic and level was 6% to 33% of entries
+            # on topic - so this is a search, not a retry.
+            if not publishable(p, prev_difficulty):
                 for seed in RETRY_SEEDS:
                     alt = topicgen.generate(topic, level, p['shape'], seed=seed)
-                    if alt and topicgen.theme_share(alt) > topicgen.theme_share(p):
+                    if not alt:
+                        continue
+                    if publishable(alt, prev_difficulty):
                         p = alt
-                    if (topicgen.theme_share(p)[0] >= MIN_LONG
-                            and p['topicality'] >= MIN_ALL):
                         break
+                    if topicgen.theme_share(alt) > topicgen.theme_share(p):
+                        p = alt
+            prev_difficulty = p['difficulty']
             long_share, _ = topicgen.theme_share(p)
             print(f"  {topic:11s} L{level} {p['shape']:9s} "
                   f"{len(p['entries'])} entries, topical {p['topicality']:.0%} "

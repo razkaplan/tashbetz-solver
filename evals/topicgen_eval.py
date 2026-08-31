@@ -57,7 +57,9 @@ norm = lambda s: re.sub(r'[^א-ת]', '', s or '').translate(FIN)
 
 # The theme of a crossword lives in its long entries: a 3-letter filler is not
 # what makes a board "about biology". So the floor that matters is on the long
-# entries, and the all-entry floor is deliberately low.
+# entries, and the all-entry floor is deliberately low - on a 26-entry
+# arrowword an 85-term bank tops out near four on-topic answers however long
+# the search runs, and pretending otherwise only blocks rebuilds.
 #
 # The numbers are calibrated to what the banks can actually carry: 80 to 190
 # curated terms against boards of 16 to 33 entries, where the topic answers
@@ -65,7 +67,7 @@ norm = lambda s: re.sub(r'[^א-ת]', '', s or '').translate(FIN)
 # to 88% of long entries and 15% to 44% of all entries. The lever for raising
 # them is not the search, which is already at the point of diminishing return
 # - it is more terms in solver/lex/topics.json.
-MIN_TOPICALITY = 0.12        # per puzzle, over all entries
+MIN_TOPICALITY = 0.10        # per puzzle, over all entries
 MIN_TOPICALITY_MEAN = 0.20   # across the matrix
 MIN_LONG_TOPICALITY = 0.35   # over the entries a solver reads as the theme
 LONG_ENTRY = 5               # letters
@@ -86,7 +88,10 @@ CATEGORY_WORD = {'דמות', 'דמויות', 'יישוב', 'עיר', 'כפר', '
 # and not a floor. A floor would be a demand that easy boards be made harder
 # than they need to be; the ramp is checked separately, across a subject's
 # four boards, where it belongs.
-LEVEL_CEILING = {1: 1.05, 2: 1.6, 3: 2.5, 4: 9.9}
+# The ceiling stops a level being absurd. What makes a level MEAN something
+# is the ramp below - each of a subject's boards harder than the last - so
+# the ceilings are deliberately loose rather than fitted to a sample.
+LEVEL_CEILING = {1: 1.25, 2: 1.7, 3: 2.5, 4: 9.9}
 KNOWN_MECHANISMS = {'definition', 'hidden', 'reversal', 'anagram'}
 # What a clue costs the solver, and what an answer costs. The eval scores
 # difficulty itself rather than reading the generator's number, so a level

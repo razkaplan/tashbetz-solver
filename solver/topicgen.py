@@ -86,9 +86,9 @@ MECHANISMS = ['definition', 'hidden', 'reversal', 'anagram']
 # the topic is what the board is for, and no level is improved by hiding it.
 LEVELS = {
     1: {'name': 'קל', 'mechanisms': MECHANISMS, 'tier': 'common',
-        'ceiling': 1.05, 'filler': 'define'},
+        'ceiling': 1.25, 'filler': 'define'},
     2: {'name': 'בינוני', 'mechanisms': MECHANISMS, 'tier': 'common',
-        'ceiling': 1.6, 'filler': 'wordplay'},
+        'ceiling': 1.7, 'filler': 'wordplay'},
     3: {'name': 'קשה', 'mechanisms': MECHANISMS, 'tier': 'all',
         'ceiling': 2.5, 'filler': 'wordplay'},
     4: {'name': 'אתגר', 'mechanisms': MECHANISMS, 'tier': 'rare',
