@@ -239,6 +239,15 @@ def load():
             'anagrams': anagrams, 'freq': freq, 'common': common}
 
 
+# Tails that narrow nothing. "הר באריתריאה" is a clue; "יישוב בישראל" is a
+# label - the whole index is in Israel. Kept as an explicit list because the
+# distinction is about what the reader can deduce, not about word count.
+EMPTY_TAIL = {'בישראל', 'ישראלי', 'ישראלית', 'מקראי', 'מקראית', 'מיקראית',
+              'מקראיות', 'מקומית', 'מקומי', 'עתיק', 'עתיקה', 'קדום', 'קדומה',
+              'משונעים', 'לשעבר', 'ידוע', 'מפורסם', 'כללי',
+              'בתנ"ך', 'בתנך', 'במקרא', 'בתורה'}
+
+
 def usable_description(d, shared_count):
     """Is this entity description printable as a clue?
 
@@ -254,7 +263,14 @@ def usable_description(d, shared_count):
         return False
     if shared_count > 1:                 # a description shared with another
         return False                     # entity identifies neither of them
-    return len(d.split()) >= 2
+    words = d.split()
+    if len(words) < 2:
+        return False
+    # "דמות מקראית" in a Bible puzzle, "יישוב בישראל" in a geography one: true,
+    # unique in the index, and useless as a clue.
+    if len(words) <= 3 and words[-1].strip(',.') in EMPTY_TAIL:
+        return False
+    return True
 
 
 def topic_terms(ctx, topic):
@@ -404,6 +420,12 @@ def cluable(ctx, terms, allowed, tier):
     """
     base = {'easy': ctx['easy'], 'common': ctx['common']}.get(tier, ctx['lex'])
     base = (base & ctx['dictwords']) | set(ctx['general']) | set(terms)
+    # "הכלב" and "הדירה" are a definite article stuck to a word; as filler
+    # they read as a mistake. A bank entry that genuinely starts with ה keeps
+    # its place.
+    keep = set(terms) | set(ctx['general'])
+    base = {w for w in base
+            if w in keep or not (w.startswith('ה') and w[1:] in ctx['dictwords'])}
     pool = set()
     if 'definition' in allowed:
         pool |= set(terms) | set(ctx['general'])

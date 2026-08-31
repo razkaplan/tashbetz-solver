@@ -72,6 +72,11 @@ LONG_ENTRY = 5               # letters
 MIN_COMMON_SHARE = 0.9       # levels 1-2: answers people have actually met
 MIN_CLUE_LEN = 6
 STUB = ('פירושונים', 'דף פירושונים', 'ראו ערך')
+# see solver/topicgen.py: tails that identify nothing
+EMPTY_TAIL = {'בישראל', 'ישראלי', 'ישראלית', 'מקראי', 'מקראית', 'מיקראית',
+              'מקראיות', 'מקומית', 'מקומי', 'עתיק', 'עתיקה', 'קדום', 'קדומה',
+              'משונעים', 'לשעבר', 'ידוע', 'מפורסם', 'כללי',
+              'בתנ"ך', 'בתנך', 'במקרא', 'בתורה'}
 
 # A level is a CEILING on mean difficulty, not a list of permitted mechanisms
 # and not a floor. A floor would be a demand that easy boards be made harder
@@ -133,8 +138,13 @@ def load_reference():
     defined = {norm(w) for w in fillbank}
     defined |= {norm(w) for c in curated.values() for w in c.get('items', {})}
     defined |= {n for n, e in ent_by_norm.items() if (e.get('d') or '').strip()}
+    dictwords = set()
+    if os.path.exists('solver/lex/dictwords.txt'):
+        dictwords = {w.strip() for w in open('solver/lex/dictwords.txt', encoding='utf-8')
+                     if w.strip()}
     return {'lex': lex, 'ents': ents, 'ent_by_norm': ent_by_norm, 'ent_descs': ent_descs,
-            'fillbank': fillbank, 'requested': requested,
+            'fillbank': fillbank, 'dictwords': dictwords,
+            'fill_norms': {norm(w) for w in fillbank}, 'requested': requested,
             'banks': banks, 'curated': curated, 'news': news,
             'common': (attested | crosswordese | defined), 'defined': defined}
 
@@ -288,6 +298,14 @@ def check_puzzle(p, ref, pool):
             bad.append(f'{key}: clue too short: {clue!r}')
         if any(s in clue for s in STUB):
             bad.append(f'{key}: clue is a disambiguation stub')
+        # A short clue ending in an index-wide qualifier narrows nothing:
+        # every entity in the index is "בישראל" and every Bible name is a
+        # "דמות מקראית".
+        cw = clue.split()
+        if len(cw) <= 3 and cw and cw[-1].strip(',.') in EMPTY_TAIL:
+            bad.append(f'{key}: clue {clue!r} narrows nothing')
+        if '. ' in clue or '(' in clue:
+            bad.append(f'{key}: clue is truncated prose, not a clue')
         # A hidden clue names the carrier the answer sits inside, so it
         # contains the answer by construction; that is the mechanism, and the
         # proof checks it. Every other clue type giving its answer away is a
@@ -307,6 +325,9 @@ def check_puzzle(p, ref, pool):
         # Filler must be topic-neutral. A proper noun defined from the entity
         # index or a curated closed list is subject matter, and as filler it
         # turned a לשון board into a Bible quiz ("יהורם - בן אחאב").
+        if (a not in pool and a not in ref['fill_norms']
+                and a.startswith('ה') and a[1:] in ref['dictwords']):
+            bad.append(f'{key}: {a!r} is a definite article stuck to a word')
         if (e.get('mechanism') == 'definition' and a not in pool
                 and (e.get('proof') or {}).get('source') not in ('fill',)):
             bad.append(f"{key}: off-topic proper noun as filler "
