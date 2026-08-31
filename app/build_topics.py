@@ -304,10 +304,16 @@ def generate_set(levels=(1, 2, 3, 4), topics=None, effort=1.0):
             if not p:
                 print(f'  !! {topic} level {level}: no puzzle')
                 continue
-            out.append(p)
             # Re-roll until the board is publishable. The seed is a lottery -
             # measured spread on one topic and level was 6% to 33% of entries
             # on topic - so this is a search, not a retry.
+            #
+            # The append comes AFTER the search, and that is the whole point:
+            # it used to come before, so `p = alt` rebound the local name while
+            # the list still held the board the search had just rejected. The
+            # log printed the board it chose and the file got the one it threw
+            # away, which is why a build reporting a clean ramp handed the gate
+            # boards that failed one.
             if not publishable(p, prev_difficulty):
                 for seed in RETRY_SEEDS:
                     alt = topicgen.generate(topic, level, p['shape'], seed=seed)
@@ -318,6 +324,7 @@ def generate_set(levels=(1, 2, 3, 4), topics=None, effort=1.0):
                         break
                     if topicgen.theme_share(alt) > topicgen.theme_share(p):
                         p = alt
+            out.append(p)
             prev_difficulty = p['difficulty']
             long_share, _ = topicgen.theme_share(p)
             print(f"  {topic:11s} L{level} {p['shape']:9s} "
@@ -325,6 +332,17 @@ def generate_set(levels=(1, 2, 3, 4), topics=None, effort=1.0):
                   f"(long {long_share:.0%}), difficulty {p['difficulty']}")
     os.makedirs(OUT, exist_ok=True)
     out.sort(key=lambda p: (p['topic'], p['level']))
+    # What went to the file is what was reported: the gate is a separate run on
+    # a separate machine, so a build that quietly writes something other than
+    # what it chose costs a twenty-minute round trip to discover.
+    ramp = {}
+    for p in out:
+        ramp.setdefault(p['topic'], {})[p['level']] = p['difficulty']
+    for topic, levels in sorted(ramp.items()):
+        seq = [levels[L] for L in sorted(levels)]
+        if any(b < a - 1e-9 for a, b in zip(seq, seq[1:])):
+            print(f'  !! {topic}: difficulty falls as the level rises in the '
+                  f'written file: ' + ', '.join(f'{x:.2f}' for x in seq))
     json.dump(out, open(DATA, 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
     print(f'wrote {DATA}: {len(out)} puzzles')
     return out
