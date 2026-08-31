@@ -28,9 +28,20 @@ import lexicon  # reuses held_out_answers gating
 
 def main():
     words = lexicon.load()          # {word: priority}, dev/eval answers already blocked
-    with open(f'{OUT}/lexicon.txt', 'w') as f:
-        f.write('\n'.join(sorted(words)))
-    print(f'lexicon.txt: {len(words)} words')
+    # SAFETY (2026-08-28): lexicon.load() also draws on the gitignored corpus under data/.
+    # In a fresh clone that corpus is absent, so a rebuild here is SMALLER than what is
+    # already published — writing it would silently delete thousands of live entries.
+    # Same hazard bootstrap.sh already warns about for substitutions.json.
+    prev = 0
+    if os.path.exists(f'{OUT}/lexicon.txt'):
+        prev = sum(1 for _ in open(f'{OUT}/lexicon.txt'))
+    if prev and len(words) < prev * 0.99:
+        print(f'lexicon.txt: KEPT existing {prev} words (rebuild had only {len(words)} — '
+              f'corpus under data/ looks absent; run ./bootstrap.sh before rebuilding)')
+    else:
+        with open(f'{OUT}/lexicon.txt', 'w') as f:
+            f.write('\n'.join(sorted(words)))
+        print(f'lexicon.txt: {len(words)} words')
 
     for src, dst in [('solver/lex/substitutions.json', 'substitutions.json'),
                      ('solver/lex/ambiguities.json', 'ambiguities.json'),
@@ -54,14 +65,27 @@ def main():
     open(f'{OUT}/playbook.txt', 'w').write(digest)
 
     # demo puzzles: every app/puzzles/<id> with a finished engine solve
-    DEMOS = [('demo3107', 'sample3107', 'התשבץ של 31.7.2026'),
+    DEMOS = [('demo2808', 'sample2808', 'התשבץ של 28.8.2026 — טרי מהדפוס'),
+             ('demo3107', 'sample3107', 'התשבץ של 31.7.2026'),
              ('demo0708', 'sample0708', 'התשבץ של 7.8.2026'),
              ('demo1408', 'sample1408', 'התשבץ של 14.8.2026 — טרי מהדפוס')]
     manifest = []
     for did, src, title in DEMOS:
         pdir = f'app/puzzles/{src}'
         if not os.path.exists(f'{pdir}/puzzle.json'):
-            print(f'demo {did}: no puzzle — skipped'); continue
+            # app/puzzles/ is gitignored, so in a fresh clone the source is absent while the
+            # BAKED bundle is committed. Preserve the published demo instead of dropping it
+            # from the manifest (which would remove a live puzzle from the site).
+            if os.path.exists(f'{OUT}/demo/{did}/puzzle.json'):
+                prev_eng = json.load(open(f'{OUT}/demo/{did}/engine.json')) \
+                    if os.path.exists(f'{OUT}/demo/{did}/engine.json') else []
+                pcom = sum(1 for e in prev_eng if e.get('tier') == 'committed')
+                manifest.append({'id': did, 'title': title,
+                    'desc': f'המנוע פתר אותו בעיוורון: {pcom} מתוך {len(prev_eng)} בתיוג "מוכח". רמזים זמינים בלי מפתח.'})
+                print(f'demo {did}: source absent — kept the published bundle ({pcom} committed)')
+            else:
+                print(f'demo {did}: no puzzle — skipped')
+            continue
         # engine is OPTIONAL: a puzzle publishes empty first, the engine arrives later
         eng = []
         if os.path.exists(f'{pdir}/engine.json'):

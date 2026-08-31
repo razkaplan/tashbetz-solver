@@ -1644,3 +1644,34 @@ Measure each lever on dev (fixed enums) with run_eval.py before/after; one lever
   evals/runs/live/2026-08-28_blind.json. The clue-text transcription
   (data/clues/2026-08-28.json) stays LOCAL-ONLY by design — data/ is gitignored because
   this repo does not republish newspaper content; grids are whitelisted as factual layout.
+
+- 2026-08-28 (later, same session): **the owner corrected a COMMITTED, PROOF-PASSING answer
+  — 22 across is הכה גלים, not עשה גלים.** This is the most valuable finding of the run.
+  The wrong answer had: the right letter-count, the right crossings (both share ל at index
+  4, so the grid gave NO signal), a clean definition story ("עשה רושם"), and it PASSED
+  prove.py — word_order('עשהגלימ','עשה','גלימ') and is_word() on both parts are all true.
+  What it did not have was the actual IDIOM: "הכה גלים" is the standard Hebrew phrase for
+  making a stir, and only הכה carries the second reading (Caesar STRUCK the Gauls), which
+  is the whole joke. NEW RULE for the protocol: when an answer is an idiom/collocation,
+  is_word() on the parts is NOT evidence — the multi-word string must be attested AS a
+  phrase, and if the surface verb has no second reading doing work, suspect a near-miss
+  synonym of the real idiom. prove.py has no assertion for this today; `means()` is the
+  closest and it did not fire because nothing forced the verb. Candidate lever: an
+  `is_collocation(phrase)` assertion backed by the corpus/crosswordese counts.
+  KNOCK-ON, all re-derived: 22 down עריסה is DISPROVED (the correction forces ה as its
+  first letter -> pattern ה?י??) and is now blank; 25 across אגדת דשא is DISPROVED
+  (pattern is ל?ד????) and is now blank; 21 down is CONFIRMED as גלילאו — the owner
+  supplied ל 4th / ו last, which matches, and the 22-across crossing independently forces
+  its 2nd letter to ל. Net after the correction: 14 committed, 5 suggestions, 9 blanks.
+  Two of my three self-flag-adjacent answers were indeed the wrong ones, which is a point
+  in favour of the weakest-commit rule and against my having committed them at all.
+- 2026-08-28 SITE: the puzzle is published to the solving assistant as demo2808
+  ("התשבץ של 28.8.2026 — טרי מהדפוס"), with per-clue graded hints (mechanism ->
+  definition side -> partial nudge -> first letter -> reveal), so a solver controls how
+  much is spoiled. Two builder bugs found and FIXED while publishing, both of which would
+  have silently damaged the live site from a fresh clone (where app/puzzles/ and data/ are
+  gitignored and absent): (1) build_client.py rebuilt demos.json from source puzzles only,
+  DROPPING the three already-published demos from the manifest — it now preserves any demo
+  whose baked bundle exists on disk; (2) it rewrote docs/solve/data/lexicon.txt from a
+  corpus-less lexicon, shrinking it 146,793 -> 144,004 words — it now refuses to write a
+  lexicon more than 1% smaller than the published one and says why.
