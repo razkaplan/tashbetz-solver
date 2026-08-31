@@ -151,11 +151,27 @@ def load_reference():
     if os.path.exists('solver/lex/dictwords.txt'):
         dictwords = {w.strip() for w in open('solver/lex/dictwords.txt', encoding='utf-8')
                      if w.strip()}
+    # The three difficulty tiers, rebuilt here from the same files the
+    # generator reads but independently of it. They had drifted: 'defined' was
+    # a SUBSET of 'common' below, so the 0.4 tier was unreachable and the gate
+    # scored every answer 0 or 1 while the build scored it 0, 0.4 or 1. The
+    # build then enforced a level ramp on its own numbers and the gate
+    # rejected the boards on different ones - 43 of 44 published boards
+    # disagreed. Free means the corpus printed it; 0.4 means we define it.
+    # clipped to the site lexicon exactly as the generator clips it: an
+    # attested string that is not a lexicon word is a folded entity name,
+    # never an answer, and leaving it free here made the models differ on
+    # 222 words for no reason a solver would notice. The length window is
+    # the generator's own: nothing outside it can be an answer either.
+    known = {w for w in (attested | crosswordese) & lex if 2 <= len(w) <= 12}
+    cost_defined = set(defined)
+    cost_defined |= {norm(w) for b in banks.values() for w in (b.get('terms') or {})}
     return {'lex': lex, 'ents': ents, 'ent_by_norm': ent_by_norm, 'ent_descs': ent_descs,
             'fillbank': fillbank, 'dictwords': dictwords,
             'fill_norms': {norm(w) for w in fillbank}, 'requested': requested,
             'banks': banks, 'curated': curated, 'news': news,
-            'common': (attested | crosswordese | defined), 'defined': defined}
+            'common': (attested | crosswordese | defined), 'defined': defined,
+            'known': known, 'cost_defined': cost_defined}
 
 
 def topic_pool(ref, topic):
@@ -359,7 +375,8 @@ def check_puzzle(p, ref, pool):
         if a in pool or a in ref['common']:
             common += 1
         cost += (MECH_COST.get(e.get('mechanism'), 2.0)
-                 + (0.0 if a in ref['common'] else (0.4 if a in ref['defined'] else 1.0)))
+                 + (0.0 if a in ref['known']
+                    else (0.4 if a in ref['cost_defined'] else 1.0)))
 
     n = max(1, len(got))
     long_topicality = long_topical / long_total if long_total else 1.0
@@ -370,6 +387,15 @@ def check_puzzle(p, ref, pool):
         bad.append(f'level {p["level"]} promises common answers but only '
                    f'{common / n:.0%} are (floor {MIN_COMMON_SHARE:.0%})')
     mean_cost = cost / n
+    # The build searches for a board inside the level's ceiling and no easier
+    # than the level below, using ITS difficulty; the gate then checks those
+    # same properties using THIS one. If the two numbers are not the same
+    # number, neither check means anything - which is how a build that
+    # enforced the ramp handed the gate boards that failed it.
+    if abs(mean_cost - p.get('difficulty', mean_cost)) > 0.01:
+        bad.append(f'published difficulty {p.get("difficulty")} is not the '
+                   f'{mean_cost:.3f} measured here: the build and the gate are '
+                   f'not measuring the same thing')
     ceiling = LEVEL_CEILING[p['level']]
     if mean_cost > ceiling + 0.01:
         bad.append(f'mean difficulty {mean_cost:.2f} above level '

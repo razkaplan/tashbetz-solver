@@ -186,6 +186,24 @@ def load():
                                   encoding='utf-8')))
     common = (attested | set(freq) | set(general)) & lexset
 
+    # Difficulty tiers, kept deliberately apart from the ANSWER tier above.
+    # They are different jobs, and conflating them is what let the build and
+    # the gate measure two different things: an easy board may draw on
+    # anything we hold a definition for, but an answer is only FREE to the
+    # solver if the corpus actually printed it. So:
+    #   0.0  the corpus saw it - attested in a real puzzle, or crosswordese
+    #   0.4  we publish a definition for it, but the solver may not know it
+    #   1.0  neither
+    # evals/topicgen_eval.py rebuilds these same three sets from the same
+    # files and checks that the difficulty the build published is the one it
+    # measures, so the two cannot drift apart again the way they had.
+    known = (attested | set(freq)) & lexset
+    defined = set(general)
+    defined |= {norm(w) for c in curated.values() for w in (c.get('items') or {})}
+    # a bank term is defined whichever board it lands on, not only its own
+    defined |= {norm(w) for b in topics.values() for w in (b.get('terms') or {})}
+    defined |= {norm(e['t']) for e in ents if (e.get('d') or '').strip()}
+
     # A wordplay clue NAMES a word, and the solver has to recognise it. The
     # site lexicon folds entity names and song titles to bare letters as well,
     # so "hidden inside אבאהולכלעבודה" came out of it; dictwords.txt is the
@@ -253,7 +271,8 @@ def load():
             'requested': requested, 'easy': easy, 'dictwords': dictset,
             'shared': shared,
             'ents': ents, 'reversible': reversible, 'carrier': carrier,
-            'anagrams': anagrams, 'freq': freq, 'common': common}
+            'anagrams': anagrams, 'freq': freq, 'common': common,
+            'known': known, 'defined': defined}
 
 
 # Tails that narrow nothing. "הר באריתריאה" is a clue; "יישוב בישראל" is a
@@ -437,9 +456,12 @@ def clue_options(ctx, w, terms, allowed):
 
 
 def answer_cost(ctx, w, terms):
-    if w in terms or w in ctx['general']:
-        return COST_DEFINED if w not in ctx['freq'] else COST_COMMON
-    return COST_COMMON if w in ctx['common'] else COST_RARE
+    """What this answer costs a solver: see the three tiers in load()."""
+    if w in ctx['known']:
+        return COST_COMMON
+    if w in terms or w in ctx['defined']:
+        return COST_DEFINED
+    return COST_RARE
 
 
 def cluable(ctx, terms, allowed, tier):
