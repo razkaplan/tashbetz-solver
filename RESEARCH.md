@@ -4,6 +4,79 @@ One entry per run: what was found, one-line summary, and an honest judgement of 
 it transfers to a Hebrew cryptic solver with an 8k-clue corpus. Default skepticism: most
 crossword-AI work targets non-cryptic (American-style) puzzles and does not transfer.
 
+## 2026-08-31 (session 3, solver daily loop)
+
+Bootstrap hit the same hard 14across wall as 2026-08-19/08-26/08-27/08-28/08-30 (7
+consecutive answer-page fetches returned `None: 0 clues` within the first ~2 minutes of
+retry-with-backoff, matching the established hard-wall failure mode rather than the
+intermittent ~50%-random one) — killed rather than waited out. `solver/lex/culture.json`
+and `solver/lex/substitutions.json` are committed (not gitignored), so no rebuild was
+needed for those; worked entirely from the no-14across image-fallback technique for the
+one new dev puzzle this run needed.
+
+Per the scheduled task's own framing, checked first for a genuinely new, buildable-today
+idea on definition-fit scoring (queue item 9) before defaulting to another corpus-growth
+measurement of `retrieval_candidates` (explicitly discouraged this run after six
+consecutive days on that exact lever shape).
+
+**"cryptic crossword clue candidate answer definition semantic fit scoring 2026 arxiv" /
+"cryptic crossword solver definition span classification new method 2026" (general
+search).** Surfaced only the same paper family logged repeatedly since 2026-08-06
+(2506.04824, 2407.08824, 2104.08620/2103.01242, 2406.09043, 2403.12094) plus the same
+OpenReview mirrors (Bo5eKnJPML) already confirmed 2026-08-26 to resolve to 2506.04824 and
+still blocked by the bot-verification page today (checked directly again, not assumed).
+**Transfer: none new** — eighth-plus consecutive pass over this exact literature finding
+nothing beyond what is already logged.
+
+**NEW THIS RUN: Italian (non-cryptic) crossword retrieval/ranking line, checked directly
+rather than dismissed by title.** A different search angle ("retrieval augmented answer
+verification crossword clue reverse dictionary lookup scoring") surfaced a CLiC-it
+(Italian computational linguistics workshop) paper family not previously logged here:
+Giovannetti et al., "A Multi-Strategy Approach to Crossword Clue Answer Retrieval and
+Ranking" (CLiC-it 2021) plus two 2025/2026 successors at the same venue's Cruciverb-IT
+shared task (`ceur-ws.org/Vol-4195/15.pdf` "UniTor at Cruciverb-IT: Retrieval-Augmented
+Two-Step..." and `/46.pdf` "Retrieval-Based Approaches for Italian Crossword Clue...",
+plus "Crossword Space: Latent Manifold Learning for Italian Crosswords and Beyond",
+2025.clicit-1.26). The 2021 paper's abstract was reachable via search summary (confirms:
+neural embedding retrieval/ranking for STANDARD Italian/English crossword clues, not
+cryptic); the three 2025/2026 PDFs could not be read as text (no `pdftotext`/`pypdf` in
+this environment, and WebFetch returns raw PDF bytes for these hosts rather than parsed
+text — a genuine tooling gap, disclosed rather than papered over with an assumed
+summary). Confirmed via the reachable abstract and the shared task's own name
+(Cruciverb-IT = Italian, standard/definitional crosswords, not cryptic) that this entire
+line targets exactly the case RESEARCH.md's header default-skepticism already names:
+non-cryptic puzzles. **Transfer: none** — even if the unread PDFs contained a genuinely
+new reranking technique, it would be solving a different problem (matching a plain
+definition clue to an answer via embeddings) than this project's gap (choosing among
+several MECHANICALLY-valid wordplay-derived candidates for the one the setter intended),
+which is why past passes on embedding-rerank approaches (2412.09012, 2026-08-06/20/23/24)
+already concluded "reranks a list a separate mechanism produced, doesn't generate, and no
+Hebrew crossword-tuned embedding space exists to port it to" — nothing here changes that.
+
+**Checked one hobby/toy resource directly rather than by name alone: github.com/G-Kurup/
+cryptics-llm** (surfaced by a broader "LLM judge candidate rerank cryptic 2026" search).
+Fine-tunes T5-small on 169,993 scraped Guardian cryptic clues (English), 18.4% test
+accuracy, candidate-ranking limited to "generate N beam candidates, keep those matching
+the enum length." **Transfer: none actionable** — same answer-first shape 2506.04824
+already covers (logged 2026-08-30), and the data-scale gap alone rules it out: this
+hobby project needed ~170k training clues to reach 18% on English; this project's whole
+corpus is ~8k Hebrew clue-answer pairs. Confirms rather than adds to the standing
+"fine-tuning is a different, much larger effort, not a drop-in lever" conclusion.
+
+**Conclusion for today's lever.** Ninth-plus consecutive research pass (2026-08-22/23/24/
+25/26/27/28/29/30/31) with nothing new and buildable on definition-fit scoring — the
+queue's own 2026-08-24 instruction ("the next attempt on this item should assume none
+exists and work from the project's own data... or be scoped as a genuinely new internal
+idea, not another literature sweep") is followed literally today: no new internal idea
+for definition-fit scoring surfaced either, so item 9 is left untouched again rather than
+forcing a stub. Per the scheduled task's explicit steer away from another
+`retrieval_candidates` corpus-growth measurement, today's lever is queue item 1(c)'s own
+named next step: a SECOND puzzle's data point for `culture_category_candidates`
+(2026-08-24, measured only once, n=1 fired-clue). See DAILY.md for the transcription,
+measurement, and a genuinely new methodological finding this second data point surfaced
+(a held-out-safety-filter blind spot, distinct from both this item's already-known
+homograph-misdirection failure mode and a plain corpus-coverage gap).
+
 ## 2026-08-30
 
 Bootstrap hit the same hard 14across wall as 2026-08-19/08-26/08-27/08-28 (4 consecutive
