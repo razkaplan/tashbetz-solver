@@ -35,6 +35,11 @@ BASE = 'https://tashbetz.gtmascode.dev'
 OUT = 'docs/nosim'
 DATA = f'{OUT}/puzzles.json'
 
+# The eval's floors, mirrored here so the build can re-roll a weak board
+# instead of handing the eval a set it will reject.
+MIN_LONG, MIN_ALL = 0.35, 0.12
+RETRY_SEEDS = (7, 12345, 99, 555, 2024, 31337)
+
 MECH_HE = {'definition': 'הגדרה', 'reversal': 'היפוך',
            'anagram': 'אנגרמה', 'hidden': 'מילה מוסתרת'}
 MECH_EXPLAIN = {
@@ -283,6 +288,17 @@ def generate_set(levels=(1, 2, 3, 4), topics=None, effort=1.0):
                 print(f'  !! {topic} level {level}: no puzzle')
                 continue
             out.append(p)
+            # A board below the floors is re-rolled rather than shipped: the
+            # seed is a lottery, and one weak board must not be the reason a
+            # whole rebuild is rejected and the previous, worse boards stay up.
+            if (topicgen.theme_share(p)[0] < MIN_LONG or p['topicality'] < MIN_ALL):
+                for seed in RETRY_SEEDS:
+                    alt = topicgen.generate(topic, level, p['shape'], seed=seed)
+                    if alt and topicgen.theme_share(alt) > topicgen.theme_share(p):
+                        p = alt
+                    if (topicgen.theme_share(p)[0] >= MIN_LONG
+                            and p['topicality'] >= MIN_ALL):
+                        break
             long_share, _ = topicgen.theme_share(p)
             print(f"  {topic:11s} L{level} {p['shape']:9s} "
                   f"{len(p['entries'])} entries, topical {p['topicality']:.0%} "
