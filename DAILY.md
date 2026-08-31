@@ -2326,3 +2326,29 @@ Measure each lever on dev (fixed enums) with run_eval.py before/after; one lever
   specific answer strings from log prose, or splitting required-reading history from an
   answer-bearing appendix) is a process question worth its own future lever, not
   designed under today's one-lever budget; did not merge or otherwise act on any open PR.
+
+- 2026-08-31 (session 2): **nativ content-fairness pass** after user playtest feedback
+  on the mountains day (branch `claude/game-bugs-ux-bkcqsr`). Three complaints, all
+  reproduced in the data before fixing: (1) EASY MODE WAS NOT EASY - the day served
+  obscure mountains in Nigeria/Panama/Finland because `prefer_rich` (4 rich pages in
+  116 mountains) was a hollow notability proxy. Easy boards now draw ONLY from a
+  curated FAMOUS list per category (~30-70 names each, verified against
+  entities.json), with a full-pool fallback that triggered 0/90 days after the pools
+  were topped up. (2) THEME PURITY - the mountain category carried 7 נחלים, 2
+  mountain passes and 2 Martian peaks (recategorized to stream/site, Mars excluded
+  by desc regex); "כולם קיבוצים" days served מושבים - theme renamed to "כולם
+  קיבוצים ומושבים". (3) ISRAEL/PA ATTRIBUTION - per the owner's rule (Israeli
+  settlement in B/C -> Israel; Arab locality/geography -> PA): 52 PA localities
+  (בית לחם, ג'נין, חברון, יריחו, עזה...) moved from `city_il` to a new `city_pa`
+  category so they never appear under "כולם יישובים בישראל" (1948-depopulated
+  villages inside Israel stay); "הר בגוש עציון, ישראל" description trimmed of
+  ", ישראל"; bonus catch: 6 cities in Syria/Jordan/Lebanon (דרעא, מעאן, מידבא...)
+  were also filed under city_il - moved to world_city. DATA GAPS FILLED: the milon
+  had NO famous world cities at all (no London/Paris/Rome - the category was
+  African/Chinese/US-state capitals), no Everest/Tabor/Meron, no
+  Jerusalem/Tel Aviv/Haifa under city_il, and politicians only as full names (too
+  long for 4x4) - added 140 real entities with descriptions (world cities, Israeli
+  cities, mountains, athletes incl. יעל ארד/גל פרידמן, authors, actors, surname
+  politicians like רבין/בגין/גולדה, everyday common words). Rebuilt puzzles.json:
+  90/90 days validated, zero purity violations, zero famous-pool fallbacks; today's
+  easy board went from צ'אפל ואדי/הלטי/בארו to אולימפוס/ארבל/אררט.
