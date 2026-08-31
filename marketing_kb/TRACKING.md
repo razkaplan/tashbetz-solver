@@ -41,6 +41,23 @@ updates the "Movement log" below. This file is the handoff between runs, DAILY.m
 
 ## Movement log
 
+- **2026-08-31 (latest)** - All 44 topic-crossword boards regenerated and
+  republished after a reported clue-quality problem: clues that made no sense,
+  clues that did not connect to their subject, and clues unrelated to it. All
+  three were mechanical. Hidden clues had been naming an inflection of their
+  own answer ("צלופן מסתתר בתוך צלופנים" - 99.5% of the carrier index);
+  general filler came from the entity index and the curated lists, so a לשון
+  grammar board asked about בן אחאב and a מדבר בניז'ר; and entity clues
+  published whatever the source article opened with, including labels
+  ("דמות מקראית") that identify nobody. Every one is now a gate in
+  evals/topicgen_eval.py, which runs before the rebuild workflow commits, so a
+  failing board leaves the previous set up rather than replacing it. Six
+  rebuilds to get a clean set: findings 15 -> 8 -> 3 -> 2 -> 0. SEO effect is
+  on page CONTENT, not URLs - the 57 /nosim/ pages are unchanged in address, so
+  nothing to resubmit, but the clue text a crawler sees is entirely new. Worth
+  re-checking "תשבץ תנך" and "תשבץ ביולוגיה" ranking a couple of weeks out,
+  since the earlier boards would have read as low-quality generated text.
+
 - **2026-08-31 (later)** - New page family shipped: **topic crosswords**
   (`/nosim/`). Ten bagrut subjects x four levels, each a playable board with an
   explanation per answer, plus a landing page per subject and a request page
