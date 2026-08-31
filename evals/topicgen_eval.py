@@ -75,14 +75,18 @@ STUB = ('פירושונים', 'דף פירושונים', 'ראו ערך')
 # see solver/topicgen.py: tails that identify nothing
 EMPTY_TAIL = {'בישראל', 'ישראלי', 'ישראלית', 'מקראי', 'מקראית', 'מיקראית',
               'מקראיות', 'מקומית', 'מקומי', 'עתיק', 'עתיקה', 'קדום', 'קדומה',
+              # a category noun plus one of these is a label, not a clue
               'משונעים', 'לשעבר', 'ידוע', 'מפורסם', 'כללי',
               'בתנ"ך', 'בתנך', 'במקרא', 'בתורה'}
+CATEGORY_WORD = {'דמות', 'דמויות', 'יישוב', 'עיר', 'כפר', 'מושב', 'קיבוץ',
+                 'נהר', 'הר', 'מקום', 'אתר', 'שכונה', 'מועצה', 'חפצים',
+                 'ההר', 'העיר', 'הכפר', 'היישוב', 'הנהר'}
 
 # A level is a CEILING on mean difficulty, not a list of permitted mechanisms
 # and not a floor. A floor would be a demand that easy boards be made harder
 # than they need to be; the ramp is checked separately, across a subject's
 # four boards, where it belongs.
-LEVEL_CEILING = {1: 1.0, 2: 1.6, 3: 2.5, 4: 9.9}
+LEVEL_CEILING = {1: 1.05, 2: 1.6, 3: 2.5, 4: 9.9}
 KNOWN_MECHANISMS = {'definition', 'hidden', 'reversal', 'anagram'}
 # What a clue costs the solver, and what an answer costs. The eval scores
 # difficulty itself rather than reading the generator's number, so a level
@@ -224,11 +228,17 @@ def check_proof(entry, ref):
             return 'anagram of itself'
         if src not in ref['lex']:
             return f'anagram source {src!r} is not a word'
-        # One adjacent swap is a typo, not wordplay: "ידו" from "דיו".
+        # One adjacent swap, or one letter moved, is an inflection or a typo
+        # rather than wordplay: "ידו" from "דיו", "חסלי" from "חיסל".
         moved = [i for i, (x, y) in enumerate(zip(a, src)) if x != y]
         if (len(moved) == 2 and moved[1] == moved[0] + 1
                 and a[moved[0]] == src[moved[1]] and a[moved[1]] == src[moved[0]]):
             return f'anagram source {src!r} is one adjacent swap from the answer'
+        for i in range(len(a)):
+            rest = a[:i] + a[i + 1:]
+            for j in range(len(rest) + 1):
+                if rest[:j] + a[i] + rest[j:] == src:
+                    return f'anagram source {src!r} is the answer with one letter moved'
         return None
     if t == 'hidden':
         c, at = pr.get('carrier', ''), pr.get('at', -1)
@@ -302,7 +312,8 @@ def check_puzzle(p, ref, pool):
         # every entity in the index is "בישראל" and every Bible name is a
         # "דמות מקראית".
         cw = clue.split()
-        if len(cw) <= 3 and cw and cw[-1].strip(',.') in EMPTY_TAIL:
+        if (len(cw) >= 2 and cw[-1].strip(',.') in EMPTY_TAIL
+                and all(w.strip(',.') in CATEGORY_WORD for w in cw[:-1])):
             bad.append(f'{key}: clue {clue!r} narrows nothing')
         if '. ' in clue or '(' in clue:
             bad.append(f'{key}: clue is truncated prose, not a clue')

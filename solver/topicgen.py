@@ -74,19 +74,25 @@ COST_COMMON, COST_DEFINED, COST_RARE = 0.0, 0.4, 1.0
 # appears at level 1 exactly when nothing cheaper exists, and the band's
 # ceiling stops that from happening often.
 MECHANISMS = ['definition', 'hidden', 'reversal', 'anagram']
-# A level is a CEILING on mean difficulty plus which answers it may use. It is
-# deliberately not a floor: an earlier version made the generator raise clues
-# until the mean reached a floor, and since an anagram is the cheapest way to
-# raise a mean, a "medium" board came out as fifteen anagrams of arbitrary
-# words. The ramp comes from the answers instead - each tier opens words that
-# fewer solvers know and fewer of which we hold a definition for, so the
-# wordplay share and the difficulty rise on their own. The eval checks that
-# they actually do.
+# A level is a CEILING on mean difficulty, which answers it may use, and how
+# its FILLER is clued. It is deliberately not a floor: an earlier version
+# raised clues until the mean reached a floor, and since an anagram is the
+# cheapest way to raise a mean, a "medium" board came out as fifteen anagrams
+# of arbitrary words.
+#
+# `filler` is the honest version of that ramp. At level 1 a filler answer takes
+# its definition if we have one; from level 2 it takes wordplay, cheapest
+# mechanism first. A TOPIC answer always keeps its definition at every level -
+# the topic is what the board is for, and no level is improved by hiding it.
 LEVELS = {
-    1: {'name': 'קל', 'mechanisms': MECHANISMS, 'tier': 'easy', 'ceiling': 1.0},
-    2: {'name': 'בינוני', 'mechanisms': MECHANISMS, 'tier': 'common', 'ceiling': 1.6},
-    3: {'name': 'קשה', 'mechanisms': MECHANISMS, 'tier': 'all', 'ceiling': 2.5},
-    4: {'name': 'אתגר', 'mechanisms': MECHANISMS, 'tier': 'all', 'ceiling': 9.9},
+    1: {'name': 'קל', 'mechanisms': MECHANISMS, 'tier': 'common',
+        'ceiling': 1.05, 'filler': 'define'},
+    2: {'name': 'בינוני', 'mechanisms': MECHANISMS, 'tier': 'common',
+        'ceiling': 1.6, 'filler': 'wordplay'},
+    3: {'name': 'קשה', 'mechanisms': MECHANISMS, 'tier': 'all',
+        'ceiling': 2.5, 'filler': 'wordplay'},
+    4: {'name': 'אתגר', 'mechanisms': MECHANISMS, 'tier': 'rare',
+        'ceiling': 9.9, 'filler': 'wordplay'},
 }
 DEFAULT_SHAPE = {1: 'classic7', 2: 'arrow9', 3: 'classic9', 4: 'arrow11'}
 THEME_SHARE = 0.55        # of the entries whose length the topic can reach
@@ -197,8 +203,19 @@ def load():
     # "דיו" and "מדוד" from "מדדו" are one adjacent swap apart and read as a
     # typo rather than as wordplay.
     def one_swap(a, b):
+        """A source one adjacent swap - or one letter moved - from the answer
+        is an inflection or a typo, not wordplay: חסלי for חיסל."""
+        if len(a) != len(b):
+            return False
         d = [i for i, (x, y) in enumerate(zip(a, b)) if x != y]
-        return len(d) == 2 and d[1] == d[0] + 1 and a[d[0]] == b[d[1]] and a[d[1]] == b[d[0]]
+        if len(d) == 2 and d[1] == d[0] + 1 and a[d[0]] == b[d[1]] and a[d[1]] == b[d[0]]:
+            return True
+        for i in range(len(a)):                 # remove one letter of a and
+            rest = a[:i] + a[i + 1:]            # reinsert it somewhere else
+            for j in range(len(rest) + 1):
+                if rest[:j] + a[i] + rest[j:] == b:
+                    return True
+        return False
 
     anagrams = {}
     for w in lex:
@@ -248,6 +265,21 @@ EMPTY_TAIL = {'בישראל', 'ישראלי', 'ישראלית', 'מקראי', '�
               'בתנ"ך', 'בתנך', 'במקרא', 'בתורה'}
 
 
+# Bare category nouns. A description made only of one of these plus an
+# index-wide tail is a label; add one real word and it becomes a clue:
+# "יישוב בישראל" identifies nothing, "ההר הגבוה בישראל" identifies חרמון.
+CATEGORY_WORD = {'דמות', 'דמויות', 'יישוב', 'עיר', 'כפר', 'מושב', 'קיבוץ',
+                 'נהר', 'הר', 'מקום', 'אתר', 'שכונה', 'מועצה', 'חפצים',
+                 'ההר', 'העיר', 'הכפר', 'היישוב', 'הנהר'}
+
+
+def _label_only(words, tail_set):
+    """True when the description is a category noun plus an empty tail."""
+    if len(words) < 2 or words[-1].strip(',.') not in tail_set:
+        return False
+    return all(w.strip(',.') in CATEGORY_WORD for w in words[:-1])
+
+
 def usable_description(d, shared_count):
     """Is this entity description printable as a clue?
 
@@ -268,7 +300,7 @@ def usable_description(d, shared_count):
         return False
     # "דמות מקראית" in a Bible puzzle, "יישוב בישראל" in a geography one: true,
     # unique in the index, and useless as a clue.
-    if len(words) <= 3 and words[-1].strip(',.') in EMPTY_TAIL:
+    if _label_only(words, EMPTY_TAIL):
         return False
     return True
 
@@ -420,6 +452,11 @@ def cluable(ctx, terms, allowed, tier):
     """
     base = {'easy': ctx['easy'], 'common': ctx['common']}.get(tier, ctx['lex'])
     base = (base & ctx['dictwords']) | set(ctx['general']) | set(terms)
+    if tier == 'rare':
+        # אתגר. Its filler comes from outside the everyday vocabulary, so the
+        # answers themselves are what make it hard. Without this, level 4 drew
+        # on the same words as level 3 and measured EASIER than it.
+        base = (ctx['lex'] & ctx['dictwords']) - ctx['easy'] | set(terms)
     # "הכלב" and "הדירה" are a definite article stuck to a word; as filler
     # they read as a mistake. A bank entry that genuinely starts with ה keeps
     # its place.
@@ -562,7 +599,7 @@ def fill(grid, pi, rng, theme=frozenset(), budget=None, width=14):
 
 # ------------------------------------------------------------------ build
 
-def _clue_the_fill(ctx, sol, terms, allowed, ceiling, level):
+def _clue_the_fill(ctx, sol, terms, allowed, ceiling, filler):
     """Give every answer its EASIEST clue, and reject the board if that is
     still harder than the level allows.
 
@@ -577,6 +614,12 @@ def _clue_the_fill(ctx, sol, terms, allowed, ceiling, level):
             return None
         options[key] = opts
         chosen[key] = 0                      # cheapest
+        if filler == 'wordplay' and w not in terms:
+            # the cheapest clue that is NOT a definition, if there is one
+            for i, o in enumerate(opts):
+                if o[0] != 'definition':
+                    chosen[key] = i
+                    break
     acost = {key: answer_cost(ctx, sol[key], terms) for key in sol}
 
     def mean():
@@ -660,7 +703,8 @@ def generate(topic, level=1, shape=None, seed=None, attempts=3, work=None):
             left[0] -= per_attempt - slice_[0]
             if not sol or check_fill(grid, sol, None)[0]:
                 continue
-            entries = _clue_the_fill(ctx, sol, terms, allowed, spec['ceiling'], level)
+            entries = _clue_the_fill(ctx, sol, terms, allowed, spec['ceiling'],
+                                     spec.get('filler', 'define'))
             if not entries:
                 continue
             texts = [e['clue'] for e in entries.values()]
