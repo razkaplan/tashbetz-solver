@@ -562,7 +562,11 @@ def generate(topic, level=1, shape=None, seed=None, attempts=3, work=None):
     #               fall back to the slots the bank has most answers for
     def support(k):
         return len(pi['topical_len'].get(len(sl[k]), ()))
-    themeable = [k for k in sl if support(k) >= MIN_THEME_CANDIDATES]
+    # A 32-term weekly news bank cannot offer eight answers at any one length,
+    # so a fixed threshold made every news board unthemeable and it shipped
+    # with nothing on topic in its long entries. The bar scales with the bank.
+    need = max(3, min(MIN_THEME_CANDIDATES, len(terms) // 12))
+    themeable = [k for k in sl if support(k) >= need]
     # Long entries first, and WITHIN those by how many topic answers of that
     # length the bank holds. Ordering the long slots by length alone spent the
     # reservation on the two 6-letter slots, which are the scarcest length in

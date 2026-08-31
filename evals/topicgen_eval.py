@@ -100,8 +100,14 @@ def load_reference():
         # rather than whichever one happens to be first in the file.
         if (e.get('d') or '').strip():
             ent_descs.setdefault(norm(e['t']), set()).add(e['d'].strip())
-    banks = {k: v for k, v in json.load(open('solver/lex/topics.json', encoding='utf-8')).items()
-             if not k.startswith('_')}
+    # the same two files solver/topicgen.py merges: the curated banks and the
+    # weekly news bank. Reading only the first left every news board with no
+    # pool, so the gate could not judge the one board that ships unattended.
+    banks = {}
+    for fname in ('solver/lex/topics.json', 'solver/lex/topics_news.json'):
+        if os.path.exists(fname):
+            banks.update({k: v for k, v in json.load(open(fname, encoding='utf-8')).items()
+                          if not k.startswith('_')})
     fillbank = json.load(open('solver/lex/fillbank.json', encoding='utf-8'))
     requested = {}
     if os.path.exists('solver/lex/defs_requested.json'):

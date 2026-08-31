@@ -28,6 +28,13 @@ jobs:
       - name: Generate the weekly puzzle and rebuild the pages
         run: |
           python3 app/build_topics.py --generate --topic hadashot
+      - name: Gate it
+        # The weekly board ships with nobody watching, so it goes through the
+        # same eval as everything else and a failure stops the commit. The
+        # first live run published four boards with nothing on topic in their
+        # long entries precisely because this step did not exist.
+        run: |
+          python3 evals/topicgen_eval.py --no-matrix
       - name: Commit if anything changed
         run: |
           git config user.name 'news-weekly'
