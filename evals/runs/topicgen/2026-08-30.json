@@ -1,0 +1,349 @@
+{
+ "when": "2026-08-30T22:26Z",
+ "puzzles": 16,
+ "passed": 6,
+ "mean_topicality": 0.316,
+ "failures": [
+  "tanach L1 arrow9: only 12% of the 5+ letter entries are on topic (floor 50%)",
+  "tanach L2 arrow9: only 12% of the 5+ letter entries are on topic (floor 50%)",
+  "tanach L3 classic7: only 38% of the 5+ letter entries are on topic (floor 50%)",
+  "tanach L3 arrow9: only 38% of the 5+ letter entries are on topic (floor 50%)",
+  "tanach L4 classic7: only 38% of the 5+ letter entries are on topic (floor 50%)",
+  "tanach L4 arrow9: only 25% of the 5+ letter entries are on topic (floor 50%)",
+  "historia L1 arrow9: only 38% of the 5+ letter entries are on topic (floor 50%)",
+  "historia L1 arrow9: topicality 12% below the 25% floor",
+  "historia L2 arrow9: only 38% of the 5+ letter entries are on topic (floor 50%)",
+  "historia L2 arrow9: topicality 12% below the 25% floor",
+  "historia L3 arrow9: topicality 23% below the 25% floor",
+  "historia L4 arrow9: topicality 19% below the 25% floor"
+ ],
+ "rows": [
+  {
+   "topic": "tanach",
+   "level": 1,
+   "shape": "classic7",
+   "ok": true,
+   "problems": [],
+   "entries": 16,
+   "topical": 9,
+   "topicality": 0.5625,
+   "long_topicality": 0.625,
+   "common_share": 1.0,
+   "difficulty": 0.4375,
+   "wordplay": 0.375,
+   "mechanisms": {
+    "definition": 10,
+    "hidden": 6
+   }
+  },
+  {
+   "topic": "tanach",
+   "level": 1,
+   "shape": "arrow9",
+   "ok": false,
+   "problems": [
+    "only 12% of the 5+ letter entries are on topic (floor 50%)"
+   ],
+   "entries": 26,
+   "topical": 7,
+   "topicality": 0.2692307692307692,
+   "long_topicality": 0.125,
+   "common_share": 1.0,
+   "difficulty": 0.6153846153846154,
+   "wordplay": 0.6153846153846154,
+   "mechanisms": {
+    "definition": 10,
+    "hidden": 16
+   }
+  },
+  {
+   "topic": "tanach",
+   "level": 2,
+   "shape": "classic7",
+   "ok": true,
+   "problems": [],
+   "entries": 16,
+   "topical": 9,
+   "topicality": 0.5625,
+   "long_topicality": 0.625,
+   "common_share": 1.0,
+   "difficulty": 0.75,
+   "wordplay": 0.625,
+   "mechanisms": {
+    "hidden": 8,
+    "definition": 6,
+    "reversal": 2
+   }
+  },
+  {
+   "topic": "tanach",
+   "level": 2,
+   "shape": "arrow9",
+   "ok": false,
+   "problems": [
+    "only 12% of the 5+ letter entries are on topic (floor 50%)"
+   ],
+   "entries": 26,
+   "topical": 7,
+   "topicality": 0.2692307692307692,
+   "long_topicality": 0.125,
+   "common_share": 1.0,
+   "difficulty": 0.8076923076923077,
+   "wordplay": 0.6538461538461539,
+   "mechanisms": {
+    "hidden": 11,
+    "reversal": 6,
+    "definition": 9
+   }
+  },
+  {
+   "topic": "tanach",
+   "level": 3,
+   "shape": "classic7",
+   "ok": false,
+   "problems": [
+    "only 38% of the 5+ letter entries are on topic (floor 50%)"
+   ],
+   "entries": 16,
+   "topical": 8,
+   "topicality": 0.5,
+   "long_topicality": 0.375,
+   "common_share": 0.5625,
+   "difficulty": 1.4375,
+   "wordplay": 0.625,
+   "mechanisms": {
+    "anagram": 5,
+    "definition": 6,
+    "hidden": 5
+   }
+  },
+  {
+   "topic": "tanach",
+   "level": 3,
+   "shape": "arrow9",
+   "ok": false,
+   "problems": [
+    "only 38% of the 5+ letter entries are on topic (floor 50%)"
+   ],
+   "entries": 26,
+   "topical": 10,
+   "topicality": 0.38461538461538464,
+   "long_topicality": 0.375,
+   "common_share": 0.7307692307692307,
+   "difficulty": 1.5769230769230769,
+   "wordplay": 0.9230769230769231,
+   "mechanisms": {
+    "hidden": 16,
+    "anagram": 6,
+    "definition": 2,
+    "reversal": 2
+   }
+  },
+  {
+   "topic": "tanach",
+   "level": 4,
+   "shape": "classic7",
+   "ok": false,
+   "problems": [
+    "only 38% of the 5+ letter entries are on topic (floor 50%)"
+   ],
+   "entries": 16,
+   "topical": 7,
+   "topicality": 0.4375,
+   "long_topicality": 0.375,
+   "common_share": 0.5625,
+   "difficulty": 2.15625,
+   "wordplay": 0.9375,
+   "mechanisms": {
+    "anagram": 12,
+    "definition": 1,
+    "hidden": 2,
+    "reversal": 1
+   }
+  },
+  {
+   "topic": "tanach",
+   "level": 4,
+   "shape": "arrow9",
+   "ok": false,
+   "problems": [
+    "only 25% of the 5+ letter entries are on topic (floor 50%)"
+   ],
+   "entries": 26,
+   "topical": 11,
+   "topicality": 0.4230769230769231,
+   "long_topicality": 0.25,
+   "common_share": 0.6153846153846154,
+   "difficulty": 2.1153846153846154,
+   "wordplay": 1.0,
+   "mechanisms": {
+    "anagram": 18,
+    "hidden": 6,
+    "reversal": 2
+   }
+  },
+  {
+   "topic": "historia",
+   "level": 1,
+   "shape": "classic7",
+   "ok": true,
+   "problems": [],
+   "entries": 16,
+   "topical": 4,
+   "topicality": 0.25,
+   "long_topicality": 0.5,
+   "common_share": 1.0,
+   "difficulty": 0.8125,
+   "wordplay": 0.5625,
+   "mechanisms": {
+    "definition": 7,
+    "hidden": 9
+   }
+  },
+  {
+   "topic": "historia",
+   "level": 1,
+   "shape": "arrow9",
+   "ok": false,
+   "problems": [
+    "only 38% of the 5+ letter entries are on topic (floor 50%)",
+    "topicality 12% below the 25% floor"
+   ],
+   "entries": 26,
+   "topical": 3,
+   "topicality": 0.11538461538461539,
+   "long_topicality": 0.375,
+   "common_share": 1.0,
+   "difficulty": 0.7692307692307693,
+   "wordplay": 0.6538461538461539,
+   "mechanisms": {
+    "hidden": 17,
+    "definition": 9
+   }
+  },
+  {
+   "topic": "historia",
+   "level": 2,
+   "shape": "classic7",
+   "ok": true,
+   "problems": [],
+   "entries": 16,
+   "topical": 4,
+   "topicality": 0.25,
+   "long_topicality": 0.5,
+   "common_share": 1.0,
+   "difficulty": 1.0,
+   "wordplay": 0.6875,
+   "mechanisms": {
+    "definition": 5,
+    "reversal": 2,
+    "hidden": 9
+   }
+  },
+  {
+   "topic": "historia",
+   "level": 2,
+   "shape": "arrow9",
+   "ok": false,
+   "problems": [
+    "only 38% of the 5+ letter entries are on topic (floor 50%)",
+    "topicality 12% below the 25% floor"
+   ],
+   "entries": 26,
+   "topical": 3,
+   "topicality": 0.11538461538461539,
+   "long_topicality": 0.375,
+   "common_share": 1.0,
+   "difficulty": 0.8653846153846154,
+   "wordplay": 0.6923076923076923,
+   "mechanisms": {
+    "hidden": 15,
+    "reversal": 3,
+    "definition": 8
+   }
+  },
+  {
+   "topic": "historia",
+   "level": 3,
+   "shape": "classic7",
+   "ok": true,
+   "problems": [],
+   "entries": 16,
+   "topical": 4,
+   "topicality": 0.25,
+   "long_topicality": 0.5,
+   "common_share": 0.375,
+   "difficulty": 1.75,
+   "wordplay": 0.75,
+   "mechanisms": {
+    "definition": 4,
+    "hidden": 10,
+    "anagram": 2
+   }
+  },
+  {
+   "topic": "historia",
+   "level": 3,
+   "shape": "arrow9",
+   "ok": false,
+   "problems": [
+    "topicality 23% below the 25% floor"
+   ],
+   "entries": 26,
+   "topical": 6,
+   "topicality": 0.23076923076923078,
+   "long_topicality": 0.625,
+   "common_share": 0.5384615384615384,
+   "difficulty": 1.6730769230769231,
+   "wordplay": 0.7692307692307692,
+   "mechanisms": {
+    "anagram": 6,
+    "reversal": 3,
+    "hidden": 11,
+    "definition": 6
+   }
+  },
+  {
+   "topic": "historia",
+   "level": 4,
+   "shape": "classic7",
+   "ok": true,
+   "problems": [],
+   "entries": 16,
+   "topical": 4,
+   "topicality": 0.25,
+   "long_topicality": 0.5,
+   "common_share": 0.3125,
+   "difficulty": 2.5,
+   "wordplay": 0.9375,
+   "mechanisms": {
+    "anagram": 9,
+    "reversal": 2,
+    "definition": 1,
+    "hidden": 4
+   }
+  },
+  {
+   "topic": "historia",
+   "level": 4,
+   "shape": "arrow9",
+   "ok": false,
+   "problems": [
+    "topicality 19% below the 25% floor"
+   ],
+   "entries": 26,
+   "topical": 5,
+   "topicality": 0.19230769230769232,
+   "long_topicality": 0.5,
+   "common_share": 0.2692307692307692,
+   "difficulty": 2.423076923076923,
+   "wordplay": 0.9230769230769231,
+   "mechanisms": {
+    "hidden": 7,
+    "reversal": 4,
+    "anagram": 13,
+    "definition": 2
+   }
+  }
+ ]
+}

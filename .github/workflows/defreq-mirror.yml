@@ -1,10 +1,12 @@
-name: Definition-request queue mirror
+name: Reader-request queue mirror
 
-# Mirrors the reader definition-request queue (/api/define-request) into the
-# repo every Saturday, so the Sunday drain Routine can read it without any
-# egress, and resolves phrases that already have specs (they are fulfilled -
-# keeps the server queue from silting up toward its cap). GitHub runners have
-# open egress; agent sandboxes often don't.
+# Mirrors the two reader queues into the repo every Saturday, so the Sunday
+# drain Routines can read them without any egress:
+#   /api/define-request   phrases readers want a definition page for
+#   /api/puzzle-request   subjects readers want a crossword about
+# It also resolves definition phrases that already have specs (they are
+# fulfilled), which keeps the server queue from silting up toward its cap.
+# GitHub runners have open egress; agent sandboxes often don't.
 
 on:
   schedule:
@@ -19,6 +21,26 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Mirror the puzzle-request queue
+        run: |
+          python3 - <<'EOF'
+          import json, urllib.request
+
+          API = 'https://tashbetz.gtmascode.dev/api/puzzle-request'
+          SNAP = 'solver/lex/pzreq_queue_snapshot.json'
+
+          try:
+              with urllib.request.urlopen(API, timeout=30) as r:
+                  queue = json.load(r)
+          except Exception as e:
+              print('puzzle-request queue unreachable:', e)
+              raise SystemExit(0)
+
+          items = queue.get('items', [])
+          json.dump({'items': items}, open(SNAP, 'w', encoding='utf-8'),
+                    ensure_ascii=False, indent=1)
+          print(f'puzzle requests pending: {len(items)}')
+          EOF
       - name: Mirror queue and resolve fulfilled phrases
         run: |
           python3 - <<'EOF'
@@ -51,10 +73,10 @@ jobs:
         run: |
           git config user.name 'defreq-mirror'
           git config user.email 'noreply@github.com'
-          git add solver/lex/defs_queue_snapshot.json
+          git add solver/lex/defs_queue_snapshot.json solver/lex/pzreq_queue_snapshot.json
           if git diff --cached --quiet; then
             echo 'no queue changes'
           else
-            git commit -m 'Mirror definition-request queue snapshot'
+            git commit -m 'Mirror the reader request queues'
             git push
           fi

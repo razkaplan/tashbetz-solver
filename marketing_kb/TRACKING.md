@@ -41,6 +41,16 @@ updates the "Movement log" below. This file is the handoff between runs, DAILY.m
 
 ## Movement log
 
+- **2026-08-31 (later)** - New page family shipped: **topic crosswords**
+  (`/nosim/`). Ten bagrut subjects x four levels, each a playable board with an
+  explanation per answer, plus a landing page per subject and a request page
+  (`/bakasha/`). A weekly news board joins at `/nosim/hadashot/` once
+  .github/workflows/news-weekly.yml has run once. Targets a query family none
+  of the tracked competitors covers: they publish clue->answer lists, nobody
+  publishes *playable* subject boards. Watch "תשבץ תנך", "תשבץ ביולוגיה",
+  "הכנה לבגרות תשבץ", "תשחץ להדפסה" and the per-subject variants in the next
+  snapshot.
+
 - **2026-08-31** - Post-rebuild repair: the 2026-08-30 full rebuild (#35) ran
   build_seo without build_defs after it, dropping all 51 /milon/d/ URLs from
   the sitemap and the defs hub section from /milon/; and the by-bare-title

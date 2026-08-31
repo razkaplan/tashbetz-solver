@@ -12,9 +12,23 @@ weekly logic crossword by יורם הרועה (reputedly the hardest cryptic in 
   model), `lexicon.py` (129k-word Hebrew pattern/anagram lookup), `retrieve.py`
   (similar-clue retrieval), `consensus.py` (best-of-N merge), `fill_state.py`,
   and the data-derived `PLAYBOOK.md` / `SOLVE_PROTOCOL.md`.
-- `scraper/` — answer-corpus parsers and the grid image extractor.
-- `evals/` — the scoring harness (`run_eval.py`).
+- `scraper/` — answer-corpus parsers, the grid image extractor, and the weekly
+  news harvest (`news_israel.py`).
+- `evals/` — the scoring harness (`run_eval.py`) and the topic-crossword gate
+  (`topicgen_eval.py`).
 - `PLAN.md`, `RESULTS.md` — methodology and the honest iteration log (v1–v4).
+
+## Setting, not just solving
+
+The same machinery runs backwards to *set* crosswords: `solver/grids_topic.py`
+(two crossword and two arrowword templates, validated at import) and
+`solver/topicgen.py` (`generate(topic, level, shape)`), which fills a board from
+a topic's term bank and clues every entry with a machine-checkable proof.
+Difficulty is measured rather than labelled: the easy levels fill only from
+answers the corpus actually saw in printed puzzles, and
+`evals/topicgen_eval.py` re-derives every judgement from the committed data
+before a board may be published. Output: subject crosswords for bagrut revision,
+a weekly news board, and boards built on request.
 
 ## Method in one paragraph
 Answers + crowd explanations come from a community solutions site; clue text and

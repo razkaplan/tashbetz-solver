@@ -562,9 +562,22 @@ if os.path.isdir('docs/tirgul'):
     trainer=['/tirgul/']+[f'/tirgul/{d}/' for d in sorted(os.listdir('docs/tirgul'),
              key=lambda x:(not x.isdigit(), int(x) if x.isdigit() else x))
              if os.path.exists(f'docs/tirgul/{d}/index.html')]
+# Topic crosswords (app/build_topics.py): hub, one page per subject, one per
+# level. Discovered by walking the directory, so a newly requested board joins
+# the sitemap with no manifest to keep in step.
+topics=[]
+if os.path.isdir('docs/nosim'):
+    topics=['/nosim/']
+    for t in sorted(os.listdir('docs/nosim')):
+        if not os.path.exists(f'docs/nosim/{t}/index.html'): continue
+        topics.append(f'/nosim/{t}/')
+        topics+=[f'/nosim/{t}/{lv}/' for lv in sorted(os.listdir(f'docs/nosim/{t}'))
+                 if os.path.exists(f'docs/nosim/{t}/{lv}/index.html')]
+if os.path.exists('docs/bakasha/index.html'):
+    topics.append('/bakasha/')
 # dict.fromkeys, not set(): the sitemap should stay in a stable order so a
 # rebuild produces a reviewable diff rather than a reshuffle.
-for u in dict.fromkeys(['/','/nativ/','/solve/','/methods/','/research/','/research/he/']+trainer+urls):
+for u in dict.fromkeys(['/','/nativ/','/solve/','/methods/','/research/','/research/he/']+trainer+topics+urls):
     sm+=f'  <url><loc>{BASE}{u}</loc></url>\n'
 sm+='</urlset>'
 open('docs/sitemap.xml','w').write(sm)
