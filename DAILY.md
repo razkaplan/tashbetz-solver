@@ -17,13 +17,83 @@ tree - a stale CLI deploy overwrote the live site on 2026-08-29. See CLAUDE.md.
 | Best single puzzle | 2026-05-29: 95% / 71% / 68% ✓ all targets | |
 | Hardest puzzle | 2026-06-05: 100% / 43% / 43% | coverage stuck |
 | **Candidate recall@N (new, offline, mechanical only)** | **3.6% (1/28)**, avg 11.6 candidates/clue (capped), on 2026-05-29 — UNCHANGED after adding substitution+homograph mechanisms | not yet a target — diagnostic |
-| **Candidate recall@N with `retrieval_candidates` added (new, offline, BM25 definition retrieval)** | **7.1% (2/28)** on 2026-05-29 (up from 3.6%); **SECOND puzzle, 2026-08-26: 0.0% (0/18) → 5.6% (1/18)** on 2026-06-26 (partial, 18/28 clues); **THIRD puzzle, 2026-08-27: 0.0% (0/19) → 0.0% (0/19), UNCHANGED** on 2026-07-10; **2026-08-28, RE-MEASURED on 2026-05-29 with a GROWN corpus (mordo re-crawled 13,646 raw pairs vs 9,685; `note.co.il` crawled for the first time this project's lifetime, 829 pairs): 3.6% (1/28) → 10.7% (3/28)**, up from the 7.1% this exact puzzle scored with the smaller corpus; **2026-08-29, RE-MEASURED 2026-07-10 with an EVEN BIGGER corpus (mordo 25,350 raw / 24,361 parsed, up from 13,646/12,890; note.co.il 970 fetched out of 1,301 discovered): 0.0% (0/19) → 0.0% (0/19), STILL UNCHANGED**; **2026-08-30, RE-MEASURED 2026-06-26 — this time FULLY transcribed (28/28 clues, closing 2026-08-26's 18/28 partial gap) and with a MASSIVELY grown corpus (mordo 66,443 raw / 62,403 parsed, up from 25,350/24,361 — the blogspot feed has grown 2.6x again; note.co.il 1,001 fetched out of 1,301 discovered, up from 970/1301): 0.0% (0/28) → 14.3% (4/28)** — the highest recall this diagnostic has ever measured on any puzzle, and the largest single-puzzle point gain, from 4 independently-audited external hits (מניע, רומח, בובדילנ, ברסמכא) — see log | not yet a target — diagnostic; 6 independent measurements, 4 positive + 2 flat, confirming corpus growth is puzzle-dependent (rescued 2026-05-29 twice and now 2026-06-26 strongly, never moved 2026-07-10 across three corpus sizes) |
+| **Candidate recall@N with `retrieval_candidates` added (new, offline, BM25 definition retrieval)** | **7.1% (2/28)** on 2026-05-29 (up from 3.6%); **SECOND puzzle, 2026-08-26: 0.0% (0/18) → 5.6% (1/18)** on 2026-06-26 (partial, 18/28 clues); **THIRD puzzle, 2026-08-27: 0.0% (0/19) → 0.0% (0/19), UNCHANGED** on 2026-07-10; **2026-08-28, RE-MEASURED on 2026-05-29 with a GROWN corpus (mordo re-crawled 13,646 raw pairs vs 9,685; `note.co.il` crawled for the first time this project's lifetime, 829 pairs): 3.6% (1/28) → 10.7% (3/28)**, up from the 7.1% this exact puzzle scored with the smaller corpus; **2026-08-29, RE-MEASURED 2026-07-10 with an EVEN BIGGER corpus (mordo 25,350 raw / 24,361 parsed, up from 13,646/12,890; note.co.il 970 fetched out of 1,301 discovered): 0.0% (0/19) → 0.0% (0/19), STILL UNCHANGED**; **2026-08-30, RE-MEASURED 2026-06-26 — this time FULLY transcribed (28/28 clues, closing 2026-08-26's 18/28 partial gap) and with a MASSIVELY grown corpus (mordo 66,443 raw / 62,403 parsed, up from 25,350/24,361 — the blogspot feed has grown 2.6x again; note.co.il 1,001 fetched out of 1,301 discovered, up from 970/1301): 0.0% (0/28) → 14.3% (4/28)** — the highest recall this diagnostic has ever measured on any puzzle, and the largest single-puzzle point gain, from 4 independently-audited external hits (מניע, רומח, בובדילנ, ברסמכא); **2026-09-01, QUERY-SHAPE FIX (not a corpus change): re-derived 2026-05-29 independently for a fourth time (fresh transcription, fresh mordo 14,850 raw/14,074 parsed + note.co.il 318 pairs — both smaller than 2026-08-30's corpus since this run's crawls were shorter, not because anything shrank), then measured `retrieval_candidates` with the OLD whole-clue query (`retrieve_defs.candidates()`) vs the NEW end-anchored query (`retrieve_defs.end_candidates()`, queries each 2/3/4-word prefix/suffix separately): BOTH score 10.7% (3/28) on this puzzle, IDENTICAL by-mechanism breakdown, same 2 retrieval hits (26A `פחותאבלכואב`, 1D `ברישניקוב`) — a genuine NULL result for recall@N on this specific puzzle, disclosed rather than hidden. The fix is still correct and worth keeping (see log): the function this project has quoted a standalone 5.4%/27% gold@25/ceiling number for since 2026-08-25, and the one `retrieve_defs.py`'s own `eval` CLI exercises, is `end_candidates()` — but `candidates.py` had been calling the OTHER, never-measured function the whole time. This run closes that mismatch; it just doesn't move recall on this one re-derivation | not yet a target — diagnostic; 6 corpus-size measurements (4 positive + 2 flat) plus 1 query-shape fix (flat on this puzzle, mismatch closed regardless) |
 | **Definition-span locatable rate (new, offline, diagnostic)** | **25% (7/28)** have mechanically-locatable single-window wordplay; of those 29% (2/7) are interior, not edge; classifier agreement on edge cases **1/5** | not a target — this diagnostic KILLED the lever, see log |
 | **`solve_pass.py` LIVE blind trial — cumulative (3 trials)** | **40% precision (2/5 committed)**: 2026-08-16 was 1/2 on a partial 21/28-clue puzzle (2026-06-12); 2026-08-22 was **0/2**, 7.1% coverage, on a FULL 28/28-clue puzzle (2026-05-15); **2026-08-27 is 1/1 = 100% precision but 5.3% coverage (1/19), 0% suggestion hit-rate (0/10)**, on 2026-07-10 (19/28 clues) — FIRST trial run with `retrieval_candidates` live (wired 2026-08-25, never live-trialed since); it contributed ZERO candidates all puzzle (grepped the transcript for `(retrieval, fodder=` hits — none), matching today's own offline recall@N finding on this same puzzle (0/19 with or without retrieval); the one correct commit came from `wiki.py` culture-fact lookup, not from any candidate generator | n=5 — still small; retrieval's live debut is a null result on this puzzle, not a regression, but not the coverage lift the queue hoped for either; see log |
 | **Candidate recall@N with `culture_category_candidates` added (new, offline, definition-driven)** | **0% (0/28)**, on 2026-06-19 — mechanism fired on only 1/28 clues (avg candidates/clue 10.5 → 11.4); its one firing (339 raw candidates, an "author" category hit) matched 0 gold | not yet a target — small-n diagnostic, see log |
 
 Baseline for comparison: v2 = 41% raw with untraceable errors.
-Last lever added (2026-08-30): **closed 2026-08-29's own "NOT DONE" gap: re-measured
+Last lever added (2026-09-01): **fixed a real internal-consistency bug in
+`retrieval_candidates()`: it was calling the UNMEASURED half of `retrieve_defs.py`'s two
+query functions.** `retrieve_defs.py` has offered two ways to query its BM25 index since
+2026-08-08: `candidates()` (the whole clue text as one query) and `end_candidates()`
+(queries each 2/3/4-word prefix and suffix of the clue separately, since the definition
+sits at one end). The 5.4%/27% gold@25/ceiling number `candidates.py`'s own docstring has
+quoted for this mechanism since 2026-08-25, and the number `retrieve_defs.py`'s own `eval`
+CLI produces, both come from `end_candidates()`. But `retrieval_candidates()` — the
+function actually wired into `generate()`'s live pool since 2026-08-25 — called
+`candidates()`, the sibling that was never measured. Grepped DAILY.md and RESEARCH.md for
+`end_candidates` before treating this as a finding: zero hits in either file across
+six-plus retrieval measurements (2026-08-25 through 2026-08-30) — this mismatch had never
+been noticed. Bootstrap hit the same hard 14across wall as every run since 2026-08-19 (0/52
+after full retry-with-backoff, killed at a 300s timeout); worked entirely from the
+no-14across image-fallback technique, delegated to a subagent for the transcription itself
+(same protocol as every prior run: clue text from `data/images/2026-05-28.jpg`, gold
+letters from the small solved-grid recap in `data/images/2026-06-04.jpg`, grid-pattern
+cross-check against the already-committed `data/grids/2026-05-29.json` before trusting any
+letter). RE-TRANSCRIBED THE CANONICAL DEV PUZZLE (2026-05-29) independently for a fourth
+time (after 2026-08-06/08-25/08-28's prior transcriptions) — `solver/grid_tools.validate`
+returned zero problems, and `build_dataset.py` reported 0 len mismatches across all 28
+clues. One enumeration quirk was found and DISCLOSED, not silently fixed: across clue 1
+prints `(4,7)` but the gold answer `בליברטיולנס` (from "האיש שירה בליברטי ולנס" — the
+Hebrew title of *The Man Who Shot Liberty Valance*) splits as בליברטי(7)+ולנס(4), reversed
+from the printed order; the enum SUM (11) is unaffected, matching this setter's now
+repeatedly-documented reversed-enum quirk (8th+ instance).
+
+MEASURED, controlled before/after on the identical re-derived dataset
+(`python3 solver/candidates.py recall data/dataset/clues.jsonl eval --no-culture`, toggling
+only which retrieve_defs function `retrieval_candidates()` calls): mechanical-only baseline
+**3.6% (1/28)** — exactly reproduces every prior independent transcription of this puzzle
+(2026-08-06/08-20/08-25/08-28), a strong cross-check this transcription is correct. WITH
+retrieval: **10.7% (3/28) under BOTH the old whole-clue query and the new end-anchored
+query** — identical score, identical by-mechanism counts, and the SAME two hits (26 across
+`פחותאבלכואב`, 1 down `ברישניקוב`) either way. A genuine NULL result for recall@N on this
+specific puzzle: today's corpus (mordo 14,850 raw/14,074 parsed, note.co.il 318 pairs —
+both smaller than 2026-08-30's, since this run's crawls ran shorter, not because the
+underlying sites shrank) happens to put both gold answers within the top-25 of either query
+shape, so the query-shape difference didn't move THIS puzzle's score. avg candidates/clue
+did differ slightly (19.9 new vs 20.5 old), confirming the two query shapes genuinely
+retrieve different candidate sets — they just didn't differ on these particular 2 gold
+hits. AUDITED: `lexicon.held_out_answers()` and `retrieve_defs.held_out()` both confirmed
+(computed) to block all 28 of this puzzle's own gold answers; both retrieval hits' source
+docs carry `pid=None` (external private_defs, not this project's own text); no forbidden
+reads (14across never queried for this puzzle, only the two public CDN images); no
+implausible jump to explain (10.7% -> 10.7%, flat). All 5 affected selftests
+(`candidates.py`, `retrieve_defs.py`, `lexicon.py`, `prove.py`, `substitutions.py`) re-run
+clean.
+
+HONEST READ: this is a real bug fix — the mechanism now wired into live candidate
+generation is the one this project actually validated and has been citing numbers for,
+instead of an unmeasured sibling that happened to share its docstring — but it is NOT a
+recall@N win on this measurement. The fair statement is: the fix closes a real
+measurement/implementation mismatch (worth keeping regardless, since shipping a function
+nobody measured while quoting numbers from the one you didn't ship is a correctness problem
+independent of any single puzzle's score), and this run's one data point shows it doesn't
+move recall on 2026-05-29's specific gold set. Whether it helps on puzzles where the OLD
+whole-clue query's dilution actually mattered (a long surface reading with lots of
+wordplay-indicator words competing for BM25 weight) is untested — this puzzle's two hits
+both come from short, indicator-light clues where the two query shapes apparently converge
+on the same top candidates.
+
+NOT DONE, honestly: did not re-measure 2026-06-26 or 2026-07-10 (the other two puzzles with
+retrieval history) with the new query shape — one puzzle's full transcription-plus-audit
+cycle is this run's budget; did not run mordo/note.co.il crawls to the same size as
+2026-08-30's (this run's crawls were bounded shorter, since the query-shape question doesn't
+need a maximal corpus to test, only a real one) — a future corpus-growth run should still
+use the biggest crawl it can, this run's smaller corpus was a deliberate scope choice, not a
+regression; did not merge or otherwise act on any open PR (none were open at run start).
+
+Previous lever (2026-08-30): **closed 2026-08-29's own "NOT DONE" gap: re-measured
 `retrieval_candidates` on 2026-06-26 — the puzzle 2026-08-28/08-29 both flagged as still
 needing a bigger corpus and no run had finished re-transcribing — this time FULLY (28/28
 clues, not the 18/28 partial 2026-08-26 left) and against a corpus grown far past any
@@ -2352,3 +2422,20 @@ Measure each lever on dev (fixed enums) with run_eval.py before/after; one lever
   politicians like רבין/בגין/גולדה, everyday common words). Rebuilt puzzles.json:
   90/90 days validated, zero purity violations, zero famous-pool fallbacks; today's
   easy board went from צ'אפל ואדי/הלטי/בארו to אולימפוס/ארבל/אררט.
+- 2026-09-01: **candidate generation, queue item 1(d): fixed `retrieval_candidates()`
+  calling the unmeasured half of `retrieve_defs.py`'s two query functions** (whole-clue
+  `candidates()` instead of the end-anchored `end_candidates()` that every quoted
+  standalone number for this mechanism actually came from, since 2026-08-25). 14across
+  walled again (0/52, killed at timeout); re-transcribed 2026-05-29 independently for a
+  fourth time via the image-fallback technique (delegated to a subagent, cross-checked
+  against the committed grid: 0 problems, 0 enum mismatches; one reversed-enum quirk on
+  1 across disclosed, sum unaffected). MEASURED before/after: mechanical baseline 3.6%
+  (1/28, reproduces every prior transcription); with retrieval, BOTH the old and new
+  query shape score 10.7% (3/28), identical hits (26A `פחותאבלכואב`, 1D `ברישניקוב`) —
+  a genuine null result for recall@N on this puzzle, though avg candidates/clue did
+  differ (19.9 vs 20.5), confirming the query shapes retrieve different sets that just
+  didn't move these 2 hits. AUDITED: held-out checks clean, no forbidden reads, no
+  implausible jump, all 5 affected selftests pass. Shipped as a correctness fix
+  regardless of the flat recall number: the mechanism now wired into live generation is
+  the one this project has actually validated, not an unmeasured sibling. See DAILY.md's
+  "Last lever added" section above and RESEARCH.md for the full trail.
