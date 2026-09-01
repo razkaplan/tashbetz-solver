@@ -28,6 +28,13 @@ through `app/brand.py` (`document()`, `site_header()`, `site_footer()`,
 - Any body markup a generator emits with inline styling must also be mapped
   in `rebrand_pages.py` (BODY_FIXES), or the patched pages and freshly built
   pages drift.
+- **`evals/ui_smoke.py` is the gate for a shell change.** It drives the
+  committed pages in headless Chromium: types into a topic crossword and a
+  trainer board, toggles direction, checks answers, plays the solver demo by
+  keyboard, drags a real word path in נתיב, and searches the milon hub, at
+  desktop and phone widths. Run it before shipping anything that touches
+  `brand.css`, `brand.py`, the players in `build_topics.py` /
+  `build_trainer.py`, or the two app pages.
 - Social cards: `python3 app/build_og.py` renders every `og.png` from HTML
   with headless Chromium (`CHROME=` to point at a binary, `FONT_CSS=` for a
   local @font-face sheet when Google Fonts is unreachable).

@@ -468,6 +468,7 @@ hub=f"""<p>מנוע חיפוש לפותרי תשבצים: שמות של שירי
 <p style="margin-top:1.4rem">חסרה לכם תשובה שלמה? <a href="/solve/">עוזר הפתירה</a> פותר איתכם עם רמזים מדורגים והוכחות.</p>
 <script>
 let E=null;const q=document.getElementById('q'),res=document.getElementById('res');
+if(matchMedia('(pointer:fine)').matches)q.focus();
 fetch('/milon/entities.json').then(r=>r.json()).then(d=>E=d);
 const CAT={cat_json};
 const FINMAP={{'ך':'כ','ם':'מ','ן':'נ','ף':'פ','ץ':'צ'}},canon=s=>s.replace(/[ךםןףץ]/g,m=>FINMAP[m]);

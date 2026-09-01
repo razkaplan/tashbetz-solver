@@ -11,13 +11,15 @@
 <div class="pagehead"><span class="kicker pop">🏋️ תרגול תשבץ · פותרים ביחד</span><h1>תרגול תשבץ #70: רמת מתקדם, רשת 5x5</h1><nav class="crumb" aria-label="מיקום באתר"><a href="/">דף הבית</a><a href="/tirgul/">תרגול</a><span>תשבץ 70</span></nav></div><div class="promo"><span class="promo-ic">☀️</span><span><a href="/nativ/"><b>נתיב</b>, המשחק היומי הטוב לחובבי תשבצים</a> · חידה חדשה כל יום, עכשיו גם במצב קל</span></div>
 <p>רמת <b>מתקדם</b> · רשת 5x5 · 6 הגדרות ·
 מנגנונים: אנגרמה, הגדרה</p>
-<div class="board" id="board"></div>
+<div class="curclue" id="cur" aria-live="polite"></div>
+<div class="scroll"><div class="board" id="board"></div></div>
 <div class="bar">
   <button class="act" id="check">בדקו אותי</button>
   <button class="act ghost" id="explain">הראו את ההסברים</button>
   <button class="act ghost" id="clear">נקו</button>
 </div>
 <div class="msg" id="msg"></div>
+<p class="kbdhint">לחיצה נוספת על משבצת (או Enter) מחליפה בין מאוזן למאונך · חיצים לניווט · Backspace חוזר אחורה</p>
 <div class="clues">
   <div><h2>מאוזן</h2><ol><li data-i="0"><b>1.</b> סַפְסָל קָטֹן וְנָמוּךְ לְהַנִּיחַ עָלָיו רַגְלַיִם <small>(5)</small><div class="exp"><b>שרפרפ</b> · הגדרה: הגדרה ישירה מתוך אינדקס המילון של הפרויקט.</div></li>
 <li data-i="4"><b>4.</b> סדרו מחדש את האותיות של אתבגר <small>(5)</small><div class="exp"><b>אתגבר</b> · אנגרמה: אותן אותיות בדיוק כמו אתבגר, בסדר אחר.</div></li>
@@ -50,24 +52,63 @@ PZ.grid.forEach((row, r) => {
     board.appendChild(d);
   });
 });
-let active = null;
+let active = null, dirPref = 'across';
+const cur = document.getElementById('cur');
+function entriesAt(r, c) { return PZ.entries.filter(e => e.cells.some(x => x[0] === r && x[1] === c)); }
 function highlight(r, c) {
-  const e = PZ.entries.find(e => e.cells.some(x => x[0] === r && x[1] === c)) || null;
-  active = e;
+  // a cell on two entries follows the direction the solver last chose
+  const es = entriesAt(r, c);
+  const e = es.find(x => x.dir === dirPref) || es[0] || null;
+  active = e; if (e) dirPref = e.dir;
   Object.values(inputs).forEach(i => i.parentNode.classList.remove('hl'));
   if (e) e.cells.forEach(([a, b]) => inputs[a + ',' + b].parentNode.classList.add('hl'));
+  showClue(e);
 }
-function advance(i) {
-  if (!active) return;
+function showClue(e) {
+  if (!cur) return;
+  if (!e) { cur.textContent = ''; return; }
+  const li = document.querySelector(`.clues li[data-i="${PZ.entries.indexOf(e)}"]`);
+  const t = li ? li.cloneNode(true) : null;
+  if (t) t.querySelectorAll('.exp').forEach(x => x.remove());
+  cur.innerHTML = '<span class="dir">' + (e.dir === 'across' ? 'מאוזן' : 'מאונך') + '</span><span>' +
+                  (t ? t.innerHTML : '') + '</span>';
+}
+function step(i, d) {
+  if (!active) return null;
   const [r, c] = i.dataset.rc.split(',').map(Number);
   const at = active.cells.findIndex(x => x[0] === r && x[1] === c);
-  const nx = active.cells[at + 1];
-  if (nx) inputs[nx[0] + ',' + nx[1]].focus();
+  const nx = active.cells[at + d]; if (!nx) return null;
+  const n = inputs[nx[0] + ',' + nx[1]]; n.focus(); return n;
+}
+function advance(i) { step(i, 1); }
+function toggleDir(i) {
+  dirPref = dirPref === 'across' ? 'down' : 'across';
+  const [r, c] = i.dataset.rc.split(',').map(Number); highlight(r, c);
 }
 function focusEntry(idx) {
-  const e = PZ.entries[idx]; active = e;
-  const [r, c] = e.cells[0]; inputs[r + ',' + c].focus();
+  const e = PZ.entries[idx]; dirPref = e.dir; active = e;
+  const [r, c] = e.cells[0]; const i = inputs[r + ',' + c];
+  if (document.activeElement === i) highlight(r, c); else i.focus();
 }
+Object.values(inputs).forEach(i => {
+  // a second tap on the focused cell switches between across and down
+  i.addEventListener('mousedown', () => { if (document.activeElement === i) toggleDir(i); });
+  i.addEventListener('keydown', ev => {
+    const [r, c] = i.dataset.rc.split(',').map(Number);
+    if (ev.key === 'Backspace' && !i.value) { ev.preventDefault(); const p = step(i, -1); if (p) p.value = ''; }
+    else if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); toggleDir(i); }
+    else if (ev.key.startsWith('Arrow')) {
+      const dr = ev.key === 'ArrowDown' ? 1 : ev.key === 'ArrowUp' ? -1 : 0;
+      const dc = ev.key === 'ArrowLeft' ? 1 : ev.key === 'ArrowRight' ? -1 : 0;  // the board is RTL
+      let rr = r + dr, cc = c + dc;
+      while (rr >= 0 && cc >= 0 && rr < PZ.grid.length && cc < PZ.grid[0].length) {
+        const n = inputs[rr + ',' + cc];
+        if (n) { ev.preventDefault(); dirPref = dr ? 'down' : 'across'; n.focus(); break; }
+        rr += dr; cc += dc;
+      }
+    }
+  });
+});
 document.querySelectorAll('.clues li').forEach(li => li.onclick = () => focusEntry(+li.dataset.i));
 document.getElementById('check').onclick = () => {
   let right = 0, filled = 0;
