@@ -192,20 +192,11 @@ for _slug, _spec in REQ.items():
                     _spec.get('variants', [f'{_phrase} תשחץ', f'{_phrase} תשבץ']),
                     _src, _spec.get('related', []))
 
-STYLE = """<style>*{box-sizing:border-box}body{margin:0;background:#fff;color:#121212;font-family:'Frank Ruhl Libre','Arial Hebrew',serif;line-height:1.6}
-.w{max-width:52rem;margin:0 auto;padding:1rem 1.2rem}header{border-bottom:1px solid #121212;box-shadow:0 3px 0 -1px #121212;padding:.8rem 0}
-h1{font-size:1.6rem;margin:.2rem 0}.k{font-family:monospace;font-size:.65rem;letter-spacing:.12em;color:#fff;background:#f22b39;display:inline-block;padding:.12rem .5rem}
-a{color:#f22b39}h2{border-bottom:3px solid #f22b39;display:inline-block;font-size:1.1rem;padding-bottom:.1rem}
-.crumb{font-size:.8rem;color:#5c5c5c;margin:.6rem 0}
-.promo{background:#fff4d6;border:1.5px solid #121212;border-radius:3px;padding:.45rem .7rem;margin:.7rem 0 0;font-size:.9rem}
-.promo a{font-weight:700}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(15rem,1fr));gap:.4rem;padding:0;list-style:none}
-.grid li{background:#f6f5f3;padding:.35rem .6rem;border-radius:3px}
-.grid .net{font-family:monospace;color:#5c5c5c}
-.lens{font-size:.9rem}
-.vars{background:#f6f5f3;border-radius:3px;padding:.6rem .8rem;font-size:.85rem;color:#5c5c5c;margin-top:1.4rem}
-footer{margin:2.5rem 0 1.5rem;border-top:1px solid #dcdcdc;padding-top:.8rem;font-size:.8rem;color:#5c5c5c}
-@media(prefers-color-scheme:dark){body{background:#161616;color:#f2f0ec}.grid li,.vars{background:#222}.promo{background:#3a3115;border-color:#f2f0ec}}</style>"""
+import brand
+
+NOTE = brand.DEFS_NOTE
+KICKER = brand.DEFS_KICKER
+STYLE = ''  # the shell comes from docs/assets/brand.css
 
 HUB_START = '<!-- defs-hub-start -->'
 HUB_END = '<!-- defs-hub-end -->'
@@ -235,8 +226,8 @@ def build_page(slug, phrase, variants, items, related):
     src_line = ''
     if wiki:
         wurl = 'https://he.wikipedia.org/wiki/' + urllib.parse.quote(wiki.replace(' ', '_'))
-        src_line = (f'<p style="font-size:.85rem;color:#5c5c5c">מקורות והרחבה: '
-                    f'<a href="{wurl}">{esc(wiki)} בוויקיפדיה</a>. הרשימה נאספה ונבדקה ידנית.</p>\n')
+        src_line = (f'<p><small>מקורות והרחבה: '
+                    f'<a href="{wurl}">{esc(wiki)} בוויקיפדיה</a>. הרשימה נאספה ונבדקה ידנית.</small></p>\n')
 
     len_nav = ' · '.join(f'<a href="#len-{L}">{L} אותיות</a>' for L in lens)
     rel_links = ' · '.join(f'<a href="/milon/d/{r}/">{esc(PAGES[r][0])}</a>'
@@ -268,10 +259,7 @@ def build_page(slug, phrase, variants, items, related):
 {src_line}<div class="vars">ביטויים דומים שמחפשים: {var_text}, {esc(phrase)} מילון, {esc(phrase)} פתרון.</div>"""
 
     os.makedirs(f'{OUT}/{slug}', exist_ok=True)
-    open(f'{OUT}/{slug}/index.html', 'w', encoding='utf-8').write(f"""<!doctype html><html lang="he" dir="rtl"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1"><title>{esc(title)}</title>
-<meta name="description" content="{esc(desc)}"><link rel="canonical" href="{BASE}{rel}">
-<meta property="og:type" content="article"><meta property="og:site_name" content="מילון תשבץ">
+    meta = f"""<meta property="og:type" content="article"><meta property="og:site_name" content="מילון תשבץ">
 <meta property="og:title" content="{esc(title)}"><meta property="og:description" content="{esc(desc)}">
 <meta property="og:url" content="{BASE}{rel}"><meta property="og:image" content="{BASE}/milon/og.png">
 <meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
@@ -279,13 +267,12 @@ def build_page(slug, phrase, variants, items, related):
 <meta name="twitter:title" content="{esc(title)}"><meta name="twitter:description" content="{esc(desc)}">
 <meta name="twitter:image" content="{BASE}/milon/og.png">
 <script type="application/ld+json">{json.dumps(bc, ensure_ascii=False)}</script>
-<script type="application/ld+json">{json.dumps(il, ensure_ascii=False)}</script>{STYLE}</head><body><div class="w">
-<header><span class="k">מילון תשבץ · פותרים ביחד</span><h1>{esc(phrase)} - פתרונות לתשבץ ולתשחץ</h1>
-<div class="crumb"><a href="/milon/">מילון</a> · <a href="/milon/d/">כל ההגדרות</a> · <a href="/nativ/">המשחק היומי</a> · <a href="/solve/">עוזר הפתירה</a> · <a href="/">דף הבית</a></div>
-<div class="promo">☀️ <a href="/nativ/">נתיב - המשחק היומי הטוב לחובבי תשבצים</a> · חידה חדשה כל יום, עכשיו גם במצב קל</div></header>
-{body}
-<footer>מבוסס על אינדקס פתוח (ויקיפדיה/ויקימילון/שירונט, CC BY-SA, עם קישור למקור) ורשימות שנאספו ידנית ·
-לא מתפרסמות הגדרות מעיתונים · <a href="https://www.linkedin.com/in/razkaplan/">פרויקט של רז קפלן</a></footer></div></body></html>""")
+<script type="application/ld+json">{json.dumps(il, ensure_ascii=False)}</script>"""
+    open(f'{OUT}/{slug}/index.html', 'w', encoding='utf-8').write(brand.document(
+        title=title, desc=desc, canonical=f'{BASE}{rel}', meta=meta, kicker=KICKER,
+        h1=f'{phrase} - פתרונות לתשבץ ולתשחץ',
+        crumbs=[('דף הבית', '/'), ('מילון', '/milon/'), ('כל ההגדרות', '/milon/d/'), (phrase, rel)],
+        body=body, note=NOTE, current='milon'))
     return total
 
 
@@ -303,8 +290,8 @@ def build_hub(counts):
 <h2 style="margin-top:1.6rem">חסרה הגדרה?</h2>
 <p>כתבו כאן את ההגדרה שחיפשתם ולא מצאתם, ונוסיף אותה למילון:</p>
 <div style="display:flex;gap:.5rem;max-width:28rem">
-<input id="reqq" placeholder="למשל: עיר בהולנד" style="font:inherit;flex:1;padding:.5rem;border:1.5px solid #121212;border-radius:3px">
-<button id="reqbtn" style="font:inherit;font-weight:700;padding:.5rem 1.1rem;border:1.5px solid #121212;border-radius:3px;background:#fff4d6;cursor:pointer">שלחו</button>
+<input id="reqq" placeholder="למשל: עיר בהולנד" style="flex:1">
+<button id="reqbtn" class="btn sun">שלחו</button>
 </div>
 <p id="reqmsg" style="min-height:1.4rem;font-size:.9rem"></p>
 <script>
@@ -328,22 +315,18 @@ q.addEventListener('keydown',function(e){{if(e.key==='Enter')b.onclick();}});
         {'@type': 'ListItem', 'position': 1, 'name': 'דף הבית', 'item': f'{BASE}/'},
         {'@type': 'ListItem', 'position': 2, 'name': 'מילון', 'item': f'{BASE}/milon/'},
         {'@type': 'ListItem', 'position': 3, 'name': 'הגדרות נפוצות', 'item': f'{BASE}/milon/d/'}]}
-    open(f'{OUT}/index.html', 'w', encoding='utf-8').write(f"""<!doctype html><html lang="he" dir="rtl"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1"><title>{esc(title)}</title>
-<meta name="description" content="{esc(desc)}"><link rel="canonical" href="{BASE}/milon/d/">
-<meta property="og:type" content="article"><meta property="og:site_name" content="מילון תשבץ">
+    meta = f"""<meta property="og:type" content="article"><meta property="og:site_name" content="מילון תשבץ">
 <meta property="og:title" content="{esc(title)}"><meta property="og:description" content="{esc(desc)}">
 <meta property="og:url" content="{BASE}/milon/d/"><meta property="og:image" content="{BASE}/milon/og.png">
 <meta property="og:locale" content="he_IL"><meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="{esc(title)}"><meta name="twitter:description" content="{esc(desc)}">
 <meta name="twitter:image" content="{BASE}/milon/og.png">
-<script type="application/ld+json">{json.dumps(bc, ensure_ascii=False)}</script>{STYLE}</head><body><div class="w">
-<header><span class="k">מילון תשבץ · פותרים ביחד</span><h1>הגדרות תשבץ נפוצות</h1>
-<div class="crumb"><a href="/milon/">מילון</a> · <a href="/nativ/">המשחק היומי</a> · <a href="/solve/">עוזר הפתירה</a> · <a href="/">דף הבית</a></div>
-<div class="promo">☀️ <a href="/nativ/">נתיב - המשחק היומי הטוב לחובבי תשבצים</a> · חידה חדשה כל יום, עכשיו גם במצב קל</div></header>
-{body}
-<footer>מבוסס על אינדקס פתוח (ויקיפדיה/ויקימילון/שירונט, CC BY-SA) ורשימות שנאספו ידנית ·
-לא מתפרסמות הגדרות מעיתונים · <a href="https://www.linkedin.com/in/razkaplan/">פרויקט של רז קפלן</a></footer></div></body></html>""")
+<script type="application/ld+json">{json.dumps(bc, ensure_ascii=False)}</script>"""
+    open(f'{OUT}/index.html', 'w', encoding='utf-8').write(brand.document(
+        title=title, desc=desc, canonical=f'{BASE}/milon/d/', meta=meta, kicker=KICKER,
+        h1='הגדרות תשבץ נפוצות',
+        crumbs=[('דף הבית', '/'), ('מילון', '/milon/'), ('הגדרות נפוצות', '/milon/d/')],
+        body=body, note=NOTE, current='milon'))
 
 
 def update_sitemap(urls):
@@ -367,7 +350,7 @@ def update_milon_hub():
     if HUB_START in s:
         s = re.sub(re.escape(HUB_START) + '.*?' + re.escape(HUB_END), sec, s, flags=re.S)
     else:
-        s = s.replace('<footer>', sec + '\n<footer>', 1)
+        s = s.replace('</main>', sec + '\n</main>', 1)
     open(p, 'w', encoding='utf-8').write(s)
 
 

@@ -52,18 +52,7 @@ CATS = {'song': ('שירים', 'שיר'), 'artist': ('זמרים ולהקות', 
         'military': ('מונחים צבאיים', 'מונח צבאי'),
         'common': ('תשובות נפוצות בתשבצים', 'תשובה נפוצה')}
 
-STYLE = """<style>*{box-sizing:border-box}body{margin:0;background:#fff;color:#121212;font-family:'Frank Ruhl Libre','Arial Hebrew',serif;line-height:1.6}
-.w{max-width:52rem;margin:0 auto;padding:1rem 1.2rem}header{border-bottom:1px solid #121212;box-shadow:0 3px 0 -1px #121212;padding:.8rem 0}
-h1{font-size:1.6rem;margin:.2rem 0}.k{font-family:monospace;font-size:.65rem;letter-spacing:.12em;color:#fff;background:#f22b39;display:inline-block;padding:.12rem .5rem}
-a{color:#f22b39}h2{border-bottom:3px solid #f22b39;display:inline-block;font-size:1.1rem;padding-bottom:.1rem}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(11rem,1fr));gap:.4rem;padding:0;list-style:none}
-.grid li{background:#f6f5f3;padding:.35rem .6rem;border-radius:3px}
-table{border-collapse:collapse;width:100%}td,th{border-bottom:1px solid #dcdcdc;padding:.4rem .5rem;text-align:right}
-footer{margin:2.5rem 0 1.5rem;border-top:1px solid #dcdcdc;padding-top:.8rem;font-size:.8rem;color:#5c5c5c}
-.crumb{font-size:.8rem;color:#5c5c5c;margin:.6rem 0}input{font:inherit;padding:.5rem;border:1.5px solid #121212;border-radius:3px;width:100%}
-.promo{background:#fff4d6;border:1.5px solid #121212;border-radius:3px;padding:.45rem .7rem;margin:.7rem 0 0;font-size:.9rem}
-.promo a{font-weight:700}
-@media(prefers-color-scheme:dark){body{background:#161616;color:#f2f0ec}.grid li{background:#222}td,th{border-color:#3a3a3a}.promo{background:#3a3115;border-color:#f2f0ec}}</style>"""
+import brand  # the page shell; see app/brand.py
 
 
 def render(path, title, desc, body, jsonld=None, crumb=None):
@@ -84,15 +73,10 @@ def render(path, title, desc, body, jsonld=None, crumb=None):
 <meta property="og:locale" content="he_IL"><meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="{esc_title}"><meta name="twitter:description" content="{esc_desc}">
 <meta name="twitter:image" content="{BASE}/milon/og.png">"""
-    return f"""<!doctype html><html lang="he" dir="rtl"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1"><title>{esc_title}</title>
-<meta name="description" content="{esc_desc}"><link rel="canonical" href="{canon}">{og}{ld}{STYLE}</head><body><div class="w">
-<header><span class="k">מילון תשבץ · פותרים ביחד</span><h1>{esc_title}</h1>
-<div class="crumb"><a href="/milon/">מילון</a> · <a href="/nativ/">המשחק היומי</a> · <a href="/solve/">עוזר הפתירה</a> · <a href="/">דף הבית</a></div>
-<div class="promo">☀️ <a href="/nativ/">נתיב - המשחק היומי הטוב לחובבי תשבצים</a> · חידה חדשה כל יום, עכשיו גם במצב קל</div></header>
-{body}
-<footer>מבוסס על אינדקס פתוח (ויקיפדיה/ויקימילון/שירונט, CC BY-SA, עם קישור למקור) וניתוח סטטיסטי מקורי · לא מתפרסמות הגדרות מעיתונים ·
-<a href="https://www.linkedin.com/in/razkaplan/">פרויקט של רז קפלן</a> · <a href="/nativ/">🪄 נתיב, המשחק היומי</a></footer></div></body></html>"""
+    return brand.document(
+        title=title, desc=desc, canonical=canon, meta=og + ld, kicker=brand.MILON_KICKER,
+        crumbs=[(n, u.replace(BASE, '') or '/') for n, u in crumbs],
+        body=body, note=brand.MILON_NOTE, current='milon')
 
 
 def page(path, *a, **kw):
@@ -151,7 +135,7 @@ def build_len_page(cat, L, items):
         b = f' <span class="k" style="font-size:.55rem">{cw[n]}×</span>' if cw.get(n, 0) >= 2 else ''
         d = get_desc(t)
         dd = f'<br><small>{d[:90]}</small>' if d else ''
-        return f'<li id="{n}"><b>{t}</b>{b}{dd}<br><small style="font-family:monospace;color:#5c5c5c">{n}</small></li>'
+        return f'<li id="{n}"><b>{t}</b>{b}{dd}<br><small class="net">{n}</small></li>'
 
     lis = ''.join(_li(t, n) for t, n in items)
     body = f"""<p><b>{len(items)} {plural}</b> שהשם שלהם נכתב ברשת התשבץ ב-<b>{L} אותיות</b>
@@ -168,11 +152,15 @@ def build_len_page(cat, L, items):
 def build_letter_page(cat, ch, items):
     plural, single = CATS[cat]
     items = sorted(items, key=lambda x: (-cw.get(x[1], 0), x[0]))
+    def _badge(n):
+        return f' <span class="k" style="font-size:.55rem">{cw[n]}×</span>' if cw.get(n, 0) >= 2 else ''
+
+    def _desc(t):
+        d = get_desc(t)
+        return f'<br><small>{d[:90]}</small>' if d else ''
     lis = ''.join(
-        f'<li id="L{n}"><b>{t}</b>'
-        f'{f" <span class=\"k\" style=\"font-size:.55rem\">{cw[n]}×</span>" if cw.get(n, 0) >= 2 else ""}'
-        f'{f"<br><small>{get_desc(t)[:90]}</small>" if get_desc(t) else ""}'
-        f'<br><small style="font-family:monospace;color:#5c5c5c">{n} · {len(n)} אותיות</small></li>'
+        f'<li id="L{n}"><b>{t}</b>{_badge(n)}{_desc(t)}'
+        f'<br><small class="net">{n}</small> <small>{len(n)} אותיות</small></li>'
         for t, n in items[:400])
     lens = sorted({len(n) for _, n in items})
     body = f"""<p><b>{len(items)} {plural}</b> שמתחילים באות <b>{ch}</b>, עם מספר האותיות של כל אחד

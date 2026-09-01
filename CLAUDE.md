@@ -11,6 +11,37 @@ overwrote the live site minutes after main went live and took new pages down.
 Preview deploys of branches happen automatically on push; production comes
 from `main` alone.
 
+## Site shell and brand (docs/assets/brand.css, app/brand.py)
+
+Every page shares one stylesheet, `docs/assets/brand.css` (tokens, Fredoka +
+Rubik from Google Fonts, header with the main navigation, buttons, cards,
+crossword cells, footer, dark mode), and the generators build their pages
+through `app/brand.py` (`document()`, `site_header()`, `site_footer()`,
+`page_head()`). Hand-written pages (`docs/index.html`, `/methods/`, `/solve/`,
+`/nativ/`, `/research/`) carry the same header/footer markup inline.
+
+- A shell change is one edit to `brand.css` or `brand.py`. Rebuild the safe
+  sections (`build_topics.py`, `build_trainer.py`, `build_defs.py`) and run
+  `python3 app/rebrand_pages.py` for the milon pages that `build_seo.py`
+  cannot rebuild without the corpus: it re-wraps existing pages in place,
+  keeping head metadata, breadcrumb JSON-LD, h1 and body. It is idempotent.
+- Any body markup a generator emits with inline styling must also be mapped
+  in `rebrand_pages.py` (BODY_FIXES), or the patched pages and freshly built
+  pages drift.
+- **`evals/ui_smoke.py` is the gate for a shell change.** It drives the
+  committed pages in headless Chromium: types into a topic crossword and a
+  trainer board, toggles direction, checks answers, plays the solver demo by
+  keyboard, drags a real word path in נתיב, and searches the milon hub, at
+  desktop and phone widths. Run it before shipping anything that touches
+  `brand.css`, `brand.py`, the players in `build_topics.py` /
+  `build_trainer.py`, or the two app pages.
+- Social cards: `python3 app/build_og.py` renders every `og.png` from HTML
+  with headless Chromium (`CHROME=` to point at a binary, `FONT_CSS=` for a
+  local @font-face sheet when Google Fonts is unreachable).
+- Palette: cream paper, deep-indigo ink, grape accent, coral pop, sun
+  highlight, mint for "proven". Buttons and cards use the hard offset shadow.
+  Crossword cells stay paper-white in dark mode on purpose.
+
 ## Building the milon (docs/milon/)
 
 `app/build_seo.py` needs the gitignored corpus asset

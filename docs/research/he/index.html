@@ -16,52 +16,32 @@
 <meta name="description" content="מתודולוגיה וסקירת כשלים אינטראקטיבית של מערכת בינה מלאכותית הפותרת את תשבץ ההיגיון של הארץ.">
 <meta property="og:title" content="פתרון תשבץ היגיון: מערכת פתירה עם אילוצי רשת">
 <meta property="og:description" content="פתירה עיוורת של שני תשבצים לא מוכרים, בדיוק מלא בשכבת הרשת. מתודולוגיה מלאה, כולל ביטולי תוצאות.">
-<meta property="og:image" content="https://tashbetz-solver.vercel.app/solve/og.png">
-<meta property="og:url" content="https://tashbetz-solver.vercel.app/">
+<meta property="og:image" content="https://tashbetz.gtmascode.dev/og.png">
+<meta property="og:url" content="https://tashbetz.gtmascode.dev/research/he/"><link rel="canonical" href="https://tashbetz.gtmascode.dev/research/he/">
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://tashbetz-solver.vercel.app/solve/og.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=Frank+Ruhl+Libre:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<meta name="twitter:image" content="https://tashbetz.gtmascode.dev/og.png">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Rubik:wght@400;500;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="/assets/brand.css">
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root{
-  --paper: oklch(0.985 0.006 85);
-  --paper-2: oklch(0.965 0.008 85);
-  --ink: oklch(0.24 0.012 60);
-  --ink-soft: oklch(0.44 0.012 60);
-  --ink-faint: oklch(0.60 0.010 60);
-  --rule: oklch(0.86 0.008 75);
-  --accent: oklch(0.52 0.16 27);
-  --accent-soft: oklch(0.93 0.05 30);
-  --good: oklch(0.52 0.10 150);
-  --good-soft: oklch(0.94 0.05 150);
+  --ink-soft: var(--ink-2);
+  --ink-faint: var(--ink-3);
+  --rule: var(--line);
+  --good: var(--mint);
+  --good-soft: var(--mint-soft);
   --maxw: 44rem;
-}
-@media (prefers-color-scheme: dark){
-  :root{
-    --paper: oklch(0.20 0.010 70);
-    --paper-2: oklch(0.24 0.012 70);
-    --ink: oklch(0.92 0.010 80);
-    --ink-soft: oklch(0.76 0.010 80);
-    --ink-faint: oklch(0.60 0.010 80);
-    --rule: oklch(0.36 0.012 70);
-    --accent: oklch(0.72 0.15 30);
-    --accent-soft: oklch(0.32 0.07 30);
-    --good: oklch(0.74 0.12 150);
-    --good-soft: oklch(0.30 0.06 150);
-  }
 }
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
 body{
   margin:0; background:var(--paper); color:var(--ink);
-  font-family:'Frank Ruhl Libre','Newsreader',Georgia,'Times New Roman',serif;
+  font-family:var(--body);
   font-size:1.09rem; line-height:1.7; font-optical-sizing:auto;
   text-rendering:optimizeLegibility;
 }
 .wrap{max-width:var(--maxw); margin:0 auto; padding:0 1.4rem}
-.he{font-family:'Frank Ruhl Libre','Times New Roman',serif; direction:rtl; unicode-bidi:isolate}
+.he{font-family:var(--body); direction:rtl; unicode-bidi:isolate}
 .en{font-family:'Newsreader',Georgia,serif; direction:ltr; unicode-bidi:isolate}
 .mono{font-family:'IBM Plex Mono',ui-monospace,monospace; direction:ltr; unicode-bidi:isolate}
 
@@ -142,12 +122,12 @@ blockquote{margin:1.3rem 0; padding:.2rem 0; padding-inline-start:1.1rem; border
 .attempts{margin:.5rem 0 0; font-size:.9rem}
 .att{display:flex; gap:.5rem; align-items:baseline; padding:.12rem 0}
 .att .who{font-family:'IBM Plex Mono',monospace; font-size:.72rem; color:var(--ink-faint); min-width:6.5rem; direction:ltr; unicode-bidi:isolate; text-align:start}
-.att .ans{font-family:'Frank Ruhl Libre',serif; direction:rtl}
+.att .ans{font-family:var(--body); direction:rtl}
 .att .mk{font-family:'IBM Plex Mono',monospace; font-size:.75rem}
 .att .mk.ok{color:var(--good)} .att .mk.no{color:var(--accent)}
 .att .ex{color:var(--ink-soft); font-size:.82rem}
 .gold-row{margin-top:.35rem; font-size:.95rem}
-.gold-row .g{font-family:'Frank Ruhl Libre',serif; direction:rtl; font-weight:700; color:var(--good)}
+.gold-row .g{font-family:var(--body); direction:rtl; font-weight:700; color:var(--good)}
 .canon{margin-top:.4rem;padding:.45rem .7rem;background:rgba(46,125,50,.08);border-inline-start:3px solid var(--good,#2e7d32);font-size:.95rem}
 .canon .he{font-weight:500}
 .crowd{font-size:.85rem; color:var(--ink-soft); margin-top:.25rem}
@@ -158,7 +138,7 @@ details.fixbox summary{font-size:.82rem; color:var(--accent); cursor:pointer}
 .fixform label{font-size:.78rem; letter-spacing:.02em; color:var(--ink-soft); display:block; margin-bottom:.15rem}
 .fixform input,.fixform select,.fixform textarea{width:100%; font:inherit; font-size:.92rem; padding:.4rem .5rem; background:var(--paper-2); color:var(--ink); border:1px solid var(--ink-faint); border-radius:2px}
 .fixform textarea{min-height:3rem; resize:vertical}
-.fixform .rtl{direction:rtl; font-family:'Frank Ruhl Libre',serif}
+.fixform .rtl{direction:rtl; font-family:var(--body)}
 .fixform .save{width:auto; justify-self:start; cursor:pointer; background:var(--accent); color:var(--paper); border:none; padding:.45rem 1rem; font-size:.85rem}
 .saved-badge{font-size:.78rem; color:var(--good)}
 .imgtoggle{font-size:.78rem; color:var(--accent); cursor:pointer; background:none; border:none; padding:0; margin-top:.4rem; font-family:inherit}
@@ -173,9 +153,20 @@ hr.sec{border:none; border-top:1px solid var(--rule); margin:2rem 0}
   .bar{grid-template-columns:6.5rem 1fr 2.4rem}
   .stat .v{font-size:1.2rem}
 }
+
+/* brand shell adjustments: the paper keeps its own typography below */
+.wrap h2::before{display:none}
+.paper-head .kicker{background:var(--accent-soft);color:var(--accent);display:inline-block;border-radius:var(--r-pill);padding:.3rem .9rem;margin:0 0 .7rem;letter-spacing:.08em}
+.wrap{padding-top:1.5rem}
+.paper-head .title{font-family:var(--display);font-weight:700;letter-spacing:-.01em}
+.stats{gap:.8rem}
+.stat{background:var(--card);border:2px solid var(--ink);border-radius:var(--r);box-shadow:var(--shadow)}
+.stat .v{color:var(--accent)}
+.abstract{background:var(--card);border:2px solid var(--ink);border-radius:var(--r-lg);box-shadow:var(--shadow)}
 </style>
 </head>
 <body>
+<header class="site-head"><div class="site-in"><a class="logo" href="/"><svg viewBox="0 0 32 32" aria-hidden="true" focusable="false"><rect x="1" y="1" width="30" height="30" rx="8" fill="currentColor"/><rect x="5" y="5" width="10" height="10" rx="2.5" fill="var(--paper)"/><rect x="17" y="5" width="10" height="10" rx="2.5" fill="var(--paper)"/><rect x="5" y="17" width="10" height="10" rx="2.5" fill="var(--pop)"/><rect x="17" y="17" width="10" height="10" rx="2.5" fill="var(--sun)"/></svg><span>תשבץ<i>.</i>היגיון</span></a><nav class="site-nav" aria-label="ניווט ראשי"><a href="/solve/">🧩 האפליקציה</a><a href="/nosim/">🎓 תשבצי נושא</a><a href="/tirgul/">🏋️ תרגול</a><a href="/milon/">📖 מילון</a><a href="/methods/">🔍 שיטות</a></nav><a class="btn sun sm cta" href="/nativ/">☀️ נתיב היומי</a></div></header>
 <div class="wrap">
 
 <header class="paper-head">
@@ -321,6 +312,13 @@ hr.sec{border:none; border-top:1px solid var(--rule); margin:2rem 0}
 </footer>
 
 </div>
+<footer class="site-foot"><div class="site-in">
+<div class="foot-brand"><a class="logo" href="/"><svg viewBox="0 0 32 32" aria-hidden="true" focusable="false"><rect x="1" y="1" width="30" height="30" rx="8" fill="currentColor"/><rect x="5" y="5" width="10" height="10" rx="2.5" fill="var(--paper)"/><rect x="17" y="5" width="10" height="10" rx="2.5" fill="var(--paper)"/><rect x="5" y="17" width="10" height="10" rx="2.5" fill="var(--pop)"/><rect x="17" y="17" width="10" height="10" rx="2.5" fill="var(--sun)"/></svg><span>תשבץ<i>.</i>היגיון</span></a><p>משחקי מילים חכמים בעברית: משחק יומי, תשבצי נושא, מילון ענק ועוזר פתירה שמוכיח כל תשובה.</p></div>
+<div class="foot-col"><b>לשחק</b><a href="/nativ/">☀️ נתיב, המשחק היומי</a><a href="/nosim/">תשבצי נושא</a><a href="/tirgul/">תשבצי אימון</a><a href="/bakasha/">בקשת תשבץ אישי</a></div>
+<div class="foot-col"><b>לפתור</b><a href="/solve/">עוזר הפתירה</a><a href="/milon/">מילון תשבץ</a><a href="/milon/anagram/">חיפוש אנגרם</a><a href="/milon/d/">הגדרות נפוצות</a><a href="/methods/">שיטות פתרון</a></div>
+<div class="foot-col"><b>הפרויקט</b><a href="/research/he/">המחקר</a><a href="/research/">Research (English)</a><a href="https://github.com/razkaplan/tashbetz-solver">קוד פתוח ב-GitHub</a><a href="https://github.com/razkaplan/tashbetz-solver/tree/main/skills/tashbetz-solver">להתקין כ-Skill</a><a href="https://www.linkedin.com/in/razkaplan/" rel="me">רז קפלן</a></div>
+<p class="foot-note">המחקר: קורפוס של 362 תשבצים נאסף לצורכי מחקר ואינו מופץ; לא מתפרסמות הגדרות מעיתונים. <a href="https://www.linkedin.com/in/razkaplan/" rel="me">פרויקט של רז קפלן</a>.</p>
+</div></footer>
 
 <script>
 const MECH = [
