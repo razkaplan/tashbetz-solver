@@ -57,6 +57,19 @@ updates the "Movement log" below. This file is the handoff between runs, DAILY.m
   stops being sticky on phones so the board keeps the screen; crossword
   pages print clean. evals/ui_smoke.py verifies the games stay playable.
 
+- **2026-09-02** - Topic crosswords regenerated again after a second reader
+  report: "מעש מהסוף להתחלה" on the easiest civics board - a reversal clue on
+  שעם, no definition of anything. Measured, 48% of level 1's clues and 74% of
+  level 2's were wordplay on filler. The fill now prefers words we define
+  (fillbank 871 -> 2,411 everyday words; subject banks 716 -> 1,726 terms),
+  levels 1-2 never draw on the once-seen corpus tier, every level clues
+  filler by definition where it holds one, and the gate fails an easy board
+  that clues a fillbank word by wordplay. Shipped set: level 1 filler
+  wordplay 47% -> 9% (on topic 39% -> 44%), level 2 74% -> 16%. Level 2's 9x9
+  arrowword stays the least on-topic by construction (four 2-letter slots;
+  Hebrew has ~100 definable 2-letter words). URLs unchanged; clue text is
+  new on all 57 /nosim/ pages.
+
 - **2026-08-31 (latest)** - All 44 topic-crossword boards regenerated and
   republished after a reported clue-quality problem: clues that made no sense,
   clues that did not connect to their subject, and clues unrelated to it. All
