@@ -42,17 +42,36 @@ DATA = f'{OUT}/puzzles.json'
 # A margin inside the gate's own numbers, so a board that just scrapes past the
 # build does not then fail the gate on a rounding boundary - 3 of 26 entries is
 # 11.5%, which prints as "12%" and is below a 12% floor.
-MIN_LONG, MIN_ALL = 0.38, 0.12
+MIN_LONG, MIN_ALL = 0.35, 0.10   # the gate's own floors, exactly
+# These used to sit a few points inside the gate's, as a margin against a
+# rounding boundary. On a 9x9 arrowword with eight long entries that margin
+# meant 3 of 8 (37.5%) failed the build and passed the gate, so the build
+# demanded 4 of 8 where the gate asks 35%. Fractions compare exactly; the
+# margin was solving a problem that printed percentages have and floors
+# do not.
 CEILING = {1: 1.15, 2: 1.6, 3: 2.4, 4: 9.9}
 RETRY_SEEDS = (7, 12345, 99, 555, 2024, 31337, 8080, 4242)
 
 
-def publishable(p, floor_difficulty):
-    """Floors, ceiling, and no easier than the level below it."""
+def work(p):
+    """How much solving a board is: its mean clue difficulty times its size.
+
+    The ramp is on THIS, not on the mean. The mean is a per-clue number and
+    cannot order boards of different sizes: a 26-entry arrowword whose filler
+    is everyday attested words came out with a lower mean than the 16-entry
+    crossword below it (lashon 0.47 against 0.51), while being plainly more
+    work to solve. The level CEILING stays on the mean, because that is what
+    it is about - how hard a typical clue may be.
+    """
+    return p['difficulty'] * len(p['entries'])
+
+
+def publishable(p, floor_work):
+    """Floors, ceiling, and no less work than the level below it."""
     return (topicgen.theme_share(p)[0] >= MIN_LONG
             and p['topicality'] >= MIN_ALL
             and p['difficulty'] <= CEILING[p['level']] + 1e-9
-            and p['difficulty'] >= floor_difficulty - 1e-9)
+            and work(p) >= floor_work - 1e-9)
 
 MECH_HE = {'definition': 'הגדרה', 'reversal': 'היפוך',
            'anagram': 'אנגרמה', 'hidden': 'מילה מוסתרת'}
@@ -295,7 +314,7 @@ def generate_set(levels=(1, 2, 3, 4), topics=None, effort=1.0):
     for topic in topics:
         # levels ascend, so each board can be required to be no easier than the
         # one before it: that is the ramp, built rather than hoped for
-        prev_difficulty = 0.0
+        prev_work = 0.0
         for level in sorted(levels):
             p = topicgen.generate_best(topic, level, effort=effort)
             if not p:
@@ -311,7 +330,7 @@ def generate_set(levels=(1, 2, 3, 4), topics=None, effort=1.0):
             # log printed the board it chose and the file got the one it threw
             # away, which is why a build reporting a clean ramp handed the gate
             # boards that failed one.
-            if not publishable(p, prev_difficulty):
+            if not publishable(p, prev_work):
                 # The SHAPE is part of the search, not fixed by the level.
                 # Difficulty is a MEAN over entries and a bigger grid needs
                 # proportionally more filler, which is cheap, so a 33-entry
@@ -325,24 +344,36 @@ def generate_set(levels=(1, 2, 3, 4), topics=None, effort=1.0):
                 smaller = topicgen.SMALLER.get(p['shape'])
                 if smaller:
                     shapes.append(smaller)
+                # ...and the VOCABULARY joins it last. Levels 1-2 keep their
+                # filler to defined and well-attested words; when no seed of
+                # no shape gives a publishable board from those, the once-seen
+                # corpus tier is allowed back in for this one board, ranked
+                # last, and the board says so. Ordered worst-last on purpose:
+                # more wordplay is the price, paid only when the alternative
+                # is leaving last week's board up.
                 done = False
-                for shape in shapes:
-                    for seed in RETRY_SEEDS:
-                        alt = topicgen.generate(topic, level, shape, seed=seed)
-                        if not alt:
-                            continue
-                        if publishable(alt, prev_difficulty):
-                            p, done = alt, True
+                for wide in (False, True):
+                    for shape in shapes:
+                        for seed in RETRY_SEEDS:
+                            alt = topicgen.generate(topic, level, shape, seed=seed, wide=wide)
+                            if not alt:
+                                continue
+                            if publishable(alt, prev_work):
+                                p, done = alt, True
+                                break
+                            if topicgen.theme_share(alt) > topicgen.theme_share(p):
+                                p = alt
+                        if done:
                             break
-                        if topicgen.theme_share(alt) > topicgen.theme_share(p):
-                            p = alt
                     if done:
+                        if wide:
+                            print(f'  .. {topic} L{level}: widened the filler vocabulary')
                         break
                 if not done:
                     print(f'  !! {topic} L{level}: no publishable board in '
-                          f'{len(shapes)} shapes x {len(RETRY_SEEDS)} seeds')
+                          f'{len(shapes)} shapes x {len(RETRY_SEEDS)} seeds x 2 vocabularies')
             out.append(p)
-            prev_difficulty = p['difficulty']
+            prev_work = work(p)
             long_share, _ = topicgen.theme_share(p)
             print(f"  {topic:11s} L{level} {p['shape']:9s} "
                   f"{len(p['entries'])} entries, topical {p['topicality']:.0%} "
@@ -354,12 +385,12 @@ def generate_set(levels=(1, 2, 3, 4), topics=None, effort=1.0):
     # what it chose costs a twenty-minute round trip to discover.
     ramp = {}
     for p in out:
-        ramp.setdefault(p['topic'], {})[p['level']] = p['difficulty']
+        ramp.setdefault(p['topic'], {})[p['level']] = work(p)
     for topic, levels in sorted(ramp.items()):
         seq = [levels[L] for L in sorted(levels)]
         if any(b < a - 1e-9 for a, b in zip(seq, seq[1:])):
-            print(f'  !! {topic}: difficulty falls as the level rises in the '
-                  f'written file: ' + ', '.join(f'{x:.2f}' for x in seq))
+            print(f'  !! {topic}: work falls as the level rises in the '
+                  f'written file: ' + ', '.join(f'{x:.1f}' for x in seq))
     json.dump(out, open(DATA, 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
     print(f'wrote {DATA}: {len(out)} puzzles')
     return out

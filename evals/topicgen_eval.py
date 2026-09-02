@@ -26,7 +26,9 @@ What a published topic crossword has to be true of:
                   recomputed here rather than believed. A "topic crossword"
                   whose answers are not about the topic is the failure mode
                   this whole eval exists to catch.
-    ramp          across levels 1..4 of one topic, the mean difficulty (clue
+    ramp          across levels 1..4 of one topic, the WORK (mean clue
+                  difficulty times entries) does not fall - the mean alone
+                  cannot order boards of different sizes. Was: the mean difficulty (clue
                   mechanism plus how obscure the answer is, scored here) must
                   not go down. Levels 1 and 2 additionally have to keep 90% of
                   their answers inside the common tier they promise
@@ -470,14 +472,22 @@ def run(topics=None, quick=False, matrix=True):
             continue
         stats = judge(p, f"published {p['topic']} L{p['level']} {p['shape']}")
         if stats:
-            by_topic.setdefault(p['topic'], {})[p['level']] = stats['difficulty']
+            by_topic.setdefault(p['topic'], {})[p['level']] = (
+                stats['difficulty'] * stats['entries'], stats['difficulty'])
 
     # the ramp is a property of a subject's four boards, not of one board
     for topic, levels in by_topic.items():
-        seq = [levels[L] for L in sorted(levels)]
+        # On the WORK, mean clue difficulty times entries, not the mean: the
+        # mean is per clue and cannot order boards of different sizes. A
+        # 26-entry arrowword whose filler is everyday attested words had a
+        # lower mean than the 16-entry crossword below it (lashon 0.47
+        # against 0.51) and is plainly more to solve. The level ceiling stays
+        # on the mean, since that is what it says.
+        seq = [levels[L][0] for L in sorted(levels)]
         if any(b < a - 1e-9 for a, b in zip(seq, seq[1:])):
-            failures.append(f'{topic}: difficulty falls as the level rises: '
-                            + ', '.join(f'{x:.2f}' for x in seq))
+            failures.append(f'{topic}: work falls as the level rises: '
+                            + ', '.join(f'{x:.1f}' for x in seq) + '  (mean '
+                            + ', '.join(f'{levels[L][1]:.2f}' for L in sorted(levels)) + ')')
 
     if matrix:
         bank_names = [t for t in ref['banks']]

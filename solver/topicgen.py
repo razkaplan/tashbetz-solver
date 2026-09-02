@@ -500,7 +500,7 @@ def answer_cost(ctx, w, terms):
     return COST_RARE
 
 
-def cluable(ctx, terms, allowed, tier):
+def cluable(ctx, terms, allowed, tier, wide=False):
     """Every answer we could both place and clue at this level.
 
     Filler has to be a DICTIONARY word or a bank entry. The corpus-attested
@@ -510,10 +510,15 @@ def cluable(ctx, terms, allowed, tier):
     """
     base = {'easy': ctx['easy'], 'common': ctx['common']}.get(tier, ctx['lex'])
     base = (base & ctx['dictwords']) | set(ctx['general']) | set(terms)
-    if tier == 'common':
+    if tier == 'common' and not wide:
         # The easy levels. A filler word here is one we define, or failing
         # that one printed puzzles have used more than once; the once-seen
         # tier of the corpus is not vocabulary a student should meet.
+        # `wide` lifts this, and only the build sets it, only after it has
+        # exhausted every seed and shape without a publishable board: a
+        # 32-term weekly news bank cannot theme a 9x9 arrowword from the
+        # restricted vocabulary at all, and a board with more wordplay in it
+        # is better than the previous week's board left up.
         base = (base & (set(ctx['general']) | ctx['solid'])) | set(terms)
     if tier == 'rare':
         # אתגר. Its filler comes from outside the everyday vocabulary, so the
@@ -726,7 +731,7 @@ def _clue_the_fill(ctx, sol, terms, allowed, ceiling, filler):
     return out
 
 
-def generate(topic, level=1, shape=None, seed=None, attempts=3, work=None):
+def generate(topic, level=1, shape=None, seed=None, attempts=3, work=None, wide=False):
     """The back-end call: (topic, level) in, a finished puzzle out, or None.
 
     `work` is the search-node allowance for the whole board. Something has to
@@ -746,8 +751,8 @@ def generate(topic, level=1, shape=None, seed=None, attempts=3, work=None):
     terms = topic_terms(ctx, topic)
     if not terms:
         return None
-    pool = cluable(ctx, terms, allowed, spec['tier'])
-    pi = pool_index(ctx, pool, set(terms), level == 4, (topic, level))
+    pool = cluable(ctx, terms, allowed, spec['tier'], wide)
+    pi = pool_index(ctx, pool, set(terms), level == 4, (topic, level, wide))
 
     sl = slots(grid)
     # Theme slots: the longest entries whose LENGTH the topic can actually
@@ -854,6 +859,8 @@ def generate(topic, level=1, shape=None, seed=None, attempts=3, work=None):
             out['hosts'] = {f'{key[0]}{key[1]}': list(v) for key, v
                             in sorted(grids_topic.arrow_hosts(grid).items())}
         n = len(out['entries'])
+        if wide:
+            out['wide'] = True
         out['topicality'] = round(sum(1 for e in out['entries'] if e['topical']) / n, 3)
         out['difficulty'] = round(sum(
             MECH_COST[e['mechanism']] + answer_cost(ctx, e['answer'], terms)
@@ -872,7 +879,12 @@ def theme_share(p, long_entry=LONG_ENTRY):
 # When the big board of a family cannot be made to carry the topic, the small
 # board of the same family is used instead. A 32-entry board with three topic
 # answers in it is not a topic crossword; a 16-entry one with seven is.
-SMALLER = {'classic9': 'classic7', 'arrow11': 'arrow9'}
+SMALLER = {'classic9': 'arrow9', 'arrow11': 'arrow9'}
+# classic9's fallback is the 9x9 ARROWWORD, not the 7x7 crossword. Level 3
+# fell back to classic7 (16 entries) whenever the 9x9 crossword would not
+# fill, and a 16-entry "hard" board is less work than the 26-entry "medium"
+# one below it, whatever its clues cost - the ramp is on total work. arrow9
+# is the same size as level 2 and fills well on level 3's wider vocabulary.
 MIN_LONG_SHARE = 0.35     # of the entries a solver reads as the theme
 
 
