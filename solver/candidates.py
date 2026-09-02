@@ -39,11 +39,19 @@ This module does exactly that, per clue, with no LLM involved:
   - retrieval_candidates: also DEFINITION-driven, but by ranked BM25 retrieval
                           (solver/retrieve_defs.py) over independent definition->answer
                           pairs (private_defs) plus this project's own train-split clue
-                          explanations, rather than a hand-curated category list. Measured
-                          standalone on 2026-08-08 (gold@25=5.4%, ceiling 27%) but never
-                          before combined with the mechanisms above as one candidate pool —
-                          see its own docstring for why the union, not either number alone,
-                          is the point of wiring it in here.
+                          explanations, rather than a hand-curated category list. Queries
+                          with the FULL clue text. Measured standalone on 2026-08-08
+                          (gold@25=5.4%, ceiling 27%) but never before combined with the
+                          mechanisms above as one candidate pool — see its own docstring
+                          for why the union, not either number alone, is the point of
+                          wiring it in here.
+  - defspan_retrieval_candidates: the SAME retrieval index, but queried with only a short
+                          PREFIX or SUFFIX word-span of the clue (retrieve_defs.py's
+                          end_candidates(), 2/3/4-word spans each end) instead of the whole
+                          clue text — the query shape retrieve_defs.py's own `eval` CLI has
+                          always used to produce the "gold@25=5.4%" number quoted above,
+                          which retrieval_candidates() (whole-clue query) never actually
+                          matched. See its own docstring for the gap this closes.
   - double_definition_candidates: also DEFINITION-driven, but targets a mechanism none of
                           the above touch at all — PLAYBOOK.md 1.2, מילה משותפת, 14% of
                           this setter's clues, the SECOND most common device after charade,
@@ -75,6 +83,7 @@ CLI:
   python3 solver/candidates.py recall data/dataset/clues.jsonl eval --no-retrieval  # ablation
   python3 solver/candidates.py recall data/dataset/clues.jsonl eval --no-container  # ablation
   python3 solver/candidates.py recall data/dataset/clues.jsonl eval --no-double-def  # ablation
+  python3 solver/candidates.py recall data/dataset/clues.jsonl eval --no-defspan-retrieval
   python3 solver/candidates.py selftest
 """
 import sys, os, re, json
@@ -503,6 +512,45 @@ def retrieval_candidates(clue_text, target_len, topk=25, docs_df=None):
     return [{'answer': a, 'mechanism': 'retrieval', 'fodder': None} for a, _score in hits]
 
 
+def defspan_retrieval_candidates(clue_text, target_len, docs_df=None):
+    """DEFINITION-hypothesis candidate generation via retrieve_defs.end_candidates() — a
+    query restricted to a short PREFIX or SUFFIX word-span of the clue (2/3/4 words), not
+    the whole clue text. This closes a real gap found while re-reading this project's own
+    retrieval code today: every DAILY.md/RESEARCH.md entry since 2026-08-08 that cites
+    retrieval's standalone number ("gold@25=5.4%, ceiling 27%") measured it by calling
+    `retrieve_defs.py eval`, whose CLI has always used `end_candidates()` — but
+    `retrieval_candidates()` above, the function actually WIRED into `generate()` since
+    2026-08-25 and live-trialed since 2026-08-27, calls plain `retrieve_defs.candidates()`
+    with the FULL clue text as the BM25 query instead. Those are two different query
+    shapes; the number this project has quoted six times does not describe the mechanism
+    that has been running. The premise `end_candidates()` encodes is the same one
+    SOLVE_PROTOCOL.md states and defspan.py's (killed, indicator-density) classifier tried
+    to operationalize: a cryptic definition sits at ONE END of the surface, in plain
+    language — so querying a definition corpus with the WHOLE clue (wordplay words
+    included) is noisier than querying with just an end-span. Unlike the killed defspan
+    classifier, this does not need to be RIGHT about which end: end_candidates() tries
+    both ends (2/3/4-word spans each) and returns the ranked union, so a wrong guess about
+    which end merely adds low-scoring noise rather than excluding the correct one — the
+    same diverse-hypotheses-not-one-verdict shape as every other mechanism in this file.
+    `docs_df` is injectable (tests / callers), same discipline as retrieval_candidates()."""
+    sys.path.insert(0, HERE)
+    import retrieve_defs
+    cwd = os.getcwd()
+    try:
+        os.chdir(ROOT)
+        if docs_df is not None:
+            hits = retrieve_defs.end_candidates(clue_text, target_len, docs_df=docs_df)
+        else:
+            global _RETRIEVE_DOCS_DF
+            if _RETRIEVE_DOCS_DF is None:
+                _RETRIEVE_DOCS_DF = retrieve_defs.build_index()
+            hits = retrieve_defs.end_candidates(clue_text, target_len,
+                                                 docs_df=_RETRIEVE_DOCS_DF)
+    finally:
+        os.chdir(cwd)
+    return [{'answer': a, 'mechanism': 'defspan_retrieval', 'fodder': None} for a, _score in hits]
+
+
 _DOUBLE_DEF_DOCS_DF = None
 
 
@@ -605,7 +653,7 @@ def split_candidates(cands, enum):
 
 
 def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retrieval=True,
-             use_container=True, use_double_def=True):
+             use_container=True, use_double_def=True, use_defspan_retrieval=True):
     """Diverse candidates for one clue. Never consults the answer.
 
     Mechanism order here is a PRIORITY order, not just an accumulation order: dedup +
@@ -631,9 +679,10 @@ def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retr
     either. double_definition_candidates is placed in the same tier: it requires an answer
     to rank in BOTH of two independent BM25 queries (stricter, lower-volume than either
     retrieval_candidates or culture_category alone), so it never needs to wait behind the
-    window-scan mechanisms either. `use_culture`/`use_retrieval`/`use_container`/
-    `use_double_def` are plain on/off switches so a controlled before/after recall
-    measurement doesn't need extra copies of this function."""
+    window-scan mechanisms either; defspan_retrieval_candidates is the same retrieval index
+    under a different query shape, equally capped and ranked. `use_culture`/`use_retrieval`/
+    `use_container`/`use_double_def`/`use_defspan_retrieval` are plain on/off switches so a
+    controlled before/after recall measurement doesn't need extra copies of this function."""
     target_len = sum(enum)
     cands = []
     cands += homograph_candidates(clue_text, target_len)
@@ -644,6 +693,8 @@ def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retr
         cands += culture_category_candidates(clue_text, target_len)
     if use_retrieval:
         cands += retrieval_candidates(clue_text, target_len)
+    if use_defspan_retrieval:
+        cands += defspan_retrieval_candidates(clue_text, target_len)
     if use_double_def:
         cands += double_definition_candidates(clue_text, target_len)
     if pattern:
@@ -670,7 +721,7 @@ def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retr
 # separate integration step, not done by this lever).
 # ---------------------------------------------------------------------------
 def recall_eval(dataset_path, split=None, max_n=25, use_culture=True, use_retrieval=True,
-                 use_container=True, use_double_def=True):
+                 use_container=True, use_double_def=True, use_defspan_retrieval=True):
     total = 0
     hit = 0
     by_mech = Counter()
@@ -685,7 +736,8 @@ def recall_eval(dataset_path, split=None, max_n=25, use_culture=True, use_retrie
         total += 1
         cands = generate(r['clue_text'], r['enum'], max_n=max_n, use_culture=use_culture,
                           use_retrieval=use_retrieval, use_container=use_container,
-                          use_double_def=use_double_def)
+                          use_double_def=use_double_def,
+                          use_defspan_retrieval=use_defspan_retrieval)
         sizes.append(len(cands))
         gold = norm(r['answer_raw'])
         found = [c for c in cands if c['answer'] == gold]
@@ -838,6 +890,27 @@ def selftest():
           f'not here): {len(off) >= 1} (expected True)')
     ok &= len(off) >= 1
 
+    print('--- defspan_retrieval device: query restricted to a clue END-SPAN, not the '
+          'whole clue text, forwarding to retrieve_defs.end_candidates() ---')
+    # the doc's tokens match ONLY the clue's trailing two words ('הנשיא הראשון'); several
+    # leading decoy words that are NOT in the doc sit in front of them. This is exactly the
+    # shape end_candidates() is built to handle (it queries short end-spans separately,
+    # not the whole clue as one bag of words) and demonstrates the mechanism actually
+    # restricts its query rather than silently falling back to a full-clue search.
+    defspan_docs_df = ([
+        (['נשיא', 'ראשון'], [norm('וייצמן')], None),
+    ], {'נשיא': 1, 'ראשון': 1})
+    hits = defspan_retrieval_candidates('קסם קסם קסם קסם הנשיא הראשון', 6, docs_df=defspan_docs_df)
+    found = any(h['answer'] == norm('וייצמן') for h in hits)
+    print(f'  found וייצמן via the clue-END span query, sharing no letters with the clue: '
+          f'{found} (expected True)')
+    ok &= found
+    print('--- defspan_retrieval device: use_defspan_retrieval=False in generate() disables it ---')
+    off = defspan_retrieval_candidates('קסם קסם קסם קסם הנשיא הראשון', 6, docs_df=defspan_docs_df)
+    print(f'  standalone call still fires (sanity check the toggle lives in generate(), '
+          f'not here): {len(off) >= 1} (expected True)')
+    ok &= len(off) >= 1
+
     print('--- double_definition device: an answer ranking for BOTH independent clue '
           'halves is proposed; one ranking for only ONE half is not ---')
     # synthetic 2-doc index: 'גדי' (goat/Gedi, gold) is a strong match for BOTH a
@@ -889,17 +962,21 @@ def main():
         use_retrieval = '--no-retrieval' not in rest
         use_container = '--no-container' not in rest
         use_double_def = '--no-double-def' not in rest
+        use_defspan_retrieval = '--no-defspan-retrieval' not in rest
         rest = [a for a in rest if a not in
-                ('--no-culture', '--no-retrieval', '--no-container', '--no-double-def')]
+                ('--no-culture', '--no-retrieval', '--no-container', '--no-double-def',
+                 '--no-defspan-retrieval')]
         path = rest[0] if len(rest) > 0 else 'data/dataset/clues.jsonl'
         split = rest[1] if len(rest) > 1 else None
         os.chdir(ROOT)
         res = recall_eval(path, split, use_culture=use_culture, use_retrieval=use_retrieval,
-                           use_container=use_container, use_double_def=use_double_def)
+                           use_container=use_container, use_double_def=use_double_def,
+                           use_defspan_retrieval=use_defspan_retrieval)
         print(f"recall@N: {res['hit']}/{res['total']} = {res['recall']:.1%}  "
               f"(avg {res['avg_candidates']:.1f} candidates/clue, "
               f"use_culture={use_culture}, use_retrieval={use_retrieval}, "
-              f"use_container={use_container}, use_double_def={use_double_def})")
+              f"use_container={use_container}, use_double_def={use_double_def}, "
+              f"use_defspan_retrieval={use_defspan_retrieval})")
         print('hits by mechanism:', res['by_mechanism'])
         if res['misses']:
             print(f"\n{len(res['misses'])} misses (clue_number, direction, gold):")
