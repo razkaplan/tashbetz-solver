@@ -316,6 +316,7 @@ def check_puzzle(p, ref, pool):
     seen_ans, seen_clue = set(), {}
     topical = long_total = long_topical = common = 0
     cost = 0.0
+    filler_wordplay = 0
     mechs = {}
     for key, e in sorted(got.items()):
         a = e['answer']
@@ -377,6 +378,17 @@ def check_puzzle(p, ref, pool):
         cost += (MECH_COST.get(e.get('mechanism'), 2.0)
                  + (0.0 if a in ref['known']
                     else (0.4 if a in ref['cost_defined'] else 1.0)))
+        # An easy board clues its filler with a definition wherever it holds
+        # one. "מעש מהסוף להתחלה" for שעם on the easiest civics board was
+        # reported as a clue with nothing to do with the topic - and it is
+        # worse than that, it is not a definition of anything. A wordplay
+        # clue on a word the fillbank defines is the generator ignoring the
+        # definition it has.
+        if (p['level'] <= 2 and e.get('mechanism') != 'definition'
+                and a in ref['fill_norms']):
+            bad.append(f"{key}: wordplay on {a!r} although the fillbank defines it")
+        if e.get('mechanism') != 'definition' and not e.get('topical'):
+            filler_wordplay += 1
 
     n = max(1, len(got))
     long_topicality = long_topical / long_total if long_total else 1.0
@@ -401,6 +413,7 @@ def check_puzzle(p, ref, pool):
         bad.append(f'mean difficulty {mean_cost:.2f} above level '
                    f'{p["level"]}\'s ceiling of {ceiling}')
     stats = {'entries': len(got), 'topical': topical, 'topicality': topical / n,
+             'filler_wordplay': filler_wordplay / n,
              'long_topicality': long_topicality, 'common_share': common / n,
              'difficulty': cost / n,
              'wordplay': 1 - mechs.get('definition', 0) / n, 'mechanisms': mechs}
@@ -518,6 +531,7 @@ def main():
               f'topicality {sum(r["topicality"] for r in rs) / len(rs):.0%} '
               f'(long {sum(r["long_topicality"] for r in rs) / len(rs):.0%}), '
               f'difficulty {sum(r["difficulty"] for r in rs) / len(rs):.2f}, '
+              f'filler wordplay {sum(r["filler_wordplay"] for r in rs) / len(rs):.0%}, '
               f'common {sum(r["common_share"] for r in rs) / len(rs):.0%}')
     if res['failures']:
         print(f"\nFAILURES ({len(res['failures'])}):")

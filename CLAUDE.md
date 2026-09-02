@@ -79,9 +79,23 @@ Boards by subject and level, generated rather than scraped.
   The boards committed on 2026-08-31 were generated just before that change and
   will not reproduce byte-for-byte; anything generated since does. Re-running
   the full rebuild replaces them with reproducible equivalents when convenient.
-- Term banks live in `solver/lex/topics.json` (curated, ten bagrut subjects)
-  and `solver/lex/fillbank.json` (common words for the filler). Content rules
-  below apply to both: a description is published verbatim as a clue.
+- Term banks live in `solver/lex/topics.json` (curated, ten bagrut subjects,
+  ~170 terms each) and `solver/lex/fillbank.json` (~2,400 everyday words for
+  the filler). Content rules below apply to both: a description is published
+  verbatim as a clue.
+- FILLER IS CLUED BY DEFINITION WHEREVER WE HOLD ONE, at every level. The
+  fill prefers, in order: the topic's own terms, words in the fillbank, words
+  printed puzzles used as an answer more than once, and only then the rest of
+  the corpus. Levels 1-2 never draw on that last tier at all (it is where the
+  one-off names and inflections live). Wordplay (anagram, reversal, hidden)
+  appears on a filler word only when no defined word fits the crossing, and
+  the eval fails a level 1-2 board that clues a fillbank word by wordplay.
+  So the lever on a board with too much wordplay is MORE DEFINITIONS - grow
+  the fillbank at the starved lengths, or the subject's bank - not a
+  constant. The vocabulary is also what limits topicality: a 9x9 arrowword
+  cannot be filled from defined words alone (it has four 2-letter slots and
+  Hebrew has about a hundred definable 2-letter words), which is why level 2
+  carries the least on-topic share of the four.
 
 ## Weekly news crossword
 
