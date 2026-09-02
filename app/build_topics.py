@@ -63,48 +63,15 @@ MECH_EXPLAIN = {
     'hidden': 'התשובה יושבת ברצף בתוך {carrier}, החל מהאות ה-{at}.',
 }
 
-STYLE = """<style>*{box-sizing:border-box}body{margin:0;background:#fff;color:#121212;font-family:'Frank Ruhl Libre','Arial Hebrew',serif;line-height:1.6}
-.w{max-width:56rem;margin:0 auto;padding:1rem 1.2rem}header{border-bottom:1px solid #121212;box-shadow:0 3px 0 -1px #121212;padding:.8rem 0}
-h1{font-size:1.6rem;margin:.2rem 0}.k{font-family:monospace;font-size:.65rem;letter-spacing:.12em;color:#fff;background:#f22b39;display:inline-block;padding:.12rem .5rem}
-a{color:#f22b39}h2{border-bottom:3px solid #f22b39;display:inline-block;font-size:1.1rem;padding-bottom:.1rem}
-.crumb{font-size:.8rem;color:#5c5c5c;margin:.6rem 0}
-footer{margin:2.5rem 0 1.5rem;border-top:1px solid #dcdcdc;padding-top:.8rem;font-size:.8rem;color:#5c5c5c}
-.scroll{overflow-x:auto;padding-bottom:.4rem}
-.board{display:grid;direction:rtl;gap:2px;background:#121212;padding:2px;width:max-content;margin:1rem 0;border:2px solid #121212}
-.cell{width:var(--cs,2.6rem);height:var(--cs,2.6rem);background:#fff;position:relative}
-.cell.black{background:#121212}
-.cell input{width:100%;height:100%;border:0;text-align:center;font-size:1.25rem;font-family:inherit;background:transparent;padding:0}
-.cell input:focus{outline:0;background:#ffe9a8}
-.cell.hl{background:#fff4d6}.cell.ok input{color:#1a7f37}.cell.bad input{color:#f22b39}
-.cell .n{position:absolute;top:1px;right:3px;font-size:.6rem;color:#5c5c5c;font-family:monospace}
-.cell.clue{background:#f0eee9;display:flex;flex-direction:column;justify-content:space-evenly;padding:1px}
-.cell.clue .ac{font-size:.5rem;line-height:1.12;color:#121212;overflow:hidden;display:flex;gap:1px}
-.cell.clue .ar{font-weight:700;color:#f22b39}
-.clues{display:grid;grid-template-columns:repeat(auto-fit,minmax(15rem,1fr));gap:1.2rem}
-.clues ol{padding-inline-start:1.2rem;margin:.3rem 0}
-.clues li{margin:.35rem 0;cursor:pointer}
-.clues li.done{color:#5c5c5c;text-decoration:line-through}
-.bar{display:flex;gap:.5rem;flex-wrap:wrap;margin:.8rem 0}
-button.act{font:inherit;background:#121212;color:#fff;border:0;border-radius:4px;padding:.45rem 1rem;cursor:pointer}
-button.act.ghost{background:#fff;color:#121212;border:1.5px solid #121212}
-.exp{background:#f6f5f3;border-radius:4px;padding:.7rem .9rem;margin:.5rem 0;font-size:.9rem;display:none}
-.exp.on{display:block}
-.msg{font-weight:700;margin:.5rem 0;min-height:1.4rem}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(13rem,1fr));gap:.6rem;padding:0;list-style:none;margin:.8rem 0 1.4rem}
-.grid li{background:#f6f5f3;border-radius:3px;padding:.6rem .7rem}
-.grid li b{display:block;font-size:1.02rem}
-.grid li small{color:#5c5c5c}
-.lv{display:flex;gap:.4rem;flex-wrap:wrap;padding:0;list-style:none;margin:.5rem 0}
-.lv a{display:block;background:#f6f5f3;border-radius:3px;padding:.4rem .9rem;text-decoration:none}
-.promo{background:#fff4d6;border:1.5px solid #121212;border-radius:3px;padding:.45rem .7rem;margin:.7rem 0 0;font-size:.9rem}
-.promo a{font-weight:700}
-.ask{background:#f6f5f3;border-radius:4px;padding:.7rem .9rem;margin:1.2rem 0;font-size:.92rem}
-@media(prefers-color-scheme:dark){body{background:#161616;color:#f2f0ec}.cell input{color:#f2f0ec}
-.promo{background:#3a3115;border-color:#f2f0ec}.grid li,.exp,.lv a,.ask{background:#222}
-.cell{background:#3c3c3c}.cell.black{background:#0a0a0a}.cell.clue{background:#2a2a2a}
-.cell.clue .ac{color:#f2f0ec}
-.cell.hl{background:#5a4c22}.cell input:focus{background:#6b5a26}
-.cell .n{color:#b9b9b9}.cell.ok input{color:#5fd28a}.cell.bad input{color:#ff7b84}}</style>"""
+import brand
+
+NOTE = ('התשבצים נוצרו אוטומטית ממאגרי הנושא של הפרויקט, מהלקסיקון העברי ומאינדקס '
+        'ההגדרות (ויקימילון/ויקיפדיה, CC BY-SA). לא מתפרסמות הגדרות מעיתונים. '
+        '<a href="https://www.linkedin.com/in/razkaplan/" rel="me">פרויקט של רז קפלן</a>.')
+
+# Page-specific rules only; the shell (fonts, header, cells, buttons, footer)
+# comes from docs/assets/brand.css via app/brand.py.
+STYLE = """<style>.clues h3{margin:.2rem 0 .3rem}</style>"""
 
 esc = lambda s: html.escape(str(s), quote=True)
 
@@ -126,21 +93,11 @@ def page(path, title, desc, body, jsonld=None, crumb=None):
 <meta property="og:url" content="{BASE}{rel}"><meta property="og:locale" content="he_IL">
 <meta name="twitter:card" content="summary"><meta name="twitter:title" content="{esc(title)}">
 <meta name="twitter:description" content="{esc(desc)}">"""
-    open(path, 'w', encoding='utf-8').write(
-        f"""<!doctype html><html lang="he" dir="rtl"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1"><title>{esc(title)}</title>
-<meta name="description" content="{esc(desc)}"><link rel="canonical" href="{BASE}{rel}">{og}{ld}{STYLE}</head>
-<body><div class="w">
-<header><span class="k">תשבצי נושא · לפי נושא ולפי רמה</span><h1>{esc(title)}</h1>
-<div class="crumb"><a href="/nosim/">תשבצי נושא</a> · <a href="/tirgul/">תרגול</a> ·
-<a href="/nativ/">המשחק היומי</a> · <a href="/milon/">מילון</a> ·
-<a href="/solve/">עוזר הפתירה</a> · <a href="/">דף הבית</a></div>
-<div class="promo">☀️ <a href="/nativ/">נתיב - המשחק היומי הטוב לחובבי תשבצים</a> ·
-חידה חדשה כל יום, עכשיו גם במצב קל</div></header>
-{body}
-<footer>התשבצים נוצרו אוטומטית ממאגרי הנושא של הפרויקט, מהלקסיקון העברי ומאינדקס
-ההגדרות (ויקימילון/ויקיפדיה, CC BY-SA). לא מתפרסמות הגדרות מעיתונים ·
-<a href="https://www.linkedin.com/in/razkaplan/">פרויקט של רז קפלן</a></footer></div></body></html>""")
+    open(path, 'w', encoding='utf-8').write(brand.document(
+        title=title, desc=desc, canonical=f'{BASE}{rel}', meta=og + ld, style=STYLE,
+        kicker='🎓 תשבצי נושא · לפי נושא ולפי רמה', kicker_class='mint',
+        crumbs=[(n, u.replace(BASE, '') or '/') for n, u in crumbs],
+        body=body, note=NOTE, current='nosim'))
 
 
 def cell_numbers(grid):
@@ -183,24 +140,64 @@ PZ.grid.forEach((row, r) => {
     board.appendChild(d);
   });
 });
-let active = null;
+let active = null, dirPref = 'across';
+const cur = document.getElementById('cur');
+function entriesAt(r, c) { return PZ.entries.filter(e => e.cells.some(x => x[0] === r && x[1] === c)); }
 function highlight(r, c) {
-  const e = PZ.entries.find(e => e.cells.some(x => x[0] === r && x[1] === c)) || null;
-  active = e;
+  // a cell on two entries follows the direction the solver last chose
+  const es = entriesAt(r, c);
+  const e = es.find(x => x.dir === dirPref) || es[0] || null;
+  active = e; if (e) dirPref = e.dir;
   Object.values(inputs).forEach(i => i.parentNode.classList.remove('hl'));
   if (e) e.cells.forEach(([a, b]) => inputs[a + ',' + b].parentNode.classList.add('hl'));
+  showClue(e);
 }
-function advance(i) {
-  if (!active) return;
+function showClue(e) {
+  if (!cur) return;
+  if (!e) { cur.textContent = ''; return; }
+  const li = document.querySelector(`.clues li[data-i="${PZ.entries.indexOf(e)}"]`);
+  const t = li ? li.cloneNode(true) : null;
+  if (t) t.querySelectorAll('.exp').forEach(x => x.remove());
+  cur.innerHTML = '<span class="dir">' + (e.dir === 'across' ? 'מאוזן' : 'מאונך') + '</span><span>' +
+                  (t ? t.innerHTML : '') + '</span>';
+}
+function step(i, d) {
+  if (!active) return null;
   const [r, c] = i.dataset.rc.split(',').map(Number);
   const at = active.cells.findIndex(x => x[0] === r && x[1] === c);
-  const nx = active.cells[at + 1];
-  if (nx) inputs[nx[0] + ',' + nx[1]].focus();
+  const nx = active.cells[at + d]; if (!nx) return null;
+  const n = inputs[nx[0] + ',' + nx[1]]; n.focus(); return n;
 }
-document.querySelectorAll('.clues li').forEach(li => li.onclick = () => {
-  const e = PZ.entries[+li.dataset.i]; active = e;
-  const [r, c] = e.cells[0]; inputs[r + ',' + c].focus();
+function advance(i) { step(i, 1); }
+function toggleDir(i) {
+  dirPref = dirPref === 'across' ? 'down' : 'across';
+  const [r, c] = i.dataset.rc.split(',').map(Number); highlight(r, c);
+}
+function focusEntry(idx) {
+  const e = PZ.entries[idx]; dirPref = e.dir; active = e;
+  const [r, c] = e.cells[0]; const i = inputs[r + ',' + c];
+  if (document.activeElement === i) highlight(r, c); else i.focus();
+}
+Object.values(inputs).forEach(i => {
+  // a second tap on the focused cell switches between across and down
+  i.addEventListener('mousedown', () => { if (document.activeElement === i) toggleDir(i); });
+  i.addEventListener('keydown', ev => {
+    const [r, c] = i.dataset.rc.split(',').map(Number);
+    if (ev.key === 'Backspace' && !i.value) { ev.preventDefault(); const p = step(i, -1); if (p) p.value = ''; }
+    else if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); toggleDir(i); }
+    else if (ev.key.startsWith('Arrow')) {
+      const dr = ev.key === 'ArrowDown' ? 1 : ev.key === 'ArrowUp' ? -1 : 0;
+      const dc = ev.key === 'ArrowLeft' ? 1 : ev.key === 'ArrowRight' ? -1 : 0;  // the board is RTL
+      let rr = r + dr, cc = c + dc;
+      while (rr >= 0 && cc >= 0 && rr < PZ.grid.length && cc < PZ.grid[0].length) {
+        const n = inputs[rr + ',' + cc];
+        if (n) { ev.preventDefault(); dirPref = dr ? 'down' : 'across'; n.focus(); break; }
+        rr += dr; cc += dc;
+      }
+    }
+  });
 });
+document.querySelectorAll('.clues li').forEach(li => li.onclick = () => focusEntry(+li.dataset.i));
 document.getElementById('check').onclick = () => {
   let right = 0, filled = 0;
   PZ.entries.forEach((e, idx) => {
@@ -237,17 +234,17 @@ REQUEST_FORM = """
 <label for="rtopic"><b>הנושא</b> (בעברית, עד 60 תווים)</label>
 <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin:.4rem 0">
 <input id="rtopic" maxlength="60" placeholder="למשל: כדורגל ישראלי, כיתה ז2, מאכלים"
- style="flex:1 1 16rem;font:inherit;padding:.45rem .6rem;border:1.5px solid #121212;border-radius:4px">
-<select id="rlevel" style="font:inherit;padding:.45rem .6rem;border:1.5px solid #121212;border-radius:4px">
+ style="flex:1 1 16rem">
+<select id="rlevel" style="width:auto">
 <option value="1">קל</option><option value="2" selected>בינוני</option>
 <option value="3">קשה</option><option value="4">אתגר</option></select>
-<select id="rkind" style="font:inherit;padding:.45rem .6rem;border:1.5px solid #121212;border-radius:4px">
+<select id="rkind" style="width:auto">
 <option value="any" selected>כל סוג לוח</option><option value="regular">תשבץ</option>
 <option value="arrow">תשחץ</option></select>
 </div>
 <label for="rnote"><b>משהו שכדאי שנדע</b> (לא חובה, עד 200 תווים)</label>
 <input id="rnote" maxlength="200" placeholder="למשל: לכיתה ה, בלי שמות של אנשים"
- style="width:100%;font:inherit;padding:.45rem .6rem;border:1.5px solid #121212;border-radius:4px;margin:.4rem 0">
+ style="margin:.4rem 0">
 <button class="act" id="rsend">שלחו בקשה</button>
 <div class="msg" id="rmsg"></div>
 </div>
@@ -555,6 +552,7 @@ def build_puzzle(p, plist):
     body = f"""<p>{kind_he} ב{esc(p['title'])} · רמת <b>{esc(p['level_name'])}</b> ·
 לוח {rows}x{cols} · {len(entries)} הגדרות, מהן {topical} על הנושא עצמו.</p>
 <p>{intro}</p>
+<div class="curclue" id="cur" aria-live="polite"></div>
 <div class="scroll"><div class="board" id="board" style="--cs:{cs}"></div></div>
 <div class="bar">
   <button class="act" id="check">בדקו אותי</button>
@@ -562,6 +560,7 @@ def build_puzzle(p, plist):
   <button class="act ghost" id="clear">נקו</button>
 </div>
 <div class="msg" id="msg"></div>
+<p class="kbdhint">לחיצה נוספת על משבצת (או Enter) מחליפה בין מאוזן למאונך · חיצים לניווט · Backspace חוזר אחורה</p>
 <h2>{list_head}</h2>
 <div class="clues">
   <div><h3>מאוזן</h3><ol>{clue_list('across')}</ol></div>

@@ -41,6 +41,22 @@ updates the "Movement log" below. This file is the handoff between runs, DAILY.m
 
 ## Movement log
 
+- **2026-09-01** - Site-wide redesign and rebrand ("fun and smart"): new
+  shared stylesheet (docs/assets/brand.css), Fredoka + Rubik type, cream /
+  indigo / grape / coral / sun palette, logo mark and favicon (there was
+  none), sticky header with the main navigation on every page, a real footer
+  with links to every section, and new social cards (og.png) for the home,
+  solver, נתיב, milon and trainer pages. Homepage rewritten (hero, stats,
+  six section cards, how-it-works). All 5,691 milon pages re-wrapped in place
+  via app/rebrand_pages.py (build_seo needs the corpus); nosim, tirgul and
+  /milon/d/ rebuilt from the generators. Titles, descriptions, canonicals,
+  JSON-LD and URLs unchanged; the research pages now carry the production
+  canonical instead of the old vercel.app og:url. Board UX: a second tap on
+  a cell switches across/down, Backspace steps back, arrow keys move, and a
+  sticky strip shows the current clue (topic + trainer boards); the header
+  stops being sticky on phones so the board keeps the screen; crossword
+  pages print clean. evals/ui_smoke.py verifies the games stay playable.
+
 - **2026-08-31 (latest)** - All 44 topic-crossword boards regenerated and
   republished after a reported clue-quality problem: clues that made no sense,
   clues that did not connect to their subject, and clues unrelated to it. All

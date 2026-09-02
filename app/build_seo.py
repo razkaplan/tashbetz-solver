@@ -102,18 +102,12 @@ HEBSENSE.update({'common_word':'מילה מן המילון','given_name':'שם �
  'role_noun':'תפקיד/פועל וגם שם','song':'שם שיר','song_word':'מילה מתוך שיר','artist':'זמר/להקה',
  'politician':'פוליטיקאי/ת','place':'מקום','answer':'הופיעה כתשובה בתשבצים'})
 
-STYLE="""<style>*{box-sizing:border-box}body{margin:0;background:#fff;color:#121212;font-family:'Frank Ruhl Libre','Arial Hebrew',serif;line-height:1.6}
-.w{max-width:52rem;margin:0 auto;padding:1rem 1.2rem}header{border-bottom:1px solid #121212;box-shadow:0 3px 0 -1px #121212;padding:.8rem 0}
-h1{font-size:1.6rem;margin:.2rem 0}.k{font-family:monospace;font-size:.65rem;letter-spacing:.12em;color:#fff;background:#f22b39;display:inline-block;padding:.12rem .5rem}
-a{color:#f22b39}h2{border-bottom:3px solid #f22b39;display:inline-block;font-size:1.1rem;padding-bottom:.1rem}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(11rem,1fr));gap:.4rem;padding:0;list-style:none}
-.grid li{background:#f6f5f3;padding:.35rem .6rem;border-radius:3px}
-table{border-collapse:collapse;width:100%}td,th{border-bottom:1px solid #dcdcdc;padding:.4rem .5rem;text-align:right}
-footer{margin:2.5rem 0 1.5rem;border-top:1px solid #dcdcdc;padding-top:.8rem;font-size:.8rem;color:#5c5c5c}
-.crumb{font-size:.8rem;color:#5c5c5c;margin:.6rem 0}input{font:inherit;padding:.5rem;border:1.5px solid #121212;border-radius:3px;width:100%}
-.promo{background:#fff4d6;border:1.5px solid #121212;border-radius:3px;padding:.45rem .7rem;margin:.7rem 0 0;font-size:.9rem}
-.promo a{font-weight:700}
-@media(prefers-color-scheme:dark){body{background:#161616;color:#f2f0ec}.grid li{background:#222}td,th{border-color:#3a3a3a}.promo{background:#3a3115;border-color:#f2f0ec}}</style>"""
+import brand
+
+NOTE=brand.MILON_NOTE
+KICKER=brand.MILON_KICKER
+# app/rebrand_pages.py rewrites already-built pages with the same shell, so a
+# shell change here must be mirrored there (or the pages rebuilt).
 
 def page(path,title,desc,body,jsonld=None,crumb=None):
     os.makedirs(os.path.dirname(path),exist_ok=True)
@@ -143,15 +137,10 @@ def page(path,title,desc,body,jsonld=None,crumb=None):
 <meta property="og:locale" content="he_IL"><meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="{esc_title}"><meta name="twitter:description" content="{esc_desc}">
 <meta name="twitter:image" content="{BASE}/milon/og.png">"""
-    open(path,'w').write(f"""<!doctype html><html lang="he" dir="rtl"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1"><title>{esc_title}</title>
-<meta name="description" content="{esc_desc}"><link rel="canonical" href="{canon}">{og}{ld}{STYLE}</head><body><div class="w">
-<header><span class="k">מילון תשבץ · פותרים ביחד</span><h1>{esc_title}</h1>
-<div class="crumb"><a href="/milon/">מילון</a> · <a href="/nativ/">המשחק היומי</a> · <a href="/solve/">עוזר הפתירה</a> · <a href="/">דף הבית</a></div>
-<div class="promo">☀️ <a href="/nativ/">נתיב - המשחק היומי הטוב לחובבי תשבצים</a> · חידה חדשה כל יום, עכשיו גם במצב קל</div></header>
-{body}
-<footer>מבוסס על אינדקס פתוח (ויקיפדיה/ויקימילון/שירונט, CC BY-SA, עם קישור למקור) וניתוח סטטיסטי מקורי · לא מתפרסמות הגדרות מעיתונים ·
-<a href="https://www.linkedin.com/in/razkaplan/">פרויקט של רז קפלן</a> · <a href="/nativ/">🪄 נתיב, המשחק היומי</a></footer></div></body></html>""")
+    open(path,'w').write(brand.document(
+        title=title,desc=desc,canonical=canon,meta=og+ld,kicker=KICKER,
+        crumbs=[(n,u.replace(BASE,'') or '/') for n,u in crumbs],
+        body=body,note=NOTE,current='milon'))
 
 # relations: song <-> artist from shironet (titles are public metadata, lyrics never copied)
 song_rel={}; artist_rel={}
@@ -280,7 +269,7 @@ for cat,(plural,single) in CATS.items():
             b=f' <span class="k" style="font-size:.55rem">{cw[n]}×</span>' if cw.get(n,0)>=2 else ''
             d=get_desc(cat,t,n)
             dd=f'<br><small>{d[:90]}</small>' if d else ''
-            return f'<li id="{n}"><b>{t}</b>{b}{dd}<br><small style="font-family:monospace;color:#5c5c5c">{n}</small></li>'
+            return f'<li id="{n}"><b>{t}</b>{b}{dd}<br><small class="net">{n}</small></li>'
         lis=''.join(_li(t,n) for t,n in items)
         body=f"""<p><b>{len(items)} {plural}</b> שהשם שלהם נכתב ברשת התשבץ ב-<b>{L} אותיות</b>
 (בתשבץ אין אותיות סופיות: ם/ן/ץ/ף/ך נכתבות מ/נ/צ/פ/כ, והכתיב מוצג מתחת לכל שם).</p>
@@ -303,11 +292,14 @@ for cat,(plural,single) in CATS.items():
     for ch,items in sorted(LETTER_ITEMS[cat].items()):
         items.sort(key=lambda x:(-cw.get(x[1],0),x[0]))
         slug=f'{cat}-letter-{ch}'
+        def _badge(n):
+            return f' <span class="k" style="font-size:.55rem">{cw[n]}×</span>' if cw.get(n,0)>=2 else ''
+        def _desc(cat,t,n):
+            d=get_desc(cat,t,n)
+            return f'<br><small>{d[:90]}</small>' if d else ''
         lis=''.join(
-            f'<li id="L{n}"><b>{t}</b>'
-            f'{f" <span class=\"k\" style=\"font-size:.55rem\">{cw[n]}×</span>" if cw.get(n,0)>=2 else ""}'
-            f'{f"<br><small>{get_desc(cat,t,n)[:90]}</small>" if get_desc(cat,t,n) else ""}'
-            f'<br><small style="font-family:monospace;color:#5c5c5c">{n} · {len(n)} אותיות</small></li>'
+            f'<li id="L{n}"><b>{t}</b>{_badge(n)}{_desc(cat,t,n)}'
+            f'<br><small class="net">{n}</small> <small>{len(n)} אותיות</small></li>'
             for t,n in items[:400])
         lens=sorted({len(n) for _,n in items})
         body=f"""<p><b>{len(items)} {plural}</b> שמתחילים באות <b>{ch}</b>, עם מספר האותיות של כל אחד
@@ -396,7 +388,7 @@ for cat,t in sorted(page_set):
     rows=(f'<tr><th>הגדרה</th><td><b>{d}</b></td></tr>' if d else '')
     rows+=f'<tr><th>סוג</th><td>{single}</td></tr><tr><th>אורך ברשת</th><td>{len(n)} אותיות</td></tr>'
     if cat=='military' and t in MIL and MIL[t]!=d: rows+=f'<tr><th>פירוש</th><td>{MIL[t]}</td></tr>'
-    rows+=f'<tr><th>כתיב בתשבץ</th><td style="font-family:monospace">{n}</td></tr>'
+    rows+=f'<tr><th>כתיב בתשבץ</th><td><span class="net">{n}</span></td></tr>'
     if c: rows+=f'<tr><th>הופעות בתשבצים</th><td>{c} פעמים (מתוך מדגם של 362 תשבצים)</td></tr>'
     # The senses that lost the URL above are real meanings of this name, so they
     # belong in the same row as the ambiguity data rather than vanishing.
@@ -425,7 +417,7 @@ for cat,t in sorted(page_set):
     if related:
         rl=' · '.join(f'<a href="/milon/e/{urllib.parse.quote(t2,safe="")}/">{t2}</a>' for t2 in related)
         rel_html=f'<p style="margin-top:.8rem"><b>ערכים קרובים ({single}, {len(n)} אותיות):</b> {rl}</p>'
-    body=f"""<table>{rows}<tr><th>אותיות (לאנגרם)</th><td style="font-family:monospace">{letters}</td></tr></table>
+    body=f"""<table>{rows}<tr><th>אותיות (לאנגרם)</th><td><span class="net">{letters}</span></td></tr></table>
 {rel_html}
 <p style="margin-top:1rem"><a href="/milon/{urllib.parse.quote(f'{cat}-{len(n)}')}/">עוד {plural} ב-{len(n)} אותיות ←</a>
  · <a href="/milon/anagram/">חיפוש אנגרם</a></p>"""
@@ -469,13 +461,14 @@ for cat,(plural,_) in CATS.items():
 cat_json=json.dumps({c:v[1] for c,v in CATS.items()},ensure_ascii=False)
 hub=f"""<p>מנוע חיפוש לפותרי תשבצים: שמות של שירים, זמרים, פוליטיקאים ומקומות, עם הכתיב המדויק ברשת
 (ללא אותיות סופיות), אורך, ומשמעויות כפולות. {len(ent_index):,} ערכים.</p>
-<input id="q" placeholder="חיפוש שם, או תבנית: ? או . לאות חסרה (למשל: ד?יה, ?ו?ה)" autocomplete="off">
+<input id="q" class="bigq" placeholder="חיפוש שם, או תבנית: ? או . לאות חסרה (למשל: ד?יה, ?ו?ה)" autocomplete="off">
 <p style="margin:.5rem 0"><a href="/milon/anagram/"><b>יש לכם אותיות מבולבלות? → חיפוש אנגרם</b></a></p>
 <div id="res" class="grid" style="margin-top:.8rem"></div>
 <h2>עיון לפי קטגוריה, אורך ואות פותחת</h2>{cat_links}
 <p style="margin-top:1.4rem">חסרה לכם תשובה שלמה? <a href="/solve/">עוזר הפתירה</a> פותר איתכם עם רמזים מדורגים והוכחות.</p>
 <script>
 let E=null;const q=document.getElementById('q'),res=document.getElementById('res');
+if(matchMedia('(pointer:fine)').matches)q.focus();
 fetch('/milon/entities.json').then(r=>r.json()).then(d=>E=d);
 const CAT={cat_json};
 const FINMAP={{'ך':'כ','ם':'מ','ן':'נ','ף':'פ','ץ':'צ'}},canon=s=>s.replace(/[ךםןףץ]/g,m=>FINMAP[m]);
@@ -485,7 +478,7 @@ if(/[?.*]/.test(v)){{const rx=new RegExp('^'+canon(v).split('').map(ch=>ch==='*'
   hits=E.filter(e=>rx.test(e.n));}}
 else{{const c=canon(v);hits=E.filter(e=>e.t.includes(v)||e.n.includes(c));
   const sc=e=>(e.t===v||e.n===c)?2:(e.t.startsWith(v)||e.n.startsWith(c))?1:0;hits.sort((a,b)=>sc(b)-sc(a));}}
-const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}}[c]));res.innerHTML=hits.slice(0,60).map(e=>{{const u=e.p?('/milon/e/'+encodeURIComponent(e.t)+'/'):('/milon/'+e.c+'-'+e.l+'/#'+encodeURIComponent(e.n));return '<li><a href="'+u+'" style="text-decoration:none;color:inherit"><b style="color:#f22b39">'+esc(e.t)+'</b>'+(e.d?'<br><small>'+esc(e.d)+'</small>':'')+'<br><small>'+esc(CAT[e.c]||'')+' · '+esc(e.l)+' אותיות · <span style="font-family:monospace">'+esc(e.n)+'</span></small></a></li>'}}).join('');
+const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}}[c]));res.innerHTML=hits.slice(0,60).map(e=>{{const u=e.p?('/milon/e/'+encodeURIComponent(e.t)+'/'):('/milon/'+e.c+'-'+e.l+'/#'+encodeURIComponent(e.n));return '<li><a href="'+u+'" style="text-decoration:none;color:inherit"><b style="color:var(--accent)">'+esc(e.t)+'</b>'+(e.d?'<br><small>'+esc(e.d)+'</small>':'')+'<br><small>'+esc(CAT[e.c]||'')+' · '+esc(e.l)+' אותיות · <span class="net">'+esc(e.n)+'</span></small></a></li>'}}).join('');
 }};
 </script>
 <div id="reqmiss" style="display:none;margin-top:.6rem"></div>
@@ -501,7 +494,7 @@ function check(){{
  box.style.display='block';box.textContent='';
  var b=document.createElement('button');
  b.textContent='לא מצאתם? בקשו שנוסיף: "'+v+'"';
- b.style.cssText='font:inherit;padding:.5rem 1rem;border:1.5px solid #121212;border-radius:3px;background:#fff4d6;cursor:pointer';
+ b.className='btn sun sm';
  b.onclick=function(){{
   fetch('/api/define-request',{{method:'POST',headers:{{'Content-Type':'application/json'}},body:JSON.stringify({{q:v}})}})
    .then(function(r){{if(!r.ok)throw 0;return r.json();}})
@@ -528,7 +521,7 @@ urls.insert(0,'/milon/')
 # ---------- anagram page ----------
 ana_body="""<p>הפודר של אנגרם בתשבץ היגיון מופיע מילולית בהגדרה. מקלידים כאן את האותיות (ברצף, בלי רווחים)
 ומקבלים כל שם ומילה שהם פרמוטציה מדויקת שלהן. אפשר גם לכלול את הלקסיקון המלא: 125 אלף מילות מילון ועוד 22 אלף שמות וביטויי תשבץ.</p>
-<input id="a" placeholder="האותיות שיש לכם, למשל: ליבנוצר" autocomplete="off">
+<input id="a" class="bigq" placeholder="האותיות שיש לכם, למשל: ליבנוצר" autocomplete="off">
 <label style="display:block;margin:.5rem 0;font-size:.9rem"><input type="checkbox" id="uselex" style="width:auto"> כלול גם מילים רגילות מהלקסיקון (טעינה חד-פעמית של ~1.5MB)</label>
 <div id="ares" class="grid" style="margin-top:.8rem"></div>
 <p style="margin-top:1.4rem">רוצים גם הוכחה שהאנגרם נכון? <a href="/solve/">עוזר הפתירה</a> בודק מכנית כל טענה.</p>
@@ -541,7 +534,7 @@ const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 ul.onchange=()=>{if(ul.checked&&!LEX)fetch('/solve/data/lexicon.txt').then(r=>r.text()).then(t=>{LEX=t.split('\n');run()});else run()};
 function run(){if(!E)return;const v=a.value.replace(/[^א-ת]/g,'');ares.innerHTML='';if(v.length<3)return;
 const target=sig(v);let out=[];
-for(const e of E){if(e.n.length===v.length&&sig(e.n)===target)out.push('<li><b>'+esc(e.t)+'</b><br><small style="font-family:monospace">'+esc(e.n)+'</small></li>');if(out.length>=40)break}
+for(const e of E){if(e.n.length===v.length&&sig(e.n)===target)out.push('<li><b>'+esc(e.t)+'</b><br><small class="net">'+esc(e.n)+'</small></li>');if(out.length>=40)break}
 if(ul.checked&&LEX){for(const w of LEX){if(w.length===v.length&&sig(w)===target)out.push('<li>'+esc(w)+'</li>');if(out.length>=80)break}}
 ares.innerHTML=out.join('')||'<li>לא נמצאה פרמוטציה. נסו לכלול את הלקסיקון המלא.</li>'}
 a.oninput=run;
