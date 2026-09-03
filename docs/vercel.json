@@ -3,13 +3,2968 @@
     {
       "source": "/(.*)",
       "headers": [
-        { "key": "Content-Security-Policy", "value": "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://openrouter.ai https://www.googletagmanager.com https://*.google-analytics.com; worker-src 'self' blob: https://cdn.jsdelivr.net; frame-ancestors 'none'; base-uri 'self'; form-action 'self' https://github.com; object-src 'none'" },
-        { "key": "X-Content-Type-Options", "value": "nosniff" },
-        { "key": "X-Frame-Options", "value": "DENY" },
-        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
-        { "key": "Permissions-Policy", "value": "camera=(), microphone=(), geolocation=(), payment=()" },
-        { "key": "Strict-Transport-Security", "value": "max-age=63072000; includeSubDomains" }
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://openrouter.ai https://www.googletagmanager.com https://*.google-analytics.com; worker-src 'self' blob: https://cdn.jsdelivr.net; frame-ancestors 'none'; base-uri 'self'; form-action 'self' https://github.com; object-src 'none'"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "Permissions-Policy",
+          "value": "camera=(), microphone=(), geolocation=(), payment=()"
+        },
+        {
+          "key": "Strict-Transport-Security",
+          "value": "max-age=63072000; includeSubDomains"
+        }
       ]
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/milon/e/אבדון/",
+      "destination": "/milon/song-5/#%D7%90%D7%91%D7%93%D7%95%D7%A0",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/אבוד/",
+      "destination": "/milon/w/%D7%90%D7%91%D7%95%D7%93/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/אבוס/",
+      "destination": "/milon/w/%D7%90%D7%91%D7%95%D7%A1/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/אביב גפן III/",
+      "destination": "/milon/e/%D7%90%D7%91%D7%99%D7%91%20%D7%92%D7%A4%D7%9F/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/אביהו/",
+      "destination": "/milon/song-5/#%D7%90%D7%91%D7%99%D7%94%D7%95",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/אביר/",
+      "destination": "/milon/w/%D7%90%D7%91%D7%99%D7%A8/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/אבישג/",
+      "destination": "/milon/song-5/#%D7%90%D7%91%D7%99%D7%A9%D7%92",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/אבל אהבה/",
+      "destination": "/milon/e/%D7%90%D6%B2%D7%91%D6%B8%D7%9C%20%D7%90%D6%B7%D7%94%D6%B2%D7%91%D6%B8%D7%94/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/אבל/",
+      "destination": "/milon/w/%D7%90%D7%91%D7%9C/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/אבנט/",
+      "destination": "/milon/w/%D7%90%D7%91%D7%A0%D7%98/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/אבסורד/",
+      "destination": "/milon/song-6/#%D7%90%D7%91%D7%A1%D7%95%D7%A8%D7%93",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/אב/",
+      "destination": "/milon/w/%D7%90%D7%91/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/אגנ/",
+      "destination": "/milon/w/%D7%90%D7%92%D7%9F/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/אגרוף/",
+      "destination": "/milon/w/%D7%90%D7%92%D7%A8%D7%95%D7%A3/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/אדיר/",
+      "destination": "/milon/w/%D7%90%D7%93%D7%99%D7%A8/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/אדישה/",
+      "destination": "/milon/song-5/#%D7%90%D7%93%D7%99%D7%A9%D7%94",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/אדלה/",
+      "destination": "/milon/song-4/#%D7%90%D7%93%D7%9C%D7%94",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/אדרת/",
+      "destination": "/milon/artist-4/#%D7%90%D7%93%D7%A8%D7%AA",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/אהבה.../",
+      "destination": "/milon/e/%D7%90%D7%94%D7%91%D7%94/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/אהובה/",
+      "destination": "/milon/song-5/#%D7%90%D7%94%D7%95%D7%91%D7%94",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/אווירונ/",
+      "destination": "/milon/common-7/#%D7%90%D7%95%D7%95%D7%99%D7%A8%D7%95%D7%A0",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/אוויר/",
+      "destination": "/milon/w/%D7%90%D7%95%D7%95%D7%99%D7%A8/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/אולארצ'יק/",
+      "destination": "/milon/song-8/#%D7%90%D7%95%D7%9C%D7%90%D7%A8%D7%A6%D7%99%D7%A7",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/אולי בעולם אחר- Remix/",
+      "destination": "/milon/e/%D7%90%D7%95%D7%9C%D7%99%20%D7%91%D7%A2%D7%95%D7%9C%D7%9D%20%D7%90%D7%97%D7%A8/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/אומרים/",
+      "destination": "/milon/song-6/#%D7%90%D7%95%D7%9E%D7%A8%D7%99%D7%9E",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/אופליה/",
+      "destination": "/milon/song-6/#%D7%90%D7%95%D7%A4%D7%9C%D7%99%D7%94",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/אוקיינוסים/",
+      "destination": "/milon/song-10/#%D7%90%D7%95%D7%A7%D7%99%D7%99%D7%A0%D7%95%D7%A1%D7%99%D7%9E",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/אוקיינוס/",
+      "destination": "/milon/song-8/#%D7%90%D7%95%D7%A7%D7%99%D7%99%D7%A0%D7%95%D7%A1",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/אורות/",
+      "destination": "/milon/w/%D7%90%D7%95%D7%A8%D7%95%D7%AA/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/אורלי/",
+      "destination": "/milon/song-5/#%D7%90%D7%95%D7%A8%D7%9C%D7%99",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/אז מה\\?!/",
+      "destination": "/milon/e/%D7%90%D7%96%20%D7%9E%D7%94/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/אחד/",
+      "destination": "/milon/w/%D7%90%D7%97%D7%93/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/אחריהחגימ/",
+      "destination": "/milon/common-9/#%D7%90%D7%97%D7%A8%D7%99%D7%94%D7%97%D7%92%D7%99%D7%9E",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/אטומ/",
+      "destination": "/milon/w/%D7%90%D7%98%D7%95%D7%9D/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/אטליז/",
+      "destination": "/milon/artist-5/#%D7%90%D7%98%D7%9C%D7%99%D7%96",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/אי ירוק בים/",
+      "destination": "/milon/song-9/#%D7%90%D7%99%D7%99%D7%A8%D7%95%D7%A7%D7%91%D7%99%D7%9E",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/איזבל/",
+      "destination": "/milon/song-5/#%D7%90%D7%99%D7%96%D7%91%D7%9C",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/איזון/",
+      "destination": "/milon/song-5/#%D7%90%D7%99%D7%96%D7%95%D7%A0",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/אייקון/",
+      "destination": "/milon/song-6/#%D7%90%D7%99%D7%99%D7%A7%D7%95%D7%A0",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/איכילוב/",
+      "destination": "/milon/song-7/#%D7%90%D7%99%D7%9B%D7%99%D7%9C%D7%95%D7%91",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/אילו/",
+      "destination": "/milon/song-4/#%D7%90%D7%99%D7%9C%D7%95",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/אילנה/",
+      "destination": "/milon/song-5/#%D7%90%D7%99%D7%9C%D7%A0%D7%94",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/אין עליה/",
+      "destination": "/milon/song-7/#%D7%90%D7%99%D7%A0%D7%A2%D7%9C%D7%99%D7%94",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/אינטליגנציה/",
+      "destination": "/milon/song-11/#%D7%90%D7%99%D7%A0%D7%98%D7%9C%D7%99%D7%92%D7%A0%D7%A6%D7%99%D7%94",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/אינקה/",
+      "destination": "/milon/song-5/#%D7%90%D7%99%D7%A0%D7%A7%D7%94",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/אירה/",
+      "destination": "/milon/song-4/#%D7%90%D7%99%D7%A8%D7%94",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/אירוניה/",
+      "destination": "/milon/song-7/#%D7%90%D7%99%D7%A8%D7%95%D7%A0%D7%99%D7%94",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/איתן נחמיאס-גלס/",
+      "destination": "/milon/e/%D7%90%D7%99%D7%AA%D7%9F%20%D7%A0%D7%97%D7%9E%D7%99%D7%90%D7%A1%20%D7%92%D7%9C%D7%A1/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/אל אדון/",
+      "destination": "/milon/e/%D7%90-%D7%9C%20%D7%90%D7%93%D7%95%D7%9F/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/אל תדליקו לי נר 2025/",
+      "destination": "/milon/e/%D7%90%D7%9C%20%D7%AA%D7%93%D7%9C%D7%99%D7%A7%D7%95%20%D7%9C%D7%99%20%D7%A0%D7%A8/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/אלבום 2/",
+      "destination": "/milon/w/%D7%90%D7%9C%D7%91%D7%95%D7%9D/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/אלטעזאכן/",
+      "destination": "/milon/e/%D7%90%D7%9C%D7%98%D7%A2%20%D7%96%D7%90%D7%9B%D7%9F/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/אליטה/",
+      "destination": "/milon/song-5/#%D7%90%D7%9C%D7%99%D7%98%D7%94",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/אליך/",
+      "destination": "/milon/song-4/#%D7%90%D7%9C%D7%99%D7%9B",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/אלימות/",
+      "destination": "/milon/w/%D7%90%D7%9C%D7%99%D7%9E%D7%95%D7%AA/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/אלכס/",
+      "destination": "/milon/song-4/#%D7%90%D7%9C%D7%9B%D7%A1",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/אלמוג/",
+      "destination": "/milon/w/%D7%90%D7%9C%D7%9E%D7%95%D7%92/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/אמבולנס/",
+      "destination": "/milon/w/%D7%90%D7%9E%D7%91%D7%95%D7%9C%D7%A0%D7%A1/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/אמביציה/",
+      "destination": "/milon/song-7/#%D7%90%D7%9E%D7%91%D7%99%D7%A6%D7%99%D7%94",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/אמור/",
+      "destination": "/milon/w/%D7%90%D7%9E%D7%95%D7%A8/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/אנבל/",
+      "destination": "/milon/song-4/#%D7%90%D7%A0%D7%91%D7%9C",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/אנדי/",
+      "destination": "/milon/song-4/#%D7%90%D7%A0%D7%93%D7%99",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/אני חוזר הביתה 2026/",
+      "destination": "/milon/e/%D7%90%D7%A0%D7%99%20%D7%97%D7%95%D7%96%D7%A8%20%D7%94%D7%91%D7%99%D7%AA%D7%94/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/אסולין/",
+      "destination": "/milon/song-6/#%D7%90%D7%A1%D7%95%D7%9C%D7%99%D7%A0",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/אסימונים/",
+      "destination": "/milon/song-8/#%D7%90%D7%A1%D7%99%D7%9E%D7%95%D7%A0%D7%99%D7%9E",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/אסיף/",
+      "destination": "/milon/w/%D7%90%D7%A1%D7%99%D7%A3/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/אף פעם/",
+      "destination": "/milon/song-5/#%D7%90%D7%A4%D7%A4%D7%A2%D7%9E",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/אפור/",
+      "destination": "/milon/w/%D7%90%D7%A4%D7%95%D7%A8/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/אפרוחים/",
+      "destination": "/milon/song-7/#%D7%90%D7%A4%D7%A8%D7%95%D7%97%D7%99%D7%9E",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/אקדח/",
+      "destination": "/milon/song-4/#%D7%90%D7%A7%D7%93%D7%97",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/אקו\"ם/",
+      "destination": "/milon/song-4/#%D7%90%D7%A7%D7%95%D7%9E",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/אקסום/",
+      "destination": "/milon/song-5/#%D7%90%D7%A7%D7%A1%D7%95%D7%9E",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/ארבל/",
+      "destination": "/milon/mountain-4/#%D7%90%D7%A8%D7%91%D7%9C",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/ארבעתנו/",
+      "destination": "/milon/song-7/#%D7%90%D7%A8%D7%91%D7%A2%D7%AA%D7%A0%D7%95",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/ארגזים/",
+      "destination": "/milon/song-6/#%D7%90%D7%A8%D7%92%D7%96%D7%99%D7%9E",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/ארגמן/",
+      "destination": "/milon/w/%D7%90%D7%A8%D7%92%D7%9E%D7%9F/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/אריאלה/",
+      "destination": "/milon/song-6/#%D7%90%D7%A8%D7%99%D7%90%D7%9C%D7%94",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/ארלוזורוב 38/",
+      "destination": "/milon/song-9/#%D7%90%D7%A8%D7%9C%D7%95%D7%96%D7%95%D7%A8%D7%95%D7%91",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/ארץ טרופית יפה/",
+      "destination": "/milon/song-12/#%D7%90%D7%A8%D7%A6%D7%98%D7%A8%D7%95%D7%A4%D7%99%D7%AA%D7%99%D7%A4%D7%94",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/ארץ ישראל 2000/",
+      "destination": "/milon/e/%D7%90%D7%A8%D7%A5%20%D7%99%D7%A9%D7%A8%D7%90%D7%9C/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/אשלגנ/",
+      "destination": "/milon/w/%D7%90%D7%A9%D7%9C%D7%92%D7%9F/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/אתה חברה שלי/",
+      "destination": "/milon/e/%D7%90%D7%AA%20%D7%94%D7%97%D7%91%D7%A8%D7%94%20%D7%A9%D7%9C%D7%99/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/א-לי-מות/",
+      "destination": "/milon/w/%D7%90%D7%9C%D7%99%D7%9E%D7%95%D7%AA/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/באמת/",
+      "destination": "/milon/song-4/#%D7%91%D7%90%D7%9E%D7%AA",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/באעלהדקה/",
+      "destination": "/milon/common-8/#%D7%91%D7%90%D7%A2%D7%9C%D7%94%D7%93%D7%A7%D7%94",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/באר/",
+      "destination": "/milon/w/%D7%91%D7%90%D7%A8/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/בגד/",
+      "destination": "/milon/w/%D7%91%D7%92%D7%93/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/בגידה/",
+      "destination": "/milon/w/%D7%91%D7%92%D7%99%D7%93%D7%94/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/בגינה/",
+      "destination": "/milon/song-5/#%D7%91%D7%92%D7%99%D7%A0%D7%94",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/בדיוק/",
+      "destination": "/milon/song-5/#%D7%91%D7%93%D7%99%D7%95%D7%A7",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/בדיעבד/",
+      "destination": "/milon/song-6/#%D7%91%D7%93%D7%99%D7%A2%D7%91%D7%93",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/בואו/",
+      "destination": "/milon/song-4/#%D7%91%D7%95%D7%90%D7%95",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/בואי | Fuiste mia/",
+      "destination": "/milon/e/%D7%91%D7%95%D7%90%D7%99/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/בובות/",
+      "destination": "/milon/song-5/#%D7%91%D7%95%D7%91%D7%95%D7%AA",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/בודדה/",
+      "destination": "/milon/song-5/#%D7%91%D7%95%D7%93%D7%93%D7%94",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/בוטנים/",
+      "destination": "/milon/song-6/#%D7%91%D7%95%D7%98%D7%A0%D7%99%D7%9E",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/בום/",
+      "destination": "/milon/song-3/#%D7%91%D7%95%D7%9E",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/בונבוניירה/",
+      "destination": "/milon/song-10/#%D7%91%D7%95%D7%A0%D7%91%D7%95%D7%A0%D7%99%D7%99%D7%A8%D7%94",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/בונבונים/",
+      "destination": "/milon/song-8/#%D7%91%D7%95%D7%A0%D7%91%D7%95%D7%A0%D7%99%D7%9E",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/בוסטונ/",
+      "destination": "/milon/e/%D7%91%D7%95%D7%A1%D7%98%D7%95%D7%9F/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/בוקרשט/",
+      "destination": "/milon/song-6/#%D7%91%D7%95%D7%A7%D7%A8%D7%A9%D7%98",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/בור/",
+      "destination": "/milon/w/%D7%91%D7%95%D7%A8/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/בחורות/",
+      "destination": "/milon/song-6/#%D7%91%D7%97%D7%95%D7%A8%D7%95%D7%AA",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/בחורים טובים/",
+      "destination": "/milon/song-11/#%D7%91%D7%97%D7%95%D7%A8%D7%99%D7%9E%D7%98%D7%95%D7%91%D7%99%D7%9E",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/בחלום/",
+      "destination": "/milon/song-5/#%D7%91%D7%97%D7%9C%D7%95%D7%9E",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/בחנ/",
+      "destination": "/milon/e/%D7%91%D7%97%D7%9F/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/ביירות/",
+      "destination": "/milon/song-6/#%D7%91%D7%99%D7%99%D7%A8%D7%95%D7%AA",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/בינתיים/",
+      "destination": "/milon/song-7/#%D7%91%D7%99%D7%A0%D7%AA%D7%99%D7%99%D7%9E",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/ביער/",
+      "destination": "/milon/song-4/#%D7%91%D7%99%D7%A2%D7%A8",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/בלילה/",
+      "destination": "/milon/e/12%20%D7%91%D7%9C%D7%99%D7%9C%D7%94/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/בלילות/",
+      "destination": "/milon/song-6/#%D7%91%D7%9C%D7%99%D7%9C%D7%95%D7%AA",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/בלעדיך/",
+      "destination": "/milon/song-6/#%D7%91%D7%9C%D7%A2%D7%93%D7%99%D7%9B",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/בלרינה/",
+      "destination": "/milon/common-6/#%D7%91%D7%9C%D7%A8%D7%99%D7%A0%D7%94",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/במדבר/",
+      "destination": "/milon/song-5/#%D7%91%D7%9E%D7%93%D7%91%D7%A8",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/במוידיו/",
+      "destination": "/milon/common-7/#%D7%91%D7%9E%D7%95%D7%99%D7%93%D7%99%D7%95",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/בנות/",
+      "destination": "/milon/song-4/#%D7%91%D7%A0%D7%95%D7%AA",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/בני ברק/",
+      "destination": "/milon/city_il-6/#%D7%91%D7%A0%D7%99%D7%91%D7%A8%D7%A7",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/בניברק/",
+      "destination": "/milon/city_il-6/#%D7%91%D7%A0%D7%99%D7%91%D7%A8%D7%A7",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/בניינ/",
+      "destination": "/milon/w/%D7%91%D7%A0%D7%99%D7%99%D7%9F/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/בנים/",
+      "destination": "/milon/song-4/#%D7%91%D7%A0%D7%99%D7%9E",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/בננה/",
+      "destination": "/milon/w/%D7%91%D7%A0%D7%A0%D7%94/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/בננות/",
+      "destination": "/milon/song-5/#%D7%91%D7%A0%D7%A0%D7%95%D7%AA",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/בסיס/",
+      "destination": "/milon/w/%D7%91%D7%A1%D7%99%D7%A1/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/בסתר/",
+      "destination": "/milon/song-4/#%D7%91%D7%A1%D7%AA%D7%A8",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/בער/",
+      "destination": "/milon/w/%D7%91%D7%A2%D7%A8/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/בעתיד/",
+      "destination": "/milon/song-5/#%D7%91%D7%A2%D7%AA%D7%99%D7%93",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/בצורת/",
+      "destination": "/milon/song-5/#%D7%91%D7%A6%D7%95%D7%A8%D7%AA",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/בצל/",
+      "destination": "/milon/w/%D7%91%D7%A6%D7%9C/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/בקע/",
+      "destination": "/milon/w/%D7%91%D7%A7%D7%A2/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/בקרוב/",
+      "destination": "/milon/song-5/#%D7%91%D7%A7%D7%A8%D7%95%D7%91",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/בקר/",
+      "destination": "/milon/w/%D7%91%D7%A7%D7%A8/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/בקשתיאש/",
+      "destination": "/milon/common-7/#%D7%91%D7%A7%D7%A9%D7%AA%D7%99%D7%90%D7%A9",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/בר מינן/",
+      "destination": "/milon/song-6/#%D7%91%D7%A8%D7%9E%D7%99%D7%A0%D7%A0",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/ברבי/",
+      "destination": "/milon/song-4/#%D7%91%D7%A8%D7%91%D7%99",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/ברוך הבא/",
+      "destination": "/milon/song-7/#%D7%91%D7%A8%D7%95%D7%9B%D7%94%D7%91%D7%90",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/ברוקלין/",
+      "destination": "/milon/song-7/#%D7%91%D7%A8%D7%95%D7%A7%D7%9C%D7%99%D7%A0",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/בריסל/",
+      "destination": "/milon/song-5/#%D7%91%D7%A8%D7%99%D7%A1%D7%9C",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/ברצלונה/",
+      "destination": "/milon/song-7/#%D7%91%D7%A8%D7%A6%D7%9C%D7%95%D7%A0%D7%94",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/ברקת/",
+      "destination": "/milon/w/%D7%91%D7%A8%D7%A7%D7%AA/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/ברק/",
+      "destination": "/milon/w/%D7%91%D7%A8%D7%A7/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/בשכונה/",
+      "destination": "/milon/song-6/#%D7%91%D7%A9%D7%9B%D7%95%D7%A0%D7%94",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/בשר/",
+      "destination": "/milon/w/%D7%91%D7%A9%D7%A8/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/ג'וני/",
+      "destination": "/milon/song-4/#%D7%92%D7%95%D7%A0%D7%99",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/ג'קי/",
+      "destination": "/milon/song-3/#%D7%92%D7%A7%D7%99",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/גאות/",
+      "destination": "/milon/w/%D7%92%D7%90%D7%95%D7%AA/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/גבימ/",
+      "destination": "/milon/e/%D7%92%D7%91%D7%99%D7%9D/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/גבעתיים/",
+      "destination": "/milon/song-7/#%D7%92%D7%91%D7%A2%D7%AA%D7%99%D7%99%D7%9E",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/גבתונ/",
+      "destination": "/milon/e/%D7%92%D7%91%D7%AA%D7%95%D7%9F/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/גג/",
+      "destination": "/milon/w/%D7%92%D7%92/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/גולשים/",
+      "destination": "/milon/song-6/#%D7%92%D7%95%D7%9C%D7%A9%D7%99%D7%9E",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/גולש/",
+      "destination": "/milon/w/%D7%92%D7%95%D7%9C%D7%A9/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/גופ/",
+      "destination": "/milon/w/%D7%92%D7%95%D7%A3/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/גורן/",
+      "destination": "/milon/w/%D7%92%D7%95%D7%A8%D7%9F/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/גחליליות/",
+      "destination": "/milon/song-8/#%D7%92%D7%97%D7%9C%D7%99%D7%9C%D7%99%D7%95%D7%AA",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/גיבורים/",
+      "destination": "/milon/song-7/#%D7%92%D7%99%D7%91%D7%95%D7%A8%D7%99%D7%9E",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/גידי/",
+      "destination": "/milon/song-4/#%D7%92%D7%99%D7%93%D7%99",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/גיל/",
+      "destination": "/milon/w/%D7%92%D7%99%D7%9C/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/גלב/",
+      "destination": "/milon/w/%D7%92%D7%9C%D7%91/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/גלדיאטור/",
+      "destination": "/milon/song-8/#%D7%92%D7%9C%D7%93%D7%99%D7%90%D7%98%D7%95%D7%A8",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/גלשן/",
+      "destination": "/milon/w/%D7%92%D7%9C%D7%A9%D7%9F/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/גמד/",
+      "destination": "/milon/w/%D7%92%D7%9E%D7%93/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/גמל/",
+      "destination": "/milon/w/%D7%92%D7%9E%D7%9C/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/גנבים/",
+      "destination": "/milon/song-5/#%D7%92%D7%A0%D7%91%D7%99%D7%9E",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/גנייהושע/",
+      "destination": "/milon/common-8/#%D7%92%D7%A0%D7%99%D7%99%D7%94%D7%95%D7%A9%D7%A2",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/געגוע/",
+      "destination": "/milon/w/%D7%92%D7%A2%D7%92%D7%95%D7%A2/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/גפן/",
+      "destination": "/milon/w/%D7%92%D7%A4%D7%9F/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/גרב/",
+      "destination": "/milon/w/%D7%92%D7%A8%D7%91/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/גרמנים/",
+      "destination": "/milon/song-6/#%D7%92%D7%A8%D7%9E%D7%A0%D7%99%D7%9E",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/גרעינים/",
+      "destination": "/milon/song-7/#%D7%92%D7%A8%D7%A2%D7%99%D7%A0%D7%99%D7%9E",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/דבורה/",
+      "destination": "/milon/w/%D7%93%D7%91%D7%95%D7%A8%D7%94/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/דבלינ/",
+      "destination": "/milon/world_city-5/#%D7%93%D7%91%D7%9C%D7%99%D7%A0",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/דברוחצ/",
+      "destination": "/milon/common-6/#%D7%93%D7%91%D7%A8%D7%95%D7%97%D7%A6",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/דברי/",
+      "destination": "/milon/song-4/#%D7%93%D7%91%D7%A8%D7%99",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/דבש/",
+      "destination": "/milon/w/%D7%93%D7%91%D7%A9/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/דגל/",
+      "destination": "/milon/w/%D7%93%D7%92%D7%9C/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/דואטים/",
+      "destination": "/milon/song-6/#%D7%93%D7%95%D7%90%D7%98%D7%99%D7%9E",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/דובאי/",
+      "destination": "/milon/song-5/#%D7%93%D7%95%D7%91%D7%90%D7%99",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/דובדבנים/",
+      "destination": "/milon/song-8/#%D7%93%D7%95%D7%91%D7%93%D7%91%D7%A0%D7%99%D7%9E",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/דובי/",
+      "destination": "/milon/song-4/#%D7%93%D7%95%D7%91%D7%99",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/דובשנית/",
+      "destination": "/milon/song-7/#%D7%93%D7%95%D7%91%D7%A9%D7%A0%D7%99%D7%AA",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/דולניקר/",
+      "destination": "/milon/common-7/#%D7%93%D7%95%D7%9C%D7%A0%D7%99%D7%A7%D7%A8",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/דון קיחוטה/",
+      "destination": "/milon/song-9/#%D7%93%D7%95%D7%A0%D7%A7%D7%99%D7%97%D7%95%D7%98%D7%94",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/דחפ/",
+      "destination": "/milon/w/%D7%93%D7%97%D7%A3/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/דיינו/",
+      "destination": "/milon/song-5/#%D7%93%D7%99%D7%99%D7%A0%D7%95",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/דינה/",
+      "destination": "/milon/song-4/#%D7%93%D7%99%D7%A0%D7%94",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/דינ/",
+      "destination": "/milon/w/%D7%93%D7%99%D7%9F/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/דיסוננס/",
+      "destination": "/milon/song-7/#%D7%93%D7%99%D7%A1%D7%95%D7%A0%D7%A0%D7%A1",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/דישון/",
+      "destination": "/milon/w/%D7%93%D7%99%D7%A9%D7%95%D7%9F/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/דישונ/",
+      "destination": "/milon/w/%D7%93%D7%99%D7%A9%D7%95%D7%9F/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/דלת/",
+      "destination": "/milon/w/%D7%93%D7%9C%D7%AA/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/דמה/",
+      "destination": "/milon/w/%D7%93%D7%9E%D7%94/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/דמויות/",
+      "destination": "/milon/song-6/#%D7%93%D7%9E%D7%95%D7%99%D7%95%D7%AA",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/דמיוני/",
+      "destination": "/milon/song-6/#%D7%93%D7%9E%D7%99%D7%95%D7%A0%D7%99",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/דמי/",
+      "destination": "/milon/w/%D7%93%D7%9E%D7%99/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/דמעה/",
+      "destination": "/milon/w/%D7%93%D7%9E%D7%A2%D7%94/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/דמעות/",
+      "destination": "/milon/w/%D7%93%D7%9E%D7%A2%D7%95%D7%AA/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/דניאל/",
+      "destination": "/milon/song-5/#%D7%93%D7%A0%D7%99%D7%90%D7%9C",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/דניסובי/",
+      "destination": "/milon/common-7/#%D7%93%D7%A0%D7%99%D7%A1%D7%95%D7%91%D7%99",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/דע/",
+      "destination": "/milon/song-2/#%D7%93%D7%A2",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/דרישת שלום/",
+      "destination": "/milon/song-9/#%D7%93%D7%A8%D7%99%D7%A9%D7%AA%D7%A9%D7%9C%D7%95%D7%9E",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/דרכים/",
+      "destination": "/milon/song-5/#%D7%93%D7%A8%D7%9B%D7%99%D7%9E",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/האומנם/",
+      "destination": "/milon/song-6/#%D7%94%D7%90%D7%95%D7%9E%D7%A0%D7%9E",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/האחרון/",
+      "destination": "/milon/song-6/#%D7%94%D7%90%D7%97%D7%A8%D7%95%D7%A0",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/האם/",
+      "destination": "/milon/song-3/#%D7%94%D7%90%D7%9E",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/הבורגנים/",
+      "destination": "/milon/song-8/#%D7%94%D7%91%D7%95%D7%A8%D7%92%D7%A0%D7%99%D7%9E",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/הביתה/",
+      "destination": "/milon/song-5/#%D7%94%D7%91%D7%99%D7%AA%D7%94",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/הבלוז/",
+      "destination": "/milon/song-5/#%D7%94%D7%91%D7%9C%D7%95%D7%96",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/הבריחה/",
+      "destination": "/milon/song-6/#%D7%94%D7%91%D7%A8%D7%99%D7%97%D7%94",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/הוד/",
+      "destination": "/milon/w/%D7%94%D7%95%D7%93/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/הורה הסלמה!/",
+      "destination": "/milon/e/%D7%94%D7%95%D7%A8%D7%94%20%D7%94%D7%A1%D7%9C%D7%9E%D7%94/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/הזורעימ/",
+      "destination": "/milon/e/%D7%94%D7%96%D7%95%D7%A8%D7%A2%D7%99%D7%9D/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/הזיות/",
+      "destination": "/milon/song-5/#%D7%94%D7%96%D7%99%D7%95%D7%AA",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/הזקיף/",
+      "destination": "/milon/song-5/#%D7%94%D7%96%D7%A7%D7%99%D7%A4",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/הייטק/",
+      "destination": "/milon/song-5/#%D7%94%D7%99%D7%99%D7%98%D7%A7",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/הייתכן/",
+      "destination": "/milon/song-6/#%D7%94%D7%99%D7%99%D7%AA%D7%9B%D7%A0",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/הירושימה‎‎/",
+      "destination": "/milon/song-8/#%D7%94%D7%99%D7%A8%D7%95%D7%A9%D7%99%D7%9E%D7%94",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/היתהלועדנה/",
+      "destination": "/milon/common-10/#%D7%94%D7%99%D7%AA%D7%94%D7%9C%D7%95%D7%A2%D7%93%D7%A0%D7%94",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/הלכעלחבלדק/",
+      "destination": "/milon/common-10/#%D7%94%D7%9C%D7%9B%D7%A2%D7%9C%D7%97%D7%91%D7%9C%D7%93%D7%A7",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/המראה/",
+      "destination": "/milon/w/%D7%94%D7%9E%D7%A8%D7%90%D7%94/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/הרכבת/",
+      "destination": "/milon/song-5/#%D7%94%D7%A8%D7%9B%D7%91%D7%AA",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/הר/",
+      "destination": "/milon/w/%D7%94%D7%A8/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/השור/",
+      "destination": "/milon/song-4/#%D7%94%D7%A9%D7%95%D7%A8",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/השכן/",
+      "destination": "/milon/song-4/#%D7%94%D7%A9%D7%9B%D7%A0",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/התבהרות/",
+      "destination": "/milon/song-7/#%D7%94%D7%AA%D7%91%D7%94%D7%A8%D7%95%D7%AA",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/התכוונות/",
+      "destination": "/milon/song-8/#%D7%94%D7%AA%D7%9B%D7%95%D7%95%D7%A0%D7%95%D7%AA",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/התקווה 6 Live/",
+      "destination": "/milon/e/%D7%94%D7%AA%D7%A7%D7%95%D7%95%D7%94%202.0/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/התקווה 6/",
+      "destination": "/milon/e/%D7%94%D7%AA%D7%A7%D7%95%D7%95%D7%94%202.0/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/וביניהם/",
+      "destination": "/milon/song-7/#%D7%95%D7%91%D7%99%D7%A0%D7%99%D7%94%D7%9E",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/וימרית/",
+      "destination": "/milon/common-6/#%D7%95%D7%99%D7%9E%D7%A8%D7%99%D7%AA",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/ויתרתי/",
+      "destination": "/milon/artist-6/#%D7%95%D7%99%D7%AA%D7%A8%D7%AA%D7%99",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/ורשה/",
+      "destination": "/milon/world_city-4/#%D7%95%D7%A8%D7%A9%D7%94",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/זאבים/",
+      "destination": "/milon/song-5/#%D7%96%D7%90%D7%91%D7%99%D7%9E",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/זבוב/",
+      "destination": "/milon/w/%D7%96%D7%91%D7%95%D7%91/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/זבל/",
+      "destination": "/milon/w/%D7%96%D7%91%D7%9C/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/זהות/",
+      "destination": "/milon/w/%D7%96%D7%94%D7%95%D7%AA/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/זוז/",
+      "destination": "/milon/song-3/#%D7%96%D7%95%D7%96",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/זום/",
+      "destination": "/milon/song-3/#%D7%96%D7%95%D7%9E",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/זיכרונות/",
+      "destination": "/milon/song-8/#%D7%96%D7%99%D7%9B%D7%A8%D7%95%D7%A0%D7%95%D7%AA",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/זינוק/",
+      "destination": "/milon/song-5/#%D7%96%D7%99%D7%A0%D7%95%D7%A7",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/זיקוקים/",
+      "destination": "/milon/w/%D7%96%D7%99%D7%A7%D7%95%D7%A7%D7%99%D7%9D/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/זכוכיות/",
+      "destination": "/milon/song-7/#%D7%96%D7%9B%D7%95%D7%9B%D7%99%D7%95%D7%AA",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/זכות/",
+      "destination": "/milon/w/%D7%96%D7%9B%D7%95%D7%AA/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/זכריה/",
+      "destination": "/milon/w/%D7%96%D7%9B%D7%A8%D7%99%D7%94/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/זמר נודד/",
+      "destination": "/milon/song-7/#%D7%96%D7%9E%D7%A8%D7%A0%D7%95%D7%93%D7%93",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/זמרת/",
+      "destination": "/milon/w/%D7%96%D7%9E%D7%A8%D7%AA/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/זקנים/",
+      "destination": "/milon/song-5/#%D7%96%D7%A7%D7%A0%D7%99%D7%9E",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/זרזיר/",
+      "destination": "/milon/w/%D7%96%D7%A8%D7%96%D7%99%D7%A8/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/חגיגה/",
+      "destination": "/milon/w/%D7%97%D7%92%D7%99%D7%92%D7%94/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/חול/",
+      "destination": "/milon/w/%D7%97%D7%95%D7%9C/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/חוף/",
+      "destination": "/milon/w/%D7%97%D7%95%D7%A3/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/חופ/",
+      "destination": "/milon/w/%D7%97%D7%95%D7%A3/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/חוק/",
+      "destination": "/milon/w/%D7%97%D7%95%D7%A7/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/חזון/",
+      "destination": "/milon/w/%D7%97%D7%96%D7%95%D7%9F/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/חטא/",
+      "destination": "/milon/w/%D7%97%D7%98%D7%90/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/חיפה 87'/",
+      "destination": "/milon/song-4/#%D7%97%D7%99%D7%A4%D7%94",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/חיפה 87/",
+      "destination": "/milon/song-4/#%D7%97%D7%99%D7%A4%D7%94",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/חיפה/",
+      "destination": "/milon/song-4/#%D7%97%D7%99%D7%A4%D7%94",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/חלולים/",
+      "destination": "/milon/song-6/#%D7%97%D7%9C%D7%95%D7%9C%D7%99%D7%9E",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/חלום/",
+      "destination": "/milon/w/%D7%97%D7%9C%D7%95%D7%9D/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/חלומות 34/",
+      "destination": "/milon/e/%D7%97%D7%9C%D7%95%D7%9E%D7%95%D7%AA/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/חלוצ/",
+      "destination": "/milon/w/%D7%97%D7%9C%D7%95%D7%A5/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/חללית/",
+      "destination": "/milon/w/%D7%97%D7%9C%D7%9C%D7%99%D7%AA/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/חמ\"ד/",
+      "destination": "/milon/w/%D7%97%D7%9E%D7%93/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/חמדתי/",
+      "destination": "/milon/song-5/#%D7%97%D7%9E%D7%93%D7%AA%D7%99",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/חמצן/",
+      "destination": "/milon/w/%D7%97%D7%9E%D7%A6%D7%9F/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/חמש/",
+      "destination": "/milon/song-3/#%D7%97%D7%9E%D7%A9",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/חנקנ/",
+      "destination": "/milon/w/%D7%97%D7%A0%D7%A7%D7%9F/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/חסינאש/",
+      "destination": "/milon/common-6/#%D7%97%D7%A1%D7%99%D7%A0%D7%90%D7%A9",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/חצי/",
+      "destination": "/milon/w/%D7%97%D7%A6%D7%99/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/חתול/",
+      "destination": "/milon/w/%D7%97%D7%AA%D7%95%D7%9C/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/חתונה/",
+      "destination": "/milon/w/%D7%97%D7%AA%D7%95%D7%A0%D7%94/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/טאבה/",
+      "destination": "/milon/song-4/#%D7%98%D7%90%D7%91%D7%94",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/טבע/",
+      "destination": "/milon/w/%D7%98%D7%91%D7%A2/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/טברנה/",
+      "destination": "/milon/song-5/#%D7%98%D7%91%D7%A8%D7%A0%D7%94",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/טוהר/",
+      "destination": "/milon/song-4/#%D7%98%D7%95%D7%94%D7%A8",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/טורינו/",
+      "destination": "/milon/w/%D7%98%D7%95%D7%A8%D7%99%D7%A0%D7%95/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/טיפשה/",
+      "destination": "/milon/song-5/#%D7%98%D7%99%D7%A4%D7%A9%D7%94",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/טירה/",
+      "destination": "/milon/w/%D7%98%D7%99%D7%A8%D7%94/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/טלאי/",
+      "destination": "/milon/w/%D7%98%D7%9C%D7%90%D7%99/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/טמבל/",
+      "destination": "/milon/song-4/#%D7%98%D7%9E%D7%91%D7%9C",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/טמנ/",
+      "destination": "/milon/w/%D7%98%D7%9E%D7%9F/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/טניס/",
+      "destination": "/milon/song-4/#%D7%98%D7%A0%D7%99%D7%A1",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/טעמ/",
+      "destination": "/milon/w/%D7%98%D7%A2%D7%9D/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/טרמינל 3/",
+      "destination": "/milon/song-6/#%D7%98%D7%A8%D7%9E%D7%99%D7%A0%D7%9C",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/ידמרדכי/",
+      "destination": "/milon/e/%D7%99%D7%93%20%D7%9E%D7%A8%D7%93%D7%9B%D7%99/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/ידע/",
+      "destination": "/milon/w/%D7%99%D7%93%D7%A2/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/יהורם/",
+      "destination": "/milon/w/%D7%99%D7%94%D7%95%D7%A8%D7%9D/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/יהיה בסדר/",
+      "destination": "/milon/song-8/#%D7%99%D7%94%D7%99%D7%94%D7%91%D7%A1%D7%93%D7%A8",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/יואש/",
+      "destination": "/milon/w/%D7%99%D7%95%D7%90%D7%A9/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/יובל דיין Live/",
+      "destination": "/milon/e/%D7%99%D7%95%D7%91%D7%9C%20%D7%93%D7%99%D7%99%D7%9F/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/יוגורט/",
+      "destination": "/milon/w/%D7%99%D7%95%D7%92%D7%95%D7%A8%D7%98/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/יום יום/",
+      "destination": "/milon/song-6/#%D7%99%D7%95%D7%9E%D7%99%D7%95%D7%9E",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/יוסטונ/",
+      "destination": "/milon/world_city-6/#%D7%99%D7%95%D7%A1%D7%98%D7%95%D7%A0",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/יוסף כהן-צדק/",
+      "destination": "/milon/e/%D7%99%D7%95%D7%A1%D7%A3%20%D7%9B%D7%94%D7%9F%20%D7%A6%D7%93%D7%A7/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/יותר מדי/",
+      "destination": "/milon/song-7/#%D7%99%D7%95%D7%AA%D7%A8%D7%9E%D7%93%D7%99",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/יחפה/",
+      "destination": "/milon/song-4/#%D7%99%D7%97%D7%A4%D7%94",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/יחצ/",
+      "destination": "/milon/common-3/#%D7%99%D7%97%D7%A6",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/ילדי 67/",
+      "destination": "/milon/e/%D7%99%D7%9C%D7%93%D7%99/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/ילדים/",
+      "destination": "/milon/w/%D7%99%D7%9C%D7%93%D7%99%D7%9D/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/ימות המשיח/",
+      "destination": "/milon/song-9/#%D7%99%D7%9E%D7%95%D7%AA%D7%94%D7%9E%D7%A9%D7%99%D7%97",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/ימי התום/",
+      "destination": "/milon/song-7/#%D7%99%D7%9E%D7%99%D7%94%D7%AA%D7%95%D7%9E",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/יעל/",
+      "destination": "/milon/w/%D7%99%D7%A2%D7%9C/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/יצא/",
+      "destination": "/milon/w/%D7%99%D7%A6%D7%90/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/יצרים/",
+      "destination": "/milon/song-5/#%D7%99%D7%A6%D7%A8%D7%99%D7%9E",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/יקבברונ/",
+      "destination": "/milon/common-7/#%D7%99%D7%A7%D7%91%D7%91%D7%A8%D7%95%D7%A0",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/יקומ/",
+      "destination": "/milon/e/%D7%99%D7%A7%D7%95%D7%9D/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/יקרה/",
+      "destination": "/milon/song-4/#%D7%99%D7%A7%D7%A8%D7%94",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/ירוקות/",
+      "destination": "/milon/song-6/#%D7%99%D7%A8%D7%95%D7%A7%D7%95%D7%AA",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/יש גבול/",
+      "destination": "/milon/song-6/#%D7%99%D7%A9%D7%92%D7%91%D7%95%D7%9C",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/יש לה/",
+      "destination": "/milon/song-4/#%D7%99%D7%A9%D7%9C%D7%94",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/ישראלית/",
+      "destination": "/milon/song-7/#%D7%99%D7%A9%D7%A8%D7%90%D7%9C%D7%99%D7%AA",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/ישר/",
+      "destination": "/milon/w/%D7%99%D7%A9%D7%A8/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/יתרו/",
+      "destination": "/milon/w/%D7%99%D7%AA%D7%A8%D7%95/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/יתר/",
+      "destination": "/milon/w/%D7%99%D7%AA%D7%A8/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/כבול/",
+      "destination": "/milon/song-4/#%D7%9B%D7%91%D7%95%D7%9C",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/כביש 234/",
+      "destination": "/milon/w/%D7%9B%D7%91%D7%99%D7%A9/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/כביש 317/",
+      "destination": "/milon/w/%D7%9B%D7%91%D7%99%D7%A9/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/כביש 375/",
+      "destination": "/milon/w/%D7%9B%D7%91%D7%99%D7%A9/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/כביש 38/",
+      "destination": "/milon/w/%D7%9B%D7%91%D7%99%D7%A9/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/כביש 3835/",
+      "destination": "/milon/w/%D7%9B%D7%91%D7%99%D7%A9/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/כביש 386/",
+      "destination": "/milon/w/%D7%9B%D7%91%D7%99%D7%A9/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/כביש 3866/",
+      "destination": "/milon/w/%D7%9B%D7%91%D7%99%D7%A9/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/כביש 39/",
+      "destination": "/milon/w/%D7%9B%D7%91%D7%99%D7%A9/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/כביש 395/",
+      "destination": "/milon/w/%D7%9B%D7%91%D7%99%D7%A9/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/כביש 396/",
+      "destination": "/milon/w/%D7%9B%D7%91%D7%99%D7%A9/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/כביש 4/",
+      "destination": "/milon/w/%D7%9B%D7%91%D7%99%D7%A9/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/כביש 40/",
+      "destination": "/milon/w/%D7%9B%D7%91%D7%99%D7%A9/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/כביש 425/",
+      "destination": "/milon/w/%D7%9B%D7%91%D7%99%D7%A9/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/כביש 483/",
+      "destination": "/milon/w/%D7%9B%D7%91%D7%99%D7%A9/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/כביש 555/",
+      "destination": "/milon/w/%D7%9B%D7%91%D7%99%D7%A9/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/כביש 574/",
+      "destination": "/milon/w/%D7%9B%D7%91%D7%99%D7%A9/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/כביש 581/",
+      "destination": "/milon/w/%D7%9B%D7%91%D7%99%D7%A9/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/כביש 6010/",
+      "destination": "/milon/w/%D7%9B%D7%91%D7%99%D7%A9/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/כביש 611/",
+      "destination": "/milon/w/%D7%9B%D7%91%D7%99%D7%A9/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/כביש 651/",
+      "destination": "/milon/w/%D7%9B%D7%91%D7%99%D7%A9/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/כביש 653/",
+      "destination": "/milon/w/%D7%9B%D7%91%D7%99%D7%A9/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/כביש 66/",
+      "destination": "/milon/w/%D7%9B%D7%91%D7%99%D7%A9/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/כביש 667/",
+      "destination": "/milon/w/%D7%9B%D7%91%D7%99%D7%A9/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/כביש 675/",
+      "destination": "/milon/w/%D7%9B%D7%91%D7%99%D7%A9/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/כביש 70/",
+      "destination": "/milon/w/%D7%9B%D7%91%D7%99%D7%A9/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/כביש 71/",
+      "destination": "/milon/w/%D7%9B%D7%91%D7%99%D7%A9/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/כביש 717/",
+      "destination": "/milon/w/%D7%9B%D7%91%D7%99%D7%A9/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/כביש 722/",
+      "destination": "/milon/w/%D7%9B%D7%91%D7%99%D7%A9/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/כביש 75/",
+      "destination": "/milon/w/%D7%9B%D7%91%D7%99%D7%A9/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/כביש 752/",
+      "destination": "/milon/w/%D7%9B%D7%91%D7%99%D7%A9/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/כביש 754/",
+      "destination": "/milon/w/%D7%9B%D7%91%D7%99%D7%A9/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/כביש 767/",
+      "destination": "/milon/w/%D7%9B%D7%91%D7%99%D7%A9/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/כביש 772/",
+      "destination": "/milon/w/%D7%9B%D7%91%D7%99%D7%A9/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/כביש 780/",
+      "destination": "/milon/w/%D7%9B%D7%91%D7%99%D7%A9/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/כביש 781/",
+      "destination": "/milon/w/%D7%9B%D7%91%D7%99%D7%A9/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/כביש 784/",
+      "destination": "/milon/w/%D7%9B%D7%91%D7%99%D7%A9/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/כביש 785/",
+      "destination": "/milon/w/%D7%9B%D7%91%D7%99%D7%A9/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/כביש 79/",
+      "destination": "/milon/w/%D7%9B%D7%91%D7%99%D7%A9/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/כביש 804/",
+      "destination": "/milon/w/%D7%9B%D7%91%D7%99%D7%A9/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/כביש 805/",
+      "destination": "/milon/w/%D7%9B%D7%91%D7%99%D7%A9/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/כביש 85/",
+      "destination": "/milon/w/%D7%9B%D7%91%D7%99%D7%A9/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/כביש 854/",
+      "destination": "/milon/w/%D7%9B%D7%91%D7%99%D7%A9/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/כבשנ/",
+      "destination": "/milon/w/%D7%9B%D7%91%D7%A9%D7%9F/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/כדמ/",
+      "destination": "/milon/common-3/#%D7%9B%D7%93%D7%9E",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/כדרלעמר/",
+      "destination": "/milon/common-7/#%D7%9B%D7%93%D7%A8%D7%9C%D7%A2%D7%9E%D7%A8",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/כועסת/",
+      "destination": "/milon/song-5/#%D7%9B%D7%95%D7%A2%D7%A1%D7%AA",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/כחול/",
+      "destination": "/milon/w/%D7%9B%D7%97%D7%95%D7%9C/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/כחומהיומ/",
+      "destination": "/milon/common-8/#%D7%9B%D7%97%D7%95%D7%9E%D7%94%D7%99%D7%95%D7%9E",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/כיף/",
+      "destination": "/milon/song-3/#%D7%9B%D7%99%D7%A4",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/כלא/",
+      "destination": "/milon/w/%D7%9B%D7%9C%D7%90/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/כלה/",
+      "destination": "/milon/w/%D7%9B%D7%9C%D7%94/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/כרוב/",
+      "destination": "/milon/w/%D7%9B%D7%A8%D7%95%D7%91/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/לא בא לה/",
+      "destination": "/milon/song-6/#%D7%9C%D7%90%D7%91%D7%90%D7%9C%D7%94",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/לא עוצרת II/",
+      "destination": "/milon/e/%D7%9C%D7%90%20%D7%A2%D7%95%D7%A6%D7%A8%D7%AA/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/לאבאשמתו/",
+      "destination": "/milon/common-8/#%D7%9C%D7%90%D7%91%D7%90%D7%A9%D7%9E%D7%AA%D7%95",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/לאהוב/",
+      "destination": "/milon/song-5/#%D7%9C%D7%90%D7%94%D7%95%D7%91",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/לאט/",
+      "destination": "/milon/w/%D7%9C%D7%90%D7%98/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/לאסוף/",
+      "destination": "/milon/song-5/#%D7%9C%D7%90%D7%A1%D7%95%D7%A4",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/לבנה/",
+      "destination": "/milon/w/%D7%9C%D7%91%D7%A0%D7%94/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/לבנת בן חמו/",
+      "destination": "/milon/e/%D7%9C%D7%91%D7%A0%D7%AA%20%D7%91%D7%9F-%D7%97%D7%9E%D7%95/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/לבנ/",
+      "destination": "/milon/w/%D7%9C%D7%91%D7%9F/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/לגמ/",
+      "destination": "/milon/w/%D7%9C%D7%92%D7%9D/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/להר/",
+      "destination": "/milon/common-3/#%D7%9C%D7%94%D7%A8",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/לול/",
+      "destination": "/milon/w/%D7%9C%D7%95%D7%9C/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/לחיים/",
+      "destination": "/milon/song-5/#%D7%9C%D7%97%D7%99%D7%99%D7%9E",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/לחי/",
+      "destination": "/milon/w/%D7%9C%D7%97%D7%99/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/לחמ/",
+      "destination": "/milon/w/%D7%9C%D7%97%D7%9D/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/ליאת/",
+      "destination": "/milon/song-4/#%D7%9C%D7%99%D7%90%D7%AA",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/ליבי/",
+      "destination": "/milon/song-4/#%D7%9C%D7%99%D7%91%D7%99",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/ליברפול/",
+      "destination": "/milon/world_city-7/#%D7%9C%D7%99%D7%91%D7%A8%D7%A4%D7%95%D7%9C",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/לימבו/",
+      "destination": "/milon/song-5/#%D7%9C%D7%99%D7%9E%D7%91%D7%95",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/לימונדה/",
+      "destination": "/milon/song-7/#%D7%9C%D7%99%D7%9E%D7%95%D7%A0%D7%93%D7%94",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/ליסבונ/",
+      "destination": "/milon/world_city-6/#%D7%9C%D7%99%D7%A1%D7%91%D7%95%D7%A0",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/ליקוטים/",
+      "destination": "/milon/song-7/#%D7%9C%D7%99%D7%A7%D7%95%D7%98%D7%99%D7%9E",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/לירז/",
+      "destination": "/milon/song-4/#%D7%9C%D7%99%D7%A8%D7%96",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/לעג/",
+      "destination": "/milon/w/%D7%9C%D7%A2%D7%92/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/לקח/",
+      "destination": "/milon/w/%D7%9C%D7%A7%D7%97/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/לקס/",
+      "destination": "/milon/common-3/#%D7%9C%D7%A7%D7%A1",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/לשונ/",
+      "destination": "/milon/w/%D7%9C%D7%A9%D7%95%D7%9F/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/לשמוע את הלב/",
+      "destination": "/milon/song-10/#%D7%9C%D7%A9%D7%9E%D7%95%D7%A2%D7%90%D7%AA%D7%94%D7%9C%D7%91",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/לשמ/",
+      "destination": "/milon/w/%D7%9C%D7%A9%D7%9D/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/מאיה סימנטוב/",
+      "destination": "/milon/e/%D7%9E%D7%90%D7%99%D7%94%20%D7%A1%D7%99%D7%9E%D7%9F%20%D7%98%D7%95%D7%91/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/מארב/",
+      "destination": "/milon/w/%D7%9E%D7%90%D7%A8%D7%91/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/מג'דל/",
+      "destination": "/milon/w/%D7%9E%D7%92%D7%93%D7%9C/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/מג'ד/",
+      "destination": "/milon/e/%D7%9E%D7%92%22%D7%93/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/מגבעת/",
+      "destination": "/milon/w/%D7%9E%D7%92%D7%91%D7%A2%D7%AA/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/מגדלים/",
+      "destination": "/milon/w/%D7%9E%D7%92%D7%93%D7%9C%D7%99%D7%9D/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/מגד/",
+      "destination": "/milon/e/%D7%9E%D7%92%22%D7%93/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/מגנ/",
+      "destination": "/milon/e/%D7%9E%D7%92%D7%9F/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/מגשימימ/",
+      "destination": "/milon/e/%D7%9E%D7%92%D7%A9%D7%99%D7%9E%D7%99%D7%9D/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/מדפים/",
+      "destination": "/milon/w/%D7%9E%D7%93%D7%A4%D7%99%D7%9D/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/מדפ/",
+      "destination": "/milon/w/%D7%9E%D7%93%D7%A3/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/מהגרים/",
+      "destination": "/milon/song-6/#%D7%9E%D7%94%D7%92%D7%A8%D7%99%D7%9E",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/מהפך/",
+      "destination": "/milon/w/%D7%9E%D7%94%D7%A4%D7%9A/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/מוזיקה/",
+      "destination": "/milon/w/%D7%9E%D7%95%D7%96%D7%99%D7%A7%D7%94/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/מוזר/",
+      "destination": "/milon/song-4/#%D7%9E%D7%95%D7%96%D7%A8",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/מוסקבה/",
+      "destination": "/milon/song-6/#%D7%9E%D7%95%D7%A1%D7%A7%D7%91%D7%94",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/מוסקט/",
+      "destination": "/milon/song-5/#%D7%9E%D7%95%D7%A1%D7%A7%D7%98",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/מועקה/",
+      "destination": "/milon/song-5/#%D7%9E%D7%95%D7%A2%D7%A7%D7%94",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/מור/",
+      "destination": "/milon/w/%D7%9E%D7%95%D7%A8/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/מחולשדימ/",
+      "destination": "/milon/common-8/#%D7%9E%D7%97%D7%95%D7%9C%D7%A9%D7%93%D7%99%D7%9E",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/מחומצנת/",
+      "destination": "/milon/song-7/#%D7%9E%D7%97%D7%95%D7%9E%D7%A6%D7%A0%D7%AA",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/מחט/",
+      "destination": "/milon/e/%D7%9E%D7%97%22%D7%98/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/מחיר/",
+      "destination": "/milon/w/%D7%9E%D7%97%D7%99%D7%A8/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/מטאורים/",
+      "destination": "/milon/song-7/#%D7%9E%D7%98%D7%90%D7%95%D7%A8%D7%99%D7%9E",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/מימ/",
+      "destination": "/milon/w/%D7%9E%D7%99%D7%9D/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/מיתר/",
+      "destination": "/milon/w/%D7%9E%D7%99%D7%AA%D7%A8/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/מלך/",
+      "destination": "/milon/w/%D7%9E%D7%9C%D7%9A/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/מלנכולי/",
+      "destination": "/milon/song-7/#%D7%9E%D7%9C%D7%A0%D7%9B%D7%95%D7%9C%D7%99",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/ממותה/",
+      "destination": "/milon/song-5/#%D7%9E%D7%9E%D7%95%D7%AA%D7%94",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/מנגינה/",
+      "destination": "/milon/song-6/#%D7%9E%D7%A0%D7%92%D7%99%D7%A0%D7%94",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/מנהל/",
+      "destination": "/milon/w/%D7%9E%D7%A0%D7%94%D7%9C/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/מסגרות/",
+      "destination": "/milon/song-6/#%D7%9E%D7%A1%D7%92%D7%A8%D7%95%D7%AA",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/מסכ/",
+      "destination": "/milon/w/%D7%9E%D7%A1%D7%9A/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/מסלול/",
+      "destination": "/milon/w/%D7%9E%D7%A1%D7%9C%D7%95%D7%9C/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/מפה לשם/",
+      "destination": "/milon/song-6/#%D7%9E%D7%A4%D7%94%D7%9C%D7%A9%D7%9E",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/מפרץ/",
+      "destination": "/milon/w/%D7%9E%D7%A4%D7%A8%D7%A5/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/מקדשים/",
+      "destination": "/milon/song-6/#%D7%9E%D7%A7%D7%93%D7%A9%D7%99%D7%9E",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/מקס גת-מור/",
+      "destination": "/milon/e/%D7%9E%D7%A7%D7%A1%20%D7%92%D7%AA%20%D7%9E%D7%95%D7%A8/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/מרג/",
+      "destination": "/milon/common-3/#%D7%9E%D7%A8%D7%92",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/מרחוק/",
+      "destination": "/milon/song-5/#%D7%9E%D7%A8%D7%97%D7%95%D7%A7",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/מריק/",
+      "destination": "/milon/song-4/#%D7%9E%D7%A8%D7%99%D7%A7",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/מרקש/",
+      "destination": "/milon/world_city-4/#%D7%9E%D7%A8%D7%A7%D7%A9",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/מרק/",
+      "destination": "/milon/w/%D7%9E%D7%A8%D7%A7/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/משבר/",
+      "destination": "/milon/w/%D7%9E%D7%A9%D7%91%D7%A8/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/משהשפריר/",
+      "destination": "/milon/e/%D7%9E%D7%A9%D7%94%20%D7%A9%D7%A4%D7%A8%D7%99%D7%A8/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/משקלכבד/",
+      "destination": "/milon/common-7/#%D7%9E%D7%A9%D7%A7%D7%9C%D7%9B%D7%91%D7%93",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/משק/",
+      "destination": "/milon/e/%D7%9E%D7%A9%22%D7%A7/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/נבגד/",
+      "destination": "/milon/song-4/#%D7%A0%D7%91%D7%92%D7%93",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/נבל/",
+      "destination": "/milon/w/%D7%A0%D7%91%D7%9C/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/נגמש/",
+      "destination": "/milon/e/%D7%A0%D7%92%D7%9E%22%D7%A9/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/נודדת/",
+      "destination": "/milon/song-5/#%D7%A0%D7%95%D7%93%D7%93%D7%AA",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/נוהאור/",
+      "destination": "/milon/common-6/#%D7%A0%D7%95%D7%94%D7%90%D7%95%D7%A8",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/נווה/",
+      "destination": "/milon/w/%D7%A0%D7%95%D7%95%D7%94/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/נועדלכנ/",
+      "destination": "/milon/common-7/#%D7%A0%D7%95%D7%A2%D7%93%D7%9C%D7%9B%D7%A0",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/נופ/",
+      "destination": "/milon/w/%D7%A0%D7%95%D7%A3/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/נחלה/",
+      "destination": "/milon/w/%D7%A0%D7%97%D7%9C%D7%94/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/נחל/",
+      "destination": "/milon/w/%D7%A0%D7%97%D7%9C/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/ניראליהו/",
+      "destination": "/milon/e/%D7%A0%D7%99%D7%A8%20%D7%90%D7%9C%D7%99%D7%94%D7%95/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/נכון/",
+      "destination": "/milon/song-4/#%D7%A0%D7%9B%D7%95%D7%A0",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/נמרים/",
+      "destination": "/milon/song-5/#%D7%A0%D7%9E%D7%A8%D7%99%D7%9E",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/נעל/",
+      "destination": "/milon/w/%D7%A0%D7%A2%D7%9C/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/נערתי/",
+      "destination": "/milon/song-5/#%D7%A0%D7%A2%D7%A8%D7%AA%D7%99",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/נפל/",
+      "destination": "/milon/w/%D7%A0%D7%A4%D7%9C/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/נקרופיל/",
+      "destination": "/milon/song-7/#%D7%A0%D7%A7%D7%A8%D7%95%D7%A4%D7%99%D7%9C",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/נשמה/",
+      "destination": "/milon/song-4/#%D7%A0%D7%A9%D7%9E%D7%94",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/נשפ/",
+      "destination": "/milon/w/%D7%A0%D7%A9%D7%A3/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/נשק/",
+      "destination": "/milon/w/%D7%A0%D7%A9%D7%A7/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/סבא/",
+      "destination": "/milon/w/%D7%A1%D7%91%D7%90/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/סגנ/",
+      "destination": "/milon/e/%D7%A1%D7%92%D7%9F/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/סדקים/",
+      "destination": "/milon/song-5/#%D7%A1%D7%93%D7%A7%D7%99%D7%9E",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/סוס/",
+      "destination": "/milon/w/%D7%A1%D7%95%D7%A1/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/סיגליות/",
+      "destination": "/milon/song-7/#%D7%A1%D7%99%D7%92%D7%9C%D7%99%D7%95%D7%AA",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/סימפוזיון/",
+      "destination": "/milon/artist-9/#%D7%A1%D7%99%D7%9E%D7%A4%D7%95%D7%96%D7%99%D7%95%D7%A0",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/סניור/",
+      "destination": "/milon/song-5/#%D7%A1%D7%A0%D7%99%D7%95%D7%A8",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/סערה/",
+      "destination": "/milon/song-4/#%D7%A1%D7%A2%D7%A8%D7%94",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/סע/",
+      "destination": "/milon/song-2/#%D7%A1%D7%A2",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/ספה/",
+      "destination": "/milon/w/%D7%A1%D7%A4%D7%94/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/ספסל/",
+      "destination": "/milon/w/%D7%A1%D7%A4%D7%A1%D7%9C/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/עדה/",
+      "destination": "/milon/w/%D7%A2%D7%93%D7%94/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/עדות/",
+      "destination": "/milon/w/%D7%A2%D7%93%D7%95%D7%AA/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/עדיף/",
+      "destination": "/milon/song-4/#%D7%A2%D7%93%D7%99%D7%A4",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/עוד/",
+      "destination": "/milon/w/%D7%A2%D7%95%D7%93/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/עזבת/",
+      "destination": "/milon/song-4/#%D7%A2%D7%96%D7%91%D7%AA",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/עידית חכמוביץ'/",
+      "destination": "/milon/e/%D7%A2%D7%99%D7%93%D7%99%D7%AA%20%D7%97%D7%9B%D7%9E%D7%95%D7%91%D7%99%D7%A5/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/עידן/",
+      "destination": "/milon/w/%D7%A2%D7%99%D7%93%D7%9F/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/עידנ/",
+      "destination": "/milon/w/%D7%A2%D7%99%D7%93%D7%9F/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/עין גדי/",
+      "destination": "/milon/kibbutz-6/#%D7%A2%D7%99%D7%A0%D7%92%D7%93%D7%99",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/עיר מקלט/",
+      "destination": "/milon/song-7/#%D7%A2%D7%99%D7%A8%D7%9E%D7%A7%D7%9C%D7%98",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/עירום/",
+      "destination": "/milon/song-5/#%D7%A2%D7%99%D7%A8%D7%95%D7%9E",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/עכבר/",
+      "destination": "/milon/w/%D7%A2%D7%9B%D7%91%D7%A8/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/עלה קרח/",
+      "destination": "/milon/song-6/#%D7%A2%D7%9C%D7%94%D7%A7%D7%A8%D7%97",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/עלוב/",
+      "destination": "/milon/w/%D7%A2%D7%9C%D7%95%D7%91/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/עלעונשה/",
+      "destination": "/milon/common-7/#%D7%A2%D7%9C%D7%A2%D7%95%D7%A0%D7%A9%D7%94",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/ענבר/",
+      "destination": "/milon/w/%D7%A2%D7%A0%D7%91%D7%A8/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/עניינים/",
+      "destination": "/milon/song-7/#%D7%A2%D7%A0%D7%99%D7%99%D7%A0%D7%99%D7%9E",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/עננה/",
+      "destination": "/milon/song-4/#%D7%A2%D7%A0%D7%A0%D7%94",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/עצ/",
+      "destination": "/milon/w/%D7%A2%D7%A5/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/ערב/",
+      "destination": "/milon/w/%D7%A2%D7%A8%D7%91/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/ערמונ/",
+      "destination": "/milon/w/%D7%A2%D7%A8%D7%9E%D7%95%D7%9F/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/ערפד/",
+      "destination": "/milon/song-4/#%D7%A2%D7%A8%D7%A4%D7%93",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/פגז/",
+      "destination": "/milon/w/%D7%A4%D7%92%D7%96/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/פוהק/",
+      "destination": "/milon/common-4/#%D7%A4%D7%95%D7%94%D7%A7",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/פוסטר/",
+      "destination": "/milon/w/%D7%A4%D7%95%D7%A1%D7%98%D7%A8/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/פטיש/",
+      "destination": "/milon/w/%D7%A4%D7%98%D7%99%D7%A9/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/פירוש/",
+      "destination": "/milon/w/%D7%A4%D7%99%D7%A8%D7%95%D7%A9/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/פירנצה/",
+      "destination": "/milon/w/%D7%A4%D7%99%D7%A8%D7%A0%D7%A6%D7%94/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/פלנקטון/",
+      "destination": "/milon/song-7/#%D7%A4%D7%9C%D7%A0%D7%A7%D7%98%D7%95%D7%A0",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/פנימ/",
+      "destination": "/milon/w/%D7%A4%D7%A0%D7%99%D7%9D/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/פנס/",
+      "destination": "/milon/w/%D7%A4%D7%A0%D7%A1/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/פרידה/",
+      "destination": "/milon/song-5/#%D7%A4%D7%A8%D7%99%D7%93%D7%94",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/פרמיירה/",
+      "destination": "/milon/artist-7/#%D7%A4%D7%A8%D7%9E%D7%99%D7%99%D7%A8%D7%94",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/פרפרים/",
+      "destination": "/milon/w/%D7%A4%D7%A8%D7%A4%D7%A8%D7%99%D7%9D/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/פת/",
+      "destination": "/milon/w/%D7%A4%D7%AA/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/צביעותלשמה/",
+      "destination": "/milon/common-10/#%D7%A6%D7%91%D7%99%D7%A2%D7%95%D7%AA%D7%9C%D7%A9%D7%9E%D7%94",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/צבר/",
+      "destination": "/milon/w/%D7%A6%D7%91%D7%A8/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/צדף/",
+      "destination": "/milon/w/%D7%A6%D7%93%D7%A3/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/צורה/",
+      "destination": "/milon/song-4/#%D7%A6%D7%95%D7%A8%D7%94",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/ציונ/",
+      "destination": "/milon/w/%D7%A6%D7%99%D7%95%D7%9F/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/ציריכ/",
+      "destination": "/milon/world_city-5/#%D7%A6%D7%99%D7%A8%D7%99%D7%9B",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/צלמ/",
+      "destination": "/milon/w/%D7%A6%D7%9C%D7%9D/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/צמרמורת/",
+      "destination": "/milon/song-7/#%D7%A6%D7%9E%D7%A8%D7%9E%D7%95%D7%A8%D7%AA",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/צרנוביל/",
+      "destination": "/milon/common-7/#%D7%A6%D7%A8%D7%A0%D7%95%D7%91%D7%99%D7%9C",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/קבלנ/",
+      "destination": "/milon/w/%D7%A7%D7%91%D7%9C%D7%9F/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/קדרונ/",
+      "destination": "/milon/e/%D7%A7%D7%93%D7%A8%D7%95%D7%9F/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/קובלט/",
+      "destination": "/milon/w/%D7%A7%D7%95%D7%91%D7%9C%D7%98/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/קונגו/",
+      "destination": "/milon/w/%D7%A7%D7%95%D7%A0%D7%92%D7%95/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/קוצים/",
+      "destination": "/milon/song-5/#%D7%A7%D7%95%D7%A6%D7%99%D7%9E",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/קטנוע/",
+      "destination": "/milon/w/%D7%A7%D7%98%D7%A0%D7%95%D7%A2/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/קישוא/",
+      "destination": "/milon/w/%D7%A7%D7%99%D7%A9%D7%95%D7%90/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/קמח/",
+      "destination": "/milon/w/%D7%A7%D7%9E%D7%97/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/קצב/",
+      "destination": "/milon/w/%D7%A7%D7%A6%D7%91/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/קצינ/",
+      "destination": "/milon/w/%D7%A7%D7%A6%D7%99%D7%9F/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/קצר/",
+      "destination": "/milon/w/%D7%A7%D7%A6%D7%A8/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/קרש/",
+      "destination": "/milon/w/%D7%A7%D7%A8%D7%A9/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/קשת/",
+      "destination": "/milon/w/%D7%A7%D7%A9%D7%AA/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/ראש/",
+      "destination": "/milon/w/%D7%A8%D7%90%D7%A9/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/רבע/",
+      "destination": "/milon/w/%D7%A8%D7%91%D7%A2/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/רגבימ/",
+      "destination": "/milon/e/%D7%A8%D7%92%D7%91%D7%99%D7%9D/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/רגל/",
+      "destination": "/milon/w/%D7%A8%D7%92%D7%9C/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/רגע/",
+      "destination": "/milon/w/%D7%A8%D7%92%D7%A2/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/רובינא/",
+      "destination": "/milon/actor-6/#%D7%A8%D7%95%D7%91%D7%99%D7%A0%D7%90",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/רוח/",
+      "destination": "/milon/w/%D7%A8%D7%95%D7%97/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/רוכסנ/",
+      "destination": "/milon/w/%D7%A8%D7%95%D7%9B%D7%A1%D7%9F/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/רומאריו/",
+      "destination": "/milon/common-7/#%D7%A8%D7%95%D7%9E%D7%90%D7%A8%D7%99%D7%95",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/רוקע/",
+      "destination": "/milon/song-4/#%D7%A8%D7%95%D7%A7%D7%A2",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/רחמ/",
+      "destination": "/milon/w/%D7%A8%D7%97%D7%9D/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/רכס/",
+      "destination": "/milon/w/%D7%A8%D7%9B%D7%A1/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/רמאורנ/",
+      "destination": "/milon/e/%D7%A8%D7%9D%20%D7%90%D7%95%D7%A8%D7%9F/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/רמיורד/",
+      "destination": "/milon/e/%D7%A8%D7%9E%D7%99%20%D7%95%D7%A8%D7%93/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/רעל/",
+      "destination": "/milon/w/%D7%A8%D7%A2%D7%9C/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/רעש/",
+      "destination": "/milon/w/%D7%A8%D7%A2%D7%A9/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/רשתגימל/",
+      "destination": "/milon/common-7/#%D7%A8%D7%A9%D7%AA%D7%92%D7%99%D7%9E%D7%9C",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/שביל/",
+      "destination": "/milon/w/%D7%A9%D7%91%D7%99%D7%9C/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/שוכבת/",
+      "destination": "/milon/song-5/#%D7%A9%D7%95%D7%9B%D7%91%D7%AA",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/שוליתהקוסמ/",
+      "destination": "/milon/common-10/#%D7%A9%D7%95%D7%9C%D7%99%D7%AA%D7%94%D7%A7%D7%95%D7%A1%D7%9E",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/שוקי/",
+      "destination": "/milon/song-4/#%D7%A9%D7%95%D7%A7%D7%99",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/שוק/",
+      "destination": "/milon/w/%D7%A9%D7%95%D7%A7/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/שזיף/",
+      "destination": "/milon/w/%D7%A9%D7%96%D7%99%D7%A3/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/שחרפאר/",
+      "destination": "/milon/athlete-6/#%D7%A9%D7%97%D7%A8%D7%A4%D7%90%D7%A8",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/שחר/",
+      "destination": "/milon/w/%D7%A9%D7%97%D7%A8/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/שטר/",
+      "destination": "/milon/w/%D7%A9%D7%98%D7%A8/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/שיער/",
+      "destination": "/milon/w/%D7%A9%D7%99%D7%A2%D7%A8/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/שיר ש/",
+      "destination": "/milon/song-4/#%D7%A9%D7%99%D7%A8%D7%A9",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/שירון/",
+      "destination": "/milon/song-5/#%D7%A9%D7%99%D7%A8%D7%95%D7%A0",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/שירלי יובל-יאיר/",
+      "destination": "/milon/e/%D7%A9%D7%99%D7%A8%D7%9C%D7%99%20%D7%99%D7%95%D7%91%D7%9C%20%D7%99%D7%90%D7%99%D7%A8/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/שיתוק/",
+      "destination": "/milon/song-5/#%D7%A9%D7%99%D7%AA%D7%95%D7%A7",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/שלדג/",
+      "destination": "/milon/w/%D7%A9%D7%9C%D7%93%D7%92/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/שלושתנו/",
+      "destination": "/milon/song-7/#%D7%A9%D7%9C%D7%95%D7%A9%D7%AA%D7%A0%D7%95",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/שמט/",
+      "destination": "/milon/w/%D7%A9%D7%9E%D7%98/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/שמיים/",
+      "destination": "/milon/w/%D7%A9%D7%9E%D7%99%D7%99%D7%9D/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/שמ/",
+      "destination": "/milon/w/%D7%A9%D7%9D/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/שעלבימ/",
+      "destination": "/milon/e/%D7%A9%D7%A2%D7%9C%D7%91%D7%99%D7%9D/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/שקל/",
+      "destination": "/milon/w/%D7%A9%D7%A7%D7%9C/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/שקרים/",
+      "destination": "/milon/song-5/#%D7%A9%D7%A7%D7%A8%D7%99%D7%9E",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/שרכ/",
+      "destination": "/milon/w/%D7%A9%D7%A8%D7%9A/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/שרפרפ/",
+      "destination": "/milon/w/%D7%A9%D7%A8%D7%A4%D7%A8%D7%A3/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/שרשרת/",
+      "destination": "/milon/w/%D7%A9%D7%A8%D7%A9%D7%A8%D7%AA/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/ששת/",
+      "destination": "/milon/artist-3/#%D7%A9%D7%A9%D7%AA",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/תורנ/",
+      "destination": "/milon/w/%D7%AA%D7%95%D7%A8%D7%9F/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/תחיי/",
+      "destination": "/milon/song-4/#%D7%AA%D7%97%D7%99%D7%99",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/תמר/",
+      "destination": "/milon/w/%D7%AA%D7%9E%D7%A8/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/תרד/",
+      "destination": "/milon/w/%D7%AA%D7%A8%D7%93/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/תרמיל/",
+      "destination": "/milon/w/%D7%AA%D7%A8%D7%9E%D7%99%D7%9C/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/100 קילומטר/",
+      "destination": "/milon/song-7/#%D7%A7%D7%99%D7%9C%D7%95%D7%9E%D7%98%D7%A8",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/100% גבר/",
+      "destination": "/milon/w/%D7%92%D7%91%D7%A8/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/1978 בלילה/",
+      "destination": "/milon/e/12%20%D7%91%D7%9C%D7%99%D7%9C%D7%94/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/2 בלילה/",
+      "destination": "/milon/e/12%20%D7%91%D7%9C%D7%99%D7%9C%D7%94/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/2 דקות/",
+      "destination": "/milon/e/15%20%D7%93%D7%A7%D7%95%D7%AA/",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/5 חושים/",
+      "destination": "/milon/song-5/#%D7%97%D7%95%D7%A9%D7%99%D7%9E",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/God הביא/",
+      "destination": "/milon/song-4/#%D7%94%D7%91%D7%99%D7%90",
+      "permanent": true
+    },
+    {
+      "source": "/milon/e/Smallבמה/",
+      "destination": "/milon/w/%D7%91%D7%9E%D7%94/",
+      "permanent": true
     }
   ]
 }

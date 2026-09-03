@@ -1,0 +1,863 @@
+{
+ "_note": "Words that get a /milon/w/ page (app/build_words.py). A page is built only when a definition exists: the fillbank, a curated list, or \"d\" here. Fed by app/drain_missed.py.",
+ "אב": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "אבוד": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "אבוס": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "אביר": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "אבל": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "אבנט": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "אגן": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "אגרוף": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "אדיר": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "אוויר": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "אורות": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "אחד": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "אטום": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "אלבום": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "אלימות": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "אלמוג": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "אמבולנס": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "אמור": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "אסיף": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "אפור": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "ארגמן": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "אשלגן": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "באר": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "בגד": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "בגידה": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "בור": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "בניין": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "בננה": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "בסיס": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "בער": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "בצל": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "בקע": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "בקר": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "ברק": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "ברקת": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "בשר": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "גאות": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "גג": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "גולש": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "גוף": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "גורן": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "גיל": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "גלב": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "גלשן": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "גמד": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "גמל": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "געגוע": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "גפן": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "גרב": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "דבורה": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "דבש": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "דגל": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "דחף": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "דין": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "דישון": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "דלת": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "דמה": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "דמי": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "דמעה": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "דמעות": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "הוד": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "המראה": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "הר": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "זבוב": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "זבל": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "זהות": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "זיקוקים": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "זכות": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "זכריה": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "זמרת": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "זרזיר": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "חגיגה": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "חול": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "חוף": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "חוק": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "חזון": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "חטא": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "חלום": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "חלוץ": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "חללית": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "חמד": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "חמצן": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "חנקן": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "חצי": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "חתול": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "חתונה": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "טבע": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "טורינו": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "טירה": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "טלאי": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "טמן": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "טעם": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "ידע": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "יהורם": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "יואש": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "יוגורט": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "ילדים": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "יעל": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "יצא": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "ישר": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "יתר": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "יתרו": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "כביש": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "כבשן": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "כחול": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "כלא": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "כלה": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "כרוב": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "לאט": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "לבן": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "לבנה": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "לגם": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "לול": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "לחי": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "לחם": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "לעג": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "לקח": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "לשון": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "לשם": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "מארב": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "מגדל": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "מגבעת": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "מגדלים": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "מדף": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "מדפים": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "מהפך": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "מוזיקה": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "מור": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "מחיר": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "מים": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "מיתר": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "מלך": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "מנהל": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "מסך": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "מסלול": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "מפרץ": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "מרק": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "משבר": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "נבל": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "נווה": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "נוף": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "נחל": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "נחלה": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "נעל": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "נפל": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "נשף": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "נשק": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "סבא": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "סוס": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "ספה": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "ספסל": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "עדה": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "עדות": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "עוד": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "עידן": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "עכבר": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "עלוב": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "ענבר": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "עץ": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "ערב": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "ערמון": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "פגז": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "פוסטר": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "פטיש": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "פירוש": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "פירנצה": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "פנים": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "פנס": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "פרפרים": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "פת": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "צבר": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "צדף": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "ציון": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "צלם": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "קבלן": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "קובלט": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "קונגו": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "קטנוע": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "קישוא": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "קמח": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "קצב": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "קצין": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "קצר": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "קרש": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "קשת": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "ראש": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "רבע": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "רגל": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "רגע": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "רוח": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "רוכסן": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "רחם": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "רכס": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "רעל": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "רעש": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "שביל": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "שוק": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "שזיף": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "שחר": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "שטר": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "שיער": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "שלדג": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "שם": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "שמט": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "שמיים": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "שקל": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "שרך": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "שרפרף": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "שרשרת": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "תורן": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "תמר": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "תרד": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "תרמיל": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "גבר": {
+  "why": "dead-url",
+  "hits": 1
+ },
+ "במה": {
+  "why": "dead-url",
+  "hits": 1
+ }
+}

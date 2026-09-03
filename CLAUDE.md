@@ -156,6 +156,41 @@ the definition queue. Weekly:
 4. `python3 app/build_topics.py`, commit, merge to main (auto-deploys).
 5. If egress allows, `python3 app/drain_puzzle_requests.py --resolve`.
 
+## Dead URLs and pages in demand
+
+No published URL disappears silently. In August 2026 three cleanups removed
+1,474 entity pages Google had indexed, with no redirect and no 404 page, and
+one was still ranking three weeks later. The pieces, all on committed data:
+
+- `docs/404.html` (from `app/build_404.py`) is served for any missing path:
+  the site shell, the milon search prefilled with the last path segment, and
+  a report of the path to `/api/missed` (`docs/api/missed.js`, Blob-backed
+  counter; path only). Rebuild it after a shell change.
+- `solver/lex/redirects.json` records every removed URL and where it goes;
+  `app/build_redirects.py` writes it into `docs/vercel.json` (cap 2,048).
+  `solver/lex/tombstones.json` lists URLs removed on purpose, with a reason.
+- **`app/url_guard.py` is the gate**: it diffs the committed sitemap against
+  the working tree and fails if a URL left without a redirect or tombstone.
+  The rebuild workflows run it before committing; run it yourself before
+  committing any build that touches `docs/sitemap.xml` (`build_seo.py`
+  rewrites the whole file - run `build_defs.py`, `build_words.py` and
+  `build_topics.py` after it, then the guard).
+- Pages in demand: `/milon/w/<word>/` word pages (`app/build_words.py`) for
+  crossword answers people look for, listed in `solver/lex/words.json`. A page
+  is built only for a word we hold a DEFINITION for (fillbank, curated list,
+  or an override) - a word page without one is the thin page that got these
+  URLs removed. Weekly, after the Saturday mirror:
+  1. `git pull`, then `python3 app/drain_missed.py` (reads
+     `solver/lex/missed_snapshot.json`; `--gsc export.csv` takes a Search
+     Console export; `--from-git` re-seeds from pages deleted in history).
+     It adds words we can define to `words.json`, adds redirects for dead
+     URLs that have a target, and prints NEEDS-CURATION most-hit first.
+  2. Add a verified definition for the worthwhile NEEDS-CURATION words to
+     `solver/lex/fillbank.json` (content rules below) and rerun.
+  3. `python3 app/build_words.py && python3 app/build_redirects.py`, then
+     `python3 app/url_guard.py`, commit, merge to main.
+  4. If egress allows, `python3 app/drain_missed.py --resolve`.
+
 ## Content rules
 
 - No newspaper clue text is ever published (see README). This covers news
