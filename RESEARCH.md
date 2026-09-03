@@ -4,6 +4,69 @@ One entry per run: what was found, one-line summary, and an honest judgement of 
 it transfers to a Hebrew cryptic solver with an 8k-clue corpus. Default skepticism: most
 crossword-AI work targets non-cryptic (American-style) puzzles and does not transfer.
 
+## 2026-09-02
+
+Bootstrap ran cleanly against 14across this run (intermittent bot-check redirects on a
+handful of individual requests, matching the documented ~random pattern, not the hard-wall
+mode of 2026-08-19/08-26/08-27/08-28/08-30 — the retry-with-backoff in
+`scraper/parse_answers.py` recovered them within the same run).
+
+**General search: "cryptic crossword solver candidate generation definition span retrieval
+2026" / "definition span cryptic crossword clue segmentation neural classifier 2026".**
+Surfaced the same paper family logged repeatedly since 2026-08-06 (2506.04824, 2407.08824,
+2104.08620/2103.01242 Cryptonite, 2412.09012, 2403.12094). One new citation worth checking
+directly: **`github.com/nikcholer/cryptic-solver`**, a small English-cryptic demo combining
+LLM clue parsing with deterministic Python validation. Fetched and read (not assumed from
+its name): its candidate generation is architecturally identical to this project's
+`candidates.py` (anagram/hidden/reversal/charade mechanisms, dictionary-checked), and its
+definition-span location is done by an LLM's SEMANTIC judgement ("those with paying
+guests" = HOTELIERS), not by an indicator-density signal. That is a genuinely different
+signal from the one `defspan.py` (2026-08-19) tested and killed here — but this project
+already effectively runs the semantic-judgement version informally, in every live blind
+solve-pass trial (a solver agent reads the clue and judges which end is the definition by
+meaning, not by scanning for indicator words). **Transfer: confirms, doesn't add** — it is
+independent evidence that semantic definition-fit judgement (queue item 9, still the
+sharpest named gap) is the right direction, not a new mechanical technique to build today.
+
+**"Hebrew NLP morphological analysis crossword wordplay 2026".** No new resource beyond
+YAP/HebPipe/DictaBERT-seg/Splintering, already logged repeatedly. **Transfer: none new.**
+
+**IdioLink: Retrieving Meaning Beyond Words Across Idiomatic and Literal Expressions**
+(arXiv 2605.22247, new citation). Trains a dense/contrastive retriever so an idiom's
+embedding clusters with its literal paraphrase, aimed exactly at the gap this project's
+own retrieval diagnostic keeps naming (2026-07-10's flat 0.0% recall@N across three corpus
+sizes was read as "this puzzle's specific idioms/culture references aren't covered" —
+i.e. a lexical-overlap problem BM25 structurally can't solve for a genuine idiom, only a
+semantic one could). Checked directly: it needs a large paired idiom/definition training
+set and dense-retriever training compute this project doesn't have, and no Hebrew-tuned
+embedding space exists to build on regardless (the same standing blocker every prior
+embedding-vs-BM25 check here has found, most recently 2026-08-24/08-25's BM25-still-wins
+scaling-study citation). **Transfer: none actionable today** — real confirmation that
+retrieval's puzzle-dependent flatness on idiom-heavy puzzles is a genuine BM25 ceiling
+this project has no cheap way past, not a bug in `retrieve_defs.py`.
+
+**Conclusion, and the lever this run actually built.** No new external resource turned
+into a buildable generator or scorer again this run (the standing pattern since roughly
+2026-08-21). Instead, re-reading `solver/retrieve_defs.py` and `solver/candidates.py`
+side by side surfaced a genuine, previously-unnoticed implementation gap rather than a
+literature gap: `retrieve_defs.py` has its own `end_candidates()` function (queries the
+BM25 index with only a short PREFIX or SUFFIX word-span of the clue, 2/3/4 words each
+end — trying both ends per query rather than guessing one, so it does not depend on the
+indicator-density classifier `defspan.py` already killed), and `retrieve_defs.py eval`'s
+own CLI has used exactly that function to produce the "gold@25=5.4%, ceiling 27%"
+number every DAILY.md/RESEARCH.md entry since 2026-08-08 has cited as retrieval's
+standalone strength. But `candidates.py`'s `retrieval_candidates()` — the function
+actually wired into `generate()` since 2026-08-25 and live-trialed since 2026-08-27 — has
+always called plain `retrieve_defs.candidates()` with the FULL clue text as one BM25
+query instead. The number this project has quoted six times never described the
+mechanism running in the live pool. This is exactly the scheduled task's own stated
+priority direction ("generating N diverse candidates per clue by mechanism AND by
+definition-span hypothesis") already sitting unused in the codebase, not a new idea
+needing research — so today's lever wires `end_candidates()` in as a new
+`defspan_retrieval_candidates()` source alongside (not replacing) the existing
+whole-clue `retrieval_candidates()`, independently toggleable so the two can be measured
+apart. See DAILY.md for the controlled before/after recall@N measurement.
+
 ## 2026-08-30
 
 Bootstrap hit the same hard 14across wall as 2026-08-19/08-26/08-27/08-28 (4 consecutive
