@@ -57,6 +57,23 @@ updates the "Movement log" below. This file is the handoff between runs, DAILY.m
   stops being sticky on phones so the board keeps the screen; crossword
   pages print clean. evals/ui_smoke.py verifies the games stay playable.
 
+- **2026-09-03** - Dead-URL cleanup. /milon/e/לגמ/ was ranking on Google and
+  returning Vercel's bare NOT_FOUND: one of 1,474 entity pages removed in the
+  August 11-16 cleanups (junk titles, person-pollution, orphans, dedup) as
+  hard deletes, no redirect, no 404 page, after Google had indexed them.
+  Shipped: a real 404 page with the milon search prefilled from the path;
+  587 permanent redirects (52 to the surviving page with the same letters,
+  215 to new word pages, 320 to category-page anchors); 215 new
+  /milon/w/<word>/ word pages for dead words we hold a definition for (a
+  definition, crossword spelling, senses, substitutes, clue pages, same-length
+  neighbours); the remaining 887 dead URLs get the 404 page. Mechanism: the
+  404 page reports the path to /api/missed, the Saturday mirror snapshots it,
+  app/drain_missed.py turns the most-hit into pages/redirects and lists what
+  needs a definition; app/url_guard.py fails any build that drops a sitemap
+  URL without a redirect or tombstone. Expect Google to swap the 587
+  redirected URLs over within a few weeks; the 887 will drop out. Watch
+  "לגם" and the other word pages for impressions in the next snapshot.
+
 - **2026-09-02** - Topic crosswords regenerated again after a second reader
   report: "מעש מהסוף להתחלה" on the easiest civics board - a reversal clue on
   שעם, no definition of anything. Measured, 48% of level 1's clues and 74% of
