@@ -20,10 +20,124 @@ tree - a stale CLI deploy overwrote the live site on 2026-08-29. See CLAUDE.md.
 | **Candidate recall@N with `retrieval_candidates` added (new, offline, BM25 definition retrieval)** | **7.1% (2/28)** on 2026-05-29 (up from 3.6%); **SECOND puzzle, 2026-08-26: 0.0% (0/18) → 5.6% (1/18)** on 2026-06-26 (partial, 18/28 clues); **THIRD puzzle, 2026-08-27: 0.0% (0/19) → 0.0% (0/19), UNCHANGED** on 2026-07-10; **2026-08-28, RE-MEASURED on 2026-05-29 with a GROWN corpus (mordo re-crawled 13,646 raw pairs vs 9,685; `note.co.il` crawled for the first time this project's lifetime, 829 pairs): 3.6% (1/28) → 10.7% (3/28)**, up from the 7.1% this exact puzzle scored with the smaller corpus; **2026-08-29, RE-MEASURED 2026-07-10 with an EVEN BIGGER corpus (mordo 25,350 raw / 24,361 parsed, up from 13,646/12,890; note.co.il 970 fetched out of 1,301 discovered): 0.0% (0/19) → 0.0% (0/19), STILL UNCHANGED**; **2026-08-30, RE-MEASURED 2026-06-26 — this time FULLY transcribed (28/28 clues, closing 2026-08-26's 18/28 partial gap) and with a MASSIVELY grown corpus (mordo 66,443 raw / 62,403 parsed, up from 25,350/24,361 — the blogspot feed has grown 2.6x again; note.co.il 1,001 fetched out of 1,301 discovered, up from 970/1301): 0.0% (0/28) → 14.3% (4/28)** — the highest recall this diagnostic has ever measured on any puzzle, and the largest single-puzzle point gain, from 4 independently-audited external hits (מניע, רומח, בובדילנ, ברסמכא) — see log | not yet a target — diagnostic; 6 independent measurements, 4 positive + 2 flat, confirming corpus growth is puzzle-dependent (rescued 2026-05-29 twice and now 2026-06-26 strongly, never moved 2026-07-10 across three corpus sizes) |
 | **Definition-span locatable rate (new, offline, diagnostic)** | **25% (7/28)** have mechanically-locatable single-window wordplay; of those 29% (2/7) are interior, not edge; classifier agreement on edge cases **1/5** | not a target — this diagnostic KILLED the lever, see log |
 | **`solve_pass.py` LIVE blind trial — cumulative (3 trials)** | **40% precision (2/5 committed)**: 2026-08-16 was 1/2 on a partial 21/28-clue puzzle (2026-06-12); 2026-08-22 was **0/2**, 7.1% coverage, on a FULL 28/28-clue puzzle (2026-05-15); **2026-08-27 is 1/1 = 100% precision but 5.3% coverage (1/19), 0% suggestion hit-rate (0/10)**, on 2026-07-10 (19/28 clues) — FIRST trial run with `retrieval_candidates` live (wired 2026-08-25, never live-trialed since); it contributed ZERO candidates all puzzle (grepped the transcript for `(retrieval, fodder=` hits — none), matching today's own offline recall@N finding on this same puzzle (0/19 with or without retrieval); the one correct commit came from `wiki.py` culture-fact lookup, not from any candidate generator | n=5 — still small; retrieval's live debut is a null result on this puzzle, not a regression, but not the coverage lift the queue hoped for either; see log |
-| **Candidate recall@N with `culture_category_candidates` added (new, offline, definition-driven)** | **0% (0/28)**, on 2026-06-19 — mechanism fired on only 1/28 clues (avg candidates/clue 10.5 → 11.4); its one firing (339 raw candidates, an "author" category hit) matched 0 gold | not yet a target — small-n diagnostic, see log |
+| **Candidate recall@N with `culture_category_candidates` added (new, offline, definition-driven)** | Two independent puzzles now measured, both UNCHANGED vs baseline: **0% (0/28)** on 2026-06-19 (fired 1/28 clues); **2026-08-31, SECOND puzzle 2026-07-03: baseline 7.1% (2/28) → still 7.1% (2/28) with culture ON**, fired 3/28 clues (43 raw candidates), 0 gold hits. Across both puzzles: fired on 4/56 clue-instances, 0/4 hits — but the 3 new firings show 3 DIFFERENT root causes, not a repeat of one: one homograph/pun misdirection (reproduces 2026-06-19's finding), one where the gold answer IS in the raw corpus but is correctly excluded by the held-out safety filter (a measurement-methodology blind spot, not a corpus gap), one genuine corpus coverage gap (the specific mountain name is absent from culture.json's 119-entry list) | not yet a target — n=4 fired-clue diagnostic, see log |
 
 Baseline for comparison: v2 = 41% raw with untraceable errors.
-Last lever added (2026-08-30): **closed 2026-08-29's own "NOT DONE" gap: re-measured
+Last lever added (2026-08-31): **a second, independent puzzle's measurement of
+`culture_category_candidates`** (queue item 1(c), added 2026-08-24 and measured only
+once since — the queue's own named next step, chosen over yet another
+`retrieval_candidates` corpus-growth re-run after six consecutive days on that exact
+lever shape, per this run's explicit steer). 14across hit the same hard wall as
+2026-08-19/08-26/08-27/08-28/08-30 (7/7 fetches `None: 0 clues`); worked entirely from
+the no-14across image-fallback technique. `solver/lex/culture.json` and
+`substitutions.json` are committed, not gitignored, so no rebuild was needed for those.
+
+Chose a genuinely fresh dev puzzle (2026-07-03 — not among the 8 dates already used for
+any prior measurement: 2026-05-29, 2026-06-05, 2026-06-19, 2026-06-26, 2026-07-10,
+2026-05-15, 2026-04-03, 2026-06-12). Transcribed all 28 clues from `data/images/
+2026-07-02.jpg`. Validated every enum sum against the GRID-DERIVED slot length (from the
+already-committed `data/grids/2026-07-03.json`, structural geometry only, no gold
+answer read) before touching any gold data: 26/28 matched cleanly; 2 (clues 17 and 18
+down) did not individually, but matched PERFECTLY once swapped with each other (17's
+printed `(4,2)`=6 matches 18's grid slot of 6; 18's printed `(4,3)`=7 matches 17's grid
+slot of 7) — a new variant of this setter's documented enum-print anomaly (prior
+instances were one clue's own enum printed in reversed word-order; this is two adjacent
+down-clue enumerations transposed between each other), disclosed and resolved by
+assigning each clue the grid-matching enum, not silently kept as printed, since here
+(unlike prior instances) keeping the raw print would leave BOTH clues' `len_ok` false.
+`solver/grid_tools.py validate` prints OK on the corrected 28-clue set.
+
+GOLD LETTERS came from the small solved-grid recap in the FOLLOWING week's image
+(`data/images/2026-07-11.jpg`, captioned "פתרון תשבץ ההיגיון מהשבוע שעבר"),
+grid-calibrated programmatically (crop coordinates computed, not eyeballed row heights):
+all 15 rows' black-cell pattern matched the committed grid EXACTLY, 0/15 mismatches — the
+strongest form of this project's standard cross-check. All 28 extracted answers' lengths
+matched their (corrected) enums exactly, an independent cross-check beyond the
+grid-pattern match. Several answers make clean independent semantic sense against their
+clues (`גוסטב`/Gustav for "the Swedish king's warm garment on his back" — Gustav is the
+classic Swedish royal name; `נומרולוג`/numerologist for "plays with numbers and confuses
+us"; `בודליר`/Baudelaire for a clue built on "luck" and "poetry" — Baudelaire the poet),
+further corroboration beyond the grid-pattern match alone.
+
+MEASURED, controlled before/after (`candidates.recall_eval()` called directly, same
+scoring code the CLI wraps): mechanical-only baseline **7.1% (2/28)**, both anagram hits
+(`יתענגו`, `נומרולוג`); **+ culture_category_candidates: still 7.1% (2/28), UNCHANGED** —
+avg candidates/clue rose 12.0 → 13.4 (the mechanism DID fire, generating real extra
+candidates), but none matched gold. `retrieval_candidates` was deliberately left inert
+this run (no `crawl_defs.py` run — corpus growth was explicitly out of scope today), so
+the "full defaults" number is identical to "culture-only," a clean isolation of this one
+mechanism's own effect.
+
+DIAGNOSTIC BREAKDOWN (the reason a second puzzle earns its keep over a flat number): the
+mechanism fired on 3/28 clues this time (up from 1/28 on 2026-06-19), and inspecting each
+one directly finds THREE DIFFERENT root causes, not one repeated pattern:
+1. **12 down** (`בירה על הגבול` → gold `בקו`): reproduces 2026-06-19's exact failure mode
+   — `בירה` triggered the `world_city`/"capital" category, but the setter used it as
+   "beer" (a homograph), pointing at `בקו` ("on the line") instead. Surface trigger word,
+   misdirection intended — the standing diagnosis holds.
+2. **11 down** (`מדינה אפריקנית במצב הרסני, אולי` → gold `סיירהלאונ`/Sierra Leone, a
+   clean literal fit — Sierra Leone's civil war matches "state of ruin"): checked
+   directly whether this is a corpus gap — **it is not**. `סיירה לאון` IS present in the
+   raw `culture.json` `nation` list (212 raw entries; confirmed by direct grep). It does
+   not appear in `candidates.culture()`'s filtered output (211 entries, exactly 1 fewer)
+   because `lexicon.held_out_answers()` correctly excludes it — it is THIS puzzle's own
+   gold answer. **This is a genuine, previously undocumented methodological finding, not
+   a corpus or trigger-vocabulary problem**: whenever `culture_category_candidates` fires
+   on a clue whose gold answer is already indexed in `culture.json`, this project's own
+   held-out safety filter (correctly, by design) makes that hit structurally
+   unmeasurable as a recall@N "hit" on THAT specific puzzle — the mechanism could well
+   have fired correctly in a real deployment, but the dev/eval methodology itself is
+   blind to exactly this case. Recall@N on this mechanism is therefore a possibly-
+   conservative lower bound for its real hit rate, in a way that cannot be fixed by
+   growing the corpus or refining the trigger vocabulary — only by testing on a puzzle
+   whose answer is NOT already an indexed entity (impossible to arrange deliberately
+   without defeating the held-out discipline).
+3. **22 across** (`הר אזורי ידוע ביופיו` → gold `אוריזהר`): checked directly — this
+   mountain name is genuinely ABSENT from `culture.json`'s 119-entry `mountain` list (0
+   matches by exact normalized string, confirmed by direct search, both pre- and
+   post-filter). This IS a real corpus coverage gap, unlike case 2.
+
+AUDITED (mandatory gate). `lexicon.held_out_answers()` and `retrieve_defs.held_out()`
+both confirmed (computed, not assumed) to block all 28 of this puzzle's own gold answers
+(`gold_norm - blocked` empty for both). Checked the raw, unfiltered `culture.json`
+directly for leaks (the exact 2026-08-24 audit-finding shape): 4 of today's 28 gold
+answers (`פרש`, `ספיח`, `תאשור`, `סיירהלאונ`) sit in the raw file unfiltered, but
+`candidates.culture()`'s post-filter output contains ZERO of them — confirmed directly,
+not assumed from the code path. No forbidden reads: 14across was never queried for this
+puzzle's gold data, only the two public CDN images plus the already-committed grid file.
+No jump to explain: 7.1% → 7.1% is the least suspicious result a controlled before/after
+can produce (unchanged, not even a small rise). All 5 affected selftests (`candidates.py`,
+`retrieve_defs.py`, `lexicon.py`, `prove.py`, `substitutions.py`) re-run clean.
+
+HONEST READ: across both measurements of this lever (2026-06-19, 2026-07-03), recall@N
+is 0/56 total gold hits from `culture_category_candidates` — still a real, mostly-negative
+result on the headline number. But this run's value is the diagnostic breakdown, not the
+flat number: of the queue's own two named next steps (a corpus-mined trigger vocabulary,
+or a second puzzle), the second puzzle turned out to be more informative than either
+framing anticipated — it shows the mechanism's failures are not one uniform problem. A
+corpus-mined trigger vocabulary would help exactly zero of today's 3 firings (case 1 is a
+precision problem no trigger vocabulary fixes; case 2 is invisible to this measurement by
+construction; case 3 is a raw entity-list gap, not a trigger problem). The one concrete,
+actionable finding is case 3's shape: growing `culture.json`'s named-entity lists (the
+same kind of corpus growth this project already does for `private_defs`, just applied to
+`culture.json` instead) is the only one of the three failure modes a future lever could
+plausibly move, and case 2's finding means this project may be systematically
+undercounting this mechanism's real value in every measurement it will ever run under the
+current held-out methodology — worth flagging to the project owner as a genuine, if
+mundane, measurement-validity caveat rather than a solving gap.
+
+NOT DONE, honestly: did not build a corpus-mined trigger vocabulary (queue's other named
+next step — today's diagnostic breakdown suggests it would not have helped any of this
+run's 3 firings, so it is now a lower-priority follow-up than before, not a higher one);
+did not grow `culture.json`'s entity lists to close case 3's gap (a real, actionable next
+step surfaced today, not attempted — out of scope for a single-lever run that already
+spent its budget on transcription + measurement + this diagnostic); did not touch
+`retrieval_candidates` or run any corpus crawl (deliberately, per this run's explicit
+steer away from a seventh consecutive day on that lever); did not act on queue item 9
+(definition-fit scoring) — see RESEARCH.md, ninth-plus consecutive research pass with
+nothing new; did not merge or otherwise act on any PR (none were open against this main).
+
+Previous lever (2026-08-30): **closed 2026-08-29's own "NOT DONE" gap: re-measured
 `retrieval_candidates` on 2026-06-26 — the puzzle 2026-08-28/08-29 both flagged as still
 needing a bigger corpus and no run had finished re-transcribing — this time FULLY (28/28
 clues, not the 18/28 partial 2026-08-26 left) and against a corpus grown far past any
@@ -470,7 +584,15 @@ propagated), `blank`. Score with `python3 evals/run_eval.py <file>`.
    definition-by-category pointers, which a surface trigger-word match can't distinguish.
    A corpus-mined trigger vocabulary (vs. today's hand-curated one) and a second puzzle's
    data point are the concrete next steps if this is revisited, not a redesign from
-   scratch. (d) `retrieval_candidates` (BM25 over `solver/retrieve_defs.py`'s definition
+   scratch. **2026-08-31: the second puzzle's data point is done** (2026-07-03: still
+   0 gold hits, fired 3/28 clues — see log). It changed the diagnosis: of the 3 firings,
+   only ONE reproduces the original homograph-misdirection root cause; the other two are a
+   newly-found held-out-safety-filter measurement blind spot (not fixable by any
+   candidate-generation change) and a genuine `culture.json` entity-list coverage gap (the
+   one of the three a future lever could actually move). A corpus-mined trigger vocabulary
+   would not have helped any of today's 3 firings — demoted to a lower-priority follow-up
+   than growing `culture.json`'s entity lists, which is now this item's best-evidenced
+   next step if revisited again. (d) `retrieval_candidates` (BM25 over `solver/retrieve_defs.py`'s definition
    index) — WIRED IN 2026-08-25 (see log): the queue's own "RANKED RETRIEVAL" item from
    2026-08-08, never previously combined with the other mechanisms. MEASURED POSITIVE:
    3.6% -> 7.1% recall on a controlled re-derivation of the 2026-05-29 baseline (+1 hit,
@@ -2352,3 +2474,37 @@ Measure each lever on dev (fixed enums) with run_eval.py before/after; one lever
   politicians like רבין/בגין/גולדה, everyday common words). Rebuilt puzzles.json:
   90/90 days validated, zero purity violations, zero famous-pool fallbacks; today's
   easy board went from צ'אפל ואדי/הלטי/בארו to אולימפוס/ארבל/אררט.
+- 2026-08-31 (session 3, solver daily loop): **second, independent puzzle's measurement
+  of `culture_category_candidates`** (queue item 1(c)) — full transcription, measurement,
+  three-way root-cause breakdown, and audit trail written up under the state table's
+  "Last lever added (2026-08-31)" entry above (search for it rather than duplicating here
+  per this file's own established practice of keeping the detailed narrative at the top).
+  Summary: fresh puzzle 2026-07-03 (not among any of the 8 previously-used dev dates),
+  transcribed from `data/images/2026-07-02.jpg`, gold letters from the following week's
+  solution recap (`data/images/2026-07-11.jpg`, 0/15 row mismatches against the committed
+  grid). One real enum-print anomaly found and disclosed (clues 17/18 down had their
+  printed enumerations transposed between each other — a new variant of this setter's
+  known enum quirk, resolved by grid-derived slot length, `grid_tools.py validate` now
+  prints OK on all 28). MEASURED: mechanical baseline 7.1% (2/28); + culture_category:
+  still 7.1% (2/28), unchanged, mechanism fired on 3/28 clues (up from 1/28 on 2026-06-19)
+  with 0 gold hits. The three firings each have a DIFFERENT root cause: one homograph/pun
+  misdirection (reproduces the 2026-06-19 finding), one where the gold answer sits in the
+  raw corpus but is correctly excluded by the held-out safety filter (a newly-surfaced
+  measurement-methodology blind spot: this project's own dev/eval discipline makes such a
+  hit structurally unmeasurable, not a corpus or trigger-vocabulary gap), and one genuine
+  entity-list coverage gap (a real mountain name absent from `culture.json`'s 119-entry
+  list). AUDITED: `lexicon.held_out_answers()`/`retrieve_defs.held_out()` confirmed to
+  block all 28 gold answers; raw `culture.json` confirmed to contain 4 of them unfiltered
+  but `candidates.culture()`'s post-filter output confirmed to contain 0; no forbidden
+  reads (14across hard-walled again, 7/7 fetches failed, worked entirely from the two
+  public CDN images); no jump to explain (7.1% -> 7.1% is unchanged). All 5 selftests
+  re-run clean. RESEARCH.md: ninth-plus consecutive pass with nothing new on
+  definition-fit scoring (queue item 9) — one new citation checked directly (an Italian
+  non-cryptic crossword retrieval/ranking line, confirmed not to transfer) but nothing
+  buildable, so item 9 was left untouched per its own standing instruction rather than
+  forcing a stub. NOT DONE: did not build a corpus-mined trigger vocabulary (today's
+  breakdown suggests it would not have helped any of the 3 firings, demoting its
+  priority); did not grow `culture.json`'s entity lists to close the one real coverage
+  gap found (a concrete next step, not attempted this run); did not touch
+  `retrieval_candidates` or run any corpus crawl (deliberate, after six straight days on
+  that lever); did not merge or act on any PR (none open).
