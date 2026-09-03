@@ -6,8 +6,11 @@ removed, and where it goes now. It is data, kept in the repo, so that a
 redirect survives a rebuild and so app/url_guard.py can check that no URL
 leaves the sitemap without an entry here.
 
-Sources are stored as the path Vercel matches - percent-decoded - and the
-characters path-to-regexp treats as syntax are escaped. Vercel caps the
+Sources are the path exactly as Vercel matches it: PERCENT-ENCODED, the
+same form the request arrives in and the same form the static entity
+directories are named in (docs/milon/e/%D7%90%D7%91%D7%90 serves at that
+URL). A first version decoded the source to Hebrew and matched nothing on
+production. Any path-to-regexp syntax character left is escaped. Vercel caps the
 redirects array at 2,048 entries; this refuses to write more than that
 rather than silently truncating.
 
@@ -31,8 +34,8 @@ def load():
 
 
 def source_pattern(path):
-    """The decoded path, with path-to-regexp syntax characters escaped."""
-    return SYNTAX.sub(r'\\\1', urllib.parse.unquote(path))
+    """The percent-encoded path, with path-to-regexp syntax characters escaped."""
+    return SYNTAX.sub(r'\\\1', path)
 
 
 def main():
