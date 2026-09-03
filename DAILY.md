@@ -17,13 +17,39 @@ tree - a stale CLI deploy overwrote the live site on 2026-08-29. See CLAUDE.md.
 | Best single puzzle | 2026-05-29: 95% / 71% / 68% ✓ all targets | |
 | Hardest puzzle | 2026-06-05: 100% / 43% / 43% | coverage stuck |
 | **Candidate recall@N (new, offline, mechanical only)** | **3.6% (1/28)**, avg 11.6 candidates/clue (capped), on 2026-05-29 — UNCHANGED after adding substitution+homograph mechanisms | not yet a target — diagnostic |
+| **Candidate recall@N with `container_candidates` added (new, offline, mechanical — the container/insertion device, ~10-12% of clues per PLAYBOOK.md, previously pure verification infra with no generator)** | **3.6% (1/28), UNCHANGED** on 2026-05-29 (re-transcribed fresh, 28/28 clues, 0 enum mismatches) — mechanism fired on only 1/28 clues (2 raw candidates, 0 gold hits); avg candidates/clue unchanged at 11.6. CONFOUNDED, disclosed: 14across was fully unreachable this run (the same hard wall since 2026-08-19), so `sub_fwd()` — the mined-substitution half of this mechanism's fragment source, and the SAME source `substitution_candidates()` already depends on — was empty, and `substitution_candidates()` itself also scored 0 fires this run (by-mechanism breakdown: only `anagram` hit at all). Not a clean test of the device; only its corpus-free destem/literal-word fragment half was exercised. Offline selftest (not gold-linked; found by scanning the real committed lexicon, not a synthetic fixture) confirms the mechanism correctly derives a real dictionary word (מכות + מל spliced at an interior position -> ממלכות) | not yet a target — diagnostic; re-measure once 14across (or any puzzle with real crowd explanations) is reachable |
 | **Candidate recall@N with `retrieval_candidates` added (new, offline, BM25 definition retrieval)** | **7.1% (2/28)** on 2026-05-29 (up from 3.6%); **SECOND puzzle, 2026-08-26: 0.0% (0/18) → 5.6% (1/18)** on 2026-06-26 (partial, 18/28 clues); **THIRD puzzle, 2026-08-27: 0.0% (0/19) → 0.0% (0/19), UNCHANGED** on 2026-07-10; **2026-08-28, RE-MEASURED on 2026-05-29 with a GROWN corpus (mordo re-crawled 13,646 raw pairs vs 9,685; `note.co.il` crawled for the first time this project's lifetime, 829 pairs): 3.6% (1/28) → 10.7% (3/28)**, up from the 7.1% this exact puzzle scored with the smaller corpus; **2026-08-29, RE-MEASURED 2026-07-10 with an EVEN BIGGER corpus (mordo 25,350 raw / 24,361 parsed, up from 13,646/12,890; note.co.il 970 fetched out of 1,301 discovered): 0.0% (0/19) → 0.0% (0/19), STILL UNCHANGED**; **2026-08-30, RE-MEASURED 2026-06-26 — this time FULLY transcribed (28/28 clues, closing 2026-08-26's 18/28 partial gap) and with a MASSIVELY grown corpus (mordo 66,443 raw / 62,403 parsed, up from 25,350/24,361 — the blogspot feed has grown 2.6x again; note.co.il 1,001 fetched out of 1,301 discovered, up from 970/1301): 0.0% (0/28) → 14.3% (4/28)** — the highest recall this diagnostic has ever measured on any puzzle, and the largest single-puzzle point gain, from 4 independently-audited external hits (מניע, רומח, בובדילנ, ברסמכא) — see log | not yet a target — diagnostic; 6 independent measurements, 4 positive + 2 flat, confirming corpus growth is puzzle-dependent (rescued 2026-05-29 twice and now 2026-06-26 strongly, never moved 2026-07-10 across three corpus sizes) |
 | **Definition-span locatable rate (new, offline, diagnostic)** | **25% (7/28)** have mechanically-locatable single-window wordplay; of those 29% (2/7) are interior, not edge; classifier agreement on edge cases **1/5** | not a target — this diagnostic KILLED the lever, see log |
 | **`solve_pass.py` LIVE blind trial — cumulative (3 trials)** | **40% precision (2/5 committed)**: 2026-08-16 was 1/2 on a partial 21/28-clue puzzle (2026-06-12); 2026-08-22 was **0/2**, 7.1% coverage, on a FULL 28/28-clue puzzle (2026-05-15); **2026-08-27 is 1/1 = 100% precision but 5.3% coverage (1/19), 0% suggestion hit-rate (0/10)**, on 2026-07-10 (19/28 clues) — FIRST trial run with `retrieval_candidates` live (wired 2026-08-25, never live-trialed since); it contributed ZERO candidates all puzzle (grepped the transcript for `(retrieval, fodder=` hits — none), matching today's own offline recall@N finding on this same puzzle (0/19 with or without retrieval); the one correct commit came from `wiki.py` culture-fact lookup, not from any candidate generator | n=5 — still small; retrieval's live debut is a null result on this puzzle, not a regression, but not the coverage lift the queue hoped for either; see log |
 | **Candidate recall@N with `culture_category_candidates` added (new, offline, definition-driven)** | **0% (0/28)**, on 2026-06-19 — mechanism fired on only 1/28 clues (avg candidates/clue 10.5 → 11.4); its one firing (339 raw candidates, an "author" category hit) matched 0 gold | not yet a target — small-n diagnostic, see log |
 
 Baseline for comparison: v2 = 41% raw with untraceable errors.
-Last lever added (2026-08-30): **closed 2026-08-29's own "NOT DONE" gap: re-measured
+Last lever added (2026-09-03): **`container_candidates` — a mechanical candidate
+generator for the container/insertion device (PLAYBOOK.md §1.4, ~10-12% of this
+setter's clues, the fourth-most-common mechanism), which until today was pure
+verification infrastructure (`prove.is_container`, present since the proof gate was
+built) with no generator in `solver/candidates.py` ever producing a candidate for it
+to check.** Reuses the existing substitution-fragment table and the homograph
+destemmer for its two fragment sources (no new corpus, no new data file). Selftest
+(offline, a real dictionary word found by scanning the live lexicon, not a synthetic
+fixture) confirms it correctly derives an interior-splice candidate. MEASURED on a
+freshly re-transcribed 2026-05-29 (28/28 clues, 0 enum mismatches against the
+grid-derived slot lengths, gold letters recovered via the no-14across image-fallback
+technique and cross-validated 0/15 rows against the committed grid): **recall@N
+UNCHANGED at 3.6% (1/28)** with container on vs off, mechanism fired on only 1/28
+clues (0 gold hits). CONFOUNDED, disclosed rather than hidden: 14across was fully
+unreachable this run (hard wall, 7/7 fetches `None: 0 clues`, matching the pattern
+documented since 2026-08-19), which starves `sub_fwd()` — this mechanism's mined-
+substitution fragment source, shared with the already-shipped `substitution_
+candidates()`, which ALSO scored 0 fires this run (by-mechanism breakdown: only
+`anagram` hit anything at all) — so this is not a clean test of whether the device
+helps, only evidence of what happens when its main fragment source is empty. See log
+for the full transcription/audit trail and research note (checked a live 2026
+neuro-symbolic solver directly: it does not mechanically enumerate container
+candidates either, it relies on an LLM to guide which parts combine — this project's
+own prior standing approach).
+
+Previous lever (2026-08-30): **closed 2026-08-29's own "NOT DONE" gap: re-measured
 `retrieval_candidates` on 2026-06-26 — the puzzle 2026-08-28/08-29 both flagged as still
 needing a bigger corpus and no run had finished re-transcribing — this time FULLY (28/28
 clues, not the 18/28 partial 2026-08-26 left) and against a corpus grown far past any
@@ -518,6 +544,17 @@ propagated), `blank`. Score with `python3 evals/run_eval.py <file>`.
    leak-adjacent vector — it named 2 of today's 4 gold answers in a prior entry, before
    this run's required reading. Worth a future lever (redact specific answer strings from
    log prose, or split required-reading history from an answer-bearing appendix).
+   (e) `container_candidates` — the container/insertion device (PLAYBOOK.md §1.4,
+   ~10-12% of clues, the fourth-most-common mechanism) — ADDED 2026-09-03 (see log):
+   until today pure verification infrastructure (`prove.is_container`) with no
+   generator behind it. MEASURED UNCHANGED (1/28 = 3.6%, same as mechanical-only) on
+   2026-05-29, fired on only 1/28 clues — but CONFOUNDED: 14across was fully
+   unreachable this run, starving `sub_fwd()` (this mechanism's mined-substitution
+   fragment source, shared with `substitution_candidates()`, which ALSO scored 0
+   fires this run for the same reason). Not a clean read on whether the device helps;
+   re-measure once a puzzle with real crowd explanations is available, before
+   concluding anything about the mechanism itself. Selftest (a real lexicon word, not
+   synthetic) confirms it is mechanically sound.
 2. ~~Definition-span detection~~ — TRIED 2026-08-19, NEGATIVE. See log and "already
    tried" below. Do not re-attempt without a fundamentally different signal (not
    indicator-word density).
@@ -2352,3 +2389,146 @@ Measure each lever on dev (fixed enums) with run_eval.py before/after; one lever
   politicians like רבין/בגין/גולדה, everyday common words). Rebuilt puzzles.json:
   90/90 days validated, zero purity violations, zero famous-pool fallbacks; today's
   easy board went from צ'אפל ואדי/הלטי/בארו to אולימפוס/ארבל/אררט.
+- 2026-09-03: **candidate generation, queue item 1(e): `container_candidates` — the
+  container/insertion device.** Three PRs were open and unmerged against main when this
+  run started (#38 2026-08-31, #39 2026-09-01, #41 2026-09-02, all candidate-generation
+  or retrieval-query work) — not merged or cherry-picked this run (only the project
+  owner merges PRs; this run branches off main per the standing protocol, same as every
+  prior run when a backlog exists), but read directly so today's lever would not
+  duplicate what they already measured: #39/#41 both re-examined `retrieval_candidates`'s
+  query shape (whole-clue vs. end-anchored BM25), both landing on null results on
+  2026-05-29; #38 is a diagnostic-only re-measurement of `culture_category_candidates`.
+  None touched the container device, so today's lever is genuinely new relative to the
+  full open backlog, not just to main.
+
+  RESEARCH (full entries in RESEARCH.md): general searches on candidate generation and
+  definition-span detection surfaced nothing beyond the same paper family logged
+  repeatedly since 2026-08-06. A TARGETED search specifically for container/insertion
+  CANDIDATE GENERATION (not detection) found one new, concrete resource worth checking
+  directly rather than citing at a glance: `github.com/nikcholer/cryptic-solver`, a 2026
+  neuro-symbolic (LLM-parse + deterministic-validate) demo. Read directly: its container
+  handling is LLM-guided, not mechanically enumerated — it does not generate container
+  candidates either, matching every academic paper already logged and this project's OWN
+  prior standing approach. This is the reason today's lever is worth building rather than
+  skipping: no public solver, academic or hobbyist, mechanically generates container
+  candidates; `prove.py` has been able to VERIFY one (`is_container`) since the proof
+  gate was built, but nothing has ever generated one to check.
+
+  BOOTSTRAP: `./bootstrap.sh --dev-only` hit the 14across hard wall again — 7 consecutive
+  answer-page fetches returned `None: 0 clues` after full retry-with-backoff each (the
+  worst-case cost of waiting out all 52 at that rate is hours, not minutes); killed after
+  confirming the pattern rather than waited out, matching the failure mode documented
+  since 2026-08-19. hspell (129,574 words), `solver/lex/culture.json` (already fully
+  committed, 24 categories / thousands of entities — no rebuild needed) and the dev
+  puzzle images (public CDN, unaffected by the 14across wall) all came through cleanly.
+
+  BUILT `solver/candidates.py`: `container_parts()` (shared fragment-source helper) and
+  `container_candidates()` — an OUTER fragment with an INNER fragment spliced at a
+  STRICTLY INTERIOR position (matching `prove.is_container`'s own contract exactly, so
+  every candidate this mechanism proposes is provable by the existing verifier
+  unchanged). Fragment sources are the SAME two the file's other mechanisms already use
+  (no new corpus, no new data file): a clue word or its de-affixed stem (reusing
+  `homograph_candidates`'s own `_destem()`), and the mined clue-word/answer-fragment
+  substitution table (`sub_fwd()`, the same held-out-safe in-memory rebuild
+  `substitution_candidates()` already depends on). Wired into `generate()` behind a new
+  `use_container` toggle (default on), in the same early priority tier as
+  homograph/substitution/culture/retrieval, for the same reason: it is bounded by a
+  small fragment pool, not an unbounded window scan, so it doesn't need to wait behind
+  the cheap high-volume mechanisms. Selftest added (`python3 solver/candidates.py
+  selftest`): unlike every other mechanism's selftest, which either uses a synthetic
+  fixture or an injected table, this one's core check uses a REAL word found by
+  scanning the actual committed lexicon offline (`מכות` + `מל` spliced at an interior
+  position -> `ממלכות`, "kingdoms") — not gold-answer-linked, not synthetic, and it
+  confirms the mechanism reaches the real dictionary, not just a hand-built fixture.
+  Also checks that a word cannot supply both the outer and inner fragment of its own
+  candidate. All checks pass.
+
+  TRANSCRIPTION: re-transcribed the canonical dev puzzle 2026-05-29 fresh (5th
+  independent transcription of this exact puzzle across this project's history, after
+  2026-08-06/08-25/08-28/2026-09-01's PR #39 — chosen for direct comparability against
+  the many prior measurements on it, since 14across left no other option this run).
+  Clue text from `data/images/2026-05-28.jpg` (both across columns — the right
+  "אופקי:" box for clues 1,7,8,9,10,11,13 and the wrapped continuation for 15 through
+  26 in the middle column, reading right-column-then-left-column as one flow, which
+  resolved a genuine transcription ambiguity mid-run: an enum that first looked
+  misplaced turned out to belong to the PRECEDING clue once the two-column wrap was
+  understood, not a printing error — caught by cross-checking every enum sum against
+  the grid-derived slot length BEFORE accepting any reading, per protocol). All 28
+  enum sums matched their grid-derived slot lengths exactly, 0 mismatches, before any
+  gold answer was touched.
+
+  GOLD LETTERS, since 14across was unreachable: recovered from the small solved-grid
+  recap in the FOLLOWING week's image (`data/images/2026-06-04.jpg`, captioned "פתרון
+  תשבץ שהופיע בשבוע שעבר"). Rather than eyeball cell boundaries, calibrated the grid
+  geometry PROGRAMMATICALLY: detected gridline pixel rows/columns via a darkness-
+  fraction threshold (`numpy`/`PIL`, installed this run), extracted all 15x11 cells'
+  black/white pattern from the calibrated coordinates, and confirmed it against the
+  ALREADY-COMMITTED `data/grids/2026-05-29.json` — 0/15 row mismatches. Read each row's
+  letters from the same calibrated coordinates (not a second, independent crop), then
+  converted from on-page visual (left-to-right) order to this project's index
+  convention (index 0 = rightmost cell) by simple reversal, and extracted every
+  (number, direction) slot's answer via `grid_tools.slots()` rather than assembling
+  them by hand. Several derived answers independently corroborate the transcription
+  beyond the grid-pattern match alone, including two that reproduce gold answers this
+  exact puzzle's own prior log entries already recorded independently (1D
+  `ברישניקוב`/Baryshnikov — DAILY.md 2026-08-28; 26A `פחותאבלכואב` — DAILY.md
+  2026-08-25) and one that reproduces PR #39's own independently-reported finding for
+  this same puzzle (1A `בליברטיולנס`/"Liberty Valance," whose printed enum (4,7)
+  reverses the true 7+4 split, this setter's well-documented reversed-enum quirk).
+  `python3 solver/grid_tools.py validate` printed OK; `python3 solver/build_dataset.py`
+  reported 0 length mismatches across all 28 rows (split: eval, since this is the only
+  puzzle date present this run and the split rule assigns the newest date(s) to eval).
+
+  MEASURED, controlled before/after (`python3 solver/candidates.py recall
+  data/dataset/clues.jsonl eval [--no-culture] [--no-retrieval] [--no-container]`):
+  mechanical-only baseline **3.6% (1/28)** — exactly reproduces every prior
+  transcription of this puzzle, a strong cross-check that today's 5th independent
+  transcription is correct; **+ container: still 3.6% (1/28), UNCHANGED**; full
+  defaults (culture+retrieval) also unaffected by the container toggle either way.
+  Direct inspection: `container_candidates` fired on only 1/28 clues (9 across, 2 raw
+  candidates, neither matching gold), and the run's own by-mechanism breakdown shows
+  `substitution_candidates` — the ALREADY-SHIPPED mechanism sharing today's new
+  mechanism's mined-fragment source — ALSO fired 0 times this run (only `anagram`
+  produced the one hit, unchanged from the mechanical-only baseline). This is the
+  direct, checked explanation: `sub_fwd()` rebuilds in-memory from this puzzle's own
+  crowd explanations (`data/answers/by_date`), which do not exist this run because
+  14across was unreachable — the mechanism's mined-substitution fragment source was
+  empty for the SAME reason it was empty for the already-shipped mechanism sharing it,
+  not a defect specific to container. Only the corpus-free destem/literal-word half of
+  the fragment pool was exercised.
+
+  AUDIT (mandatory gate). `lexicon.held_out_answers()` and `retrieve_defs.held_out()`
+  both confirmed (computed, not assumed) to block all 28 of this puzzle's own gold
+  answers (`gold_norm - block` empty for both, checked directly after the dataset was
+  built). No forbidden reads: 14across was never queried for this puzzle's gold data,
+  only the two public CDN images (the sanctioned fallback); no answers site accessed.
+  No jump to explain — recall stayed flat at 3.6% with container on vs off, the
+  opposite direction an implausible result would take. All 5 affected selftests
+  (`candidates.py`, `retrieve_defs.py`, `lexicon.py`, `prove.py`, `substitutions.py`)
+  re-run clean.
+
+  HONEST READ: this is a real but CONFOUNDED result, disclosed as such rather than
+  reported as a clean negative. `container_candidates` is implemented, unit-tested
+  against a real dictionary word (not a synthetic fixture), wired in behind a toggle,
+  and closes a genuine gap (verification existed, generation didn't) that this run's
+  own research check confirms no public solver has closed either — but today's live
+  measurement cannot distinguish "the device doesn't help this puzzle" from "its main
+  fragment source was empty this run," because the SAME corpus starvation flattened
+  the already-shipped `substitution_candidates` to zero fires too. The honest
+  conclusion is: re-measure once 14across is reachable (or any dev/eval puzzle already
+  has real crowd explanations available) before drawing any conclusion about whether
+  the container device itself helps recall — today's number is evidence about this
+  run's environment, not yet about the mechanism.
+
+  NOT DONE, honestly: did not crawl `note.co.il`/`mordo` (that corpus feeds
+  `retrieval_candidates`, not `sub_fwd()` — would not have helped today's specific
+  starvation); did not re-measure any of the other puzzles with existing transcriptions
+  from prior runs (data/ is gitignored, so none persist between runs — every run starts
+  from zero); did not merge or otherwise act on PRs #38/#39/#41 (only the project owner
+  merges PRs); did not attempt to reconstruct `sub_fwd()`'s fragment source from the
+  committed `solver/lex/substitutions.json` as a workaround — that file was very likely
+  built from a corpus that included this exact canonical dev puzzle's own crowd
+  explanations (it is reused as the dev/eval baseline in nearly every prior run), so
+  using it here would risk exactly the kind of leak RESULTS.md's INTEGRITY FINDING
+  already caught once; left the fragment source honestly empty rather than take that
+  risk.

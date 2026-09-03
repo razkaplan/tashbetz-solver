@@ -4,6 +4,56 @@ One entry per run: what was found, one-line summary, and an honest judgement of 
 it transfers to a Hebrew cryptic solver with an 8k-clue corpus. Default skepticism: most
 crossword-AI work targets non-cryptic (American-style) puzzles and does not transfer.
 
+## 2026-09-03
+
+Bootstrap hit the 14across hard wall again — 7 consecutive answer-page fetches returned
+`None: 0 clues` after full retry-with-backoff each (worst case ~190s/URL x 52 puzzles
+would be hours), matching the established hard-wall failure mode documented since
+2026-08-19 rather than the intermittent ~50%-random one. Killed the background scrape
+after confirming the pattern rather than waiting it out, per established practice, and
+worked entirely from the no-14across image-fallback technique (bootstrap.sh step 6) for
+both clue text and gold letters on the canonical dev puzzle (2026-05-29).
+
+**General search: "cryptic crossword clue candidate generation container indicator
+wordplay parsing 2026" and "cryptic crossword solver definition span detection neural
+2025 2026 arxiv".** Surfaced only the same paper family already logged repeatedly since
+2026-08-06 (2506.04824, 2407.08824, 2104.08620, 2406.09043, 2403.12094) — no new academic
+work found on candidate generation or definition-span/fit scoring. **Transfer: none new,
+consistent with every literature pass since 2026-08-27.**
+
+**Targeted search for container/insertion CANDIDATE GENERATION specifically** (not just
+detection/verification, since that's this run's chosen lever): "container OR insertion
+wordplay candidate generation algorithm crossword clue solver enumerate splice". Turned
+up general descriptions of the container device (a Stella Zawistowski blog post,
+"Decrypting the Cryptic #3: Containers") that match what PLAYBOOK.md §1.4 already
+documents in far more depth for this specific setter, and one genuinely new item worth
+checking directly rather than citing at a glance: `github.com/nikcholer/cryptic-solver`,
+a 2026 neuro-symbolic demo (LLM clue parsing + deterministic Python validation) that
+came up in the first search. Fetched and read it directly rather than trusting the
+title: its container handling is **LLM-guided, not mechanically generated** — "the
+system doesn't appear to enumerate all possible word-inside-word combinations; instead,
+it relies on LLM interpretation to guide which components should combine," then
+validates the result against the dictionary. **Transfer: this is a useful negative
+data point, not a lead** — it confirms (does not contradict) that exhaustively
+enumerating container candidates mechanically, the way this run's lever does, is not
+something any published or public solver (academic or hobbyist) already does; every
+one treats container as a verify-only step guided by a language model's own reading
+of the clue, exactly this project's OWN standing approach before today. That absence
+of precedent is itself the reason `container_candidates` (see DAILY.md) is worth
+building rather than skipping: it closes a gap nobody else's public work has closed
+either, not just this project's.
+
+**Conclusion.** No new external resource changes any standing conclusion (BM25 over
+embeddings, no definition-fit scorer exists to build on, Hebrew WordNet answers the
+wrong question). Today's lever is therefore an internal one: PLAYBOOK.md §1.4 names
+the container device as ~10-12% of this setter's clues, the fourth-most-common
+mechanism after charade/anagram/double-definition, and until today `solver/prove.py`
+could VERIFY a container proof (`is_container`, present since the proof gate was
+built) but no generator in `solver/candidates.py` ever produced a container candidate
+to hand it — pure verification infrastructure with nothing feeding it, the same shape
+of gap PR #39/#41 found in `retrieval_candidates()`'s query function this week
+(infrastructure that existed but was never exercised as designed).
+
 ## 2026-08-30
 
 Bootstrap hit the same hard 14across wall as 2026-08-19/08-26/08-27/08-28 (4 consecutive
