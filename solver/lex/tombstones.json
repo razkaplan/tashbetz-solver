@@ -1,0 +1,4 @@
+{
+ "_note": "URLs deliberately removed with no redirect, with the reason. app/url_guard.py accepts these; everything else that leaves the sitemap needs a redirect.",
+ "tombstones": {}
+}

@@ -1,0 +1,46 @@
+<!doctype html><html lang="he" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>הדף לא נמצא</title>
+<meta name="description" content="הדף שחיפשתם אינו קיים. חפשו במילון התשבץ או עברו לאחד מחלקי האתר."><link rel="canonical" href="https://tashbetz.gtmascode.dev/404.html"><meta name="robots" content="noindex"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Rubik:wght@400;500;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="/assets/brand.css"><style>.search input{width:100%;font-size:1.15rem;padding:.7rem .9rem;border:2px solid var(--ink);border-radius:12px;background:#fff;color:#111}.results{list-style:none;padding:0;margin:.8rem 0 0}.results li{padding:.45rem 0;border-bottom:1px solid var(--line,#ddd)}.results a{text-decoration:none;color:inherit}.results b{color:var(--accent)}.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(14rem,1fr));gap:.8rem}.cards .card{display:block;text-decoration:none;color:inherit}.cards .card span{display:block;font-size:.9rem;opacity:.8}</style></head><body>
+<header class="site-head"><div class="site-in"><a class="logo" href="/"><svg viewBox="0 0 32 32" aria-hidden="true" focusable="false"><rect x="1" y="1" width="30" height="30" rx="8" fill="currentColor"/><rect x="5" y="5" width="10" height="10" rx="2.5" fill="var(--paper)"/><rect x="17" y="5" width="10" height="10" rx="2.5" fill="var(--paper)"/><rect x="5" y="17" width="10" height="10" rx="2.5" fill="var(--pop)"/><rect x="17" y="17" width="10" height="10" rx="2.5" fill="var(--sun)"/></svg><span>תשבץ<i>.</i>היגיון</span></a><nav class="site-nav" aria-label="ניווט ראשי"><a href="/solve/">🧩 האפליקציה</a><a href="/nosim/">🎓 תשבצי נושא</a><a href="/tirgul/">🏋️ תרגול</a><a href="/milon/" class="on">📖 מילון</a><a href="/methods/">🔍 שיטות</a></nav><a class="btn sun sm cta" href="/nativ/">☀️ נתיב היומי</a></div></header>
+<main class="w">
+<div class="pagehead"><span class="kicker">🧭 הדף לא נמצא</span><h1>אופס, אין כאן תשבץ</h1><nav class="crumb" aria-label="מיקום באתר"><a href="/">דף הבית</a><span>הדף לא נמצא</span></nav></div><div class="promo"><span class="promo-ic">☀️</span><span><a href="/nativ/"><b>נתיב</b>, המשחק היומי הטוב לחובבי תשבצים</a> · חידה חדשה כל יום, עכשיו גם במצב קל</span></div>
+<p>הכתובת שהגעתם אליה לא קיימת באתר, או שהדף הוסר. אפשר לחפש אותו כאן:</p>
+<div class="search"><input id="q" type="search" placeholder="מילה, שם או תבנית: ג?ל*" autocomplete="off" aria-label="חיפוש במילון"></div>
+<ul id="res" class="results"></ul>
+<div class="cards" style="margin-top:1.4rem">
+<a class="card" href="/milon/"><b>📖 מילון תשבץ</b><span>ערכים, אנגרמות והגדרות נפוצות</span></a>
+<a class="card" href="/nosim/"><b>🎓 תשבצי נושא</b><span>עשרה מקצועות בגרות בארבע רמות</span></a>
+<a class="card" href="/nativ/"><b>☀️ נתיב היומי</b><span>חידה חדשה כל יום</span></a>
+<a class="card" href="/solve/"><b>🧩 עוזר הפתירה</b><span>רמזים מדורגים והוכחות</span></a>
+</div>
+<script>
+(function(){
+const q=document.getElementById('q'),res=document.getElementById('res');
+let E=null;
+fetch('/milon/entities.json').then(r=>r.json()).then(d=>{E=d;run();}).catch(()=>{});
+const FINMAP={'ך':'כ','ם':'מ','ן':'נ','ף':'פ','ץ':'צ'},canon=s=>s.replace(/[ךםןףץ]/g,m=>FINMAP[m]);
+const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function run(){if(!E)return;const v=q.value.trim();res.innerHTML='';if(v.length<2)return;
+  const c=canon(v);let hits=E.filter(e=>e.t.includes(v)||e.n.includes(c));
+  const sc=e=>(e.t===v||e.n===c)?2:(e.t.startsWith(v)||e.n.startsWith(c))?1:0;hits.sort((a,b)=>sc(b)-sc(a));
+  res.innerHTML=hits.slice(0,30).map(e=>{const u=e.p?('/milon/e/'+encodeURIComponent(e.t)+'/'):('/milon/'+e.c+'-'+e.l+'/#'+encodeURIComponent(e.n));
+    return '<li><a href="'+u+'"><b>'+esc(e.t)+'</b>'+(e.d?'<br><small>'+esc(e.d)+'</small>':'')+'</a></li>'}).join('');}
+q.oninput=run;
+// prefill from the path: /milon/e/לגמ/ -> "לגמ"
+try{const seg=decodeURIComponent(location.pathname.replace(/\/+$/,'').split('/').pop()||'');
+  if(/[א-ת]{2}/.test(seg)){q.value=seg;}}catch(e){}
+if(matchMedia('(pointer:fine)').matches)q.focus();
+// the demand signal: which dead paths people actually reach. Path only.
+try{const p=location.pathname;
+  if(/^\/(milon|nosim|tirgul|methods|research|bakasha|nativ)\//.test(p)&&p.length<=200){
+    fetch('/api/missed',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({p:p,g:/google\./.test(document.referrer)?1:0}),keepalive:true}).catch(()=>{});}}catch(e){}
+})();
+</script>
+</main>
+<footer class="site-foot"><div class="site-in">
+<div class="foot-brand"><a class="logo" href="/"><svg viewBox="0 0 32 32" aria-hidden="true" focusable="false"><rect x="1" y="1" width="30" height="30" rx="8" fill="currentColor"/><rect x="5" y="5" width="10" height="10" rx="2.5" fill="var(--paper)"/><rect x="17" y="5" width="10" height="10" rx="2.5" fill="var(--paper)"/><rect x="5" y="17" width="10" height="10" rx="2.5" fill="var(--pop)"/><rect x="17" y="17" width="10" height="10" rx="2.5" fill="var(--sun)"/></svg><span>תשבץ<i>.</i>היגיון</span></a><p>משחקי מילים חכמים בעברית: משחק יומי, תשבצי נושא, מילון ענק ועוזר פתירה שמוכיח כל תשובה.</p></div>
+<div class="foot-col"><b>לשחק</b><a href="/nativ/">☀️ נתיב, המשחק היומי</a><a href="/nosim/">תשבצי נושא</a><a href="/tirgul/">תשבצי אימון</a><a href="/bakasha/">בקשת תשבץ אישי</a></div>
+<div class="foot-col"><b>לפתור</b><a href="/solve/">עוזר הפתירה</a><a href="/milon/">מילון תשבץ</a><a href="/milon/anagram/">חיפוש אנגרם</a><a href="/milon/d/">הגדרות נפוצות</a><a href="/methods/">שיטות פתרון</a></div>
+<div class="foot-col"><b>הפרויקט</b><a href="/research/he/">המחקר</a><a href="/research/">Research (English)</a><a href="https://github.com/razkaplan/tashbetz-solver">קוד פתוח ב-GitHub</a><a href="https://github.com/razkaplan/tashbetz-solver/tree/main/skills/tashbetz-solver">להתקין כ-Skill</a><a href="https://www.linkedin.com/in/razkaplan/" rel="me">רז קפלן</a></div>
+<p class="foot-note">לא מתפרסמות הגדרות מעיתונים. <a href="https://www.linkedin.com/in/razkaplan/" rel="me">פרויקט של רז קפלן</a>.</p>
+</div></footer></body></html>
