@@ -1,12 +1,17 @@
 #!/usr/bin/env python3
 """Build daily puzzles for נתיב (docs/nativ/puzzles.json).
 
-For each day: pick a themed category from the milon, pick 4 entity names
-(4-8 letters each, normalized non-final Hebrew) whose lengths sum to exactly
-25 (5x5) or 30 (6x5), then lay the concatenated letters along a random
-self-avoiding path that visits every cell exactly once (4-directional
-orthogonal adjacency - no diagonals, backtracking search). Validates every
-puzzle before writing.
+For each day: take the day's theme from the rotation in app/nativ_pools.py,
+pick 4 words (4-8 letters each, normalized non-final Hebrew) from that theme's
+curated pool whose lengths sum to exactly 20 (5x4) or 25 (5x5), then lay the
+concatenated letters along a random self-avoiding path that visits every cell
+exactly once (4-directional orthogonal adjacency - no diagonals, backtracking
+search). Easy mode builds the same way with 3 words on a 4x4 or 4x5 board.
+
+Every word carries a one-line description, so the easy board can print a clue
+per word and the finished board can name what each answer was. Validates every
+puzzle before writing, and refuses to build if any pooled word fails to
+resolve against its source.
 """
 import json
 import random
@@ -15,8 +20,12 @@ import sys
 from datetime import date, timedelta
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from nativ_pools import POOLS, THEMES, ROTATION, FILLBANK_CATS
+
 ROOT = Path(__file__).resolve().parent.parent
 ENTITIES = ROOT / "docs" / "milon" / "entities.json"
+FILLBANK = ROOT / "solver" / "lex" / "fillbank.json"
 OUT = ROOT / "docs" / "nativ" / "puzzles.json"
 
 START = date(2026, 8, 16)
@@ -24,183 +33,84 @@ DAYS = 90
 WORDS_PER_PUZZLE = 4
 MIN_LEN, MAX_LEN = 4, 8
 COLS = 5
-TOTALS = (25, 30)  # 5x5 or 6x5
+# 5x4 and 5x5. The old 6x5 board did not fit a phone screen together with the
+# clue list, and 30 letters over 4 words demanded a 7.5-letter average that
+# only obscure long names could supply.
+TOTALS = (20, 25)
 
 # Easy mode (נתיב קל): smaller board, fewer words, and every word must carry a
 # description so the player gets a clue up front. Generated with its own rng and
 # used-set so the regular puzzles stay byte-identical across rebuilds.
 EASY_WORDS = 3
 EASY_COLS = 4
-EASY_TOTALS = (16,)  # 4x4
+EASY_TOTALS = (16, 20)  # 4x4, or 4x5 when a thinner pool cannot tile 16
+# Word pools, themes and the day rotation now live in app/nativ_pools.py: the
+# milon is an exhaustive crossword reference, so drawing a daily board straight
+# from it served names nobody could produce. Both modes draw from the curated
+# pools; difficulty comes from the board, not from obscurity.
 
-ROTATION = [
-    "artist", "nation", "city_il", "mountain", "bible", "kibbutz",
-    "politician", "athlete", "author", "actor", "world_city", "common",
-]
+# The kibbutz theme says "kibbutzim and moshavim", so it accepts both milon
+# categories; every other theme maps to the milon category of the same name.
+ENTITY_SOURCES = {"kibbutz": ("kibbutz", "moshav")}
 
-THEMES = {
-    "artist": ("כולם זמרים ולהקות", "🎤"),
-    "nation": ("כולן מדינות", "🌍"),
-    "city_il": ("כולם יישובים בישראל", "🏙️"),
-    "mountain": ("כולם הרים", "⛰️"),
-    "bible": ("כולם מהתנ\"ך", "📜"),
-    # the milon's kibbutz category holds moshavim too; the theme must not
-    # promise more than the words deliver (a מושב on a "כולם קיבוצים" day
-    # is exactly the kind of unfair the players complained about)
-    "kibbutz": ("כולם קיבוצים ומושבים", "🌾"),
-    "politician": ("כולם פוליטיקאים", "🏛️"),
-    "athlete": ("כולם ספורטאים", "🏅"),
-    "author": ("כולם סופרים", "📚"),
-    "actor": ("כולם שחקנים", "🎬"),
-    "world_city": ("כולן ערים בעולם", "🗺️"),
-    "common": ("מילים וביטויים מהמילון", "✏️"),
-}
-
-# Theme purity: an entity only counts for a theme if its description proves the
-# kind. The mountain category has carried streams, mountain passes and Martian
-# peaks - a נחל on a "כולם הרים" day broke the day's promise.
-REQUIRE_DESC_RE = {
-    "mountain": re.compile(r"^ה?(הר|רכס|גבעה|פסגה|צוק|מצוק|סטרטו|וולקן|געש)"),
-}
-EXCLUDE_DESC_RE = {
-    "mountain": re.compile(r"מאדים|כוכב הלכת"),
-    # belt and suspenders: PA places were recategorized to city_pa in the data;
-    # never let one that slips back in appear under "יישובים בישראל"
-    "city_il": re.compile(r"רשות הפלסטינית|רש['׳’]{0,2}פ|פלסטיני"),
-}
-
-# Easy mode is for people, not crossword monsters: only names a normal Hebrew
-# speaker recognizes. Curated per category against what actually exists in the
-# milon; matched by normalized name. Full mode keeps the whole pool.
-FAMOUS = {
-    "artist": [
-        "ריטה", "מוקי", "כוורת", "משינה", "אנה זק", "קרן פלס", "הדג נחש",
-        "ריף כהן", "עומר אדם", "שרית חדד", "אביב גפן", "היהודים", "עדן חסון",
-        "דודו טסה", "דנה ברגר", "שלמה ארצי", "נועה קירל", "עופרה חזה",
-        "אייל גולן", "ברי סחרוף", "עברי לידר", "שלום חנוך", "אריק לביא",
-        "עידן עמדי", "מוש בן ארי", "חנן בן ארי", "עדן בן זקן", "אהוד בנאי",
-        "נינט טייב", "אתי אנקרי",
-    ],
-    "nation": [
-        "צרפת", "ספרד", "יוון", "הודו", "ירדן", "קניה", "נפאל", "גאנה",
-        "צ'כיה", "תימן", "פיג'י", "ליטא", "מצרים", "סוריה", "לבנון", "רוסיה",
-        "פולין", "בלגיה", "הולנד", "דנמרק", "מרוקו", "כווית", "עיראק",
-        "איראן", "מלזיה", "סודאן", "קמרון", "מונקו", "לטביה", "סרביה",
-        "זמביה", "איטליה", "גרמניה", "טורקיה", "אירלנד", "איסלנד", "שוודיה",
-        "שווייץ", "רומניה", "אלבניה", "ארמניה", "בחריין", "ניגריה", "תאילנד",
-        "בלארוס", "מדגסקר", "קוסובו", "אוגנדה", "רואנדה", "בנגלדש", "ליבריה",
-        "טנזניה", "אוסטריה", "אתיופיה", "גאורגיה", "מולדובה", "מוזמביק",
-        "קפריסין", "קרואטיה", "פורטוגל", "סינגפור", "תוניסיה", "סלובקיה",
-        "סלובניה", "וייטנאם", "טאיוואן", "בולגריה", "הונגריה", "אלג'יריה",
-        "סרי לנקה", "אוסטרליה", "אוקראינה", "אפגניסטן", "נורווגיה",
-        "מונגוליה", "ניו זילנד", "חוף השנהב",
-    ],
-    "city_il": [
-        "אילת", "יבנה", "נצרת", "חדרה", "רמלה", "חיפה", "בת ים", "טבריה",
-        "נהריה", "נתניה", "עפולה", "רעננה", "שדרות", "אשדוד", "חולון",
-        "רמת גן", "טייבה", "אשקלון", "באר שבע", "בית שאן", "הרצליה",
-        "דימונה", "אופקים", "נתיבות", "כרמיאל", "כפר סבא", "תל אביב",
-        "אבו גוש", "בני ברק", "נס ציונה", "ראש העין", "קריית גת",
-        "מודיעין", "קריית ים", "רמת השרון", "פתח תקווה", "מגדל העמק",
-        "טירת כרמל", "הוד השרון", "ירושלים", "גבעתיים", "אום אל-פחם",
-        "אור עקיבא",
-    ],
-    "mountain": [
-        "אררט", "ארבל", "הכרמל", "הר נבו", "אוורסט", "הר תבור", "הגלבוע",
-        "הר סיני", "הר חרמון", "הר מירון", "מון בלאן", "מטרהורן",
-        "אולימפוס", "הר הצופים", "הר פוג'י", "אלברוס", "בן נוויס",
-    ],
-    "bible": [
-        "אהרן", "שאול", "שלמה", "אסתר", "רבקה", "מנשה", "כורש", "אחאב",
-        "יעקב", "יצחק", "יוסף", "אנוש", "אברהם", "שמשון", "ירמיהו",
-        "ישעיהו", "יחזקאל", "חזקיהו", "צדקיהו", "מתושלח", "סנחריב",
-        "אדם וחוה", "אחשוורוש",
-    ],
-    "kibbutz": [
-        "נהלל", "יגור", "נגבה", "נען", "בארי", "חניתה", "יטבתה", "קטורה",
-        "חצרים", "שפיים", "גינוסר", "רמת רחל", "נחל עוז", "כפר עזה",
-        "ניצנים", "אפיקים", "רביבים", "עין גדי", "עין חרוד", "יד מרדכי",
-        "שדה בוקר", "בית אלפא", "משמר העמק", "כפר גלעדי", "שער הגולן",
-        "גבעת ברנר", "דגניה א'",
-    ],
-    "politician": [
-        "רבין", "בגין", "שרון", "שמיר", "הרצל", "גולדה", "בן צבי",
-        "נתניהו", "אולמרט", "וייצמן", "בני גנץ", "אבא אבן", "דוד לוי",
-        "משה דיין", "אהוד ברק", "מירי רגב", "אבי גבאי", "זלמן שזר",
-        "מנחם בגין", "יצחק רבין", "לוי אשכול", "יאיר לפיד", "שמעון פרס",
-        "יצחק נבון", "נפתלי בנט", "משה כחלון", "אריה דרעי", "ציפי לבני",
-    ],
-    "athlete": [
-        "נדאל", "פדרר", "זידאן", "בקהאם", "יעל ארד", "שחר פאר", "טייסון",
-        "רונאלדו", "מראדונה", "ערן זהבי", "טל ברודי", "גל פרידמן",
-        "אריק זאבי", "שגיא מוקי", "דני אבדיה",
-    ],
-    "author": [
-        "צ'כוב", "קפקא", "דנטה", "בלזק", "דיקנס", "נתן זך", "ביאליק",
-        "אלתרמן", "אורוול", "הומרוס", "מולייר", "ז'ול ורן", "ש\"י עגנון",
-        "עמוס עוז", "אתגר קרת", "מאיר שלו", "א\"ב יהושע", "טולסטוי",
-        "שייקספיר",
-    ],
-    "actor": [
-        "טופול", "צ'פלין", "קלוני", "בוגרט", "גל גדות", "ברד פיט",
-        "דה נירו", "סטאלון", "רובינא", "ליאור רז", "רותם סלע", "זאב רווח",
-        "טום קרוז", "טום הנקס", "אלן דלון", "אל פצ'ינו", "דיקפריו",
-        "איסטווד", "יהודה לוי", "שון קונרי", "ששון גבאי", "משה איבגי",
-        "חנה לסלאו", "אושרי כהן", "מל גיבסון", "ניקולסון",
-    ],
-    "world_city": [
-        "פריז", "רומא", "וינה", "פראג", "ורשה", "מרקש", "אמאן", "דמשק",
-        "ריאד", "קייב", "קהיר", "רבאט", "טהרן", "מדריד", "ברלין", "אתונה",
-        "טוקיו", "סידני", "דובאי", "דבלין", "מינכן", "ונציה", "שיקגו",
-        "מיאמי", "אוסלו", "בריסל", "ציריך", "סיאול", "תוניס", "בגדאד",
-        "בלגרד", "לונדון", "מוסקבה", "ליסבון", "בודפשט", "מילאנו",
-        "פירנצה", "יוסטון", "שנגחאי", "בנגקוק", "מומבאי", "ביירות",
-        "בוקרשט", "בוסטון", "דטרויט", "ניו יורק", "איסטנבול", "ברצלונה",
-        "הלסינקי", "שטוקהולם", "קופנהגן", "קזבלנקה", "אמסטרדם", "ליברפול",
-        "לאס וגאס", "הונולולו", "קייפטאון",
-    ],
-    "common": [
-        "מורס", "פחות", "יחמור", "קולגה", "ממלכה", "מגדלור", "קומקום",
-        "מטרייה", "סביבון", "בלרינה", "מיניבוס", "ירושלמי", "אמבולנס",
-        "אווירון", "אופניים", "פניצילין", "משקפיים",
-    ],
-}
-
-HEB_ONLY = re.compile(r"^[א-ת]+$")
-FINALS = set("ךםןףץ")
-FIN_TR = str.maketrans("ךםןףץ", "כמנפצ")
+HEB_ONLY = re.compile(r"^[\u05d0-\u05ea]+$")
+FINALS = set("\u05da\u05dd\u05df\u05e3\u05e5")
+FIN_TR = str.maketrans("\u05da\u05dd\u05df\u05e3\u05e5", "\u05db\u05de\u05e0\u05e4\u05e6")
 
 
 def _norm(s):
-    return re.sub(r"[^א-ת]", "", s or "").translate(FIN_TR)
+    return re.sub(r"[^\u05d0-\u05ea]", "", s or "").translate(FIN_TR)
 
 
 def load_candidates():
-    data = json.loads(ENTITIES.read_text(encoding="utf-8"))
-    famous = {cat: {_norm(t) for t in names} for cat, names in FAMOUS.items()}
+    """Resolve every pooled name to {n, t, d} against its source.
+
+    Fails loudly on anything that does not resolve: a pool entry that silently
+    vanished would shrink a day's choices without anyone noticing, which is how
+    the boards drifted into obscurity in the first place.
+    """
+    entities = json.loads(ENTITIES.read_text(encoding="utf-8"))
     by_cat = {}
-    for e in data:
-        cat = e.get("c")
-        if cat not in THEMES:
-            continue
-        n = e.get("n", "")
-        if not HEB_ONLY.match(n) or set(n) & FINALS:
-            continue
-        if not (MIN_LEN <= len(n) <= MAX_LEN):
-            continue
-        d = e.get("d", "")
-        req = REQUIRE_DESC_RE.get(cat)
-        if req and not req.match(d):
-            continue
-        exc = EXCLUDE_DESC_RE.get(cat)
-        if exc and exc.search(d):
-            continue
-        bucket = by_cat.setdefault(cat, {})
-        if n not in bucket:  # dedupe by normalized name
-            bucket[n] = {"n": n, "t": e.get("t", n), "d": d,
-                         "p": e.get("p", 0),
-                         "f": 1 if n in famous.get(cat, ()) else 0}
-    return {cat: list(v.values()) for cat, v in by_cat.items()}
+    for e in entities:
+        by_cat.setdefault(e.get("c"), {}).setdefault(_norm(e.get("t", "")), e)
+    fillbank = json.loads(FILLBANK.read_text(encoding="utf-8"))
+    fb_by_norm = {}
+    for word, desc in fillbank.items():
+        if HEB_ONLY.match(word):
+            fb_by_norm.setdefault(_norm(word), (word, desc))
+
+    cands, broken = {}, []
+    for cat, names in POOLS.items():
+        bucket = {}
+        for name in names:
+            n = _norm(name)
+            if not (MIN_LEN <= len(n) <= MAX_LEN) or set(n) & FINALS:
+                broken.append(f"{cat}/{name}: unusable length {len(n)}")
+                continue
+            if cat in FILLBANK_CATS:
+                hit = fb_by_norm.get(n)
+                if not hit:
+                    broken.append(f"{cat}/{name}: not in fillbank.json")
+                    continue
+                display, desc = hit
+            else:
+                rec = None
+                for src in ENTITY_SOURCES.get(cat, (cat,)):
+                    rec = by_cat.get(src, {}).get(n)
+                    if rec:
+                        break
+                if not rec:
+                    broken.append(f"{cat}/{name}: not in entities.json")
+                    continue
+                display, desc = rec.get("t", name), rec.get("d", "")
+            if not desc:
+                broken.append(f"{cat}/{name}: no description")
+                continue
+            bucket.setdefault(n, {"n": n, "t": display, "d": desc})
+        cands[cat] = list(bucket.values())
+    if broken:
+        sys.exit("pool entries that do not resolve:\n  " + "\n  ".join(broken))
+    return cands
 
 
 def neighbors(rows, cols):
@@ -249,20 +159,11 @@ def hamiltonian_path(rows, cols, rng, restarts=60, budget=80000):
 
 
 def pick_words(cands, total, rng, used_global, n_words=WORDS_PER_PUZZLE,
-               forbid=frozenset(), require_desc=False, prefer_rich=False,
-               famous_only=False):
+               forbid=frozenset()):
     """Pick n_words distinct words with lengths summing to total.
-    Prefer words not used on earlier days; never pick words in forbid.
-    famous_only restricts to the curated FAMOUS list (the easy board);
-    prefer_rich additionally prefers entities with rich milon pages."""
-    pool = [e for e in cands
-            if e["n"] not in forbid and (not require_desc or e.get("d"))
-            and (not famous_only or e.get("f"))]
-    if prefer_rich:
-        order = sorted(pool, key=lambda e: (e["n"] in used_global,
-                                            not e.get("p"), rng.random()))
-    else:
-        order = sorted(pool, key=lambda e: (e["n"] in used_global, rng.random()))
+    Prefer words not used on earlier days; never pick words in forbid."""
+    pool = [e for e in cands if e["n"] not in forbid]
+    order = sorted(pool, key=lambda e: (e["n"] in used_global, rng.random()))
 
     def dfs(start, chosen, s):
         if len(chosen) == n_words:
@@ -304,8 +205,7 @@ def validate(puzzle):
 
 
 def build_day(day_index, cands, rng, used_global, n_words=WORDS_PER_PUZZLE,
-              cols=COLS, day_totals=TOTALS, forbid=frozenset(),
-              require_desc=False, prefer_rich=False, famous_only=False):
+              cols=COLS, day_totals=TOTALS, forbid=frozenset()):
     cat = ROTATION[day_index % len(ROTATION)]
     theme, emoji = THEMES[cat]
     totals = list(day_totals)
@@ -313,7 +213,7 @@ def build_day(day_index, cands, rng, used_global, n_words=WORDS_PER_PUZZLE,
     for total in totals:
         for _attempt in range(40):
             words = pick_words(cands[cat], total, rng, used_global, n_words,
-                               forbid, require_desc, prefer_rich, famous_only)
+                               forbid)
             if not words:
                 break
             rows = total // cols
@@ -324,9 +224,6 @@ def build_day(day_index, cands, rng, used_global, n_words=WORDS_PER_PUZZLE,
             grid = [""] * total
             for pos, cell in enumerate(path):
                 grid[cell] = letters[pos]
-            # p (rich-page flag) steers picking only; keep it out of the
-            # published file so the schema the page reads stays stable.
-            words = [{k: v for k, v in w.items() if k != "p"} for w in words]
             puzzle = {
                 "cat": cat,
                 "theme": theme,
@@ -362,36 +259,22 @@ def main():
         days[d] = puzzle
         stats[puzzle["cat"]] = stats.get(puzzle["cat"], 0) + 1
 
-    # Easy mode: separate rng + used-set so the regular puzzles above rebuild
-    # byte-identically. Same day-theme as the regular puzzle; the day's regular
-    # words are forbidden so the two boards never share a word. Every easy word
-    # must carry a description, which the page shows as an up-front clue - and
-    # every word comes from the curated FAMOUS list, because an easy board with
-    # a mountain in Nigeria is not easy. Falls back to the full pool only if
-    # the famous pool can't tile the day's board.
+    # Easy mode: separate rng + used-set. Same day-theme as the regular puzzle;
+    # the day's regular words are forbidden so the two boards never share a
+    # word. Both modes draw from the same curated pool - easy differs by a
+    # smaller board, one word fewer, and a clue printed under every slot.
     easy_rng = random.Random("nativ-easy-v1")
     easy_used = set()
     easy = {}
-    fallback_days = []
     for i in range(DAYS):
         d = (START + timedelta(days=i)).isoformat()
         day_words = frozenset(w["n"] for w in days[d]["words"])
         puzzle = build_day(i, cands, easy_rng, easy_used, n_words=EASY_WORDS,
                            cols=EASY_COLS, day_totals=EASY_TOTALS,
-                           forbid=day_words, require_desc=True,
-                           prefer_rich=True, famous_only=True)
-        if puzzle is None:
-            puzzle = build_day(i, cands, easy_rng, easy_used,
-                               n_words=EASY_WORDS, cols=EASY_COLS,
-                               day_totals=EASY_TOTALS, forbid=day_words,
-                               require_desc=True, prefer_rich=True)
-            fallback_days.append(d)
+                           forbid=day_words)
         if puzzle is None:
             sys.exit(f"FAILED to build easy puzzle for {d}")
         easy[d] = puzzle
-    if fallback_days:
-        print(f"WARNING: {len(fallback_days)} easy days fell back past the "
-              f"famous pool: {fallback_days}")
 
     out = {"start": START.isoformat(), "days": days, "easy": easy}
     OUT.parent.mkdir(parents=True, exist_ok=True)
@@ -401,6 +284,8 @@ def main():
     reread = json.loads(OUT.read_text(encoding="utf-8"))
     for d, p in reread["days"].items():
         validate(p)
+    for d, p in reread["days"].items():
+        assert all(w.get("d") for w in p["words"]), f"{d}: word without a clue"
     for d, p in reread["easy"].items():
         validate(p)
         assert all(w.get("d") for w in p["words"]), f"easy {d}: word without clue"
