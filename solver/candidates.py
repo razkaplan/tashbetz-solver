@@ -44,6 +44,18 @@ This module does exactly that, per clue, with no LLM involved:
                           before combined with the mechanisms above as one candidate pool —
                           see its own docstring for why the union, not either number alone,
                           is the point of wiring it in here.
+  - double_definition_candidates: also DEFINITION-driven, but targets a mechanism none of
+                          the above touch at all — PLAYBOOK.md 1.2, מילה משותפת, 14% of
+                          this setter's clues, the SECOND most common device after charade,
+                          with no wordplay indicator to key off at all: the clue is just two
+                          independent definitions of the same word/phrase side by side. Every
+                          split point of the clue into a left half and a right half is queried
+                          against retrieve_defs's BM25 index SEPARATELY, and only an answer
+                          that ranks for BOTH halves independently is proposed — a signal the
+                          whole-clue query (retrieval_candidates) or an end-anchored window
+                          query (defspan-style) cannot produce, since those score one bag of
+                          words against one document, never two independently-verified halves
+                          against each other. See its own docstring for the full rationale.
   - split_candidates:    for multi-part enums (e.g. (5,2)), splits a hit at the enum
                           boundary and flags whether BOTH pieces are real words — the
                           precondition prove.py's word_order() needs to succeed.
@@ -62,6 +74,7 @@ CLI:
   python3 solver/candidates.py recall data/dataset/clues.jsonl eval --no-culture  # ablation
   python3 solver/candidates.py recall data/dataset/clues.jsonl eval --no-retrieval  # ablation
   python3 solver/candidates.py recall data/dataset/clues.jsonl eval --no-container  # ablation
+  python3 solver/candidates.py recall data/dataset/clues.jsonl eval --no-double-def  # ablation
   python3 solver/candidates.py selftest
 """
 import sys, os, re, json
@@ -490,6 +503,71 @@ def retrieval_candidates(clue_text, target_len, topk=25, docs_df=None):
     return [{'answer': a, 'mechanism': 'retrieval', 'fodder': None} for a, _score in hits]
 
 
+_DOUBLE_DEF_DOCS_DF = None
+
+
+def double_definition_candidates(clue_text, target_len, topk=15, docs_df=None):
+    """DEFINITION-hypothesis candidate generation for the מילה משותפת (double-definition)
+    device — PLAYBOOK.md §1.2, 103/728 = 14% of clues, the SECOND most common mechanism
+    after charade, and the one this file had NOTHING for until today: it carries no
+    wordplay at all (no anagram fodder, no reversal, no container splice — every letter
+    of the answer is "explained" only by meaning it twice), so every other generator in
+    this file, which all derive an answer from the clue's LETTERS or a hand-curated
+    category/index lookup, is structurally the wrong shape for it.
+
+    PLAYBOOK.md's own worked examples are almost all 2-4 word clues that are simply two
+    definitions placed side by side ("קרב על חלקנו?" -> מנת: קרב-מנת קרב / חלקנו-מנת
+    חלקנו), and "short answers (enum [3]) are overwhelmingly double definitions." The
+    structural signature is therefore: split the clue at EVERY word boundary into a left
+    half and a right half, and ask whether some answer of the target length is a strong
+    BM25 match for BOTH halves independently, using the same held-out-safe definition
+    index retrieval_candidates() already uses (solver/retrieve_defs.py — private_defs
+    crawls + this project's own train-split explanations). A whole-clue query
+    (retrieval_candidates) or an end-anchored window query cannot produce this signal:
+    both score one bag of words against one document, so a clue built from two UNRELATED
+    definitions dilutes both halves' scores instead of confirming them. Requiring a hit
+    in both halves' independent top-K is a materially different (and stricter, higher-
+    precision) test than requiring it in either alone.
+
+    Held-out safe by construction, same as retrieval_candidates: retrieve_defs.candidates()
+    reads from build_index()'s docs, which already excludes every dev/eval answer via
+    retrieve_defs.held_out() before this function ever sees it. `docs_df` is injectable
+    (tests / callers) so a selftest can supply a tiny synthetic index instead of the real
+    corpus, same discipline every other mechanism here follows."""
+    sys.path.insert(0, HERE)
+    import retrieve_defs
+    words = words_of(clue_text)
+    if len(words) < 2:
+        return []
+    cwd = os.getcwd()
+    try:
+        os.chdir(ROOT)
+        if docs_df is not None:
+            df = docs_df
+        else:
+            global _DOUBLE_DEF_DOCS_DF
+            if _DOUBLE_DEF_DOCS_DF is None:
+                _DOUBLE_DEF_DOCS_DF = retrieve_defs.build_index()
+            df = _DOUBLE_DEF_DOCS_DF
+        best = {}
+        for i in range(1, len(words)):
+            half_a = ' '.join(words[:i])
+            half_b = ' '.join(words[i:])
+            hits_a = dict(retrieve_defs.candidates(half_a, target_len, topk=topk, docs_df=df))
+            if not hits_a:
+                continue
+            hits_b = dict(retrieve_defs.candidates(half_b, target_len, topk=topk, docs_df=df))
+            for a in set(hits_a) & set(hits_b):
+                score = hits_a[a] + hits_b[a]
+                if score > best.get(a, (0, None))[0]:
+                    best[a] = (score, f'{half_a} | {half_b}')
+    finally:
+        os.chdir(cwd)
+    ranked = sorted(best.items(), key=lambda x: -x[1][0])[:topk]
+    return [{'answer': a, 'mechanism': 'double_definition', 'fodder': fodder}
+            for a, (_score, fodder) in ranked]
+
+
 def pattern_candidates(pattern):
     """pattern like '?ו?ר??' — '?' or '_' = unknown crossing letter. The lexicon folds
     final letters (ם/ן/ץ/ף/ך -> מ/נ/צ/פ/כ) everywhere, so fixed cells must be folded
@@ -527,7 +605,7 @@ def split_candidates(cands, enum):
 
 
 def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retrieval=True,
-             use_container=True):
+             use_container=True, use_double_def=True):
     """Diverse candidates for one clue. Never consults the answer.
 
     Mechanism order here is a PRIORITY order, not just an accumulation order: dedup +
@@ -550,8 +628,12 @@ def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retr
     candidates draws on (container_parts()), not an unbounded window scan, and PLAYBOOK.md
     ranks the container device as more common (~10-12%) than substitution/homograph
     combined get credit for, so it does not deserve to wait behind the cheap mechanisms
-    either. `use_culture`/`use_retrieval`/`use_container` are plain on/off switches so a
-    controlled before/after recall measurement doesn't need extra copies of this function."""
+    either. double_definition_candidates is placed in the same tier: it requires an answer
+    to rank in BOTH of two independent BM25 queries (stricter, lower-volume than either
+    retrieval_candidates or culture_category alone), so it never needs to wait behind the
+    window-scan mechanisms either. `use_culture`/`use_retrieval`/`use_container`/
+    `use_double_def` are plain on/off switches so a controlled before/after recall
+    measurement doesn't need extra copies of this function."""
     target_len = sum(enum)
     cands = []
     cands += homograph_candidates(clue_text, target_len)
@@ -562,6 +644,8 @@ def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retr
         cands += culture_category_candidates(clue_text, target_len)
     if use_retrieval:
         cands += retrieval_candidates(clue_text, target_len)
+    if use_double_def:
+        cands += double_definition_candidates(clue_text, target_len)
     if pattern:
         cands += pattern_candidates(pattern)
     cands += anagram_candidates(clue_text, target_len)
@@ -586,7 +670,7 @@ def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retr
 # separate integration step, not done by this lever).
 # ---------------------------------------------------------------------------
 def recall_eval(dataset_path, split=None, max_n=25, use_culture=True, use_retrieval=True,
-                 use_container=True):
+                 use_container=True, use_double_def=True):
     total = 0
     hit = 0
     by_mech = Counter()
@@ -600,7 +684,8 @@ def recall_eval(dataset_path, split=None, max_n=25, use_culture=True, use_retrie
             continue
         total += 1
         cands = generate(r['clue_text'], r['enum'], max_n=max_n, use_culture=use_culture,
-                          use_retrieval=use_retrieval, use_container=use_container)
+                          use_retrieval=use_retrieval, use_container=use_container,
+                          use_double_def=use_double_def)
         sizes.append(len(cands))
         gold = norm(r['answer_raw'])
         found = [c for c in cands if c['answer'] == gold]
@@ -753,6 +838,30 @@ def selftest():
           f'not here): {len(off) >= 1} (expected True)')
     ok &= len(off) >= 1
 
+    print('--- double_definition device: an answer ranking for BOTH independent clue '
+          'halves is proposed; one ranking for only ONE half is not ---')
+    # synthetic 2-doc index: 'גדי' (goat/Gedi, gold) is a strong match for BOTH a
+    # "luck" reading and a "zodiac sign" reading — the double-definition signature.
+    # 'מזל' alone (single-half match) must NOT surface, since it fires for only one side.
+    dd_docs_df = ([
+        (['מזל', 'גורל', 'הצלחה'], [norm('גדי')], None),
+        (['מזל', 'טלה', 'שור'], [norm('מזל')], None),          # zodiac-only match
+        (['גדי', 'עז', 'צאן'], [norm('גדי')], None),
+    ], {'מזל': 2, 'גורל': 1, 'הצלחה': 1, 'טלה': 1, 'שור': 1, 'גדי': 2, 'עז': 1, 'צאן': 1})
+    dd_hits = double_definition_candidates('מזל גדי', 3, docs_df=dd_docs_df)
+    found = any(h['answer'] == norm('גדי') for h in dd_hits)
+    print(f'  found גדי matching BOTH halves ("מזל" and "גדי"): {found} (expected True)')
+    ok &= found
+    single_half_leaked = any(h['answer'] == norm('מזל') for h in dd_hits)
+    print(f'  מזל (only the FIRST half\'s own top hit, absent from the second half\'s '
+          f'index at all) excluded: {not single_half_leaked} (expected True)')
+    ok &= not single_half_leaked
+    print('--- double_definition device: a single-word clue (no split point) yields '
+          'nothing rather than erroring ---')
+    empty = double_definition_candidates('שלום', 4, docs_df=dd_docs_df)
+    print(f'  empty result for an unsplittable clue: {empty == []} (expected True)')
+    ok &= empty == []
+
     print('--- split_candidates: flags whether a multi-part answer is two real words ---')
     split = split_candidates([{'answer': norm('שלוםעליכם'), 'mechanism': 'test'}], [4, 5])
     print(f'  split result: {split[0]["split"]} (expected two real words, not None)')
@@ -779,16 +888,18 @@ def main():
         use_culture = '--no-culture' not in rest
         use_retrieval = '--no-retrieval' not in rest
         use_container = '--no-container' not in rest
-        rest = [a for a in rest if a not in ('--no-culture', '--no-retrieval', '--no-container')]
+        use_double_def = '--no-double-def' not in rest
+        rest = [a for a in rest if a not in
+                ('--no-culture', '--no-retrieval', '--no-container', '--no-double-def')]
         path = rest[0] if len(rest) > 0 else 'data/dataset/clues.jsonl'
         split = rest[1] if len(rest) > 1 else None
         os.chdir(ROOT)
         res = recall_eval(path, split, use_culture=use_culture, use_retrieval=use_retrieval,
-                           use_container=use_container)
+                           use_container=use_container, use_double_def=use_double_def)
         print(f"recall@N: {res['hit']}/{res['total']} = {res['recall']:.1%}  "
               f"(avg {res['avg_candidates']:.1f} candidates/clue, "
               f"use_culture={use_culture}, use_retrieval={use_retrieval}, "
-              f"use_container={use_container})")
+              f"use_container={use_container}, use_double_def={use_double_def})")
         print('hits by mechanism:', res['by_mechanism'])
         if res['misses']:
             print(f"\n{len(res['misses'])} misses (clue_number, direction, gold):")

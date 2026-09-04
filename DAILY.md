@@ -22,9 +22,86 @@ tree - a stale CLI deploy overwrote the live site on 2026-08-29. See CLAUDE.md.
 | **Definition-span locatable rate (new, offline, diagnostic)** | **25% (7/28)** have mechanically-locatable single-window wordplay; of those 29% (2/7) are interior, not edge; classifier agreement on edge cases **1/5** | not a target — this diagnostic KILLED the lever, see log |
 | **`solve_pass.py` LIVE blind trial — cumulative (3 trials)** | **40% precision (2/5 committed)**: 2026-08-16 was 1/2 on a partial 21/28-clue puzzle (2026-06-12); 2026-08-22 was **0/2**, 7.1% coverage, on a FULL 28/28-clue puzzle (2026-05-15); **2026-08-27 is 1/1 = 100% precision but 5.3% coverage (1/19), 0% suggestion hit-rate (0/10)**, on 2026-07-10 (19/28 clues) — FIRST trial run with `retrieval_candidates` live (wired 2026-08-25, never live-trialed since); it contributed ZERO candidates all puzzle (grepped the transcript for `(retrieval, fodder=` hits — none), matching today's own offline recall@N finding on this same puzzle (0/19 with or without retrieval); the one correct commit came from `wiki.py` culture-fact lookup, not from any candidate generator | n=5 — still small; retrieval's live debut is a null result on this puzzle, not a regression, but not the coverage lift the queue hoped for either; see log |
 | **Candidate recall@N with `culture_category_candidates` added (new, offline, definition-driven)** | Two independent puzzles now measured, both UNCHANGED vs baseline: **0% (0/28)** on 2026-06-19 (fired 1/28 clues); **2026-08-31, SECOND puzzle 2026-07-03: baseline 7.1% (2/28) → still 7.1% (2/28) with culture ON**, fired 3/28 clues (43 raw candidates), 0 gold hits. Across both puzzles: fired on 4/56 clue-instances, 0/4 hits — but the 3 new firings show 3 DIFFERENT root causes, not a repeat of one: one homograph/pun misdirection (reproduces 2026-06-19's finding), one where the gold answer IS in the raw corpus but is correctly excluded by the held-out safety filter (a measurement-methodology blind spot, not a corpus gap), one genuine corpus coverage gap (the specific mountain name is absent from culture.json's 119-entry list) | not yet a target — n=4 fired-clue diagnostic, see log |
+| **Candidate recall@N with `double_definition_candidates` added (new, offline, two-independent-half BM25 retrieval)** | **0% (0/21)** on 2026-05-21 (fresh puzzle) — mechanism fired on **0/21 clues**, not just missed gold: even relaxing the requirement to "gold appears in EITHER half's independent top-K alone" (not both), the gold answer was absent from both halves for every one of the 5 short [<=4]-letter slots checked (the class PLAYBOOK.md says is "overwhelmingly double definitions"); mechanical baseline 0.0%, `retrieval_candidates` alone (same corpus) 9.5% (2/21) shows the corpus itself isn't empty — this is a genuine per-mechanism null, not a corpus-availability artifact | not yet a target — n=1 puzzle, see log |
 
 Baseline for comparison: v2 = 41% raw with untraceable errors.
-Last lever added (2026-09-03): **`container_candidates` — a mechanical candidate
+Last lever added (2026-09-04): **`double_definition_candidates` — the מילה משותפת (double-definition)
+device, PLAYBOOK.md §1.2, 14% of clues, the second most common mechanism after charade and,
+per a grep of `candidates.py`, the only PLAYBOOK-documented device with zero prior generator
+(mechanical or definition-driven).** For every word-boundary split of the clue, queries
+`retrieve_defs`'s BM25 index separately on each half and keeps only an answer ranking in BOTH
+halves' independent top-K — a signal a whole-clue query or a single end-window query cannot
+produce, since those score one bag of words against one document. See RESEARCH.md: no external
+resource generates double-definition candidates for a language without WordNet/embeddings
+(checked directly via a new GitHub hybrid cryptic-helper repo), so this reuses the project's own
+already-audited BM25 tool instead. Transcribed a genuinely fresh dev puzzle, 2026-05-21 (chosen
+specifically because — unlike 2026-05-29/2026-06-26/2026-07-03, all of which this file's own
+prior log entries have quoted specific gold-answer strings for — no gold letters for this date
+had been disclosed anywhere in required reading before this run, mitigating the standing
+"DAILY.md itself is a leak vector" finding from 2026-08-30 for at least this one measurement).
+14across hard-walled again (0/52 after the dev-only bootstrap timeout); used the no-14across
+image-fallback technique. 21/21 printed clues transcribed from `data/images/2026-05-20.jpg`
+(the standard across-1-12 gap: clues 7,8,9,10 have grid slots but no printed text, excluded per
+established practice); every enum validated against the grid-derived slot length via
+`solver/grid_tools.py validate` before any gold data was touched — 0 genuine mismatches, the only
+7 "problems" reported are exactly the missing across slots. GOLD LETTERS came from the small
+solved-grid recap in the FOLLOWING week's image (`data/images/2026-05-28.jpg`); grid-calibrated
+programmatically (row/column pixel boundaries derived and cross-checked, not eyeballed) after an
+initial pass drifted by a full row past row 9 and was CAUGHT (not silently fixed) by comparing
+the derived black-cell pattern against the already-committed `data/grids/2026-05-21.json`:
+**all 15 rows match EXACTLY, 0/15 mismatches**, only after correcting the drift. `crawl_defs.py
+mordo` ran under a disclosed 10-minute time budget (killed by timeout, not run to a natural
+stop): 33,299 raw entries, 32,150 with parsed answers after `reparse_mordo()` — smaller than
+recent runs' peak corpus (66K+), since only a partial crawl completed and `note.co.il` was not
+crawled at all this run.
+
+MEASURED, controlled (`python3 solver/candidates.py recall data/dataset/clues.jsonl eval
+[--no-culture] [--no-retrieval] [--no-double-def]`): mechanical-only baseline **0.0% (0/21)**;
+**+ retrieval alone: 9.5% (2/21)** (רוקפור/Roquefort cheese, פרופסורה/professorship — both
+confirmed `pid=None` external mordo docs, clean semantic fits); **+ double_definition alone:
+0.0% (0/21), mechanism fired on 0/21 clues** — not one split-point query on either clue half
+ever returned the gold answer in its own top-K, for any clue, including the five short
+(<=4-letter) slots PLAYBOOK.md flags as "overwhelmingly double definitions." Full defaults
+(culture+retrieval+double_def) land at the same 9.5% (2/21) as retrieval alone, confirming
+double_definition contributes nothing here and culture_category still doesn't fire on this
+puzzle either.
+
+AUDITED (mandatory gate). `lexicon.held_out_answers()` and `retrieve_defs.held_out()` both
+confirmed (computed, not assumed) to block all 21 of this puzzle's own gold answers (`gold -
+blocked` empty for both). Provenance of the 2 retrieval hits checked directly: both carry
+`pid=None`, `רוקפור`'s docs are about "סוג גבינה מחלב כבשים" (a type of sheep's-milk cheese,
+matching the clue's own "גבינה"), `פרופסורה`'s doc is about "מעמד אקדמי" (academic status,
+matching the clue's own "מעמד אקדמאי") — clean semantic fits, not coincidental string matches.
+No forbidden reads: 14across was never queried for this puzzle's gold data, only the two public
+CDN images. No jump to explain: 0.0%->9.5% is well under the ~15-point suspicion bar. All 5
+affected selftests (`candidates.py`, `retrieve_defs.py`, `lexicon.py`, `prove.py`,
+`substitutions.py`) re-run clean; `candidates.py selftest` gained two new checks for
+`double_definition_candidates` (a synthetic case where an answer matches both halves and a
+distractor matching only one half is correctly excluded; a single-word clue returns empty
+rather than erroring).
+
+HONEST READ: this is a genuine negative result, and a more informative one than a flat "0
+gold hits" — the mechanism structurally never fires on this puzzle's clues at all, which
+rules out "generates candidates but ranks them wrong" as the failure mode and points instead
+at corpus coverage: this project's mordo-only, partially-crawled (10-minute budget, no
+note.co.il) index apparently doesn't hold matching definitions for either half of these
+specific short clues, even though it DOES hold matching definitions for two longer,
+single-query clues (the retrieval-alone hits). Whether a fuller corpus (note.co.il added, mordo
+crawled to a natural stop as in 2026-08-30's 66K-entry run) would let this mechanism fire at all
+is untested this run — the corpus-growth pattern that repeatedly rescued `retrieval_candidates`
+on other puzzles has not yet been tried against this specific two-sided-split mechanism.
+
+NOT DONE, honestly: did not crawl `note.co.il` or let `mordo` run to a natural stop (a
+disclosed 10-minute budget, smaller than recent runs' peak corpus) — the corpus-size question
+this raises for double_definition specifically is a concrete next step, not attempted here to
+keep this run to one lever; did not re-measure a second puzzle (this project's own standing
+finding is that retrieval-style mechanisms are puzzle-dependent — one puzzle's null result is
+not yet proof the device never fires); did not act on the DAILY.md-as-leak-vector observation
+beyond mitigating it for today's own puzzle choice; did not merge or otherwise act on any of the
+four solver PRs open against main (#38, #39, #41, #42 — read directly to confirm none had
+already tried this device, not merged: only the project owner merges PRs).
+
+Previous lever (2026-09-03): **`container_candidates` — a mechanical candidate
 generator for the container/insertion device (PLAYBOOK.md §1.4, ~10-12% of this
 setter's clues, the fourth-most-common mechanism), which until today was pure
 verification infrastructure (`prove.is_container`, present since the proof gate was
@@ -677,6 +754,23 @@ propagated), `blank`. Score with `python3 evals/run_eval.py <file>`.
    re-measure once a puzzle with real crowd explanations is available, before
    concluding anything about the mechanism itself. Selftest (a real lexicon word, not
    synthetic) confirms it is mechanically sound.
+   (f) `double_definition_candidates` — the מילה משותפת device (PLAYBOOK.md §1.2, 14% of
+   clues, second most common after charade) — ADDED 2026-09-04 (see log): the one
+   PLAYBOOK-documented mechanism that had zero generator, mechanical or definition-driven,
+   before today. For every clue-word split point, requires an answer to rank in BOTH
+   halves' independent BM25 top-K, reusing `retrieve_defs.py`. MEASURED NEGATIVE on a
+   fresh puzzle (2026-05-21): 0.0% (0/21), and — more informative than the flat number —
+   the mechanism fired on 0/21 clues; even relaxing to "gold in EITHER half alone" found
+   nothing for any of the 5 short (<=4-letter) slots checked, the class PLAYBOOK.md says is
+   overwhelmingly double-definition. `retrieval_candidates` on the SAME corpus scored 9.5%
+   (2/21) on this puzzle, so the corpus isn't empty — this specific two-sided-split
+   mechanism just found no matching definition-pair for these particular clues. Today's
+   corpus was mordo-only, under a disclosed 10-minute crawl budget (33,299 raw / 32,150
+   parsed) with no note.co.il — smaller than the 66K+ peak corpus 2026-08-30 grew;
+   untested whether a fuller corpus (the lever that repeatedly rescued
+   `retrieval_candidates` on other puzzles) would let this mechanism fire at all. Next
+   concrete steps if revisited: grow the corpus for this puzzle specifically before calling
+   the mechanism dead, and/or measure a second puzzle (n=1 so far).
 2. ~~Definition-span detection~~ — TRIED 2026-08-19, NEGATIVE. See log and "already
    tried" below. Do not re-attempt without a fundamentally different signal (not
    indicator-word density).
@@ -2688,3 +2782,87 @@ Measure each lever on dev (fixed enums) with run_eval.py before/after; one lever
   using it here would risk exactly the kind of leak RESULTS.md's INTEGRITY FINDING
   already caught once; left the fragment source honestly empty rather than take that
   risk.
+- 2026-09-04: **candidate generation, queue item 1(f): `double_definition_candidates` —
+  the מילה משותפת (double-definition) device.** Four solver-lever PRs were open and
+  unmerged against main when this run started (#38 2026-08-31, #39 2026-09-01, #41
+  2026-09-02, #42 2026-09-03) — read directly (diffs against their own merge-bases) to
+  confirm none had already built this device before choosing it; not merged or
+  cherry-picked (only the project owner merges PRs; this run branches off main per
+  standing protocol). See RESEARCH.md for the full research entry: checked a new GitHub
+  hybrid cryptic-helper repo directly and confirmed it does generate double-definition
+  candidates, but via English WordNet/embeddings with no Hebrew equivalent — the
+  transferable idea (score each clue half independently, require both to agree) was
+  built with this project's own already-audited `retrieve_defs.py` BM25 index instead of
+  any new external dependency.
+
+  BOOTSTRAP hit the 14across hard wall again (killed at the dev-only timeout, 0/52);
+  hspell and the dev puzzle images (public CDN) came through cleanly. `crawl_defs.py
+  mordo` ran under a disclosed 10-minute budget (killed by timeout): 33,299 raw entries.
+  **Caught a real gap in that step**: the raw crawl output has no parsed `answers` field
+  at all (0/33,299) until `reparse_mordo()` is run separately — a step named in this
+  file's own prior log prose but not in `crawl_defs.py`'s own docstring/CLI in a way that
+  makes it obvious; ran it explicitly (32,150/33,299 gained parsed answers) and confirmed
+  the retrieval index was non-empty before treating any 0% result as meaningful, catching
+  what would otherwise have been a silent false negative (an empty index trivially
+  produces 0% recall for every mechanism, which is a corpus bug, not a solving result).
+
+  PUZZLE CHOICE, deliberately: this file's own log prose has repeatedly quoted specific
+  gold-answer strings for 2026-05-29, 2026-06-26, and 2026-07-03 (each required reading
+  before this run, a leak-adjacent property flagged since 2026-08-22/08-30 but never
+  fixed) — chose 2026-05-21 instead, a date this file has never named a gold answer for,
+  to keep at least this one measurement clean of that specific risk. Transcribed all 21
+  printed clues (8 across, 13 down; the standard across-1-12 gap excludes clues 7,8,9,10)
+  from `data/images/2026-05-20.jpg`. Every enum validated against the grid-derived slot
+  length (`grid_tools.py validate`, 0 genuine mismatches — the 7 reported "problems" are
+  exactly the excluded missing-clue slots) before any gold data was touched.
+
+  GOLD LETTERS from the small solved-grid recap in `data/images/2026-05-28.jpg`
+  (captioned "פתרון תשבץ ההיגיון לשבוע שעבר"). Grid-calibrated programmatically
+  (darkness-threshold gridline detection). **A real transcription drift was caught, not
+  silently fixed**: an early row-by-row read drifted by a full row past row 9 (a padding
+  miscalculation in the crop offsets), producing letters that looked individually
+  plausible but, once checked, didn't match ANY of the grid's known row patterns for
+  their apparent position. Re-derived the affected rows by matching each row's own
+  BLACK-CELL SHAPE (not just content) against the committed grid's per-row pattern list,
+  which is unambiguous even when letter content alone isn't — this recovered the correct
+  row order. Final transcription: **all 15 rows match the committed
+  `data/grids/2026-05-21.json` pattern EXACTLY, 0/15 mismatches**, the project's
+  strongest standard cross-check. Several extracted answers make independent semantic
+  sense against their clues beyond the pattern match alone (רוקפור/Roquefort for a
+  cheese clue, לימוזינ/limousine for "an expensive car", שדרות/Sderot — a southern
+  Israeli city — for "fed from it, a worker in a southern city", ירדאלהעמ/"ירד אל העם"
+  for Moses "descending to the people" at the giving of the Torah).
+
+  MEASURED, controlled (`python3 solver/candidates.py recall data/dataset/clues.jsonl
+  eval [--no-culture] [--no-retrieval] [--no-double-def]`): mechanical-only baseline
+  **0.0% (0/21)**; **+ retrieval alone: 9.5% (2/21)** (רוקפור, פרופסורה); **+
+  double_definition alone: 0.0% (0/21), fired on 0/21 clues** — confirmed directly (not
+  inferred from the 0% score) that the mechanism never once produced a candidate, and
+  that even relaxing its own "both halves" requirement to "either half alone" still
+  found nothing for the five short slots PLAYBOOK.md flags as the device's home turf.
+  Full defaults land at the same 9.5% (2/21) as retrieval alone.
+
+  AUDITED (mandatory gate). `lexicon.held_out_answers()` and `retrieve_defs.held_out()`
+  both confirmed to block all 21 gold answers. Both retrieval hits confirmed `pid=None`
+  (external mordo docs — cheese-type and academic-status definitions respectively),
+  clean semantic fits, not string coincidences. No forbidden reads: 14across never
+  queried for this puzzle, only the two public CDN images. No jump to explain: 0.0% ->
+  9.5% is well under the ~15-point suspicion bar. All 5 affected selftests
+  (`candidates.py`, `retrieve_defs.py`, `lexicon.py`, `prove.py`, `substitutions.py`)
+  re-run clean; `candidates.py selftest` gained two double_definition checks (a
+  synthetic both-halves-agree case, and a single-word clue returning empty rather than
+  erroring).
+
+  HONEST READ: a genuine negative result, sharpened rather than softened by the
+  zero-fire finding — this isn't "generates plausible-looking wrong candidates," it's
+  "never generates anything for this puzzle's clues at all," which points at corpus
+  coverage (today's mordo-only, 10-minute-budget, no-note.co.il index) rather than a
+  design flaw in the two-sided-split idea itself, especially since `retrieval_candidates`
+  on the identical index DID fire and hit twice. Whether growing the corpus the way
+  2026-08-30 did for `retrieval_candidates` (66K+ raw entries, note.co.il added) would
+  let this mechanism fire at all is the concrete open question, not attempted this run.
+
+  NOT DONE, honestly: did not crawl note.co.il or run mordo to a natural stop (disclosed
+  10-minute budget only); did not re-measure a second puzzle (n=1); did not act on the
+  DAILY.md-leak-vector finding beyond mitigating it via today's puzzle choice; did not
+  merge or otherwise act on PRs #38/#39/#41/#42 (read only, per standing protocol).
