@@ -3126,6 +3126,40 @@ Measure each lever on dev (fixed enums) with run_eval.py before/after; one lever
   10-minute budget only); did not re-measure a second puzzle (n=1); did not act on the
   DAILY.md-leak-vector finding beyond mitigating it via today's puzzle choice; did not
   merge or otherwise act on PRs #38/#39/#41/#42 (read only, per standing protocol).
+- 2026-09-04: **nativ fairness + phone-layout pass** (branch `claude/game-bugs-ux-bkcqsr`),
+  after the owner played the live game and reported UI, opacity, usability and
+  relevance bugs. All four measured before fixing, on a Pixel 7 viewport.
+  (1) RELEVANCE, the real one: the 2026-08-31 fix gated only EASY mode, so
+  regular mode still drew straight from the milon and served
+  "אדהם הדיה / שרון לב / מייק קרטר / מוסא סלים" (2026-09-04). The milon is an
+  exhaustive crossword *reference* (1,531 athletes, 2,283 artists) - a random
+  draw from it is a lookup, not a puzzle. New `app/nativ_pools.py` holds a
+  curated pool per theme (821 entries, 16 themes); BOTH modes now draw only
+  from it and the build FAILS if any pooled word does not resolve against its
+  source, so a typo can never silently shrink a pool. Five new everyday-word
+  themes (בעלי חיים, מטבח, חפצים, מקצועות, מילים) come from
+  `solver/lex/fillbank.json`, where every clue is a real dictionary definition
+  and there is no trivia at all. Data added to support it: 106 entities
+  (central biblical figures - the milon had no יהושע/דבורה/אליהו/דניאל -
+  surname forms of politicians, international athletes and authors, mountain
+  ranges) and 38 fillbank words. Regular mode also names each answer at the
+  end now, since every pooled word carries a description.
+  (2) OPACITY: solved tiles were white on `--accent`, which measures 2.73:1 in
+  dark mode - a finished board read as faded, not solved. Now `--on-accent`
+  (6.6:1); same fix for the hint tiles, the WhatsApp button and the stats bars.
+  Zero contrast failures left in either theme.
+  (3) USABILITY: 462px of the 839px viewport was chrome above the board, and
+  board + clue list needed 656px of the 377px left - you could never see the
+  board and its clues together. Phone layout drops the kicker and tagline,
+  collapses the toolbar to one icon row, and a new `fitBoard()` scales the
+  board (and its letters) into the height that remains. Now 308px of chrome,
+  and board + clues fit the screen in every mode and both themes. Boards also
+  shrank: TOTALS 25/30 -> 20/25 (5x4, 5x5), because 30 letters over 4 words
+  demanded a 7.5-letter average only obscure names could supply.
+  (4) A challenge link with `ct=0` was rejected by the parser (`t>0`).
+  Verified: 22/22 Playwright checks (touch, both modes, challenge round-trip
+  across two browser contexts), and a sweep of all 180 boards - every word in
+  its theme's pool, every word clued, no board over 25 cells.
 - 2026-09-05: **candidate generation, queue item 1(g): `homophone_candidates` — the
   נשמע (sounds-like) device.** Five solver-lever PRs were open and unmerged against
   main when this run started (#38 2026-08-31, #39 2026-09-01, #41 2026-09-02, #42
