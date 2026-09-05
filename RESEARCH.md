@@ -4,6 +4,42 @@ One entry per run: what was found, one-line summary, and an honest judgement of 
 it transfers to a Hebrew cryptic solver with an 8k-clue corpus. Default skepticism: most
 crossword-AI work targets non-cryptic (American-style) puzzles and does not transfer.
 
+## 2026-09-05
+
+Consolidated a 5-PR solver backlog before touching a lever (#38, #39, #41, #42, #44 —
+see DAILY.md for the full reconciliation, including one genuine code-level conflict
+between #39 and #41's differing approaches to the same underlying discovery). Chose
+today's lever from the scheduled task's own stated priority ("generating N diverse
+candidates per clue by mechanism"): PLAYBOOK.md §1.6 names the נשמע (homophone) device
+at ~4% of clues, and a grep of `candidates.py` confirmed it is the only one of the
+playbook's seven named devices with ZERO existing generator or `prove.py` primitive.
+
+**General search: "Hebrew consonant ambiguity phonetic matching crossword homophone
+clue 2026".** Surfaced only generic Hebrew-phonology background (matres lectionis,
+the four letters א/ה/ו/י that double as vowel markers) and unrelated English-language
+crossword-clue-answer sites. **Transfer: none new** — nothing Hebrew-crossword-specific
+on this exact device exists to build on; this project's own `indicators.json` (crowd-
+mined from 728 explanations) already documents the actual swap classes this setter
+uses more precisely than any general phonology reference could.
+
+**Targeted search: "cryptic crossword homophone clue detection algorithm phonetic
+soundex solver".** Confirmed, rather than discovered, that English cryptic-solving
+tooling handles this exact device with a phonetic-indexing algorithm (Soundex/
+Metaphone-family: fold same-sounding strings to one key, index, look up) — precisely
+the shape this run's lever independently arrived at before running the search, just
+grounded in THIS setter's own documented Hebrew consonant-ambiguity classes (ק/כ/ח,
+ט/ת, ס/ש, א/ע) rather than English's vowel-centric Soundex code. **Transfer: confirms
+the general technique, adds nothing new to adopt** — no off-the-shelf Hebrew Soundex/
+Metaphone variant was found (and building a general-purpose one would be strictly
+worse than PLAYBOOK's own empirically-mined swap list, which is grounded in this
+setter's actual usage, not textbook Hebrew phonology).
+
+**Conclusion.** No external resource changes what to build; the internal gap
+(PLAYBOOK's one undocumented-in-code device) was clear and well-scoped enough that
+today's lever needed no further literature search once the "what's missing" question
+was answered by re-reading this project's own files. See DAILY.md for the
+implementation, transcription, measurement, and audit.
+
 ## 2026-09-03
 
 Bootstrap hit the 14across hard wall again — 7 consecutive answer-page fetches returned

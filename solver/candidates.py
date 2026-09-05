@@ -14,6 +14,14 @@ This module does exactly that, per clue, with no LLM involved:
   - hidden_candidates:   a contiguous run inside the space-removed clue that is itself
                           a real word (the "hidden word" device).
   - reversal_candidates: same search, reversed.
+  - homophone_candidates: the setter's נשמע (sounds-like) device (PLAYBOOK.md 1.6, ~4% of
+                          clues) — same char-window scan as anagram/hidden, but the window
+                          is folded through a Hebrew consonant-class equivalence (ק/כ/ח,
+                          ט/ת, ס/ש, א/ע — the swaps indicators.json's own crowd-mined
+                          entry names as free) before the lexicon lookup, since undotted
+                          Hebrew cannot distinguish these sounds in writing. Does not model
+                          vowel-letter (ו/י) flexibility, which would change string length;
+                          see its own docstring.
   - substitution_candidates: the setter's private-vocabulary device — a clue word (or two
                           adjacent ones) substituted for a fragment mined from crowd
                           explanations (solver/substitutions.py), when the substitute(s)
@@ -84,6 +92,7 @@ CLI:
   python3 solver/candidates.py recall data/dataset/clues.jsonl eval --no-container  # ablation
   python3 solver/candidates.py recall data/dataset/clues.jsonl eval --no-double-def  # ablation
   python3 solver/candidates.py recall data/dataset/clues.jsonl eval --no-defspan-retrieval
+  python3 solver/candidates.py recall data/dataset/clues.jsonl eval --no-homophone  # ablation
   python3 solver/candidates.py selftest
 """
 import sys, os, re, json
@@ -191,6 +200,59 @@ def reversal_candidates(clue_text, target_len):
         rev = sub[::-1]
         if rev in words:
             out.append({'answer': rev, 'mechanism': 'reversal', 'fodder': sub})
+    return out
+
+
+# Phonetic letter-class folding for the homophone device (PLAYBOOK.md 1.6, נשמע, ~30/728
+# = 4% of clues) — indicators.json's own homophone entry names the swaps this setter's
+# crowd explanations record as free: ק/כ, ט/ת, ס/ש, א/ע, ח/כ. Undotted Hebrew script
+# cannot distinguish these sounds in writing, so a clue fragment can "sound like" a real
+# word it is not literally spelled as. Folding each equivalence class to one
+# representative turns "sounds like" into a same-LENGTH string transform, so the exact
+# char-window scan anagram/hidden/reversal already run can be reused unchanged for it.
+# Deliberately narrower than the full device: indicators.json also records "free vowel
+# changes" (ו/י insertion or omission), which changes string length and would need a
+# different search entirely — not modeled here, disclosed rather than silently dropped.
+PHON_FOLD = str.maketrans('עחקטש', 'אככתס')
+
+
+def phon(s):
+    """Canonical phonetic key: final-letter-folded, consonant-class-folded. Same length
+    as norm(s) by construction (a straight char-for-char translation), which is what lets
+    homophone_candidates reuse the fixed-width window scan."""
+    return norm(s).translate(PHON_FOLD)
+
+
+_BY_PHON = None
+
+
+def by_phon():
+    """Lexicon indexed by phonetic key, mirroring by_len()'s length index — same reason:
+    without it every window would rescan the whole lexicon computing phon() per word."""
+    global _BY_PHON
+    if _BY_PHON is None:
+        d = {}
+        for w in lex():
+            d.setdefault(phon(w), []).append(w)
+        _BY_PHON = d
+    return _BY_PHON
+
+
+def homophone_candidates(clue_text, target_len):
+    """The homophone device: a clue fragment that SOUNDS like the answer, spelled
+    differently (indicators.json: שמענו/נשמע/עפ"י השמיעה של.../a lone ש׳). Every
+    fixed-length window of the clue's letters (same scan as anagram_candidates) is
+    phon()-folded and looked up against the lexicon's own phon-folded index; a match
+    whose LITERAL spelling differs from the window is a homophone candidate (an
+    identical-spelling match is the hidden device, already covered, so it is excluded
+    here exactly as anagram_candidates excludes the fodder-equals-answer case)."""
+    out = []
+    for sub in _char_windows(clue_text, target_len):
+        key = phon(sub)
+        for hit in by_phon().get(key, []):
+            if hit == sub:
+                continue  # identical spelling — that's `hidden`, not a homophone
+            out.append({'answer': hit, 'mechanism': 'homophone', 'fodder': sub})
     return out
 
 
@@ -653,7 +715,8 @@ def split_candidates(cands, enum):
 
 
 def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retrieval=True,
-             use_container=True, use_double_def=True, use_defspan_retrieval=True):
+             use_container=True, use_double_def=True, use_defspan_retrieval=True,
+             use_homophone=True):
     """Diverse candidates for one clue. Never consults the answer.
 
     Mechanism order here is a PRIORITY order, not just an accumulation order: dedup +
@@ -680,9 +743,12 @@ def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retr
     to rank in BOTH of two independent BM25 queries (stricter, lower-volume than either
     retrieval_candidates or culture_category alone), so it never needs to wait behind the
     window-scan mechanisms either; defspan_retrieval_candidates is the same retrieval index
-    under a different query shape, equally capped and ranked. `use_culture`/`use_retrieval`/
-    `use_container`/`use_double_def`/`use_defspan_retrieval` are plain on/off switches so a
-    controlled before/after recall measurement doesn't need extra copies of this function."""
+    under a different query shape, equally capped and ranked. homophone_candidates is a
+    char-window scan exactly like anagram/hidden/reversal (same cost profile), so it sits
+    with them at the end rather than the early tier. `use_culture`/`use_retrieval`/
+    `use_container`/`use_double_def`/`use_defspan_retrieval`/`use_homophone` are plain
+    on/off switches so a controlled before/after recall measurement doesn't need extra
+    copies of this function."""
     target_len = sum(enum)
     cands = []
     cands += homograph_candidates(clue_text, target_len)
@@ -702,6 +768,8 @@ def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retr
     cands += anagram_candidates(clue_text, target_len)
     cands += hidden_candidates(clue_text, target_len)
     cands += reversal_candidates(clue_text, target_len)
+    if use_homophone:
+        cands += homophone_candidates(clue_text, target_len)
 
     seen, uniq = set(), []
     for c in cands:
@@ -721,7 +789,8 @@ def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retr
 # separate integration step, not done by this lever).
 # ---------------------------------------------------------------------------
 def recall_eval(dataset_path, split=None, max_n=25, use_culture=True, use_retrieval=True,
-                 use_container=True, use_double_def=True, use_defspan_retrieval=True):
+                 use_container=True, use_double_def=True, use_defspan_retrieval=True,
+                 use_homophone=True):
     total = 0
     hit = 0
     by_mech = Counter()
@@ -737,7 +806,8 @@ def recall_eval(dataset_path, split=None, max_n=25, use_culture=True, use_retrie
         cands = generate(r['clue_text'], r['enum'], max_n=max_n, use_culture=use_culture,
                           use_retrieval=use_retrieval, use_container=use_container,
                           use_double_def=use_double_def,
-                          use_defspan_retrieval=use_defspan_retrieval)
+                          use_defspan_retrieval=use_defspan_retrieval,
+                          use_homophone=use_homophone)
         sizes.append(len(cands))
         gold = norm(r['answer_raw'])
         found = [c for c in cands if c['answer'] == gold]
@@ -787,6 +857,22 @@ def selftest():
     found = any(h['answer'] == norm('בר') for h in hits)
     print(f'  found בר as a reversal of רב: {found} (expected True)')
     ok &= found
+
+    print('--- homophone device: a clue fragment SOUNDS like a differently-spelled '
+          'real word (ק/כ swap) ---')
+    # 'קר' (cold, a standalone clue word) phon-folds to the same key as 'כר' (pillow) --
+    # a real word with a DIFFERENT literal spelling, the homophone signature. Both must
+    # be real hspell words for this to fire, checked here rather than assumed.
+    hits = homophone_candidates('היה קר מאוד בחוץ', 2)
+    found = any(h['answer'] == norm('כר') for h in hits)
+    print(f'  found כר as a homophone of קר: {found} (expected True)')
+    ok &= found
+    print('--- homophone device: an identical-spelling match is excluded (that\'s '
+          '`hidden`, not a homophone) ---')
+    self_match = any(h['answer'] == norm('קר') for h in hits)
+    print(f'  קר itself (identical spelling to its own fodder) excluded: '
+          f'{not self_match} (expected True)')
+    ok &= not self_match
 
     print('--- pattern device: crossing-pattern lookup wraps lexicon.pattern ---')
     hits = pattern_candidates('של?ם')
@@ -963,20 +1049,22 @@ def main():
         use_container = '--no-container' not in rest
         use_double_def = '--no-double-def' not in rest
         use_defspan_retrieval = '--no-defspan-retrieval' not in rest
+        use_homophone = '--no-homophone' not in rest
         rest = [a for a in rest if a not in
                 ('--no-culture', '--no-retrieval', '--no-container', '--no-double-def',
-                 '--no-defspan-retrieval')]
+                 '--no-defspan-retrieval', '--no-homophone')]
         path = rest[0] if len(rest) > 0 else 'data/dataset/clues.jsonl'
         split = rest[1] if len(rest) > 1 else None
         os.chdir(ROOT)
         res = recall_eval(path, split, use_culture=use_culture, use_retrieval=use_retrieval,
                            use_container=use_container, use_double_def=use_double_def,
-                           use_defspan_retrieval=use_defspan_retrieval)
+                           use_defspan_retrieval=use_defspan_retrieval,
+                           use_homophone=use_homophone)
         print(f"recall@N: {res['hit']}/{res['total']} = {res['recall']:.1%}  "
               f"(avg {res['avg_candidates']:.1f} candidates/clue, "
               f"use_culture={use_culture}, use_retrieval={use_retrieval}, "
               f"use_container={use_container}, use_double_def={use_double_def}, "
-              f"use_defspan_retrieval={use_defspan_retrieval})")
+              f"use_defspan_retrieval={use_defspan_retrieval}, use_homophone={use_homophone})")
         print('hits by mechanism:', res['by_mechanism'])
         if res['misses']:
             print(f"\n{len(res['misses'])} misses (clue_number, direction, gold):")
