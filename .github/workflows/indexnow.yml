@@ -14,10 +14,10 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: "changed = URLs touched by the last commit; all = every sitemap URL (backfill)"
+        description: "changed = URLs touched by the last commit; all = every sitemap URL (backfill); redirects = every dead URL in solver/lex/redirects.json, so engines re-fetch them and pick up the 301"
         default: all
         type: choice
-        options: [changed, all]
+        options: [changed, all, redirects]
 
 permissions:
   contents: read
@@ -64,7 +64,12 @@ jobs:
                       urls.add(BASE + '/sitemap.xml')
               return sorted(urls)
 
-          urls = sitemap_urls() if os.environ.get('MODE') == 'all' else changed_urls()
+          def redirect_urls():
+              red = json.load(open('solver/lex/redirects.json', encoding='utf-8')).get('redirects', {})
+              return [BASE + p for p in red]
+
+          mode = os.environ.get('MODE')
+          urls = sitemap_urls() if mode == 'all' else redirect_urls() if mode == 'redirects' else changed_urls()
           if not urls:
               print('no site URLs changed; nothing to submit')
               raise SystemExit(0)

@@ -11,6 +11,37 @@ overwrote the live site minutes after main went live and took new pages down.
 Preview deploys of branches happen automatically on push; production comes
 from `main` alone.
 
+## Site shell and brand (docs/assets/brand.css, app/brand.py)
+
+Every page shares one stylesheet, `docs/assets/brand.css` (tokens, Fredoka +
+Rubik from Google Fonts, header with the main navigation, buttons, cards,
+crossword cells, footer, dark mode), and the generators build their pages
+through `app/brand.py` (`document()`, `site_header()`, `site_footer()`,
+`page_head()`). Hand-written pages (`docs/index.html`, `/methods/`, `/solve/`,
+`/nativ/`, `/research/`) carry the same header/footer markup inline.
+
+- A shell change is one edit to `brand.css` or `brand.py`. Rebuild the safe
+  sections (`build_topics.py`, `build_trainer.py`, `build_defs.py`) and run
+  `python3 app/rebrand_pages.py` for the milon pages that `build_seo.py`
+  cannot rebuild without the corpus: it re-wraps existing pages in place,
+  keeping head metadata, breadcrumb JSON-LD, h1 and body. It is idempotent.
+- Any body markup a generator emits with inline styling must also be mapped
+  in `rebrand_pages.py` (BODY_FIXES), or the patched pages and freshly built
+  pages drift.
+- **`evals/ui_smoke.py` is the gate for a shell change.** It drives the
+  committed pages in headless Chromium: types into a topic crossword and a
+  trainer board, toggles direction, checks answers, plays the solver demo by
+  keyboard, drags a real word path in נתיב, and searches the milon hub, at
+  desktop and phone widths. Run it before shipping anything that touches
+  `brand.css`, `brand.py`, the players in `build_topics.py` /
+  `build_trainer.py`, or the two app pages.
+- Social cards: `python3 app/build_og.py` renders every `og.png` from HTML
+  with headless Chromium (`CHROME=` to point at a binary, `FONT_CSS=` for a
+  local @font-face sheet when Google Fonts is unreachable).
+- Palette: cream paper, deep-indigo ink, grape accent, coral pop, sun
+  highlight, mint for "proven". Buttons and cards use the hard offset shadow.
+  Crossword cells stay paper-white in dark mode on purpose.
+
 ## Building the milon (docs/milon/)
 
 `app/build_seo.py` needs the gitignored corpus asset
@@ -79,9 +110,23 @@ Boards by subject and level, generated rather than scraped.
   The boards committed on 2026-08-31 were generated just before that change and
   will not reproduce byte-for-byte; anything generated since does. Re-running
   the full rebuild replaces them with reproducible equivalents when convenient.
-- Term banks live in `solver/lex/topics.json` (curated, ten bagrut subjects)
-  and `solver/lex/fillbank.json` (common words for the filler). Content rules
-  below apply to both: a description is published verbatim as a clue.
+- Term banks live in `solver/lex/topics.json` (curated, ten bagrut subjects,
+  ~170 terms each) and `solver/lex/fillbank.json` (~2,400 everyday words for
+  the filler). Content rules below apply to both: a description is published
+  verbatim as a clue.
+- FILLER IS CLUED BY DEFINITION WHEREVER WE HOLD ONE, at every level. The
+  fill prefers, in order: the topic's own terms, words in the fillbank, words
+  printed puzzles used as an answer more than once, and only then the rest of
+  the corpus. Levels 1-2 never draw on that last tier at all (it is where the
+  one-off names and inflections live). Wordplay (anagram, reversal, hidden)
+  appears on a filler word only when no defined word fits the crossing, and
+  the eval fails a level 1-2 board that clues a fillbank word by wordplay.
+  So the lever on a board with too much wordplay is MORE DEFINITIONS - grow
+  the fillbank at the starved lengths, or the subject's bank - not a
+  constant. The vocabulary is also what limits topicality: a 9x9 arrowword
+  cannot be filled from defined words alone (it has four 2-letter slots and
+  Hebrew has about a hundred definable 2-letter words), which is why level 2
+  carries the least on-topic share of the four.
 
 ## Weekly news crossword
 
@@ -110,6 +155,41 @@ the definition queue. Weekly:
    `solver/lex/topics.json` first, content rules below.
 4. `python3 app/build_topics.py`, commit, merge to main (auto-deploys).
 5. If egress allows, `python3 app/drain_puzzle_requests.py --resolve`.
+
+## Dead URLs and pages in demand
+
+No published URL disappears silently. In August 2026 three cleanups removed
+1,474 entity pages Google had indexed, with no redirect and no 404 page, and
+one was still ranking three weeks later. The pieces, all on committed data:
+
+- `docs/404.html` (from `app/build_404.py`) is served for any missing path:
+  the site shell, the milon search prefilled with the last path segment, and
+  a report of the path to `/api/missed` (`docs/api/missed.js`, Blob-backed
+  counter; path only). Rebuild it after a shell change.
+- `solver/lex/redirects.json` records every removed URL and where it goes;
+  `app/build_redirects.py` writes it into `docs/vercel.json` (cap 2,048).
+  `solver/lex/tombstones.json` lists URLs removed on purpose, with a reason.
+- **`app/url_guard.py` is the gate**: it diffs the committed sitemap against
+  the working tree and fails if a URL left without a redirect or tombstone.
+  The rebuild workflows run it before committing; run it yourself before
+  committing any build that touches `docs/sitemap.xml` (`build_seo.py`
+  rewrites the whole file - run `build_defs.py`, `build_words.py` and
+  `build_topics.py` after it, then the guard).
+- Pages in demand: `/milon/w/<word>/` word pages (`app/build_words.py`) for
+  crossword answers people look for, listed in `solver/lex/words.json`. A page
+  is built only for a word we hold a DEFINITION for (fillbank, curated list,
+  or an override) - a word page without one is the thin page that got these
+  URLs removed. Weekly, after the Saturday mirror:
+  1. `git pull`, then `python3 app/drain_missed.py` (reads
+     `solver/lex/missed_snapshot.json`; `--gsc export.csv` takes a Search
+     Console export; `--from-git` re-seeds from pages deleted in history).
+     It adds words we can define to `words.json`, adds redirects for dead
+     URLs that have a target, and prints NEEDS-CURATION most-hit first.
+  2. Add a verified definition for the worthwhile NEEDS-CURATION words to
+     `solver/lex/fillbank.json` (content rules below) and rerun.
+  3. `python3 app/build_words.py && python3 app/build_redirects.py`, then
+     `python3 app/url_guard.py`, commit, merge to main.
+  4. If egress allows, `python3 app/drain_missed.py --resolve`.
 
 ## Content rules
 

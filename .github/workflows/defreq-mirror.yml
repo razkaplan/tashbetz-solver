@@ -4,6 +4,7 @@ name: Reader-request queue mirror
 # drain Routines can read them without any egress:
 #   /api/define-request   phrases readers want a definition page for
 #   /api/puzzle-request   subjects readers want a crossword about
+#   /api/missed           dead paths people reached (the 404 page reports them)
 # It also resolves definition phrases that already have specs (they are
 # fulfilled), which keeps the server queue from silting up toward its cap.
 # GitHub runners have open egress; agent sandboxes often don't.
@@ -69,11 +70,33 @@ jobs:
               with urllib.request.urlopen(req, timeout=30) as r:
                   print('resolve:', r.status)
           EOF
+      - name: Mirror the missed-path counter
+        # The 404 page reports which dead paths people reach (docs/api/missed.js);
+        # app/drain_missed.py turns the most-hit ones into pages or redirects.
+        run: |
+          python3 - <<'EOF'
+          import json, urllib.request
+
+          API = 'https://tashbetz.gtmascode.dev/api/missed'
+          SNAP = 'solver/lex/missed_snapshot.json'
+
+          try:
+              with urllib.request.urlopen(API, timeout=30) as r:
+                  queue = json.load(r)
+          except Exception as e:
+              print('missed counter unreachable:', e)
+              raise SystemExit(0)
+
+          items = queue.get('items', [])
+          json.dump({'items': items}, open(SNAP, 'w', encoding='utf-8'),
+                    ensure_ascii=False, indent=1)
+          print(f'missed paths recorded: {len(items)}')
+          EOF
       - name: Commit snapshot if changed
         run: |
           git config user.name 'defreq-mirror'
           git config user.email 'noreply@github.com'
-          git add solver/lex/defs_queue_snapshot.json solver/lex/pzreq_queue_snapshot.json
+          git add solver/lex/defs_queue_snapshot.json solver/lex/pzreq_queue_snapshot.json solver/lex/missed_snapshot.json
           if git diff --cached --quiet; then
             echo 'no queue changes'
           else

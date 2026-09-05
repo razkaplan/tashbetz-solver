@@ -26,7 +26,9 @@ What a published topic crossword has to be true of:
                   recomputed here rather than believed. A "topic crossword"
                   whose answers are not about the topic is the failure mode
                   this whole eval exists to catch.
-    ramp          across levels 1..4 of one topic, the mean difficulty (clue
+    ramp          across levels 1..4 of one topic, the WORK (mean clue
+                  difficulty times entries) does not fall - the mean alone
+                  cannot order boards of different sizes. Was: the mean difficulty (clue
                   mechanism plus how obscure the answer is, scored here) must
                   not go down. Levels 1 and 2 additionally have to keep 90% of
                   their answers inside the common tier they promise
@@ -316,6 +318,7 @@ def check_puzzle(p, ref, pool):
     seen_ans, seen_clue = set(), {}
     topical = long_total = long_topical = common = 0
     cost = 0.0
+    filler_wordplay = 0
     mechs = {}
     for key, e in sorted(got.items()):
         a = e['answer']
@@ -377,6 +380,17 @@ def check_puzzle(p, ref, pool):
         cost += (MECH_COST.get(e.get('mechanism'), 2.0)
                  + (0.0 if a in ref['known']
                     else (0.4 if a in ref['cost_defined'] else 1.0)))
+        # An easy board clues its filler with a definition wherever it holds
+        # one. "מעש מהסוף להתחלה" for שעם on the easiest civics board was
+        # reported as a clue with nothing to do with the topic - and it is
+        # worse than that, it is not a definition of anything. A wordplay
+        # clue on a word the fillbank defines is the generator ignoring the
+        # definition it has.
+        if (p['level'] <= 2 and e.get('mechanism') != 'definition'
+                and a in ref['fill_norms']):
+            bad.append(f"{key}: wordplay on {a!r} although the fillbank defines it")
+        if e.get('mechanism') != 'definition' and not e.get('topical'):
+            filler_wordplay += 1
 
     n = max(1, len(got))
     long_topicality = long_topical / long_total if long_total else 1.0
@@ -401,6 +415,7 @@ def check_puzzle(p, ref, pool):
         bad.append(f'mean difficulty {mean_cost:.2f} above level '
                    f'{p["level"]}\'s ceiling of {ceiling}')
     stats = {'entries': len(got), 'topical': topical, 'topicality': topical / n,
+             'filler_wordplay': filler_wordplay / n,
              'long_topicality': long_topicality, 'common_share': common / n,
              'difficulty': cost / n,
              'wordplay': 1 - mechs.get('definition', 0) / n, 'mechanisms': mechs}
@@ -457,14 +472,22 @@ def run(topics=None, quick=False, matrix=True):
             continue
         stats = judge(p, f"published {p['topic']} L{p['level']} {p['shape']}")
         if stats:
-            by_topic.setdefault(p['topic'], {})[p['level']] = stats['difficulty']
+            by_topic.setdefault(p['topic'], {})[p['level']] = (
+                stats['difficulty'] * stats['entries'], stats['difficulty'])
 
     # the ramp is a property of a subject's four boards, not of one board
     for topic, levels in by_topic.items():
-        seq = [levels[L] for L in sorted(levels)]
+        # On the WORK, mean clue difficulty times entries, not the mean: the
+        # mean is per clue and cannot order boards of different sizes. A
+        # 26-entry arrowword whose filler is everyday attested words had a
+        # lower mean than the 16-entry crossword below it (lashon 0.47
+        # against 0.51) and is plainly more to solve. The level ceiling stays
+        # on the mean, since that is what it says.
+        seq = [levels[L][0] for L in sorted(levels)]
         if any(b < a - 1e-9 for a, b in zip(seq, seq[1:])):
-            failures.append(f'{topic}: difficulty falls as the level rises: '
-                            + ', '.join(f'{x:.2f}' for x in seq))
+            failures.append(f'{topic}: work falls as the level rises: '
+                            + ', '.join(f'{x:.1f}' for x in seq) + '  (mean '
+                            + ', '.join(f'{levels[L][1]:.2f}' for L in sorted(levels)) + ')')
 
     if matrix:
         bank_names = [t for t in ref['banks']]
@@ -518,6 +541,7 @@ def main():
               f'topicality {sum(r["topicality"] for r in rs) / len(rs):.0%} '
               f'(long {sum(r["long_topicality"] for r in rs) / len(rs):.0%}), '
               f'difficulty {sum(r["difficulty"] for r in rs) / len(rs):.2f}, '
+              f'filler wordplay {sum(r["filler_wordplay"] for r in rs) / len(rs):.0%}, '
               f'common {sum(r["common_share"] for r in rs) / len(rs):.0%}')
     if res['failures']:
         print(f"\nFAILURES ({len(res['failures'])}):")

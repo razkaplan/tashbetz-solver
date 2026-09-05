@@ -80,19 +80,28 @@ MECHANISMS = ['definition', 'hidden', 'reversal', 'anagram']
 # cheapest way to raise a mean, a "medium" board came out as fifteen anagrams
 # of arbitrary words.
 #
-# `filler` is the honest version of that ramp. At level 1 a filler answer takes
-# its definition if we have one; from level 2 it takes wordplay, cheapest
-# mechanism first. A TOPIC answer always keeps its definition at every level -
-# the topic is what the board is for, and no level is improved by hiding it.
+# `filler` is the honest version of that ramp. A TOPIC answer always keeps its
+# definition at every level - the topic is what the board is for, and no level
+# is improved by hiding it.
+#
+# Levels 1 and 2 are DEFINITION ONLY, filler included. "Prefer a definition
+# when we have one" was the earlier rule, and it meant that on the easiest
+# civics board 48% of the clues were anagrams, reversals and hidden words of
+# whatever the fill happened to need ("מעש מהסוף להתחלה" for שעם), which a
+# student preparing for a bagrut reads as noise. Restricting the mechanism
+# restricts the FILLER VOCABULARY to words we hold a definition for
+# (solver/lex/fillbank.json), so that bank has to be large enough to fill a
+# grid around the theme entries, and it is sized for that. Levels 3 and 4 keep
+# wordplay on their filler: that is the device that makes them hard.
 LEVELS = {
     1: {'name': 'קל', 'mechanisms': MECHANISMS, 'tier': 'common',
         'ceiling': 1.25, 'filler': 'define'},
     2: {'name': 'בינוני', 'mechanisms': MECHANISMS, 'tier': 'common',
-        'ceiling': 1.7, 'filler': 'wordplay'},
+        'ceiling': 1.7, 'filler': 'define'},
     3: {'name': 'קשה', 'mechanisms': MECHANISMS, 'tier': 'all',
-        'ceiling': 2.5, 'filler': 'wordplay'},
+        'ceiling': 2.5, 'filler': 'define'},
     4: {'name': 'אתגר', 'mechanisms': MECHANISMS, 'tier': 'rare',
-        'ceiling': 9.9, 'filler': 'wordplay'},
+        'ceiling': 9.9, 'filler': 'define'},
 }
 DEFAULT_SHAPE = {1: 'classic7', 2: 'arrow9', 3: 'classic9', 4: 'arrow11'}
 THEME_SHARE = 0.55        # of the entries whose length the topic can reach
@@ -182,9 +191,16 @@ def load():
     # the "common" tier: answers the corpus actually saw in printed puzzles
     freq = {norm(k): v for k, v in json.load(
         open(os.path.join(ROOT, 'solver/crosswordese.json'), encoding='utf-8')).items()}
-    attested = set(json.load(open(os.path.join(ROOT, 'solver/lex/ambiguities.json'),
-                                  encoding='utf-8')))
+    attested_ev = json.load(open(os.path.join(ROOT, 'solver/lex/ambiguities.json'),
+                                 encoding='utf-8'))
+    attested = set(attested_ev)
     common = (attested | set(freq) | set(general)) & lexset
+    # Of the attested words, the ones a printed puzzle used as an answer MORE
+    # THAN ONCE. The once-seen tier is where the junk lives - one paper's
+    # one-off names (שמוליק, וילנאי) and inflections (יתארסו, ינודו) - and on
+    # an easy board those got wordplay clues because nothing defines them.
+    solid = {w for w, v in attested_ev.items()
+             if len((v.get('evidence') or {}).get('answer', [])) >= 2} & lexset
 
     # Difficulty tiers, kept deliberately apart from the ANSWER tier above.
     # They are different jobs, and conflating them is what let the build and
@@ -272,7 +288,7 @@ def load():
             'shared': shared,
             'ents': ents, 'reversible': reversible, 'carrier': carrier,
             'anagrams': anagrams, 'freq': freq, 'common': common,
-            'known': known, 'defined': defined}
+            'known': known, 'defined': defined, 'solid': solid}
 
 
 # Tails that narrow nothing. "הר באריתריאה" is a clue; "יישוב בישראל" is a
@@ -484,7 +500,7 @@ def answer_cost(ctx, w, terms):
     return COST_RARE
 
 
-def cluable(ctx, terms, allowed, tier):
+def cluable(ctx, terms, allowed, tier, wide=False):
     """Every answer we could both place and clue at this level.
 
     Filler has to be a DICTIONARY word or a bank entry. The corpus-attested
@@ -494,6 +510,16 @@ def cluable(ctx, terms, allowed, tier):
     """
     base = {'easy': ctx['easy'], 'common': ctx['common']}.get(tier, ctx['lex'])
     base = (base & ctx['dictwords']) | set(ctx['general']) | set(terms)
+    if tier == 'common' and not wide:
+        # The easy levels. A filler word here is one we define, or failing
+        # that one printed puzzles have used more than once; the once-seen
+        # tier of the corpus is not vocabulary a student should meet.
+        # `wide` lifts this, and only the build sets it, only after it has
+        # exhausted every seed and shape without a publishable board: a
+        # 32-term weekly news bank cannot theme a 9x9 arrowword from the
+        # restricted vocabulary at all, and a board with more wordplay in it
+        # is better than the previous week's board left up.
+        base = (base & (set(ctx['general']) | ctx['solid'])) | set(terms)
     if tier == 'rare':
         # אתגר. Its filler comes from outside the everyday vocabulary, so the
         # answers themselves are what make it hard. Without this, level 4 drew
@@ -533,7 +559,16 @@ def pool_index(ctx, pool, topical, rare_first, cache_key):
         return _POOL_CACHE[cache_key]
     freq = ctx['freq']
     sign = 1 if rare_first else -1
-    rank = {w: (0 if w in topical else 1, sign * freq.get(w, 0), w) for w in pool}
+    # Preference order: the topic first, then words we hold a DEFINITION for,
+    # then everything else by how often printed puzzles used it. Definedness
+    # was not in the order at all, so the fill took whatever the crossings
+    # made cheapest and clued it with wordplay - 48% of the easiest civics
+    # board. With defined words ahead, wordplay is what is left when no
+    # defined word fits the crossing, which is the only time it belongs.
+    defined = set(ctx['general'])
+    solid = ctx['solid']
+    rank = {w: (0 if w in topical else 1, 0 if w in defined else (1 if w in solid else 2),
+                sign * freq.get(w, 0), w) for w in pool}
     by_len, idx, topical_len = {}, {}, {}
     for w in sorted(pool, key=rank.get):
         by_len.setdefault(len(w), []).append(w)      # already in preference order
@@ -541,7 +576,8 @@ def pool_index(ctx, pool, topical, rare_first, cache_key):
             idx.setdefault((len(w), p, ch), set()).add(w)
     for w in sorted(topical & pool, key=rank.get):
         topical_len.setdefault(len(w), []).append(w)
-    out = {'by_len': by_len, 'idx': idx, 'rank': rank,
+    out = {'by_len': by_len, 'idx': idx, 'rank': rank, 'defined': defined & pool,
+           'solid': solid & pool,
            'topical': topical & pool, 'topical_len': topical_len}
     _POOL_CACHE.clear()          # one topic/level in flight at a time
     _POOL_CACHE[cache_key] = out
@@ -572,7 +608,7 @@ def fill(grid, pi, rng, theme=frozenset(), budget=None, width=14):
     crossing = {k: sorted({k2 for k2 in keys if k2 != k
                            and set(cells_of[k]) & set(cells_of[k2])}) for k in keys}
     board, assigned = {}, {}
-    rank, topical = pi['rank'], pi['topical']
+    rank, topical, defined, solid = pi['rank'], pi['topical'], pi['defined'], pi['solid']
 
     def candidates(k):
         L = len(cells_of[k])
@@ -600,13 +636,30 @@ def fill(grid, pi, rng, theme=frozenset(), budget=None, width=14):
             return False
         # top slice by preference, shuffled inside it. Sorting AFTER the
         # shuffle (the first version) made every retry identical and useless.
+        # Three tiers, each shuffled, tried in order: the topic, then words we
+        # hold a definition for, then the rest. Shuffling defined and
+        # undefined words TOGETHER (the second version) meant a slice of five
+        # defined and nine undefined picked an undefined word two times in
+        # three, and the rank order that put defined words first changed
+        # almost nothing. Now an undefined word is reached only once every
+        # defined candidate has been tried and failed.
         head = list(cands[best][:max(width * 4, 60)])
         first = [w for w in head if w in topical]
-        rest_w = [w for w in head if w not in topical]
+        second = [w for w in head if w not in topical and w in defined]
+        third = [w for w in head if w not in topical and w not in defined and w in solid]
+        rest_w = [w for w in head if w not in topical and w not in defined and w not in solid]
         rng.shuffle(first)
+        rng.shuffle(second)
+        rng.shuffle(third)
         rng.shuffle(rest_w)
         used = set(assigned.values())
-        for w in (first + rest_w)[:width]:
+        # The preferred tiers get the full width; the undefined tiers get
+        # half of it AFTER them rather than nothing. With a hard cut at
+        # `width` a fill that needed one undefined word at a slot holding
+        # fourteen defined candidates was unreachable, and the theme walk
+        # dropped from nine slots to four for it.
+        tried = (first + second)[:width] + (third + rest_w)[:max(1, width // 2)]
+        for w in tried:
             budget[0] -= 1
             if budget[0] <= 0:
                 return False
@@ -678,7 +731,7 @@ def _clue_the_fill(ctx, sol, terms, allowed, ceiling, filler):
     return out
 
 
-def generate(topic, level=1, shape=None, seed=None, attempts=3, work=None):
+def generate(topic, level=1, shape=None, seed=None, attempts=3, work=None, wide=False):
     """The back-end call: (topic, level) in, a finished puzzle out, or None.
 
     `work` is the search-node allowance for the whole board. Something has to
@@ -698,8 +751,8 @@ def generate(topic, level=1, shape=None, seed=None, attempts=3, work=None):
     terms = topic_terms(ctx, topic)
     if not terms:
         return None
-    pool = cluable(ctx, terms, allowed, spec['tier'])
-    pi = pool_index(ctx, pool, set(terms), level == 4, (topic, level))
+    pool = cluable(ctx, terms, allowed, spec['tier'], wide)
+    pi = pool_index(ctx, pool, set(terms), level == 4, (topic, level, wide))
 
     sl = slots(grid)
     # Theme slots: the longest entries whose LENGTH the topic can actually
@@ -806,6 +859,8 @@ def generate(topic, level=1, shape=None, seed=None, attempts=3, work=None):
             out['hosts'] = {f'{key[0]}{key[1]}': list(v) for key, v
                             in sorted(grids_topic.arrow_hosts(grid).items())}
         n = len(out['entries'])
+        if wide:
+            out['wide'] = True
         out['topicality'] = round(sum(1 for e in out['entries'] if e['topical']) / n, 3)
         out['difficulty'] = round(sum(
             MECH_COST[e['mechanism']] + answer_cost(ctx, e['answer'], terms)
@@ -824,7 +879,12 @@ def theme_share(p, long_entry=LONG_ENTRY):
 # When the big board of a family cannot be made to carry the topic, the small
 # board of the same family is used instead. A 32-entry board with three topic
 # answers in it is not a topic crossword; a 16-entry one with seven is.
-SMALLER = {'classic9': 'classic7', 'arrow11': 'arrow9'}
+SMALLER = {'classic9': 'arrow9', 'arrow11': 'arrow9'}
+# classic9's fallback is the 9x9 ARROWWORD, not the 7x7 crossword. Level 3
+# fell back to classic7 (16 entries) whenever the 9x9 crossword would not
+# fill, and a 16-entry "hard" board is less work than the 26-entry "medium"
+# one below it, whatever its clues cost - the ramp is on total work. arrow9
+# is the same size as level 2 and fills well on level 3's wider vocabulary.
 MIN_LONG_SHARE = 0.35     # of the entries a solver reads as the theme
 
 

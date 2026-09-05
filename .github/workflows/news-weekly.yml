@@ -35,6 +35,9 @@ jobs:
         # long entries precisely because this step did not exist.
         run: |
           python3 evals/topicgen_eval.py --no-matrix
+      - name: No published URL disappears silently
+        run: python3 app/url_guard.py
+
       - name: Commit if anything changed
         run: |
           git config user.name 'news-weekly'
