@@ -106,20 +106,30 @@ def is_hidden(text, answer):
 # PHON_FOLD/phon(), duplicated rather than imported so this file stays self-contained
 # (same discipline candidates.py's own _destem() duplication follows). Grounded in
 # indicators.json's own crowd-mined homophone entry: ק/כ/ח, ט/ת, ס/ש, א/ע swap freely
-# in undotted Hebrew. Does not model vowel-letter (ו/י) flexibility — disclosed, not
-# silently assumed away.
+# in undotted Hebrew.
 PHON_FOLD = str.maketrans('עחקטש', 'אככתס')
 
 def is_homophone(fodder, answer):
     """Does `fodder`, read by SOUND rather than by spelling, give `answer`? Grounded in
     the same consonant-class folding candidates.py's homophone_candidates() uses to
-    generate the hypothesis in the first place, so a live solve pass can PROVE one."""
+    generate the hypothesis in the first place, so a live solve pass can PROVE one.
+    Also accepts the free ו/י vowel-letter insertion/omission candidates.py's
+    homophone_vowel_candidates() generates (indicators.json's homophone entry names both
+    devices): if the two phonetic keys differ in length by exactly one, and removing a
+    single ו/י from the longer one reproduces the shorter one, that counts too — one
+    swapped letter, not an open-ended edit distance."""
     a, b = norm(fodder), norm(answer)
-    if a.translate(PHON_FOLD) != b.translate(PHON_FOLD):
-        raise ProofError(
-            f"is_homophone: '{a}' and '{b}' do not fold to the same phonetic key "
-            f"('{a.translate(PHON_FOLD)}' vs '{b.translate(PHON_FOLD)}')")
-    return True
+    fa, fb = a.translate(PHON_FOLD), b.translate(PHON_FOLD)
+    if fa == fb:
+        return True
+    short, long_ = (fa, fb) if len(fa) < len(fb) else (fb, fa)
+    if len(long_) - len(short) == 1:
+        for i, ch in enumerate(long_):
+            if ch in ('ו', 'י') and long_[:i] + long_[i + 1:] == short:
+                return True
+    raise ProofError(
+        f"is_homophone: '{a}' and '{b}' do not fold to the same phonetic key, even "
+        f"allowing one free ו/י ('{fa}' vs '{fb}')")
 
 def means(phrase, target):
     """Grounded synonym/substitution: is `target` a recorded reading of `phrase`?
@@ -227,6 +237,18 @@ assert is_homophone('קר', 'כר')
 assert is_homophone('קר', 'גל')
 """)
     print(f'  => {ok6} (expected False)')
+
+    print('\n--- a homophone-VOWEL proof (free ו insertion: כל "sounds like" כול) ---')
+    ok7, _ = check("""
+assert is_homophone('כל', 'כול')
+""", 'כול')
+    print(f'  => {ok7} (expected True)')
+
+    print('--- a FALSE homophone-vowel claim (lengths differ by more than one letter) ---')
+    ok8, _ = check("""
+assert is_homophone('כל', 'כאילו')
+""")
+    print(f'  => {ok8} (expected False)')
 
 if __name__ == '__main__':
     if len(sys.argv) > 1 and sys.argv[1] == 'selftest':

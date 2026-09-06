@@ -22,6 +22,11 @@ This module does exactly that, per clue, with no LLM involved:
                           Hebrew cannot distinguish these sounds in writing. Does not model
                           vowel-letter (ו/י) flexibility, which would change string length;
                           see its own docstring.
+  - homophone_vowel_candidates: closes homophone_candidates' own disclosed gap above — the
+                          same נשמע device, but for the ו/י free-vowel swaps that change
+                          string length by one, tried as an insertion (fodder one letter
+                          short) or a deletion (fodder one letter long) against the same
+                          phon-folded lexicon index.
   - substitution_candidates: the setter's private-vocabulary device — a clue word (or two
                           adjacent ones) substituted for a fragment mined from crowd
                           explanations (solver/substitutions.py), when the substitute(s)
@@ -93,6 +98,7 @@ CLI:
   python3 solver/candidates.py recall data/dataset/clues.jsonl eval --no-double-def  # ablation
   python3 solver/candidates.py recall data/dataset/clues.jsonl eval --no-defspan-retrieval
   python3 solver/candidates.py recall data/dataset/clues.jsonl eval --no-homophone  # ablation
+  python3 solver/candidates.py recall data/dataset/clues.jsonl eval --no-homophone-vowel
   python3 solver/candidates.py selftest
 """
 import sys, os, re, json
@@ -253,6 +259,47 @@ def homophone_candidates(clue_text, target_len):
             if hit == sub:
                 continue  # identical spelling — that's `hidden`, not a homophone
             out.append({'answer': hit, 'mechanism': 'homophone', 'fodder': sub})
+    return out
+
+
+def homophone_vowel_candidates(clue_text, target_len):
+    """Closes the gap homophone_candidates' own docstring discloses rather than models:
+    indicators.json's homophone entry also names ו/י (vav/yod) insertion or omission as a
+    free swap — undotted Hebrew can write the same sound with or without these vowel
+    letters — which changes string LENGTH, unlike PHON_FOLD's consonant-class swaps. This
+    is not a hypothetical gap: measured directly on 2026-05-29 (2026-09-05's log), this
+    puzzle's own homophone-marked clue (22 across, "עפ"י השמיעה של...") needs the 7-letter
+    fodder "הזורזים" to sound like the 8-letter answer "אנזימים" — one vav apart, exactly
+    this device — and homophone_candidates cannot reach it by construction (fixed-width
+    window only).
+
+    Two fodder-window widths, both phon()-folded then looked up in the SAME by_phon()
+    index homophone_candidates already builds:
+      - target_len - 1: the fodder may be missing a vowel letter the real answer has —
+        try inserting ו and י at every position of the folded window.
+      - target_len + 1: the fodder may carry an extra vowel letter the real answer lacks —
+        try deleting each ו/י the folded window actually contains, one at a time.
+    Insertion/deletion only ever touches ו/י (the documented free-swap letters, never any
+    other letter), so this stays a narrow, grounded device rather than an open-ended
+    edit-distance search — it cannot manufacture a match against an arbitrary fodder the
+    way a generic fuzzy-match would."""
+    out = []
+    idx = by_phon()
+    if target_len - 1 >= 1:
+        for sub in _char_windows(clue_text, target_len - 1):
+            base = phon(sub)
+            for i in range(len(base) + 1):
+                for vowel in ('ו', 'י'):
+                    key = base[:i] + vowel + base[i:]
+                    for hit in idx.get(key, []):
+                        out.append({'answer': hit, 'mechanism': 'homophone_vowel', 'fodder': sub})
+    for sub in _char_windows(clue_text, target_len + 1):
+        base = phon(sub)
+        for i, ch in enumerate(base):
+            if ch in ('ו', 'י'):
+                key = base[:i] + base[i + 1:]
+                for hit in idx.get(key, []):
+                    out.append({'answer': hit, 'mechanism': 'homophone_vowel', 'fodder': sub})
     return out
 
 
@@ -716,7 +763,7 @@ def split_candidates(cands, enum):
 
 def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retrieval=True,
              use_container=True, use_double_def=True, use_defspan_retrieval=True,
-             use_homophone=True):
+             use_homophone=True, use_homophone_vowel=True):
     """Diverse candidates for one clue. Never consults the answer.
 
     Mechanism order here is a PRIORITY order, not just an accumulation order: dedup +
@@ -745,10 +792,11 @@ def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retr
     window-scan mechanisms either; defspan_retrieval_candidates is the same retrieval index
     under a different query shape, equally capped and ranked. homophone_candidates is a
     char-window scan exactly like anagram/hidden/reversal (same cost profile), so it sits
-    with them at the end rather than the early tier. `use_culture`/`use_retrieval`/
-    `use_container`/`use_double_def`/`use_defspan_retrieval`/`use_homophone` are plain
-    on/off switches so a controlled before/after recall measurement doesn't need extra
-    copies of this function."""
+    with them at the end rather than the early tier; homophone_vowel_candidates is the
+    same cost profile again (two more fixed-width window scans) so it sits right beside it.
+    `use_culture`/`use_retrieval`/`use_container`/`use_double_def`/`use_defspan_retrieval`/
+    `use_homophone`/`use_homophone_vowel` are plain on/off switches so a controlled
+    before/after recall measurement doesn't need extra copies of this function."""
     target_len = sum(enum)
     cands = []
     cands += homograph_candidates(clue_text, target_len)
@@ -770,6 +818,8 @@ def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retr
     cands += reversal_candidates(clue_text, target_len)
     if use_homophone:
         cands += homophone_candidates(clue_text, target_len)
+    if use_homophone_vowel:
+        cands += homophone_vowel_candidates(clue_text, target_len)
 
     seen, uniq = set(), []
     for c in cands:
@@ -790,7 +840,7 @@ def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retr
 # ---------------------------------------------------------------------------
 def recall_eval(dataset_path, split=None, max_n=25, use_culture=True, use_retrieval=True,
                  use_container=True, use_double_def=True, use_defspan_retrieval=True,
-                 use_homophone=True):
+                 use_homophone=True, use_homophone_vowel=True):
     total = 0
     hit = 0
     by_mech = Counter()
@@ -807,7 +857,8 @@ def recall_eval(dataset_path, split=None, max_n=25, use_culture=True, use_retrie
                           use_retrieval=use_retrieval, use_container=use_container,
                           use_double_def=use_double_def,
                           use_defspan_retrieval=use_defspan_retrieval,
-                          use_homophone=use_homophone)
+                          use_homophone=use_homophone,
+                          use_homophone_vowel=use_homophone_vowel)
         sizes.append(len(cands))
         gold = norm(r['answer_raw'])
         found = [c for c in cands if c['answer'] == gold]
@@ -873,6 +924,34 @@ def selftest():
     print(f'  קר itself (identical spelling to its own fodder) excluded: '
           f'{not self_match} (expected True)')
     ok &= not self_match
+
+    print('--- homophone_vowel device: fodder ONE LETTER SHORT matches a real word once '
+          'a free ו/י vowel is inserted ---')
+    # 'כל' (2 letters, a window inside 'אכל תפוח', not itself required to be a real word)
+    # inserting ו after the כ gives 'כול' (3 letters) -- a real hspell word, the plene
+    # (מלא) spelling of the same word 'כל' represents in defective (חסר) form.
+    hits = homophone_vowel_candidates('אכל תפוח', 3)
+    found = any(h['answer'] == norm('כול') for h in hits)
+    print(f'  found כול by inserting ו into the fodder כל: {found} (expected True)')
+    ok &= found
+    print('--- homophone_vowel device: fodder ONE LETTER LONG matches a real word once '
+          'a ו/י it contains is deleted ---')
+    # 'כול' (3-letter fodder window) with its ו deleted phon-folds to 'כל', which is also
+    # the phon-key of the real words 'חל' and 'קל' (ח and ק both fold to כ) -- the other
+    # direction from the insertion check above: a 3-letter fodder window matching 2-letter
+    # real-word targets.
+    hits = homophone_vowel_candidates('לכול תמיד', 2)
+    found = {norm('חל'), norm('קל')} & {h['answer'] for h in hits if h['fodder'] == norm('כול')}
+    print(f'  found {found or "nothing"} by deleting ו from the fodder כול: '
+          f'{bool(found)} (expected True)')
+    ok &= bool(found)
+    print('--- homophone_vowel device: use_homophone_vowel=False in generate() disables '
+          'it (checked at the call site, same as every other toggle) ---')
+    only_hv = generate('אכל תפוח', [3], use_homophone_vowel=False)
+    absent = not any(c['mechanism'] == 'homophone_vowel' for c in only_hv)
+    print(f'  no homophone_vowel candidate leaks through when disabled: {absent} '
+          f'(expected True)')
+    ok &= absent
 
     print('--- pattern device: crossing-pattern lookup wraps lexicon.pattern ---')
     hits = pattern_candidates('של?ם')
@@ -1050,21 +1129,24 @@ def main():
         use_double_def = '--no-double-def' not in rest
         use_defspan_retrieval = '--no-defspan-retrieval' not in rest
         use_homophone = '--no-homophone' not in rest
+        use_homophone_vowel = '--no-homophone-vowel' not in rest
         rest = [a for a in rest if a not in
                 ('--no-culture', '--no-retrieval', '--no-container', '--no-double-def',
-                 '--no-defspan-retrieval', '--no-homophone')]
+                 '--no-defspan-retrieval', '--no-homophone', '--no-homophone-vowel')]
         path = rest[0] if len(rest) > 0 else 'data/dataset/clues.jsonl'
         split = rest[1] if len(rest) > 1 else None
         os.chdir(ROOT)
         res = recall_eval(path, split, use_culture=use_culture, use_retrieval=use_retrieval,
                            use_container=use_container, use_double_def=use_double_def,
                            use_defspan_retrieval=use_defspan_retrieval,
-                           use_homophone=use_homophone)
+                           use_homophone=use_homophone,
+                           use_homophone_vowel=use_homophone_vowel)
         print(f"recall@N: {res['hit']}/{res['total']} = {res['recall']:.1%}  "
               f"(avg {res['avg_candidates']:.1f} candidates/clue, "
               f"use_culture={use_culture}, use_retrieval={use_retrieval}, "
               f"use_container={use_container}, use_double_def={use_double_def}, "
-              f"use_defspan_retrieval={use_defspan_retrieval}, use_homophone={use_homophone})")
+              f"use_defspan_retrieval={use_defspan_retrieval}, use_homophone={use_homophone}, "
+              f"use_homophone_vowel={use_homophone_vowel})")
         print('hits by mechanism:', res['by_mechanism'])
         if res['misses']:
             print(f"\n{len(res['misses'])} misses (clue_number, direction, gold):")

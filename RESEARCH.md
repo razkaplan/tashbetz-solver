@@ -4,6 +4,57 @@ One entry per run: what was found, one-line summary, and an honest judgement of 
 it transfers to a Hebrew cryptic solver with an 8k-clue corpus. Default skepticism: most
 crossword-AI work targets non-cryptic (American-style) puzzles and does not transfer.
 
+## 2026-09-06
+
+Seventh-plus consecutive literature pass with nothing new and buildable on candidate
+generation, definition-span/fit scoring, or Hebrew morphology. Searched three angles.
+
+**General: "cryptic crossword solving definition span detection wordplay LLM 2026".**
+Same paper family already logged (2506.04824, 2403.12094, 2412.09012). One genuinely new
+citation surfaced: **`github.com/nikcholer/cryptic-solver`**, a public neuro-symbolic demo
+(LLM clue parsing + deterministic Python validation) not previously logged here. Checked
+directly rather than assumed-duplicate. **Transfer: none, and instructively so** — its own
+architecture doc names its clue-type/definition-location detector as indicator-word
+matching against a fixed trigger vocabulary, which is EXACTLY the signal this project
+measured and killed on 2026-08-19 (`defspan.py`, 1/5 accuracy, worse than a coin flip,
+because this setter's dominant device — mechanical anagram fodder — carries no indicator
+word at all). A second project independently choosing the same signal is not evidence it
+works; it is a second data point that indicator-word definition-location detection is the
+obvious first thing to try and the thing that doesn't hold up once measured. Its grid-fill
+strategy (solve high-confidence clue types first, propagate crossing letters, sweep) is
+the same shape as `solver/sweep.py` (built 2026-08-08, already in the live loop) — no new
+idea to port there either.
+
+**Hebrew NLP/morphology: "Hebrew morphology NLP crossword solver 2026 root pattern
+segmentation".** Same standing set (AlephBERT, character-wise morphological segmentation
+~98% on benchmark data, UD Hebrew treebanking). **Transfer: none new** — this project's
+own standing finding (2026-08-23/24) is that the gap isn't segmentation accuracy, it's the
+absence of a crossword-register-tuned embedding or role-category resource in Hebrew at
+any granularity; nothing found this cycle changes that.
+
+**Definition-span-hypothesis retrieval, not searched but found IN-REPO — and the actual
+story of today's lever.** Before writing any code, re-read `solver/retrieve_defs.py` to
+check whether queue item 2's own suggested "different approach" (`DAILY.md` 2026-08-19:
+"scoring by whether each end's residual is anagram-matchable") had gone anywhere, and
+noticed `end_candidates()` sitting unused-looking in the file. This is what almost became
+today's lever — until `mcp__github__list_pull_requests` turned up PR #41 (folded into
+#46, already on this branch), which had already wired the identical function in as
+`defspan_retrieval_candidates` and MEASURED it: 10.7% (3/28), identical to whole-clue
+`retrieval_candidates`, union adds nothing. **The lesson worth recording plainly**: a
+literature/code search that stops at "is this idea novel" without also checking "is this
+idea already sitting in an open PR" will waste a run re-deriving a known number. The fix
+this project has stated three times (branch off the latest PR, not off main) also
+implies a corollary this run is the first to spell out: read that PR's own body for
+already-measured results BEFORE treating an unwired function as a new lever, not just
+before writing the branch's history.
+
+**Conclusion.** No paper or public project this cycle adds a technique this project
+hasn't already tried and, in the indicator-word case, measured negative. Today's lever
+(`homophone_vowel_candidates`, see DAILY.md) came from the PR backlog's own explicitly
+disclosed next step instead — consistent with the last several runs' honest read that
+the external literature on this specific problem (a resource-poor, non-English,
+indicator-word-sparse cryptic setter) is exhausted for now.
+
 ## 2026-09-05
 
 Consolidated a 5-PR solver backlog before touching a lever (#38, #39, #41, #42, #44 —

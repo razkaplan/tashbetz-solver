@@ -25,9 +25,149 @@ tree - a stale CLI deploy overwrote the live site on 2026-08-29. See CLAUDE.md.
 | **Candidate recall@N with `defspan_retrieval_candidates` added (new, offline, definition-SPAN-restricted BM25 retrieval)** | **10.7% (3/28) on 2026-05-29 — IDENTICAL to `retrieval_candidates` (whole-clue query) alone, both individually and combined**; the two mechanisms return byte-identical candidate sets on 27/28 clues (differ on 1) and hit the SAME 2 gold answers | not yet a target — NEGATIVE result for incremental recall, see log |
 | **Candidate recall@N with `double_definition_candidates` added (new, offline, two-independent-half BM25 retrieval)** | **0% (0/21)** on 2026-05-21 (fresh puzzle) — mechanism fired on **0/21 clues**, not just missed gold: even relaxing the requirement to "gold appears in EITHER half's independent top-K alone" (not both), the gold answer was absent from both halves for every one of the 5 short [<=4]-letter slots checked (the class PLAYBOOK.md says is "overwhelmingly double definitions"); mechanical baseline 0.0%, `retrieval_candidates` alone (same corpus) 9.5% (2/21) shows the corpus itself isn't empty — this is a genuine per-mechanism null, not a corpus-availability artifact | not yet a target — n=1 puzzle, see log |
 | **Candidate recall@N with `homophone_candidates` added (new, offline, mechanical — the נשמע/sounds-like device, PLAYBOOK.md 1.6, ~4% of clues, previously NO generator or proof primitive at all)** | **3.6% (1/28), UNCHANGED** on 2026-05-29 (fresh 6th independent transcription, 28/28 clues, 0 enum mismatches, 0/15 grid-pattern mismatches) — but NOT a zero-fire result: the mechanism fired on **8/28 clues** (avg candidates/clue 11.7 -> 11.8), producing real phon-folded candidates each time, none matching gold. Root-caused, not just observed: this puzzle's own ONE homophone-CREDITED clue (22 across, carries the explicit "(עפ"י השמיעה של אליעזר כמון)" marker PLAYBOOK.md 1.6 names) needs vowel-letter flexibility (ה/ו/י insertion — "הזורזים" -> "אנזימים") that this v1's CONSONANT-CLASS-ONLY fold (ק/כ/ח, ט/ת, ס/ש, א/ע) deliberately does not model, disclosed in the code's own docstring rather than silently missed | not yet a target — diagnostic; a real, working mechanism with a clearly scoped (not silently narrow) gap |
+| **Candidate recall@N with `homophone_vowel_candidates` added (new, offline, mechanical — closes 2026-09-05's own disclosed gap: free ו/י vowel-letter insertion/omission, one letter of length difference)** | **3.6% (1/28), UNCHANGED** on 2026-05-29 (7th independent transcription, 28/28 clues, 0 enum mismatches — see log for a disclosed direction ambiguity found on ONE clue, 26 across, unrelated to this lever). Fired on **14/28 clues** (avg candidates/clue 11.8 -> 13.0), zero gold hits. Root-caused, not assumed: directly tested the mechanism against the SPECIFIC clue 2026-09-05 diagnosed as needing this ("22 across, הזורזים -> אנזימימ") and it produces **ZERO candidates for that clue, not a near-miss** — the two words' phon-folded consonant skeletons (הזורזימ vs אנזימימ) differ by far more than one ו/י, so 2026-09-05's own "vowel-insertion" diagnosis was itself an oversimplification of a more complex sound relationship this narrow, single-letter-edit device cannot reach either. A real, working extension of the device with a genuine (not contrived) negative result | not yet a target — diagnostic; the disclosed gap this closed turned out not to be the puzzle's actual gap once tested directly |
 
 Baseline for comparison: v2 = 41% raw with untraceable errors.
-Last lever added (2026-09-05): **`homophone_candidates` — the נשמע (sounds-like) device
+Last lever added (2026-09-06): **`homophone_vowel_candidates` — closes 2026-09-05's own
+disclosed gap in `homophone_candidates`: free ו/י vowel-letter insertion/omission**
+(indicators.json's homophone entry names this alongside the consonant-class swaps
+2026-09-05 already modeled). Two fodder-window widths, both phon()-folded then looked
+up in the SAME `by_phon()` index `homophone_candidates` already builds: `target_len - 1`
+(fodder missing a vowel the real answer has — try inserting ו/י at every position) and
+`target_len + 1` (fodder carries an extra vowel the real answer lacks — try deleting
+each ו/י it contains). Insertion/deletion only ever touches ו/י, never any other
+letter, so this stays a narrow, grounded device rather than an open-ended
+edit-distance search. `prove.py`'s `is_homophone()` was extended to accept the same
+one-vowel-off match (not a separate primitive), so a live solve pass can prove either
+shape of the device with one assertion.
+
+Six solver-lever PRs were open and unmerged against main when this run started (#38
+2026-08-31, #39 2026-09-01, #41 2026-09-02, #42 2026-09-03, #44 2026-09-04, #46
+2026-09-05) — PR #46 itself already consolidates #38/#39/#41/#42/#44 onto one branch
+and adds `homophone_candidates`, so this run branched from PR #46's tip directly (not
+from `main`) rather than re-deriving or re-consolidating work already sitting there —
+the exact fix queue item 6 has asked for three times running ("branch off yesterday's
+PR, not off main"). **A real near-miss avoided by reading the PR backlog before writing
+any code**: this run's first instinct, before checking open PRs, was to wire
+`retrieve_defs.end_candidates()` into `candidates.py` as a NEW `end_retrieval_candidates`
+mechanism — unaware that PR #41 (folded into #46) already built exactly this, named
+`defspan_retrieval_candidates`, and had ALREADY MEASURED it: 10.7% (3/28), identical to
+whole-clue `retrieval_candidates` alone, union adds nothing (see PR #41's own body). Once
+this was discovered (via `list_pull_requests`), the redundant implementation was
+discarded before it was ever run, and today's lever became the genuinely next open item
+`homophone_candidates` itself flagged (vowel flexibility) instead. Recorded here as a
+concrete instance of why checking the PR backlog FIRST is worth the extra step — it
+would otherwise have cost this entire run's budget re-deriving a number PR #41 already
+has.
+
+RESEARCH (full entry in RESEARCH.md): seventh-plus consecutive pass with nothing new and
+buildable on candidate generation, definition-span/fit scoring, or Hebrew morphology. One
+new citation (`github.com/nikcholer/cryptic-solver`, a public neuro-symbolic demo)
+checked directly: its definition-location detector uses indicator-word matching, the
+exact signal this project measured and killed on 2026-08-19 (1/5, worse than a coin
+flip) — a second project choosing the same signal is not evidence it works, it is a
+second data point that indicator-word detection is the obvious first thing to try.
+
+BOOTSTRAP: full `./bootstrap.sh --dev-only` run, no truncation this time (10-minute
+window instead of the usual 2). hspell/culture.json/substitutions.json unchanged (already
+committed). 14across hit the identical hard wall documented since 2026-08-19: 51/52
+answer-page fetches came back `None: 0 clues` after full retry-with-backoff each; only
+2026-06-03 (28 clues) recovered. `crawl_defs.py mordo`/`note` were ALSO run this session
+(before this run's actual lever was known — see the near-miss note above): mordo ran to
+completion (66,488 raw pairs, in line with 2026-08-30's 66,443 — the feed keeps pace,
+not shrinking); note ran under a disclosed ~8-minute time budget (435 fetched). NOT used
+in today's measurement, since `homophone_vowel_candidates` touches no external corpus at
+all — left in `data/answers/private_defs/` (gitignored, as always) purely as a
+same-session courtesy in case a later step in this run wanted it; gone again for
+whichever future run next measures a retrieval-family lever, same as every other run's
+crawl.
+
+TRANSCRIPTION: re-transcribed 2026-05-29 fresh (7th independent transcription of this
+exact puzzle). All 28 clues (15 across, 13 down) from `data/images/2026-05-28.jpg`; every
+enum sum validated against the GRID-DERIVED slot length before any gold data was touched
+— 0/28 mismatches. GOLD LETTERS from the small solved-grid recap in `data/images/
+2026-06-04.jpg`: grid-calibrated (cropped, upscaled, read row by row, reversed to the
+project's index-0-is-rightmost convention); all 15 rows' black-cell pattern matched the
+committed `data/grids/2026-05-29.json` EXACTLY, 0/15 mismatches.
+
+**A real transcription error caught and fixed, disclosed rather than silently
+corrected**: this run's FIRST pass derived 26 across as `באוכלבאתוחפ` — the exact
+character-reverse of `פחותאבלכואב`, the value THREE independent prior entries
+(2026-08-25/08-28/08-30) and yesterday's (2026-09-05) all agree on. Rows 0 and 14 (both
+all-white, i.e. palindromic black-cell patterns) are the only two rows where a whole-row
+left-right mirroring error is invisible to the grid-pattern cross-check, since a mirrored
+all-white row still matches an all-white row. Resolved MECHANICALLY, not by trusting the
+majority vote alone: `פחות`/`אבל`/`כואב` (the (4,3,4) split of the disputed value) are
+all three real hspell dictionary words ("less, but it hurts" — a fitting description of
+the clue's own subject, ברית מילה/circumcision); `באוכ`/`לבא`/`תוחפ` (the same split of
+this run's own first derivation) are all three NOT real words. SOLVE_PROTOCOL.md's own
+word-order rule (a multi-word answer's pieces should be real words) settles it in favor
+of the established value, checked against the live lexicon rather than assumed from the
+vote count. Fixed in `data/answers/by_date/2026-05-29.json` before this run's own
+recall@N was measured (row 14 carries no down-slot cells at all — every down slot's
+grid-derived length is ≤9, short of row 14 at index 14 — so this fix touches only 26
+across, nothing else in the dataset). Flagging the underlying risk for a future run: the
+two palindromic rows are a standing verification blind spot this project's own
+grid-pattern check cannot close by construction; a second, independent structural check
+(e.g. real-word-split validation on every multi-part answer, not just when a conflict is
+already suspected) would catch this class of error without relying on cross-run
+consensus, which is itself only as reliable as the first transcription that established
+it (a variant of the DAILY.md-as-leak-vector concern already on record).
+
+MEASURED, controlled (`python3 solver/candidates.py recall data/dataset/clues.jsonl eval
+[--no-homophone-vowel]`, every other mechanism held at existing defaults): mechanical
+baseline (homophone ON, vowel OFF) **3.6% (1/28)** — reproduces every prior
+transcription; **+ homophone_vowel: still 3.6% (1/28), UNCHANGED**, but the mechanism
+fired on **14/28 clues** (avg candidates/clue 11.8 -> 13.0), a real, working generator
+that simply didn't hit gold on this puzzle. Root-caused, not assumed: directly tested
+`homophone_vowel_candidates` against the SPECIFIC clue 2026-09-05 diagnosed as this
+device's target (22 across, "הזורזים" -> `אנזימימ`) and it produces **zero raw
+candidates for that clue, not a near-miss** — `phon('הזורזימ')` and `phon('אנזימימ')`
+differ in far more than one ו/י (ה,ז,ו,ר,ז,י,מ vs א,נ,ז,י,מ,י,מ), so 2026-09-05's own
+"vowel-insertion" framing of this specific clue was itself an oversimplification of a
+more complex sound relationship — the device this run built is real and correctly
+scoped to what indicators.json actually documents, but it was never going to close
+THIS puzzle's specific gap either, and checking that directly (rather than assuming the
+disclosed gap and its fix line up) is the point of this paragraph. Full defaults (every
+mechanism together): 3.6% (1/28), same single anagram hit (`יחפניות`, 2 down) every
+prior measurement of this puzzle has found.
+
+AUDITED (mandatory gate). `lexicon.held_out_answers()`/`retrieve_defs.held_out()` both
+confirmed (computed: `gold - blocked` is the empty set for both, not assumed) to block
+all 28 of this puzzle's own gold answers, including the corrected 26-across value.
+`homophone_vowel_candidates` introduces no new leak surface: it only looks up the same
+held-out-filtered `by_phon()`/`lex()` index `homophone_candidates` already uses safely.
+No forbidden reads: the 51/52 `None: 0 clues` 14across responses were the ONLY thing
+read from that domain before this run switched to the sanctioned public-CDN image
+fallback; `crawl_defs.py` reads only the public note.co.il/pitaronfree sites this
+project has always used for `private_defs`. No implausible jump: 3.6% -> 3.6% is the
+least suspicious result a controlled before/after can produce. All 5 affected selftests
+(`candidates.py`, `retrieve_defs.py`, `lexicon.py`, `prove.py`, `substitutions.py`)
+re-run clean; `candidates.py`/`prove.py` each gained new homophone_vowel checks (a real
+כל/כול defective/plene spelling pair found by scanning the live lexicon, not a synthetic
+fixture, for the insertion direction; the same pair, plus חל/קל via the consonant fold,
+for the deletion direction).
+
+HONEST READ: a real, correctly-scoped extension of a real device, with a genuinely
+negative recall result that is now UNDERSTOOD rather than merely repeated — the
+2026-09-05 diagnosis that this puzzle's gap was "just" vowel flexibility does not survive
+direct testing, and saying so plainly is worth more than shipping the extension with the
+old (wrong) diagnosis still attached. The mechanism itself fired realistically (14/28
+clues, up from 8/28 for the consonant-only version), which is real evidence it works
+mechanically; whether it recovers gold on ANY puzzle is still unmeasured (n=1, same
+standing caveat every mechanism here starts with).
+
+NOT DONE, honestly: did not re-measure a second puzzle (n=1); did not use the
+mordo/note crawl this run's own bootstrap grew, since today's lever doesn't touch that
+corpus (left available for whichever future run next measures a retrieval-family
+lever); did not investigate whether the same palindromic-row blind spot affected any
+OTHER puzzle's committed dev/eval data beyond this one instance, caught only because
+this run happened to derive it fresh (a real follow-up worth a dedicated pass, not
+squeezed into today's one-lever budget); did not merge or otherwise act on the six
+PRs beyond building on top of #46's branch (only the project owner merges PRs) —
+#38/#39/#41/#42/#44/#46 should all be closed in favor of this branch.
+
+Previous lever (2026-09-05): **`homophone_candidates` — the נשמע (sounds-like) device
 (PLAYBOOK.md 1.6, ~30/728 = 4% of clues), the first mechanism in `candidates.py` to
 model a device this project had ZERO prior support for, generator or proof primitive
 alike** (`prove.py` gained a matching `is_homophone()` assertion, since no live solve
@@ -989,6 +1129,17 @@ propagated), `blank`. Score with `python3 evals/run_eval.py <file>`.
    puzzle's own homophone-credited clue needs vowel-letter (ו/י) flexibility this v1's
    length-preserving fold deliberately excludes — a real device, a scoped v1, a concrete
    next step (model vowel insertion as a variable-length search) rather than a dead end.
+   (h) `homophone_vowel_candidates` — the (g)-flagged next step, DONE 2026-09-06 (see
+   log): tries inserting/deleting one ו/י against the same phon-folded index, in both
+   length directions. MEASURED UNCHANGED (3.6%/1/28) on the same puzzle, fired on 14/28
+   clues (up from 8/28), still 0 gold hits. Root-caused, not assumed: directly tested
+   against the SPECIFIC clue (g) diagnosed as this device's target and found it produces
+   ZERO candidates there too — the true sound relationship in that one clue is more than
+   one vowel letter apart, so (g)'s "vowel-insertion" framing of that specific clue was
+   itself imprecise, independent of whether the device is correctly built (it is, per
+   selftest and the mechanical firing rate). No corpus dependency, no confounding. Next
+   step if revisited: a second puzzle's measurement (n=1 so far) rather than assuming
+   this one puzzle's non-hit generalizes.
 2. ~~Definition-span detection~~ — TRIED 2026-08-19, NEGATIVE. See log and "already
    tried" below. Do not re-attempt without a fundamentally different signal (not
    indicator-word density).
