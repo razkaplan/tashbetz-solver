@@ -242,6 +242,11 @@ def check_proof(entry, ref):
             return 'reversal proof does not reverse to the answer'
         if pr['from'] not in ref['lex']:
             return f"reversal source {pr['from']!r} is not a word"
+        # ...and being A word is not enough: the clue NAMES it, so the solver
+        # has to be able to produce it. The lexicon carries the whole
+        # inflection tail, and "הפוך את מניב" for בינם names nothing.
+        if pr['from'] not in ref['common']:
+            return f"reversal source {pr['from']!r} is not a word the reader has met"
         return None
     if t == 'anagram':
         src = pr.get('from', '')
@@ -251,6 +256,8 @@ def check_proof(entry, ref):
             return 'anagram of itself'
         if src not in ref['lex']:
             return f'anagram source {src!r} is not a word'
+        if src not in ref['common']:
+            return f'anagram source {src!r} is not a word the reader has met'
         # One adjacent swap, or one letter moved, is an inflection or a typo
         # rather than wordplay: "ידו" from "דיו", "חסלי" from "חיסל".
         moved = [i for i, (x, y) in enumerate(zip(a, src)) if x != y]

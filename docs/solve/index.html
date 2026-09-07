@@ -12,7 +12,7 @@
 
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="מנוע AI שפותר איתך תשבץ היגיון — רמזים מדורגים, הוכחות לכל תשובה, ודיוק 100% על שני תשבצים עיוורים.">
+<meta name="description" content="מנוע AI שפותר איתך תשבץ היגיון - רמזים מדורגים, הוכחות לכל תשובה, ודיוק 100% על שני תשבצים עיוורים.">
 <meta property="og:title" content="עוזר תשבץ היגיון · פותרים ביחד">
 <meta property="og:description" content="מנוע AI שפותר איתך, לא במקומך. שני תשבצים עיוורים, דיוק 100%.">
 <meta property="og:image" content="https://tashbetz.gtmascode.dev/solve/og.png">
@@ -115,7 +115,7 @@ table.grid{border-collapse:separate;border-spacing:3px;direction:rtl;margin:0 au
     <div class="big">⬆ העלו תשבץ משלכם</div>
     <p>צילום או PDF. הדיגיטציה והרמזים החכמים דורשים מפתח
     <a href="https://openrouter.ai/keys" target="_blank" rel="noopener">OpenRouter</a>
-    — הוא נשמר רק בדפדפן שלכם ונשלח רק ל-OpenRouter.</p>
+    - הוא נשמר רק בדפדפן שלכם ונשלח רק ל-OpenRouter.</p>
     <input type="file" id="file" accept="image/*,.pdf" hidden>
   </div>
 </div>
@@ -129,11 +129,11 @@ table.grid{border-collapse:separate;border-spacing:3px;direction:rtl;margin:0 au
 <div id="digi">
   <div style="font-size:1.3rem;font-weight:700">המנוע קורא את התשבץ...</div>
   <div class="spinner" id="step">מכין...</div>
-  <div class="factcard"><div class="t">בינתיים — הידעתם?</div><div id="fact"></div></div>
+  <div class="factcard"><div class="t">בינתיים - הידעתם?</div><div id="fact"></div></div>
 </div>
 
 <div id="panel">
-  <span class="who" id="curclue">—</span>
+  <span class="who" id="curclue">-</span>
   <button class="hbtn" onclick="hint(1)">איזה מנגנון? <span class="cost">-10</span></button>
   <button class="hbtn" onclick="hint(2)">איפה ההגדרה? <span class="cost">-20</span></button>
   <button class="hbtn" onclick="hint(3)">רמז לדרך <span class="cost">-30</span></button>
@@ -161,7 +161,7 @@ table.grid{border-collapse:separate;border-spacing:3px;direction:rtl;margin:0 au
 <div class="foot-col"><b>הפרויקט</b><a href="/research/he/">המחקר</a><a href="/research/">Research (English)</a><a href="https://github.com/razkaplan/tashbetz-solver">קוד פתוח ב-GitHub</a><a href="https://github.com/razkaplan/tashbetz-solver/tree/main/skills/tashbetz-solver">להתקין כ-Skill</a><a href="https://www.linkedin.com/in/razkaplan/" rel="me">רז קפלן</a></div>
 <p class="foot-note">כלי מחקר אישי, בהשראת השפה העיצובית של עיתונות מודפסת; אינו קשור לעיתון הארץ. ההגדרות בדמו מתוך תשבץ ההיגיון של יורם הרועה (31.7.2026) לצורך הדגמה. <a href="/research/he/">למאמר המחקר</a> · <a href="https://github.com/razkaplan/tashbetz-solver">קוד פתוח</a> · <a href="https://github.com/razkaplan/tashbetz-solver/tree/main/skills/tashbetz-solver">התקינו כ-Skill ב-Claude Code</a> · <a href="https://www.linkedin.com/in/razkaplan/" rel="me">פרויקט של רז קפלן</a>.</p>
 </div></footer>
-<div id="proof"><div class="t">ההוכחה — כך זה עובד</div><pre id="prooftxt"></pre></div>
+<div id="proof"><div class="t">ההוכחה - כך זה עובד</div><pre id="prooftxt"></pre></div>
 <input id="kbd" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" lang="he" aria-hidden="true" tabindex="-1">
 <div id="kbdbar"><span>👆 בחרו משבצת · הקלידו אותיות · לחיצה נוספת מחליפה כיוון</span>
 <button class="primary" onclick="focusKbd(true)">⌨ פתחו מקלדת</button></div>
@@ -177,11 +177,11 @@ let ENGINE=null;                    // per-clue engine results (demo: baked; upl
 let LEX=null,ANAG=null,SUBS=null,AMB=null,PLAYBOOK='';
 const LOG=[];
 const FACTS=[
- ['שרה','גם "היא שרה", גם שָׂרָה בממשלה, וגם סתם שרה. אותן אותיות — זה המנוע של תשבץ היגיון.'],
+ ['שרה','גם "היא שרה", גם שָׂרָה בממשלה, וגם סתם שרה. אותן אותיות - זה המנוע של תשבץ היגיון.'],
  ['פרס','פרס שמקבלים, פָּרַס האימפריה, ושמעון פרס. המחבר סומך עליכם שתקראו לא נכון.'],
  ['אנגרם','ב-85% מהאנגרמים של יורם הרועה האותיות מופיעות מילולית בתוך ההגדרה. חפשו חלון רצוף.'],
- ['(עפ"י ...)','הקרדיט בסוגריים = שם הקורא ששלח. לא חלק מהתחבולה. חוץ מ"עפ"י השמיעה של" — הומופון.'],
- ['דיוק','המנוע מסמן תשובה "מוכחת" רק כשכל אות מוסברת. עדיף ריק מטעות — טעות מרעילה הצלבות.'],
+ ['(עפ"י ...)','הקרדיט בסוגריים = שם הקורא ששלח. לא חלק מהתחבולה. חוץ מ"עפ"י השמיעה של" - הומופון.'],
+ ['דיוק','המנוע מסמן תשובה "מוכחת" רק כשכל אות מוסברת. עדיף ריק מטעות - טעות מרעילה הצלבות.'],
 ];
 
 /* ================= data loading ================= */
@@ -357,8 +357,8 @@ function start(puz,fixedId){
   $('scorebox').style.display='block';$('exportbtn').style.display='inline-block';
   $('title').textContent='פותרים ביחד';
   if(matchMedia('(pointer:coarse)').matches){$('kbdbar').style.display='flex';
-    say('good','בחרו משבצת בלוח והקלידו — המקלדת תיפתח לבד')}
-  $('engstat').textContent=ENGINE&&ENGINE.length?'· המנוע פתר מראש — רמזים מיידיים':'· רמזים חכמים יחושבו לפי דרישה';
+    say('good','בחרו משבצת בלוח והקלידו - המקלדת תיפתח לבד')}
+  $('engstat').textContent=ENGINE&&ENGINE.length?'· המנוע פתר מראש - רמזים מיידיים':'· רמזים חכמים יחושבו לפי דרישה';
   renderGrid();renderClues();
 }
 function cellNum(r,c){for(const[k,cells]of Object.entries(PUZ.slots)){
@@ -460,7 +460,7 @@ async function crackClue(n,d){
   $('engstat').textContent='· המנוע חושב על ההגדרה...';
   const txt=await orChat([{role:'user',content:
 `אתה פותר תשבץ היגיון עברי. ${PLAYBOOK}
-ההגדרה: "${c.clue}" (${c.enum.join(',')}) — ${d==='across'?'מאוזן':'מאונך'}.
+ההגדרה: "${c.clue}" (${c.enum.join(',')}) - ${d==='across'?'מאוזן':'מאונך'}.
 אותיות ידועות מהצלבות (מימין לשמאל, ?=לא ידוע): ${pat}
 ${cands.length?'מועמדים אמיתיים מהמילון שתואמים לתבנית: '+cands.slice(0,30).join(', '):''}
 ${subsHits.length?'תחליפים מוכרים של המחברים: '+subsHits.join(' | '):''}
@@ -473,7 +473,7 @@ ${senses.length?'מילים דו-משמעיות: '+senses.join(' | '):''}
   let e=null;
   try{e=jsonOf(txt)}catch(_){e={tier:'blank',answer:''}}
   e.clue_number=n;e.direction=d;
-  // mechanical verification gate — a "committed" claim must survive the checks
+  // mechanical verification gate - a "committed" claim must survive the checks
   if(e.tier==='committed'&&!verifyClaims(e,c.enum))e.tier='suggestion';
   crackCache[key]=e;
   $('engstat').textContent='';
@@ -504,7 +504,7 @@ async function hint(level){
     if(level===2){const s=e&&e.definition_side;
       out=s==='start'?'החלק המגדיר נמצא בתחילת ההגדרה; השאר משחק מילים.'
         :s==='end'?'החלק המגדיר נמצא בסוף ההגדרה; השאר משחק מילים.'
-        :'ההגדרה הישירה באחד הקצוות — נסו מכל כיוון.';}
+        :'ההגדרה הישירה באחד הקצוות - נסו מכל כיוון.';}
     if(level===3)out=e&&e.hint_fragment?('רמז לחלק מהדרך: '+e.hint_fragment)
       :'אין למנוע רמז מבוסס כאן.';
     if(level===4){const a=norm(e&&e.answer||'');
@@ -512,7 +512,7 @@ async function hint(level){
         :'למנוע אין כאן תשובה מבוססת. נסו הצלבות.';}
     if(level===5){
       if(!e||e.tier==='blank'||!norm(e.answer||''))
-        out='המנוע נשאר כאן ריק בכוונה — אין לו תשובה שהוא מוכן להתחייב עליה. אתם לבד בזה :)';
+        out='המנוע נשאר כאן ריק בכוונה - אין לו תשובה שהוא מוכן להתחייב עליה. אתם לבד בזה :)';
       else out='התשובה ('+(e.tier==='committed'?'מוכחת':'השערה בלבד')+'): '+e.answer+
         '\n\nההסבר:\n'+(e.explanation||'');}
   }
@@ -539,7 +539,7 @@ async function checkSlot(){
     if(solved.size>=Object.keys(PUZ.slots).length){
       say('good','🎉 התשבץ הושלם!');for(let i=0;i<40;i++)setTimeout(confetti,i*60)}
   }else if(ea&&ea!==norm(ans)){bump(-5);say('bad','המנוע חושב אחרת... שווה לבדוק שוב (‎-5)')}
-  else{bump(-5);say('bad','המילה לא מוכרת למילון ולמנוע אין דעה (‎-5) — אולי בכל זאת נכונה?')}
+  else{bump(-5);say('bad','המילה לא מוכרת למילון ולמנוע אין דעה (‎-5) - אולי בכל זאת נכונה?')}
 }
 function bump(x){SCORE=Math.max(0,SCORE+x);$('score').textContent=SCORE}
 function say(cls,t){$('msg').className=cls;$('msg').textContent=t}

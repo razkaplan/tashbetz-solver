@@ -17,6 +17,8 @@ No newspaper clue text is published: the line the whole project keeps.
 """
 import html, json, os, re, urllib.parse
 
+from seo_meta import letter_title, letter_meta
+
 os.chdir(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 OUT='docs/milon'; os.makedirs(OUT,exist_ok=True)
 FIN=str.maketrans('ךםןףץ','כמנפצ')
@@ -307,9 +309,8 @@ for cat,(plural,single) in CATS.items():
 <p style="font-size:.9rem">אורכים זמינים: {', '.join(f'<a href="/milon/{urllib.parse.quote(f"{cat}-{L}")}/">{L}</a>' for L in lens if f'/milon/{cat}-{L}/' in urls)}</p>
 {letter_nav(cat,here=ch)}<ul class="grid">{lis}</ul>"""
         page(f'{OUT}/{slug}/index.html',
-             f'{plural} באות {ch}: {len(items)} תשובות לתשבץ ותשחץ',
-             f'{single} שמתחיל באות {ch}? {len(items)} אפשרויות עם מספר האותיות והכתיב המדויק ברשת, '
-             f'ממוינות לפי שכיחות בתשבצים. לפתרון תשבצי היגיון ותשחצים.',
+             letter_title(plural,ch,len(items)),
+             letter_meta(plural,ch,[t for t,_ in items],len(items)),
              body,
              {"@context":"https://schema.org","@type":"ItemList",
               "name":f"{plural} באות {ch}","numberOfItems":len(items)},
@@ -574,5 +575,7 @@ for u in dict.fromkeys(['/','/nativ/','/solve/','/methods/','/research/','/resea
     sm+=f'  <url><loc>{BASE}{u}</loc></url>\n'
 sm+='</urlset>'
 open('docs/sitemap.xml','w').write(sm)
-open('docs/robots.txt','w').write(f'User-agent: *\nAllow: /\nSitemap: {BASE}/sitemap.xml\n')
+# robots.txt is NOT written here: docs/api/robots.js serves it (and logs which
+# crawlers fetch it). A static docs/robots.txt would shadow the route, since
+# Vercel checks the filesystem before rewrites.
 print(f'pages: {len(urls)} (entities with rich data: {count}); index entries: {len(ent_index)}')

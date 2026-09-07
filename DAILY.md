@@ -3413,3 +3413,74 @@ Measure each lever on dev (fixed enums) with run_eval.py before/after; one lever
   touches no external corpus); did not merge or otherwise act on the five
   consolidated PRs beyond folding their code into this branch (#38/#39/#41/#42/#44
   should be closed in favor of this branch; only the project owner merges PRs).
+
+- 2026-09-06: **candidate generation, queue item 1(g) continued: `homophone_vowel_candidates`
+  — closes 2026-09-05's own disclosed vowel-letter gap** (branch built on PR #46 rather
+  than main, after `list_pull_requests` surfaced that PR #41 had already built and
+  measured the end-span retrieval idea this run almost re-implemented from scratch —
+  discarded before it ran, avoiding a seventh duplicate-effort branch). Extends
+  `homophone_candidates` to the free ו/י vowel-letter insertion/omission device
+  `indicators.json` documents alongside the consonant-class swaps: two fixed-width
+  fodder windows (target_len-1 with an insertion, target_len+1 with a deletion), looked
+  up against the same phon-folded lexicon index; `prove.py`'s `is_homophone()` now
+  accepts the same one-vowel-off match. MEASURED on the 7th independent transcription
+  of 2026-05-29: **3.6% (1/28), UNCHANGED**, but the mechanism fired on 14/28 clues (up
+  from 8/28 for the consonant-only version) — a real, mechanically active device with
+  no recall movement yet on this one puzzle. Directly re-tested the specific clue
+  2026-09-05 diagnosed as this device's target (22 across, `הזורזים` -> `אנזימימ`) and
+  found it STILL produces zero candidates there — the true sound relationship is more
+  than one vowel letter apart, so the prior single-vowel diagnosis was itself an
+  oversimplification, independent of whether this device is correctly built. Also
+  caught and fixed a real transcription error while re-deriving gold data: 26 across's
+  answer had been recorded as the character-reverse of the value three independent
+  prior runs agree on (rows 0 and 14 are both all-white, so a whole-row mirroring error
+  is invisible to the grid-pattern cross-check) — resolved via SOLVE_PROTOCOL's own
+  real-word-split rule against the live lexicon, not by vote count. AUDITED: held-out
+  blocking reconfirmed for both lexicon.py and retrieve_defs.py; no new leak surface
+  (same held-out-filtered `lex()` every window-scan mechanism already uses); no
+  forbidden reads; 3.6% -> 3.6% needed no implausibility check. NOT DONE, honestly: did
+  not model a >1-vowel-letter distance (the concrete next step this run's own
+  re-diagnosis surfaced); did not re-measure a second puzzle; did not merge or act on
+  PR #46/#38/#39/#41/#42/#44 beyond building on top of #46 (only the project owner
+  merges PRs). See RESEARCH.md for the day's search (no Hebrew-specific phonetic-
+  distance resource found).
+
+- 2026-09-07: **site UI bug hunt after a live report** ("tables and lines are getting
+  breaks, the crosswords opacity is off, some of the riddles are bad"), branch
+  `claude/game-bugs-ux-bkcqsr`. Everything below was measured before it was
+  touched; both repo gates (`evals/ui_smoke.py`, `evals/topicgen_eval.py`) pass
+  after.
+  OPACITY, and the worst bug of the three: `.board .cell.clue .ac` carried a
+  hardcoded `#1B1A4E` on a background that followed the theme, so in DARK MODE
+  the arrowword clues were dark-on-dark - measured **1:1, i.e. invisible**, and
+  every arrowword board was unplayable. The board is deliberately "paper" in
+  both themes, so the clue cell now takes a fixed paper tint (`--cell-clue`) and
+  the text the cell's own ink: 14.62:1 in both. Same class of bug in the cell
+  numbers (`--accent` on a paper cell, 2.65:1 in dark mode -> `--cell-num`,
+  5.08:1), and `.board .cell` now pins `color` to `--cell-ink` so nothing drawn
+  inside a paper cell can inherit the page colour again. Clue text 8px -> 8.96px,
+  re-measured for clipping (zero).
+  LINES: 19 em-dashes were live in published Hebrew text (`docs/solve/`,
+  `docs/research/`) against the repo's own content rule, plus one inside
+  `docs/solve/data/demos.json`; fixed in the three generators as well, so a
+  rebuild cannot bring them back. Also fixed a regression I shipped on 09-04:
+  `fitBoard()` squeezed נתיב into the leftover viewport height on every screen,
+  which on a 1280px desktop meant a 232px board - now phone-only, desktop back
+  to 420px.
+  RIDDLES: found a real inconsistency in `solver/topicgen.py`. Hidden-clue
+  carriers already had to be words "the reader has met", but reversal and
+  anagram fodder only had to be in the lexicon - which carries the whole
+  inflection tail. That is where "ערבוב האותיות של תבשם" (for שבתם) and
+  "הפוך את מניב" (for בינם) came from: 373 of 1,164 answers were wordplay-clued
+  and every one named a word nobody could produce. Both indexes now require the
+  fodder to be in the `common` set, `topicgen_eval.py` gates the same rule so it
+  cannot drift back, and all 44 boards were regenerated: **0 clues now name an
+  unrecognisable word** (was 373), level 2 dropped from 13% to 14% wordplay with
+  far better clues (tanach L2 is now almost all real definitions), and level 4
+  rose 59% -> 73% - the honest trade: its answers are drawn outside everyday
+  vocabulary by design, so restricting the fodder leaves it more wordplay, but
+  each clue now names something solvable. Also grew the fillbank by 13 words at
+  the starved lengths and moved seven vehicles out of נתיב's
+  "כולם חפצים מהבית" theme (an אוטובוס was due to appear on 09-08).
+  Gates: ui_smoke 9/9 pages at both widths, topicgen_eval 52/52 boards,
+  url_guard clean (6,071 URLs, none dropped), nativ regression 22/22.

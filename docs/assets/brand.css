@@ -7,7 +7,7 @@
   --sun:#FFC83D;--sun-soft:#FFF1C4;
   --mint:#17B890;--mint-soft:#DCF5EC;
   --sky:#3AA7F5;--sky-soft:#E1F1FF;
-  --cell:#FFFFFF;--cell-ink:#1B1A4E;--cell-black:#1B1A4E;
+  --cell:#FFFFFF;--cell-ink:#1B1A4E;--cell-black:#1B1A4E;--cell-clue:#FFF3D9;--cell-num:#6C4CF6;
   --shadow:4px 4px 0 var(--ink);--shadow-soft:0 10px 30px rgba(27,26,78,.10);
   --r:14px;--r-lg:22px;--r-pill:999px;
   --display:'Fredoka','Rubik','Heebo',system-ui,sans-serif;
@@ -23,7 +23,7 @@
   --sun:#FFD25E;--sun-soft:#4A3D16;
   --mint:#3FD9AC;--mint-soft:#173F35;
   --sky:#6CC0FF;--sky-soft:#1D3450;
-  --cell:#FFFBF3;--cell-ink:#1B1A4E;--cell-black:#0B0A20;
+  --cell:#FFFBF3;--cell-ink:#1B1A4E;--cell-black:#0B0A20;--cell-clue:#FFF3D9;--cell-num:#6C4CF6;
   --shadow:4px 4px 0 #0B0A20;--shadow-soft:0 10px 30px rgba(0,0,0,.35);
 }}
 *{box-sizing:border-box}
@@ -151,15 +151,15 @@ label{font-weight:500}
 /* ---- crossword board (topic + trainer pages) ---- */
 .scroll{overflow-x:auto;padding:6px 6px 10px}
 .board{display:grid;direction:rtl;gap:3px;background:var(--ink);padding:4px;width:max-content;margin:1rem 0;border:3px solid var(--ink);border-radius:12px;box-shadow:var(--shadow)}
-.board .cell{width:var(--cs,2.6rem);height:var(--cs,2.6rem);background:var(--cell);position:relative;border-radius:5px}
+.board .cell{width:var(--cs,2.6rem);height:var(--cs,2.6rem);background:var(--cell);color:var(--cell-ink);position:relative;border-radius:5px}
 .board .cell.black{background:var(--cell-black);border-radius:3px}
 .board .cell input{width:100%;height:100%;border:0;border-radius:5px;text-align:center;font-size:1.3rem;font-family:var(--display);font-weight:600;color:var(--cell-ink);background:transparent;padding:0;box-shadow:none}
 .board .cell input:focus{outline:0;background:var(--sun);box-shadow:none}
 .board .cell.hl{background:var(--sun-soft)}
 .board .cell.ok input{color:var(--mint)}.board .cell.bad input{color:var(--pop)}
-.board .cell .n{position:absolute;top:1px;right:4px;font-size:.58rem;font-weight:700;color:var(--accent);font-family:var(--body);pointer-events:none}
-.board .cell.clue{background:var(--paper-2);display:flex;flex-direction:column;justify-content:space-evenly;padding:2px}
-.board .cell.clue .ac{font-size:.5rem;line-height:1.12;color:#1B1A4E;overflow:hidden;display:flex;gap:1px}
+.board .cell .n{position:absolute;top:1px;right:4px;font-size:.58rem;font-weight:700;color:var(--cell-num);font-family:var(--body);pointer-events:none}
+.board .cell.clue{background:var(--cell-clue);display:flex;flex-direction:column;justify-content:space-evenly;padding:2px}
+.board .cell.clue .ac{font-size:.56rem;line-height:1.15;color:var(--cell-ink);overflow:hidden;display:flex;gap:1px}
 .board .cell.clue .ar{font-weight:700;color:var(--pop)}
 .clues{display:grid;grid-template-columns:repeat(auto-fit,minmax(15rem,1fr));gap:1.2rem}
 .clues ol{padding-inline-start:1.2rem;margin:.3rem 0}
