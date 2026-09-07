@@ -86,7 +86,8 @@ NATIV_JS = r"""
   const cw=cells[0].getBoundingClientRect().width; out.cellFills=Math.abs(cw-(bw-8-10-(cols-1)*5)/cols)<3;
   const data=await fetch('puzzles.json').then(r=>r.json());
   const d=new Date(); const key=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
-  const pz=(cells.length===16?data.easy:data.days)[key]; if(!pz){window.__done({skip:'no puzzle for '+key});return}
+  const easyOn=document.getElementById('modeEasy').classList.contains('on');
+  const pz=(easyOn?data.easy:data.days)[key]; if(!pz){window.__done({skip:'no puzzle for '+key});return}
   const R=pz.rows,C=pz.cols,G=pz.grid; out.gridMatches=cells.map(c=>c.textContent).join('')===G.join('');
   function findPath(word){const adj=i=>{const r=Math.floor(i/C),c=i%C;const o=[];if(r>0)o.push(i-C);if(r<R-1)o.push(i+C);if(c>0)o.push(i-1);if(c<C-1)o.push(i+1);return o};
     function dfs(i,k,used){if(G[i]!==word[k])return null;if(k===word.length-1)return [i];for(const j of adj(i)){if(used.has(j))continue;used.add(j);const p=dfs(j,k+1,used);used.delete(j);if(p)return [i,...p];}return null;}

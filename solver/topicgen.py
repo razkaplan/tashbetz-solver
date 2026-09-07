@@ -251,15 +251,22 @@ def load():
                     return True
         return False
 
+    # The word a reversal or anagram clue NAMES has to be one the reader has
+    # met, exactly as the hidden-clue carriers below already require. Without
+    # it the fodder came out of the inflection tail of the dictionary and the
+    # clue named nothing a solver can hold on to: "ערבוב האותיות של תבשם" for
+    # שבתם, "הפוך את מניב" for בינם. Both are real hspell entries and neither
+    # is a word anybody could produce.
     anagrams = {}
     for w in lex:
         if len(w) < 4:
             continue
         for x in groups.get(''.join(sorted(w)), ()):
-            if x != w and not one_swap(w, x):
+            if x != w and x in common and not one_swap(w, x):
                 anagrams[w] = x
                 break
-    reversible = {w: w[::-1] for w in lex if w[::-1] != w and w[::-1] in dictset}
+    reversible = {w: w[::-1] for w in lex
+                  if w[::-1] != w and w[::-1] in dictset and w[::-1] in common}
     # A hidden clue is only a clue if the answer is genuinely buried. Taking
     # the first carrier that contained the substring gave "צלופן מסתתר בתוך
     # צלופנים" and "יהי חבוי בתוך ליהי" - an inflection of the answer, which

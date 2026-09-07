@@ -56,12 +56,12 @@ def main():
     # demo puzzles: every app/puzzles/<id> with a finished engine solve
     DEMOS = [('demo3107', 'sample3107', 'התשבץ של 31.7.2026'),
              ('demo0708', 'sample0708', 'התשבץ של 7.8.2026'),
-             ('demo1408', 'sample1408', 'התשבץ של 14.8.2026 — טרי מהדפוס')]
+             ('demo1408', 'sample1408', 'התשבץ של 14.8.2026 - טרי מהדפוס')]
     manifest = []
     for did, src, title in DEMOS:
         pdir = f'app/puzzles/{src}'
         if not os.path.exists(f'{pdir}/puzzle.json'):
-            print(f'demo {did}: no puzzle — skipped'); continue
+            print(f'demo {did}: no puzzle - skipped'); continue
         # engine is OPTIONAL: a puzzle publishes empty first, the engine arrives later
         eng = []
         if os.path.exists(f'{pdir}/engine.json'):
@@ -77,8 +77,8 @@ def main():
         json.dump(eng, open(f'{OUT}/demo/{did}/engine.json', 'w'), ensure_ascii=False)
         desc = (f'המנוע פתר אותו בעיוורון: {com} מתוך {len(eng)} בתיוג "מוכח". רמזים זמינים בלי מפתח.'
                 if done and eng else
-                (f'המנוע עדיין פותר ברקע — עד כה {com} תשובות מוכחות. אפשר כבר לפתור לבד!' if eng else
-                 'טרי מהדפוס — המנוע עוד לא פתר. פתרו לבד, או העלו מפתח לרמזים חכמים.'))
+                (f'המנוע עדיין פותר ברקע - עד כה {com} תשובות מוכחות. אפשר כבר לפתור לבד!' if eng else
+                 'טרי מהדפוס - המנוע עוד לא פתר. פתרו לבד, או העלו מפתח לרמזים חכמים.'))
         manifest.append({'id': did, 'title': title, 'desc': desc})
         print(f'demo {did}: baked ({com} committed, done={done})')
     json.dump(manifest, open(f'{OUT}/demos.json', 'w'), ensure_ascii=False)
