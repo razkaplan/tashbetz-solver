@@ -4,6 +4,66 @@ One entry per run: what was found, one-line summary, and an honest judgement of 
 it transfers to a Hebrew cryptic solver with an 8k-clue corpus. Default skepticism: most
 crossword-AI work targets non-cryptic (American-style) puzzles and does not transfer.
 
+## 2026-09-07
+
+Followed the scheduled task's own stated priority order: candidate generation first
+(diverse candidates by mechanism), Hebrew NLP/morphology second.
+
+**"cryptic crossword charade decomposition multi-part segment enumeration algorithm 2025
+2026".** Surfaced only tutorial/glossary pages (CrypticHelper, dailycryptic.org,
+bestforpuzzles.com) restating the standard English-cryptic charade definition ("split the
+solution into several parts, each separately clued, then join them") and one paper already
+logged repeatedly (2104.08620). No new algorithmic treatment of MULTI-part (3+) charade
+segmentation specifically — every source treats charade as a 2-part device or discusses
+enumeration-based splitting only at the level "try every way to cut the enum," which is
+exactly the open-ended search `solver/charade.py` already tried and measured weak (2.8%
+recall, DAILY.md 2026-08-08). **Transfer: none new** — confirms rather than extends the
+standing finding that unconstrained part-search is the wrong shape; the adjacency-
+constrained version (below) isn't something the literature suggests, it's this project's
+own existing 2-part device generalized by one more segment.
+
+**"Hebrew morphological analyzer root pattern segmentation open source 2025 2026 NLP".**
+Same standing set logged before (YAP, HebPipe, RFTokenizer, AlephBERT-family models,
+Hebrew Treebank v2). One item not previously named here: a 2025 W-NUT paper describing a
+BERT-style Hebrew language model (Shmidman & Shmidman). **Transfer: none** — this project's
+standing diagnosis (2026-08-23/24) is that the gap is a crossword-register role/category or
+equivalence resource, not embedding or segmentation quality; a general Hebrew BERT model
+doesn't supply the setter-specific "word X stands for fragment Y" equivalences this
+project's own `substitutions.py` mines directly from crowd explanations instead.
+
+**PR-backlog check, done before writing any code (per 2026-09-06's own stated lesson).**
+`list_pull_requests` showed EIGHT open PRs against main (#38, #39, #41, #42, #44, #46, #47,
+#50), the compounding-backlog pattern flagged four times now (2026-08-21/24/25, and
+2026-09-05's own consolidation). Checked ancestry directly (`git merge-base --is-ancestor`)
+rather than assumed from titles: #47 (`daily/2026-09-06-homophone-vowel`) already contains
+#38/#39/#41/#42/#44/#46's work via #46's own 2026-09-05 consolidation plus one more day's
+lever, so only #47 (behind main by several site-only commits) and #50 (SEO/sitemap, no
+solver-code overlap, left untouched) needed attention. Merged current main into #47's
+branch: one real conflict, in DAILY.md only (both sides had appended different dated Log
+entries after the same point) — resolved by chronological concatenation, and by writing in
+2026-09-06's own Log entry, which its commit had omitted (it updated the state-table
+narrative but never appended to `## Log`, an inconsistency worth flagging rather than
+silently perpetuating). Also caught and fixed a real bug while re-running every selftest
+post-merge (mandatory before trusting anything downstream): `candidates.py selftest`'s new
+`homophone_vowel` toggle check called `generate()` without disabling retrieval/defspan-
+retrieval/double-definition, so it crashed in any environment (like this one) without a
+bootstrapped `data/dataset/clues.jsonl` — every other toggle check in the file calls the
+standalone mechanism function directly for exactly this reason; this one didn't. Fixed by
+disabling those three toggles explicitly in the check, matching the file's own established
+pattern. Not a new "lever" in the recall sense, but the honest first half of today's run:
+without it, the queue's own item 6 recurs a fifth time and the next agent inherits the same
+compounding mess.
+
+**The lever this run actually built.** Item 1(b)'s own disclosed next step ("the mined
+substitution table needs to cover multi-part charades (3+ segments), not just 1-2 word
+coverage of the full answer length") was still open. `substitution_candidates()` gained a
+third shape: three ADJACENT clue words' mined substitutes concatenate, in clue order, to
+the full target length — the same adjacency-constrained search the existing 2-word case
+already uses, generalized by one more segment, deliberately NOT `charade.py`'s open-ended
+every-split search (see above). Toggleable (`use_substitution_3part`, default on) for a
+controlled measurement. See DAILY.md for the transcription, gold-data reconstruction, and
+measured result.
+
 ## 2026-09-06
 
 Seventh-plus consecutive literature pass with nothing new and buildable on candidate

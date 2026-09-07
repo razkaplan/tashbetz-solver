@@ -99,6 +99,7 @@ CLI:
   python3 solver/candidates.py recall data/dataset/clues.jsonl eval --no-defspan-retrieval
   python3 solver/candidates.py recall data/dataset/clues.jsonl eval --no-homophone  # ablation
   python3 solver/candidates.py recall data/dataset/clues.jsonl eval --no-homophone-vowel
+  python3 solver/candidates.py recall data/dataset/clues.jsonl eval --no-substitution-3part
   python3 solver/candidates.py selftest
 """
 import sys, os, re, json
@@ -335,7 +336,7 @@ def sub_fwd():
     return _SUB_FWD
 
 
-def substitution_candidates(clue_text, target_len, table=None):
+def substitution_candidates(clue_text, target_len, table=None, use_3part=True):
     """The setter's private-vocabulary device (SOLVE_PROTOCOL.md 'Substitutions'): a clue
     word stands in for a fragment mined from crowd explanations (a name completed by a
     surname, an abbreviation, a gloss). Three shapes, all requiring FULL coverage of the
@@ -373,14 +374,15 @@ def substitution_candidates(clue_text, target_len, table=None):
                 if len(joined) == target_len and joined in words:
                     out.append({'answer': joined, 'mechanism': 'substitution',
                                 'fodder': f'{ws[i]}+{ws[i + 1]}'})
-    for i in range(len(ws) - 2):
-        for b1 in subs_of(ws[i]):
-            for b2 in subs_of(ws[i + 1]):
-                for b3 in subs_of(ws[i + 2]):
-                    joined = b1 + b2 + b3
-                    if len(joined) == target_len and joined in words:
-                        out.append({'answer': joined, 'mechanism': 'substitution',
-                                    'fodder': f'{ws[i]}+{ws[i + 1]}+{ws[i + 2]}'})
+    if use_3part:
+        for i in range(len(ws) - 2):
+            for b1 in subs_of(ws[i]):
+                for b2 in subs_of(ws[i + 1]):
+                    for b3 in subs_of(ws[i + 2]):
+                        joined = b1 + b2 + b3
+                        if len(joined) == target_len and joined in words:
+                            out.append({'answer': joined, 'mechanism': 'substitution',
+                                        'fodder': f'{ws[i]}+{ws[i + 1]}+{ws[i + 2]}'})
     return out
 
 
@@ -780,7 +782,7 @@ def split_candidates(cands, enum):
 
 def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retrieval=True,
              use_container=True, use_double_def=True, use_defspan_retrieval=True,
-             use_homophone=True, use_homophone_vowel=True):
+             use_homophone=True, use_homophone_vowel=True, use_substitution_3part=True):
     """Diverse candidates for one clue. Never consults the answer.
 
     Mechanism order here is a PRIORITY order, not just an accumulation order: dedup +
@@ -817,7 +819,7 @@ def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retr
     target_len = sum(enum)
     cands = []
     cands += homograph_candidates(clue_text, target_len)
-    cands += substitution_candidates(clue_text, target_len)
+    cands += substitution_candidates(clue_text, target_len, use_3part=use_substitution_3part)
     if use_container:
         cands += container_candidates(clue_text, target_len)
     if use_culture:
@@ -857,7 +859,7 @@ def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retr
 # ---------------------------------------------------------------------------
 def recall_eval(dataset_path, split=None, max_n=25, use_culture=True, use_retrieval=True,
                  use_container=True, use_double_def=True, use_defspan_retrieval=True,
-                 use_homophone=True, use_homophone_vowel=True):
+                 use_homophone=True, use_homophone_vowel=True, use_substitution_3part=True):
     total = 0
     hit = 0
     by_mech = Counter()
@@ -875,7 +877,8 @@ def recall_eval(dataset_path, split=None, max_n=25, use_culture=True, use_retrie
                           use_double_def=use_double_def,
                           use_defspan_retrieval=use_defspan_retrieval,
                           use_homophone=use_homophone,
-                          use_homophone_vowel=use_homophone_vowel)
+                          use_homophone_vowel=use_homophone_vowel,
+                          use_substitution_3part=use_substitution_3part)
         sizes.append(len(cands))
         gold = norm(r['answer_raw'])
         found = [c for c in cands if c['answer'] == gold]
@@ -1172,9 +1175,11 @@ def main():
         use_defspan_retrieval = '--no-defspan-retrieval' not in rest
         use_homophone = '--no-homophone' not in rest
         use_homophone_vowel = '--no-homophone-vowel' not in rest
+        use_substitution_3part = '--no-substitution-3part' not in rest
         rest = [a for a in rest if a not in
                 ('--no-culture', '--no-retrieval', '--no-container', '--no-double-def',
-                 '--no-defspan-retrieval', '--no-homophone', '--no-homophone-vowel')]
+                 '--no-defspan-retrieval', '--no-homophone', '--no-homophone-vowel',
+                 '--no-substitution-3part')]
         path = rest[0] if len(rest) > 0 else 'data/dataset/clues.jsonl'
         split = rest[1] if len(rest) > 1 else None
         os.chdir(ROOT)
@@ -1182,13 +1187,15 @@ def main():
                            use_container=use_container, use_double_def=use_double_def,
                            use_defspan_retrieval=use_defspan_retrieval,
                            use_homophone=use_homophone,
-                           use_homophone_vowel=use_homophone_vowel)
+                           use_homophone_vowel=use_homophone_vowel,
+                           use_substitution_3part=use_substitution_3part)
         print(f"recall@N: {res['hit']}/{res['total']} = {res['recall']:.1%}  "
               f"(avg {res['avg_candidates']:.1f} candidates/clue, "
               f"use_culture={use_culture}, use_retrieval={use_retrieval}, "
               f"use_container={use_container}, use_double_def={use_double_def}, "
               f"use_defspan_retrieval={use_defspan_retrieval}, use_homophone={use_homophone}, "
-              f"use_homophone_vowel={use_homophone_vowel})")
+              f"use_homophone_vowel={use_homophone_vowel}, "
+              f"use_substitution_3part={use_substitution_3part})")
         print('hits by mechanism:', res['by_mechanism'])
         if res['misses']:
             print(f"\n{len(res['misses'])} misses (clue_number, direction, gold):")
