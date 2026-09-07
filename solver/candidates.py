@@ -28,9 +28,9 @@ This module does exactly that, per clue, with no LLM involved:
                           short) or a deletion (fodder one letter long) against the same
                           phon-folded lexicon index.
   - substitution_candidates: the setter's private-vocabulary device — a clue word (or two
-                          adjacent ones) substituted for a fragment mined from crowd
-                          explanations (solver/substitutions.py), when the substitute(s)
-                          cover the FULL answer length. Rebuilt in-memory with held-out
+                          or three adjacent ones, chained) substituted for a fragment mined
+                          from crowd explanations (solver/substitutions.py), when the
+                          substitute(s) cover the FULL answer length. Rebuilt in-memory with held-out
                           clues excluded (see sub_fwd()) rather than trusting the
                           committed lex/substitutions.json, which predates that exclusion.
   - homograph_candidates: the setter's signature device — a clue word already has another
@@ -338,15 +338,24 @@ def sub_fwd():
 def substitution_candidates(clue_text, target_len, table=None):
     """The setter's private-vocabulary device (SOLVE_PROTOCOL.md 'Substitutions'): a clue
     word stands in for a fragment mined from crowd explanations (a name completed by a
-    surname, an abbreviation, a gloss). Two shapes:
+    surname, an abbreviation, a gloss). Three shapes, all requiring FULL coverage of the
+    target length (never a partial charade the way charade.py's open-ended enum-split
+    search worked):
       (a) one clue word's substitute already has the FULL target length -- propose it
           directly, filtered to real words/names (lex()) to cut noise;
       (b) two ADJACENT clue words' substitutes concatenate, in clue order, to the full
-          target length -- a tightly scoped two-part charade. Deliberately NOT the
-          open-ended every-enum-split search charade.py already tried and measured weak
-          (2.8% recall, DAILY.md 2026-08-08): unrestricted part search over a sparse table
-          combinatorially explodes false positives. Adjacency + full-length coverage keeps
-          this mechanism precise instead.
+          target length -- a tightly scoped two-part charade;
+      (c) [2026-09-07, queue item 1(b)'s own next step: "the mined substitution table
+          needs to cover multi-part charades (3+ segments)"] three ADJACENT clue words'
+          substitutes concatenate, in clue order, to the full target length. Deliberately
+          NOT the open-ended every-enum-split search charade.py already tried and measured
+          weak (2.8% recall, DAILY.md 2026-08-08): unrestricted part search over a sparse
+          table combinatorially explodes false positives. Adjacency + full-length coverage
+          keeps this mechanism precise instead of that combinatorial blowup -- (b) and (c)
+          are the same adjacency search generalized from 2 to 3 fragments, not a new shape;
+          the cost stays bounded because most head words have only a handful of mined
+          substitutes (sub_fwd() sorts and callers don't cap it, but the table is sparse by
+          construction -- it only holds equivalences actually mined from crowd text).
     `table` is injectable (tests / callers) instead of always hitting sub_fwd()."""
     fwd = table if table is not None else sub_fwd()
     words = lex()
@@ -364,6 +373,14 @@ def substitution_candidates(clue_text, target_len, table=None):
                 if len(joined) == target_len and joined in words:
                     out.append({'answer': joined, 'mechanism': 'substitution',
                                 'fodder': f'{ws[i]}+{ws[i + 1]}'})
+    for i in range(len(ws) - 2):
+        for b1 in subs_of(ws[i]):
+            for b2 in subs_of(ws[i + 1]):
+                for b3 in subs_of(ws[i + 2]):
+                    joined = b1 + b2 + b3
+                    if len(joined) == target_len and joined in words:
+                        out.append({'answer': joined, 'mechanism': 'substitution',
+                                    'fodder': f'{ws[i]}+{ws[i + 1]}+{ws[i + 2]}'})
     return out
 
 
@@ -947,7 +964,14 @@ def selftest():
     ok &= bool(found)
     print('--- homophone_vowel device: use_homophone_vowel=False in generate() disables '
           'it (checked at the call site, same as every other toggle) ---')
-    only_hv = generate('אכל תפוח', [3], use_homophone_vowel=False)
+    # use_retrieval/use_defspan_retrieval=False too: unlike every other toggle check in
+    # this file (which calls the standalone mechanism function directly), this one calls
+    # generate() itself, which defaults retrieval on and would otherwise hit the real
+    # corpus-backed retrieve_defs.build_index() — crashing this selftest in any
+    # environment without a bootstrapped data/dataset/clues.jsonl (bug found 2026-09-07
+    # while auditing the PR backlog consolidation: this is exactly such an environment).
+    only_hv = generate('אכל תפוח', [3], use_homophone_vowel=False,
+                        use_retrieval=False, use_defspan_retrieval=False, use_double_def=False)
     absent = not any(c['mechanism'] == 'homophone_vowel' for c in only_hv)
     print(f'  no homophone_vowel candidate leaks through when disabled: {absent} '
           f'(expected True)')
@@ -975,6 +999,24 @@ def selftest():
     found = any(h['answer'] == norm('שלום') for h in hits)
     print(f'  found שלום as של+ום from two adjacent words: {found} (expected True)')
     ok &= found
+
+    print('--- substitution device: three ADJACENT clue words\' substitutes concatenate '
+          '(2026-09-07, queue item 1(b)) ---')
+    sub_table3 = {norm('אחד'): [(norm('שלו'), 1)], norm('שני'): [(norm('ם'), 1)],
+                  norm('שלישי'): [(norm('עליכם'), 1)]}
+    hits = substitution_candidates('אחד שני שלישי משהו', 9, table=sub_table3)
+    found = any(h['answer'] == norm('שלוםעליכם') for h in hits)
+    print(f'  found שלוםעליכם as שלו+ם+עליכם from three adjacent words: {found} '
+          f'(expected True)')
+    ok &= found
+    print('--- substitution device: a NON-adjacent triple (a gap in the middle) does not '
+          'chain ---')
+    sub_table_gap = {norm('אחד'): [(norm('שלו'), 1)], norm('שלישי'): [(norm('ם'), 1)]}
+    hits = substitution_candidates('אחד שני שלישי משהו', 4, table=sub_table_gap)
+    found = any(h['answer'] == norm('שלום') for h in hits)
+    print(f'  no שלום from the non-adjacent אחד+שלישי pair (שני sits between them and has '
+          f'no substitute in this table): {not found} (expected True)')
+    ok &= not found
 
     print('--- homograph device: a clue word, de-prefixed, already IS the answer ---')
     # שרה is the canonical example (PLAYBOOK.md/SOLVE_PROTOCOL.md): she sings / a female
