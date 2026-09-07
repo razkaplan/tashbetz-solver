@@ -29,6 +29,7 @@ import urllib.parse
 
 sys.path.insert(0, os.path.dirname(__file__))
 import brand  # noqa: E402
+import sitemap_lastmod  # noqa: E402
 
 ROOT = os.path.join(os.path.dirname(__file__), '..')
 OUT = os.path.join(ROOT, 'docs/milon/w')
@@ -156,8 +157,9 @@ def hub(words_by_len, urls):
 def update_sitemap(urls):
     p = os.path.join(ROOT, 'docs/sitemap.xml')
     s = open(p, encoding='utf-8').read()
-    s = re.sub(r'  <url><loc>%s/milon/w/[^<]*</loc></url>\n' % re.escape(BASE), '', s)
-    block = ''.join(f'  <url><loc>{BASE}{u}</loc></url>\n' for u in urls)
+    s = re.sub(r'  <url><loc>%s/milon/w/[^<]*</loc>(<lastmod>[^<]*</lastmod>)?</url>\n'
+               % re.escape(BASE), '', s)
+    block = sitemap_lastmod.entries(BASE, list(urls))
     s = s.replace('</urlset>', block + '</urlset>')
     open(p, 'w', encoding='utf-8').write(s)
 

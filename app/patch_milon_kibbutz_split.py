@@ -23,7 +23,10 @@ What it does:
 The next full build_seo.py run (with the real corpus) supersedes all of this;
 build_seo.py already carries the same category split and search fix.
 """
-import html, json, os, re, shutil, urllib.parse
+import html, json, os, re, shutil, sys, urllib.parse
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import sitemap_lastmod  # noqa: E402
 
 os.chdir(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 OUT = 'docs/milon'
@@ -304,8 +307,9 @@ const sc=e=>(e.t===v||e.n===c)?2:(e.t.startsWith(v)||e.n.startsWith(c))?1:0;hits
 def patch_sitemap(made):
     sm = open('docs/sitemap.xml').read().splitlines(keepends=True)
     out, inserted = [], False
-    new_lines = [f'  <url><loc>{BASE}/milon/{urllib.parse.quote(u.strip("/").split("/")[-1])}/</loc></url>\n'
-                 for u in made]
+    new_lines = [sitemap_lastmod.entries(
+        BASE, [f'/milon/{urllib.parse.quote(u.strip("/").split("/")[-1])}/'])
+        for u in made]
     for line in sm:
         if '/milon/kibbutz-' in line:
             if not inserted:

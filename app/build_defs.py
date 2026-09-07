@@ -17,7 +17,10 @@ unlike build_seo.py which needs the gitignored corpus):
 Rerunnable: overwrites its own pages, rewrites its own sitemap block
 (idempotent), and refreshes the hub section between its HTML markers.
 """
-import html, json, os, re, urllib.parse
+import html, json, os, re, sys, urllib.parse
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import sitemap_lastmod  # noqa: E402
 
 os.chdir(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 BASE = 'https://tashbetz.gtmascode.dev'
@@ -331,8 +334,9 @@ q.addEventListener('keydown',function(e){{if(e.key==='Enter')b.onclick();}});
 
 def update_sitemap(urls):
     s = open('docs/sitemap.xml', encoding='utf-8').read()
-    s = re.sub(r'  <url><loc>%s/milon/d/[^<]*</loc></url>\n' % re.escape(BASE), '', s)
-    block = ''.join(f'  <url><loc>{BASE}{u}</loc></url>\n' for u in urls)
+    s = re.sub(r'  <url><loc>%s/milon/d/[^<]*</loc>(<lastmod>[^<]*</lastmod>)?</url>\n'
+               % re.escape(BASE), '', s)
+    block = sitemap_lastmod.entries(BASE, list(urls))
     s = s.replace('</urlset>', block + '</urlset>')
     open('docs/sitemap.xml', 'w', encoding='utf-8').write(s)
 

@@ -41,6 +41,32 @@ updates the "Movement log" below. This file is the handoff between runs, DAILY.m
 
 ## Movement log
 
+- **2026-09-07** - THE SITE IS DEINDEXED, and the sitemap now carries lastmod.
+  Measured with the Search Console URL Inspection API, not inferred: 10 of 10
+  sampled tashbetz pages come back "Crawled - currently not indexed", and
+  Googlebot's last crawl of this host was **2026-08-11**, 27 days ago. Daily
+  impressions went 262 (08-30), 190 (08-31), 10, 7, 0, 0. The same sample on
+  robotics-papers.gtmascode.dev is 7 of 10 indexed with crawls through 08-27,
+  so this is specific to tashbetz, not the property. Every letter page reports
+  "URL is unknown to Google": they have never been fetched, which retires the
+  three-run debate about whether the letter bet failed on linking or on intent.
+  It failed on neither. Nothing has crawled them.
+  Ruled out live before concluding: robots.txt is Allow, no noindex meta, no
+  X-Robots-Tag, canonicals are self-referencing, 150 of 150 sampled sitemap
+  URLs return 200, the sitemap downloads clean (Google fetched it 09-05, 0
+  errors), and tashbetz-solver.vercel.app canonicalises to production.
+  What is left is corpus quality. 5,406 of the 6,071 URLs (89%) are template
+  pages: /milon/e/ has a median body of 1,057 chars of which 58% is
+  boilerplate shared by 90%+ of pages, /milon/w/ 982 chars at 66%. The
+  differentiated pages are the letter pages (1,783 chars, 35% boilerplate) and
+  the length pages (1,617, 42%). Google crawled the corpus in early August,
+  indexed it around 08-24, evaluated it, and dropped it on 09-01.
+  SHIPPED here: all 6,071 sitemap entries gained a `<lastmod>`, sourced from
+  the git history of each built page (dates span 09-01 to 09-07, they are not
+  a build-date stamp) so that when Googlebot does return it can tell which
+  pages changed. This does not by itself reverse a quality demotion, and is
+  not claimed to. The corpus decision is open: see the PR for the options.
+
 - **2026-09-01** - Site-wide redesign and rebrand ("fun and smart"): new
   shared stylesheet (docs/assets/brand.css), Fredoka + Rubik type, cream /
   indigo / grape / coral / sun palette, logo mark and favicon (there was

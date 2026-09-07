@@ -26,6 +26,8 @@ import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 os.chdir(ROOT)
+sys.path.insert(0, os.path.join(ROOT, 'app'))
+import sitemap_lastmod                  # noqa: E402
 sys.path.insert(0, os.path.join(ROOT, 'solver'))
 from grid_tools import slots           # noqa: E402
 import grids_topic                     # noqa: E402
@@ -462,9 +464,10 @@ def update_sitemap(urls):
     if not os.path.exists(path):
         return
     s = open(path, encoding='utf-8').read()
-    s = re.sub(r'  <url><loc>%s/(nosim|bakasha)/[^<]*</loc></url>\n' % re.escape(BASE), '', s)
-    s = re.sub(r'  <url><loc>%s/bakasha/</loc></url>\n' % re.escape(BASE), '', s)
-    block = ''.join(f'  <url><loc>{BASE}{u}</loc></url>\n' for u in sorted(set(urls)))
+    tail = r'</loc>(<lastmod>[^<]*</lastmod>)?</url>\n'
+    s = re.sub(r'  <url><loc>%s/(nosim|bakasha)/[^<]*%s' % (re.escape(BASE), tail), '', s)
+    s = re.sub(r'  <url><loc>%s/bakasha/%s' % (re.escape(BASE), tail), '', s)
+    block = sitemap_lastmod.entries(BASE, sorted(set(urls)))
     s = s.replace('</urlset>', block + '</urlset>')
     open(path, 'w', encoding='utf-8').write(s)
 

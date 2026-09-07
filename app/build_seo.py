@@ -18,6 +18,7 @@ No newspaper clue text is published: the line the whole project keeps.
 import html, json, os, re, urllib.parse
 
 from seo_meta import letter_title, letter_meta
+import sitemap_lastmod
 
 os.chdir(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 OUT='docs/milon'; os.makedirs(OUT,exist_ok=True)
@@ -571,8 +572,8 @@ if os.path.exists('docs/bakasha/index.html'):
     topics.append('/bakasha/')
 # dict.fromkeys, not set(): the sitemap should stay in a stable order so a
 # rebuild produces a reviewable diff rather than a reshuffle.
-for u in dict.fromkeys(['/','/nativ/','/solve/','/methods/','/research/','/research/he/']+trainer+topics+urls):
-    sm+=f'  <url><loc>{BASE}{u}</loc></url>\n'
+sm+=sitemap_lastmod.entries(BASE, list(dict.fromkeys(
+    ['/','/nativ/','/solve/','/methods/','/research/','/research/he/']+trainer+topics+urls)))
 sm+='</urlset>'
 open('docs/sitemap.xml','w').write(sm)
 # robots.txt is NOT written here: docs/api/robots.js serves it (and logs which
