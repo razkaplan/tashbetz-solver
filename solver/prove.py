@@ -102,6 +102,25 @@ def is_hidden(text, answer):
         raise ProofError(f"is_hidden: '{a}' is not a contiguous run inside '{t}'")
     return True
 
+# Consonant-class folding for the homophone device (נשמע) — mirrors candidates.py's
+# PHON_FOLD/phon(), duplicated rather than imported so this file stays self-contained
+# (same discipline candidates.py's own _destem() duplication follows). Grounded in
+# indicators.json's own crowd-mined homophone entry: ק/כ/ח, ט/ת, ס/ש, א/ע swap freely
+# in undotted Hebrew. Does not model vowel-letter (ו/י) flexibility — disclosed, not
+# silently assumed away.
+PHON_FOLD = str.maketrans('עחקטש', 'אככתס')
+
+def is_homophone(fodder, answer):
+    """Does `fodder`, read by SOUND rather than by spelling, give `answer`? Grounded in
+    the same consonant-class folding candidates.py's homophone_candidates() uses to
+    generate the hypothesis in the first place, so a live solve pass can PROVE one."""
+    a, b = norm(fodder), norm(answer)
+    if a.translate(PHON_FOLD) != b.translate(PHON_FOLD):
+        raise ProofError(
+            f"is_homophone: '{a}' and '{b}' do not fold to the same phonetic key "
+            f"('{a.translate(PHON_FOLD)}' vs '{b.translate(PHON_FOLD)}')")
+    return True
+
 def means(phrase, target):
     """Grounded synonym/substitution: is `target` a recorded reading of `phrase`?
     Uses the setters' own vocabulary, which is stricter and more honest than a
@@ -142,8 +161,8 @@ def word_order(answer, *words):
     return True
 
 DSL = dict(is_word=is_word, is_anagram=is_anagram, is_reversal=is_reversal,
-           is_container=is_container, is_hidden=is_hidden, means=means,
-           concat=concat, has_length=has_length, word_order=word_order)
+           is_container=is_container, is_hidden=is_hidden, is_homophone=is_homophone,
+           means=means, concat=concat, has_length=has_length, word_order=word_order)
 
 # ---------- verifier ----------
 def check(proof_src, answer=None, verbose=True):
@@ -196,6 +215,18 @@ assert is_container('קרים', 'תן', 'קרתנימ')
 assert means('ההרמות', 'תרומות')
 """)
     print(f'  => {ok4} (expected False — invented synonyms are now rejected)')
+
+    print('\n--- a homophone proof (ק/כ swap: קר "sounds like" כר) ---')
+    ok5, _ = check("""
+assert is_homophone('קר', 'כר')
+""", 'כר')
+    print(f'  => {ok5} (expected True)')
+
+    print('--- a FALSE homophone claim (letters outside any recorded swap class) ---')
+    ok6, _ = check("""
+assert is_homophone('קר', 'גל')
+""")
+    print(f'  => {ok6} (expected False)')
 
 if __name__ == '__main__':
     if len(sys.argv) > 1 and sys.argv[1] == 'selftest':
