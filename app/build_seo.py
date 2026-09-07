@@ -575,5 +575,7 @@ for u in dict.fromkeys(['/','/nativ/','/solve/','/methods/','/research/','/resea
     sm+=f'  <url><loc>{BASE}{u}</loc></url>\n'
 sm+='</urlset>'
 open('docs/sitemap.xml','w').write(sm)
-open('docs/robots.txt','w').write(f'User-agent: *\nAllow: /\nSitemap: {BASE}/sitemap.xml\n')
+# robots.txt is NOT written here: docs/api/robots.js serves it (and logs which
+# crawlers fetch it). A static docs/robots.txt would shadow the route, since
+# Vercel checks the filesystem before rewrites.
 print(f'pages: {len(urls)} (entities with rich data: {count}); index entries: {len(ent_index)}')
