@@ -26,9 +26,14 @@ tree - a stale CLI deploy overwrote the live site on 2026-08-29. See CLAUDE.md.
 | **Candidate recall@N with `double_definition_candidates` added (new, offline, two-independent-half BM25 retrieval)** | **0% (0/21)** on 2026-05-21 (fresh puzzle) — mechanism fired on **0/21 clues**, not just missed gold: even relaxing the requirement to "gold appears in EITHER half's independent top-K alone" (not both), the gold answer was absent from both halves for every one of the 5 short [<=4]-letter slots checked (the class PLAYBOOK.md says is "overwhelmingly double definitions"); mechanical baseline 0.0%, `retrieval_candidates` alone (same corpus) 9.5% (2/21) shows the corpus itself isn't empty — this is a genuine per-mechanism null, not a corpus-availability artifact | not yet a target — n=1 puzzle, see log |
 | **Candidate recall@N with `homophone_candidates` added (new, offline, mechanical — the נשמע/sounds-like device, PLAYBOOK.md 1.6, ~4% of clues, previously NO generator or proof primitive at all)** | **3.6% (1/28), UNCHANGED** on 2026-05-29 (fresh 6th independent transcription, 28/28 clues, 0 enum mismatches, 0/15 grid-pattern mismatches) — but NOT a zero-fire result: the mechanism fired on **8/28 clues** (avg candidates/clue 11.7 -> 11.8), producing real phon-folded candidates each time, none matching gold. Root-caused, not just observed: this puzzle's own ONE homophone-CREDITED clue (22 across, carries the explicit "(עפ"י השמיעה של אליעזר כמון)" marker PLAYBOOK.md 1.6 names) needs vowel-letter flexibility (ה/ו/י insertion — "הזורזים" -> "אנזימים") that this v1's CONSONANT-CLASS-ONLY fold (ק/כ/ח, ט/ת, ס/ש, א/ע) deliberately does not model, disclosed in the code's own docstring rather than silently missed | not yet a target — diagnostic; a real, working mechanism with a clearly scoped (not silently narrow) gap |
 | **Candidate recall@N with `homophone_vowel_candidates` added (new, offline, mechanical — closes 2026-09-05's own disclosed gap: free ו/י vowel-letter insertion/omission, one letter of length difference)** | **3.6% (1/28), UNCHANGED** on 2026-05-29 (7th independent transcription, 28/28 clues, 0 enum mismatches — see log for a disclosed direction ambiguity found on ONE clue, 26 across, unrelated to this lever). Fired on **14/28 clues** (avg candidates/clue 11.8 -> 13.0), zero gold hits. Root-caused, not assumed: directly tested the mechanism against the SPECIFIC clue 2026-09-05 diagnosed as needing this ("22 across, הזורזים -> אנזימימ") and it produces **ZERO candidates for that clue, not a near-miss** — the two words' phon-folded consonant skeletons (הזורזימ vs אנזימימ) differ by far more than one ו/י, so 2026-09-05's own "vowel-insertion" diagnosis was itself an oversimplification of a more complex sound relationship this narrow, single-letter-edit device cannot reach either. A real, working extension of the device with a genuine (not contrived) negative result | not yet a target — diagnostic; the disclosed gap this closed turned out not to be the puzzle's actual gap once tested directly |
+| **Candidate recall@N with `substitution_candidates`' 3-part charade chain added (new, offline, mechanical — queue item 1(b)'s own disclosed next step: 3 ADJACENT clue words' mined substitutes concatenating to the full answer length, generalizing the existing 2-word case)** | **3.6% (1/28), UNCHANGED** on 2026-05-29 (8th independent transcription, 28/28 clues, 0 enum mismatches, 0/15 grid-pattern mismatches against the solved-recap image). **INCONCLUSIVE, disclosed rather than claimed negative**: the mechanism fired **0/28 clues** with `use_substitution_3part` on vs off (avg candidates/clue identical, 13.8 both ways) — but so did its existing 2-part sibling, checked directly (0 hits) against BOTH the small in-memory held-out-safe table this run's own severely hard-walled bootstrap produced (14across: 4/52 puzzles recovered, 236 explanations, 35 head words) AND, as an audit-only diagnostic never used for the scored number, the full committed `solver/lex/substitutions.json` (2,220 head words, restored via `git checkout` after this run's own smaller rebuild briefly overwrote it — bootstrap.sh's own documented warning caught before it was committed). Zero fires at EITHER corpus size for EITHER part-count means this specific puzzle's specific clue set has no adjacent-word substitution chain of any length, at 2 words or 3 — not evidence the 3-part device itself is broken (its own selftest, on synthetic data, proves it correctly finds a 3-way chain when one exists) or that it's a dead end, just that this run could not produce a puzzle where the baseline it extends already fires, which is the precondition for testing whether extending it helps | not yet a target — diagnostic; needs a puzzle where 2-part substitution already fires to be a real test, see log |
 
 Baseline for comparison: v2 = 41% raw with untraceable errors.
-Last lever added (2026-09-06): **`homophone_vowel_candidates` — closes 2026-09-05's own
+Last lever added (2026-09-07): **`substitution_candidates`' 3-part charade chain — queue
+item 1(b)'s own disclosed next step ("the mined substitution table needs to cover
+multi-part charades (3+ segments)")** — see log for the full write-up, including a
+same-run PR-backlog consolidation (queue item 6, recurred a fifth time) that came first.
+Previous lever (2026-09-06): **`homophone_vowel_candidates` — closes 2026-09-05's own
 disclosed gap in `homophone_candidates`: free ו/י vowel-letter insertion/omission**
 (indicators.json's homophone entry names this alongside the consonant-class swaps
 2026-09-05 already modeled). Two fodder-window widths, both phon()-folded then looked
@@ -3444,6 +3449,117 @@ Measure each lever on dev (fixed enums) with run_eval.py before/after; one lever
   PR #46/#38/#39/#41/#42/#44 beyond building on top of #46 (only the project owner
   merges PRs). See RESEARCH.md for the day's search (no Hebrew-specific phonetic-
   distance resource found).
+
+- 2026-09-07 (solver session): **PR-backlog consolidation (queue item 6, recurred a
+  fifth time) + candidate generation, queue item 1(b): `substitution_candidates`'
+  3-part charade chain.** `list_pull_requests` showed EIGHT open PRs (#38, #39, #41,
+  #42, #44, #46, #47, #50) against main. Checked ancestry directly
+  (`git merge-base --is-ancestor`), not assumed from titles: #47
+  (`daily/2026-09-06-homophone-vowel`) already supersedes #38/#39/#41/#42/#44/#46 via
+  #46's own 2026-09-05 consolidation plus one more day's lever; #50 is unrelated
+  site/SEO work (no solver-code overlap), left untouched. Branched from #47, merged
+  current main in: one real conflict, in DAILY.md only (both sides had appended
+  different dated Log entries after the same point) — resolved by chronological
+  concatenation, and by writing in 2026-09-06's own Log entry, which that day's commit
+  had omitted (it updated the state-table narrative but never appended to `## Log`).
+
+  AUDIT-BEFORE-BUILDING (mandatory before trusting anything downstream of a merge): ran
+  all 5 selftests post-merge and found a real bug, not assumed clean — `candidates.py
+  selftest`'s `homophone_vowel` toggle check called `generate()` without disabling
+  retrieval/defspan-retrieval/double-definition, so it crashed in any environment
+  without a bootstrapped `data/dataset/clues.jsonl` (like this one): every OTHER toggle
+  check in the file calls the standalone mechanism function directly for exactly this
+  reason, this one didn't. Fixed by disabling those three toggles explicitly, matching
+  the file's own established pattern. All 5 selftests then re-ran clean.
+
+  BOOTSTRAP: hspell/culture.json already committed. `scraper/parse_answers.py` hard-
+  walled severely today: **4/52 puzzles recovered** (2026-07-10, 2026-07-03,
+  2026-01-30, 2025-08-08 — 112 real crowd-explained clues), 48/52 came back `None: 0
+  clues` after full retry-with-backoff each. None of the 4 recovered dates is a
+  previously-used dev/eval puzzle, so worked from the no-14across image-fallback
+  technique for the canonical benchmark instead, per bootstrap.sh step 6.
+
+  TRANSCRIPTION: 2026-05-29, 8th independent transcription of this project's most-used
+  benchmark puzzle, from `data/images/2026-05-28.jpg`. Every one of the 28 enum sums
+  validated against the GRID-DERIVED slot length (`solver/grid_tools.py`'s own
+  `slots()`, pure structural geometry from the already-committed
+  `data/grids/2026-05-29.json` — no gold data read) before any gold data was touched:
+  **0/28 mismatches**, including correctly resolving clue 13's own column-wrap (its
+  text splits across the same print-layout boundary queue item 8 already documents for
+  other dates on this puzzle: "...כמלחין" sits at the top of the NEXT column, not a
+  missing word). GOLD LETTERS from the solved-grid recap in
+  `data/images/2026-06-04.jpg`, grid-calibrated programmatically (PIL, row-by-row pixel
+  crops, not eyeballed): all 15 rows' black-cell pattern matched the committed grid
+  EXACTLY, **0/15 mismatches** — cross-checked cell-for-cell as each row was
+  transcribed, not just at the end. FOUR independent corroborations beyond the pattern
+  match itself, all reproducing strings this project's own files already name for this
+  exact puzzle: 1A `בליברטיולנס`, 26A `פחותאבלכואב` (both named in multiple prior
+  DAILY.md entries), 7A `ישפרחימ` (SOLVE_PROTOCOL.md's own worked example), 11A
+  `קרתנימ` (`prove.py selftest`'s own worked example), plus 1D `ברישניקוב`/Baryshnikov
+  (named in the 2026-08-28 log entry) and 22A `אנזימימ` for the clue carrying the
+  "(עפ"י השמיעה של אליעזר כמון)" homophone credit (matches 2026-09-05/06's own
+  disclosed target clue exactly, transcribed independently here).
+
+  BUILT `solver/candidates.py`: `substitution_candidates()` gained a third shape —
+  three ADJACENT clue words' mined substitutes concatenating, in clue order, to the
+  full target length, the same adjacency-constrained search the existing 1-word and
+  2-word cases already use, generalized by one more segment (deliberately NOT
+  `charade.py`'s open-ended every-split search, measured weak in 2026-08-08/08-17: 2.8%
+  and 4.0% recall on two puzzles, unchanged). New `use_3part` parameter on the function
+  and `use_substitution_3part` toggle threaded through `generate()`/`recall_eval()`/the
+  CLI (`--no-substitution-3part`), matching every other mechanism's on/off switch in
+  this file. Two new selftest checks: a synthetic 3-word chain fires correctly, and a
+  NON-adjacent triple (a gap word with no substitute sitting between two that do)
+  correctly does NOT chain across the gap.
+
+  MEASURED, controlled (`python3 solver/candidates.py recall data/dataset/clues.jsonl
+  eval --no-substitution-3part`): **3.6% (1/28) both with and without** — avg
+  candidates/clue identical (13.8) either way, meaning the mechanism fired on **0/28
+  clues**, not just missed gold. Checked directly why, not assumed: the EXISTING 2-part
+  substitution mechanism (which the 3-part case extends) ALSO fired 0/28 times this
+  run, against both the tiny in-memory held-out-safe table today's hard-walled
+  bootstrap produced (35 head words) and, as an audit-only diagnostic never used for
+  the scored number, the full committed `solver/lex/substitutions.json` (2,220 head
+  words — `git diff --stat` caught that this run's own smaller `substitutions.py build`
+  call had briefly overwritten it before anything was committed, exactly the failure
+  mode bootstrap.sh's own comments warn about; reverted with `git checkout --` before
+  measuring). Zero fires at both corpus sizes for both part-counts means THIS PUZZLE's
+  specific clue set has no adjacent-word substitution chain at all, of any length — not
+  evidence the 3-part device is broken (its own selftest, on synthetic data with a
+  real 3-way chain, passes) or a verdict that 3-part charades never fire, just that
+  this run could not produce the precondition (a puzzle where the 2-part baseline
+  already fires) needed to test whether extending it to 3 parts adds anything.
+
+  AUDIT (mandatory gate). `lexicon.held_out_answers()` confirmed (computed, not
+  assumed) to block all 28 of this puzzle's own gold answers before any measurement.
+  The 3-part mechanism introduces no new leak surface beyond what the existing 1/2-part
+  shapes already have (same `sub_fwd()`/`table` source, same full-length-match
+  requirement). No forbidden reads: 14across was queried only for its own answers-page
+  scrape (never this puzzle's date, which it never returned), gold letters came from
+  the sanctioned public-CDN image-fallback path. No jump to explain: 3.6% -> 3.6% is
+  the least suspicious result possible, needed no implausibility check. All 5 selftests
+  re-run clean post-lever.
+
+  HONEST READ: today's run is two things, not one — a genuinely necessary backlog
+  consolidation (the fifth recurrence of queue item 6, closing six days of otherwise-
+  stranded solver work: culture_category's 2nd puzzle, container, double_definition,
+  defspan_retrieval, homophone, homophone_vowel, none of which main had ever seen) and
+  an honestly INCONCLUSIVE test of today's own new lever, not a clean negative. The
+  fair statement: 3-part substitution charades remain unvalidated in either direction —
+  neither shown to help nor shown to be structurally wrong — because this run's one
+  available benchmark puzzle happens to have zero exploitable substitution chains at
+  any length. The concrete next step is measuring on a puzzle where 2-part
+  substitution already fires (none of this project's repeatedly-used dev puzzles are
+  confirmed to be one), not re-testing 2026-05-29 again.
+
+  NOT DONE, honestly: did not find or transcribe a second puzzle to get a firing
+  baseline for substitution (would have meant a second full transcription-plus-audit
+  cycle in one run, out of scope for one lever); did not merge or otherwise act on PR
+  #47/#50 beyond building on top of #47 (only the project owner merges PRs) — this
+  branch is offered as superseding #38/#39/#41/#42/#44/#46/#47; did not act on queue
+  items 8 or 9 beyond the incidental clue-13 column-wrap note above; did not re-crawl
+  note.co.il/mordo (irrelevant to this lever, which touches the explanations corpus,
+  not the definitions corpus retrieval_candidates uses).
 
 - 2026-09-07: **site UI bug hunt after a live report** ("tables and lines are getting
   breaks, the crosswords opacity is off, some of the riddles are bad"), branch
