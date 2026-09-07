@@ -3262,3 +3262,43 @@ Measure each lever on dev (fixed enums) with run_eval.py before/after; one lever
   touches no external corpus); did not merge or otherwise act on the five
   consolidated PRs beyond folding their code into this branch (#38/#39/#41/#42/#44
   should be closed in favor of this branch; only the project owner merges PRs).
+
+- 2026-09-07: **site UI bug hunt after a live report** ("tables and lines are getting
+  breaks, the crosswords opacity is off, some of the riddles are bad"), branch
+  `claude/game-bugs-ux-bkcqsr`. Everything below was measured before it was
+  touched; both repo gates (`evals/ui_smoke.py`, `evals/topicgen_eval.py`) pass
+  after.
+  OPACITY, and the worst bug of the three: `.board .cell.clue .ac` carried a
+  hardcoded `#1B1A4E` on a background that followed the theme, so in DARK MODE
+  the arrowword clues were dark-on-dark - measured **1:1, i.e. invisible**, and
+  every arrowword board was unplayable. The board is deliberately "paper" in
+  both themes, so the clue cell now takes a fixed paper tint (`--cell-clue`) and
+  the text the cell's own ink: 14.62:1 in both. Same class of bug in the cell
+  numbers (`--accent` on a paper cell, 2.65:1 in dark mode -> `--cell-num`,
+  5.08:1), and `.board .cell` now pins `color` to `--cell-ink` so nothing drawn
+  inside a paper cell can inherit the page colour again. Clue text 8px -> 8.96px,
+  re-measured for clipping (zero).
+  LINES: 19 em-dashes were live in published Hebrew text (`docs/solve/`,
+  `docs/research/`) against the repo's own content rule, plus one inside
+  `docs/solve/data/demos.json`; fixed in the three generators as well, so a
+  rebuild cannot bring them back. Also fixed a regression I shipped on 09-04:
+  `fitBoard()` squeezed נתיב into the leftover viewport height on every screen,
+  which on a 1280px desktop meant a 232px board - now phone-only, desktop back
+  to 420px.
+  RIDDLES: found a real inconsistency in `solver/topicgen.py`. Hidden-clue
+  carriers already had to be words "the reader has met", but reversal and
+  anagram fodder only had to be in the lexicon - which carries the whole
+  inflection tail. That is where "ערבוב האותיות של תבשם" (for שבתם) and
+  "הפוך את מניב" (for בינם) came from: 373 of 1,164 answers were wordplay-clued
+  and every one named a word nobody could produce. Both indexes now require the
+  fodder to be in the `common` set, `topicgen_eval.py` gates the same rule so it
+  cannot drift back, and all 44 boards were regenerated: **0 clues now name an
+  unrecognisable word** (was 373), level 2 dropped from 13% to 14% wordplay with
+  far better clues (tanach L2 is now almost all real definitions), and level 4
+  rose 59% -> 73% - the honest trade: its answers are drawn outside everyday
+  vocabulary by design, so restricting the fodder leaves it more wordplay, but
+  each clue now names something solvable. Also grew the fillbank by 13 words at
+  the starved lengths and moved seven vehicles out of נתיב's
+  "כולם חפצים מהבית" theme (an אוטובוס was due to appear on 09-08).
+  Gates: ui_smoke 9/9 pages at both widths, topicgen_eval 52/52 boards,
+  url_guard clean (6,071 URLs, none dropped), nativ regression 22/22.

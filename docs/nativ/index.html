@@ -516,6 +516,10 @@ function fitBoard(){
   var b=$("board");
   if(!b||!cellEls.length)return;
   b.style.maxWidth="";
+  // Only phones and small tablets need this. On a desktop the page may scroll,
+  // and squeezing the board into the leftover height shrank it to 232px on a
+  // 1280px screen, which looked broken rather than compact.
+  if(window.innerWidth>700){b.style.removeProperty("--cell-font");return;}
   var r=b.getBoundingClientRect();
   if(!r.width)return;
   var ratio=r.height/r.width;               // includes border, padding and gaps

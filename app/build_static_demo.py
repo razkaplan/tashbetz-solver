@@ -4,7 +4,7 @@
 The hosted site has no Python backend, so this bakes one puzzle into a static bundle:
   - puzzle.json (grid, clues, slots)
   - engine.json (the blind precision-first solve: tiers, proofs, hint fields)
-  - hints1.json (precomputed homograph scans per clue — the level-1 hint)
+  - hints1.json (precomputed homograph scans per clue - the level-1 hint)
 and injects a client-side shim over api() so hints, checks, and logging work without
 a server. Uploading new puzzles stays a local-app feature; the demo says so.
 
@@ -62,15 +62,15 @@ window.api=async function(u,body){
     if(L===2){const s=e&&e.definition_side;
       return{hint:s==='start'?'החלק המגדיר נמצא בתחילת ההגדרה; השאר הוא משחק המילים.'
         :s==='end'?'החלק המגדיר נמצא בסוף ההגדרה; השאר הוא משחק המילים.'
-        :'ההגדרה הישירה יושבת באחד הקצוות — נסו לקרוא מכל כיוון.'}}
+        :'ההגדרה הישירה יושבת באחד הקצוות - נסו לקרוא מכל כיוון.'}}
     if(L===3)return{hint:e&&e.hint_fragment?('רמז לחלק מהדרך: '+e.hint_fragment)
       :'אין רמז זמין להגדרה הזאת בדמו.'}
     if(L===4){const a=e&&(e.answer||'').replace(/[^א-ת]/g,'');
       return{hint:a&&e.tier!=='blank'?('האות הראשונה: '+a[0]+'   (ואורך: '+a.length+' אותיות)')
         :'למנוע אין כאן תשובה מבוססת. נסו הצלבות.'}}
     if(L===5){if(!e||e.tier==='blank'||!e.answer)
-        return{hint:'המנוע נשאר כאן ריק בכוונה — אין לו תשובה שהוא מוכן להתחייב עליה. אתם לבד בזה :)'};
-      const badge=e.tier==='committed'?'מוכחת':'השערה בלבד — לא מוכחת';
+        return{hint:'המנוע נשאר כאן ריק בכוונה - אין לו תשובה שהוא מוכן להתחייב עליה. אתם לבד בזה :)'};
+      const badge=e.tier==='committed'?'מוכחת':'השערה בלבד - לא מוכחת';
       return{hint:'התשובה ('+badge+'): '+e.answer+'\\n\\nההסבר:\\n'+(e.explanation||'')}}
   }
   if(u==='/api/check'){
@@ -86,7 +86,7 @@ window.addEventListener('DOMContentLoaded',async()=>{
   await loadStatic();
   document.getElementById('drop').innerHTML=
     '<div class="big">דמו: התשבץ של 31.7.2026</div>'+
-    '<p class="small">גרסת הדגמה סטטית — העלאת תשבץ משלכם זמינה בגרסה המקומית (ראו GitHub). לחצו להתחלה.</p>';
+    '<p class="small">גרסת הדגמה סטטית - העלאת תשבץ משלכם זמינה בגרסה המקומית (ראו GitHub). לחצו להתחלה.</p>';
   document.getElementById('drop').onclick=()=>start(SDATA);
 });
 </script>"""
@@ -96,7 +96,7 @@ window.addEventListener('DOMContentLoaded',async()=>{
     html = html.replace('</body>', shim + '\n</body>')
     open(f'{out}/index.html', 'w').write(html)
     n_com = sum(1 for e in engine if e.get('tier') == 'committed')
-    print(f'built {out}/ — {n_com} committed answers baked in, '
+    print(f'built {out}/ - {n_com} committed answers baked in, '
           f'{len(hints1)} level-1 hints precomputed')
 
 if __name__ == '__main__':
