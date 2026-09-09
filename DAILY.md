@@ -21,9 +21,109 @@ tree - a stale CLI deploy overwrote the live site on 2026-08-29. See CLAUDE.md.
 | **Definition-span locatable rate (new, offline, diagnostic)** | **25% (7/28)** have mechanically-locatable single-window wordplay; of those 29% (2/7) are interior, not edge; classifier agreement on edge cases **1/5** | not a target — this diagnostic KILLED the lever, see log |
 | **`solve_pass.py` LIVE blind trial — cumulative (3 trials)** | **40% precision (2/5 committed)**: 2026-08-16 was 1/2 on a partial 21/28-clue puzzle (2026-06-12); 2026-08-22 was **0/2**, 7.1% coverage, on a FULL 28/28-clue puzzle (2026-05-15); **2026-08-27 is 1/1 = 100% precision but 5.3% coverage (1/19), 0% suggestion hit-rate (0/10)**, on 2026-07-10 (19/28 clues) — FIRST trial run with `retrieval_candidates` live (wired 2026-08-25, never live-trialed since); it contributed ZERO candidates all puzzle (grepped the transcript for `(retrieval, fodder=` hits — none), matching today's own offline recall@N finding on this same puzzle (0/19 with or without retrieval); the one correct commit came from `wiki.py` culture-fact lookup, not from any candidate generator | n=5 — still small; retrieval's live debut is a null result on this puzzle, not a regression, but not the coverage lift the queue hoped for either; see log |
 | **Candidate recall@N with `culture_category_candidates` added (new, offline, definition-driven)** | **0% (0/28)**, on 2026-06-19 — mechanism fired on only 1/28 clues (avg candidates/clue 10.5 → 11.4); its one firing (339 raw candidates, an "author" category hit) matched 0 gold | not yet a target — small-n diagnostic, see log |
+| **`deffit.py` definition-fit reranking (NEW 2026-09-09, offline, conditional on recall)** | On a fresh puzzle (2026-05-15): recall_hit 2/28 (same 2 retrieval hits); top-1 accuracy 0/2 unchanged; **MRR 0.333 → 0.350** (1 candidate moved up, 0 moved down); **structural finding: 0/28 clues have a non-retrieval candidate with a non-zero def_fit score** — the signal is mathematically redundant with `retrieval_candidates` today, since both query the same private_defs/BM25 index | not yet a target — n=2 is far too small to call this positive or negative; see log for the redundancy diagnosis and the concrete fix (a second gloss source, e.g. `solver/lex/fillbank.json`) |
 
 Baseline for comparison: v2 = 41% raw with untraceable errors.
-Last lever added (2026-08-30): **closed 2026-08-29's own "NOT DONE" gap: re-measured
+Last lever added (2026-09-09): **built `solver/deffit.py`, a definition-fit RE-RANKER for
+`candidates.py`'s output — queue item 9, "the sharpest gap PR #24 surfaced" — targeting the
+diagnosed gap that live solve trials commit a mechanically-real-but-wrong-meaning candidate
+because nothing scores whether it matches the DEFINITION, only whether the wordplay
+executes.** Bootstrap's 14across scrape hit the same intermittent bot-check wall this
+project has hit repeatedly (consistent HTTP 202 on every retry, confirmed by direct curl,
+not waited out — killed after confirming the pattern); worked from the public-CDN image
+fallback instead. Fetched all 4 `--dev-only` images. Transcribed a puzzle NOT previously
+used as this project's dev/eval canon: **2026-05-15**, chosen because it is one of the two
+dates queue item 8 already confirmed prints across clues 1-13 cleanly (`data/images/2026-05-14.jpg`,
+no gap) — sidestepping queue item 8's still-open gap on 2026-05-29/2026-05-21 rather than
+fighting it. All 28 clues transcribed from that image (the across-clue text turned out to
+be split across TWO print columns — a main column starting at 22, and a narrow sidebar
+next to the small solution-recap box carrying 1,7,8,9,10,11,13,15,17,19 — the exact
+"separate column" resolution queue item 8 already found for 2026-06-19, now confirmed for
+a second date). GOLD LETTERS from the small solved-grid recap in the FOLLOWING week's image
+(`data/images/2026-05-20.jpg`, captioned "פתרון תשבץ ההיגיון..."), calibrated
+programmatically (darkness-threshold gridline detection on both axes): all 15 rows' black-cell
+pattern matched the committed `data/grids/2026-05-15.json` EXACTLY, 0/15 mismatches.
+`grid_tools.validate()` on the transcribed clue enums: 0 problems (every enum sum matches
+its grid-derived slot length). `crawl_defs.py mordo` re-crawled fresh (13,049 raw / 12,302
+parsed after `reparse_mordo()`) under a 240s wall-clock budget (14across's captcha wall,
+not this crawler, was the run's time sink); `crawl_defs.py note` ran under a 200s budget,
+125 pairs (small — this budget is tighter than prior runs' 12-minute/unbounded budgets,
+disclosed rather than hidden).
+
+**THE LEVER**: `solver/deffit.py` reuses `retrieve_defs.py`'s own BM25 index and scoring
+formula, in the REVERSE direction — instead of querying "which answers does this clue's
+text retrieve," it asks "does THIS candidate's own corpus-attested definition overlap the
+clue," and attaches a `def_fit` score to every candidate `candidates.py` already generated
+(by any mechanism), then stable-sorts by it. It never proposes an answer that wasn't
+already a candidate, so recall@N is unchanged by construction (verified in selftest).
+MEASURED (`python3 solver/deffit.py eval data/dataset/clues.jsonl eval`): of the 2 clues
+where `candidates.py`'s recall@N already contains the gold answer (7A `שערציונ`/Zion Gate,
+24A `שכמ`/shoulder-Shechem pun — both retrieval hits), reranking left top-1 accuracy
+unchanged (0/2 both before and after — neither gold answer was already first) but moved
+mean reciprocal rank from 0.333 to 0.350 (7A's gold candidate moved from rank 6 to rank 5
+among 25; 24A's, already at rank 2, stayed there). **n=2 is nowhere near enough to call
+this a positive result** — this is explicitly a low-power diagnostic, disclosed as such,
+not a claim.
+
+**THE MORE IMPORTANT FINDING is structural, not the n=2 number.** Checked directly whether
+def_fit ever scores a NON-retrieval candidate (anagram/hidden/reversal/homograph/culture)
+above zero anywhere in this puzzle's 28 clues: **0/28**. This is not a coverage gap that a
+bigger crawl fixes — it is a logical consequence of the design: `def_fit_score` looks up a
+candidate answer's docs in the exact same index `retrieval_candidates()` already searches,
+so any answer with a non-zero score was, by construction, already reachable by
+`retrieval_candidates()` itself (same corpus, same BM25 formula, just queried in the
+opposite direction). Today's `deffit.py` can rerank retrieval's own hits relative to each
+other or to zero-evidence candidates, but it CANNOT independently corroborate a mechanically
+-derived candidate's meaning unless that candidate is ALSO already a retrieval hit — which
+means it adds nothing to the live solve pass's actual failure mode (a mechanically-real
+candidate that is semantically wrong) beyond what `retrieval_candidates` already contributes
+as a candidate SOURCE. RESEARCH.md's own "gloss-overlap" finding this run undersold this
+risk slightly by calling it a coverage ceiling; it is sharper than that — it is a coverage
+IDENTITY between the two mechanisms as implemented today.
+
+**Concrete next step, not attempted today (would be a second lever):** point `deffit.py` at
+a SECOND, INDEPENDENT gloss source that isn't `retrieve_defs`'s own index — `solver/lex/fillbank.json`
+(2,412 real dictionary-style word→definition pairs, e.g. `אבוקדו` → `פרי ירוק ושמנוני`,
+already committed and used by the public site) is a natural candidate: it is a genuine
+dictionary, not a crossword-answer-site crawl, so it could recognize a common Hebrew word's
+meaning independently of whether that word ever appears as a crossword answer anywhere in
+private_defs. This is the fix implied by today's finding, not implemented today to keep
+this run to one lever.
+
+AUDITED (mandatory gate). `lexicon.held_out_answers()` and `retrieve_defs.held_out()` both
+confirmed (computed, not assumed) to block all 28 of this puzzle's own gold answers —
+`gold_norm - blocked` empty for both. Provenance of both retrieval hits checked directly:
+every matching document carries `pid=None` (external private_defs corpus, never this
+puzzle's own text) and each is a clean semantic fit (`שכמ`'s docs are about the shoulder/
+upper-back and about the city in Samaria; `שערציונ`'s docs are about a site in Jerusalem's
+Old City) — not a coincidental string match. No forbidden reads: 14across was never queried
+for this puzzle's gold data (its own partial, unrelated 9-puzzle answers+explanations output,
+left over from the killed bootstrap step, was inspected only to confirm it carries no clue
+TEXT and therefore cannot feed `clues.jsonl` at all — never used in any measurement). All 6
+affected selftests (`candidates.py`, `retrieve_defs.py`, `lexicon.py`, `prove.py`,
+`substitutions.py`, `deffit.py`) re-run clean. Implausibility check: recall stayed at the
+already-established 7.1% (2/28, unchanged by the smaller note.co.il crawl); deffit's own
+MRR movement (0.333→0.350) is a tiny, unsuspicious shift — nothing here approaches the
+~15-point suspicion bar.
+
+HONEST READ: this is a well-implemented, well-tested (selftest covers the reranking
+mechanism, the never-drops-a-candidate guarantee, and tie-stability) piece of infrastructure
+that measured NEGATIVE-TO-NULL on its first live puzzle, for a reason now understood
+precisely rather than left as a mystery: it shares its evidence source with an existing
+mechanism, so it cannot yet add information the pipeline doesn't already have. That is a
+genuine, informative negative result, not a wasted day — it converts "no generator-shaped
+resource has been found" (RESEARCH.md, 3+ prior passes) into "one was found and built, and
+here is precisely why it doesn't help yet, with the exact fix named."
+
+NOT DONE, honestly: did not wire a second gloss source (fillbank.json) into deffit today,
+to keep this run to one lever; did not re-measure on a second puzzle (transcription of one
+28-clue puzzle plus its audit was this run's full budget); did not run `crawl_defs.py note`
+to a natural plateau (200s budget, smaller than prior runs' 12-minute/unbounded budgets) —
+disclosed rather than hidden, and unlikely to change the structural finding above regardless
+of corpus size, since the redundancy is architectural, not a coverage gap; did not merge or
+otherwise act on any open PR.
+
+Previous lever (2026-08-30): **closed 2026-08-29's own "NOT DONE" gap: re-measured
 `retrieval_candidates` on 2026-06-26 — the puzzle 2026-08-28/08-29 both flagged as still
 needing a bigger corpus and no run had finished re-transcribing — this time FULLY (28/28
 clues, not the 18/28 partial 2026-08-26 left) and against a corpus grown far past any
@@ -589,6 +689,16 @@ propagated), `blank`. Score with `python3 evals/run_eval.py <file>`.
    (2026-08-22/23/24) — the next attempt on this item should assume none exists and work
    from the project's own data (as `culture_category_candidates`, 2026-08-24, did) or be
    scoped as a genuinely new internal idea, not another literature sweep.
+   **2026-09-09: BUILT — `solver/deffit.py`, a gloss-overlap RE-RANKER** (a "fundamentally
+   different signal" from the defspan.py indicator-density approach: it never localizes a
+   definition span at all, it scores whether a candidate ANSWER's own corpus-attested
+   definition overlaps the whole clue). Measured on a fresh puzzle (2026-05-15): n=2
+   recall-hit clues, MRR 0.333->0.350, too small to call positive. Sharper finding: 0/28
+   clues have a non-retrieval candidate scoring non-zero -- def_fit is architecturally
+   redundant with `retrieval_candidates` today (same index, same BM25, opposite query
+   direction), so it cannot yet corroborate a mechanically-derived candidate independently.
+   Concrete next step: wire in a second, independent gloss source -- `solver/lex/fillbank.json`
+   (2,412 real dictionary word->definition pairs) -- not attempted today. See log.
 
 ## Things already tried — do not repeat
 - More knowledge tooling (wiki, culture lexicon, shironet titles): helped early, now saturated.
