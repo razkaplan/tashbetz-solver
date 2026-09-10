@@ -4,6 +4,86 @@ One entry per run: what was found, one-line summary, and an honest judgement of 
 it transfers to a Hebrew cryptic solver with an 8k-clue corpus. Default skepticism: most
 crossword-AI work targets non-cryptic (American-style) puzzles and does not transfer.
 
+## 2026-09-09
+
+Definition-fit scoring (queue item 9) has now had nine consecutive negative-or-null
+research passes (2026-08-22 through 2026-08-30), converging on two dead ends: Hebrew
+WordNet (real, fetchable, but gives synonym/synset relations, not the role-category
+membership this setter's culture clues need) and FastText/embedding cosine rerank
+(2412.09012's established technique, but no Hebrew embedding space is confirmed to work
+on crossword-register Hebrew). Re-checked with a specifically different framing this run:
+is there a signal for "does this candidate answer's meaning match the clue" that needs
+neither an embedding model nor a location classifier (defspan.py's indicator-density
+approach already measured negative, DAILY.md 2026-08-19)?
+
+**Re-confirmed: no new paper in the established family.** The same citation set surfaces
+again — [2506.04824](https://arxiv.org/abs/2506.04824) (reasoning-based Cryptonite SOTA),
+[2412.09012](https://arxiv.org/pdf/2412.09012) (definition-span FastText rerank),
+[2407.08824](https://arxiv.org/html/2407.08824v1) (code-verification, close kin of this
+project's own prove.py), [2103.01242](https://arxiv.org/abs/2103.01242) (Cryptonite).
+Transfer: none new — tenth-plus reconfirmation that generic literature search on this
+exact question is dry.
+
+**Berkeley Crossword Solver, read directly this time rather than re-cited.**
+[arXiv:2205.09665](https://arxiv.org/pdf/2205.09665). Treats solving as weighted CSP: an
+open-domain QA model proposes a per-clue answer distribution straight from the clue text
+(no separate definition-span step at all — non-cryptic clues ARE single-sense definition
+questions, so there's no wordplay-vs-definition split to fail at), then loopy belief
+propagation reconciles against grid crossings. Transfer: confirms why this architecture
+sidesteps definition-fit scoring entirely rather than solving it — stays relevant only to
+queue item 4 (global constraint optimization), already filed there. No change to item 9.
+
+**EmbeddingGemma-300M, checked directly to verify rather than assume "no Hebrew embedding
+model exists" still holds.** [Model card](https://huggingface.co/google/embeddinggemma-300m),
+[arXiv:2509.20354](https://arxiv.org/pdf/2509.20354). A 300M multilingual sentence
+embedding model claiming "100+ spoken languages," but the model card names no Hebrew MTEB
+score and no dedicated Hebrew ranking exists on the MTEB leaderboard either. Transfer: the
+narrower true claim (per 2026-08-23, already on record) is "general-purpose Hebrew-capable
+embedding models exist, but none is confirmed to work well on Hebrew, let alone
+crossword-register Hebrew" — integrating one is still a materially larger lift than a
+one-lever run, so still out of scope, but worth updating the record precisely rather than
+repeating a slightly-too-strong "none exists" line.
+
+**The one genuinely new angle: classic gloss-overlap (Lesk-style) scoring, no embeddings.**
+Background: [Lesk / extended-gloss-overlap WSD](https://www.researchgate.net/publication/221629283_An_Adapted_Lesk_Algorithm_for_Word_Sense_Disambiguation_Using_WordNet),
+still cited in 2025-2026 low-resource-NLP surveys as the standard no-pretrained-model
+fallback for scoring whether two text spans are semantically related: lexical overlap
+between their GLOSSES (definitions), not the spans themselves. This is a fundamentally
+different signal from both prior dead ends — not a location classifier like defspan.py, not
+a synonym-set lookup like WordNet, not a vector model like FastText/EmbeddingGemma — and
+it needs nothing this project doesn't already have: `solver/retrieve_defs.py`'s own
+private_defs corpus (mordo/note.co.il crawls) already holds an independent GLOSS for many
+answers, crawled for the retrieval mechanism but never used the other direction. Scoring a
+candidate by lexical overlap between ITS OWN corpus gloss and the clue's full text is
+buildable today with zero new infrastructure or scrape. Caveat, stated honestly: this
+inherits retrieval_candidates' own measured coverage ceiling (gold@25=5.4%, "bottleneck is
+corpus coverage, not the ranking function", 2026-08-24) — it can only disambiguate among
+mechanism-verified candidates for which the corpus happens to hold a gloss; it cannot
+generate an answer the mechanical mechanisms never produced, and it will score most
+candidates 0.0 (no known gloss at all) rather than "known to be a bad fit." Still, it is the
+first concretely new, no-new-dependency idea this queue item has produced since the Hebrew
+WordNet finding on 2026-08-23/24, and it directly targets the diagnosed gap (prove.py
+verifies mechanism, nothing scores meaning) with a signal cheap enough to measure this run.
+
+**Hebrew NLP resource list, checked against a maintained registry rather than ad hoc
+search terms.** [NNLP-IL/Hebrew-Resources](https://github.com/NNLP-IL/Hebrew-Resources/blob/master/models_tools_services.rst)
+lists no Hebrew thesaurus, WordNet mirror, or semantic-similarity tool beyond AlephBERT
+(already logged) and a bilingual word-translation tool (wrong task). Transfer: none, but
+independent confirmation from a maintained index, not just repeated search phrasing, that
+the landscape genuinely has nothing new right now.
+
+**Conclusion, and the lever this run actually built.** The gloss-overlap idea above is
+buildable today, targets the exact diagnosed gap, and needs no new scrape or model — so
+this run built it: `solver/deffit.py`, a definition-fit RE-RANKER (not a generator; it
+never proposes an answer candidates.py didn't already produce) that scores each of
+candidates.py's outputs by BM25 lexical overlap between the clue's full text and the
+candidate answer's own corpus-attested gloss (reusing solver/retrieve_defs.py's index and
+its exact scoring formula in the reverse direction — answer-to-gloss rather than
+clue-to-answer). See DAILY.md for the measured effect. This is deliberately narrow: it can
+only ever re-order candidates that recall@N already contains, so it cannot by itself move
+the recall@N ceiling every prior candidate-generation lever has been measured against —
+its claim is about the FIRST candidate a live solve pass would commit, not about coverage.
+
 ## 2026-09-08
 
 Bootstrap hit the same hard 14across wall as most recent runs — confirmed directly, not
