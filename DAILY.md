@@ -27,9 +27,88 @@ tree - a stale CLI deploy overwrote the live site on 2026-08-29. See CLAUDE.md.
 | **Candidate recall@N with `homophone_candidates` added (new, offline, mechanical — the נשמע/sounds-like device, PLAYBOOK.md 1.6, ~4% of clues, previously NO generator or proof primitive at all)** | **3.6% (1/28), UNCHANGED** on 2026-05-29 (fresh 6th independent transcription, 28/28 clues, 0 enum mismatches, 0/15 grid-pattern mismatches) — but NOT a zero-fire result: the mechanism fired on **8/28 clues** (avg candidates/clue 11.7 -> 11.8), producing real phon-folded candidates each time, none matching gold. Root-caused, not just observed: this puzzle's own ONE homophone-CREDITED clue (22 across, carries the explicit "(עפ"י השמיעה של אליעזר כמון)" marker PLAYBOOK.md 1.6 names) needs vowel-letter flexibility (ה/ו/י insertion — "הזורזים" -> "אנזימים") that this v1's CONSONANT-CLASS-ONLY fold (ק/כ/ח, ט/ת, ס/ש, א/ע) deliberately does not model, disclosed in the code's own docstring rather than silently missed | not yet a target — diagnostic; a real, working mechanism with a clearly scoped (not silently narrow) gap |
 | **Candidate recall@N with `homophone_vowel_candidates` added (new, offline, mechanical — closes 2026-09-05's own disclosed gap: free ו/י vowel-letter insertion/omission, one letter of length difference)** | **3.6% (1/28), UNCHANGED** on 2026-05-29 (7th independent transcription, 28/28 clues, 0 enum mismatches — see log for a disclosed direction ambiguity found on ONE clue, 26 across, unrelated to this lever). Fired on **14/28 clues** (avg candidates/clue 11.8 -> 13.0), zero gold hits. Root-caused, not assumed: directly tested the mechanism against the SPECIFIC clue 2026-09-05 diagnosed as needing this ("22 across, הזורזים -> אנזימימ") and it produces **ZERO candidates for that clue, not a near-miss** — the two words' phon-folded consonant skeletons (הזורזימ vs אנזימימ) differ by far more than one ו/י, so 2026-09-05's own "vowel-insertion" diagnosis was itself an oversimplification of a more complex sound relationship this narrow, single-letter-edit device cannot reach either. A real, working extension of the device with a genuine (not contrived) negative result | not yet a target — diagnostic; the disclosed gap this closed turned out not to be the puzzle's actual gap once tested directly |
 | **Candidate recall@N with `substitution_candidates`' 3-part charade chain added (new, offline, mechanical — queue item 1(b)'s own disclosed next step: 3 ADJACENT clue words' mined substitutes concatenating to the full answer length, generalizing the existing 2-word case)** | **3.6% (1/28), UNCHANGED** on 2026-05-29 (8th independent transcription, 28/28 clues, 0 enum mismatches, 0/15 grid-pattern mismatches against the solved-recap image). **INCONCLUSIVE, disclosed rather than claimed negative**: the mechanism fired **0/28 clues** with `use_substitution_3part` on vs off (avg candidates/clue identical, 13.8 both ways) — but so did its existing 2-part sibling, checked directly (0 hits) against BOTH the small in-memory held-out-safe table this run's own severely hard-walled bootstrap produced (14across: 4/52 puzzles recovered, 236 explanations, 35 head words) AND, as an audit-only diagnostic never used for the scored number, the full committed `solver/lex/substitutions.json` (2,220 head words, restored via `git checkout` after this run's own smaller rebuild briefly overwrote it — bootstrap.sh's own documented warning caught before it was committed). Zero fires at EITHER corpus size for EITHER part-count means this specific puzzle's specific clue set has no adjacent-word substitution chain of any length, at 2 words or 3 — not evidence the 3-part device itself is broken (its own selftest, on synthetic data, proves it correctly finds a 3-way chain when one exists) or that it's a dead end, just that this run could not produce a puzzle where the baseline it extends already fires, which is the precondition for testing whether extending it helps | not yet a target — diagnostic; needs a puzzle where 2-part substitution already fires to be a real test, see log |
+| **Candidate recall@N with `charade_candidates` added (new, offline, mechanical, two-part-enum only)** | **3.6% (1/28), UNCHANGED**, on 2026-05-29 (freshly re-transcribed this run) — fired on all 10 of the puzzle's 2-part-enum clues (up to its own 200-candidate cap on 8 of them), matched gold on 0/10; avg candidates/clue 11.7 → 18.9, wall time 17.9s → 30.2s for the 28-clue eval | not yet a target — diagnostic; a real negative result on n=1 puzzle, see log |
 
 Baseline for comparison: v2 = 41% raw with untraceable errors.
-Last lever added (2026-09-07): **`substitution_candidates`' 3-part charade chain — queue
+Last lever added (2026-09-08): **`solver/candidates.py`: `charade_candidates`, a new mechanical
+candidate-generation mechanism for 2-part enums (e.g. (4,3)) that solves each part as an
+INDEPENDENT anagram/hidden-word window, in clue order, non-overlapping, rather than requiring
+one contiguous window to cover the whole answer length the way `anagram_candidates`/
+`hidden_candidates` do today.** This closes a real structural gap: SOLVE_PROTOCOL.md's own
+charade description ("split enum parts; solve each part from clue fragments") allows a
+charade's two parts to draw fodder from separate stretches of the clue with an indicator or
+the definition sitting between them, which a single whole-length contiguous window can never
+span. `split_candidates` (existing) only checks post-hoc whether an already-generated
+FULL-length hit happens to split into two real words at the enum boundary; it cannot originate
+a candidate whose parts came from disjoint windows in the first place -- `charade_candidates`
+does. Bootstrap hit the same hard 14across wall as most recent runs (7/7 consecutive
+answer-page fetches came back `None: 0 clues` after full retry-with-backoff, confirmed by a
+direct 300s-budget re-run of `scraper/parse_answers.py` outside bootstrap.sh too -- not fought
+further, per standing precedent); worked entirely from the public-CDN image-fallback technique.
+
+RE-TRANSCRIBED THE CANONICAL DEV PUZZLE (2026-05-29) from scratch (this is now at least the
+fourth independent transcription across this project's runs) since `data/` starts empty every
+run. Read `data/images/2026-05-28.jpg` for clue text (28/28 clues, both the wrapped-column
+`אופקי` 1-13 section and the main `אנכי`/continuation column) and grid-calibrated the solved
+recap grid in the FOLLOWING week's image (`data/images/2026-06-04.jpg`) for gold letters, per
+bootstrap.sh's documented fallback. Caught and fixed TWO real transcription bugs mid-run via a
+disciplined process, not luck: (1) a full pixel-boundary miscalibration of the solution grid's
+11x15 cell crop initially undercounted to 9 columns, silently reading one row in the WRONG
+(right-to-left semantic, not left-to-right pixel) order -- caught by re-deriving the exact grid
+pixel geometry from the image's own gridlines (dark-line detection) rather than eyeballing crop
+bounds, then re-reading EVERY row cell-by-cell in small 3-4-cell crops (never a whole 11-cell
+row at once, which is what produced the direction error) and cross-checking each row's
+black-cell PATTERN against the already-committed `data/grids/2026-05-29.json` (0/15 mismatches
+once corrected); (2) one single-cell misread (ל read for י at row 0) caught because it broke a
+mechanical anagram check (the fodder 'פחות יין' anagrams to 'יחפניות', not the initially-read
+'לחפניות') before it was ever used for scoring. Both fixes are DISCLOSED, not silently applied:
+the corrected transcription then independently reproduced THREE separate historical answers
+from this puzzle's prior runs byte-for-byte (1 down `ברישניקוב`/Baryshnikov, 2 down `יחפניות`,
+26 across `פחותאבלכואב`) and the mechanical-only recall@N baseline reproduced the historical
+3.6% (1/28) exactly -- strong independent confirmation the re-transcription is correct, not
+just internally consistent. All 28 enum sums validated against the grid-derived slot length,
+0 mismatches.
+
+MEASURED, controlled before/after (`python3 solver/candidates.py recall
+data/dataset/clues.jsonl eval --no-culture --no-retrieval [--no-charade]`): baseline (charade
+off) **3.6% (1/28)**, avg 11.7 candidates/clue, 17.9s; **with charade: 3.6% (1/28), UNCHANGED**,
+avg 18.9 candidates/clue, 30.2s. Charade fired on all 10 of the puzzle's 2-part-enum clues
+(hitting its own 200-candidate-per-clue cap on 8 of them) but matched 0/10 gold answers -- a
+real, measured negative result, not a silent no-op (confirmed by dumping per-clue candidate
+counts and checking gold membership directly, not just trusting the aggregate recall number).
+Full defaults (culture+retrieval+charade) also 3.6%, unchanged, since no `private_defs` corpus
+was crawled this run (out of scope -- this run's one lever was the new mechanism, not a corpus
+refresh) and `culture_category` does not fire on this puzzle's clues.
+
+AUDITED (mandatory gate). `lexicon.held_out_answers()`, `substitutions.held_out()`, and
+`retrieve_defs.held_out()` all confirmed (computed, not assumed) to block all 28 of this
+puzzle's own gold answers now that it sits in `data/dataset/clues.jsonl` as the `eval` split
+(`gold_norm - blocked` empty for all three). No forbidden reads: 14across was never queried for
+this puzzle's gold data this run (confirmed `data/answers/answers_parsed.json` does not exist),
+only the two public CDN images. No jump to explain: 3.6% stayed 3.6%, the opposite of an
+implausible result. All 6 affected selftests (`candidates.py` -- including 2 new cases for
+`charade_candidates` -- `retrieve_defs.py`, `lexicon.py`, `prove.py`, `substitutions.py`) re-run
+clean.
+
+HONEST READ: a real, correctly-implemented, well-tested new mechanism that does not move
+recall on the one puzzle it was measured against. The underlying diagnosis it targets (a
+charade's two parts need not be contiguous in the fodder) is still structurally sound per
+SOLVE_PROTOCOL.md's own description of the device, but this puzzle's specific 2-part-enum
+clues either use a different device entirely or the correct parts simply aren't real-word
+anagrams/hidden-words of the right sub-lengths (both wordplay AND definition-fit failures are
+possible and this diagnostic cannot distinguish them). The mechanism also costs real wall-clock
+(+69% on this eval) for zero measured gain here, which is a real cost to weigh before ever
+wiring it into a live solve pass. NOT DONE, honestly: not measured on a second puzzle (would
+need a second full transcription cycle, out of scope for one lever); did not reduce the
+200-candidate cap despite it being hit on 8/10 clues (a tighter cap is the natural next step if
+this mechanism is revisited, to cut the wall-clock cost without giving up coverage, but wasn't
+measured against a corpus large enough to show whether it changes recall); did not extend to
+3+-part enums (flagged as a natural next step, not attempted -- clue 26's (4,3,4) enum was the
+only 3-part clue in this puzzle and stayed out of scope); did not crawl a fresh `private_defs`
+corpus (the queue's item 1(d) own repeated lever) since today's chosen lever was a new
+mechanism, not a corpus refresh; did not merge or otherwise act on any open PR.
+
+Previous lever (2026-09-07): **`substitution_candidates`' 3-part charade chain — queue
 item 1(b)'s own disclosed next step ("the mined substitution table needs to cover
 multi-part charades (3+ segments)")** — see log for the full write-up, including a
 same-run PR-backlog consolidation (queue item 6, recurred a fifth time) that came first.
@@ -1145,6 +1224,22 @@ propagated), `blank`. Score with `python3 evals/run_eval.py <file>`.
    selftest and the mechanical firing rate). No corpus dependency, no confounding. Next
    step if revisited: a second puzzle's measurement (n=1 so far) rather than assuming
    this one puzzle's non-hit generalizes.
+   (i) `charade_candidates` — ADDED 2026-09-08 (see log): a mechanical (not corpus-backed)
+   generator that solves a 2-part enum as two INDEPENDENT, non-overlapping, in-order
+   anagram/hidden windows rather than requiring one contiguous window to cover the whole
+   answer length. MEASURED NEGATIVE on 2026-05-29 (freshly re-transcribed): 3.6% -> 3.6%,
+   unchanged — fired on all 10 of the puzzle's 2-part-enum clues (hitting its own
+   200-candidate cap on 8) but matched 0/10 gold. Also surfaced a hard blocker for item
+   1(b)'s own flagged next step (multi-part substitution charades, quoted above): with
+   14across walled again, `substitutions.explanations()` sourced 0 rows and `sub_fwd()`
+   built an EMPTY equivalence table this run — the multi-part-substitution idea is not
+   just unattempted but UNTESTABLE without either a working 14across fetch or some other
+   source of clue-fragment equivalences; `charade_candidates` was built as the closest
+   testable relative (multi-part, but via the mechanical anagram/hidden lexicon rather
+   than a mined table) precisely because that path was blocked. Next concrete steps if
+   revisited: extend to 3+-part enums, tighten the 200-candidate cap (hit on 8/10 clues
+   here, a real wall-clock cost — +69% on this eval — for zero measured gain), and a
+   second puzzle's data point before calling this dead. See log.
 2. ~~Definition-span detection~~ — TRIED 2026-08-19, NEGATIVE. See log and "already
    tried" below. Do not re-attempt without a fundamentally different signal (not
    indicator-word density).
@@ -3600,3 +3695,91 @@ Measure each lever on dev (fixed enums) with run_eval.py before/after; one lever
   "כולם חפצים מהבית" theme (an אוטובוס was due to appear on 09-08).
   Gates: ui_smoke 9/9 pages at both widths, topicgen_eval 52/52 boards,
   url_guard clean (6,071 URLs, none dropped), nativ regression 22/22.
+
+- 2026-09-08: **candidate generation, `solver/candidates.py`: `charade_candidates`** — a
+  new mechanical mechanism for 2-part enums that solves each part as an INDEPENDENT
+  anagram/hidden-word window, in clue order and non-overlapping, rather than requiring one
+  contiguous window to cover the whole answer (all `anagram_candidates`/`hidden_candidates`
+  can do today). Bootstrap hit the same hard 14across wall as most recent runs (confirmed
+  directly: a bare 300s-budget `scraper/parse_answers.py` run outside bootstrap.sh still
+  came back `None: 0 clues` on 7/7 consecutive fetches) — worked entirely from the
+  public-CDN image-fallback technique.
+
+  RESEARCH: followed today's stated priority order (candidate-generation diversity,
+  definition-span, Hebrew NLP). General search surfaced only the same paper family logged
+  repeatedly since 2026-08-06 (2506.04824, 2407.08824, 2403.12094, 2104.08620) — nothing
+  new there. One genuinely new citation this run: a GitHub repo,
+  `raphm72-spec/cryptic_crossword_helper` (hybrid ML+rule-based English cryptic solver:
+  MiniLM embeddings, a multi-label wordplay-indicator classifier, WordNet-based synonym
+  expansion, definition-span-at-start/end detection). Checked directly rather than assumed
+  from the title: 0 stars, 6 commits, English-only, and its core technique (definition
+  fixed at clue start/end + indicator-word classification) is exactly the shape
+  `defspan.py` already measured NEGATIVE on this setter's own clues (2026-08-19: only 25%
+  of clues have a mechanically-locatable single-window span at all, and an indicator-word
+  classifier scored 1/5 on the rest). Transfer: none — an unvalidated hobby tool for a
+  different language, built on the same premise this project already falsified for this
+  setter. Conclusion: seventh-plus consecutive literature pass with nothing new and
+  buildable; today's lever is queue item 1's own flagged next step for the substitution
+  device instead (multi-part charades, quoted in the queue since 2026-08-20) — except that
+  exact idea turned out to be UNTESTABLE today (see below), so the closest testable
+  relative was built instead, honestly labeled as such rather than silently substituted.
+
+  RE-TRANSCRIBED THE CANONICAL DEV PUZZLE (2026-05-29) from scratch, since `data/` starts
+  empty every run. Read `data/images/2026-05-28.jpg` for all 28 clues (both the
+  wrapped-column `אופקי` 1-13 section and the main `אנכי` column) and grid-calibrated the
+  solved recap grid in the FOLLOWING week's image (`data/images/2026-06-04.jpg`) for gold
+  letters, per bootstrap.sh's documented fallback. Caught and fixed two real transcription
+  bugs mid-run, disclosed rather than hidden: (1) an imprecise grid-crop boundary
+  undercounted the 11-column solution grid to 9 columns and, when corrected by eye rather
+  than by re-deriving the true pixel geometry, one row got transcribed in the wrong
+  (right-to-left) direction — fixed by detecting the grid's own gridlines pixel-precisely
+  (dark-line scan) and re-reading every row in small 3-4-cell crops (never a whole row at
+  once) with each row's black-cell pattern cross-checked against the already-committed
+  `data/grids/2026-05-29.json` (0/15 mismatches once corrected); (2) one single-cell
+  misread (ל for י) caught because it broke a mechanical anagram check against the clue's
+  own fodder, not by inspection alone. The corrected transcription independently
+  reproduced three separate historical answers from this puzzle's prior runs byte-for-byte
+  (1 down `ברישניקוב`, 2 down `יחפניות`, 26 across `פחותאבלכואב`), and the mechanical-only
+  recall@N baseline reproduced the historical 3.6% (1/28) exactly. All 28 enum sums
+  validated against the grid-derived slot length, 0 mismatches.
+
+  While building the queue's flagged multi-part-substitution idea, found it is currently
+  UNTESTABLE, not just unattempted: `substitutions.explanations()` sources
+  `data/answers/answers_parsed.json`, which needs a working 14across fetch (walled today),
+  so `sub_fwd()` built an EMPTY equivalence table this run (0 pairs mined, confirmed by
+  direct inspection before writing any new code against it). Built `charade_candidates`
+  instead — multi-part, but via the mechanical anagram/hidden lexicon search rather than a
+  mined table, so it does not depend on 14across at all.
+
+  MEASURED, controlled before/after (`python3 solver/candidates.py recall
+  data/dataset/clues.jsonl eval --no-culture --no-retrieval [--no-charade]`): baseline
+  (charade off) **3.6% (1/28)**, avg 11.7 candidates/clue, 17.9s wall time; **with charade:
+  3.6% (1/28), UNCHANGED**, avg 18.9 candidates/clue, 30.2s. Charade fired on all 10 of the
+  puzzle's 2-part-enum clues (hitting its own 200-candidate-per-clue cap on 8 of them) but
+  matched 0/10 gold answers — confirmed by dumping per-clue candidate counts and gold
+  membership directly, not just trusting the aggregate number. Full defaults
+  (culture+retrieval+charade) also 3.6%, unchanged, since no `private_defs` corpus was
+  crawled this run (today's lever was a new mechanism, not a corpus refresh) and
+  `culture_category` does not fire on this puzzle's clues.
+
+  AUDITED (mandatory gate). `lexicon.held_out_answers()`, `substitutions.held_out()`, and
+  `retrieve_defs.held_out()` all confirmed to block all 28 of this puzzle's own gold
+  answers now that it sits in `data/dataset/clues.jsonl` as the `eval` split (`gold_norm -
+  blocked` empty for all three). No forbidden reads: confirmed `data/answers/
+  answers_parsed.json` does not exist this run, so 14across was never the source of this
+  puzzle's gold data — only the two public CDN images. No jump to explain: 3.6% stayed
+  3.6%. All 6 affected selftests (`candidates.py` — including 2 new cases for
+  `charade_candidates` — `retrieve_defs.py`, `lexicon.py`, `prove.py`, `substitutions.py`)
+  re-run clean.
+
+  HONEST READ: a real, correctly-implemented, well-tested new mechanism that does not move
+  recall on the one puzzle it was measured against, plus a real wall-clock cost (+69% on
+  this eval) for zero gain here. The structural gap it targets (a charade's two parts need
+  not be contiguous in the fodder) is still sound per SOLVE_PROTOCOL.md's own description
+  of the device; this puzzle's specific 2-part-enum clues either use a different device or
+  their correct parts aren't real-word anagrams/hidden-words of the right sub-lengths —
+  this diagnostic cannot distinguish a wordplay-mechanism miss from a definition-fit miss.
+  NOT DONE, honestly: not measured on a second puzzle; did not tighten the 200-candidate
+  cap despite it being hit on 8/10 clues; did not extend to 3+-part enums (clue 26's
+  (4,3,4) was the only 3-part clue here, stayed out of scope); did not crawl a fresh
+  `private_defs` corpus; did not merge or otherwise act on any open PR.

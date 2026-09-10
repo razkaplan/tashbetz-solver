@@ -4,6 +4,73 @@ One entry per run: what was found, one-line summary, and an honest judgement of 
 it transfers to a Hebrew cryptic solver with an 8k-clue corpus. Default skepticism: most
 crossword-AI work targets non-cryptic (American-style) puzzles and does not transfer.
 
+## 2026-09-08
+
+Bootstrap hit the same hard 14across wall as most recent runs — confirmed directly, not
+just inferred from a timeout: a bare `python3 scraper/parse_answers.py` run outside
+bootstrap.sh, given a 300-second budget (well past the 180s bootstrap.sh itself allows),
+still came back `None: 0 clues` on 7/7 consecutive answer-page fetches before being
+stopped. Worked entirely from the public-CDN image-fallback technique for this run's dev
+puzzle (2026-05-29).
+
+Research this run followed the scheduled task's own stated priority order: candidate
+generation (diverse candidates by mechanism and by definition-span hypothesis), Hebrew
+NLP/morphology, then the queue's own next concrete step.
+
+**"cryptic crossword clue solving candidate generation diverse hypotheses 2026 arxiv"**
+(general search). Surfaced only the same paper family logged repeatedly since 2026-08-06
+(2506.04824 ICML 2025, 2407.08824, 2403.12094, 2104.08620). **Transfer: none new** —
+eighth-plus consecutive pass over this literature finding nothing beyond what is already
+logged.
+
+**"definition span detection cryptic crossword neural classifier 2026"** (item 2's own
+gap, struck 2026-08-19). Surfaced one genuinely NEW citation not previously logged here:
+a GitHub repo, `raphm72-spec/cryptic_crossword_helper` — a hybrid ML+rule-based English
+cryptic-crossword helper. Checked directly by fetching the repo rather than trusting the
+search summary's title alone (this project's own standing discipline, following the
+2026-08-20/08-25 finding that search summaries of THIS project's own results cannot be
+trusted either). Findings: MiniLM sentence embeddings for definition-similarity scoring,
+a trained multi-label classifier for wordplay-indicator detection, WordNet + morphological
++ embedding-based synonym expansion, nine rule-based wordplay validators, and — the
+relevant part — automatic definition-span detection at the clue's START or END. Maturity:
+0 stars, 0 forks, 6 commits — an early-stage, unvalidated hobby project. **Transfer:
+none** — three independent reasons, not just one: (1) English-only, built on WordNet and
+an English sentence-embedding model, neither of which has a Hebrew equivalent this project
+can call (the same gap RESEARCH.md's 2026-08-24 entry already found for Hebrew WordNet:
+real and fetchable, but answering a different question — synonymy, not the role-category
+lookup this setter's clues need); (2) its core definition-location technique (assume the
+definition sits at clue START or END, classify which, restrict the rest to wordplay) is
+EXACTLY the premise `defspan.py` already measured negative on this setter's own data
+(2026-08-19: only 25% of clues even have a mechanically-locatable single-window wordplay
+span at all, 29% of those are interior not edge, and an indicator-density classifier
+scored 1/5 on the edge cases); (3) 0-star/6-commit maturity means there is nothing proven
+here to lean on even if the language and setter-fit problems did not exist. This is
+confirmation, not a new lead — the standing 2026-08-19 verdict holds.
+
+**Hebrew morphology/NLP.** No new 2026 resource beyond RFTokenizer/HebPipe/DictaBERT-seg/
+YAP/Splintering already logged repeatedly since 2026-08-06/08-27/08-29/08-30. **Transfer:
+none new.**
+
+**Conclusion for today's lever.** Seventh-plus consecutive literature pass with nothing
+new and buildable on candidate generation or definition-span/fit scoring; the one new
+citation (cryptic_crossword_helper) doesn't transfer once checked past its title, for
+three independent reasons. Per the queue's own item 1(b), the concrete next step it
+flagged (2026-08-20) was multi-part substitution charades (3+ segments) using the mined
+equivalence table. Attempted first, per the queue's own priority — and found UNTESTABLE
+today, not just unattempted: `solver/substitutions.py`'s `explanations()` sources
+`data/answers/answers_parsed.json`, which only exists after a working 14across fetch
+(walled today per above), so `sub_fwd()` built from it mines 0 pairs this run (checked
+directly: `len(substitutions.mine(substitutions.explanations()))` prints 0 before any new
+code was written against it). Rather than ship nothing or silently substitute a different
+idea without saying so, built the closest testable relative instead: `charade_candidates`
+in `solver/candidates.py` — a 2-part-enum charade solved as two independent anagram/
+hidden-word windows via the mechanical lexicon (no crowd-mined table, so it does not need
+14across at all), rather than via a mined substitution table. See DAILY.md for the
+transcription/measurement/audit trail — MEASURED NEGATIVE (3.6% -> 3.6% unchanged on
+2026-05-29), a real result worth having either way: the substitution-charade idea remains
+correctly diagnosed as promising-but-blocked, not abandoned, and its closest
+corpus-independent relative has now been tried and found not to move recall on this one
+puzzle.
 ## 2026-09-07
 
 Followed the scheduled task's own stated priority order: candidate generation first
