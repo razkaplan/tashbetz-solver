@@ -112,7 +112,17 @@ def build_fillbank_index(fillbank=None):
     the site's word-fill feature, not mined from this project's own puzzle
     explanations, so a dev/eval answer that happens to be a common Hebrew word can
     legitimately have a fillbank entry — the same standing precedent RESULTS.md's
-    INTEGRITY FINDING already established for lexicon.py's plain dictionary words."""
+    INTEGRITY FINDING already established for lexicon.py's plain dictionary words.
+
+    FOLDS FINAL LETTERS on every fillbank key (candidates.py's own FIN table,
+    ךםןףץ -> כמנפצ) before indexing: fillbank.json is written in ordinary Hebrew
+    orthography (e.g. "אוהלים", with a final mem), but every answer candidates.py
+    ever produces is unconditionally final-folded by its own norm() ("אוהלימ").
+    Without this fold, def_fit_score's dict lookup (`idx['ans_docs'].get(answer)`)
+    would silently miss EVERY fillbank word ending in ךםןףץ — caught by testing
+    against a real final-letter word during this run, not assumed safe by
+    analogy to build_answer_index() (whose docs already come out of norm()-folded
+    upstream sources, so it never needed this)."""
     _, retrieve_defs = _mods()
     cwd = os.getcwd()
     try:
@@ -120,7 +130,9 @@ def build_fillbank_index(fillbank=None):
         if fillbank is None:
             with open('solver/lex/fillbank.json', encoding='utf-8') as f:
                 fillbank = json.load(f)
-        tokenized = {word: retrieve_defs.toks(gloss) for word, gloss in fillbank.items()}
+        FIN = str.maketrans('ךםןףץ', 'כמנפצ')
+        tokenized = {word.translate(FIN): retrieve_defs.toks(gloss)
+                     for word, gloss in fillbank.items()}
     finally:
         os.chdir(cwd)
     N = len(tokenized)
@@ -216,13 +228,17 @@ def eval_rerank(dataset_path, split=None, max_n=25, idxs=None, use_fillbank=True
     top-1 accuracy and mean reciprocal rank (MRR) before vs after, on the exact same
     hit set both times, so any movement is attributable to reranking alone.
 
-    Also reports `nonretrieval_scored_clues`: the exact structural diagnostic
-    2026-09-09's run measured as 0/28 — the number of clues (across the WHOLE split,
-    not just recall_hit ones) where at least one non-retrieval-mechanism candidate
-    scores def_fit > 0. That number moving off zero is the honest signal that a
-    second gloss source is doing its job (corroborating a mechanically-derived
-    candidate independently), which top-1/MRR alone can't distinguish from
-    retrieval simply being reranked among itself."""
+    Also reports two structural diagnostics, kept SEPARATE because they measure
+    different things: `nonretrieval_known_gloss_clues` — at least one non-retrieval
+    candidate has ANY known gloss in ANY source (fillbank included) — versus
+    `nonretrieval_scored_clues` — the exact 2026-09-09 diagnostic (measured 0/28):
+    at least one non-retrieval candidate's gloss actually shares VOCABULARY with
+    the clue (def_fit > 0). The first can move (fillbank giving a candidate a known
+    meaning at all) while the second stays flat (that meaning's own gloss text
+    happens not to repeat the clue's wording) — collapsing them into one number
+    would hide that distinction, which 2026-09-10's run needed to diagnose why
+    fillbank's fix didn't move the score-based number even after a real bug (final-
+    letter folding) was found and fixed."""
     candidates, _ = _mods()
     idxs = idxs if idxs is not None else (
         [build_answer_index()] + ([build_fillbank_index()] if use_fillbank else []))
@@ -231,6 +247,7 @@ def eval_rerank(dataset_path, split=None, max_n=25, idxs=None, use_fillbank=True
     base_top1 = base_rr = rerank_top1 = rerank_rr = 0
     moved_up = moved_down = unchanged = 0
     nonretrieval_scored_clues = 0
+    nonretrieval_known_gloss_clues = 0
     examples = []
     for line in open(dataset_path):
         r = json.loads(line)
@@ -240,8 +257,11 @@ def eval_rerank(dataset_path, split=None, max_n=25, idxs=None, use_fillbank=True
             continue
         total += 1
         cands = candidates.generate(r['clue_text'], r['enum'], max_n=max_n)
-        if any(def_fit_score(r['clue_text'], c['answer'], idxs) > 0
-               and c['mechanism'] in NON_RETRIEVAL_MECHANISMS for c in cands):
+        nr_cands = [c for c in cands if c['mechanism'] in NON_RETRIEVAL_MECHANISMS]
+        if any(any(c['answer'] in idx['ans_docs'] for idx in _as_index_list(idxs))
+               for c in nr_cands):
+            nonretrieval_known_gloss_clues += 1
+        if any(def_fit_score(r['clue_text'], c['answer'], idxs) > 0 for c in nr_cands):
             nonretrieval_scored_clues += 1
         gold = candidates.norm(r['answer_raw'])
         base_rank = next((i + 1 for i, c in enumerate(cands) if c['answer'] == gold), None)
@@ -268,6 +288,7 @@ def eval_rerank(dataset_path, split=None, max_n=25, idxs=None, use_fillbank=True
         'rerank_mrr': rerank_rr / recall_hit if recall_hit else 0.0,
         'moved_up': moved_up, 'moved_down': moved_down, 'unchanged': unchanged,
         'nonretrieval_scored_clues': nonretrieval_scored_clues,
+        'nonretrieval_known_gloss_clues': nonretrieval_known_gloss_clues,
         'examples': examples,
     }
 
@@ -348,6 +369,21 @@ def selftest():
           f'{"תפוח" in fb_idx["ans_docs"]} (expected True)')
     ok &= 'תפוח' in fb_idx['ans_docs']
 
+    print('--- build_fillbank_index: FINAL LETTERS are folded on the fillbank key '
+          '(a real bug this run found — fillbank.json is plain orthography, but '
+          'every candidates.py answer is unconditionally final-folded) ---')
+    fb_idx_fin = build_fillbank_index(fillbank={'אוהלים': 'מבנים ארעיים למגורים בשטח פתוח'})
+    print(f'  final-letter key ("אוהלים") is stored FOLDED ("אוהלימ"), not literally: '
+          f'{"אוהלימ" in fb_idx_fin["ans_docs"]} (expected True)')
+    ok &= 'אוהלימ' in fb_idx_fin['ans_docs']
+    print(f'  the unfolded literal spelling is NOT a separate key: '
+          f'{"אוהלים" not in fb_idx_fin["ans_docs"]} (expected True)')
+    ok &= 'אוהלים' not in fb_idx_fin['ans_docs']
+    s_fin = def_fit_score('מבנים ארעיים למגורים בשטח פתוח', 'אוהלימ', fb_idx_fin)
+    print(f'  a candidates.py-shaped (final-folded) answer scores against it: '
+          f'{s_fin > 0} (expected True)')
+    ok &= s_fin > 0
+
     print('--- def_fit_score with MULTIPLE sources: a candidate absent from the '
           'private_defs index (score 0.0 there) still scores via fillbank alone, '
           'the exact gap 2026-09-09 measured as 0/28 clues ---')
@@ -405,7 +441,10 @@ def main():
         print(f"MRR: baseline {res['base_mrr']:.3f}  ->  reranked {res['rerank_mrr']:.3f}")
         print(f"moved up: {res['moved_up']}  moved down: {res['moved_down']}  "
               f"unchanged: {res['unchanged']}")
-        print(f"clues with a NON-retrieval candidate scoring def_fit>0 "
+        print(f"clues with a NON-retrieval candidate having a KNOWN gloss in any source "
+              f"(use_fillbank={use_fillbank}): "
+              f"{res['nonretrieval_known_gloss_clues']}/{res['total']}")
+        print(f"clues with a NON-retrieval candidate SCORING def_fit>0 "
               f"(use_fillbank={use_fillbank}): {res['nonretrieval_scored_clues']}/{res['total']}")
         if res['examples']:
             print('\nper-clue (number, direction, gold, base_rank, rerank_rank):')

@@ -4,6 +4,52 @@ One entry per run: what was found, one-line summary, and an honest judgement of 
 it transfers to a Hebrew cryptic solver with an 8k-clue corpus. Default skepticism: most
 crossword-AI work targets non-cryptic (American-style) puzzles and does not transfer.
 
+## 2026-09-10
+
+Followed the scheduled task's own stated priority order: candidate generation (diverse
+candidates by mechanism / by definition-span hypothesis), Hebrew NLP/morphology, before
+falling back to the queue's own next concrete step.
+
+**"cryptic crossword clue solving candidate generation diverse hypotheses 2026 arxiv" /
+"cryptic crossword candidate generation diverse hypotheses 2026 definition verification
+dictionary corroboration" (general search).** Surfaced only the same paper family logged
+repeatedly since 2026-08-06: [2506.04824](https://arxiv.org/abs/2506.04824) (ICML 2025
+reasoning-based Cryptonite SOTA — candidate generator hypothesizes 20 answers per clue,
+then 10 wordplay guesses each, code-verified), [2407.08824](https://arxiv.org/html/2407.08824v1),
+[2104.08620](https://arxiv.org/pdf/2104.08620), [2103.01242](https://arxiv.org/pdf/2103.01242).
+**Transfer: none new** — this is now the eleventh-plus consecutive pass over this exact
+literature finding nothing beyond what's already logged.
+
+**"Hebrew morphological analyzer crossword wordplay 2026 root pattern segmentation"** —
+surfaced only general academic literature on Hebrew root-and-pattern morphology and
+machine-learning root identification (Bar-Haim/Sima'an-style work, not new). **Transfer:
+none new** — the standing resource set (RFTokenizer/HebPipe/DictaBERT-seg/YAP/Splintering)
+already covers this ground; nothing 2025/2026-dated turned up.
+
+**"crossword" OR "cryptic clue" definition matching multiple dictionary sources ensemble
+gloss overlap 2025 2026 — checked specifically because it's the shape of today's own
+lever (a second, independent gloss source alongside private_defs).** Surfaced only generic
+cryptic-crossword player guides (Macquarie, Puzzler, Alberich, Wikipedia's own cryptic-
+crossword article) restating the standard definition/wordplay split — no research on
+multi-source definition corroboration for automated solving. **Transfer: none** — the
+"second gloss source" idea this run implements is closing an internal architectural gap
+`deffit.py`'s own 2026-09-09 measurement diagnosed, not something the literature suggested.
+
+**Conclusion for today's lever.** Eleventh-plus consecutive literature pass with nothing
+new and buildable on candidate generation, definition-span, or multi-source definition
+scoring specifically. Before touching a lever, the PR backlog check (2026-09-06's own
+stated lesson: "the PR-backlog check itself found the real, actionable thing this cycle")
+found ELEVEN open PRs against main — a genuine process problem worth fixing before writing
+new code, since three of them (#51, #52, #53) each extended the same file independently
+without ever reconciling. Consolidated them (see DAILY.md), then implemented #53's own
+disclosed next step: wire `solver/lex/fillbank.json` into `deffit.py` as a second,
+independent gloss source. This is not a literature-driven lever (none of today's three
+searches produced one) — it is the queue's own concrete, previously-identified next step,
+consistent with several prior runs (2026-08-25, 2026-09-05, 2026-09-07) where the PR/queue
+backlog itself, not a fresh search, produced the day's actionable item. See DAILY.md for
+the full measurement, including a real bug (final-letter folding) found and fixed before
+it could ship silently broken.
+
 ## 2026-09-09
 
 Definition-fit scoring (queue item 9) has now had nine consecutive negative-or-null
