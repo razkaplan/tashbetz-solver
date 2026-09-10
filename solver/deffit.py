@@ -33,13 +33,37 @@ list when the gold answer is already present. That is the honest, narrow claim t
 measure: does definition-fit reranking make the FIRST candidate more likely to be
 correct, which is what a live solve pass actually commits.
 
+SECOND GLOSS SOURCE (2026-09-10, this run's lever): the first version of this module
+(2026-09-09) measured a real structural gap, not a coverage number — `def_fit_score`
+looked up a candidate's docs in the EXACT SAME index `retrieval_candidates()` already
+searches (retrieve_defs.build_index(), i.e. private_defs + train explanations), so any
+non-retrieval candidate (anagram/hidden/reversal/homograph/culture) scored 0.0 on
+100% of a 28-clue puzzle: it could re-order retrieval's own hits but could never
+independently corroborate a mechanism-derived candidate's meaning, because it never
+had a second opinion to draw on. `build_fillbank_index()` below adds exactly that: a
+GENUINE dictionary (solver/lex/fillbank.json, 2,412 word -> definition pairs, curated
+for the public site's crossword fill, never derived from this project's own puzzle
+explanations) scored with its own independent BM25 statistics (its own N/df/avg — it
+is a much smaller, denser corpus than private_defs, so sharing one set of corpus
+statistics across both would silently favor whichever corpus is bigger). A candidate's
+def_fit score is now the MAX across every available source: a common Hebrew word that
+never appears as a crossword answer anywhere in private_defs (so retrieval_candidates
+could never surface it, and the old def_fit scored it 0.0) can still score if
+fillbank.json defines it. Fillbank needs no held-out filtering (unlike
+retrieve_defs.build_index()'s train-split half): it is an ordinary dictionary, not
+mined from these puzzles' own crowd explanations, the same standing precedent
+RESULTS.md's INTEGRITY FINDING already established for lexicon.py ("ordinary
+dictionary words that happen to be answers legitimately remain, as they would in any
+real solver's dictionary").
+
 CLI:
   python3 solver/deffit.py clue "<text>" <enum...>            # ranked, with def_fit scores
   python3 solver/deffit.py eval data/dataset/clues.jsonl eval   # rerank quality, conditional on recall
+  python3 solver/deffit.py eval data/dataset/clues.jsonl eval --no-fillbank  # ablation
   python3 solver/deffit.py selftest
 """
 import sys, os, json, math
-from collections import defaultdict
+from collections import defaultdict, Counter
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
@@ -75,6 +99,42 @@ def build_answer_index(docs_df=None):
     return {'N': N, 'df': df, 'avg': avg, 'ans_docs': ans_docs}
 
 
+def build_fillbank_index(fillbank=None):
+    """A SECOND, independent gloss source: solver/lex/fillbank.json's plain
+    word -> definition dictionary (2,412 pairs, already committed, used by the public
+    site's crossword fill), tokenized and BM25-indexed with its OWN corpus statistics
+    (N/df/avg computed over fillbank's own entries, not private_defs'). Kept as a
+    SEPARATE index from build_answer_index() rather than merged into one, because
+    combining two corpora of very different sizes into one N/df/avg would silently
+    bias scores toward whichever corpus is bigger.
+
+    No held-out filtering: fillbank is an ordinary dictionary someone else curated for
+    the site's word-fill feature, not mined from this project's own puzzle
+    explanations, so a dev/eval answer that happens to be a common Hebrew word can
+    legitimately have a fillbank entry — the same standing precedent RESULTS.md's
+    INTEGRITY FINDING already established for lexicon.py's plain dictionary words."""
+    _, retrieve_defs = _mods()
+    cwd = os.getcwd()
+    try:
+        os.chdir(ROOT)
+        if fillbank is None:
+            with open('solver/lex/fillbank.json', encoding='utf-8') as f:
+                fillbank = json.load(f)
+        tokenized = {word: retrieve_defs.toks(gloss) for word, gloss in fillbank.items()}
+    finally:
+        os.chdir(cwd)
+    N = len(tokenized)
+    avg = sum(len(t) for t in tokenized.values()) / max(N, 1)
+    df = Counter()
+    for toks in tokenized.values():
+        for w in set(toks):
+            df[w] += 1
+    ans_docs = defaultdict(list)
+    for word, toks in tokenized.items():
+        ans_docs[word].append(toks)
+    return {'N': N, 'df': df, 'avg': avg, 'ans_docs': ans_docs}
+
+
 def _bm25_query_doc(q_toks, doc_toks, N, df, avg):
     """Identical scoring formula to retrieve_defs.candidates()'s per-doc term, so a
     def_fit score is directly comparable to the score retrieval_candidates() already
@@ -91,27 +151,47 @@ def _bm25_query_doc(q_toks, doc_toks, N, df, avg):
     return s
 
 
-def def_fit_score(clue_text, answer, idx):
-    """0.0 means 'no known definition for this answer in the corpus', NOT 'known
-    to be a bad fit' — most candidates (rare names, coined multi-word answers) will
-    score 0.0 simply because nothing in a modest corpus defines them. This is why
+def _as_index_list(idxs):
+    """Accepts either one index dict (the original single-source shape) or a list of
+    them (2026-09-10: multiple independent gloss sources) — kept so every existing
+    caller passing one dict still works unchanged."""
+    return [idxs] if isinstance(idxs, dict) else list(idxs)
+
+
+def def_fit_score(clue_text, answer, idxs):
+    """0.0 means 'no known definition for this answer in ANY available source', NOT
+    'known to be a bad fit' — most candidates (rare names, coined multi-word answers)
+    will score 0.0 simply because nothing in a modest corpus defines them. This is why
     reranking uses a STABLE sort (see rerank()): zero-evidence candidates keep their
-    original mechanism-priority order rather than being shuffled arbitrarily."""
+    original mechanism-priority order rather than being shuffled arbitrarily.
+
+    Takes the MAX score across every source in idxs (2026-09-10: originally a single
+    retrieve_defs-backed index; now potentially also build_fillbank_index()'s
+    independent dictionary) — a candidate need only be attested in ONE source to get
+    credit, since each source's absence says nothing about another source's coverage.
+    Each source keeps its OWN BM25 statistics (N/df/avg computed only over its own
+    corpus), so scores are comparable within a source but this file makes no claim
+    that a private_defs score and a fillbank score are on a calibrated common scale —
+    only that a higher score within either source means stronger lexical overlap."""
     _, retrieve_defs = _mods()
     q = set(retrieve_defs.toks(clue_text))
-    docs = idx['ans_docs'].get(answer)
-    if not docs:
-        return 0.0
-    return max(_bm25_query_doc(q, t, idx['N'], idx['df'], idx['avg']) for t in docs)
+    best = 0.0
+    for idx in _as_index_list(idxs):
+        docs = idx['ans_docs'].get(answer)
+        if not docs:
+            continue
+        best = max(best, max(_bm25_query_doc(q, t, idx['N'], idx['df'], idx['avg']) for t in docs))
+    return best
 
 
-def rerank(clue_text, cands, idx):
+def rerank(clue_text, cands, idxs):
     """Stable-sorts candidates by def_fit score, descending; ties (including the
     common 0.0-vs-0.0 case) preserve candidates.py's own mechanism-priority order.
     Returns NEW dicts (each carries a 'def_fit' key); never mutates the input or
     drops/adds a candidate, so recall@N over the result is identical to recall@N
-    over the input by construction."""
-    scored = [(def_fit_score(clue_text, c['answer'], idx), i, c) for i, c in enumerate(cands)]
+    over the input by construction. `idxs` is one index dict or a list of them
+    (def_fit_score's own _as_index_list handles both)."""
+    scored = [(def_fit_score(clue_text, c['answer'], idxs), i, c) for i, c in enumerate(cands)]
     scored.sort(key=lambda x: (-x[0], x[1]))
     out = []
     for score, _i, c in scored:
@@ -121,20 +201,36 @@ def rerank(clue_text, cands, idx):
     return out
 
 
+NON_RETRIEVAL_MECHANISMS = {
+    'anagram', 'hidden', 'reversal', 'homograph', 'homophone', 'homophone_vowel',
+    'substitution', 'container', 'charade', 'culture_category', 'pattern',
+}
+
+
 # ---------------------------------------------------------------------------
-def eval_rerank(dataset_path, split=None, max_n=25, idx=None):
+def eval_rerank(dataset_path, split=None, max_n=25, idxs=None, use_fillbank=True):
     """Reranking quality, CONDITIONAL on the gold answer already being present in
     candidates.generate()'s output (i.e. conditional on a recall@N hit) — this is
     the honest way to isolate what reranking can possibly contribute, since it can
     never rescue a clue candidates.py never generated the answer for at all. Reports
     top-1 accuracy and mean reciprocal rank (MRR) before vs after, on the exact same
-    hit set both times, so any movement is attributable to reranking alone."""
+    hit set both times, so any movement is attributable to reranking alone.
+
+    Also reports `nonretrieval_scored_clues`: the exact structural diagnostic
+    2026-09-09's run measured as 0/28 — the number of clues (across the WHOLE split,
+    not just recall_hit ones) where at least one non-retrieval-mechanism candidate
+    scores def_fit > 0. That number moving off zero is the honest signal that a
+    second gloss source is doing its job (corroborating a mechanically-derived
+    candidate independently), which top-1/MRR alone can't distinguish from
+    retrieval simply being reranked among itself."""
     candidates, _ = _mods()
-    idx = idx if idx is not None else build_answer_index()
+    idxs = idxs if idxs is not None else (
+        [build_answer_index()] + ([build_fillbank_index()] if use_fillbank else []))
     total = 0
     recall_hit = 0
     base_top1 = base_rr = rerank_top1 = rerank_rr = 0
     moved_up = moved_down = unchanged = 0
+    nonretrieval_scored_clues = 0
     examples = []
     for line in open(dataset_path):
         r = json.loads(line)
@@ -144,12 +240,15 @@ def eval_rerank(dataset_path, split=None, max_n=25, idx=None):
             continue
         total += 1
         cands = candidates.generate(r['clue_text'], r['enum'], max_n=max_n)
+        if any(def_fit_score(r['clue_text'], c['answer'], idxs) > 0
+               and c['mechanism'] in NON_RETRIEVAL_MECHANISMS for c in cands):
+            nonretrieval_scored_clues += 1
         gold = candidates.norm(r['answer_raw'])
         base_rank = next((i + 1 for i, c in enumerate(cands) if c['answer'] == gold), None)
         if base_rank is None:
             continue
         recall_hit += 1
-        reranked = rerank(r['clue_text'], cands, idx)
+        reranked = rerank(r['clue_text'], cands, idxs)
         re_rank = next((i + 1 for i, c in enumerate(reranked) if c['answer'] == gold), None)
         base_top1 += base_rank == 1
         rerank_top1 += re_rank == 1
@@ -168,6 +267,7 @@ def eval_rerank(dataset_path, split=None, max_n=25, idx=None):
         'base_mrr': base_rr / recall_hit if recall_hit else 0.0,
         'rerank_mrr': rerank_rr / recall_hit if recall_hit else 0.0,
         'moved_up': moved_up, 'moved_down': moved_down, 'unchanged': unchanged,
+        'nonretrieval_scored_clues': nonretrieval_scored_clues,
         'examples': examples,
     }
 
@@ -235,6 +335,39 @@ def selftest():
     print(f'  order preserved: {[c["answer"] for c in out2] == ["א", "ב"]} (expected True)')
     ok &= [c['answer'] for c in out2] == ['א', 'ב']
 
+    print('--- build_fillbank_index: an injected synthetic dictionary (never the real '
+          'committed file) builds the same {N, df, avg, ans_docs} shape as '
+          'build_answer_index, keyed by the fillbank word itself ---')
+    fb_idx = build_fillbank_index(fillbank={
+        'תפוח': 'פרי אדום או ירוק שגדל על עץ',
+        'לחם': 'מאפה קמח שאוכלים כל יום',
+    })
+    print(f'  fillbank has its own N: {fb_idx["N"]} (expected 2)')
+    ok &= fb_idx['N'] == 2
+    print(f'  תפוח indexed under its own gloss tokens: '
+          f'{"תפוח" in fb_idx["ans_docs"]} (expected True)')
+    ok &= 'תפוח' in fb_idx['ans_docs']
+
+    print('--- def_fit_score with MULTIPLE sources: a candidate absent from the '
+          'private_defs index (score 0.0 there) still scores via fillbank alone, '
+          'the exact gap 2026-09-09 measured as 0/28 clues ---')
+    s_private_only = def_fit_score('פרי אדום שגדל על עץ', 'תפוח', idx)  # idx has no תפוח
+    s_multi = def_fit_score('פרי אדום שגדל על עץ', 'תפוח', [idx, fb_idx])
+    print(f'  private_defs-only score: {s_private_only} (expected 0.0)')
+    ok &= s_private_only == 0.0
+    print(f'  combined [private_defs, fillbank] score > 0: {s_multi > 0} (expected True)')
+    ok &= s_multi > 0
+
+    print('--- rerank accepts a LIST of index sources, same as a single dict ---')
+    cands3 = [
+        {'answer': 'לא-קשור', 'mechanism': 'anagram', 'fodder': None},
+        {'answer': 'תפוח', 'mechanism': 'anagram', 'fodder': None},  # only fillbank knows this
+    ]
+    out3 = rerank('פרי אדום שגדל על עץ', cands3, [idx, fb_idx])
+    print(f'  fillbank-attested candidate ranked first via the LIST form: '
+          f'{out3[0]["answer"] == "תפוח"} (expected True)')
+    ok &= out3[0]['answer'] == 'תפוח'
+
     print(f'\n{"ALL PASSED" if ok else "FAILURES ABOVE"}')
     return ok
 
@@ -252,15 +385,17 @@ def main():
         enum = [int(x) for x in sys.argv[3].split(',')]
         os.chdir(ROOT)
         cands = candidates.generate(text, enum)
-        idx = build_answer_index()
-        for c in rerank(text, cands, idx):
+        idxs = [build_answer_index(), build_fillbank_index()]
+        for c in rerank(text, cands, idxs):
             print(f"[{c['def_fit']:.2f}] {c['answer']}  ({c['mechanism']}, fodder={c.get('fodder')})")
     elif cmd == 'eval':
         rest = sys.argv[2:]
+        use_fillbank = '--no-fillbank' not in rest
+        rest = [a for a in rest if a != '--no-fillbank']
         path = rest[0] if len(rest) > 0 else 'data/dataset/clues.jsonl'
         split = rest[1] if len(rest) > 1 else None
         os.chdir(ROOT)
-        res = eval_rerank(path, split)
+        res = eval_rerank(path, split, use_fillbank=use_fillbank)
         print(f"recall_hit (gold in candidate list): {res['recall_hit']}/{res['total']}")
         print(f"top-1 accuracy, conditional on recall: "
               f"baseline {res['base_top1']}/{res['recall_hit']} "
@@ -270,6 +405,8 @@ def main():
         print(f"MRR: baseline {res['base_mrr']:.3f}  ->  reranked {res['rerank_mrr']:.3f}")
         print(f"moved up: {res['moved_up']}  moved down: {res['moved_down']}  "
               f"unchanged: {res['unchanged']}")
+        print(f"clues with a NON-retrieval candidate scoring def_fit>0 "
+              f"(use_fillbank={use_fillbank}): {res['nonretrieval_scored_clues']}/{res['total']}")
         if res['examples']:
             print('\nper-clue (number, direction, gold, base_rank, rerank_rank):')
             for num, direction, gold, br, rr in res['examples']:
