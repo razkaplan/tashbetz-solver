@@ -17,13 +17,984 @@ tree - a stale CLI deploy overwrote the live site on 2026-08-29. See CLAUDE.md.
 | Best single puzzle | 2026-05-29: 95% / 71% / 68% ✓ all targets | |
 | Hardest puzzle | 2026-06-05: 100% / 43% / 43% | coverage stuck |
 | **Candidate recall@N (new, offline, mechanical only)** | **3.6% (1/28)**, avg 11.6 candidates/clue (capped), on 2026-05-29 — UNCHANGED after adding substitution+homograph mechanisms | not yet a target — diagnostic |
+| **Candidate recall@N with `container_candidates` added (new, offline, mechanical — the container/insertion device, ~10-12% of clues per PLAYBOOK.md, previously pure verification infra with no generator)** | **3.6% (1/28), UNCHANGED** on 2026-05-29 (re-transcribed fresh, 28/28 clues, 0 enum mismatches) — mechanism fired on only 1/28 clues (2 raw candidates, 0 gold hits); avg candidates/clue unchanged at 11.6. CONFOUNDED, disclosed: 14across was fully unreachable this run (the same hard wall since 2026-08-19), so `sub_fwd()` — the mined-substitution half of this mechanism's fragment source, and the SAME source `substitution_candidates()` already depends on — was empty, and `substitution_candidates()` itself also scored 0 fires this run (by-mechanism breakdown: only `anagram` hit at all). Not a clean test of the device; only its corpus-free destem/literal-word fragment half was exercised. Offline selftest (not gold-linked; found by scanning the real committed lexicon, not a synthetic fixture) confirms the mechanism correctly derives a real dictionary word (מכות + מל spliced at an interior position -> ממלכות). **SECOND measurement, 2026-09-11 (an independently-written duplicate implementation, see 2026-09-12's log entry for the branch-hygiene story): 0.0% (0/28) on 2026-06-05** — fired on 0/28 clues; root-caused via the puzzle's own crowd explanation that its one real container clue (16A, קטלנ) needs SYNONYM substitution (בית~קן, "the judge"~טל) that a literal-clue-word-only design cannot reach. **THIRD, 2026-09-12: see log — the two independent implementations were reconciled (the merged version already unions literal/destemmed clue words with `sub_fwd()`'s mined synonyms, confirmed by a new selftest proving the synonym-only path fires) and re-measured** | not yet a target — diagnostic; re-measure once 14across (or any puzzle with real crowd explanations) is reachable |
 | **Candidate recall@N with `retrieval_candidates` added (new, offline, BM25 definition retrieval)** | **7.1% (2/28)** on 2026-05-29 (up from 3.6%); **SECOND puzzle, 2026-08-26: 0.0% (0/18) → 5.6% (1/18)** on 2026-06-26 (partial, 18/28 clues); **THIRD puzzle, 2026-08-27: 0.0% (0/19) → 0.0% (0/19), UNCHANGED** on 2026-07-10; **2026-08-28, RE-MEASURED on 2026-05-29 with a GROWN corpus (mordo re-crawled 13,646 raw pairs vs 9,685; `note.co.il` crawled for the first time this project's lifetime, 829 pairs): 3.6% (1/28) → 10.7% (3/28)**, up from the 7.1% this exact puzzle scored with the smaller corpus; **2026-08-29, RE-MEASURED 2026-07-10 with an EVEN BIGGER corpus (mordo 25,350 raw / 24,361 parsed, up from 13,646/12,890; note.co.il 970 fetched out of 1,301 discovered): 0.0% (0/19) → 0.0% (0/19), STILL UNCHANGED**; **2026-08-30, RE-MEASURED 2026-06-26 — this time FULLY transcribed (28/28 clues, closing 2026-08-26's 18/28 partial gap) and with a MASSIVELY grown corpus (mordo 66,443 raw / 62,403 parsed, up from 25,350/24,361 — the blogspot feed has grown 2.6x again; note.co.il 1,001 fetched out of 1,301 discovered, up from 970/1301): 0.0% (0/28) → 14.3% (4/28)** — the highest recall this diagnostic has ever measured on any puzzle, and the largest single-puzzle point gain, from 4 independently-audited external hits (מניע, רומח, בובדילנ, ברסמכא) — see log | not yet a target — diagnostic; 6 independent measurements, 4 positive + 2 flat, confirming corpus growth is puzzle-dependent (rescued 2026-05-29 twice and now 2026-06-26 strongly, never moved 2026-07-10 across three corpus sizes) |
 | **Definition-span locatable rate (new, offline, diagnostic)** | **25% (7/28)** have mechanically-locatable single-window wordplay; of those 29% (2/7) are interior, not edge; classifier agreement on edge cases **1/5** | not a target — this diagnostic KILLED the lever, see log |
 | **`solve_pass.py` LIVE blind trial — cumulative (3 trials)** | **40% precision (2/5 committed)**: 2026-08-16 was 1/2 on a partial 21/28-clue puzzle (2026-06-12); 2026-08-22 was **0/2**, 7.1% coverage, on a FULL 28/28-clue puzzle (2026-05-15); **2026-08-27 is 1/1 = 100% precision but 5.3% coverage (1/19), 0% suggestion hit-rate (0/10)**, on 2026-07-10 (19/28 clues) — FIRST trial run with `retrieval_candidates` live (wired 2026-08-25, never live-trialed since); it contributed ZERO candidates all puzzle (grepped the transcript for `(retrieval, fodder=` hits — none), matching today's own offline recall@N finding on this same puzzle (0/19 with or without retrieval); the one correct commit came from `wiki.py` culture-fact lookup, not from any candidate generator | n=5 — still small; retrieval's live debut is a null result on this puzzle, not a regression, but not the coverage lift the queue hoped for either; see log |
-| **Candidate recall@N with `culture_category_candidates` added (new, offline, definition-driven)** | **0% (0/28)**, on 2026-06-19 — mechanism fired on only 1/28 clues (avg candidates/clue 10.5 → 11.4); its one firing (339 raw candidates, an "author" category hit) matched 0 gold | not yet a target — small-n diagnostic, see log |
+| **Candidate recall@N with `culture_category_candidates` added (new, offline, definition-driven)** | Two independent puzzles now measured, both UNCHANGED vs baseline: **0% (0/28)** on 2026-06-19 (fired 1/28 clues); **2026-08-31, SECOND puzzle 2026-07-03: baseline 7.1% (2/28) → still 7.1% (2/28) with culture ON**, fired 3/28 clues (43 raw candidates), 0 gold hits. Across both puzzles: fired on 4/56 clue-instances, 0/4 hits — but the 3 new firings show 3 DIFFERENT root causes, not a repeat of one: one homograph/pun misdirection (reproduces 2026-06-19's finding), one where the gold answer IS in the raw corpus but is correctly excluded by the held-out safety filter (a measurement-methodology blind spot, not a corpus gap), one genuine corpus coverage gap (the specific mountain name is absent from culture.json's 119-entry list) | not yet a target — n=4 fired-clue diagnostic, see log |
+| **Candidate recall@N with `defspan_retrieval_candidates` added (new, offline, definition-SPAN-restricted BM25 retrieval)** | **10.7% (3/28) on 2026-05-29 — IDENTICAL to `retrieval_candidates` (whole-clue query) alone, both individually and combined**; the two mechanisms return byte-identical candidate sets on 27/28 clues (differ on 1) and hit the SAME 2 gold answers | not yet a target — NEGATIVE result for incremental recall, see log |
+| **Candidate recall@N with `double_definition_candidates` added (new, offline, two-independent-half BM25 retrieval)** | **0% (0/21)** on 2026-05-21 (fresh puzzle) — mechanism fired on **0/21 clues**, not just missed gold: even relaxing the requirement to "gold appears in EITHER half's independent top-K alone" (not both), the gold answer was absent from both halves for every one of the 5 short [<=4]-letter slots checked (the class PLAYBOOK.md says is "overwhelmingly double definitions"); mechanical baseline 0.0%, `retrieval_candidates` alone (same corpus) 9.5% (2/21) shows the corpus itself isn't empty — this is a genuine per-mechanism null, not a corpus-availability artifact | not yet a target — n=1 puzzle, see log |
+| **Candidate recall@N with `homophone_candidates` added (new, offline, mechanical — the נשמע/sounds-like device, PLAYBOOK.md 1.6, ~4% of clues, previously NO generator or proof primitive at all)** | **3.6% (1/28), UNCHANGED** on 2026-05-29 (fresh 6th independent transcription, 28/28 clues, 0 enum mismatches, 0/15 grid-pattern mismatches) — but NOT a zero-fire result: the mechanism fired on **8/28 clues** (avg candidates/clue 11.7 -> 11.8), producing real phon-folded candidates each time, none matching gold. Root-caused, not just observed: this puzzle's own ONE homophone-CREDITED clue (22 across, carries the explicit "(עפ"י השמיעה של אליעזר כמון)" marker PLAYBOOK.md 1.6 names) needs vowel-letter flexibility (ה/ו/י insertion — "הזורזים" -> "אנזימים") that this v1's CONSONANT-CLASS-ONLY fold (ק/כ/ח, ט/ת, ס/ש, א/ע) deliberately does not model, disclosed in the code's own docstring rather than silently missed | not yet a target — diagnostic; a real, working mechanism with a clearly scoped (not silently narrow) gap |
+| **Candidate recall@N with `homophone_vowel_candidates` added (new, offline, mechanical — closes 2026-09-05's own disclosed gap: free ו/י vowel-letter insertion/omission, one letter of length difference)** | **3.6% (1/28), UNCHANGED** on 2026-05-29 (7th independent transcription, 28/28 clues, 0 enum mismatches — see log for a disclosed direction ambiguity found on ONE clue, 26 across, unrelated to this lever). Fired on **14/28 clues** (avg candidates/clue 11.8 -> 13.0), zero gold hits. Root-caused, not assumed: directly tested the mechanism against the SPECIFIC clue 2026-09-05 diagnosed as needing this ("22 across, הזורזים -> אנזימימ") and it produces **ZERO candidates for that clue, not a near-miss** — the two words' phon-folded consonant skeletons (הזורזימ vs אנזימימ) differ by far more than one ו/י, so 2026-09-05's own "vowel-insertion" diagnosis was itself an oversimplification of a more complex sound relationship this narrow, single-letter-edit device cannot reach either. A real, working extension of the device with a genuine (not contrived) negative result | not yet a target — diagnostic; the disclosed gap this closed turned out not to be the puzzle's actual gap once tested directly |
+| **Candidate recall@N with `substitution_candidates`' 3-part charade chain added (new, offline, mechanical — queue item 1(b)'s own disclosed next step: 3 ADJACENT clue words' mined substitutes concatenating to the full answer length, generalizing the existing 2-word case)** | **3.6% (1/28), UNCHANGED** on 2026-05-29 (8th independent transcription, 28/28 clues, 0 enum mismatches, 0/15 grid-pattern mismatches against the solved-recap image). **INCONCLUSIVE, disclosed rather than claimed negative**: the mechanism fired **0/28 clues** with `use_substitution_3part` on vs off (avg candidates/clue identical, 13.8 both ways) — but so did its existing 2-part sibling, checked directly (0 hits) against BOTH the small in-memory held-out-safe table this run's own severely hard-walled bootstrap produced (14across: 4/52 puzzles recovered, 236 explanations, 35 head words) AND, as an audit-only diagnostic never used for the scored number, the full committed `solver/lex/substitutions.json` (2,220 head words, restored via `git checkout` after this run's own smaller rebuild briefly overwrote it — bootstrap.sh's own documented warning caught before it was committed). Zero fires at EITHER corpus size for EITHER part-count means this specific puzzle's specific clue set has no adjacent-word substitution chain of any length, at 2 words or 3 — not evidence the 3-part device itself is broken (its own selftest, on synthetic data, proves it correctly finds a 3-way chain when one exists) or that it's a dead end, just that this run could not produce a puzzle where the baseline it extends already fires, which is the precondition for testing whether extending it helps | not yet a target — diagnostic; needs a puzzle where 2-part substitution already fires to be a real test, see log |
+| **Candidate recall@N with `charade_candidates` added (new, offline, mechanical, two-part-enum only)** | **3.6% (1/28), UNCHANGED**, on 2026-05-29 (freshly re-transcribed this run) — fired on all 10 of the puzzle's 2-part-enum clues (up to its own 200-candidate cap on 8 of them), matched gold on 0/10; avg candidates/clue 11.7 → 18.9, wall time 17.9s → 30.2s for the 28-clue eval | not yet a target — diagnostic; a real negative result on n=1 puzzle, see log |
+
+| **`deffit.py` definition-fit reranking (NEW 2026-09-09, offline, conditional on recall)** | On a fresh puzzle (2026-05-15): recall_hit 2/28 (same 2 retrieval hits); top-1 accuracy 0/2 unchanged; **MRR 0.333 → 0.350** (1 candidate moved up, 0 moved down); **structural finding: 0/28 clues have a non-retrieval candidate with a non-zero def_fit score** — the signal is mathematically redundant with `retrieval_candidates` today, since both query the same private_defs/BM25 index | not yet a target — n=2 is far too small to call this positive or negative; see log for the redundancy diagnosis and the concrete fix (a second gloss source, e.g. `solver/lex/fillbank.json`) |
+| **`deffit.py` with `fillbank.json` wired as a second gloss source (NEW 2026-09-10, offline)** | Re-measured on the SAME 2026-05-15 puzzle, independently re-transcribed and re-crawled fresh this run: recall@N **0/28 with or without retrieval** (a smaller/different private_defs crawl than 2026-09-09's found no hits at all on this puzzle — recall_hit therefore 0/28, so top-1/MRR are undefined this run). Split the structural diagnostic into TWO numbers on purpose: clues with a non-retrieval candidate carrying a KNOWN gloss in ANY source went **3/28 (private_defs alone) → 14/28 (+fillbank)** — fillbank.json's 2,412 entries genuinely widen gloss coverage, a real and substantial move; but clues with a non-retrieval candidate whose gloss actually SHARES VOCABULARY with the clue (`def_fit>0`, 2026-09-09's own stricter bar) stayed **0/28 with fillbank ON**, because the 59 newly-known candidates' glosses (e.g. `ירושלים` -> `בירת ישראל`) don't happen to repeat the clue's own wording. Also FOUND AND FIXED a real bug before ever measuring: `build_fillbank_index()` didn't fold fillbank's final letters (ם/ן/ץ/ף/ך), so it would have silently missed all 557/2,450 (22.7%) of fillbank entries ending in one — every candidates.py answer is unconditionally final-folded, so the lookup would have failed for any of those words even when present | not yet a target — a real, disclosed, mixed result: coverage widened, the stricter score-overlap bar did not move this run; see log |
 
 Baseline for comparison: v2 = 41% raw with untraceable errors.
-Last lever added (2026-08-30): **closed 2026-08-29's own "NOT DONE" gap: re-measured
+Last lever added (2026-09-12): **found and fixed a duplicate-PR branch-hygiene failure on
+`container_candidates` itself, then hardened and root-caused the merged mechanism —
+no new recall number today, disclosed honestly rather than fabricated (see below for why).**
+
+`list_pull_requests` showed #55 (2026-09-11, `claude/container-candidates-wip`) branched
+directly off pre-#54 main and independently reimplemented `container_candidates` from
+scratch — the EXACT function this branch's own history already added on 2026-09-03 (PR
+#42, folded into #54's 2026-09-10 consolidation) — because #55 never saw #54's branch. This
+is queue item 6's compounding-loss pattern recurring on a single FUNCTION rather than a
+whole file: two independently-written, differently-scoped implementations of
+`container_candidates` now existed in two open, unmerged PRs. Diffed both line by line
+rather than guessing which was "better": #42/#54's version sources outer/inner fragments
+from a clue word's destemmed form UNION its mined-substitution equivalents (`sub_fwd()`,
+the same table `substitution_candidates` already uses); #55's version sources ONLY literal
+clue words. #55 measured 0/28 on a freshly transcribed 2026-06-05 and root-caused its one
+real container clue (16A, "חי בבית השופט", per the crowd explanation קטלנ = קן containing
+טל) as needing SYNONYM substitution (בית~קן, "the judge"~טל) that its literal-word-only
+design cannot reach by construction. That is exactly the capability #42/#54's version was
+built to add — #55's own diagnosis is effectively a bug report against code that already
+existed on an unmerged sibling branch. Kept #54's strictly more general implementation
+(any clue word #55's version can reach, #54's can also reach via `_destem`'s identity
+case; #54's version can additionally reach mined synonyms #55's cannot) rather than
+re-adding #55's narrower one, and did not open a second PR for #55's content — it is
+superseded, not merged.
+
+HARDENED before trusting the superset claim: added a new `candidates.py` selftest
+(`מכות וגם ציון` -> `ממלכות`, using a substitution table where the inner fragment `מל` is
+reachable ONLY via the mined table for `ציון`, not via any destemmed literal word) that
+proves the merged mechanism's synonym-sourced fragment path actually fires, and that it
+does NOT fire without the table entry (ruling out a coincidental hit). Previously this path
+was exercised only by the docstring's claim and by #42's own confounded 2026-05-29
+measurement (14across was down that day too, so `sub_fwd()` was empty and never actually
+exercised the synonym half). All 6 affected selftests re-run clean (`candidates.py`,
+`prove.py`, `substitutions.py`, `retrieve_defs.py`, `lexicon.py`; `solve_pass.py`'s selftest
+requires `data/dataset/clues.jsonl` to exist, which today's bootstrap state doesn't
+produce — see below — so it could not be exercised today, disclosed rather than skipped
+silently).
+
+INDEPENDENTLY RE-TRANSCRIBED 2026-06-05 myself (not copied from #55's branch — `data/` is
+gitignored, so #55's own transcription was never available to read) from
+`data/images/2026-06-04.jpg`, fetched directly from the public CDN. Validated all 28 enum
+sums against the GRID-DERIVED slot length (`solver/grid_tools.py validate`, 0 problems) —
+and independently rediscovered the SAME 3 print anomalies #55 disclosed (clues 8, 10, 11
+across print enums that do not match the grid-derived length; clue 19 needed its printed
+text merged across the column-wrap boundary, a distinct, already-catalogued phenomenon).
+Two independent transcriptions of the same defective print landing on the same 3 anomalous
+clues is a real cross-check that neither is careless misreading. Clue 16 itself ("חי בבית
+השופט (עפ"י מיקי זבדי)", enum (4)) was clean and unambiguous in both transcriptions.
+
+BOOTSTRAP AND GOLD DATA, disclosed plainly rather than estimated: 14across was hard-walled
+this run — not just observed as flaky, CONFIRMED directly: a standalone single-URL fetch
+for this exact puzzle's answer page returned HTTP 202 (the documented bot-check page) on 3
+consecutive retries with delays, and the full 52-URL bootstrap step was killed after 23
+minutes having recovered zero puzzles. Attempted the no-14across image-fallback (the
+following week's small solved-grid recap, `data/images/2026-06-11.jpg`): the black-cell
+PATTERN read cleanly and matched the committed grid for row 0, and row 0's letters
+assembled into a real, semantically perfect answer for clue 1 ("כלהכבודלשר" = "כל הכבוד
+לשר", matching its (3,5,2) enum exactly) — but a second row's letters did not assemble into
+a real word at all, which is a direct, executed sign that letter-level OCR of this
+embedded, sub-100px-tall grid is not reliable enough here to serve as gold data without a
+zoom/crop tool this environment does not have. **Rather than publish a partially-guessed
+gold set and an accuracy number built on it, this run stops here and reports no live
+recall@N number for 2026-06-05 today** — exactly the "if something genuinely cannot be run,
+say so plainly rather than estimating" rule this file itself states.
+
+AUDIT-ONLY DIAGNOSTIC (matching this project's own established practice of querying the
+larger, historical `solver/lex/substitutions.json` for context without using it as the
+scored live table): queried it directly for both fragments #55's root-cause named.
+`solver/substitutions.py --to קן` -> `בית (seen 18x)`, i.e. בית really is a recorded,
+generic substitution for קן. But `solver/substitutions.py --to טל` does NOT include
+`שופט`/`השופט` at all — `שופט` maps only to `קונ`/`דיינ`/`דנ` (generic "judge" synonyms).
+`טל` here almost certainly names a SPECIFIC judge (a real Israeli justice surnamed Tal),
+which is an entity/culture fact, not a generic synonym pair — refining, not just repeating,
+#55's diagnosis: the missing piece is a THIRD fragment source (a role/entity lookup like
+`culture_category_candidates`' trigger vocabulary), not merely "more corpus" for the two
+sources this mechanism already has. A further check (audit-only, both fragments injected
+by hand): even with `קן`+`טל` both available, the assembled `קטלנ` is NOT present in the
+loaded hspell lexicon at all, so — if #55's crowd-sourced gold answer is right — this
+specific clue would ALSO fail the mechanism's final lexicon-membership gate, a fourth,
+independent obstacle beyond fragment sourcing. None of this is asserted as certain (the
+gold answer itself is unverified today), but each piece was checked by executing code
+against real committed data, not guessed.
+
+NOT DONE, honestly: no live recall@N number for 2026-06-05 (see above); did not re-verify
+2026-05-29's existing confounded 3.6%/1.28-unchanged number from 2026-09-03; did not build
+the culture/entity fragment source this run's own root-cause analysis points to next
+(a real third lever, correctly deferred rather than squeezed into today's one-lever
+budget); did not merge or otherwise act on any other open PR.
+
+Previous lever (2026-09-10): **wired `solver/lex/fillbank.json` (2,412 word->definition
+pairs) into `deffit.py` as a SECOND, independent gloss source — closing 2026-09-09's own
+disclosed next step, and continuing queue item 9 ("definition-fit scoring").** Bootstrap's
+14across scrape hit the same hard wall as most recent runs (52 pages staged, only 6/52
+recovered — 10/07/2026, 08/05/2026, 27/03/2026, 27/02/2026, 26/09/2025, 15/08/2025 — none a
+previously-used dev/eval date); worked entirely from the public-CDN image-fallback
+technique for a fresh transcription.
+
+Before touching the lever, CONSOLIDATED THE PR BACKLOG (queue item 6, recurred yet again):
+`list_pull_requests` showed the backlog had grown to **eleven** open PRs against main
+(#38, #39, #41, #42, #44, #46, #47, #50, #51, #52, #53) — #51 (2026-09-07) already
+consolidates #38/#39/#41/#42/#44/#46/#47 and asks for those seven to be closed in its
+favor, but #52 (2026-09-08, `charade_candidates`) and #53 (2026-09-09, `deffit.py`) were
+each branched independently off the same pre-#51 main and never merged with it or each
+other — the exact compounding-loss pattern this item has now flagged six times. Branched
+from #51, merged #52 then #53 on top: two real code conflicts in `solver/candidates.py`
+(both #51 and #52 independently extended `generate()`/`recall_eval()`'s signature and the
+mechanism-priority docstring) resolved by keeping every mechanism from both sides — the
+merged `generate()` now threads `use_container`/`use_double_def`/`use_defspan_retrieval`/
+`use_homophone`/`use_homophone_vowel`/`use_substitution_3part` (from #51) AND `use_charade`
+(from #52) together, not either alone. `solver/deffit.py` (#53) merged clean, no code
+conflict. DAILY.md/RESEARCH.md conflicts (both files' dated Log/state-table entries)
+resolved by chronological reordering so 2026-09-08's and 2026-09-09's narratives both
+survive in order, neither silently dropped. Ran all 6 selftests immediately after merging,
+before trusting the result: all clean. **Please close #38, #39, #41, #42, #44, #46, #47
+(already superseded by #51), #52 and #53 in favor of this PR.**
+
+**THE LEVER.** #53's own disclosed structural finding (2026-09-09): `deffit.py`'s
+`def_fit_score` only ever checked `retrieve_defs.build_index()`'s corpus — the SAME index
+`retrieval_candidates()` already searches — so it could rerank retrieval's own hits but
+could never independently corroborate a mechanically-derived candidate (anagram/hidden/
+homograph/...) that retrieval hadn't already found; measured 0/28 clues. `build_fillbank_index()`
+adds `solver/lex/fillbank.json` (2,412 real dictionary word->definition pairs, already
+committed, used by the public site's crossword fill) as a second, independently-scored
+source with its OWN BM25 statistics (kept separate from private_defs' N/df/avg rather than
+merged, so a much smaller denser corpus doesn't get silently swamped by a bigger one).
+`def_fit_score` now takes the max across every available source.
+
+**A REAL BUG, caught before it was ever measured.** Testing `build_fillbank_index()`
+against the real committed file (not just synthetic fixtures) found it did nothing: 0
+matches. Direct inspection found why — `fillbank.json`'s keys are ordinary Hebrew
+orthography (`אוהלים`, final mem), but `candidates.py`'s `norm()` unconditionally
+final-folds every answer it ever produces (`אוהלימ`) — so the dict lookup
+(`idx['ans_docs'].get(answer)`) would silently miss every fillbank entry ending in
+ם/ן/ץ/ף/ך, **557 of 2,450 entries (22.7%)**, checked directly rather than assumed. Fixed
+by folding fillbank's keys with the same `FIN` table `candidates.py` uses, before indexing.
+A new selftest case (a real final-letter word, injected as a synthetic fillbank fixture —
+never the real committed file, same discipline as every other case) guards the regression:
+it asserts the folded key is what gets indexed and the literal spelling is NOT a separate
+key.
+
+RE-TRANSCRIBED 2026-05-15 independently of #53's own transcription of the same puzzle
+(this run's own bootstrap fetched the images fresh; no prior run's transcription persists,
+`data/` is gitignored). All 28 clues from `data/images/2026-05-14.jpg` — the across text is
+split across two print columns (a main column from 22 onward, a narrow sidebar carrying
+1,7,8,9,10,11,13,15,17,19), the same shape queue item 8 already found for 2026-06-19 and
+#53 found for this date. Every one of the 28 enum sums validated against the GRID-DERIVED
+slot length (`grid_tools.slots()`, pure structural geometry, no gold data read) before any
+gold data was touched: **0/28 mismatches**. GOLD LETTERS came from the small solved-grid
+recap in the following week's image (`data/images/2026-05-20.jpg`), this time calibrated
+programmatically end to end (dark-line-fraction gridline detection on both axes, not
+eyeballed crop bounds, then a tight per-row crop read cell by cell): all 15 rows' black-cell
+pattern matched the committed `data/grids/2026-05-15.json` **EXACTLY, 0/15 mismatches**,
+and `python3 solver/build_dataset.py` independently confirmed 0/28 length mismatches from
+the joined clue+answer files. Every one of the 28 derived answers makes clean independent
+semantic sense against its clue beyond the mechanical checks alone — `קומראנ`/Qumran for
+"they found there ancient scrolls and a holy book" (Dead Sea Scrolls), `שכמ`/Shechem for
+"on the back of a Jerusalem gate" (שער שכם, the Damascus Gate's Hebrew name), `גולגולתא`/
+Golgotha for "the gate, gate of the city, in Jerusalem", `מחזיקאצבעות`/"holding thumbs" for
+"wishes Stallone success", `מבשרתציונ`/Mevaseret Zion for "a teacher from the Jerusalem
+corridor", `עירדויד`/City of David, `קישלה`/Kishle (the historic Old City prison) for "in
+jail" — seven independent corroborations, not just the enum/grid mechanical match.
+
+MEASURED, controlled before/after (`python3 solver/deffit.py eval data/dataset/clues.jsonl
+eval [--no-fillbank]`): recall@N (mechanical+retrieval combined) is **0/28 both with and
+without retrieval this run** — a fresh, smaller `crawl_defs.py` corpus (mordo 12,298 raw
+under a 240s budget; note.co.il 125 pairs under a 200s budget, both deliberately time-boxed
+rather than run to exhaustion) found none of this puzzle's specific answers, unlike #53's
+own larger crawl at the time (2/28 hits) — a genuine, disclosed, puzzle-AND-corpus-dependent
+null, consistent with the project's own long-standing finding that retrieval's gain is real
+but inconsistent. Because recall_hit is 0/28, top-1/MRR are undefined this run (0/0) and
+not reported as a number. The two STRUCTURAL diagnostics (kept deliberately separate, see
+`deffit.py`'s own docstring for why collapsing them would hide the real finding):
+`nonretrieval_known_gloss_clues` (any non-retrieval candidate has SOME known gloss, in any
+source) moved **3/28 (private_defs alone) -> 14/28 (+fillbank)**; `nonretrieval_scored_clues`
+(that gloss actually shares vocabulary with the clue, `def_fit>0`) stayed **0/28** either
+way. Inspected directly why the second number didn't move despite the first one moving by
+11 clues: of the 59 non-retrieval candidates (out of 592 total) that DO have a fillbank
+gloss, none scored above zero because their glosses (e.g. `ירושלים` -> `בירת ישראל`,
+`כלי` -> `חפץ לשימוש, כמו סיר או פטיש`) don't happen to repeat the clue's own wording —
+a real, understood limitation of lexical-overlap scoring for proper nouns and common
+objects whose OWN dictionary definition doesn't restate the word itself, not a bug and not
+evidence fillbank is useless (the coverage widened for real; the SCORING signal on top of
+that coverage just didn't fire on this particular puzzle's 59 cases).
+
+AUDITED (mandatory gate). `lexicon.held_out_answers()`, `retrieve_defs.held_out()`, and
+`substitutions.held_out()` all confirmed (computed, not assumed) to block all 28 of this
+puzzle's own gold answers — `gold_norm - blocked` empty for all three. No forbidden reads:
+confirmed directly that none of the 6 puzzles 14across DID recover this run is 2026-05-15
+(`data/answers/by_date/2026-05-15.json` was written entirely from the two public-CDN images,
+never touched by the 14across scrape). Fillbank carries no held-out risk by construction
+(an ordinary third-party dictionary, not mined from this project's own puzzle explanations
+— the same standing precedent RESULTS.md's INTEGRITY FINDING established for lexicon.py's
+plain dictionary words). Implausibility check: nothing here approaches the ~15-point
+suspicion bar — recall stayed at 0%, and the disclosed 3/28->14/28 gloss-coverage move is a
+counted, explained fact (59 specific candidate/gloss pairs), not a suspicious jump in any
+accuracy number. All 6 affected selftests (`candidates.py`, `retrieve_defs.py`,
+`lexicon.py`, `prove.py`, `substitutions.py`, `deffit.py`) re-run clean after the merge AND
+after the lever, including 4 new `deffit.py` cases covering the final-letter-folding bug
+specifically.
+
+HONEST READ: a real bug caught and fixed before it could ship silently broken, and a real,
+mixed, disclosed result once fixed — fillbank genuinely widens which candidates have SOME
+known meaning (3/28 -> 14/28 clues), which is progress toward the queue's own definition-fit
+goal, but the stricter score-based signal this project actually plans to rank by did not
+move on this run's specific puzzle, for a now-understood reason (gloss text not repeating
+clue vocabulary) rather than a mystery. Two consecutive runs on this same lever (2026-09-09,
+2026-09-10) have now each produced a real negative-or-mixed result with a precise
+explanation, which is more informative than either a flat "it works" or silence.
+
+NOT DONE, honestly: did not find a puzzle where recall@N is nonzero this run, so the
+top-1/MRR half of `deffit.py`'s own claim (does reranking help the FIRST candidate a live
+pass would commit) remains untested since #53's original n=2; did not extend `def_fit_score`
+beyond a simple max-across-sources combination (e.g. a source-aware weight, since fillbank
+and private_defs scores are not calibrated to the same scale — disclosed in the code's own
+docstring, not hidden); did not crawl either corpus to a natural plateau (both were
+deliberately time-boxed, per this run's own budget); did not merge or otherwise act on any
+PR beyond building this one (only the project owner merges).
+
+Previous lever (2026-09-09): **built `solver/deffit.py`, a definition-fit RE-RANKER for
+`candidates.py`'s output — queue item 9, "the sharpest gap PR #24 surfaced" — targeting the
+diagnosed gap that live solve trials commit a mechanically-real-but-wrong-meaning candidate
+because nothing scores whether it matches the DEFINITION, only whether the wordplay
+executes.** Bootstrap's 14across scrape hit the same intermittent bot-check wall this
+project has hit repeatedly (consistent HTTP 202 on every retry, confirmed by direct curl,
+not waited out — killed after confirming the pattern); worked from the public-CDN image
+fallback instead. Fetched all 4 `--dev-only` images. Transcribed a puzzle NOT previously
+used as this project's dev/eval canon: **2026-05-15**, chosen because it is one of the two
+dates queue item 8 already confirmed prints across clues 1-13 cleanly (`data/images/2026-05-14.jpg`,
+no gap) — sidestepping queue item 8's still-open gap on 2026-05-29/2026-05-21 rather than
+fighting it. All 28 clues transcribed from that image (the across-clue text turned out to
+be split across TWO print columns — a main column starting at 22, and a narrow sidebar
+next to the small solution-recap box carrying 1,7,8,9,10,11,13,15,17,19 — the exact
+"separate column" resolution queue item 8 already found for 2026-06-19, now confirmed for
+a second date). GOLD LETTERS from the small solved-grid recap in the FOLLOWING week's image
+(`data/images/2026-05-20.jpg`, captioned "פתרון תשבץ ההיגיון..."), calibrated
+programmatically (darkness-threshold gridline detection on both axes): all 15 rows' black-cell
+pattern matched the committed `data/grids/2026-05-15.json` EXACTLY, 0/15 mismatches.
+`grid_tools.validate()` on the transcribed clue enums: 0 problems (every enum sum matches
+its grid-derived slot length). `crawl_defs.py mordo` re-crawled fresh (13,049 raw / 12,302
+parsed after `reparse_mordo()`) under a 240s wall-clock budget (14across's captcha wall,
+not this crawler, was the run's time sink); `crawl_defs.py note` ran under a 200s budget,
+125 pairs (small — this budget is tighter than prior runs' 12-minute/unbounded budgets,
+disclosed rather than hidden).
+
+**THE LEVER**: `solver/deffit.py` reuses `retrieve_defs.py`'s own BM25 index and scoring
+formula, in the REVERSE direction — instead of querying "which answers does this clue's
+text retrieve," it asks "does THIS candidate's own corpus-attested definition overlap the
+clue," and attaches a `def_fit` score to every candidate `candidates.py` already generated
+(by any mechanism), then stable-sorts by it. It never proposes an answer that wasn't
+already a candidate, so recall@N is unchanged by construction (verified in selftest).
+MEASURED (`python3 solver/deffit.py eval data/dataset/clues.jsonl eval`): of the 2 clues
+where `candidates.py`'s recall@N already contains the gold answer (7A `שערציונ`/Zion Gate,
+24A `שכמ`/shoulder-Shechem pun — both retrieval hits), reranking left top-1 accuracy
+unchanged (0/2 both before and after — neither gold answer was already first) but moved
+mean reciprocal rank from 0.333 to 0.350 (7A's gold candidate moved from rank 6 to rank 5
+among 25; 24A's, already at rank 2, stayed there). **n=2 is nowhere near enough to call
+this a positive result** — this is explicitly a low-power diagnostic, disclosed as such,
+not a claim.
+
+**THE MORE IMPORTANT FINDING is structural, not the n=2 number.** Checked directly whether
+def_fit ever scores a NON-retrieval candidate (anagram/hidden/reversal/homograph/culture)
+above zero anywhere in this puzzle's 28 clues: **0/28**. This is not a coverage gap that a
+bigger crawl fixes — it is a logical consequence of the design: `def_fit_score` looks up a
+candidate answer's docs in the exact same index `retrieval_candidates()` already searches,
+so any answer with a non-zero score was, by construction, already reachable by
+`retrieval_candidates()` itself (same corpus, same BM25 formula, just queried in the
+opposite direction). Today's `deffit.py` can rerank retrieval's own hits relative to each
+other or to zero-evidence candidates, but it CANNOT independently corroborate a mechanically
+-derived candidate's meaning unless that candidate is ALSO already a retrieval hit — which
+means it adds nothing to the live solve pass's actual failure mode (a mechanically-real
+candidate that is semantically wrong) beyond what `retrieval_candidates` already contributes
+as a candidate SOURCE. RESEARCH.md's own "gloss-overlap" finding this run undersold this
+risk slightly by calling it a coverage ceiling; it is sharper than that — it is a coverage
+IDENTITY between the two mechanisms as implemented today.
+
+**Concrete next step, not attempted today (would be a second lever):** point `deffit.py` at
+a SECOND, INDEPENDENT gloss source that isn't `retrieve_defs`'s own index — `solver/lex/fillbank.json`
+(2,412 real dictionary-style word→definition pairs, e.g. `אבוקדו` → `פרי ירוק ושמנוני`,
+already committed and used by the public site) is a natural candidate: it is a genuine
+dictionary, not a crossword-answer-site crawl, so it could recognize a common Hebrew word's
+meaning independently of whether that word ever appears as a crossword answer anywhere in
+private_defs. This is the fix implied by today's finding, not implemented today to keep
+this run to one lever.
+
+AUDITED (mandatory gate). `lexicon.held_out_answers()` and `retrieve_defs.held_out()` both
+confirmed (computed, not assumed) to block all 28 of this puzzle's own gold answers —
+`gold_norm - blocked` empty for both. Provenance of both retrieval hits checked directly:
+every matching document carries `pid=None` (external private_defs corpus, never this
+puzzle's own text) and each is a clean semantic fit (`שכמ`'s docs are about the shoulder/
+upper-back and about the city in Samaria; `שערציונ`'s docs are about a site in Jerusalem's
+Old City) — not a coincidental string match. No forbidden reads: 14across was never queried
+for this puzzle's gold data (its own partial, unrelated 9-puzzle answers+explanations output,
+left over from the killed bootstrap step, was inspected only to confirm it carries no clue
+TEXT and therefore cannot feed `clues.jsonl` at all — never used in any measurement). All 6
+affected selftests (`candidates.py`, `retrieve_defs.py`, `lexicon.py`, `prove.py`,
+`substitutions.py`, `deffit.py`) re-run clean. Implausibility check: recall stayed at the
+already-established 7.1% (2/28, unchanged by the smaller note.co.il crawl); deffit's own
+MRR movement (0.333→0.350) is a tiny, unsuspicious shift — nothing here approaches the
+~15-point suspicion bar.
+
+HONEST READ: this is a well-implemented, well-tested (selftest covers the reranking
+mechanism, the never-drops-a-candidate guarantee, and tie-stability) piece of infrastructure
+that measured NEGATIVE-TO-NULL on its first live puzzle, for a reason now understood
+precisely rather than left as a mystery: it shares its evidence source with an existing
+mechanism, so it cannot yet add information the pipeline doesn't already have. That is a
+genuine, informative negative result, not a wasted day — it converts "no generator-shaped
+resource has been found" (RESEARCH.md, 3+ prior passes) into "one was found and built, and
+here is precisely why it doesn't help yet, with the exact fix named."
+
+NOT DONE, honestly: did not wire a second gloss source (fillbank.json) into deffit today,
+to keep this run to one lever; did not re-measure on a second puzzle (transcription of one
+28-clue puzzle plus its audit was this run's full budget); did not run `crawl_defs.py note`
+to a natural plateau (200s budget, smaller than prior runs' 12-minute/unbounded budgets) —
+disclosed rather than hidden, and unlikely to change the structural finding above regardless
+of corpus size, since the redundancy is architectural, not a coverage gap; did not merge or
+otherwise act on any open PR.
+
+Previous lever (2026-09-08): **`solver/candidates.py`: `charade_candidates`, a new mechanical
+candidate-generation mechanism for 2-part enums (e.g. (4,3)) that solves each part as an
+INDEPENDENT anagram/hidden-word window, in clue order, non-overlapping, rather than requiring
+one contiguous window to cover the whole answer length the way `anagram_candidates`/
+`hidden_candidates` do today.** This closes a real structural gap: SOLVE_PROTOCOL.md's own
+charade description ("split enum parts; solve each part from clue fragments") allows a
+charade's two parts to draw fodder from separate stretches of the clue with an indicator or
+the definition sitting between them, which a single whole-length contiguous window can never
+span. `split_candidates` (existing) only checks post-hoc whether an already-generated
+FULL-length hit happens to split into two real words at the enum boundary; it cannot originate
+a candidate whose parts came from disjoint windows in the first place -- `charade_candidates`
+does. Bootstrap hit the same hard 14across wall as most recent runs (7/7 consecutive
+answer-page fetches came back `None: 0 clues` after full retry-with-backoff, confirmed by a
+direct 300s-budget re-run of `scraper/parse_answers.py` outside bootstrap.sh too -- not fought
+further, per standing precedent); worked entirely from the public-CDN image-fallback technique.
+
+RE-TRANSCRIBED THE CANONICAL DEV PUZZLE (2026-05-29) from scratch (this is now at least the
+fourth independent transcription across this project's runs) since `data/` starts empty every
+run. Read `data/images/2026-05-28.jpg` for clue text (28/28 clues, both the wrapped-column
+`אופקי` 1-13 section and the main `אנכי`/continuation column) and grid-calibrated the solved
+recap grid in the FOLLOWING week's image (`data/images/2026-06-04.jpg`) for gold letters, per
+bootstrap.sh's documented fallback. Caught and fixed TWO real transcription bugs mid-run via a
+disciplined process, not luck: (1) a full pixel-boundary miscalibration of the solution grid's
+11x15 cell crop initially undercounted to 9 columns, silently reading one row in the WRONG
+(right-to-left semantic, not left-to-right pixel) order -- caught by re-deriving the exact grid
+pixel geometry from the image's own gridlines (dark-line detection) rather than eyeballing crop
+bounds, then re-reading EVERY row cell-by-cell in small 3-4-cell crops (never a whole 11-cell
+row at once, which is what produced the direction error) and cross-checking each row's
+black-cell PATTERN against the already-committed `data/grids/2026-05-29.json` (0/15 mismatches
+once corrected); (2) one single-cell misread (ל read for י at row 0) caught because it broke a
+mechanical anagram check (the fodder 'פחות יין' anagrams to 'יחפניות', not the initially-read
+'לחפניות') before it was ever used for scoring. Both fixes are DISCLOSED, not silently applied:
+the corrected transcription then independently reproduced THREE separate historical answers
+from this puzzle's prior runs byte-for-byte (1 down `ברישניקוב`/Baryshnikov, 2 down `יחפניות`,
+26 across `פחותאבלכואב`) and the mechanical-only recall@N baseline reproduced the historical
+3.6% (1/28) exactly -- strong independent confirmation the re-transcription is correct, not
+just internally consistent. All 28 enum sums validated against the grid-derived slot length,
+0 mismatches.
+
+MEASURED, controlled before/after (`python3 solver/candidates.py recall
+data/dataset/clues.jsonl eval --no-culture --no-retrieval [--no-charade]`): baseline (charade
+off) **3.6% (1/28)**, avg 11.7 candidates/clue, 17.9s; **with charade: 3.6% (1/28), UNCHANGED**,
+avg 18.9 candidates/clue, 30.2s. Charade fired on all 10 of the puzzle's 2-part-enum clues
+(hitting its own 200-candidate-per-clue cap on 8 of them) but matched 0/10 gold answers -- a
+real, measured negative result, not a silent no-op (confirmed by dumping per-clue candidate
+counts and checking gold membership directly, not just trusting the aggregate recall number).
+Full defaults (culture+retrieval+charade) also 3.6%, unchanged, since no `private_defs` corpus
+was crawled this run (out of scope -- this run's one lever was the new mechanism, not a corpus
+refresh) and `culture_category` does not fire on this puzzle's clues.
+
+AUDITED (mandatory gate). `lexicon.held_out_answers()`, `substitutions.held_out()`, and
+`retrieve_defs.held_out()` all confirmed (computed, not assumed) to block all 28 of this
+puzzle's own gold answers now that it sits in `data/dataset/clues.jsonl` as the `eval` split
+(`gold_norm - blocked` empty for all three). No forbidden reads: 14across was never queried for
+this puzzle's gold data this run (confirmed `data/answers/answers_parsed.json` does not exist),
+only the two public CDN images. No jump to explain: 3.6% stayed 3.6%, the opposite of an
+implausible result. All 6 affected selftests (`candidates.py` -- including 2 new cases for
+`charade_candidates` -- `retrieve_defs.py`, `lexicon.py`, `prove.py`, `substitutions.py`) re-run
+clean.
+
+HONEST READ: a real, correctly-implemented, well-tested new mechanism that does not move
+recall on the one puzzle it was measured against. The underlying diagnosis it targets (a
+charade's two parts need not be contiguous in the fodder) is still structurally sound per
+SOLVE_PROTOCOL.md's own description of the device, but this puzzle's specific 2-part-enum
+clues either use a different device entirely or the correct parts simply aren't real-word
+anagrams/hidden-words of the right sub-lengths (both wordplay AND definition-fit failures are
+possible and this diagnostic cannot distinguish them). The mechanism also costs real wall-clock
+(+69% on this eval) for zero measured gain here, which is a real cost to weigh before ever
+wiring it into a live solve pass. NOT DONE, honestly: not measured on a second puzzle (would
+need a second full transcription cycle, out of scope for one lever); did not reduce the
+200-candidate cap despite it being hit on 8/10 clues (a tighter cap is the natural next step if
+this mechanism is revisited, to cut the wall-clock cost without giving up coverage, but wasn't
+measured against a corpus large enough to show whether it changes recall); did not extend to
+3+-part enums (flagged as a natural next step, not attempted -- clue 26's (4,3,4) enum was the
+only 3-part clue in this puzzle and stayed out of scope); did not crawl a fresh `private_defs`
+corpus (the queue's item 1(d) own repeated lever) since today's chosen lever was a new
+mechanism, not a corpus refresh; did not merge or otherwise act on any open PR.
+
+Previous lever (2026-09-07): **`substitution_candidates`' 3-part charade chain — queue
+item 1(b)'s own disclosed next step ("the mined substitution table needs to cover
+multi-part charades (3+ segments)")** — see log for the full write-up, including a
+same-run PR-backlog consolidation (queue item 6, recurred a fifth time) that came first.
+Previous lever (2026-09-06): **`homophone_vowel_candidates` — closes 2026-09-05's own
+disclosed gap in `homophone_candidates`: free ו/י vowel-letter insertion/omission**
+(indicators.json's homophone entry names this alongside the consonant-class swaps
+2026-09-05 already modeled). Two fodder-window widths, both phon()-folded then looked
+up in the SAME `by_phon()` index `homophone_candidates` already builds: `target_len - 1`
+(fodder missing a vowel the real answer has — try inserting ו/י at every position) and
+`target_len + 1` (fodder carries an extra vowel the real answer lacks — try deleting
+each ו/י it contains). Insertion/deletion only ever touches ו/י, never any other
+letter, so this stays a narrow, grounded device rather than an open-ended
+edit-distance search. `prove.py`'s `is_homophone()` was extended to accept the same
+one-vowel-off match (not a separate primitive), so a live solve pass can prove either
+shape of the device with one assertion.
+
+Six solver-lever PRs were open and unmerged against main when this run started (#38
+2026-08-31, #39 2026-09-01, #41 2026-09-02, #42 2026-09-03, #44 2026-09-04, #46
+2026-09-05) — PR #46 itself already consolidates #38/#39/#41/#42/#44 onto one branch
+and adds `homophone_candidates`, so this run branched from PR #46's tip directly (not
+from `main`) rather than re-deriving or re-consolidating work already sitting there —
+the exact fix queue item 6 has asked for three times running ("branch off yesterday's
+PR, not off main"). **A real near-miss avoided by reading the PR backlog before writing
+any code**: this run's first instinct, before checking open PRs, was to wire
+`retrieve_defs.end_candidates()` into `candidates.py` as a NEW `end_retrieval_candidates`
+mechanism — unaware that PR #41 (folded into #46) already built exactly this, named
+`defspan_retrieval_candidates`, and had ALREADY MEASURED it: 10.7% (3/28), identical to
+whole-clue `retrieval_candidates` alone, union adds nothing (see PR #41's own body). Once
+this was discovered (via `list_pull_requests`), the redundant implementation was
+discarded before it was ever run, and today's lever became the genuinely next open item
+`homophone_candidates` itself flagged (vowel flexibility) instead. Recorded here as a
+concrete instance of why checking the PR backlog FIRST is worth the extra step — it
+would otherwise have cost this entire run's budget re-deriving a number PR #41 already
+has.
+
+RESEARCH (full entry in RESEARCH.md): seventh-plus consecutive pass with nothing new and
+buildable on candidate generation, definition-span/fit scoring, or Hebrew morphology. One
+new citation (`github.com/nikcholer/cryptic-solver`, a public neuro-symbolic demo)
+checked directly: its definition-location detector uses indicator-word matching, the
+exact signal this project measured and killed on 2026-08-19 (1/5, worse than a coin
+flip) — a second project choosing the same signal is not evidence it works, it is a
+second data point that indicator-word detection is the obvious first thing to try.
+
+BOOTSTRAP: full `./bootstrap.sh --dev-only` run, no truncation this time (10-minute
+window instead of the usual 2). hspell/culture.json/substitutions.json unchanged (already
+committed). 14across hit the identical hard wall documented since 2026-08-19: 51/52
+answer-page fetches came back `None: 0 clues` after full retry-with-backoff each; only
+2026-06-03 (28 clues) recovered. `crawl_defs.py mordo`/`note` were ALSO run this session
+(before this run's actual lever was known — see the near-miss note above): mordo ran to
+completion (66,488 raw pairs, in line with 2026-08-30's 66,443 — the feed keeps pace,
+not shrinking); note ran under a disclosed ~8-minute time budget (435 fetched). NOT used
+in today's measurement, since `homophone_vowel_candidates` touches no external corpus at
+all — left in `data/answers/private_defs/` (gitignored, as always) purely as a
+same-session courtesy in case a later step in this run wanted it; gone again for
+whichever future run next measures a retrieval-family lever, same as every other run's
+crawl.
+
+TRANSCRIPTION: re-transcribed 2026-05-29 fresh (7th independent transcription of this
+exact puzzle). All 28 clues (15 across, 13 down) from `data/images/2026-05-28.jpg`; every
+enum sum validated against the GRID-DERIVED slot length before any gold data was touched
+— 0/28 mismatches. GOLD LETTERS from the small solved-grid recap in `data/images/
+2026-06-04.jpg`: grid-calibrated (cropped, upscaled, read row by row, reversed to the
+project's index-0-is-rightmost convention); all 15 rows' black-cell pattern matched the
+committed `data/grids/2026-05-29.json` EXACTLY, 0/15 mismatches.
+
+**A real transcription error caught and fixed, disclosed rather than silently
+corrected**: this run's FIRST pass derived 26 across as `באוכלבאתוחפ` — the exact
+character-reverse of `פחותאבלכואב`, the value THREE independent prior entries
+(2026-08-25/08-28/08-30) and yesterday's (2026-09-05) all agree on. Rows 0 and 14 (both
+all-white, i.e. palindromic black-cell patterns) are the only two rows where a whole-row
+left-right mirroring error is invisible to the grid-pattern cross-check, since a mirrored
+all-white row still matches an all-white row. Resolved MECHANICALLY, not by trusting the
+majority vote alone: `פחות`/`אבל`/`כואב` (the (4,3,4) split of the disputed value) are
+all three real hspell dictionary words ("less, but it hurts" — a fitting description of
+the clue's own subject, ברית מילה/circumcision); `באוכ`/`לבא`/`תוחפ` (the same split of
+this run's own first derivation) are all three NOT real words. SOLVE_PROTOCOL.md's own
+word-order rule (a multi-word answer's pieces should be real words) settles it in favor
+of the established value, checked against the live lexicon rather than assumed from the
+vote count. Fixed in `data/answers/by_date/2026-05-29.json` before this run's own
+recall@N was measured (row 14 carries no down-slot cells at all — every down slot's
+grid-derived length is ≤9, short of row 14 at index 14 — so this fix touches only 26
+across, nothing else in the dataset). Flagging the underlying risk for a future run: the
+two palindromic rows are a standing verification blind spot this project's own
+grid-pattern check cannot close by construction; a second, independent structural check
+(e.g. real-word-split validation on every multi-part answer, not just when a conflict is
+already suspected) would catch this class of error without relying on cross-run
+consensus, which is itself only as reliable as the first transcription that established
+it (a variant of the DAILY.md-as-leak-vector concern already on record).
+
+MEASURED, controlled (`python3 solver/candidates.py recall data/dataset/clues.jsonl eval
+[--no-homophone-vowel]`, every other mechanism held at existing defaults): mechanical
+baseline (homophone ON, vowel OFF) **3.6% (1/28)** — reproduces every prior
+transcription; **+ homophone_vowel: still 3.6% (1/28), UNCHANGED**, but the mechanism
+fired on **14/28 clues** (avg candidates/clue 11.8 -> 13.0), a real, working generator
+that simply didn't hit gold on this puzzle. Root-caused, not assumed: directly tested
+`homophone_vowel_candidates` against the SPECIFIC clue 2026-09-05 diagnosed as this
+device's target (22 across, "הזורזים" -> `אנזימימ`) and it produces **zero raw
+candidates for that clue, not a near-miss** — `phon('הזורזימ')` and `phon('אנזימימ')`
+differ in far more than one ו/י (ה,ז,ו,ר,ז,י,מ vs א,נ,ז,י,מ,י,מ), so 2026-09-05's own
+"vowel-insertion" framing of this specific clue was itself an oversimplification of a
+more complex sound relationship — the device this run built is real and correctly
+scoped to what indicators.json actually documents, but it was never going to close
+THIS puzzle's specific gap either, and checking that directly (rather than assuming the
+disclosed gap and its fix line up) is the point of this paragraph. Full defaults (every
+mechanism together): 3.6% (1/28), same single anagram hit (`יחפניות`, 2 down) every
+prior measurement of this puzzle has found.
+
+AUDITED (mandatory gate). `lexicon.held_out_answers()`/`retrieve_defs.held_out()` both
+confirmed (computed: `gold - blocked` is the empty set for both, not assumed) to block
+all 28 of this puzzle's own gold answers, including the corrected 26-across value.
+`homophone_vowel_candidates` introduces no new leak surface: it only looks up the same
+held-out-filtered `by_phon()`/`lex()` index `homophone_candidates` already uses safely.
+No forbidden reads: the 51/52 `None: 0 clues` 14across responses were the ONLY thing
+read from that domain before this run switched to the sanctioned public-CDN image
+fallback; `crawl_defs.py` reads only the public note.co.il/pitaronfree sites this
+project has always used for `private_defs`. No implausible jump: 3.6% -> 3.6% is the
+least suspicious result a controlled before/after can produce. All 5 affected selftests
+(`candidates.py`, `retrieve_defs.py`, `lexicon.py`, `prove.py`, `substitutions.py`)
+re-run clean; `candidates.py`/`prove.py` each gained new homophone_vowel checks (a real
+כל/כול defective/plene spelling pair found by scanning the live lexicon, not a synthetic
+fixture, for the insertion direction; the same pair, plus חל/קל via the consonant fold,
+for the deletion direction).
+
+HONEST READ: a real, correctly-scoped extension of a real device, with a genuinely
+negative recall result that is now UNDERSTOOD rather than merely repeated — the
+2026-09-05 diagnosis that this puzzle's gap was "just" vowel flexibility does not survive
+direct testing, and saying so plainly is worth more than shipping the extension with the
+old (wrong) diagnosis still attached. The mechanism itself fired realistically (14/28
+clues, up from 8/28 for the consonant-only version), which is real evidence it works
+mechanically; whether it recovers gold on ANY puzzle is still unmeasured (n=1, same
+standing caveat every mechanism here starts with).
+
+NOT DONE, honestly: did not re-measure a second puzzle (n=1); did not use the
+mordo/note crawl this run's own bootstrap grew, since today's lever doesn't touch that
+corpus (left available for whichever future run next measures a retrieval-family
+lever); did not investigate whether the same palindromic-row blind spot affected any
+OTHER puzzle's committed dev/eval data beyond this one instance, caught only because
+this run happened to derive it fresh (a real follow-up worth a dedicated pass, not
+squeezed into today's one-lever budget); did not merge or otherwise act on the six
+PRs beyond building on top of #46's branch (only the project owner merges PRs) —
+#38/#39/#41/#42/#44/#46 should all be closed in favor of this branch.
+
+Previous lever (2026-09-05): **`homophone_candidates` — the נשמע (sounds-like) device
+(PLAYBOOK.md 1.6, ~30/728 = 4% of clues), the first mechanism in `candidates.py` to
+model a device this project had ZERO prior support for, generator or proof primitive
+alike** (`prove.py` gained a matching `is_homophone()` assertion, since no live solve
+pass could ever have proved one before today). Every other letter-driven mechanism in
+this file (anagram/hidden/reversal/container/substitution/homograph) derives an answer
+that shares the exact same LETTERS as its fodder; homophone is the one device where the
+answer can be spelled completely differently, only SOUNDING like the fodder — plain
+undotted Hebrew script cannot distinguish several consonant sounds in writing
+(indicators.json's own crowd-mined homophone entry names the free swaps: ק/כ/ח, ט/ת,
+ס/ש, א/ע). `PHON_FOLD`/`phon()` collapse each equivalence class to one representative
+character (a straight length-preserving translation), so the exact fixed-width
+char-window scan `anagram_candidates`/`hidden_candidates` already run works unchanged: a
+window's phon-folded key is looked up against a phon-folded lexicon index, and a hit
+whose LITERAL spelling differs from the fodder (an identical-spelling hit is `hidden`,
+already covered) is a homophone candidate. Deliberately scoped narrower than the full
+device, disclosed rather than silently assumed complete: indicators.json also records
+"free vowel changes" (ו/י insertion or omission), which changes string LENGTH and would
+need a different search entirely — not modeled in this first version.
+
+RESEARCH (full entry in RESEARCH.md): general search on Hebrew phonetic-ambiguity
+resources for crosswords found nothing project-specific; a targeted search on how
+English cryptic-solving tools handle the homophone device confirmed the standard
+technique there is a phonetic-indexing algorithm (Soundex/Metaphone) mapping same-
+sounding strings to one key — the SAME shape this lever independently arrived at,
+just grounded in THIS setter's own documented Hebrew consonant-ambiguity classes
+instead of English vowel-based Soundex. Transfer: confirms the general approach,
+adds no new external resource or technique to adopt.
+
+Bootstrap: hspell/culture.json/substitutions.json already committed, no rebuild needed.
+14across hard-walled again — confirmed directly, not assumed: a single-URL fetch for
+2026-05-29 with 8 retries (matching `scraper/parse_answers.py`'s own retry policy) came
+back `None: 0 clues` on all 8 attempts, and the full 52-puzzle scrape independently
+logged the same pattern (15/52 attempted, 14 empty, 1 recovered) before being killed —
+worked entirely from the no-14across image-fallback technique for both clue text and
+gold letters.
+
+CONSOLIDATION, done before touching a lever: five solver-lever PRs were open and
+unmerged against main (#38 2026-08-31 docs-only, #39 2026-09-01, #41 2026-09-02, #42
+2026-09-03, #44 2026-09-04) — the exact compounding-backlog pattern this file's own
+lever queue item 6 has flagged three times before (2026-08-21/24/25). Cherry-picked all
+five onto one branch in date order, reconciling DAILY.md/RESEARCH.md by hand (chronological
+log merge, no content dropped, same method 2026-08-25 used for a 3-PR backlog) and
+resolving one genuine code-level conflict: PR #39 redefined `retrieval_candidates()` to
+query with `retrieve_defs.end_candidates()` instead of the whole clue text, while PR #41
+(created the next day, unaware of #39) instead added a NEW, separately-toggleable
+`defspan_retrieval_candidates()` calling the same `end_candidates()` and left
+`retrieval_candidates()` untouched. Applying both literally would make two mechanisms
+run the identical query. Kept PR #41's shape (both query shapes independently
+measurable) and dropped PR #39's redefinition as superseded — disclosed here rather than
+silently discarding a prior day's committed work. All 5 selftests re-run clean after
+consolidation, before any new code was added.
+
+TRANSCRIPTION: re-transcribed the canonical dev puzzle 2026-05-29 fresh (6th independent
+transcription of this exact puzzle across this project's history). All 28 clues (15
+across, 13 down) transcribed from `data/images/2026-05-28.jpg`; every enum sum validated
+against the GRID-DERIVED slot length (`solver/grid_tools.py`, structural geometry only,
+no gold answer read) before any gold data was touched — 0/28 mismatches. One
+transcription-methodology finding, disclosed: this specific puzzle's print layout
+intermittently floats an enum parenthetical after the FOLLOWING clue's number rather
+than immediately after its own text (observed at the 9->10 and 22->23->24 clue
+boundaries) — resolved by grid-derived length wherever the printed position was
+genuinely ambiguous, per this file's own established practice for this puzzle's known
+layout quirks, never by guessing.
+
+GOLD LETTERS, since 14across was unreachable: recovered from the small solved-grid
+recap in the FOLLOWING week's image (`data/images/2026-06-04.jpg`, captioned "פתרון
+תשבץ..."). Grid-calibrated programmatically (cropped, upscaled, read row by row): all
+15 rows' black-cell pattern matched the committed `data/grids/2026-05-29.json` EXACTLY,
+0/15 mismatches, after reversing each row (the raw crop reads left-to-right on the
+page; the project's index-0-is-rightmost convention needs the reverse). Four
+independent corroborations beyond the grid-pattern match alone, not just one: two
+extracted answers reproduce gold strings this file's own PRIOR entries already
+disclosed for this exact puzzle (1A `בליברטיולנס`/"Liberty Valance" — 2026-09-03; 26A
+`פחותאבלכואב` — 2026-08-25/08-28/08-30), one reproduces `SOLVE_PROTOCOL.md`'s own
+worked example verbatim (7A `ישפרחימ`, the anagram of "משפר חיי"), and one reproduces
+`prove.py selftest`'s own worked example verbatim (11A `קרתנימ`, `is_container('קרים',
+'תן', 'קרתנימ')`) — none of which were consulted to derive the transcription; they
+were checked AFTER extraction as an independent sanity confirmation, and matching them
+exactly is strong evidence the grid-reversal and letter-reading are both correct.
+`python3 solver/grid_tools.py validate` printed OK; `python3 solver/build_dataset.py`
+reported 0 length mismatches across all 28 rows.
+
+MEASURED, controlled before/after (`python3 solver/candidates.py recall
+data/dataset/clues.jsonl eval [--no-homophone]`, all other mechanisms held at their
+existing defaults): mechanical-only baseline **3.6% (1/28)** — exactly reproduces every
+prior transcription of this puzzle (a strong independent cross-check); **+ homophone
+alone: still 3.6% (1/28), UNCHANGED**, but the mechanism fired on 8/28 clues (avg
+candidates/clue 11.7 -> 11.8) — a real, working generator that simply didn't hit gold on
+this puzzle's specific clues, not a zero-fire result. Direct inspection of WHY: this
+puzzle's own homophone-credited clue (22 across, "הדג מתקשה לנשום למרות הזורזים (עפ"י
+השמיעה של אליעזר כמון)" -> gold `אנזימימ`/enzymes) needs "הזורזים" (7 letters) to be
+read AS SOUNDING LIKE "אנזימים" (8 letters, a different length) — a vowel-insertion
+relationship this version's length-preserving consonant-fold cannot reach by
+construction, exactly the scope limit disclosed in the code's own docstring, not a bug.
+Full defaults (every mechanism together) land at 3.6% (1/28) too, same single anagram
+hit (`יחפניות`, 2 down) every prior measurement of this puzzle has found.
+
+AUDITED (mandatory gate). `lexicon.held_out_answers()` and `retrieve_defs.held_out()`
+both confirmed (computed, not assumed) to block all 28 of this puzzle's own gold
+answers (`gold - blocked` empty for both). `homophone_candidates` introduces no new
+leak surface: it only ever looks up the already held-out-filtered `lex()`, the same
+source `anagram_candidates`/`hidden_candidates` already use safely. No forbidden reads:
+the single-URL 14across probe returned `None: 0 clues` on all 8 attempts before any
+content was read, and the two images used are the sanctioned public-CDN fallback. No
+jump to explain: 3.6% -> 3.6% is the least suspicious result a controlled before/after
+can produce. All 5 affected selftests (`candidates.py`, `retrieve_defs.py`, `lexicon.py`,
+`prove.py`, `substitutions.py`) re-run clean; `candidates.py selftest` and `prove.py
+selftest` each gained a new homophone check (a real ק/כ swap pair, קר/כר, both real
+hspell words found by scanning the live lexicon, not a synthetic fixture).
+
+HONEST READ: a real, mechanically-sound, newly-provable device with a genuinely
+NEGATIVE recall result on this one puzzle, and the negative result is now understood
+rather than merely observed — this puzzle's specific homophone clue needs vowel
+flexibility, not consonant-class flexibility, so a v1 that deliberately excludes vowel
+modeling was never going to catch it. That is a concrete, scoped next step (model ו/י
+insertion/omission as a variable-length search) rather than a reason to call the device
+dead — the mechanism DID fire realistically elsewhere on this puzzle (8/28 clues), which
+is the evidence it works mechanically and simply needs a second puzzle, or the vowel
+extension, before its real hit rate is known.
+
+NOT DONE, honestly: did not model vowel-letter (ו/י) flexibility (the concrete next
+step this run's own root-cause finding surfaced); did not re-measure a second puzzle
+(n=1, same standing caveat every new mechanism here starts with); did not crawl
+`note.co.il`/`mordo` (irrelevant to this lever, which touches no external corpus); did
+not merge or otherwise act on the five consolidated PRs beyond folding their own code
+into this branch (only the project owner merges PRs) — #38/#39/#41/#42/#44 should be
+closed in favor of this branch, the same relationship 2026-08-25's consolidation had to
+its predecessor PRs.
+
+Previous lever (2026-09-04): **`double_definition_candidates` — the מילה משותפת (double-definition)
+device, PLAYBOOK.md §1.2, 14% of clues, the second most common mechanism after charade and,
+per a grep of `candidates.py`, the only PLAYBOOK-documented device with zero prior generator
+(mechanical or definition-driven).** For every word-boundary split of the clue, queries
+`retrieve_defs`'s BM25 index separately on each half and keeps only an answer ranking in BOTH
+halves' independent top-K — a signal a whole-clue query or a single end-window query cannot
+produce, since those score one bag of words against one document. See RESEARCH.md: no external
+resource generates double-definition candidates for a language without WordNet/embeddings
+(checked directly via a new GitHub hybrid cryptic-helper repo), so this reuses the project's own
+already-audited BM25 tool instead. Transcribed a genuinely fresh dev puzzle, 2026-05-21 (chosen
+specifically because — unlike 2026-05-29/2026-06-26/2026-07-03, all of which this file's own
+prior log entries have quoted specific gold-answer strings for — no gold letters for this date
+had been disclosed anywhere in required reading before this run, mitigating the standing
+"DAILY.md itself is a leak vector" finding from 2026-08-30 for at least this one measurement).
+14across hard-walled again (0/52 after the dev-only bootstrap timeout); used the no-14across
+image-fallback technique. 21/21 printed clues transcribed from `data/images/2026-05-20.jpg`
+(the standard across-1-12 gap: clues 7,8,9,10 have grid slots but no printed text, excluded per
+established practice); every enum validated against the grid-derived slot length via
+`solver/grid_tools.py validate` before any gold data was touched — 0 genuine mismatches, the only
+7 "problems" reported are exactly the missing across slots. GOLD LETTERS came from the small
+solved-grid recap in the FOLLOWING week's image (`data/images/2026-05-28.jpg`); grid-calibrated
+programmatically (row/column pixel boundaries derived and cross-checked, not eyeballed) after an
+initial pass drifted by a full row past row 9 and was CAUGHT (not silently fixed) by comparing
+the derived black-cell pattern against the already-committed `data/grids/2026-05-21.json`:
+**all 15 rows match EXACTLY, 0/15 mismatches**, only after correcting the drift. `crawl_defs.py
+mordo` ran under a disclosed 10-minute time budget (killed by timeout, not run to a natural
+stop): 33,299 raw entries, 32,150 with parsed answers after `reparse_mordo()` — smaller than
+recent runs' peak corpus (66K+), since only a partial crawl completed and `note.co.il` was not
+crawled at all this run.
+
+MEASURED, controlled (`python3 solver/candidates.py recall data/dataset/clues.jsonl eval
+[--no-culture] [--no-retrieval] [--no-double-def]`): mechanical-only baseline **0.0% (0/21)**;
+**+ retrieval alone: 9.5% (2/21)** (רוקפור/Roquefort cheese, פרופסורה/professorship — both
+confirmed `pid=None` external mordo docs, clean semantic fits); **+ double_definition alone:
+0.0% (0/21), mechanism fired on 0/21 clues** — not one split-point query on either clue half
+ever returned the gold answer in its own top-K, for any clue, including the five short
+(<=4-letter) slots PLAYBOOK.md flags as "overwhelmingly double definitions." Full defaults
+(culture+retrieval+double_def) land at the same 9.5% (2/21) as retrieval alone, confirming
+double_definition contributes nothing here and culture_category still doesn't fire on this
+puzzle either.
+
+AUDITED (mandatory gate). `lexicon.held_out_answers()` and `retrieve_defs.held_out()` both
+confirmed (computed, not assumed) to block all 21 of this puzzle's own gold answers (`gold -
+blocked` empty for both). Provenance of the 2 retrieval hits checked directly: both carry
+`pid=None`, `רוקפור`'s docs are about "סוג גבינה מחלב כבשים" (a type of sheep's-milk cheese,
+matching the clue's own "גבינה"), `פרופסורה`'s doc is about "מעמד אקדמי" (academic status,
+matching the clue's own "מעמד אקדמאי") — clean semantic fits, not coincidental string matches.
+No forbidden reads: 14across was never queried for this puzzle's gold data, only the two public
+CDN images. No jump to explain: 0.0%->9.5% is well under the ~15-point suspicion bar. All 5
+affected selftests (`candidates.py`, `retrieve_defs.py`, `lexicon.py`, `prove.py`,
+`substitutions.py`) re-run clean; `candidates.py selftest` gained two new checks for
+`double_definition_candidates` (a synthetic case where an answer matches both halves and a
+distractor matching only one half is correctly excluded; a single-word clue returns empty
+rather than erroring).
+
+HONEST READ: this is a genuine negative result, and a more informative one than a flat "0
+gold hits" — the mechanism structurally never fires on this puzzle's clues at all, which
+rules out "generates candidates but ranks them wrong" as the failure mode and points instead
+at corpus coverage: this project's mordo-only, partially-crawled (10-minute budget, no
+note.co.il) index apparently doesn't hold matching definitions for either half of these
+specific short clues, even though it DOES hold matching definitions for two longer,
+single-query clues (the retrieval-alone hits). Whether a fuller corpus (note.co.il added, mordo
+crawled to a natural stop as in 2026-08-30's 66K-entry run) would let this mechanism fire at all
+is untested this run — the corpus-growth pattern that repeatedly rescued `retrieval_candidates`
+on other puzzles has not yet been tried against this specific two-sided-split mechanism.
+
+NOT DONE, honestly: did not crawl `note.co.il` or let `mordo` run to a natural stop (a
+disclosed 10-minute budget, smaller than recent runs' peak corpus) — the corpus-size question
+this raises for double_definition specifically is a concrete next step, not attempted here to
+keep this run to one lever; did not re-measure a second puzzle (this project's own standing
+finding is that retrieval-style mechanisms are puzzle-dependent — one puzzle's null result is
+not yet proof the device never fires); did not act on the DAILY.md-as-leak-vector observation
+beyond mitigating it for today's own puzzle choice; did not merge or otherwise act on any of the
+four solver PRs open against main (#38, #39, #41, #42 — read directly to confirm none had
+already tried this device, not merged: only the project owner merges PRs).
+
+Previous lever (2026-09-03): **`container_candidates` — a mechanical candidate
+generator for the container/insertion device (PLAYBOOK.md §1.4, ~10-12% of this
+setter's clues, the fourth-most-common mechanism), which until today was pure
+verification infrastructure (`prove.is_container`, present since the proof gate was
+built) with no generator in `solver/candidates.py` ever producing a candidate for it
+to check.** Reuses the existing substitution-fragment table and the homograph
+destemmer for its two fragment sources (no new corpus, no new data file). Selftest
+(offline, a real dictionary word found by scanning the live lexicon, not a synthetic
+fixture) confirms it correctly derives an interior-splice candidate. MEASURED on a
+freshly re-transcribed 2026-05-29 (28/28 clues, 0 enum mismatches against the
+grid-derived slot lengths, gold letters recovered via the no-14across image-fallback
+technique and cross-validated 0/15 rows against the committed grid): **recall@N
+UNCHANGED at 3.6% (1/28)** with container on vs off, mechanism fired on only 1/28
+clues (0 gold hits). CONFOUNDED, disclosed rather than hidden: 14across was fully
+unreachable this run (hard wall, 7/7 fetches `None: 0 clues`, matching the pattern
+documented since 2026-08-19), which starves `sub_fwd()` — this mechanism's mined-
+substitution fragment source, shared with the already-shipped `substitution_
+candidates()`, which ALSO scored 0 fires this run (by-mechanism breakdown: only
+`anagram` hit anything at all) — so this is not a clean test of whether the device
+helps, only evidence of what happens when its main fragment source is empty. See log
+for the full transcription/audit trail and research note (checked a live 2026
+neuro-symbolic solver directly: it does not mechanically enumerate container
+candidates either, it relies on an LLM to guide which parts combine — this project's
+own prior standing approach).
+
+Previous lever (2026-09-02): **wired `retrieve_defs.end_candidates()` (query restricted to
+a short prefix/suffix word-span of the clue) into `candidates.py` as a new
+`defspan_retrieval_candidates()` source, alongside the existing whole-clue `retrieval_candidates()`.**
+This closes a real implementation gap found by re-reading the code, not by new literature:
+every DAILY.md/RESEARCH.md entry since 2026-08-08 has cited retrieval's standalone number
+("gold@25=5.4%, ceiling 27%") as measured by `retrieve_defs.py eval`'s CLI — which has
+always called `end_candidates()` — but the mechanism actually wired into `generate()` since
+2026-08-25 has always called plain `retrieve_defs.candidates()` with the FULL clue text
+instead. The number this project quoted six times never described what was running live.
+Bootstrap ran cleanly against 14across this run (a handful of intermittent bot-check
+redirects, recovered by the existing retry-with-backoff — not the hard-wall mode of the
+last several runs), so gold answers for 2026-05-29 (the canonical dev puzzle) came from
+real crowd data via `data/answers/by_date/2026-05-29.json`, not the image-fallback
+technique. Clue TEXT was transcribed fresh from `data/images/2026-05-28.jpg`; all 28 enum
+sums matched the grid-derived / gold-answer letter counts with 0 mismatches (see log for a
+real mid-transcription correction: clue 13 across's text and enum turned out to wrap across
+the print-column boundary, initially misread as a missing enum before the column-wrap was
+tracked down and resolved — the same recurring layout quirk 2026-08-30 documented for a
+different puzzle). `crawl_defs.py mordo` was run under a disclosed ~5-minute time budget
+(bootstrap.sh does not fetch `private_defs` at all — this is a separate manual step every
+run must redo): 8,249 raw / 7,384 with parsed answers, comparable in size to this project's
+very first mordo crawl (9,685).
+
+MEASURED, controlled before/after (`python3 solver/candidates.py recall
+data/dataset/clues.jsonl eval [--no-retrieval] [--no-defspan-retrieval]`): mechanical-only
+baseline **3.6% (1/28)**; **+ old whole-clue retrieval alone: 10.7% (3/28)**; **+ new
+end-span-restricted retrieval alone: 10.7% (3/28)** — same count; **both together: 10.7%
+(3/28)**, i.e. the union adds nothing over either alone. Checked directly which clues each
+mechanism hit (not just the count): BOTH mechanisms hit the exact same two clues (26
+across `פחותאבלכואב`, 1 down `ברישניקוב`). Went one step further and diffed the raw
+candidate SETS (not just gold hits) mechanism-by-mechanism across all 28 clues: identical
+on 27/28, differing on only 1. Root cause, checked rather than assumed: this puzzle's
+clues average 7 words (range 2-13), and `end_candidates()`'s widest window is 4 words from
+each end — for a typical clue that short, a 4-word end-span already covers most or all of
+the clue's content, so the two queries end up scoring the same documents almost every time
+(BM25 score here only rewards terms shared with a doc; extra query terms that aren't in a
+doc don't dilute the winning doc's score, so the whole-clue query's noise-word theory this
+lever was built on turns out not to bite in practice at this corpus's clue lengths).
+
+AUDITED (mandatory gate). `retrieve_defs.held_out()` and `lexicon.held_out_answers()` both
+computed (not assumed) to block all 28 of this puzzle's own gold answers — `gold - blocked`
+empty for both. Provenance of the 2 hits checked directly: both carry `pid=None` (external
+private_defs corpus, never this project's own puzzle text) — `ברישניקוב`'s doc tokens are
+literally "רקדן בלט ושחקן רוסי אמריקאי" (a dancer, ballet, Russian-American actor), a clean
+semantic match for the clue ("...דקירת רקדן", Baryshnikov); `פחותאבלכואב`'s doc is a
+Yehonatan Gefen song-title listing including that exact title, matching clue 26's "יהונתן
+גפן...". No forbidden reads: gold came from the sanctioned 14across scrape (bootstrap.sh),
+clue text from the public CDN image, private_defs from the sanctioned `crawl_defs.py`.
+Implausibility check: 3.6%→10.7% (+7.1 points) is well under the ~15-point suspicion bar
+and reproduces (not just resembles) 2026-08-28's own number on this exact puzzle at a
+similar corpus size — a strong cross-check that both today's independent transcription and
+the corpus rebuild are correct. All 5 affected selftests (`candidates.py`, `retrieve_defs.py`,
+`lexicon.py`, `prove.py`, `substitutions.py`) re-run clean; `candidates.py selftest` gained
+a new check for `defspan_retrieval_candidates` (query restricted to a clue end-span,
+forwarding to `retrieve_defs.end_candidates()`), passing.
+
+HONEST READ: this is a genuine NEGATIVE result for the specific hypothesis today's lever
+tested (that restricting the retrieval query to a definition-span end, instead of the whole
+clue, would surface additional or different candidates) — on this puzzle it does neither.
+The mechanism is correctly implemented and wired in (verified by selftest and by matching
+the 2 known hits), and it is NOT redundant code — `end_candidates()` remains a genuinely
+different function or a future corpus with longer clues or noisier full-clue text could
+still separate the two — but today's controlled measurement found no incremental value on
+the one puzzle tested, and the reason is now understood mechanically rather than guessed:
+this corpus's clues are short enough that a 4-word end-span already captures nearly all of
+a typical clue's content. Shipped anyway because it closes a real, previously undisclosed
+gap between what this project has quoted as retrieval's validated strength for 6+ entries
+and what has actually been running live since 2026-08-25 — that gap needed closing
+regardless of today's specific recall number, and the honest, disclosed result is now part
+of the record instead of an unnoticed inconsistency.
+
+NOT DONE, honestly: did not crawl `note.co.il` (mordo alone was sufficient to reproduce a
+known-comparable historical number, and note.co.il's crawl is far slower per-page); did not
+re-measure a second puzzle (this project's own standing finding is that retrieval's gain is
+puzzle-dependent — a single puzzle's null result for the marginal defspan-vs-whole-clue
+comparison specifically is not yet a claim that no puzzle would ever separate them, only
+that this one didn't); did not merge or otherwise act on any open PR.
+
+Previous lever (2026-08-31): **a second, independent puzzle's measurement of
+`culture_category_candidates`** (queue item 1(c), added 2026-08-24 and measured only
+once since — the queue's own named next step, chosen over yet another
+`retrieval_candidates` corpus-growth re-run after six consecutive days on that exact
+lever shape, per this run's explicit steer). 14across hit the same hard wall as
+2026-08-19/08-26/08-27/08-28/08-30 (7/7 fetches `None: 0 clues`); worked entirely from
+the no-14across image-fallback technique. `solver/lex/culture.json` and
+`substitutions.json` are committed, not gitignored, so no rebuild was needed for those.
+
+Chose a genuinely fresh dev puzzle (2026-07-03 — not among the 8 dates already used for
+any prior measurement: 2026-05-29, 2026-06-05, 2026-06-19, 2026-06-26, 2026-07-10,
+2026-05-15, 2026-04-03, 2026-06-12). Transcribed all 28 clues from `data/images/
+2026-07-02.jpg`. Validated every enum sum against the GRID-DERIVED slot length (from the
+already-committed `data/grids/2026-07-03.json`, structural geometry only, no gold
+answer read) before touching any gold data: 26/28 matched cleanly; 2 (clues 17 and 18
+down) did not individually, but matched PERFECTLY once swapped with each other (17's
+printed `(4,2)`=6 matches 18's grid slot of 6; 18's printed `(4,3)`=7 matches 17's grid
+slot of 7) — a new variant of this setter's documented enum-print anomaly (prior
+instances were one clue's own enum printed in reversed word-order; this is two adjacent
+down-clue enumerations transposed between each other), disclosed and resolved by
+assigning each clue the grid-matching enum, not silently kept as printed, since here
+(unlike prior instances) keeping the raw print would leave BOTH clues' `len_ok` false.
+`solver/grid_tools.py validate` prints OK on the corrected 28-clue set.
+
+GOLD LETTERS came from the small solved-grid recap in the FOLLOWING week's image
+(`data/images/2026-07-11.jpg`, captioned "פתרון תשבץ ההיגיון מהשבוע שעבר"),
+grid-calibrated programmatically (crop coordinates computed, not eyeballed row heights):
+all 15 rows' black-cell pattern matched the committed grid EXACTLY, 0/15 mismatches — the
+strongest form of this project's standard cross-check. All 28 extracted answers' lengths
+matched their (corrected) enums exactly, an independent cross-check beyond the
+grid-pattern match. Several answers make clean independent semantic sense against their
+clues (`גוסטב`/Gustav for "the Swedish king's warm garment on his back" — Gustav is the
+classic Swedish royal name; `נומרולוג`/numerologist for "plays with numbers and confuses
+us"; `בודליר`/Baudelaire for a clue built on "luck" and "poetry" — Baudelaire the poet),
+further corroboration beyond the grid-pattern match alone.
+
+MEASURED, controlled before/after (`candidates.recall_eval()` called directly, same
+scoring code the CLI wraps): mechanical-only baseline **7.1% (2/28)**, both anagram hits
+(`יתענגו`, `נומרולוג`); **+ culture_category_candidates: still 7.1% (2/28), UNCHANGED** —
+avg candidates/clue rose 12.0 → 13.4 (the mechanism DID fire, generating real extra
+candidates), but none matched gold. `retrieval_candidates` was deliberately left inert
+this run (no `crawl_defs.py` run — corpus growth was explicitly out of scope today), so
+the "full defaults" number is identical to "culture-only," a clean isolation of this one
+mechanism's own effect.
+
+DIAGNOSTIC BREAKDOWN (the reason a second puzzle earns its keep over a flat number): the
+mechanism fired on 3/28 clues this time (up from 1/28 on 2026-06-19), and inspecting each
+one directly finds THREE DIFFERENT root causes, not one repeated pattern:
+1. **12 down** (`בירה על הגבול` → gold `בקו`): reproduces 2026-06-19's exact failure mode
+   — `בירה` triggered the `world_city`/"capital" category, but the setter used it as
+   "beer" (a homograph), pointing at `בקו` ("on the line") instead. Surface trigger word,
+   misdirection intended — the standing diagnosis holds.
+2. **11 down** (`מדינה אפריקנית במצב הרסני, אולי` → gold `סיירהלאונ`/Sierra Leone, a
+   clean literal fit — Sierra Leone's civil war matches "state of ruin"): checked
+   directly whether this is a corpus gap — **it is not**. `סיירה לאון` IS present in the
+   raw `culture.json` `nation` list (212 raw entries; confirmed by direct grep). It does
+   not appear in `candidates.culture()`'s filtered output (211 entries, exactly 1 fewer)
+   because `lexicon.held_out_answers()` correctly excludes it — it is THIS puzzle's own
+   gold answer. **This is a genuine, previously undocumented methodological finding, not
+   a corpus or trigger-vocabulary problem**: whenever `culture_category_candidates` fires
+   on a clue whose gold answer is already indexed in `culture.json`, this project's own
+   held-out safety filter (correctly, by design) makes that hit structurally
+   unmeasurable as a recall@N "hit" on THAT specific puzzle — the mechanism could well
+   have fired correctly in a real deployment, but the dev/eval methodology itself is
+   blind to exactly this case. Recall@N on this mechanism is therefore a possibly-
+   conservative lower bound for its real hit rate, in a way that cannot be fixed by
+   growing the corpus or refining the trigger vocabulary — only by testing on a puzzle
+   whose answer is NOT already an indexed entity (impossible to arrange deliberately
+   without defeating the held-out discipline).
+3. **22 across** (`הר אזורי ידוע ביופיו` → gold `אוריזהר`): checked directly — this
+   mountain name is genuinely ABSENT from `culture.json`'s 119-entry `mountain` list (0
+   matches by exact normalized string, confirmed by direct search, both pre- and
+   post-filter). This IS a real corpus coverage gap, unlike case 2.
+
+AUDITED (mandatory gate). `lexicon.held_out_answers()` and `retrieve_defs.held_out()`
+both confirmed (computed, not assumed) to block all 28 of this puzzle's own gold answers
+(`gold_norm - blocked` empty for both). Checked the raw, unfiltered `culture.json`
+directly for leaks (the exact 2026-08-24 audit-finding shape): 4 of today's 28 gold
+answers (`פרש`, `ספיח`, `תאשור`, `סיירהלאונ`) sit in the raw file unfiltered, but
+`candidates.culture()`'s post-filter output contains ZERO of them — confirmed directly,
+not assumed from the code path. No forbidden reads: 14across was never queried for this
+puzzle's gold data, only the two public CDN images plus the already-committed grid file.
+No jump to explain: 7.1% → 7.1% is the least suspicious result a controlled before/after
+can produce (unchanged, not even a small rise). All 5 affected selftests (`candidates.py`,
+`retrieve_defs.py`, `lexicon.py`, `prove.py`, `substitutions.py`) re-run clean.
+
+HONEST READ: across both measurements of this lever (2026-06-19, 2026-07-03), recall@N
+is 0/56 total gold hits from `culture_category_candidates` — still a real, mostly-negative
+result on the headline number. But this run's value is the diagnostic breakdown, not the
+flat number: of the queue's own two named next steps (a corpus-mined trigger vocabulary,
+or a second puzzle), the second puzzle turned out to be more informative than either
+framing anticipated — it shows the mechanism's failures are not one uniform problem. A
+corpus-mined trigger vocabulary would help exactly zero of today's 3 firings (case 1 is a
+precision problem no trigger vocabulary fixes; case 2 is invisible to this measurement by
+construction; case 3 is a raw entity-list gap, not a trigger problem). The one concrete,
+actionable finding is case 3's shape: growing `culture.json`'s named-entity lists (the
+same kind of corpus growth this project already does for `private_defs`, just applied to
+`culture.json` instead) is the only one of the three failure modes a future lever could
+plausibly move, and case 2's finding means this project may be systematically
+undercounting this mechanism's real value in every measurement it will ever run under the
+current held-out methodology — worth flagging to the project owner as a genuine, if
+mundane, measurement-validity caveat rather than a solving gap.
+
+NOT DONE, honestly: did not build a corpus-mined trigger vocabulary (queue's other named
+next step — today's diagnostic breakdown suggests it would not have helped any of this
+run's 3 firings, so it is now a lower-priority follow-up than before, not a higher one);
+did not grow `culture.json`'s entity lists to close case 3's gap (a real, actionable next
+step surfaced today, not attempted — out of scope for a single-lever run that already
+spent its budget on transcription + measurement + this diagnostic); did not touch
+`retrieval_candidates` or run any corpus crawl (deliberately, per this run's explicit
+steer away from a seventh consecutive day on that lever); did not act on queue item 9
+(definition-fit scoring) — see RESEARCH.md, ninth-plus consecutive research pass with
+nothing new; did not merge or otherwise act on any PR (none were open against this main).
+
+Previous lever (2026-08-30): **closed 2026-08-29's own "NOT DONE" gap: re-measured
 `retrieval_candidates` on 2026-06-26 — the puzzle 2026-08-28/08-29 both flagged as still
 needing a bigger corpus and no run had finished re-transcribing — this time FULLY (28/28
 clues, not the 18/28 partial 2026-08-26 left) and against a corpus grown far past any
@@ -470,7 +1441,15 @@ propagated), `blank`. Score with `python3 evals/run_eval.py <file>`.
    definition-by-category pointers, which a surface trigger-word match can't distinguish.
    A corpus-mined trigger vocabulary (vs. today's hand-curated one) and a second puzzle's
    data point are the concrete next steps if this is revisited, not a redesign from
-   scratch. (d) `retrieval_candidates` (BM25 over `solver/retrieve_defs.py`'s definition
+   scratch. **2026-08-31: the second puzzle's data point is done** (2026-07-03: still
+   0 gold hits, fired 3/28 clues — see log). It changed the diagnosis: of the 3 firings,
+   only ONE reproduces the original homograph-misdirection root cause; the other two are a
+   newly-found held-out-safety-filter measurement blind spot (not fixable by any
+   candidate-generation change) and a genuine `culture.json` entity-list coverage gap (the
+   one of the three a future lever could actually move). A corpus-mined trigger vocabulary
+   would not have helped any of today's 3 firings — demoted to a lower-priority follow-up
+   than growing `culture.json`'s entity lists, which is now this item's best-evidenced
+   next step if revisited again. (d) `retrieval_candidates` (BM25 over `solver/retrieve_defs.py`'s definition
    index) — WIRED IN 2026-08-25 (see log): the queue's own "RANKED RETRIEVAL" item from
    2026-08-08, never previously combined with the other mechanisms. MEASURED POSITIVE:
    3.6% -> 7.1% recall on a controlled re-derivation of the 2026-05-29 baseline (+1 hit,
@@ -518,6 +1497,90 @@ propagated), `blank`. Score with `python3 evals/run_eval.py <file>`.
    leak-adjacent vector — it named 2 of today's 4 gold answers in a prior entry, before
    this run's required reading. Worth a future lever (redact specific answer strings from
    log prose, or split required-reading history from an answer-bearing appendix).
+   (e) `container_candidates` — the container/insertion device (PLAYBOOK.md §1.4,
+   ~10-12% of clues, the fourth-most-common mechanism) — ADDED 2026-09-03 (see log):
+   until today pure verification infrastructure (`prove.is_container`) with no
+   generator behind it. MEASURED UNCHANGED (1/28 = 3.6%, same as mechanical-only) on
+   2026-05-29, fired on only 1/28 clues — but CONFOUNDED: 14across was fully
+   unreachable this run, starving `sub_fwd()` (this mechanism's mined-substitution
+   fragment source, shared with `substitution_candidates()`, which ALSO scored 0
+   fires this run for the same reason). Not a clean read on whether the device helps;
+   re-measure once a puzzle with real crowd explanations is available, before
+   concluding anything about the mechanism itself. Selftest (a real lexicon word, not
+   synthetic) confirms it is mechanically sound.
+   **2026-09-11 UPDATE (branch-hygiene failure, see 2026-09-12's fuller writeup)**: a
+   SEPARATE, independently-written `container_candidates` was added on an unmerged branch
+   that never saw this one, and measured 0.0% (0/28) on a freshly transcribed 2026-06-05,
+   root-caused to its own literal-clue-word-only design being unable to reach a SYNONYM
+   substitution (בית~קן, "the judge"~טל) its one real container clue needs. **2026-09-12
+   reconciled the two**: kept this (e)'s strictly more general implementation (its
+   `container_parts()` already unions literal/destemmed words with `sub_fwd()`'s mined
+   synonyms — the exact capability 2026-09-11's diagnosis called for), and PROVED that
+   union actually fires with a new, previously-missing selftest (2026-05-29's original
+   confounded measurement never exercised it live, since `sub_fwd()` was empty that day
+   too). Could not get a live recall number today (14across hard-walled again, confirmed
+   directly; the image-fallback recap grid was not reliably readable at letter level this
+   run without a zoom tool). AUDIT-ONLY against the historical `solver/lex/substitutions.json`
+   refined 2026-09-11's own root cause: בית->קן IS a real recorded generic substitution, but
+   שופט/השופט does NOT map to טל anywhere in that table (טל is almost certainly a specific
+   named judge, an entity fact rather than a synonym pair) — so even a live, fully-fed run
+   of this mechanism would likely still miss this exact clue; the concrete next step is a
+   THIRD fragment source (role/entity lookup, reusing `culture_category_candidates`'
+   trigger vocabulary), not more corpus for the two sources this mechanism already has. A
+   further audit-only check found the assembled `קטלנ` is not even in the loaded hspell
+   lexicon, a fourth independent obstacle if that is indeed the gold answer. See log.
+   (f) `double_definition_candidates` — the מילה משותפת device (PLAYBOOK.md §1.2, 14% of
+   clues, second most common after charade) — ADDED 2026-09-04 (see log): the one
+   PLAYBOOK-documented mechanism that had zero generator, mechanical or definition-driven,
+   before today. For every clue-word split point, requires an answer to rank in BOTH
+   halves' independent BM25 top-K, reusing `retrieve_defs.py`. MEASURED NEGATIVE on a
+   fresh puzzle (2026-05-21): 0.0% (0/21), and — more informative than the flat number —
+   the mechanism fired on 0/21 clues; even relaxing to "gold in EITHER half alone" found
+   nothing for any of the 5 short (<=4-letter) slots checked, the class PLAYBOOK.md says is
+   overwhelmingly double-definition. `retrieval_candidates` on the SAME corpus scored 9.5%
+   (2/21) on this puzzle, so the corpus isn't empty — this specific two-sided-split
+   mechanism just found no matching definition-pair for these particular clues. Today's
+   corpus was mordo-only, under a disclosed 10-minute crawl budget (33,299 raw / 32,150
+   parsed) with no note.co.il — smaller than the 66K+ peak corpus 2026-08-30 grew;
+   untested whether a fuller corpus (the lever that repeatedly rescued
+   `retrieval_candidates` on other puzzles) would let this mechanism fire at all. Next
+   concrete steps if revisited: grow the corpus for this puzzle specifically before calling
+   the mechanism dead, and/or measure a second puzzle (n=1 so far).
+   (g) `homophone_candidates` — the נשמע (sounds-like) device (PLAYBOOK.md §1.6, ~4% of
+   clues) — ADDED 2026-09-05 (see log): the first mechanism here for a device where the
+   answer shares no LETTERS with its fodder, only its SOUND (Hebrew consonant-class
+   folding: ק/כ/ח, ט/ת, ס/ש, א/ע). MEASURED UNCHANGED (3.6%/1/28, same as mechanical-only)
+   on 2026-05-29, but NOT zero-fire: 8/28 clues produced real candidates. Root-caused: this
+   puzzle's own homophone-credited clue needs vowel-letter (ו/י) flexibility this v1's
+   length-preserving fold deliberately excludes — a real device, a scoped v1, a concrete
+   next step (model vowel insertion as a variable-length search) rather than a dead end.
+   (h) `homophone_vowel_candidates` — the (g)-flagged next step, DONE 2026-09-06 (see
+   log): tries inserting/deleting one ו/י against the same phon-folded index, in both
+   length directions. MEASURED UNCHANGED (3.6%/1/28) on the same puzzle, fired on 14/28
+   clues (up from 8/28), still 0 gold hits. Root-caused, not assumed: directly tested
+   against the SPECIFIC clue (g) diagnosed as this device's target and found it produces
+   ZERO candidates there too — the true sound relationship in that one clue is more than
+   one vowel letter apart, so (g)'s "vowel-insertion" framing of that specific clue was
+   itself imprecise, independent of whether the device is correctly built (it is, per
+   selftest and the mechanical firing rate). No corpus dependency, no confounding. Next
+   step if revisited: a second puzzle's measurement (n=1 so far) rather than assuming
+   this one puzzle's non-hit generalizes.
+   (i) `charade_candidates` — ADDED 2026-09-08 (see log): a mechanical (not corpus-backed)
+   generator that solves a 2-part enum as two INDEPENDENT, non-overlapping, in-order
+   anagram/hidden windows rather than requiring one contiguous window to cover the whole
+   answer length. MEASURED NEGATIVE on 2026-05-29 (freshly re-transcribed): 3.6% -> 3.6%,
+   unchanged — fired on all 10 of the puzzle's 2-part-enum clues (hitting its own
+   200-candidate cap on 8) but matched 0/10 gold. Also surfaced a hard blocker for item
+   1(b)'s own flagged next step (multi-part substitution charades, quoted above): with
+   14across walled again, `substitutions.explanations()` sourced 0 rows and `sub_fwd()`
+   built an EMPTY equivalence table this run — the multi-part-substitution idea is not
+   just unattempted but UNTESTABLE without either a working 14across fetch or some other
+   source of clue-fragment equivalences; `charade_candidates` was built as the closest
+   testable relative (multi-part, but via the mechanical anagram/hidden lexicon rather
+   than a mined table) precisely because that path was blocked. Next concrete steps if
+   revisited: extend to 3+-part enums, tighten the 200-candidate cap (hit on 8/10 clues
+   here, a real wall-clock cost — +69% on this eval — for zero measured gain), and a
+   second puzzle's data point before calling this dead. See log.
 2. ~~Definition-span detection~~ — TRIED 2026-08-19, NEGATIVE. See log and "already
    tried" below. Do not re-attempt without a fundamentally different signal (not
    indicator-word density).
@@ -589,6 +1652,28 @@ propagated), `blank`. Score with `python3 evals/run_eval.py <file>`.
    (2026-08-22/23/24) — the next attempt on this item should assume none exists and work
    from the project's own data (as `culture_category_candidates`, 2026-08-24, did) or be
    scoped as a genuinely new internal idea, not another literature sweep.
+   **2026-09-09: BUILT — `solver/deffit.py`, a gloss-overlap RE-RANKER** (a "fundamentally
+   different signal" from the defspan.py indicator-density approach: it never localizes a
+   definition span at all, it scores whether a candidate ANSWER's own corpus-attested
+   definition overlaps the whole clue). Measured on a fresh puzzle (2026-05-15): n=2
+   recall-hit clues, MRR 0.333->0.350, too small to call positive. Sharper finding: 0/28
+   clues have a non-retrieval candidate scoring non-zero -- def_fit is architecturally
+   redundant with `retrieval_candidates` today (same index, same BM25, opposite query
+   direction), so it cannot yet corroborate a mechanically-derived candidate independently.
+   Concrete next step: wire in a second, independent gloss source -- `solver/lex/fillbank.json`
+   (2,412 real dictionary word->definition pairs) -- not attempted today. See log.
+   **2026-09-10: WIRED IN.** `build_fillbank_index()` adds fillbank as a second,
+   independently-scored source (own BM25 stats, kept separate from private_defs'). Found
+   and fixed a real bug first: fillbank's keys weren't final-letter-folded, so 557/2,450
+   (22.7%) entries would have been silently unreachable against candidates.py's always-folded
+   answers. Measured on a fresh 2026-05-15 transcription: `nonretrieval_known_gloss_clues`
+   (any non-retrieval candidate has SOME known gloss) moved 3/28 -> 14/28; the stricter
+   `nonretrieval_scored_clues` (that gloss actually shares vocabulary with the clue) stayed
+   0/28 -- the 59 newly-known candidates' glosses just don't repeat their clues' wording.
+   recall@N was 0/28 this run (a smaller fresh corpus found none of this puzzle's answers),
+   so top-1/MRR remain untested since #53's own n=2. A real, mixed, disclosed result -- gloss
+   coverage widened for real, the score-based signal this project plans to rank by did not.
+   See log.
 
 ## Things already tried — do not repeat
 - More knowledge tooling (wiki, culture lexicon, shironet titles): helped early, now saturated.
@@ -2352,7 +3437,309 @@ Measure each lever on dev (fixed enums) with run_eval.py before/after; one lever
   politicians like רבין/בגין/גולדה, everyday common words). Rebuilt puzzles.json:
   90/90 days validated, zero purity violations, zero famous-pool fallbacks; today's
   easy board went from צ'אפל ואדי/הלטי/בארו to אולימפוס/ארבל/אררט.
+- 2026-08-31 (session 3, solver daily loop): **second, independent puzzle's measurement
+  of `culture_category_candidates`** (queue item 1(c)) — full transcription, measurement,
+  three-way root-cause breakdown, and audit trail written up under the state table's
+  "Last lever added (2026-08-31)" entry above (search for it rather than duplicating here
+  per this file's own established practice of keeping the detailed narrative at the top).
+  Summary: fresh puzzle 2026-07-03 (not among any of the 8 previously-used dev dates),
+  transcribed from `data/images/2026-07-02.jpg`, gold letters from the following week's
+  solution recap (`data/images/2026-07-11.jpg`, 0/15 row mismatches against the committed
+  grid). One real enum-print anomaly found and disclosed (clues 17/18 down had their
+  printed enumerations transposed between each other — a new variant of this setter's
+  known enum quirk, resolved by grid-derived slot length, `grid_tools.py validate` now
+  prints OK on all 28). MEASURED: mechanical baseline 7.1% (2/28); + culture_category:
+  still 7.1% (2/28), unchanged, mechanism fired on 3/28 clues (up from 1/28 on 2026-06-19)
+  with 0 gold hits. The three firings each have a DIFFERENT root cause: one homograph/pun
+  misdirection (reproduces the 2026-06-19 finding), one where the gold answer sits in the
+  raw corpus but is correctly excluded by the held-out safety filter (a newly-surfaced
+  measurement-methodology blind spot: this project's own dev/eval discipline makes such a
+  hit structurally unmeasurable, not a corpus or trigger-vocabulary gap), and one genuine
+  entity-list coverage gap (a real mountain name absent from `culture.json`'s 119-entry
+  list). AUDITED: `lexicon.held_out_answers()`/`retrieve_defs.held_out()` confirmed to
+  block all 28 gold answers; raw `culture.json` confirmed to contain 4 of them unfiltered
+  but `candidates.culture()`'s post-filter output confirmed to contain 0; no forbidden
+  reads (14across hard-walled again, 7/7 fetches failed, worked entirely from the two
+  public CDN images); no jump to explain (7.1% -> 7.1% is unchanged). All 5 selftests
+  re-run clean. RESEARCH.md: ninth-plus consecutive pass with nothing new on
+  definition-fit scoring (queue item 9) — one new citation checked directly (an Italian
+  non-cryptic crossword retrieval/ranking line, confirmed not to transfer) but nothing
+  buildable, so item 9 was left untouched per its own standing instruction rather than
+  forcing a stub. NOT DONE: did not build a corpus-mined trigger vocabulary (today's
+  breakdown suggests it would not have helped any of the 3 firings, demoting its
+  priority); did not grow `culture.json`'s entity lists to close the one real coverage
+  gap found (a concrete next step, not attempted this run); did not touch
+  `retrieval_candidates` or run any corpus crawl (deliberate, after six straight days on
+  that lever); did not merge or act on any PR (none open).
+- 2026-09-02: **candidate generation, queue item 1's "generate diverse candidates by
+  mechanism and by definition-span hypothesis" instruction.** Wired
+  `retrieve_defs.end_candidates()` (BM25 query restricted to a short prefix/suffix
+  word-span of the clue, trying both ends, rather than one classifier's guess) into
+  `candidates.py` as a new `defspan_retrieval_candidates()` source. See the state table
+  above for the full measurement, audit, and honest-negative-result writeup — summary:
+  correctly implemented and wired in, but on the one puzzle measured (2026-05-29) it adds
+  ZERO incremental recall over the already-wired whole-clue `retrieval_candidates()` (both
+  land on 10.7%/3-28, hitting the identical 2 clues; raw candidate sets are identical on
+  27/28 clues). Root-caused, not just observed: this corpus's clues average 7 words and
+  `end_candidates()`'s widest window is 4 words per end, so for a typical clue here the
+  end-span already covers most of the clue's content, and BM25 scoring here only rewards
+  shared terms (extra query terms don't dilute a doc's score), so the whole-clue query's
+  hypothesized noise problem doesn't bite at this corpus's clue lengths. Shipped anyway:
+  the lever closes a real, previously undisclosed gap — every DAILY.md/RESEARCH.md entry
+  since 2026-08-08 has quoted retrieval's standalone strength ("gold@25=5.4%, ceiling 27%")
+  as measured by `retrieve_defs.py eval`'s CLI, which has always used `end_candidates()`,
+  while the mechanism actually running live in `generate()`/`solve_pass.py` since
+  2026-08-25 has always used the whole-clue query instead — the quoted number never
+  described what was running. Bootstrap ran clean against 14across this run (recovered
+  from a handful of intermittent bot-check redirects); `crawl_defs.py mordo` was run under
+  a disclosed ~5-minute budget (8,249 raw / 7,384 parsed — bootstrap.sh does not fetch
+  `private_defs` at all, a separate manual step every run must redo). Transcription of
+  2026-05-29 caught and resolved one real column-wrap: clue 13 across's enum initially
+  looked entirely missing (the printed column ran out at "13. בני טוב" with no visible
+  enumeration), until re-examining the reading order showed its remaining text
+  ("כמלחין", enum (4)) wraps to the top of the next print column, ahead of clue 15 —
+  the same recurring print-layout quirk 2026-08-30 documented for a different puzzle and
+  date, now confirmed on a third. All 28 enum sums validated against the real gold
+  answer's letter count (from 14across, not the image-fallback this time): 0/28
+  mismatches. AUDIT clean (held-out blocking confirmed computed for both `retrieve_defs`
+  and `lexicon`; both hits' source docs confirmed `pid=None` and semantically sound; no
+  forbidden reads; 3.6%→10.7% jump reproduces 2026-08-28's own number on this exact
+  puzzle, not a new implausible jump). RESEARCH.md: sixth-plus run with no new external
+  resource turning into a buildable generator; one new citation checked and found not
+  transferable (IdioLink, arXiv 2605.22247 — needs Hebrew dense-retriever training data
+  this project doesn't have), and one (`nikcholer/cryptic-solver`) confirmed rather than
+  added to the standing direction (semantic, not indicator-density, definition-fit
+  judgement — queue item 9 — is the right direction, already what live trials do
+  informally). NOT DONE: did not crawl note.co.il; did not re-measure a second puzzle to
+  see if the defspan/whole-clue gap ever separates on longer clues; did not merge or
+  act on any open PR.
+- 2026-09-03: **candidate generation, queue item 1(e): `container_candidates` — the
+  container/insertion device.** Three PRs were open and unmerged against main when this
+  run started (#38 2026-08-31, #39 2026-09-01, #41 2026-09-02, all candidate-generation
+  or retrieval-query work) — not merged or cherry-picked this run (only the project
+  owner merges PRs; this run branches off main per the standing protocol, same as every
+  prior run when a backlog exists), but read directly so today's lever would not
+  duplicate what they already measured: #39/#41 both re-examined `retrieval_candidates`'s
+  query shape (whole-clue vs. end-anchored BM25), both landing on null results on
+  2026-05-29; #38 is a diagnostic-only re-measurement of `culture_category_candidates`.
+  None touched the container device, so today's lever is genuinely new relative to the
+  full open backlog, not just to main.
 
+  RESEARCH (full entries in RESEARCH.md): general searches on candidate generation and
+  definition-span detection surfaced nothing beyond the same paper family logged
+  repeatedly since 2026-08-06. A TARGETED search specifically for container/insertion
+  CANDIDATE GENERATION (not detection) found one new, concrete resource worth checking
+  directly rather than citing at a glance: `github.com/nikcholer/cryptic-solver`, a 2026
+  neuro-symbolic (LLM-parse + deterministic-validate) demo. Read directly: its container
+  handling is LLM-guided, not mechanically enumerated — it does not generate container
+  candidates either, matching every academic paper already logged and this project's OWN
+  prior standing approach. This is the reason today's lever is worth building rather than
+  skipping: no public solver, academic or hobbyist, mechanically generates container
+  candidates; `prove.py` has been able to VERIFY one (`is_container`) since the proof
+  gate was built, but nothing has ever generated one to check.
+
+  BOOTSTRAP: `./bootstrap.sh --dev-only` hit the 14across hard wall again — 7 consecutive
+  answer-page fetches returned `None: 0 clues` after full retry-with-backoff each (the
+  worst-case cost of waiting out all 52 at that rate is hours, not minutes); killed after
+  confirming the pattern rather than waited out, matching the failure mode documented
+  since 2026-08-19. hspell (129,574 words), `solver/lex/culture.json` (already fully
+  committed, 24 categories / thousands of entities — no rebuild needed) and the dev
+  puzzle images (public CDN, unaffected by the 14across wall) all came through cleanly.
+
+  BUILT `solver/candidates.py`: `container_parts()` (shared fragment-source helper) and
+  `container_candidates()` — an OUTER fragment with an INNER fragment spliced at a
+  STRICTLY INTERIOR position (matching `prove.is_container`'s own contract exactly, so
+  every candidate this mechanism proposes is provable by the existing verifier
+  unchanged). Fragment sources are the SAME two the file's other mechanisms already use
+  (no new corpus, no new data file): a clue word or its de-affixed stem (reusing
+  `homograph_candidates`'s own `_destem()`), and the mined clue-word/answer-fragment
+  substitution table (`sub_fwd()`, the same held-out-safe in-memory rebuild
+  `substitution_candidates()` already depends on). Wired into `generate()` behind a new
+  `use_container` toggle (default on), in the same early priority tier as
+  homograph/substitution/culture/retrieval, for the same reason: it is bounded by a
+  small fragment pool, not an unbounded window scan, so it doesn't need to wait behind
+  the cheap high-volume mechanisms. Selftest added (`python3 solver/candidates.py
+  selftest`): unlike every other mechanism's selftest, which either uses a synthetic
+  fixture or an injected table, this one's core check uses a REAL word found by
+  scanning the actual committed lexicon offline (`מכות` + `מל` spliced at an interior
+  position -> `ממלכות`, "kingdoms") — not gold-answer-linked, not synthetic, and it
+  confirms the mechanism reaches the real dictionary, not just a hand-built fixture.
+  Also checks that a word cannot supply both the outer and inner fragment of its own
+  candidate. All checks pass.
+
+  TRANSCRIPTION: re-transcribed the canonical dev puzzle 2026-05-29 fresh (5th
+  independent transcription of this exact puzzle across this project's history, after
+  2026-08-06/08-25/08-28/2026-09-01's PR #39 — chosen for direct comparability against
+  the many prior measurements on it, since 14across left no other option this run).
+  Clue text from `data/images/2026-05-28.jpg` (both across columns — the right
+  "אופקי:" box for clues 1,7,8,9,10,11,13 and the wrapped continuation for 15 through
+  26 in the middle column, reading right-column-then-left-column as one flow, which
+  resolved a genuine transcription ambiguity mid-run: an enum that first looked
+  misplaced turned out to belong to the PRECEDING clue once the two-column wrap was
+  understood, not a printing error — caught by cross-checking every enum sum against
+  the grid-derived slot length BEFORE accepting any reading, per protocol). All 28
+  enum sums matched their grid-derived slot lengths exactly, 0 mismatches, before any
+  gold answer was touched.
+
+  GOLD LETTERS, since 14across was unreachable: recovered from the small solved-grid
+  recap in the FOLLOWING week's image (`data/images/2026-06-04.jpg`, captioned "פתרון
+  תשבץ שהופיע בשבוע שעבר"). Rather than eyeball cell boundaries, calibrated the grid
+  geometry PROGRAMMATICALLY: detected gridline pixel rows/columns via a darkness-
+  fraction threshold (`numpy`/`PIL`, installed this run), extracted all 15x11 cells'
+  black/white pattern from the calibrated coordinates, and confirmed it against the
+  ALREADY-COMMITTED `data/grids/2026-05-29.json` — 0/15 row mismatches. Read each row's
+  letters from the same calibrated coordinates (not a second, independent crop), then
+  converted from on-page visual (left-to-right) order to this project's index
+  convention (index 0 = rightmost cell) by simple reversal, and extracted every
+  (number, direction) slot's answer via `grid_tools.slots()` rather than assembling
+  them by hand. Several derived answers independently corroborate the transcription
+  beyond the grid-pattern match alone, including two that reproduce gold answers this
+  exact puzzle's own prior log entries already recorded independently (1D
+  `ברישניקוב`/Baryshnikov — DAILY.md 2026-08-28; 26A `פחותאבלכואב` — DAILY.md
+  2026-08-25) and one that reproduces PR #39's own independently-reported finding for
+  this same puzzle (1A `בליברטיולנס`/"Liberty Valance," whose printed enum (4,7)
+  reverses the true 7+4 split, this setter's well-documented reversed-enum quirk).
+  `python3 solver/grid_tools.py validate` printed OK; `python3 solver/build_dataset.py`
+  reported 0 length mismatches across all 28 rows (split: eval, since this is the only
+  puzzle date present this run and the split rule assigns the newest date(s) to eval).
+
+  MEASURED, controlled before/after (`python3 solver/candidates.py recall
+  data/dataset/clues.jsonl eval [--no-culture] [--no-retrieval] [--no-container]`):
+  mechanical-only baseline **3.6% (1/28)** — exactly reproduces every prior
+  transcription of this puzzle, a strong cross-check that today's 5th independent
+  transcription is correct; **+ container: still 3.6% (1/28), UNCHANGED**; full
+  defaults (culture+retrieval) also unaffected by the container toggle either way.
+  Direct inspection: `container_candidates` fired on only 1/28 clues (9 across, 2 raw
+  candidates, neither matching gold), and the run's own by-mechanism breakdown shows
+  `substitution_candidates` — the ALREADY-SHIPPED mechanism sharing today's new
+  mechanism's mined-fragment source — ALSO fired 0 times this run (only `anagram`
+  produced the one hit, unchanged from the mechanical-only baseline). This is the
+  direct, checked explanation: `sub_fwd()` rebuilds in-memory from this puzzle's own
+  crowd explanations (`data/answers/by_date`), which do not exist this run because
+  14across was unreachable — the mechanism's mined-substitution fragment source was
+  empty for the SAME reason it was empty for the already-shipped mechanism sharing it,
+  not a defect specific to container. Only the corpus-free destem/literal-word half of
+  the fragment pool was exercised.
+
+  AUDIT (mandatory gate). `lexicon.held_out_answers()` and `retrieve_defs.held_out()`
+  both confirmed (computed, not assumed) to block all 28 of this puzzle's own gold
+  answers (`gold_norm - block` empty for both, checked directly after the dataset was
+  built). No forbidden reads: 14across was never queried for this puzzle's gold data,
+  only the two public CDN images (the sanctioned fallback); no answers site accessed.
+  No jump to explain — recall stayed flat at 3.6% with container on vs off, the
+  opposite direction an implausible result would take. All 5 affected selftests
+  (`candidates.py`, `retrieve_defs.py`, `lexicon.py`, `prove.py`, `substitutions.py`)
+  re-run clean.
+
+  HONEST READ: this is a real but CONFOUNDED result, disclosed as such rather than
+  reported as a clean negative. `container_candidates` is implemented, unit-tested
+  against a real dictionary word (not a synthetic fixture), wired in behind a toggle,
+  and closes a genuine gap (verification existed, generation didn't) that this run's
+  own research check confirms no public solver has closed either — but today's live
+  measurement cannot distinguish "the device doesn't help this puzzle" from "its main
+  fragment source was empty this run," because the SAME corpus starvation flattened
+  the already-shipped `substitution_candidates` to zero fires too. The honest
+  conclusion is: re-measure once 14across is reachable (or any dev/eval puzzle already
+  has real crowd explanations available) before drawing any conclusion about whether
+  the container device itself helps recall — today's number is evidence about this
+  run's environment, not yet about the mechanism.
+
+  NOT DONE, honestly: did not crawl `note.co.il`/`mordo` (that corpus feeds
+  `retrieval_candidates`, not `sub_fwd()` — would not have helped today's specific
+  starvation); did not re-measure any of the other puzzles with existing transcriptions
+  from prior runs (data/ is gitignored, so none persist between runs — every run starts
+  from zero); did not merge or otherwise act on PRs #38/#39/#41 (only the project owner
+  merges PRs); did not attempt to reconstruct `sub_fwd()`'s fragment source from the
+  committed `solver/lex/substitutions.json` as a workaround — that file was very likely
+  built from a corpus that included this exact canonical dev puzzle's own crowd
+  explanations (it is reused as the dev/eval baseline in nearly every prior run), so
+  using it here would risk exactly the kind of leak RESULTS.md's INTEGRITY FINDING
+  already caught once; left the fragment source honestly empty rather than take that
+  risk.
+- 2026-09-04: **candidate generation, queue item 1(f): `double_definition_candidates` —
+  the מילה משותפת (double-definition) device.** Four solver-lever PRs were open and
+  unmerged against main when this run started (#38 2026-08-31, #39 2026-09-01, #41
+  2026-09-02, #42 2026-09-03) — read directly (diffs against their own merge-bases) to
+  confirm none had already built this device before choosing it; not merged or
+  cherry-picked (only the project owner merges PRs; this run branches off main per
+  standing protocol). See RESEARCH.md for the full research entry: checked a new GitHub
+  hybrid cryptic-helper repo directly and confirmed it does generate double-definition
+  candidates, but via English WordNet/embeddings with no Hebrew equivalent — the
+  transferable idea (score each clue half independently, require both to agree) was
+  built with this project's own already-audited `retrieve_defs.py` BM25 index instead of
+  any new external dependency.
+
+  BOOTSTRAP hit the 14across hard wall again (killed at the dev-only timeout, 0/52);
+  hspell and the dev puzzle images (public CDN) came through cleanly. `crawl_defs.py
+  mordo` ran under a disclosed 10-minute budget (killed by timeout): 33,299 raw entries.
+  **Caught a real gap in that step**: the raw crawl output has no parsed `answers` field
+  at all (0/33,299) until `reparse_mordo()` is run separately — a step named in this
+  file's own prior log prose but not in `crawl_defs.py`'s own docstring/CLI in a way that
+  makes it obvious; ran it explicitly (32,150/33,299 gained parsed answers) and confirmed
+  the retrieval index was non-empty before treating any 0% result as meaningful, catching
+  what would otherwise have been a silent false negative (an empty index trivially
+  produces 0% recall for every mechanism, which is a corpus bug, not a solving result).
+
+  PUZZLE CHOICE, deliberately: this file's own log prose has repeatedly quoted specific
+  gold-answer strings for 2026-05-29, 2026-06-26, and 2026-07-03 (each required reading
+  before this run, a leak-adjacent property flagged since 2026-08-22/08-30 but never
+  fixed) — chose 2026-05-21 instead, a date this file has never named a gold answer for,
+  to keep at least this one measurement clean of that specific risk. Transcribed all 21
+  printed clues (8 across, 13 down; the standard across-1-12 gap excludes clues 7,8,9,10)
+  from `data/images/2026-05-20.jpg`. Every enum validated against the grid-derived slot
+  length (`grid_tools.py validate`, 0 genuine mismatches — the 7 reported "problems" are
+  exactly the excluded missing-clue slots) before any gold data was touched.
+
+  GOLD LETTERS from the small solved-grid recap in `data/images/2026-05-28.jpg`
+  (captioned "פתרון תשבץ ההיגיון לשבוע שעבר"). Grid-calibrated programmatically
+  (darkness-threshold gridline detection). **A real transcription drift was caught, not
+  silently fixed**: an early row-by-row read drifted by a full row past row 9 (a padding
+  miscalculation in the crop offsets), producing letters that looked individually
+  plausible but, once checked, didn't match ANY of the grid's known row patterns for
+  their apparent position. Re-derived the affected rows by matching each row's own
+  BLACK-CELL SHAPE (not just content) against the committed grid's per-row pattern list,
+  which is unambiguous even when letter content alone isn't — this recovered the correct
+  row order. Final transcription: **all 15 rows match the committed
+  `data/grids/2026-05-21.json` pattern EXACTLY, 0/15 mismatches**, the project's
+  strongest standard cross-check. Several extracted answers make independent semantic
+  sense against their clues beyond the pattern match alone (רוקפור/Roquefort for a
+  cheese clue, לימוזינ/limousine for "an expensive car", שדרות/Sderot — a southern
+  Israeli city — for "fed from it, a worker in a southern city", ירדאלהעמ/"ירד אל העם"
+  for Moses "descending to the people" at the giving of the Torah).
+
+  MEASURED, controlled (`python3 solver/candidates.py recall data/dataset/clues.jsonl
+  eval [--no-culture] [--no-retrieval] [--no-double-def]`): mechanical-only baseline
+  **0.0% (0/21)**; **+ retrieval alone: 9.5% (2/21)** (רוקפור, פרופסורה); **+
+  double_definition alone: 0.0% (0/21), fired on 0/21 clues** — confirmed directly (not
+  inferred from the 0% score) that the mechanism never once produced a candidate, and
+  that even relaxing its own "both halves" requirement to "either half alone" still
+  found nothing for the five short slots PLAYBOOK.md flags as the device's home turf.
+  Full defaults land at the same 9.5% (2/21) as retrieval alone.
+
+  AUDITED (mandatory gate). `lexicon.held_out_answers()` and `retrieve_defs.held_out()`
+  both confirmed to block all 21 gold answers. Both retrieval hits confirmed `pid=None`
+  (external mordo docs — cheese-type and academic-status definitions respectively),
+  clean semantic fits, not string coincidences. No forbidden reads: 14across never
+  queried for this puzzle, only the two public CDN images. No jump to explain: 0.0% ->
+  9.5% is well under the ~15-point suspicion bar. All 5 affected selftests
+  (`candidates.py`, `retrieve_defs.py`, `lexicon.py`, `prove.py`, `substitutions.py`)
+  re-run clean; `candidates.py selftest` gained two double_definition checks (a
+  synthetic both-halves-agree case, and a single-word clue returning empty rather than
+  erroring).
+
+  HONEST READ: a genuine negative result, sharpened rather than softened by the
+  zero-fire finding — this isn't "generates plausible-looking wrong candidates," it's
+  "never generates anything for this puzzle's clues at all," which points at corpus
+  coverage (today's mordo-only, 10-minute-budget, no-note.co.il index) rather than a
+  design flaw in the two-sided-split idea itself, especially since `retrieval_candidates`
+  on the identical index DID fire and hit twice. Whether growing the corpus the way
+  2026-08-30 did for `retrieval_candidates` (66K+ raw entries, note.co.il added) would
+  let this mechanism fire at all is the concrete open question, not attempted this run.
+
+  NOT DONE, honestly: did not crawl note.co.il or run mordo to a natural stop (disclosed
+  10-minute budget only); did not re-measure a second puzzle (n=1); did not act on the
+  DAILY.md-leak-vector finding beyond mitigating it via today's puzzle choice; did not
+  merge or otherwise act on PRs #38/#39/#41/#42 (read only, per standing protocol).
 - 2026-09-04: **nativ fairness + phone-layout pass** (branch `claude/game-bugs-ux-bkcqsr`),
   after the owner played the live game and reported UI, opacity, usability and
   relevance bugs. All four measured before fixing, on a Pixel 7 viewport.
@@ -2387,6 +3774,250 @@ Measure each lever on dev (fixed enums) with run_eval.py before/after; one lever
   Verified: 22/22 Playwright checks (touch, both modes, challenge round-trip
   across two browser contexts), and a sweep of all 180 boards - every word in
   its theme's pool, every word clued, no board over 25 cells.
+- 2026-09-05: **candidate generation, queue item 1(g): `homophone_candidates` — the
+  נשמע (sounds-like) device.** Five solver-lever PRs were open and unmerged against
+  main when this run started (#38 2026-08-31, #39 2026-09-01, #41 2026-09-02, #42
+  2026-09-03, #44 2026-09-04) — the compounding-backlog pattern queue item 6 has
+  flagged three times before. Consolidated all five onto one branch first (cherry-
+  picked in date order, DAILY.md/RESEARCH.md reconciled by hand, chronological, no
+  content dropped), resolving one real code conflict: PR #39 redefined
+  `retrieval_candidates()` to use `retrieve_defs.end_candidates()`, unaware PR #41
+  (a day later, off a different main) instead added a NEW, independently-toggleable
+  `defspan_retrieval_candidates()` calling the same function and left
+  `retrieval_candidates()` alone — applying both literally would make two mechanisms
+  run an identical query. Kept #41's shape (preserves both query shapes as separately
+  measurable) and dropped #39's redefinition as superseded, disclosed rather than
+  silently discarded. All 5 selftests re-run clean post-consolidation, before any new
+  code was added.
+
+  RESEARCH (full entry in RESEARCH.md): no Hebrew-specific resource found; confirmed
+  (not discovered) that English cryptic-solving tools handle the homophone device with
+  a phonetic-indexing algorithm (Soundex/Metaphone) — the same shape this run
+  independently arrived at, grounded in this setter's own documented Hebrew
+  consonant-ambiguity classes instead of English vowel-based Soundex.
+
+  BOOTSTRAP: hspell/culture.json/substitutions.json already committed, no rebuild
+  needed. 14across hard-walled again, confirmed directly rather than assumed: a
+  single-URL fetch for 2026-05-29 with 8 retries came back `None: 0 clues` on all 8
+  attempts (matching `scraper/parse_answers.py`'s own retry policy), and the full
+  52-puzzle scrape independently showed the same pattern (14/15 empty before being
+  killed) — worked entirely from the no-14across image-fallback technique.
+
+  BUILT `solver/candidates.py`: `PHON_FOLD`/`phon()` (a length-preserving Hebrew
+  consonant-class fold: ק/כ/ח, ט/ת, ס/ש, א/ע — indicators.json's own crowd-mined
+  homophone entry names these as free swaps), `by_phon()` (a phon-keyed lexicon
+  index, mirroring `by_len()`), and `homophone_candidates()` (the same fixed-width
+  char-window scan `anagram_candidates`/`hidden_candidates` already run, looked up
+  by phon-key instead of exact match; a literal-spelling match is excluded, since
+  that's `hidden`, not a homophone). Wired into `generate()` behind `use_homophone`
+  (default on), in the window-scan tier with anagram/hidden/reversal (same cost
+  profile). `solver/prove.py` gained a matching `is_homophone(fodder, answer)`
+  assertion (same fold rule, duplicated per this file's own self-contained-file
+  discipline) so a live solve pass can now PROVE a homophone claim, not just
+  hypothesize one — no prior proof primitive existed for this device at all.
+  Selftest (both files): a real ק/כ swap pair, קר/כר, both real hspell words found
+  by scanning the live lexicon, not a synthetic fixture; the identical-spelling
+  exclusion also checked directly.
+
+  TRANSCRIPTION: re-transcribed 2026-05-29 fresh (6th independent transcription of
+  this exact puzzle). All 28 clues (15 across, 13 down) from `data/images/
+  2026-05-28.jpg`; every enum validated against the GRID-DERIVED slot length before
+  any gold data was touched — 0/28 mismatches. Disclosed methodology finding: this
+  puzzle's print layout intermittently floats a printed enum after the FOLLOWING
+  clue's number rather than its own (observed at the 9->10 and 22->23->24
+  boundaries) — resolved via grid-derived length wherever the printed position was
+  ambiguous, never by guessing.
+
+  GOLD LETTERS from the small solved-grid recap in `data/images/2026-06-04.jpg`.
+  Grid-calibrated (cropped, upscaled, read row by row, then reversed to match the
+  project's index-0-is-rightmost convention): all 15 rows match the committed
+  `data/grids/2026-05-29.json` EXACTLY, 0/15 mismatches. FOUR independent
+  corroborations beyond the grid-pattern match, checked only after extraction: two
+  answers reproduce gold strings this file's own prior entries already disclosed for
+  this puzzle (1A `בליברטיולנס`, 26A `פחותאבלכואב`), one reproduces
+  `SOLVE_PROTOCOL.md`'s own worked example verbatim (7A `ישפרחימ`), one reproduces
+  `prove.py selftest`'s own worked example verbatim (11A `קרתנימ`).
+  `grid_tools.py validate` printed OK; `build_dataset.py` reported 0 length
+  mismatches across all 28 rows.
+
+  MEASURED, controlled (`python3 solver/candidates.py recall data/dataset/clues.jsonl
+  eval --no-homophone`): mechanical-only baseline **3.6% (1/28)** — exactly reproduces
+  every prior transcription of this puzzle; **+ homophone alone: still 3.6% (1/28),
+  UNCHANGED**, but the mechanism fired on **8/28 clues** (avg candidates/clue 11.7 ->
+  11.8), not a zero-fire result. Direct inspection: this puzzle's own homophone-
+  credited clue (22 across, "...הזורזים (עפ"י השמיעה של אליעזר כמון)" -> gold
+  `אנזימימ`) needs "הזורזים" (7 letters) read as sounding like "אנזימים" (8 letters) —
+  a vowel-insertion relationship this length-preserving consonant-fold cannot reach
+  by construction, exactly the scope limit disclosed in the code's own docstring.
+  Full defaults (every mechanism together): 3.6% (1/28), same single anagram hit
+  (`יחפניות`, 2 down) every prior measurement of this puzzle has found.
+
+  AUDIT (mandatory gate). `lexicon.held_out_answers()`/`retrieve_defs.held_out()`
+  both confirmed (computed, not assumed) to block all 28 gold answers.
+  `homophone_candidates` introduces no new leak surface: it only looks up the
+  already held-out-filtered `lex()`, the same source `anagram_candidates`/
+  `hidden_candidates` already use safely. No forbidden reads: the single-URL
+  14across probe returned `None: 0 clues` on all 8 attempts before any content was
+  read; both images used are the sanctioned public-CDN fallback. No jump to
+  explain: 3.6% -> 3.6% is the least suspicious result possible. All 5 affected
+  selftests re-run clean.
+
+  HONEST READ: a real, mechanically-sound, newly-provable device with a genuinely
+  negative recall result on this one puzzle — but the negative result is now
+  understood, not just observed: this puzzle's specific homophone clue needs vowel
+  flexibility a v1 that deliberately excludes vowel modeling was never going to
+  catch. The mechanism DID fire realistically elsewhere (8/28 clues), which is
+  evidence it works mechanically; it needs a second puzzle or the vowel extension
+  before its real hit rate is known, not a verdict that it's dead.
+
+  NOT DONE, honestly: did not model vowel-letter (ו/י) flexibility (the concrete
+  next step this run's own root-cause finding surfaced); did not re-measure a
+  second puzzle (n=1); did not crawl any corpus (irrelevant to this lever, which
+  touches no external corpus); did not merge or otherwise act on the five
+  consolidated PRs beyond folding their code into this branch (#38/#39/#41/#42/#44
+  should be closed in favor of this branch; only the project owner merges PRs).
+
+- 2026-09-06: **candidate generation, queue item 1(g) continued: `homophone_vowel_candidates`
+  — closes 2026-09-05's own disclosed vowel-letter gap** (branch built on PR #46 rather
+  than main, after `list_pull_requests` surfaced that PR #41 had already built and
+  measured the end-span retrieval idea this run almost re-implemented from scratch —
+  discarded before it ran, avoiding a seventh duplicate-effort branch). Extends
+  `homophone_candidates` to the free ו/י vowel-letter insertion/omission device
+  `indicators.json` documents alongside the consonant-class swaps: two fixed-width
+  fodder windows (target_len-1 with an insertion, target_len+1 with a deletion), looked
+  up against the same phon-folded lexicon index; `prove.py`'s `is_homophone()` now
+  accepts the same one-vowel-off match. MEASURED on the 7th independent transcription
+  of 2026-05-29: **3.6% (1/28), UNCHANGED**, but the mechanism fired on 14/28 clues (up
+  from 8/28 for the consonant-only version) — a real, mechanically active device with
+  no recall movement yet on this one puzzle. Directly re-tested the specific clue
+  2026-09-05 diagnosed as this device's target (22 across, `הזורזים` -> `אנזימימ`) and
+  found it STILL produces zero candidates there — the true sound relationship is more
+  than one vowel letter apart, so the prior single-vowel diagnosis was itself an
+  oversimplification, independent of whether this device is correctly built. Also
+  caught and fixed a real transcription error while re-deriving gold data: 26 across's
+  answer had been recorded as the character-reverse of the value three independent
+  prior runs agree on (rows 0 and 14 are both all-white, so a whole-row mirroring error
+  is invisible to the grid-pattern cross-check) — resolved via SOLVE_PROTOCOL's own
+  real-word-split rule against the live lexicon, not by vote count. AUDITED: held-out
+  blocking reconfirmed for both lexicon.py and retrieve_defs.py; no new leak surface
+  (same held-out-filtered `lex()` every window-scan mechanism already uses); no
+  forbidden reads; 3.6% -> 3.6% needed no implausibility check. NOT DONE, honestly: did
+  not model a >1-vowel-letter distance (the concrete next step this run's own
+  re-diagnosis surfaced); did not re-measure a second puzzle; did not merge or act on
+  PR #46/#38/#39/#41/#42/#44 beyond building on top of #46 (only the project owner
+  merges PRs). See RESEARCH.md for the day's search (no Hebrew-specific phonetic-
+  distance resource found).
+
+- 2026-09-07 (solver session): **PR-backlog consolidation (queue item 6, recurred a
+  fifth time) + candidate generation, queue item 1(b): `substitution_candidates`'
+  3-part charade chain.** `list_pull_requests` showed EIGHT open PRs (#38, #39, #41,
+  #42, #44, #46, #47, #50) against main. Checked ancestry directly
+  (`git merge-base --is-ancestor`), not assumed from titles: #47
+  (`daily/2026-09-06-homophone-vowel`) already supersedes #38/#39/#41/#42/#44/#46 via
+  #46's own 2026-09-05 consolidation plus one more day's lever; #50 is unrelated
+  site/SEO work (no solver-code overlap), left untouched. Branched from #47, merged
+  current main in: one real conflict, in DAILY.md only (both sides had appended
+  different dated Log entries after the same point) — resolved by chronological
+  concatenation, and by writing in 2026-09-06's own Log entry, which that day's commit
+  had omitted (it updated the state-table narrative but never appended to `## Log`).
+
+  AUDIT-BEFORE-BUILDING (mandatory before trusting anything downstream of a merge): ran
+  all 5 selftests post-merge and found a real bug, not assumed clean — `candidates.py
+  selftest`'s `homophone_vowel` toggle check called `generate()` without disabling
+  retrieval/defspan-retrieval/double-definition, so it crashed in any environment
+  without a bootstrapped `data/dataset/clues.jsonl` (like this one): every OTHER toggle
+  check in the file calls the standalone mechanism function directly for exactly this
+  reason, this one didn't. Fixed by disabling those three toggles explicitly, matching
+  the file's own established pattern. All 5 selftests then re-ran clean.
+
+  BOOTSTRAP: hspell/culture.json already committed. `scraper/parse_answers.py` hard-
+  walled severely today: **4/52 puzzles recovered** (2026-07-10, 2026-07-03,
+  2026-01-30, 2025-08-08 — 112 real crowd-explained clues), 48/52 came back `None: 0
+  clues` after full retry-with-backoff each. None of the 4 recovered dates is a
+  previously-used dev/eval puzzle, so worked from the no-14across image-fallback
+  technique for the canonical benchmark instead, per bootstrap.sh step 6.
+
+  TRANSCRIPTION: 2026-05-29, 8th independent transcription of this project's most-used
+  benchmark puzzle, from `data/images/2026-05-28.jpg`. Every one of the 28 enum sums
+  validated against the GRID-DERIVED slot length (`solver/grid_tools.py`'s own
+  `slots()`, pure structural geometry from the already-committed
+  `data/grids/2026-05-29.json` — no gold data read) before any gold data was touched:
+  **0/28 mismatches**, including correctly resolving clue 13's own column-wrap (its
+  text splits across the same print-layout boundary queue item 8 already documents for
+  other dates on this puzzle: "...כמלחין" sits at the top of the NEXT column, not a
+  missing word). GOLD LETTERS from the solved-grid recap in
+  `data/images/2026-06-04.jpg`, grid-calibrated programmatically (PIL, row-by-row pixel
+  crops, not eyeballed): all 15 rows' black-cell pattern matched the committed grid
+  EXACTLY, **0/15 mismatches** — cross-checked cell-for-cell as each row was
+  transcribed, not just at the end. FOUR independent corroborations beyond the pattern
+  match itself, all reproducing strings this project's own files already name for this
+  exact puzzle: 1A `בליברטיולנס`, 26A `פחותאבלכואב` (both named in multiple prior
+  DAILY.md entries), 7A `ישפרחימ` (SOLVE_PROTOCOL.md's own worked example), 11A
+  `קרתנימ` (`prove.py selftest`'s own worked example), plus 1D `ברישניקוב`/Baryshnikov
+  (named in the 2026-08-28 log entry) and 22A `אנזימימ` for the clue carrying the
+  "(עפ"י השמיעה של אליעזר כמון)" homophone credit (matches 2026-09-05/06's own
+  disclosed target clue exactly, transcribed independently here).
+
+  BUILT `solver/candidates.py`: `substitution_candidates()` gained a third shape —
+  three ADJACENT clue words' mined substitutes concatenating, in clue order, to the
+  full target length, the same adjacency-constrained search the existing 1-word and
+  2-word cases already use, generalized by one more segment (deliberately NOT
+  `charade.py`'s open-ended every-split search, measured weak in 2026-08-08/08-17: 2.8%
+  and 4.0% recall on two puzzles, unchanged). New `use_3part` parameter on the function
+  and `use_substitution_3part` toggle threaded through `generate()`/`recall_eval()`/the
+  CLI (`--no-substitution-3part`), matching every other mechanism's on/off switch in
+  this file. Two new selftest checks: a synthetic 3-word chain fires correctly, and a
+  NON-adjacent triple (a gap word with no substitute sitting between two that do)
+  correctly does NOT chain across the gap.
+
+  MEASURED, controlled (`python3 solver/candidates.py recall data/dataset/clues.jsonl
+  eval --no-substitution-3part`): **3.6% (1/28) both with and without** — avg
+  candidates/clue identical (13.8) either way, meaning the mechanism fired on **0/28
+  clues**, not just missed gold. Checked directly why, not assumed: the EXISTING 2-part
+  substitution mechanism (which the 3-part case extends) ALSO fired 0/28 times this
+  run, against both the tiny in-memory held-out-safe table today's hard-walled
+  bootstrap produced (35 head words) and, as an audit-only diagnostic never used for
+  the scored number, the full committed `solver/lex/substitutions.json` (2,220 head
+  words — `git diff --stat` caught that this run's own smaller `substitutions.py build`
+  call had briefly overwritten it before anything was committed, exactly the failure
+  mode bootstrap.sh's own comments warn about; reverted with `git checkout --` before
+  measuring). Zero fires at both corpus sizes for both part-counts means THIS PUZZLE's
+  specific clue set has no adjacent-word substitution chain at all, of any length — not
+  evidence the 3-part device is broken (its own selftest, on synthetic data with a
+  real 3-way chain, passes) or a verdict that 3-part charades never fire, just that
+  this run could not produce the precondition (a puzzle where the 2-part baseline
+  already fires) needed to test whether extending it to 3 parts adds anything.
+
+  AUDIT (mandatory gate). `lexicon.held_out_answers()` confirmed (computed, not
+  assumed) to block all 28 of this puzzle's own gold answers before any measurement.
+  The 3-part mechanism introduces no new leak surface beyond what the existing 1/2-part
+  shapes already have (same `sub_fwd()`/`table` source, same full-length-match
+  requirement). No forbidden reads: 14across was queried only for its own answers-page
+  scrape (never this puzzle's date, which it never returned), gold letters came from
+  the sanctioned public-CDN image-fallback path. No jump to explain: 3.6% -> 3.6% is
+  the least suspicious result possible, needed no implausibility check. All 5 selftests
+  re-run clean post-lever.
+
+  HONEST READ: today's run is two things, not one — a genuinely necessary backlog
+  consolidation (the fifth recurrence of queue item 6, closing six days of otherwise-
+  stranded solver work: culture_category's 2nd puzzle, container, double_definition,
+  defspan_retrieval, homophone, homophone_vowel, none of which main had ever seen) and
+  an honestly INCONCLUSIVE test of today's own new lever, not a clean negative. The
+  fair statement: 3-part substitution charades remain unvalidated in either direction —
+  neither shown to help nor shown to be structurally wrong — because this run's one
+  available benchmark puzzle happens to have zero exploitable substitution chains at
+  any length. The concrete next step is measuring on a puzzle where 2-part
+  substitution already fires (none of this project's repeatedly-used dev puzzles are
+  confirmed to be one), not re-testing 2026-05-29 again.
+
+  NOT DONE, honestly: did not find or transcribe a second puzzle to get a firing
+  baseline for substitution (would have meant a second full transcription-plus-audit
+  cycle in one run, out of scope for one lever); did not merge or otherwise act on PR
+  #47/#50 beyond building on top of #47 (only the project owner merges PRs) — this
+  branch is offered as superseding #38/#39/#41/#42/#44/#46/#47; did not act on queue
+  items 8 or 9 beyond the incidental clue-13 column-wrap note above; did not re-crawl
+  note.co.il/mordo (irrelevant to this lever, which touches the explanations corpus,
+  not the definitions corpus retrieval_candidates uses).
 
 - 2026-09-07: **site UI bug hunt after a live report** ("tables and lines are getting
   breaks, the crosswords opacity is off, some of the riddles are bad"), branch
@@ -2427,3 +4058,392 @@ Measure each lever on dev (fixed enums) with run_eval.py before/after; one lever
   "כולם חפצים מהבית" theme (an אוטובוס was due to appear on 09-08).
   Gates: ui_smoke 9/9 pages at both widths, topicgen_eval 52/52 boards,
   url_guard clean (6,071 URLs, none dropped), nativ regression 22/22.
+
+- 2026-09-08: **candidate generation, `solver/candidates.py`: `charade_candidates`** — a
+  new mechanical mechanism for 2-part enums that solves each part as an INDEPENDENT
+  anagram/hidden-word window, in clue order and non-overlapping, rather than requiring one
+  contiguous window to cover the whole answer (all `anagram_candidates`/`hidden_candidates`
+  can do today). Bootstrap hit the same hard 14across wall as most recent runs (confirmed
+  directly: a bare 300s-budget `scraper/parse_answers.py` run outside bootstrap.sh still
+  came back `None: 0 clues` on 7/7 consecutive fetches) — worked entirely from the
+  public-CDN image-fallback technique.
+
+  RESEARCH: followed today's stated priority order (candidate-generation diversity,
+  definition-span, Hebrew NLP). General search surfaced only the same paper family logged
+  repeatedly since 2026-08-06 (2506.04824, 2407.08824, 2403.12094, 2104.08620) — nothing
+  new there. One genuinely new citation this run: a GitHub repo,
+  `raphm72-spec/cryptic_crossword_helper` (hybrid ML+rule-based English cryptic solver:
+  MiniLM embeddings, a multi-label wordplay-indicator classifier, WordNet-based synonym
+  expansion, definition-span-at-start/end detection). Checked directly rather than assumed
+  from the title: 0 stars, 6 commits, English-only, and its core technique (definition
+  fixed at clue start/end + indicator-word classification) is exactly the shape
+  `defspan.py` already measured NEGATIVE on this setter's own clues (2026-08-19: only 25%
+  of clues have a mechanically-locatable single-window span at all, and an indicator-word
+  classifier scored 1/5 on the rest). Transfer: none — an unvalidated hobby tool for a
+  different language, built on the same premise this project already falsified for this
+  setter. Conclusion: seventh-plus consecutive literature pass with nothing new and
+  buildable; today's lever is queue item 1's own flagged next step for the substitution
+  device instead (multi-part charades, quoted in the queue since 2026-08-20) — except that
+  exact idea turned out to be UNTESTABLE today (see below), so the closest testable
+  relative was built instead, honestly labeled as such rather than silently substituted.
+
+  RE-TRANSCRIBED THE CANONICAL DEV PUZZLE (2026-05-29) from scratch, since `data/` starts
+  empty every run. Read `data/images/2026-05-28.jpg` for all 28 clues (both the
+  wrapped-column `אופקי` 1-13 section and the main `אנכי` column) and grid-calibrated the
+  solved recap grid in the FOLLOWING week's image (`data/images/2026-06-04.jpg`) for gold
+  letters, per bootstrap.sh's documented fallback. Caught and fixed two real transcription
+  bugs mid-run, disclosed rather than hidden: (1) an imprecise grid-crop boundary
+  undercounted the 11-column solution grid to 9 columns and, when corrected by eye rather
+  than by re-deriving the true pixel geometry, one row got transcribed in the wrong
+  (right-to-left) direction — fixed by detecting the grid's own gridlines pixel-precisely
+  (dark-line scan) and re-reading every row in small 3-4-cell crops (never a whole row at
+  once) with each row's black-cell pattern cross-checked against the already-committed
+  `data/grids/2026-05-29.json` (0/15 mismatches once corrected); (2) one single-cell
+  misread (ל for י) caught because it broke a mechanical anagram check against the clue's
+  own fodder, not by inspection alone. The corrected transcription independently
+  reproduced three separate historical answers from this puzzle's prior runs byte-for-byte
+  (1 down `ברישניקוב`, 2 down `יחפניות`, 26 across `פחותאבלכואב`), and the mechanical-only
+  recall@N baseline reproduced the historical 3.6% (1/28) exactly. All 28 enum sums
+  validated against the grid-derived slot length, 0 mismatches.
+
+  While building the queue's flagged multi-part-substitution idea, found it is currently
+  UNTESTABLE, not just unattempted: `substitutions.explanations()` sources
+  `data/answers/answers_parsed.json`, which needs a working 14across fetch (walled today),
+  so `sub_fwd()` built an EMPTY equivalence table this run (0 pairs mined, confirmed by
+  direct inspection before writing any new code against it). Built `charade_candidates`
+  instead — multi-part, but via the mechanical anagram/hidden lexicon search rather than a
+  mined table, so it does not depend on 14across at all.
+
+  MEASURED, controlled before/after (`python3 solver/candidates.py recall
+  data/dataset/clues.jsonl eval --no-culture --no-retrieval [--no-charade]`): baseline
+  (charade off) **3.6% (1/28)**, avg 11.7 candidates/clue, 17.9s wall time; **with charade:
+  3.6% (1/28), UNCHANGED**, avg 18.9 candidates/clue, 30.2s. Charade fired on all 10 of the
+  puzzle's 2-part-enum clues (hitting its own 200-candidate-per-clue cap on 8 of them) but
+  matched 0/10 gold answers — confirmed by dumping per-clue candidate counts and gold
+  membership directly, not just trusting the aggregate number. Full defaults
+  (culture+retrieval+charade) also 3.6%, unchanged, since no `private_defs` corpus was
+  crawled this run (today's lever was a new mechanism, not a corpus refresh) and
+  `culture_category` does not fire on this puzzle's clues.
+
+  AUDITED (mandatory gate). `lexicon.held_out_answers()`, `substitutions.held_out()`, and
+  `retrieve_defs.held_out()` all confirmed to block all 28 of this puzzle's own gold
+  answers now that it sits in `data/dataset/clues.jsonl` as the `eval` split (`gold_norm -
+  blocked` empty for all three). No forbidden reads: confirmed `data/answers/
+  answers_parsed.json` does not exist this run, so 14across was never the source of this
+  puzzle's gold data — only the two public CDN images. No jump to explain: 3.6% stayed
+  3.6%. All 6 affected selftests (`candidates.py` — including 2 new cases for
+  `charade_candidates` — `retrieve_defs.py`, `lexicon.py`, `prove.py`, `substitutions.py`)
+  re-run clean.
+
+  HONEST READ: a real, correctly-implemented, well-tested new mechanism that does not move
+  recall on the one puzzle it was measured against, plus a real wall-clock cost (+69% on
+  this eval) for zero gain here. The structural gap it targets (a charade's two parts need
+  not be contiguous in the fodder) is still sound per SOLVE_PROTOCOL.md's own description
+  of the device; this puzzle's specific 2-part-enum clues either use a different device or
+  their correct parts aren't real-word anagrams/hidden-words of the right sub-lengths —
+  this diagnostic cannot distinguish a wordplay-mechanism miss from a definition-fit miss.
+  NOT DONE, honestly: not measured on a second puzzle; did not tighten the 200-candidate
+  cap despite it being hit on 8/10 clues; did not extend to 3+-part enums (clue 26's
+  (4,3,4) was the only 3-part clue here, stayed out of scope); did not crawl a fresh
+  `private_defs` corpus; did not merge or otherwise act on any open PR.
+
+- 2026-09-09: **`solver/deffit.py` — a definition-fit RE-RANKER, queue item 9 ("the
+  sharpest gap PR #24 surfaced").** Bootstrap's 14across scrape hit the same intermittent
+  bot-check wall this project has hit repeatedly (consistent HTTP 202 on direct curl
+  probes, confirmed rather than assumed, then killed — not waited out); worked entirely
+  from the public-CDN image fallback. RESEARCH (full entries in RESEARCH.md): definition-
+  fit scoring's tenth-plus consecutive literature pass, re-checked with a deliberately
+  different framing (a signal needing neither embeddings nor span-location). Found one
+  genuinely new angle not logged before: classic gloss-overlap (Lesk-style) scoring —
+  score a candidate by lexical overlap between the clue and the candidate ANSWER's own
+  corpus-attested definition, no embedding model and no definition-span localization
+  required. Distinct in kind from both prior dead ends (WordNet's synsets, the missing
+  Hebrew embedding space). TRANSCRIBED a puzzle not previously used as this project's
+  dev/eval canon, 2026-05-15, chosen because queue item 8 already confirmed its own image
+  prints across clues 1-13 cleanly (sidestepping that item's still-open gap on
+  2026-05-29/2026-05-21). All 28 clues transcribed from `data/images/2026-05-14.jpg` — the
+  across text turned out to be split across TWO print columns (a main column from 22
+  onward, and a narrow sidebar carrying 1,7,8,9,10,11,13,15,17,19, next to the small
+  solution-recap box) — the same "separate column" shape queue item 8 already found for
+  2026-06-19, now confirmed on a second date. GOLD LETTERS from the small solved-grid
+  recap in the FOLLOWING week's image (`data/images/2026-05-20.jpg`), grid-calibrated
+  programmatically (darkness-threshold gridline detection on both axes): all 15 rows'
+  black-cell pattern matched the committed `data/grids/2026-05-15.json` exactly, 0/15
+  mismatches. `grid_tools.validate()`: 0 problems, every enum sum matches its grid-derived
+  slot length. `crawl_defs.py mordo` re-crawled fresh (13,049 raw / 12,302 parsed) under a
+  240s budget; `crawl_defs.py note` under a 200s budget (125 pairs — smaller than prior
+  runs' 12-minute/unbounded budgets, disclosed rather than hidden).
+
+  BUILT `solver/deffit.py`: reuses `retrieve_defs.py`'s own BM25 index and scoring formula
+  in the REVERSE direction (candidate answer -> its own corpus gloss, scored against the
+  clue) and attaches a `def_fit` score to every candidate `candidates.py` already
+  generated, then stable-sorts by it. Never proposes a new answer, so recall@N is
+  unchanged by construction (selftest-verified). MEASURED
+  (`python3 solver/deffit.py eval data/dataset/clues.jsonl eval`): of the 2 clues where
+  recall@N already contains gold (7A `שערציונ`/Zion Gate, 24A `שכמ`/shoulder-Shechem pun,
+  both retrieval hits), reranking left top-1 accuracy unchanged (0/2) but moved mean
+  reciprocal rank 0.333 -> 0.350 (7A's gold candidate: rank 6 -> 5 of 25; 24A's, already
+  rank 2, unchanged). n=2 is nowhere near enough to call this positive.
+
+  THE MORE IMPORTANT FINDING IS STRUCTURAL: checked directly whether def_fit ever scores a
+  NON-retrieval candidate (anagram/hidden/reversal/homograph/culture) above zero anywhere
+  in this puzzle's 28 clues — **0/28**. Not a coverage gap a bigger crawl fixes: it is a
+  logical consequence of the design, since `def_fit_score` looks up a candidate's docs in
+  the exact index `retrieval_candidates()` already searches, so any non-zero-scoring
+  answer was, by construction, already reachable by `retrieval_candidates()` itself.
+  Today's `deffit.py` can rerank retrieval's own hits but cannot yet independently
+  corroborate a mechanically-derived candidate's meaning — it adds nothing to the live
+  solve pass's actual failure mode (a mechanically-real candidate that is semantically
+  wrong) beyond what `retrieval_candidates` already contributes as a candidate SOURCE.
+  Concrete next step, not attempted today: point `deffit.py` at a SECOND, independent
+  gloss source — `solver/lex/fillbank.json` (2,412 real dictionary word->definition
+  pairs, already committed, used by the public site) — which could recognize a common
+  word's meaning independently of whether it ever appears as a crossword answer in
+  private_defs.
+
+  AUDITED (mandatory gate). `lexicon.held_out_answers()` and `retrieve_defs.held_out()`
+  both confirmed (computed, not assumed) to block all 28 of this puzzle's own gold
+  answers. Provenance of both retrieval hits checked directly: every matching document
+  carries `pid=None` (external private_defs corpus) and each is a clean semantic fit
+  (`שכמ`'s docs are about the shoulder/upper-back and a city in Samaria; `שערציונ`'s docs
+  are about a site in Jerusalem's Old City) — not a coincidental string match. No
+  forbidden reads: 14across's partial, unrelated 9-puzzle leftover output (answers +
+  crowd explanations, no clue text, from the killed bootstrap step) was inspected only to
+  confirm it carries no clue TEXT and therefore cannot feed `clues.jsonl` — never used in
+  any measurement. All 6 affected selftests (`candidates.py`, `retrieve_defs.py`,
+  `lexicon.py`, `prove.py`, `substitutions.py`, `deffit.py`) re-run clean. Implausibility
+  check: recall stayed at 7.1% (2/28, unchanged by the smaller note.co.il crawl); the MRR
+  movement (0.333->0.350) is a tiny, unsuspicious shift.
+
+  HONEST READ: a well-implemented, well-tested piece of infrastructure (selftest covers
+  the reranking mechanism, the never-drops-a-candidate guarantee, and tie-stability) that
+  measured negative-to-null on its first live puzzle, for a reason now understood
+  precisely: it shares its evidence source with an existing mechanism, so it cannot yet
+  add information the pipeline doesn't already have. This converts "no generator-shaped
+  resource has been found" (RESEARCH.md, 3+ prior passes) into "one was found and built,
+  and here is precisely why it doesn't help yet, with the exact fix named."
+
+  NOT DONE, honestly: did not wire a second gloss source (fillbank.json) into deffit
+  today, to keep this run to one lever; did not re-measure on a second puzzle
+  (transcription of one 28-clue puzzle plus its audit was this run's full budget); did not
+  run `crawl_defs.py note` to a natural plateau (200s budget) — unlikely to change the
+  structural finding above regardless of corpus size, since the redundancy is
+  architectural, not a coverage gap; did not merge or otherwise act on any open PR.
+
+- 2026-09-10: **PR-backlog consolidation (queue item 6, sixth recurrence) + `deffit.py`:
+  `fillbank.json` as a second gloss source, closing 2026-09-09's own disclosed next step.**
+  `list_pull_requests` showed ELEVEN open PRs against main (#38, #39, #41, #42, #44, #46,
+  #47, #50, #51, #52, #53). #51 (2026-09-07) already consolidates #38/#39/#41/#42/#44/#46/#47;
+  #52 (2026-09-08, `charade_candidates`) and #53 (2026-09-09, `deffit.py`) were each branched
+  independently off the same pre-#51 main and never reconciled with it or each other. Branched
+  from #51, merged #52 then #53 on top: two real `solver/candidates.py` conflicts (both #51
+  and #52 independently extended `generate()`/`recall_eval()`'s parameter list and priority
+  docstring) resolved by keeping every mechanism from both branches, not either alone;
+  `solver/deffit.py` (#53) merged clean. DAILY.md/RESEARCH.md conflicts (dated entries from
+  both branches) resolved by chronological reordering, dropping nothing. All 6 selftests
+  re-run clean immediately after the merge, before trusting it. Please close #38, #39, #41,
+  #42, #44, #46, #47, #52 and #53 in favor of this PR.
+
+  Bootstrap hit the same hard 14across wall as most recent runs (6/52 puzzles recovered,
+  none a prior dev/eval date); worked from the public-CDN image fallback. RESEARCH (full
+  entries in RESEARCH.md): followed the scheduled task's stated priority order (candidate
+  generation diversity, Hebrew morphology); the same paper family surfaces again with
+  nothing new, and a fresh general search for multi-dictionary/ensemble gloss-scoring
+  approaches surfaced only generic cryptic-crossword guides, not research. Today's lever is
+  the queue's own concrete next step instead: #53's own disclosed follow-up for
+  `deffit.py`.
+
+  RE-TRANSCRIBED 2026-05-15 independently (bootstrap's `data/` starts empty every run):
+  28/28 clues from `data/images/2026-05-14.jpg`, all enum sums validated against the
+  grid-derived slot length (0/28 mismatches) before any gold data was touched. GOLD LETTERS
+  from `data/images/2026-05-20.jpg`'s solved-grid recap, this run calibrated end-to-end
+  programmatically: dark-line-fraction gridline detection located all 16 horizontal and 12
+  vertical gridlines to the pixel, then each of the 15 rows was cropped and read individually
+  at 6x zoom. All 15 rows' black-cell pattern matched the committed `data/grids/2026-05-15.json`
+  EXACTLY (0/15 mismatches) after correcting for the image's left-to-right pixel order vs the
+  grid's right-to-left storage convention (verified by reversal, not assumed). `python3
+  solver/build_dataset.py` independently confirmed 0/28 length mismatches from the joined
+  files. Seven of the 28 derived answers make clean independent cultural/semantic sense
+  against their clues beyond the mechanical enum/grid match alone (קומראנ/Qumran for a clue
+  about ancient scrolls and a holy book found there; שכמ/Shechem for "on the back of a
+  Jerusalem gate", i.e. שער שכם; גולגולתא/Golgotha for "the gate, gate of the city, in
+  Jerusalem"; מבשרתציונ/Mevaseret Zion; עירדויד/City of David; קישלה/Kishle, the historic
+  Old City prison, for "in jail"; מחזיקאצבעות/"holding thumbs" for wishing Stallone luck) —
+  strong corroboration beyond the structural checks alone.
+
+  THE LEVER: `build_fillbank_index()` adds `solver/lex/fillbank.json` (2,412 word->definition
+  pairs) as a second, independently-scored gloss source (own BM25 N/df/avg, kept separate
+  from private_defs' to avoid one corpus silently swamping the other), and `def_fit_score`
+  now takes the max across every available source. FOUND AND FIXED A REAL BUG before ever
+  measuring: fillbank's keys are ordinary Hebrew orthography (e.g. אוהלים, final mem), but
+  candidates.py's norm() unconditionally final-folds every answer it produces (אוהלימ) — so
+  the naive dict lookup would have silently missed every fillbank entry ending in ם/ן/ץ/ף/ך,
+  557 of 2,450 (22.7%), checked directly by counting rather than assumed. Fixed by folding
+  fillbank's own keys with the same FIN table before indexing; a new selftest case (an
+  injected synthetic final-letter word, never the real file) guards the regression.
+
+  MEASURED, controlled before/after (`python3 solver/deffit.py eval data/dataset/clues.jsonl
+  eval [--no-fillbank]`): recall@N (mechanical+retrieval) is 0/28 either way this run — a
+  fresh, deliberately time-boxed `crawl_defs.py` corpus (mordo 12,298 raw/240s budget;
+  note.co.il 125 pairs/200s budget) found none of this puzzle's answers, unlike #53's own
+  larger crawl (2/28) — a genuine puzzle-AND-corpus-dependent null. Since recall_hit is 0/28,
+  top-1/MRR are undefined (0/0) this run. Split the structural diagnostic into two numbers on
+  purpose (collapsing them would hide the real finding): `nonretrieval_known_gloss_clues`
+  (any non-retrieval candidate has SOME known gloss, any source) moved 3/28 (private_defs
+  alone) -> 14/28 (+fillbank) — a real, substantial, disclosed gain; `nonretrieval_scored_clues`
+  (that gloss actually shares vocabulary with the clue, def_fit>0) stayed 0/28 either way.
+  Inspected directly why: of the 59 non-retrieval candidates (of 592 total) with a newly-known
+  fillbank gloss, none scored above zero because their glosses (e.g. ירושלים -> בירת ישראל,
+  כלי -> חפץ לשימוש כמו סיר או פטיש) don't repeat the clue's own wording — a real, understood
+  limitation of lexical-overlap scoring for proper nouns and common objects, not a bug and not
+  evidence fillbank contributes nothing (coverage genuinely widened; the score signal built on
+  top of it just didn't fire on these 59 specific cases).
+
+  AUDITED (mandatory gate). `lexicon.held_out_answers()`, `retrieve_defs.held_out()`, and
+  `substitutions.held_out()` all confirmed to block all 28 of this puzzle's own gold answers
+  (gold_norm - blocked empty for all three). No forbidden reads: confirmed directly that
+  2026-05-15 is NOT one of the 6 dates 14across recovered this run — its by_date file was
+  written entirely from the two public-CDN images. Fillbank carries no held-out risk by
+  construction (an ordinary third-party dictionary, not mined from this project's own puzzle
+  explanations — RESULTS.md's own established precedent for lexicon.py's plain dictionary
+  words). Implausibility check: nothing here approaches the ~15-point suspicion bar — recall
+  stayed at 0%, and the 3/28->14/28 gloss-coverage move is a counted, explained fact (59
+  specific candidate/gloss pairs), not a suspicious jump in any accuracy number. All 6
+  affected selftests re-run clean after both the merge and the lever, including 4 new
+  `deffit.py` cases covering the final-letter-folding bug specifically.
+
+  HONEST READ: a real bug caught before it could ship silently broken, and a real, mixed,
+  precisely-explained result once fixed. Two consecutive runs on this queue item
+  (2026-09-09, 2026-09-10) have each produced a genuine negative-or-mixed result with a
+  specific, understood cause, which is more useful than either an optimistic claim or
+  silence. NOT DONE, honestly: did not find a puzzle with nonzero recall@N this run, so the
+  actual top-1/MRR reranking claim remains untested beyond #53's own n=2; did not weight
+  scores across sources (a private_defs score and a fillbank score are not calibrated to the
+  same scale, disclosed rather than hidden); did not crawl either corpus to a natural
+  plateau (both deliberately time-boxed); did not act on any PR beyond building this one.
+
+- 2026-09-11: **solver lever: `container_candidates` (`solver/candidates.py`), queue item
+  1(e), closing the last gap in the mechanism roster** — `prove.py` has verified container
+  proofs (`is_container`) since its first version, but no generator ever produced one to
+  check; every other named mechanism (anagram/hidden/reversal/substitution/homograph) had
+  a generator already. Bootstrap: 33/52 puzzles recovered from 14across (925 clues; 19 came
+  back dateless, the ordinary intermittent pattern, not a hard wall). Transcribed
+  2026-06-05 fresh (first time this puzzle has been used for the candidate-recall
+  diagnostic) from `data/images/2026-06-04.jpg`, validating all 28 enum sums against the
+  GRID-DERIVED slot length rather than the printed numerals, which this run found genuinely
+  wrong for 3 clues (8/10/11 across) — a new print-error sub-type, disclosed rather than
+  silently patched over. MEASURED: `python3 solver/candidates.py recall
+  data/dataset/clues.jsonl eval --no-culture --no-retrieval [--no-container]`: **0.0%
+  (0/28) unchanged, container fired on 0/28 clues** (avg candidates/clue 11.8 both ways).
+  ROOT-CAUSED via the puzzle's own crowd explanation: this puzzle's one real container clue
+  (16A, קטלנ) needs synonym substitution (בית~קן, "the judge"~טל) the literal-clue-word
+  design cannot reach — the same underlying gap already documented for the charade device.
+  AUDITED: `lexicon.held_out_answers()` confirmed to block all 28 gold answers
+  (`gold_norm - blocked` empty) before the measurement ran, so the mechanism's `cand in
+  lex()` check could not leak one by coincidence; no forbidden reads; no jump to explain.
+  All 6 affected selftests re-run clean, including two new `container_candidates` cases
+  (a positive hit reusing `prove.py`'s own worked example, and a negative edge-insertion
+  check). Research (full entry in RESEARCH.md): fresh literature pass found nothing new and
+  buildable on candidate generation or definition-span/fit scoring — the same conclusion
+  every pass since 2026-08-06 has reached — so this run's lever came from the project's own
+  code (an unfilled gap between `prove.py`'s DSL and `candidates.py`'s generator roster),
+  not from a paper. HONEST READ: a real, well-audited negative recall result on the one
+  puzzle measured (n=1), but not an uninformative one — it fills a genuine mechanism-roster
+  gap at near-zero cost when it doesn't fire, and the root-cause trace names a concrete,
+  correctly-deferred next step (draw container's OUTER/INNER from `substitutions.py`'s
+  mined table too, not just literal clue words) rather than a dead end. NOT DONE, honestly:
+  only one puzzle measured; did not crawl `private_defs` this run; did not merge or
+  otherwise act on any open PR. **[Branched directly off pre-#54 main — never saw #54's own
+  2026-09-03 `container_candidates`, which already implements exactly the "draw from
+  substitutions.py's mined table too" next step this entry names. See 2026-09-12's entry
+  for the reconciliation.]**
+
+- 2026-09-12: **branch-hygiene fix + hardening on `container_candidates`; no new recall
+  number, disclosed rather than fabricated.** `list_pull_requests` showed #55 (2026-09-11)
+  had branched directly off pre-#54 main and independently reimplemented
+  `container_candidates` — a function this branch's own history already added 2026-09-03
+  (PR #42, folded into #54's 2026-09-10 consolidation) — because #55 never saw #54's
+  branch. Queue item 6's compounding-loss pattern, recurring on a single function instead
+  of a whole file. Diffed both implementations line by line: #42/#54's sources outer/inner
+  fragments from a clue word's destemmed form UNION `sub_fwd()`'s mined-substitution
+  equivalents; #55's sources ONLY literal clue words. #55 measured 0/28 on a freshly
+  transcribed 2026-06-05 and root-caused its one real container clue (16A, "חי בבית
+  השופט", per the crowd explanation קטלנ = קן containing טל) as needing exactly the
+  synonym-substitution capability #42/#54's version already has. Kept #54's strictly more
+  general version; did not re-add #55's narrower one or open a second PR for it — it is
+  superseded, not merged.
+
+  HARDENED before trusting the superset claim rather than just asserting it: added a new
+  `candidates.py` selftest (`מכות וגם ציון` -> `ממלכות`, via a substitution table where the
+  inner fragment `מל` is reachable ONLY through the mined table for `ציון`, not through any
+  destemmed literal word) that proves the merged mechanism's synonym-sourced fragment path
+  actually fires, and does NOT fire without the table entry (ruling out a coincidental
+  hit). This path had never actually been exercised live before: #42's own 2026-09-03
+  measurement was itself confounded (14across down that day too, so `sub_fwd()` was empty).
+  All 6 affected selftests re-run clean (`candidates.py`, `prove.py`, `substitutions.py`,
+  `retrieve_defs.py`, `lexicon.py`); `solve_pass.py`'s selftest requires
+  `data/dataset/clues.jsonl` to exist, which today's bootstrap state does not produce, so
+  it could not be exercised today (disclosed, not silently skipped).
+
+  INDEPENDENTLY RE-TRANSCRIBED 2026-06-05 (not copied from #55's branch — `data/` is
+  gitignored, so #55's own transcription was never reachable) from
+  `data/images/2026-06-04.jpg`, fetched directly from the public CDN. Validated all 28 enum
+  sums against the GRID-DERIVED slot length (`solver/grid_tools.py validate`, 0 problems)
+  and independently rediscovered the SAME 3 print anomalies #55 disclosed (clues 8, 10, 11
+  across print enums that do not match the grid-derived length) plus one more (clue 19's
+  printed text needed merging across the column-wrap boundary, a distinct, already-
+  catalogued phenomenon). Two independent transcriptions of the same defective print
+  landing on the same 3 anomalous clues is a real cross-check that neither is careless
+  misreading. Clue 16 itself ("חי בבית השופט (עפ"י מיקי זבדי)", enum (4)) was clean and
+  unambiguous in both transcriptions.
+
+  BOOTSTRAP AND GOLD DATA, disclosed plainly rather than estimated: 14across was hard-
+  walled this run — confirmed directly, not just observed as flaky: a standalone
+  single-URL fetch for this exact puzzle's answer page returned HTTP 202 (the documented
+  bot-check page) on 3 consecutive retries with delays, and the full 52-URL bootstrap step
+  was killed after 23 minutes having recovered zero puzzles. Attempted the no-14across
+  image-fallback (the following week's small solved-grid recap, `data/images/2026-06-11.jpg`):
+  the black-cell PATTERN read cleanly and matched the committed grid for row 0, and row 0's
+  letters assembled into a real, semantically perfect answer for clue 1 ("כלהכבודלשר" =
+  "כל הכבוד לשר", matching its (3,5,2) enum exactly) — but a second row's letters did not
+  assemble into a real word at all, a direct, executed sign that letter-level OCR of this
+  embedded, sub-100px-tall grid is not reliable enough here without a zoom/crop tool this
+  environment does not have. Rather than publish a partially-guessed gold set and an
+  accuracy number built on it, this run reports no live recall@N number for 2026-06-05
+  today — exactly the "if something genuinely cannot be run, say so plainly rather than
+  estimating" rule this file itself states.
+
+  AUDIT-ONLY DIAGNOSTIC (same established practice as 2026-08-20's log entry: querying the
+  larger, historical `solver/lex/substitutions.json` for context without using it as the
+  scored live table): `python3 solver/substitutions.py --to קן` -> `בית (seen 18x)`, i.e.
+  בית really is a recorded, generic substitution for קן. But `python3 solver/substitutions.py
+  --to טל` does NOT include `שופט`/`השופט` at all — `שופט` maps only to `קונ`/`דיינ`/`דנ`
+  (generic "judge" synonyms). `טל` here almost certainly names a SPECIFIC judge (a real
+  Israeli justice surnamed Tal), which is an entity/culture fact, not a generic synonym
+  pair — refining, not just repeating, #55's diagnosis: the missing piece is a THIRD
+  fragment source (a role/entity lookup like `culture_category_candidates`' trigger
+  vocabulary), not merely "more corpus" for the two sources this mechanism already has. A
+  further check (audit-only, both fragments injected by hand): even with `קן`+`טל` both
+  available, the assembled `קטלנ` is NOT present in the loaded hspell lexicon at all, so —
+  if #55's crowd-sourced gold answer is right — this specific clue would ALSO fail the
+  mechanism's final lexicon-membership gate, a fourth, independent obstacle beyond fragment
+  sourcing. None of this is asserted as certain (the gold answer itself is unverified
+  today, since 14across never confirmed it), but each piece was checked by executing code
+  against real committed data, not guessed.
+
+  Research (full entry in RESEARCH.md): no new external paper or tool found this cycle
+  turns into a working addition to candidate generation this project doesn't already have
+  some version of — the same conclusion recent passes have reached. Today's lever came from
+  the project's own PR backlog (a duplicate-implementation bug), not from a paper.
+
+  HONEST READ: no recall@N delta to report today, and that is the honest result of a real
+  infrastructure constraint (14across hard-walled, small-image OCR unreliable), not of the
+  lever being uninteresting — the branch-hygiene fix prevents a real wasted-effort pattern
+  from recurring a third time, the new selftest converts a previously-unexercised claim
+  into a verified one, and the audit-only diagnostic gives a sharper, data-checked root
+  cause than "needs more corpus" for the next attempt. NOT DONE, honestly: no live
+  recall@N number for 2026-06-05; did not re-verify 2026-05-29's existing confounded
+  3.6%/1.28-unchanged number from 2026-09-03; did not build the culture/entity fragment
+  source this run's own root-cause analysis points to next (a real third lever, correctly
+  deferred rather than squeezed into today's one-lever budget); did not merge or otherwise
+  act on any other open PR.

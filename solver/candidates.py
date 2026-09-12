@@ -14,16 +14,41 @@ This module does exactly that, per clue, with no LLM involved:
   - hidden_candidates:   a contiguous run inside the space-removed clue that is itself
                           a real word (the "hidden word" device).
   - reversal_candidates: same search, reversed.
+  - homophone_candidates: the setter's נשמע (sounds-like) device (PLAYBOOK.md 1.6, ~4% of
+                          clues) — same char-window scan as anagram/hidden, but the window
+                          is folded through a Hebrew consonant-class equivalence (ק/כ/ח,
+                          ט/ת, ס/ש, א/ע — the swaps indicators.json's own crowd-mined
+                          entry names as free) before the lexicon lookup, since undotted
+                          Hebrew cannot distinguish these sounds in writing. Does not model
+                          vowel-letter (ו/י) flexibility, which would change string length;
+                          see its own docstring.
+  - homophone_vowel_candidates: closes homophone_candidates' own disclosed gap above — the
+                          same נשמע device, but for the ו/י free-vowel swaps that change
+                          string length by one, tried as an insertion (fodder one letter
+                          short) or a deletion (fodder one letter long) against the same
+                          phon-folded lexicon index.
+  - charade_candidates:  a 2-part enum (e.g. (4,3)) solved as two INDEPENDENT anagram/
+                          hidden windows, in clue order, that need not be adjacent — the
+                          gap the whole-clue window scan above cannot close, since it can
+                          only find both parts of a charade when their fodder is one
+                          contiguous run. See its own docstring; measured 2026-09-08
+                          (recall unchanged, 0/10 multi-part-enum clues on the dev puzzle
+                          it was tested against — a real negative result, not a bug).
   - substitution_candidates: the setter's private-vocabulary device — a clue word (or two
-                          adjacent ones) substituted for a fragment mined from crowd
-                          explanations (solver/substitutions.py), when the substitute(s)
-                          cover the FULL answer length. Rebuilt in-memory with held-out
+                          or three adjacent ones, chained) substituted for a fragment mined
+                          from crowd explanations (solver/substitutions.py), when the
+                          substitute(s) cover the FULL answer length. Rebuilt in-memory with held-out
                           clues excluded (see sub_fwd()) rather than trusting the
                           committed lex/substitutions.json, which predates that exclusion.
   - homograph_candidates: the setter's signature device — a clue word already has another
                           sense (lex/ambiguities.json) that matches the enum length, so it
                           IS the answer undisguised. Cannot invent an answer that isn't
                           already a literal clue substring.
+  - container_candidates: the container device (PLAYBOOK.md 1.4, ~10-12% of clues) — an
+                          OUTER fragment with an INNER fragment spliced inside it. Reuses
+                          the substitution table and the homograph destemmer for its two
+                          fragment sources; was pure verification (prove.is_container)
+                          with no generator behind it until now.
   - pattern_candidates:  wraps lexicon.py's crossing-pattern lookup, for when grid
                           letters are already known.
   - culture_category_candidates: a DEFINITION-hypothesis mechanism, not a wordplay one —
@@ -34,11 +59,31 @@ This module does exactly that, per clue, with no LLM involved:
   - retrieval_candidates: also DEFINITION-driven, but by ranked BM25 retrieval
                           (solver/retrieve_defs.py) over independent definition->answer
                           pairs (private_defs) plus this project's own train-split clue
-                          explanations, rather than a hand-curated category list. Measured
-                          standalone on 2026-08-08 (gold@25=5.4%, ceiling 27%) but never
-                          before combined with the mechanisms above as one candidate pool —
-                          see its own docstring for why the union, not either number alone,
-                          is the point of wiring it in here.
+                          explanations, rather than a hand-curated category list. Queries
+                          with the FULL clue text. Measured standalone on 2026-08-08
+                          (gold@25=5.4%, ceiling 27%) but never before combined with the
+                          mechanisms above as one candidate pool — see its own docstring
+                          for why the union, not either number alone, is the point of
+                          wiring it in here.
+  - defspan_retrieval_candidates: the SAME retrieval index, but queried with only a short
+                          PREFIX or SUFFIX word-span of the clue (retrieve_defs.py's
+                          end_candidates(), 2/3/4-word spans each end) instead of the whole
+                          clue text — the query shape retrieve_defs.py's own `eval` CLI has
+                          always used to produce the "gold@25=5.4%" number quoted above,
+                          which retrieval_candidates() (whole-clue query) never actually
+                          matched. See its own docstring for the gap this closes.
+  - double_definition_candidates: also DEFINITION-driven, but targets a mechanism none of
+                          the above touch at all — PLAYBOOK.md 1.2, מילה משותפת, 14% of
+                          this setter's clues, the SECOND most common device after charade,
+                          with no wordplay indicator to key off at all: the clue is just two
+                          independent definitions of the same word/phrase side by side. Every
+                          split point of the clue into a left half and a right half is queried
+                          against retrieve_defs's BM25 index SEPARATELY, and only an answer
+                          that ranks for BOTH halves independently is proposed — a signal the
+                          whole-clue query (retrieval_candidates) or an end-anchored window
+                          query (defspan-style) cannot produce, since those score one bag of
+                          words against one document, never two independently-verified halves
+                          against each other. See its own docstring for the full rationale.
   - split_candidates:    for multi-part enums (e.g. (5,2)), splits a hit at the enum
                           boundary and flags whether BOTH pieces are real words — the
                           precondition prove.py's word_order() needs to succeed.
@@ -56,6 +101,13 @@ CLI:
   python3 solver/candidates.py recall data/dataset/clues.jsonl eval   # offline recall@N
   python3 solver/candidates.py recall data/dataset/clues.jsonl eval --no-culture  # ablation
   python3 solver/candidates.py recall data/dataset/clues.jsonl eval --no-retrieval  # ablation
+  python3 solver/candidates.py recall data/dataset/clues.jsonl eval --no-container  # ablation
+  python3 solver/candidates.py recall data/dataset/clues.jsonl eval --no-double-def  # ablation
+  python3 solver/candidates.py recall data/dataset/clues.jsonl eval --no-defspan-retrieval
+  python3 solver/candidates.py recall data/dataset/clues.jsonl eval --no-homophone  # ablation
+  python3 solver/candidates.py recall data/dataset/clues.jsonl eval --no-homophone-vowel
+  python3 solver/candidates.py recall data/dataset/clues.jsonl eval --no-substitution-3part
+  python3 solver/candidates.py recall data/dataset/clues.jsonl eval --no-charade  # ablation
   python3 solver/candidates.py selftest
 """
 import sys, os, re, json
@@ -136,6 +188,15 @@ def _char_windows(clue_text, target_len):
         yield joined[i:i + target_len]
 
 
+def _char_windows_pos(clue_text, target_len):
+    """Same scan as _char_windows, but also yields each window's (start, end) character
+    offset into joined_letters(clue_text) — charade_candidates needs the position to
+    keep two independently-found parts in clue ORDER and non-overlapping."""
+    joined = joined_letters(clue_text)
+    for i in range(len(joined) - target_len + 1):
+        yield i, i + target_len, joined[i:i + target_len]
+
+
 def anagram_candidates(clue_text, target_len):
     words = lex()
     out = []
@@ -163,6 +224,158 @@ def reversal_candidates(clue_text, target_len):
         rev = sub[::-1]
         if rev in words:
             out.append({'answer': rev, 'mechanism': 'reversal', 'fodder': sub})
+    return out
+
+
+# Phonetic letter-class folding for the homophone device (PLAYBOOK.md 1.6, נשמע, ~30/728
+# = 4% of clues) — indicators.json's own homophone entry names the swaps this setter's
+# crowd explanations record as free: ק/כ, ט/ת, ס/ש, א/ע, ח/כ. Undotted Hebrew script
+# cannot distinguish these sounds in writing, so a clue fragment can "sound like" a real
+# word it is not literally spelled as. Folding each equivalence class to one
+# representative turns "sounds like" into a same-LENGTH string transform, so the exact
+# char-window scan anagram/hidden/reversal already run can be reused unchanged for it.
+# Deliberately narrower than the full device: indicators.json also records "free vowel
+# changes" (ו/י insertion or omission), which changes string length and would need a
+# different search entirely — not modeled here, disclosed rather than silently dropped.
+PHON_FOLD = str.maketrans('עחקטש', 'אככתס')
+
+
+def phon(s):
+    """Canonical phonetic key: final-letter-folded, consonant-class-folded. Same length
+    as norm(s) by construction (a straight char-for-char translation), which is what lets
+    homophone_candidates reuse the fixed-width window scan."""
+    return norm(s).translate(PHON_FOLD)
+
+
+_BY_PHON = None
+
+
+def by_phon():
+    """Lexicon indexed by phonetic key, mirroring by_len()'s length index — same reason:
+    without it every window would rescan the whole lexicon computing phon() per word."""
+    global _BY_PHON
+    if _BY_PHON is None:
+        d = {}
+        for w in lex():
+            d.setdefault(phon(w), []).append(w)
+        _BY_PHON = d
+    return _BY_PHON
+
+
+def homophone_candidates(clue_text, target_len):
+    """The homophone device: a clue fragment that SOUNDS like the answer, spelled
+    differently (indicators.json: שמענו/נשמע/עפ"י השמיעה של.../a lone ש׳). Every
+    fixed-length window of the clue's letters (same scan as anagram_candidates) is
+    phon()-folded and looked up against the lexicon's own phon-folded index; a match
+    whose LITERAL spelling differs from the window is a homophone candidate (an
+    identical-spelling match is the hidden device, already covered, so it is excluded
+    here exactly as anagram_candidates excludes the fodder-equals-answer case)."""
+    out = []
+    for sub in _char_windows(clue_text, target_len):
+        key = phon(sub)
+        for hit in by_phon().get(key, []):
+            if hit == sub:
+                continue  # identical spelling — that's `hidden`, not a homophone
+            out.append({'answer': hit, 'mechanism': 'homophone', 'fodder': sub})
+    return out
+
+
+def homophone_vowel_candidates(clue_text, target_len):
+    """Closes the gap homophone_candidates' own docstring discloses rather than models:
+    indicators.json's homophone entry also names ו/י (vav/yod) insertion or omission as a
+    free swap — undotted Hebrew can write the same sound with or without these vowel
+    letters — which changes string LENGTH, unlike PHON_FOLD's consonant-class swaps. This
+    is not a hypothetical gap: measured directly on 2026-05-29 (2026-09-05's log), this
+    puzzle's own homophone-marked clue (22 across, "עפ"י השמיעה של...") needs the 7-letter
+    fodder "הזורזים" to sound like the 8-letter answer "אנזימים" — one vav apart, exactly
+    this device — and homophone_candidates cannot reach it by construction (fixed-width
+    window only).
+
+    Two fodder-window widths, both phon()-folded then looked up in the SAME by_phon()
+    index homophone_candidates already builds:
+      - target_len - 1: the fodder may be missing a vowel letter the real answer has —
+        try inserting ו and י at every position of the folded window.
+      - target_len + 1: the fodder may carry an extra vowel letter the real answer lacks —
+        try deleting each ו/י the folded window actually contains, one at a time.
+    Insertion/deletion only ever touches ו/י (the documented free-swap letters, never any
+    other letter), so this stays a narrow, grounded device rather than an open-ended
+    edit-distance search — it cannot manufacture a match against an arbitrary fodder the
+    way a generic fuzzy-match would."""
+    out = []
+    idx = by_phon()
+    if target_len - 1 >= 1:
+        for sub in _char_windows(clue_text, target_len - 1):
+            base = phon(sub)
+            for i in range(len(base) + 1):
+                for vowel in ('ו', 'י'):
+                    key = base[:i] + vowel + base[i:]
+                    for hit in idx.get(key, []):
+                        out.append({'answer': hit, 'mechanism': 'homophone_vowel', 'fodder': sub})
+    for sub in _char_windows(clue_text, target_len + 1):
+        base = phon(sub)
+        for i, ch in enumerate(base):
+            if ch in ('ו', 'י'):
+                key = base[:i] + base[i + 1:]
+                for hit in idx.get(key, []):
+                    out.append({'answer': hit, 'mechanism': 'homophone_vowel', 'fodder': sub})
+    return out
+
+
+def _part_hits(clue_text, part_len):
+    """Every (start, end, real_word, device) a window of exactly part_len characters
+    can produce by anagram or by being hidden outright — the two per-part devices a
+    charade segment plausibly uses. Shared by charade_candidates so it does not
+    duplicate anagram_candidates'/hidden_candidates' own lookups."""
+    out = []
+    for start, end, sub in _char_windows_pos(clue_text, part_len):
+        for hit in anagram_lookup(sub, part_len):
+            if hit != sub:  # an anagram device rearranges; matching itself is `hidden`
+                out.append((start, end, hit, 'anagram'))
+        if sub in lex():
+            out.append((start, end, sub, 'hidden'))
+    return out
+
+
+def charade_candidates(clue_text, enum, max_parts_out=200):
+    """A multi-part enum (e.g. (4,3)) as a CHARADE of independently-solved parts, each
+    its own anagram or hidden-word device — not one mechanism covering the whole
+    answer length in a single contiguous window, which is all anagram_candidates/
+    hidden_candidates can do today (they anagram/hide the FULL target_len at once).
+
+    WHY this is missing today: a charade's two parts routinely draw fodder from
+    DISJOINT stretches of the clue with an indicator or the definition sitting between
+    them (SOLVE_PROTOCOL.md's own charade description: "split enum parts; solve each
+    part from clue fragments"), so requiring one contiguous target_len-character run
+    to account for BOTH parts at once — which is what feeding the whole clue into
+    anagram_candidates/hidden_candidates does — can never find a charade whose two
+    parts are not adjacent in the fodder. split_candidates() only checks post-hoc
+    whether an already-generated FULL-length hit happens to split into two real words
+    at the enum boundary; it cannot originate a candidate whose parts came from
+    separate windows in the first place.
+
+    Scoped to 2-part enums for now (mirrors substitution_candidates' own adjacency-
+    first precedent): for enum=[n1, n2], every real-word anagram/hidden hit for a
+    window of length n1 is paired with every real-word hit for a window of length n2
+    whose window starts at or after the first window's END — i.e. the two parts must
+    appear in CLUE ORDER and not overlap, which is what makes a candidate a plausible
+    left-to-right charade reading rather than an arbitrary letter salad. Longer enums
+    (3+ parts) are a natural next step but combinatorially costlier; not attempted here.
+    """
+    if len(enum) != 2:
+        return []
+    n1, n2 = enum
+    hits1 = _part_hits(clue_text, n1)
+    hits2 = _part_hits(clue_text, n2)
+    out = []
+    for s1, e1, w1, dev1 in hits1:
+        for s2, e2, w2, dev2 in hits2:
+            if s2 < e1:  # must not overlap, and must not precede part 1
+                continue
+            answer = w1 + w2
+            out.append({'answer': answer, 'mechanism': 'charade', 'fodder': f'{w1}+{w2}',
+                        'devices': f'{dev1}+{dev2}'})
+            if len(out) >= max_parts_out:
+                return out
     return out
 
 
@@ -198,18 +411,27 @@ def sub_fwd():
     return _SUB_FWD
 
 
-def substitution_candidates(clue_text, target_len, table=None):
+def substitution_candidates(clue_text, target_len, table=None, use_3part=True):
     """The setter's private-vocabulary device (SOLVE_PROTOCOL.md 'Substitutions'): a clue
     word stands in for a fragment mined from crowd explanations (a name completed by a
-    surname, an abbreviation, a gloss). Two shapes:
+    surname, an abbreviation, a gloss). Three shapes, all requiring FULL coverage of the
+    target length (never a partial charade the way charade.py's open-ended enum-split
+    search worked):
       (a) one clue word's substitute already has the FULL target length -- propose it
           directly, filtered to real words/names (lex()) to cut noise;
       (b) two ADJACENT clue words' substitutes concatenate, in clue order, to the full
-          target length -- a tightly scoped two-part charade. Deliberately NOT the
-          open-ended every-enum-split search charade.py already tried and measured weak
-          (2.8% recall, DAILY.md 2026-08-08): unrestricted part search over a sparse table
-          combinatorially explodes false positives. Adjacency + full-length coverage keeps
-          this mechanism precise instead.
+          target length -- a tightly scoped two-part charade;
+      (c) [2026-09-07, queue item 1(b)'s own next step: "the mined substitution table
+          needs to cover multi-part charades (3+ segments)"] three ADJACENT clue words'
+          substitutes concatenate, in clue order, to the full target length. Deliberately
+          NOT the open-ended every-enum-split search charade.py already tried and measured
+          weak (2.8% recall, DAILY.md 2026-08-08): unrestricted part search over a sparse
+          table combinatorially explodes false positives. Adjacency + full-length coverage
+          keeps this mechanism precise instead of that combinatorial blowup -- (b) and (c)
+          are the same adjacency search generalized from 2 to 3 fragments, not a new shape;
+          the cost stays bounded because most head words have only a handful of mined
+          substitutes (sub_fwd() sorts and callers don't cap it, but the table is sparse by
+          construction -- it only holds equivalences actually mined from crowd text).
     `table` is injectable (tests / callers) instead of always hitting sub_fwd()."""
     fwd = table if table is not None else sub_fwd()
     words = lex()
@@ -227,6 +449,15 @@ def substitution_candidates(clue_text, target_len, table=None):
                 if len(joined) == target_len and joined in words:
                     out.append({'answer': joined, 'mechanism': 'substitution',
                                 'fodder': f'{ws[i]}+{ws[i + 1]}'})
+    if use_3part:
+        for i in range(len(ws) - 2):
+            for b1 in subs_of(ws[i]):
+                for b2 in subs_of(ws[i + 1]):
+                    for b3 in subs_of(ws[i + 2]):
+                        joined = b1 + b2 + b3
+                        if len(joined) == target_len and joined in words:
+                            out.append({'answer': joined, 'mechanism': 'substitution',
+                                        'fodder': f'{ws[i]}+{ws[i + 1]}+{ws[i + 2]}'})
     return out
 
 
@@ -276,6 +507,67 @@ def homograph_candidates(clue_text, target_len, idx=None):
         for stem in _destem(nw):
             if len(stem) == target_len and stem in table:
                 out.append({'answer': stem, 'mechanism': 'homograph', 'fodder': w})
+    return out
+
+
+def container_parts(clue_text, table=None):
+    """Candidate outer/inner fragments for the container device, each tagged with the
+    clue word it came from. Two sources, mirroring homograph_candidates' destemming and
+    substitution_candidates'/charade.py's mined-synonym table: (a) a clue word itself, or
+    its de-affixed stem -- PLAYBOOK.md 1.4 names a bare ב-/ל-/מ- prefix on the container
+    word as a common indicator, and several worked examples there use a literal clue word
+    for one part (e.g. 'רקודנו: קוד בתוך רנו'); (b) the word's mined substitution
+    fragment(s) via sub_fwd() -- most worked examples there use a SYNONYM, not a literal
+    clue word, for at least one part (e.g. 'ניראליהו: ראליה (מציאות) בתוך ניו'). No new
+    corpus: both sources already exist and are already held-out-safe (sub_fwd() rebuilds
+    in-memory with dev/eval clues excluded, same as substitution_candidates uses)."""
+    fwd = table if table is not None else sub_fwd()
+    parts = []
+    seen = set()
+    for w in words_of(clue_text):
+        nw = norm(w)
+        frags = _destem(nw) | {b for b, n in fwd.get(nw, [])}
+        for frag in frags:
+            if 1 <= len(frag) <= 8 and (frag, nw) not in seen:
+                seen.add((frag, nw))
+                parts.append((frag, nw))
+    return parts
+
+
+def container_candidates(clue_text, target_len, table=None):
+    """The container device (PLAYBOOK.md 1.4, ~10-12% of this setter's clues, the
+    fourth-most-common mechanism after charade/anagram/double-definition) -- an OUTER
+    fragment with an INNER fragment spliced somewhere inside it (e.g. קרים + תן, inner
+    spliced at an interior position, -> קרתנימ). Until now no candidate generator in this
+    file attempted it at all: prove.py has been able to VERIFY a container proof
+    (is_container) since the proof gate was built, but nothing ever handed it a
+    candidate to check -- container was pure verification infrastructure with no
+    generator behind it, unlike every other mechanism in PLAYBOOK.md's top five.
+
+    Builds every (outer, inner) pair from container_parts() where the two fragments come
+    from DIFFERENT clue words (a word cannot contain itself) and their lengths sum to the
+    target, then checks every STRICTLY INTERIOR insertion position (1..len(outer)-1,
+    matching prove.is_container's own contract exactly -- position 0 or len(outer) is
+    plain concatenation, already covered by substitution_candidates, and duplicating it
+    here would just inflate the candidate count without adding a new mechanism) against
+    the lexicon. `table` is injectable, same discipline as every other mechanism here."""
+    parts = container_parts(clue_text, table=table)
+    words = lex()
+    out = []
+    for outer, ow in parts:
+        if len(outer) < 2 or len(outer) >= target_len:
+            continue
+        inner_len = target_len - len(outer)
+        if inner_len < 1:
+            continue
+        for inner, iw in parts:
+            if iw == ow or len(inner) != inner_len:
+                continue
+            for k in range(1, len(outer)):
+                cand = outer[:k] + inner + outer[k:]
+                if cand in words:
+                    out.append({'answer': cand, 'mechanism': 'container',
+                                'fodder': f'{outer}[{inner}] ({ow}+{iw})'})
     return out
 
 
@@ -423,6 +715,110 @@ def retrieval_candidates(clue_text, target_len, topk=25, docs_df=None):
     return [{'answer': a, 'mechanism': 'retrieval', 'fodder': None} for a, _score in hits]
 
 
+def defspan_retrieval_candidates(clue_text, target_len, docs_df=None):
+    """DEFINITION-hypothesis candidate generation via retrieve_defs.end_candidates() — a
+    query restricted to a short PREFIX or SUFFIX word-span of the clue (2/3/4 words), not
+    the whole clue text. This closes a real gap found while re-reading this project's own
+    retrieval code today: every DAILY.md/RESEARCH.md entry since 2026-08-08 that cites
+    retrieval's standalone number ("gold@25=5.4%, ceiling 27%") measured it by calling
+    `retrieve_defs.py eval`, whose CLI has always used `end_candidates()` — but
+    `retrieval_candidates()` above, the function actually WIRED into `generate()` since
+    2026-08-25 and live-trialed since 2026-08-27, calls plain `retrieve_defs.candidates()`
+    with the FULL clue text as the BM25 query instead. Those are two different query
+    shapes; the number this project has quoted six times does not describe the mechanism
+    that has been running. The premise `end_candidates()` encodes is the same one
+    SOLVE_PROTOCOL.md states and defspan.py's (killed, indicator-density) classifier tried
+    to operationalize: a cryptic definition sits at ONE END of the surface, in plain
+    language — so querying a definition corpus with the WHOLE clue (wordplay words
+    included) is noisier than querying with just an end-span. Unlike the killed defspan
+    classifier, this does not need to be RIGHT about which end: end_candidates() tries
+    both ends (2/3/4-word spans each) and returns the ranked union, so a wrong guess about
+    which end merely adds low-scoring noise rather than excluding the correct one — the
+    same diverse-hypotheses-not-one-verdict shape as every other mechanism in this file.
+    `docs_df` is injectable (tests / callers), same discipline as retrieval_candidates()."""
+    sys.path.insert(0, HERE)
+    import retrieve_defs
+    cwd = os.getcwd()
+    try:
+        os.chdir(ROOT)
+        if docs_df is not None:
+            hits = retrieve_defs.end_candidates(clue_text, target_len, docs_df=docs_df)
+        else:
+            global _RETRIEVE_DOCS_DF
+            if _RETRIEVE_DOCS_DF is None:
+                _RETRIEVE_DOCS_DF = retrieve_defs.build_index()
+            hits = retrieve_defs.end_candidates(clue_text, target_len,
+                                                 docs_df=_RETRIEVE_DOCS_DF)
+    finally:
+        os.chdir(cwd)
+    return [{'answer': a, 'mechanism': 'defspan_retrieval', 'fodder': None} for a, _score in hits]
+
+
+_DOUBLE_DEF_DOCS_DF = None
+
+
+def double_definition_candidates(clue_text, target_len, topk=15, docs_df=None):
+    """DEFINITION-hypothesis candidate generation for the מילה משותפת (double-definition)
+    device — PLAYBOOK.md §1.2, 103/728 = 14% of clues, the SECOND most common mechanism
+    after charade, and the one this file had NOTHING for until today: it carries no
+    wordplay at all (no anagram fodder, no reversal, no container splice — every letter
+    of the answer is "explained" only by meaning it twice), so every other generator in
+    this file, which all derive an answer from the clue's LETTERS or a hand-curated
+    category/index lookup, is structurally the wrong shape for it.
+
+    PLAYBOOK.md's own worked examples are almost all 2-4 word clues that are simply two
+    definitions placed side by side ("קרב על חלקנו?" -> מנת: קרב-מנת קרב / חלקנו-מנת
+    חלקנו), and "short answers (enum [3]) are overwhelmingly double definitions." The
+    structural signature is therefore: split the clue at EVERY word boundary into a left
+    half and a right half, and ask whether some answer of the target length is a strong
+    BM25 match for BOTH halves independently, using the same held-out-safe definition
+    index retrieval_candidates() already uses (solver/retrieve_defs.py — private_defs
+    crawls + this project's own train-split explanations). A whole-clue query
+    (retrieval_candidates) or an end-anchored window query cannot produce this signal:
+    both score one bag of words against one document, so a clue built from two UNRELATED
+    definitions dilutes both halves' scores instead of confirming them. Requiring a hit
+    in both halves' independent top-K is a materially different (and stricter, higher-
+    precision) test than requiring it in either alone.
+
+    Held-out safe by construction, same as retrieval_candidates: retrieve_defs.candidates()
+    reads from build_index()'s docs, which already excludes every dev/eval answer via
+    retrieve_defs.held_out() before this function ever sees it. `docs_df` is injectable
+    (tests / callers) so a selftest can supply a tiny synthetic index instead of the real
+    corpus, same discipline every other mechanism here follows."""
+    sys.path.insert(0, HERE)
+    import retrieve_defs
+    words = words_of(clue_text)
+    if len(words) < 2:
+        return []
+    cwd = os.getcwd()
+    try:
+        os.chdir(ROOT)
+        if docs_df is not None:
+            df = docs_df
+        else:
+            global _DOUBLE_DEF_DOCS_DF
+            if _DOUBLE_DEF_DOCS_DF is None:
+                _DOUBLE_DEF_DOCS_DF = retrieve_defs.build_index()
+            df = _DOUBLE_DEF_DOCS_DF
+        best = {}
+        for i in range(1, len(words)):
+            half_a = ' '.join(words[:i])
+            half_b = ' '.join(words[i:])
+            hits_a = dict(retrieve_defs.candidates(half_a, target_len, topk=topk, docs_df=df))
+            if not hits_a:
+                continue
+            hits_b = dict(retrieve_defs.candidates(half_b, target_len, topk=topk, docs_df=df))
+            for a in set(hits_a) & set(hits_b):
+                score = hits_a[a] + hits_b[a]
+                if score > best.get(a, (0, None))[0]:
+                    best[a] = (score, f'{half_a} | {half_b}')
+    finally:
+        os.chdir(cwd)
+    ranked = sorted(best.items(), key=lambda x: -x[1][0])[:topk]
+    return [{'answer': a, 'mechanism': 'double_definition', 'fodder': fodder}
+            for a, (_score, fodder) in ranked]
+
+
 def pattern_candidates(pattern):
     """pattern like '?ו?ר??' — '?' or '_' = unknown crossing letter. The lexicon folds
     final letters (ם/ן/ץ/ף/ך -> מ/נ/צ/פ/כ) everywhere, so fixed cells must be folded
@@ -459,7 +855,10 @@ def split_candidates(cands, enum):
     return out
 
 
-def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retrieval=True):
+def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retrieval=True,
+             use_container=True, use_double_def=True, use_defspan_retrieval=True,
+             use_homophone=True, use_homophone_vowel=True, use_substitution_3part=True,
+             use_charade=True):
     """Diverse candidates for one clue. Never consults the answer.
 
     Mechanism order here is a PRIORITY order, not just an accumulation order: dedup +
@@ -477,22 +876,49 @@ def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retr
     docstrings) — placed in the same early tier as homograph/substitution: culture_category
     fires rarely and each hit is a real named entity; retrieval is capped at its own topk
     (25 by default) and ranked, not an unbounded window scan, so it does not need to wait
-    behind the cheap mechanisms either. `use_culture`/`use_retrieval` are plain on/off
-    switches so a controlled before/after recall measurement doesn't need extra copies of
-    this function."""
+    behind the cheap mechanisms either. container_candidates sits in the same early tier
+    for the same reason: it is bounded by the same small fragment pool substitution_
+    candidates draws on (container_parts()), not an unbounded window scan, and PLAYBOOK.md
+    ranks the container device as more common (~10-12%) than substitution/homograph
+    combined get credit for, so it does not deserve to wait behind the cheap mechanisms
+    either. double_definition_candidates is placed in the same tier: it requires an answer
+    to rank in BOTH of two independent BM25 queries (stricter, lower-volume than either
+    retrieval_candidates or culture_category alone), so it never needs to wait behind the
+    window-scan mechanisms either; defspan_retrieval_candidates is the same retrieval index
+    under a different query shape, equally capped and ranked. homophone_candidates is a
+    char-window scan exactly like anagram/hidden/reversal (same cost profile), so it sits
+    with them at the end rather than the early tier; homophone_vowel_candidates is the
+    same cost profile again (two more fixed-width window scans) so it sits right beside it.
+    charade_candidates (2-part enums only) is capped at its own max_parts_out and only
+    fires when len(enum)==2, so it goes in the same early tier for the same reason.
+    `use_culture`/`use_retrieval`/`use_container`/`use_double_def`/`use_defspan_retrieval`/
+    `use_homophone`/`use_homophone_vowel`/`use_charade` are plain on/off switches so a
+    controlled before/after recall measurement doesn't need extra copies of this function."""
     target_len = sum(enum)
     cands = []
     cands += homograph_candidates(clue_text, target_len)
-    cands += substitution_candidates(clue_text, target_len)
+    cands += substitution_candidates(clue_text, target_len, use_3part=use_substitution_3part)
+    if use_container:
+        cands += container_candidates(clue_text, target_len)
+    if use_charade:
+        cands += charade_candidates(clue_text, enum)
     if use_culture:
         cands += culture_category_candidates(clue_text, target_len)
     if use_retrieval:
         cands += retrieval_candidates(clue_text, target_len)
+    if use_defspan_retrieval:
+        cands += defspan_retrieval_candidates(clue_text, target_len)
+    if use_double_def:
+        cands += double_definition_candidates(clue_text, target_len)
     if pattern:
         cands += pattern_candidates(pattern)
     cands += anagram_candidates(clue_text, target_len)
     cands += hidden_candidates(clue_text, target_len)
     cands += reversal_candidates(clue_text, target_len)
+    if use_homophone:
+        cands += homophone_candidates(clue_text, target_len)
+    if use_homophone_vowel:
+        cands += homophone_vowel_candidates(clue_text, target_len)
 
     seen, uniq = set(), []
     for c in cands:
@@ -511,7 +937,10 @@ def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retr
 # isolation, BEFORE it is wired into a live solve+proof loop (which is a
 # separate integration step, not done by this lever).
 # ---------------------------------------------------------------------------
-def recall_eval(dataset_path, split=None, max_n=25, use_culture=True, use_retrieval=True):
+def recall_eval(dataset_path, split=None, max_n=25, use_culture=True, use_retrieval=True,
+                 use_container=True, use_double_def=True, use_defspan_retrieval=True,
+                 use_homophone=True, use_homophone_vowel=True, use_substitution_3part=True,
+                 use_charade=True):
     total = 0
     hit = 0
     by_mech = Counter()
@@ -525,7 +954,13 @@ def recall_eval(dataset_path, split=None, max_n=25, use_culture=True, use_retrie
             continue
         total += 1
         cands = generate(r['clue_text'], r['enum'], max_n=max_n, use_culture=use_culture,
-                          use_retrieval=use_retrieval)
+                          use_retrieval=use_retrieval, use_container=use_container,
+                          use_double_def=use_double_def,
+                          use_defspan_retrieval=use_defspan_retrieval,
+                          use_homophone=use_homophone,
+                          use_homophone_vowel=use_homophone_vowel,
+                          use_substitution_3part=use_substitution_3part,
+                          use_charade=use_charade)
         sizes.append(len(cands))
         gold = norm(r['answer_raw'])
         found = [c for c in cands if c['answer'] == gold]
@@ -576,6 +1011,57 @@ def selftest():
     print(f'  found בר as a reversal of רב: {found} (expected True)')
     ok &= found
 
+    print('--- homophone device: a clue fragment SOUNDS like a differently-spelled '
+          'real word (ק/כ swap) ---')
+    # 'קר' (cold, a standalone clue word) phon-folds to the same key as 'כר' (pillow) --
+    # a real word with a DIFFERENT literal spelling, the homophone signature. Both must
+    # be real hspell words for this to fire, checked here rather than assumed.
+    hits = homophone_candidates('היה קר מאוד בחוץ', 2)
+    found = any(h['answer'] == norm('כר') for h in hits)
+    print(f'  found כר as a homophone of קר: {found} (expected True)')
+    ok &= found
+    print('--- homophone device: an identical-spelling match is excluded (that\'s '
+          '`hidden`, not a homophone) ---')
+    self_match = any(h['answer'] == norm('קר') for h in hits)
+    print(f'  קר itself (identical spelling to its own fodder) excluded: '
+          f'{not self_match} (expected True)')
+    ok &= not self_match
+
+    print('--- homophone_vowel device: fodder ONE LETTER SHORT matches a real word once '
+          'a free ו/י vowel is inserted ---')
+    # 'כל' (2 letters, a window inside 'אכל תפוח', not itself required to be a real word)
+    # inserting ו after the כ gives 'כול' (3 letters) -- a real hspell word, the plene
+    # (מלא) spelling of the same word 'כל' represents in defective (חסר) form.
+    hits = homophone_vowel_candidates('אכל תפוח', 3)
+    found = any(h['answer'] == norm('כול') for h in hits)
+    print(f'  found כול by inserting ו into the fodder כל: {found} (expected True)')
+    ok &= found
+    print('--- homophone_vowel device: fodder ONE LETTER LONG matches a real word once '
+          'a ו/י it contains is deleted ---')
+    # 'כול' (3-letter fodder window) with its ו deleted phon-folds to 'כל', which is also
+    # the phon-key of the real words 'חל' and 'קל' (ח and ק both fold to כ) -- the other
+    # direction from the insertion check above: a 3-letter fodder window matching 2-letter
+    # real-word targets.
+    hits = homophone_vowel_candidates('לכול תמיד', 2)
+    found = {norm('חל'), norm('קל')} & {h['answer'] for h in hits if h['fodder'] == norm('כול')}
+    print(f'  found {found or "nothing"} by deleting ו from the fodder כול: '
+          f'{bool(found)} (expected True)')
+    ok &= bool(found)
+    print('--- homophone_vowel device: use_homophone_vowel=False in generate() disables '
+          'it (checked at the call site, same as every other toggle) ---')
+    # use_retrieval/use_defspan_retrieval=False too: unlike every other toggle check in
+    # this file (which calls the standalone mechanism function directly), this one calls
+    # generate() itself, which defaults retrieval on and would otherwise hit the real
+    # corpus-backed retrieve_defs.build_index() — crashing this selftest in any
+    # environment without a bootstrapped data/dataset/clues.jsonl (bug found 2026-09-07
+    # while auditing the PR backlog consolidation: this is exactly such an environment).
+    only_hv = generate('אכל תפוח', [3], use_homophone_vowel=False,
+                        use_retrieval=False, use_defspan_retrieval=False, use_double_def=False)
+    absent = not any(c['mechanism'] == 'homophone_vowel' for c in only_hv)
+    print(f'  no homophone_vowel candidate leaks through when disabled: {absent} '
+          f'(expected True)')
+    ok &= absent
+
     print('--- pattern device: crossing-pattern lookup wraps lexicon.pattern ---')
     hits = pattern_candidates('של?ם')
     found = any(h['answer'] == norm('שלום') for h in hits)
@@ -599,6 +1085,24 @@ def selftest():
     print(f'  found שלום as של+ום from two adjacent words: {found} (expected True)')
     ok &= found
 
+    print('--- substitution device: three ADJACENT clue words\' substitutes concatenate '
+          '(2026-09-07, queue item 1(b)) ---')
+    sub_table3 = {norm('אחד'): [(norm('שלו'), 1)], norm('שני'): [(norm('ם'), 1)],
+                  norm('שלישי'): [(norm('עליכם'), 1)]}
+    hits = substitution_candidates('אחד שני שלישי משהו', 9, table=sub_table3)
+    found = any(h['answer'] == norm('שלוםעליכם') for h in hits)
+    print(f'  found שלוםעליכם as שלו+ם+עליכם from three adjacent words: {found} '
+          f'(expected True)')
+    ok &= found
+    print('--- substitution device: a NON-adjacent triple (a gap in the middle) does not '
+          'chain ---')
+    sub_table_gap = {norm('אחד'): [(norm('שלו'), 1)], norm('שלישי'): [(norm('ם'), 1)]}
+    hits = substitution_candidates('אחד שני שלישי משהו', 4, table=sub_table_gap)
+    found = any(h['answer'] == norm('שלום') for h in hits)
+    print(f'  no שלום from the non-adjacent אחד+שלישי pair (שני sits between them and has '
+          f'no substitute in this table): {not found} (expected True)')
+    ok &= not found
+
     print('--- homograph device: a clue word, de-prefixed, already IS the answer ---')
     # שרה is the canonical example (PLAYBOOK.md/SOLVE_PROTOCOL.md): she sings / a female
     # minister / the name Sarah. Here it appears with a ו- prefix glued on ('ושרה'); the
@@ -608,6 +1112,51 @@ def selftest():
     found = any(h['answer'] == norm('שרה') for h in hits)
     print(f'  found שרה (destemmed from ושרה) as a homograph: {found} (expected True)')
     ok &= found
+
+    print('--- container device: an inner fragment spliced INTERIOR to an outer word ---')
+    # מכות (blows, a literal clue word) + מל (destemmed from ומל, a different clue word)
+    # spliced at k=1 -> ממלכות (kingdoms) -- a real, common hspell word, found by scanning
+    # the real lexicon offline (not injected), so this also checks the mechanism reaches
+    # the real dictionary, not just a synthetic table. Distinct source words (מכות vs
+    # ומל) so the two parts cannot come from the same clue word.
+    hits = container_candidates('מכות ומל משהו', 6)
+    found = any(h['answer'] == norm('ממלכות') for h in hits)
+    print(f'  found ממלכות as מל spliced into מכות: {found} (expected True)')
+    ok &= found
+    print('--- container device: a word cannot supply both the outer and the inner ---')
+    hits2 = container_candidates('מכות משהו', 6)
+    found_self = any(h['answer'] == norm('ממלכות') for h in hits2)
+    print(f'  no self-container hit with only one source word: {not found_self} (expected True)')
+    ok &= not found_self
+    print('--- container device: use_container=False in generate() disables it (checked'
+          ' via the standalone call still firing, same sanity pattern as the other'
+          ' toggles above) ---')
+    off = container_candidates('מכות ומל משהו', 6)
+    print(f'  standalone call still fires: {len(off) >= 1} (expected True)')
+    ok &= len(off) >= 1
+    print('--- container device: an outer/inner fragment sourced ONLY from the mined'
+          ' SUBSTITUTION table (not a literal clue word or its destemmed form) --'
+          ' 2026-09-11 (PR #55) measured 0/28 on a puzzle whose one real container clue'
+          ' needs exactly this (בית~קן, "the judge"~טל) and root-caused a'
+          " literal-clue-word-only design as the reason it couldn't reach it; this checks"
+          ' the mechanism already merged here (container_parts() unions destem AND'
+          ' sub_fwd()) actually exercises that path, not just carries the docstring claim'
+          ' ---')
+    # 'ציון' shares no letters/destem overlap with 'מל' at all -- the ONLY route from
+    # 'ציון' to 'מל' is the injected substitution table, so a hit here is proof-positive
+    # the substitution-sourced fragment path (not the literal-word path the first test
+    # above already covers) is what produced it.
+    sub_table = {norm('ציון'): [(norm('מל'), 5)]}
+    hits3 = container_candidates('מכות וגם ציון', 6, table=sub_table)
+    found_sub = any(h['answer'] == norm('ממלכות') and h['fodder'] == 'מכות[מל] (מכות+ציונ)'
+                     for h in hits3)
+    print(f'  found ממלכות via ציונ\'s MINED SUBSTITUTE מל spliced into the literal'
+          f' word מכות: {found_sub} (expected True)')
+    ok &= found_sub
+    no_table_hits = container_candidates('מכות וגם ציון', 6, table={})
+    print(f'  same clue with no substitution entry fires nothing: {no_table_hits == []} '
+          f'(expected True -- proves the hit above needed the table, not a coincidence)')
+    ok &= no_table_hits == []
 
     print('--- culture_category device: a category the clue NAMES surfaces its namelist,'
           ' matched by MEANING not letters ---')
@@ -656,6 +1205,74 @@ def selftest():
           f'not here): {len(off) >= 1} (expected True)')
     ok &= len(off) >= 1
 
+    print('--- defspan_retrieval device: query restricted to a clue END-SPAN, not the '
+          'whole clue text, forwarding to retrieve_defs.end_candidates() ---')
+    # the doc's tokens match ONLY the clue's trailing two words ('הנשיא הראשון'); several
+    # leading decoy words that are NOT in the doc sit in front of them. This is exactly the
+    # shape end_candidates() is built to handle (it queries short end-spans separately,
+    # not the whole clue as one bag of words) and demonstrates the mechanism actually
+    # restricts its query rather than silently falling back to a full-clue search.
+    defspan_docs_df = ([
+        (['נשיא', 'ראשון'], [norm('וייצמן')], None),
+    ], {'נשיא': 1, 'ראשון': 1})
+    hits = defspan_retrieval_candidates('קסם קסם קסם קסם הנשיא הראשון', 6, docs_df=defspan_docs_df)
+    found = any(h['answer'] == norm('וייצמן') for h in hits)
+    print(f'  found וייצמן via the clue-END span query, sharing no letters with the clue: '
+          f'{found} (expected True)')
+    ok &= found
+    print('--- defspan_retrieval device: use_defspan_retrieval=False in generate() disables it ---')
+    off = defspan_retrieval_candidates('קסם קסם קסם קסם הנשיא הראשון', 6, docs_df=defspan_docs_df)
+    print(f'  standalone call still fires (sanity check the toggle lives in generate(), '
+          f'not here): {len(off) >= 1} (expected True)')
+    ok &= len(off) >= 1
+
+    print('--- double_definition device: an answer ranking for BOTH independent clue '
+          'halves is proposed; one ranking for only ONE half is not ---')
+    # synthetic 2-doc index: 'גדי' (goat/Gedi, gold) is a strong match for BOTH a
+    # "luck" reading and a "zodiac sign" reading — the double-definition signature.
+    # 'מזל' alone (single-half match) must NOT surface, since it fires for only one side.
+    dd_docs_df = ([
+        (['מזל', 'גורל', 'הצלחה'], [norm('גדי')], None),
+        (['מזל', 'טלה', 'שור'], [norm('מזל')], None),          # zodiac-only match
+        (['גדי', 'עז', 'צאן'], [norm('גדי')], None),
+    ], {'מזל': 2, 'גורל': 1, 'הצלחה': 1, 'טלה': 1, 'שור': 1, 'גדי': 2, 'עז': 1, 'צאן': 1})
+    dd_hits = double_definition_candidates('מזל גדי', 3, docs_df=dd_docs_df)
+    found = any(h['answer'] == norm('גדי') for h in dd_hits)
+    print(f'  found גדי matching BOTH halves ("מזל" and "גדי"): {found} (expected True)')
+    ok &= found
+    single_half_leaked = any(h['answer'] == norm('מזל') for h in dd_hits)
+    print(f'  מזל (only the FIRST half\'s own top hit, absent from the second half\'s '
+          f'index at all) excluded: {not single_half_leaked} (expected True)')
+    ok &= not single_half_leaked
+    print('--- double_definition device: a single-word clue (no split point) yields '
+          'nothing rather than erroring ---')
+    empty = double_definition_candidates('שלום', 4, docs_df=dd_docs_df)
+    print(f'  empty result for an unsplittable clue: {empty == []} (expected True)')
+    ok &= empty == []
+
+    print('--- charade device: two DISJOINT windows, each independently anagram/hidden, '
+          'combine into a 2-part answer a single whole-length window could never find ---')
+    # 'שלום' (4) sits scrambled at the START; 'טוב' (3) sits literally, HIDDEN, much later,
+    # separated by unrelated filler words. No single 7-character contiguous window spans
+    # both, so anagram_candidates/hidden_candidates on target_len=7 structurally cannot
+    # produce this candidate -- only charade_candidates, which solves each part separately
+    # and requires them to appear in clue ORDER without overlapping, can.
+    text = 'םולש דבר לא קשור טוב מאוד'
+    hits = charade_candidates(text, [4, 3])
+    target = norm('שלום') + norm('טוב')
+    found = any(h['answer'] == target for h in hits)
+    print(f'  found שלום+טוב as two independently-solved, non-overlapping, ordered parts: '
+          f'{found} (expected True)')
+    ok &= found
+    print('--- charade device: only fires for 2-part enums ---')
+    off = charade_candidates(text, [7])
+    print(f'  no candidates for a single-part enum: {off == []} (expected True)')
+    ok &= off == []
+    print('--- charade device: use_charade=False in generate() disables it (checked via '
+          'the standalone function still firing, same discipline as culture/retrieval) ---')
+    print(f'  standalone call still fires: {len(hits) >= 1} (expected True)')
+    ok &= len(hits) >= 1
+
     print('--- split_candidates: flags whether a multi-part answer is two real words ---')
     split = split_candidates([{'answer': norm('שלוםעליכם'), 'mechanism': 'test'}], [4, 5])
     print(f'  split result: {split[0]["split"]} (expected two real words, not None)')
@@ -681,14 +1298,34 @@ def main():
         rest = sys.argv[2:]
         use_culture = '--no-culture' not in rest
         use_retrieval = '--no-retrieval' not in rest
-        rest = [a for a in rest if a not in ('--no-culture', '--no-retrieval')]
+        use_container = '--no-container' not in rest
+        use_double_def = '--no-double-def' not in rest
+        use_defspan_retrieval = '--no-defspan-retrieval' not in rest
+        use_homophone = '--no-homophone' not in rest
+        use_homophone_vowel = '--no-homophone-vowel' not in rest
+        use_substitution_3part = '--no-substitution-3part' not in rest
+        use_charade = '--no-charade' not in rest
+        rest = [a for a in rest if a not in
+                ('--no-culture', '--no-retrieval', '--no-container', '--no-double-def',
+                 '--no-defspan-retrieval', '--no-homophone', '--no-homophone-vowel',
+                 '--no-substitution-3part', '--no-charade')]
         path = rest[0] if len(rest) > 0 else 'data/dataset/clues.jsonl'
         split = rest[1] if len(rest) > 1 else None
         os.chdir(ROOT)
-        res = recall_eval(path, split, use_culture=use_culture, use_retrieval=use_retrieval)
+        res = recall_eval(path, split, use_culture=use_culture, use_retrieval=use_retrieval,
+                           use_container=use_container, use_double_def=use_double_def,
+                           use_defspan_retrieval=use_defspan_retrieval,
+                           use_homophone=use_homophone,
+                           use_homophone_vowel=use_homophone_vowel,
+                           use_substitution_3part=use_substitution_3part,
+                           use_charade=use_charade)
         print(f"recall@N: {res['hit']}/{res['total']} = {res['recall']:.1%}  "
               f"(avg {res['avg_candidates']:.1f} candidates/clue, "
-              f"use_culture={use_culture}, use_retrieval={use_retrieval})")
+              f"use_culture={use_culture}, use_retrieval={use_retrieval}, "
+              f"use_container={use_container}, use_double_def={use_double_def}, "
+              f"use_defspan_retrieval={use_defspan_retrieval}, use_homophone={use_homophone}, "
+              f"use_homophone_vowel={use_homophone_vowel}, "
+              f"use_substitution_3part={use_substitution_3part}, use_charade={use_charade})")
         print('hits by mechanism:', res['by_mechanism'])
         if res['misses']:
             print(f"\n{len(res['misses'])} misses (clue_number, direction, gold):")
