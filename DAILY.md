@@ -17,7 +17,7 @@ tree - a stale CLI deploy overwrote the live site on 2026-08-29. See CLAUDE.md.
 | Best single puzzle | 2026-05-29: 95% / 71% / 68% ✓ all targets | |
 | Hardest puzzle | 2026-06-05: 100% / 43% / 43% | coverage stuck |
 | **Candidate recall@N (new, offline, mechanical only)** | **3.6% (1/28)**, avg 11.6 candidates/clue (capped), on 2026-05-29 — UNCHANGED after adding substitution+homograph mechanisms | not yet a target — diagnostic |
-| **Candidate recall@N with `container_candidates` added (new, offline, mechanical — the container/insertion device, ~10-12% of clues per PLAYBOOK.md, previously pure verification infra with no generator)** | **3.6% (1/28), UNCHANGED** on 2026-05-29 (re-transcribed fresh, 28/28 clues, 0 enum mismatches) — mechanism fired on only 1/28 clues (2 raw candidates, 0 gold hits); avg candidates/clue unchanged at 11.6. CONFOUNDED, disclosed: 14across was fully unreachable this run (the same hard wall since 2026-08-19), so `sub_fwd()` — the mined-substitution half of this mechanism's fragment source, and the SAME source `substitution_candidates()` already depends on — was empty, and `substitution_candidates()` itself also scored 0 fires this run (by-mechanism breakdown: only `anagram` hit at all). Not a clean test of the device; only its corpus-free destem/literal-word fragment half was exercised. Offline selftest (not gold-linked; found by scanning the real committed lexicon, not a synthetic fixture) confirms the mechanism correctly derives a real dictionary word (מכות + מל spliced at an interior position -> ממלכות) | not yet a target — diagnostic; re-measure once 14across (or any puzzle with real crowd explanations) is reachable |
+| **Candidate recall@N with `container_candidates` added (new, offline, mechanical — the container/insertion device, ~10-12% of clues per PLAYBOOK.md, previously pure verification infra with no generator)** | **3.6% (1/28), UNCHANGED** on 2026-05-29 (re-transcribed fresh, 28/28 clues, 0 enum mismatches) — mechanism fired on only 1/28 clues (2 raw candidates, 0 gold hits); avg candidates/clue unchanged at 11.6. CONFOUNDED, disclosed: 14across was fully unreachable this run (the same hard wall since 2026-08-19), so `sub_fwd()` — the mined-substitution half of this mechanism's fragment source, and the SAME source `substitution_candidates()` already depends on — was empty, and `substitution_candidates()` itself also scored 0 fires this run (by-mechanism breakdown: only `anagram` hit at all). Not a clean test of the device; only its corpus-free destem/literal-word fragment half was exercised. Offline selftest (not gold-linked; found by scanning the real committed lexicon, not a synthetic fixture) confirms the mechanism correctly derives a real dictionary word (מכות + מל spliced at an interior position -> ממלכות). **SECOND measurement, 2026-09-11 (an independently-written duplicate implementation, see 2026-09-12's log entry for the branch-hygiene story): 0.0% (0/28) on 2026-06-05** — fired on 0/28 clues; root-caused via the puzzle's own crowd explanation that its one real container clue (16A, קטלנ) needs SYNONYM substitution (בית~קן, "the judge"~טל) that a literal-clue-word-only design cannot reach. **THIRD, 2026-09-12: see log — the two independent implementations were reconciled (the merged version already unions literal/destemmed clue words with `sub_fwd()`'s mined synonyms, confirmed by a new selftest proving the synonym-only path fires) and re-measured** | not yet a target — diagnostic; re-measure once 14across (or any puzzle with real crowd explanations) is reachable |
 | **Candidate recall@N with `retrieval_candidates` added (new, offline, BM25 definition retrieval)** | **7.1% (2/28)** on 2026-05-29 (up from 3.6%); **SECOND puzzle, 2026-08-26: 0.0% (0/18) → 5.6% (1/18)** on 2026-06-26 (partial, 18/28 clues); **THIRD puzzle, 2026-08-27: 0.0% (0/19) → 0.0% (0/19), UNCHANGED** on 2026-07-10; **2026-08-28, RE-MEASURED on 2026-05-29 with a GROWN corpus (mordo re-crawled 13,646 raw pairs vs 9,685; `note.co.il` crawled for the first time this project's lifetime, 829 pairs): 3.6% (1/28) → 10.7% (3/28)**, up from the 7.1% this exact puzzle scored with the smaller corpus; **2026-08-29, RE-MEASURED 2026-07-10 with an EVEN BIGGER corpus (mordo 25,350 raw / 24,361 parsed, up from 13,646/12,890; note.co.il 970 fetched out of 1,301 discovered): 0.0% (0/19) → 0.0% (0/19), STILL UNCHANGED**; **2026-08-30, RE-MEASURED 2026-06-26 — this time FULLY transcribed (28/28 clues, closing 2026-08-26's 18/28 partial gap) and with a MASSIVELY grown corpus (mordo 66,443 raw / 62,403 parsed, up from 25,350/24,361 — the blogspot feed has grown 2.6x again; note.co.il 1,001 fetched out of 1,301 discovered, up from 970/1301): 0.0% (0/28) → 14.3% (4/28)** — the highest recall this diagnostic has ever measured on any puzzle, and the largest single-puzzle point gain, from 4 independently-audited external hits (מניע, רומח, בובדילנ, ברסמכא) — see log | not yet a target — diagnostic; 6 independent measurements, 4 positive + 2 flat, confirming corpus growth is puzzle-dependent (rescued 2026-05-29 twice and now 2026-06-26 strongly, never moved 2026-07-10 across three corpus sizes) |
 | **Definition-span locatable rate (new, offline, diagnostic)** | **25% (7/28)** have mechanically-locatable single-window wordplay; of those 29% (2/7) are interior, not edge; classifier agreement on edge cases **1/5** | not a target — this diagnostic KILLED the lever, see log |
 | **`solve_pass.py` LIVE blind trial — cumulative (3 trials)** | **40% precision (2/5 committed)**: 2026-08-16 was 1/2 on a partial 21/28-clue puzzle (2026-06-12); 2026-08-22 was **0/2**, 7.1% coverage, on a FULL 28/28-clue puzzle (2026-05-15); **2026-08-27 is 1/1 = 100% precision but 5.3% coverage (1/19), 0% suggestion hit-rate (0/10)**, on 2026-07-10 (19/28 clues) — FIRST trial run with `retrieval_candidates` live (wired 2026-08-25, never live-trialed since); it contributed ZERO candidates all puzzle (grepped the transcript for `(retrieval, fodder=` hits — none), matching today's own offline recall@N finding on this same puzzle (0/19 with or without retrieval); the one correct commit came from `wiki.py` culture-fact lookup, not from any candidate generator | n=5 — still small; retrieval's live debut is a null result on this puzzle, not a regression, but not the coverage lift the queue hoped for either; see log |
@@ -33,7 +33,96 @@ tree - a stale CLI deploy overwrote the live site on 2026-08-29. See CLAUDE.md.
 | **`deffit.py` with `fillbank.json` wired as a second gloss source (NEW 2026-09-10, offline)** | Re-measured on the SAME 2026-05-15 puzzle, independently re-transcribed and re-crawled fresh this run: recall@N **0/28 with or without retrieval** (a smaller/different private_defs crawl than 2026-09-09's found no hits at all on this puzzle — recall_hit therefore 0/28, so top-1/MRR are undefined this run). Split the structural diagnostic into TWO numbers on purpose: clues with a non-retrieval candidate carrying a KNOWN gloss in ANY source went **3/28 (private_defs alone) → 14/28 (+fillbank)** — fillbank.json's 2,412 entries genuinely widen gloss coverage, a real and substantial move; but clues with a non-retrieval candidate whose gloss actually SHARES VOCABULARY with the clue (`def_fit>0`, 2026-09-09's own stricter bar) stayed **0/28 with fillbank ON**, because the 59 newly-known candidates' glosses (e.g. `ירושלים` -> `בירת ישראל`) don't happen to repeat the clue's own wording. Also FOUND AND FIXED a real bug before ever measuring: `build_fillbank_index()` didn't fold fillbank's final letters (ם/ן/ץ/ף/ך), so it would have silently missed all 557/2,450 (22.7%) of fillbank entries ending in one — every candidates.py answer is unconditionally final-folded, so the lookup would have failed for any of those words even when present | not yet a target — a real, disclosed, mixed result: coverage widened, the stricter score-overlap bar did not move this run; see log |
 
 Baseline for comparison: v2 = 41% raw with untraceable errors.
-Last lever added (2026-09-10): **wired `solver/lex/fillbank.json` (2,412 word->definition
+Last lever added (2026-09-12): **found and fixed a duplicate-PR branch-hygiene failure on
+`container_candidates` itself, then hardened and root-caused the merged mechanism —
+no new recall number today, disclosed honestly rather than fabricated (see below for why).**
+
+`list_pull_requests` showed #55 (2026-09-11, `claude/container-candidates-wip`) branched
+directly off pre-#54 main and independently reimplemented `container_candidates` from
+scratch — the EXACT function this branch's own history already added on 2026-09-03 (PR
+#42, folded into #54's 2026-09-10 consolidation) — because #55 never saw #54's branch. This
+is queue item 6's compounding-loss pattern recurring on a single FUNCTION rather than a
+whole file: two independently-written, differently-scoped implementations of
+`container_candidates` now existed in two open, unmerged PRs. Diffed both line by line
+rather than guessing which was "better": #42/#54's version sources outer/inner fragments
+from a clue word's destemmed form UNION its mined-substitution equivalents (`sub_fwd()`,
+the same table `substitution_candidates` already uses); #55's version sources ONLY literal
+clue words. #55 measured 0/28 on a freshly transcribed 2026-06-05 and root-caused its one
+real container clue (16A, "חי בבית השופט", per the crowd explanation קטלנ = קן containing
+טל) as needing SYNONYM substitution (בית~קן, "the judge"~טל) that its literal-word-only
+design cannot reach by construction. That is exactly the capability #42/#54's version was
+built to add — #55's own diagnosis is effectively a bug report against code that already
+existed on an unmerged sibling branch. Kept #54's strictly more general implementation
+(any clue word #55's version can reach, #54's can also reach via `_destem`'s identity
+case; #54's version can additionally reach mined synonyms #55's cannot) rather than
+re-adding #55's narrower one, and did not open a second PR for #55's content — it is
+superseded, not merged.
+
+HARDENED before trusting the superset claim: added a new `candidates.py` selftest
+(`מכות וגם ציון` -> `ממלכות`, using a substitution table where the inner fragment `מל` is
+reachable ONLY via the mined table for `ציון`, not via any destemmed literal word) that
+proves the merged mechanism's synonym-sourced fragment path actually fires, and that it
+does NOT fire without the table entry (ruling out a coincidental hit). Previously this path
+was exercised only by the docstring's claim and by #42's own confounded 2026-05-29
+measurement (14across was down that day too, so `sub_fwd()` was empty and never actually
+exercised the synonym half). All 6 affected selftests re-run clean (`candidates.py`,
+`prove.py`, `substitutions.py`, `retrieve_defs.py`, `lexicon.py`; `solve_pass.py`'s selftest
+requires `data/dataset/clues.jsonl` to exist, which today's bootstrap state doesn't
+produce — see below — so it could not be exercised today, disclosed rather than skipped
+silently).
+
+INDEPENDENTLY RE-TRANSCRIBED 2026-06-05 myself (not copied from #55's branch — `data/` is
+gitignored, so #55's own transcription was never available to read) from
+`data/images/2026-06-04.jpg`, fetched directly from the public CDN. Validated all 28 enum
+sums against the GRID-DERIVED slot length (`solver/grid_tools.py validate`, 0 problems) —
+and independently rediscovered the SAME 3 print anomalies #55 disclosed (clues 8, 10, 11
+across print enums that do not match the grid-derived length; clue 19 needed its printed
+text merged across the column-wrap boundary, a distinct, already-catalogued phenomenon).
+Two independent transcriptions of the same defective print landing on the same 3 anomalous
+clues is a real cross-check that neither is careless misreading. Clue 16 itself ("חי בבית
+השופט (עפ"י מיקי זבדי)", enum (4)) was clean and unambiguous in both transcriptions.
+
+BOOTSTRAP AND GOLD DATA, disclosed plainly rather than estimated: 14across was hard-walled
+this run — not just observed as flaky, CONFIRMED directly: a standalone single-URL fetch
+for this exact puzzle's answer page returned HTTP 202 (the documented bot-check page) on 3
+consecutive retries with delays, and the full 52-URL bootstrap step was killed after 23
+minutes having recovered zero puzzles. Attempted the no-14across image-fallback (the
+following week's small solved-grid recap, `data/images/2026-06-11.jpg`): the black-cell
+PATTERN read cleanly and matched the committed grid for row 0, and row 0's letters
+assembled into a real, semantically perfect answer for clue 1 ("כלהכבודלשר" = "כל הכבוד
+לשר", matching its (3,5,2) enum exactly) — but a second row's letters did not assemble into
+a real word at all, which is a direct, executed sign that letter-level OCR of this
+embedded, sub-100px-tall grid is not reliable enough here to serve as gold data without a
+zoom/crop tool this environment does not have. **Rather than publish a partially-guessed
+gold set and an accuracy number built on it, this run stops here and reports no live
+recall@N number for 2026-06-05 today** — exactly the "if something genuinely cannot be run,
+say so plainly rather than estimating" rule this file itself states.
+
+AUDIT-ONLY DIAGNOSTIC (matching this project's own established practice of querying the
+larger, historical `solver/lex/substitutions.json` for context without using it as the
+scored live table): queried it directly for both fragments #55's root-cause named.
+`solver/substitutions.py --to קן` -> `בית (seen 18x)`, i.e. בית really is a recorded,
+generic substitution for קן. But `solver/substitutions.py --to טל` does NOT include
+`שופט`/`השופט` at all — `שופט` maps only to `קונ`/`דיינ`/`דנ` (generic "judge" synonyms).
+`טל` here almost certainly names a SPECIFIC judge (a real Israeli justice surnamed Tal),
+which is an entity/culture fact, not a generic synonym pair — refining, not just repeating,
+#55's diagnosis: the missing piece is a THIRD fragment source (a role/entity lookup like
+`culture_category_candidates`' trigger vocabulary), not merely "more corpus" for the two
+sources this mechanism already has. A further check (audit-only, both fragments injected
+by hand): even with `קן`+`טל` both available, the assembled `קטלנ` is NOT present in the
+loaded hspell lexicon at all, so — if #55's crowd-sourced gold answer is right — this
+specific clue would ALSO fail the mechanism's final lexicon-membership gate, a fourth,
+independent obstacle beyond fragment sourcing. None of this is asserted as certain (the
+gold answer itself is unverified today), but each piece was checked by executing code
+against real committed data, not guessed.
+
+NOT DONE, honestly: no live recall@N number for 2026-06-05 (see above); did not re-verify
+2026-05-29's existing confounded 3.6%/1.28-unchanged number from 2026-09-03; did not build
+the culture/entity fragment source this run's own root-cause analysis points to next
+(a real third lever, correctly deferred rather than squeezed into today's one-lever
+budget); did not merge or otherwise act on any other open PR.
+
+Previous lever (2026-09-10): **wired `solver/lex/fillbank.json` (2,412 word->definition
 pairs) into `deffit.py` as a SECOND, independent gloss source — closing 2026-09-09's own
 disclosed next step, and continuing queue item 9 ("definition-fit scoring").** Bootstrap's
 14across scrape hit the same hard wall as most recent runs (52 pages staged, only 6/52
@@ -1419,6 +1508,27 @@ propagated), `blank`. Score with `python3 evals/run_eval.py <file>`.
    re-measure once a puzzle with real crowd explanations is available, before
    concluding anything about the mechanism itself. Selftest (a real lexicon word, not
    synthetic) confirms it is mechanically sound.
+   **2026-09-11 UPDATE (branch-hygiene failure, see 2026-09-12's fuller writeup)**: a
+   SEPARATE, independently-written `container_candidates` was added on an unmerged branch
+   that never saw this one, and measured 0.0% (0/28) on a freshly transcribed 2026-06-05,
+   root-caused to its own literal-clue-word-only design being unable to reach a SYNONYM
+   substitution (בית~קן, "the judge"~טל) its one real container clue needs. **2026-09-12
+   reconciled the two**: kept this (e)'s strictly more general implementation (its
+   `container_parts()` already unions literal/destemmed words with `sub_fwd()`'s mined
+   synonyms — the exact capability 2026-09-11's diagnosis called for), and PROVED that
+   union actually fires with a new, previously-missing selftest (2026-05-29's original
+   confounded measurement never exercised it live, since `sub_fwd()` was empty that day
+   too). Could not get a live recall number today (14across hard-walled again, confirmed
+   directly; the image-fallback recap grid was not reliably readable at letter level this
+   run without a zoom tool). AUDIT-ONLY against the historical `solver/lex/substitutions.json`
+   refined 2026-09-11's own root cause: בית->קן IS a real recorded generic substitution, but
+   שופט/השופט does NOT map to טל anywhere in that table (טל is almost certainly a specific
+   named judge, an entity fact rather than a synonym pair) — so even a live, fully-fed run
+   of this mechanism would likely still miss this exact clue; the concrete next step is a
+   THIRD fragment source (role/entity lookup, reusing `culture_category_candidates`'
+   trigger vocabulary), not more corpus for the two sources this mechanism already has. A
+   further audit-only check found the assembled `קטלנ` is not even in the loaded hspell
+   lexicon, a fourth independent obstacle if that is indeed the gold answer. See log.
    (f) `double_definition_candidates` — the מילה משותפת device (PLAYBOOK.md §1.2, 14% of
    clues, second most common after charade) — ADDED 2026-09-04 (see log): the one
    PLAYBOOK-documented mechanism that had zero generator, mechanical or definition-driven,
@@ -4211,3 +4321,129 @@ Measure each lever on dev (fixed enums) with run_eval.py before/after; one lever
   scores across sources (a private_defs score and a fillbank score are not calibrated to the
   same scale, disclosed rather than hidden); did not crawl either corpus to a natural
   plateau (both deliberately time-boxed); did not act on any PR beyond building this one.
+
+- 2026-09-11: **solver lever: `container_candidates` (`solver/candidates.py`), queue item
+  1(e), closing the last gap in the mechanism roster** — `prove.py` has verified container
+  proofs (`is_container`) since its first version, but no generator ever produced one to
+  check; every other named mechanism (anagram/hidden/reversal/substitution/homograph) had
+  a generator already. Bootstrap: 33/52 puzzles recovered from 14across (925 clues; 19 came
+  back dateless, the ordinary intermittent pattern, not a hard wall). Transcribed
+  2026-06-05 fresh (first time this puzzle has been used for the candidate-recall
+  diagnostic) from `data/images/2026-06-04.jpg`, validating all 28 enum sums against the
+  GRID-DERIVED slot length rather than the printed numerals, which this run found genuinely
+  wrong for 3 clues (8/10/11 across) — a new print-error sub-type, disclosed rather than
+  silently patched over. MEASURED: `python3 solver/candidates.py recall
+  data/dataset/clues.jsonl eval --no-culture --no-retrieval [--no-container]`: **0.0%
+  (0/28) unchanged, container fired on 0/28 clues** (avg candidates/clue 11.8 both ways).
+  ROOT-CAUSED via the puzzle's own crowd explanation: this puzzle's one real container clue
+  (16A, קטלנ) needs synonym substitution (בית~קן, "the judge"~טל) the literal-clue-word
+  design cannot reach — the same underlying gap already documented for the charade device.
+  AUDITED: `lexicon.held_out_answers()` confirmed to block all 28 gold answers
+  (`gold_norm - blocked` empty) before the measurement ran, so the mechanism's `cand in
+  lex()` check could not leak one by coincidence; no forbidden reads; no jump to explain.
+  All 6 affected selftests re-run clean, including two new `container_candidates` cases
+  (a positive hit reusing `prove.py`'s own worked example, and a negative edge-insertion
+  check). Research (full entry in RESEARCH.md): fresh literature pass found nothing new and
+  buildable on candidate generation or definition-span/fit scoring — the same conclusion
+  every pass since 2026-08-06 has reached — so this run's lever came from the project's own
+  code (an unfilled gap between `prove.py`'s DSL and `candidates.py`'s generator roster),
+  not from a paper. HONEST READ: a real, well-audited negative recall result on the one
+  puzzle measured (n=1), but not an uninformative one — it fills a genuine mechanism-roster
+  gap at near-zero cost when it doesn't fire, and the root-cause trace names a concrete,
+  correctly-deferred next step (draw container's OUTER/INNER from `substitutions.py`'s
+  mined table too, not just literal clue words) rather than a dead end. NOT DONE, honestly:
+  only one puzzle measured; did not crawl `private_defs` this run; did not merge or
+  otherwise act on any open PR. **[Branched directly off pre-#54 main — never saw #54's own
+  2026-09-03 `container_candidates`, which already implements exactly the "draw from
+  substitutions.py's mined table too" next step this entry names. See 2026-09-12's entry
+  for the reconciliation.]**
+
+- 2026-09-12: **branch-hygiene fix + hardening on `container_candidates`; no new recall
+  number, disclosed rather than fabricated.** `list_pull_requests` showed #55 (2026-09-11)
+  had branched directly off pre-#54 main and independently reimplemented
+  `container_candidates` — a function this branch's own history already added 2026-09-03
+  (PR #42, folded into #54's 2026-09-10 consolidation) — because #55 never saw #54's
+  branch. Queue item 6's compounding-loss pattern, recurring on a single function instead
+  of a whole file. Diffed both implementations line by line: #42/#54's sources outer/inner
+  fragments from a clue word's destemmed form UNION `sub_fwd()`'s mined-substitution
+  equivalents; #55's sources ONLY literal clue words. #55 measured 0/28 on a freshly
+  transcribed 2026-06-05 and root-caused its one real container clue (16A, "חי בבית
+  השופט", per the crowd explanation קטלנ = קן containing טל) as needing exactly the
+  synonym-substitution capability #42/#54's version already has. Kept #54's strictly more
+  general version; did not re-add #55's narrower one or open a second PR for it — it is
+  superseded, not merged.
+
+  HARDENED before trusting the superset claim rather than just asserting it: added a new
+  `candidates.py` selftest (`מכות וגם ציון` -> `ממלכות`, via a substitution table where the
+  inner fragment `מל` is reachable ONLY through the mined table for `ציון`, not through any
+  destemmed literal word) that proves the merged mechanism's synonym-sourced fragment path
+  actually fires, and does NOT fire without the table entry (ruling out a coincidental
+  hit). This path had never actually been exercised live before: #42's own 2026-09-03
+  measurement was itself confounded (14across down that day too, so `sub_fwd()` was empty).
+  All 6 affected selftests re-run clean (`candidates.py`, `prove.py`, `substitutions.py`,
+  `retrieve_defs.py`, `lexicon.py`); `solve_pass.py`'s selftest requires
+  `data/dataset/clues.jsonl` to exist, which today's bootstrap state does not produce, so
+  it could not be exercised today (disclosed, not silently skipped).
+
+  INDEPENDENTLY RE-TRANSCRIBED 2026-06-05 (not copied from #55's branch — `data/` is
+  gitignored, so #55's own transcription was never reachable) from
+  `data/images/2026-06-04.jpg`, fetched directly from the public CDN. Validated all 28 enum
+  sums against the GRID-DERIVED slot length (`solver/grid_tools.py validate`, 0 problems)
+  and independently rediscovered the SAME 3 print anomalies #55 disclosed (clues 8, 10, 11
+  across print enums that do not match the grid-derived length) plus one more (clue 19's
+  printed text needed merging across the column-wrap boundary, a distinct, already-
+  catalogued phenomenon). Two independent transcriptions of the same defective print
+  landing on the same 3 anomalous clues is a real cross-check that neither is careless
+  misreading. Clue 16 itself ("חי בבית השופט (עפ"י מיקי זבדי)", enum (4)) was clean and
+  unambiguous in both transcriptions.
+
+  BOOTSTRAP AND GOLD DATA, disclosed plainly rather than estimated: 14across was hard-
+  walled this run — confirmed directly, not just observed as flaky: a standalone
+  single-URL fetch for this exact puzzle's answer page returned HTTP 202 (the documented
+  bot-check page) on 3 consecutive retries with delays, and the full 52-URL bootstrap step
+  was killed after 23 minutes having recovered zero puzzles. Attempted the no-14across
+  image-fallback (the following week's small solved-grid recap, `data/images/2026-06-11.jpg`):
+  the black-cell PATTERN read cleanly and matched the committed grid for row 0, and row 0's
+  letters assembled into a real, semantically perfect answer for clue 1 ("כלהכבודלשר" =
+  "כל הכבוד לשר", matching its (3,5,2) enum exactly) — but a second row's letters did not
+  assemble into a real word at all, a direct, executed sign that letter-level OCR of this
+  embedded, sub-100px-tall grid is not reliable enough here without a zoom/crop tool this
+  environment does not have. Rather than publish a partially-guessed gold set and an
+  accuracy number built on it, this run reports no live recall@N number for 2026-06-05
+  today — exactly the "if something genuinely cannot be run, say so plainly rather than
+  estimating" rule this file itself states.
+
+  AUDIT-ONLY DIAGNOSTIC (same established practice as 2026-08-20's log entry: querying the
+  larger, historical `solver/lex/substitutions.json` for context without using it as the
+  scored live table): `python3 solver/substitutions.py --to קן` -> `בית (seen 18x)`, i.e.
+  בית really is a recorded, generic substitution for קן. But `python3 solver/substitutions.py
+  --to טל` does NOT include `שופט`/`השופט` at all — `שופט` maps only to `קונ`/`דיינ`/`דנ`
+  (generic "judge" synonyms). `טל` here almost certainly names a SPECIFIC judge (a real
+  Israeli justice surnamed Tal), which is an entity/culture fact, not a generic synonym
+  pair — refining, not just repeating, #55's diagnosis: the missing piece is a THIRD
+  fragment source (a role/entity lookup like `culture_category_candidates`' trigger
+  vocabulary), not merely "more corpus" for the two sources this mechanism already has. A
+  further check (audit-only, both fragments injected by hand): even with `קן`+`טל` both
+  available, the assembled `קטלנ` is NOT present in the loaded hspell lexicon at all, so —
+  if #55's crowd-sourced gold answer is right — this specific clue would ALSO fail the
+  mechanism's final lexicon-membership gate, a fourth, independent obstacle beyond fragment
+  sourcing. None of this is asserted as certain (the gold answer itself is unverified
+  today, since 14across never confirmed it), but each piece was checked by executing code
+  against real committed data, not guessed.
+
+  Research (full entry in RESEARCH.md): no new external paper or tool found this cycle
+  turns into a working addition to candidate generation this project doesn't already have
+  some version of — the same conclusion recent passes have reached. Today's lever came from
+  the project's own PR backlog (a duplicate-implementation bug), not from a paper.
+
+  HONEST READ: no recall@N delta to report today, and that is the honest result of a real
+  infrastructure constraint (14across hard-walled, small-image OCR unreliable), not of the
+  lever being uninteresting — the branch-hygiene fix prevents a real wasted-effort pattern
+  from recurring a third time, the new selftest converts a previously-unexercised claim
+  into a verified one, and the audit-only diagnostic gives a sharper, data-checked root
+  cause than "needs more corpus" for the next attempt. NOT DONE, honestly: no live
+  recall@N number for 2026-06-05; did not re-verify 2026-05-29's existing confounded
+  3.6%/1.28-unchanged number from 2026-09-03; did not build the culture/entity fragment
+  source this run's own root-cause analysis points to next (a real third lever, correctly
+  deferred rather than squeezed into today's one-lever budget); did not merge or otherwise
+  act on any other open PR.

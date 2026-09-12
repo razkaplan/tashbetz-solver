@@ -1134,6 +1134,29 @@ def selftest():
     off = container_candidates('מכות ומל משהו', 6)
     print(f'  standalone call still fires: {len(off) >= 1} (expected True)')
     ok &= len(off) >= 1
+    print('--- container device: an outer/inner fragment sourced ONLY from the mined'
+          ' SUBSTITUTION table (not a literal clue word or its destemmed form) --'
+          ' 2026-09-11 (PR #55) measured 0/28 on a puzzle whose one real container clue'
+          ' needs exactly this (בית~קן, "the judge"~טל) and root-caused a'
+          " literal-clue-word-only design as the reason it couldn't reach it; this checks"
+          ' the mechanism already merged here (container_parts() unions destem AND'
+          ' sub_fwd()) actually exercises that path, not just carries the docstring claim'
+          ' ---')
+    # 'ציון' shares no letters/destem overlap with 'מל' at all -- the ONLY route from
+    # 'ציון' to 'מל' is the injected substitution table, so a hit here is proof-positive
+    # the substitution-sourced fragment path (not the literal-word path the first test
+    # above already covers) is what produced it.
+    sub_table = {norm('ציון'): [(norm('מל'), 5)]}
+    hits3 = container_candidates('מכות וגם ציון', 6, table=sub_table)
+    found_sub = any(h['answer'] == norm('ממלכות') and h['fodder'] == 'מכות[מל] (מכות+ציונ)'
+                     for h in hits3)
+    print(f'  found ממלכות via ציונ\'s MINED SUBSTITUTE מל spliced into the literal'
+          f' word מכות: {found_sub} (expected True)')
+    ok &= found_sub
+    no_table_hits = container_candidates('מכות וגם ציון', 6, table={})
+    print(f'  same clue with no substitution entry fires nothing: {no_table_hits == []} '
+          f'(expected True -- proves the hit above needed the table, not a coincidence)')
+    ok &= no_table_hits == []
 
     print('--- culture_category device: a category the clue NAMES surfaces its namelist,'
           ' matched by MEANING not letters ---')
