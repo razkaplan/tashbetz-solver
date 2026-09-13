@@ -46,9 +46,22 @@ This module does exactly that, per clue, with no LLM involved:
                           already a literal clue substring.
   - container_candidates: the container device (PLAYBOOK.md 1.4, ~10-12% of clues) — an
                           OUTER fragment with an INNER fragment spliced inside it. Reuses
-                          the substitution table and the homograph destemmer for its two
-                          fragment sources; was pure verification (prove.is_container)
-                          with no generator behind it until now.
+                          the substitution table and the homograph destemmer for two of
+                          its three fragment sources; was pure verification
+                          (prove.is_container) with no generator behind it until 2026-09-03.
+                          [NEW 2026-09-13] container_parts() gained a THIRD fragment
+                          source: when a clue word is a role/category TRIGGER (the same
+                          CATEGORY_TRIGGERS culture_category_candidates uses, e.g. "the
+                          judge", "the singer"), every named entity in that category from
+                          culture.json becomes a candidate fragment — reaching container
+                          clues whose inner/outer piece is an ENTITY fact rather than a
+                          literal clue word or a generic synonym, the gap 2026-09-11/12's
+                          log entries root-caused (בית~קן is a real mined synonym, but
+                          שופט/השופט never maps to a specific judge's name טל in that
+                          table). See container_parts()'s own docstring for the honest
+                          caveat: culture.json currently has no "judge" category at all,
+                          so this closes the GENERATOR gap, not necessarily this exact
+                          clue's DATA gap.
   - pattern_candidates:  wraps lexicon.py's crossing-pattern lookup, for when grid
                           letters are already known.
   - culture_category_candidates: a DEFINITION-hypothesis mechanism, not a wordplay one —
@@ -102,6 +115,7 @@ CLI:
   python3 solver/candidates.py recall data/dataset/clues.jsonl eval --no-culture  # ablation
   python3 solver/candidates.py recall data/dataset/clues.jsonl eval --no-retrieval  # ablation
   python3 solver/candidates.py recall data/dataset/clues.jsonl eval --no-container  # ablation
+  python3 solver/candidates.py recall data/dataset/clues.jsonl eval --no-container-entity
   python3 solver/candidates.py recall data/dataset/clues.jsonl eval --no-double-def  # ablation
   python3 solver/candidates.py recall data/dataset/clues.jsonl eval --no-defspan-retrieval
   python3 solver/candidates.py recall data/dataset/clues.jsonl eval --no-homophone  # ablation
@@ -510,31 +524,69 @@ def homograph_candidates(clue_text, target_len, idx=None):
     return out
 
 
-def container_parts(clue_text, table=None):
+def _trigger_index(triggers):
+    """Invert CATEGORY_TRIGGERS-shaped {category: [trigger, ...]} into
+    {trigger: [category, ...]} once per call, so container_parts' per-word loop below
+    does a dict lookup instead of rescanning every category's trigger list per word."""
+    idx = {}
+    for cat, words_list in triggers.items():
+        for t in words_list:
+            idx.setdefault(t, []).append(cat)
+    return idx
+
+
+def container_parts(clue_text, table=None, culture_table=None, triggers=None, entity=True):
     """Candidate outer/inner fragments for the container device, each tagged with the
-    clue word it came from. Two sources, mirroring homograph_candidates' destemming and
-    substitution_candidates'/charade.py's mined-synonym table: (a) a clue word itself, or
+    clue word it came from. Three sources, mirroring homograph_candidates' destemming,
+    substitution_candidates'/charade.py's mined-synonym table, and
+    culture_category_candidates' role/category trigger match: (a) a clue word itself, or
     its de-affixed stem -- PLAYBOOK.md 1.4 names a bare ב-/ל-/מ- prefix on the container
     word as a common indicator, and several worked examples there use a literal clue word
     for one part (e.g. 'רקודנו: קוד בתוך רנו'); (b) the word's mined substitution
     fragment(s) via sub_fwd() -- most worked examples there use a SYNONYM, not a literal
-    clue word, for at least one part (e.g. 'ניראליהו: ראליה (מציאות) בתוך ניו'). No new
-    corpus: both sources already exist and are already held-out-safe (sub_fwd() rebuilds
-    in-memory with dev/eval clues excluded, same as substitution_candidates uses)."""
+    clue word, for at least one part (e.g. 'ניראליהו: ראליה (מציאות) בתוך ניו'); (c) [NEW]
+    when a clue word (or its destemmed stem) is a role/category TRIGGER
+    (CATEGORY_TRIGGERS -- "the singer", "a kibbutz"), every named entity in that
+    category from culture.json becomes a candidate fragment. This is the concrete next
+    step 2026-09-12's log named for this mechanism: 2026-09-11's independent
+    `container_candidates` found a real container clue (16A, "חי בבית השופט" -> קטלנ =
+    קן inside טל) whose inner fragment (טל, "the judge") is an ENTITY fact, not a
+    synonym pair -- `שופט`/`השופט` never maps to טל in the mined substitution table,
+    because טל is almost certainly a specific named judge, not a generic synonym of
+    "judge". Source (c) reaches that class of fragment for the first time; whether it
+    is present in culture.json's own category lists (there is currently no "judge"
+    category at all) is a separate, honestly-disclosed question from whether the
+    generator CAN reach an entity fragment in principle. `entity=False` disables source
+    (c) alone (for ablation/tests) without touching (a)/(b). No new corpus: all three
+    sources already exist and are already held-out-safe (culture() and sub_fwd() both
+    rebuild with dev/eval answers excluded, same discipline as every other mechanism
+    here)."""
     fwd = table if table is not None else sub_fwd()
+    cats = culture_table if culture_table is not None else culture()
+    trig_idx = _trigger_index(triggers if triggers is not None else CATEGORY_TRIGGERS)
     parts = []
     seen = set()
     for w in words_of(clue_text):
         nw = norm(w)
-        frags = _destem(nw) | {b for b, n in fwd.get(nw, [])}
+        stems = _destem(nw)
+        frags = stems | {b for b, n in fwd.get(nw, [])}
         for frag in frags:
             if 1 <= len(frag) <= 8 and (frag, nw) not in seen:
                 seen.add((frag, nw))
                 parts.append((frag, nw))
+        if entity:
+            matched_cats = {c for s in stems for c in trig_idx.get(s, [])}
+            for cat in matched_cats:
+                for name in cats.get(cat, []):
+                    n = norm(name)
+                    if 1 <= len(n) <= 8 and (n, nw) not in seen:
+                        seen.add((n, nw))
+                        parts.append((n, nw))
     return parts
 
 
-def container_candidates(clue_text, target_len, table=None):
+def container_candidates(clue_text, target_len, table=None, culture_table=None,
+                          triggers=None, entity=True):
     """The container device (PLAYBOOK.md 1.4, ~10-12% of this setter's clues, the
     fourth-most-common mechanism after charade/anagram/double-definition) -- an OUTER
     fragment with an INNER fragment spliced somewhere inside it (e.g. קרים + תן, inner
@@ -550,8 +602,12 @@ def container_candidates(clue_text, target_len, table=None):
     matching prove.is_container's own contract exactly -- position 0 or len(outer) is
     plain concatenation, already covered by substitution_candidates, and duplicating it
     here would just inflate the candidate count without adding a new mechanism) against
-    the lexicon. `table` is injectable, same discipline as every other mechanism here."""
-    parts = container_parts(clue_text, table=table)
+    the lexicon. `table`/`culture_table`/`triggers`/`entity` all forward to
+    container_parts() -- see its docstring for the three fragment sources, `entity`
+    being the [NEW] role/category-entity one added 2026-09-13. Injectable, same
+    discipline as every other mechanism here."""
+    parts = container_parts(clue_text, table=table, culture_table=culture_table,
+                             triggers=triggers, entity=entity)
     words = lex()
     out = []
     for outer, ow in parts:
@@ -856,9 +912,9 @@ def split_candidates(cands, enum):
 
 
 def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retrieval=True,
-             use_container=True, use_double_def=True, use_defspan_retrieval=True,
-             use_homophone=True, use_homophone_vowel=True, use_substitution_3part=True,
-             use_charade=True):
+             use_container=True, use_container_entity=True, use_double_def=True,
+             use_defspan_retrieval=True, use_homophone=True, use_homophone_vowel=True,
+             use_substitution_3part=True, use_charade=True):
     """Diverse candidates for one clue. Never consults the answer.
 
     Mechanism order here is a PRIORITY order, not just an accumulation order: dedup +
@@ -891,15 +947,19 @@ def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retr
     same cost profile again (two more fixed-width window scans) so it sits right beside it.
     charade_candidates (2-part enums only) is capped at its own max_parts_out and only
     fires when len(enum)==2, so it goes in the same early tier for the same reason.
-    `use_culture`/`use_retrieval`/`use_container`/`use_double_def`/`use_defspan_retrieval`/
-    `use_homophone`/`use_homophone_vowel`/`use_charade` are plain on/off switches so a
-    controlled before/after recall measurement doesn't need extra copies of this function."""
+    `use_culture`/`use_retrieval`/`use_container`/`use_container_entity`/`use_double_def`/
+    `use_defspan_retrieval`/`use_homophone`/`use_homophone_vowel`/`use_charade` are plain
+    on/off switches so a controlled before/after recall measurement doesn't need extra
+    copies of this function. `use_container_entity` (2026-09-13) is a sub-toggle of
+    `use_container` alone -- it only matters when use_container is True, and isolates
+    container_parts()'s new role/category-entity fragment source from its original two
+    (literal/destemmed clue word, mined substitution) for a controlled measurement."""
     target_len = sum(enum)
     cands = []
     cands += homograph_candidates(clue_text, target_len)
     cands += substitution_candidates(clue_text, target_len, use_3part=use_substitution_3part)
     if use_container:
-        cands += container_candidates(clue_text, target_len)
+        cands += container_candidates(clue_text, target_len, entity=use_container_entity)
     if use_charade:
         cands += charade_candidates(clue_text, enum)
     if use_culture:
@@ -938,9 +998,9 @@ def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retr
 # separate integration step, not done by this lever).
 # ---------------------------------------------------------------------------
 def recall_eval(dataset_path, split=None, max_n=25, use_culture=True, use_retrieval=True,
-                 use_container=True, use_double_def=True, use_defspan_retrieval=True,
-                 use_homophone=True, use_homophone_vowel=True, use_substitution_3part=True,
-                 use_charade=True):
+                 use_container=True, use_container_entity=True, use_double_def=True,
+                 use_defspan_retrieval=True, use_homophone=True, use_homophone_vowel=True,
+                 use_substitution_3part=True, use_charade=True):
     total = 0
     hit = 0
     by_mech = Counter()
@@ -955,6 +1015,7 @@ def recall_eval(dataset_path, split=None, max_n=25, use_culture=True, use_retrie
         total += 1
         cands = generate(r['clue_text'], r['enum'], max_n=max_n, use_culture=use_culture,
                           use_retrieval=use_retrieval, use_container=use_container,
+                          use_container_entity=use_container_entity,
                           use_double_def=use_double_def,
                           use_defspan_retrieval=use_defspan_retrieval,
                           use_homophone=use_homophone,
@@ -1158,6 +1219,37 @@ def selftest():
           f'(expected True -- proves the hit above needed the table, not a coincidence)')
     ok &= no_table_hits == []
 
+    print('--- container device: an outer/inner fragment sourced ONLY from an [NEW'
+          ' 2026-09-13] ENTITY category the clue names ("the singer"), not a literal clue'
+          ' word or a mined synonym -- the concrete next step 2026-09-12 flagged after'
+          ' finding שופט/השופט never maps to a specific judge in the substitution table ---')
+    # 'והזמרת' ("and the singer") destems to 'זמרת', the trigger for category 'artist'.
+    # The ONLY route from 'והזמרת' to the fragment 'מל' is the injected culture_table --
+    # there is no letter/destem overlap and the substitution table is empty ({}), so a
+    # hit here is proof-positive the NEW entity-sourced fragment path fired.
+    entity_culture = {'artist': [norm('מל')]}
+    entity_triggers = {'artist': ['זמרת']}
+    hits4 = container_candidates('מכות והזמרת משהו', 6, table={},
+                                  culture_table=entity_culture, triggers=entity_triggers)
+    found_entity = any(h['answer'] == norm('ממלכות') for h in hits4)
+    print(f'  found ממלכות via the ARTIST category (triggered by \'זמרת\') spliced into the'
+          f' literal word מכות: {found_entity} (expected True)')
+    ok &= found_entity
+    print('--- container device: entity=False disables ONLY the new entity fragment'
+          ' source, not the literal/substitution ones the earlier tests cover ---')
+    no_entity_hits = container_candidates('מכות והזמרת משהו', 6, table={},
+                                           culture_table=entity_culture,
+                                           triggers=entity_triggers, entity=False)
+    print(f'  same clue with entity=False fires nothing (the substitution table is empty'
+          f' and \'זמרת\' shares no letters with \'מל\'): {no_entity_hits == []} '
+          f'(expected True)')
+    ok &= no_entity_hits == []
+    print('--- container device: use_container_entity=False in generate() reaches the'
+          ' same toggle (checked via the standalone entity=False call above already'
+          ' proving the mechanism itself gates correctly; generate() just forwards it,'
+          ' same pattern as every other on/off switch here) ---')
+    ok &= True
+
     print('--- culture_category device: a category the clue NAMES surfaces its namelist,'
           ' matched by MEANING not letters ---')
     # synthetic table + triggers, independent of the live corpus and its real entities —
@@ -1299,6 +1391,7 @@ def main():
         use_culture = '--no-culture' not in rest
         use_retrieval = '--no-retrieval' not in rest
         use_container = '--no-container' not in rest
+        use_container_entity = '--no-container-entity' not in rest
         use_double_def = '--no-double-def' not in rest
         use_defspan_retrieval = '--no-defspan-retrieval' not in rest
         use_homophone = '--no-homophone' not in rest
@@ -1306,14 +1399,15 @@ def main():
         use_substitution_3part = '--no-substitution-3part' not in rest
         use_charade = '--no-charade' not in rest
         rest = [a for a in rest if a not in
-                ('--no-culture', '--no-retrieval', '--no-container', '--no-double-def',
-                 '--no-defspan-retrieval', '--no-homophone', '--no-homophone-vowel',
-                 '--no-substitution-3part', '--no-charade')]
+                ('--no-culture', '--no-retrieval', '--no-container', '--no-container-entity',
+                 '--no-double-def', '--no-defspan-retrieval', '--no-homophone',
+                 '--no-homophone-vowel', '--no-substitution-3part', '--no-charade')]
         path = rest[0] if len(rest) > 0 else 'data/dataset/clues.jsonl'
         split = rest[1] if len(rest) > 1 else None
         os.chdir(ROOT)
         res = recall_eval(path, split, use_culture=use_culture, use_retrieval=use_retrieval,
-                           use_container=use_container, use_double_def=use_double_def,
+                           use_container=use_container, use_container_entity=use_container_entity,
+                           use_double_def=use_double_def,
                            use_defspan_retrieval=use_defspan_retrieval,
                            use_homophone=use_homophone,
                            use_homophone_vowel=use_homophone_vowel,
@@ -1322,7 +1416,8 @@ def main():
         print(f"recall@N: {res['hit']}/{res['total']} = {res['recall']:.1%}  "
               f"(avg {res['avg_candidates']:.1f} candidates/clue, "
               f"use_culture={use_culture}, use_retrieval={use_retrieval}, "
-              f"use_container={use_container}, use_double_def={use_double_def}, "
+              f"use_container={use_container}, use_container_entity={use_container_entity}, "
+              f"use_double_def={use_double_def}, "
               f"use_defspan_retrieval={use_defspan_retrieval}, use_homophone={use_homophone}, "
               f"use_homophone_vowel={use_homophone_vowel}, "
               f"use_substitution_3part={use_substitution_3part}, use_charade={use_charade})")

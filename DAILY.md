@@ -17,7 +17,7 @@ tree - a stale CLI deploy overwrote the live site on 2026-08-29. See CLAUDE.md.
 | Best single puzzle | 2026-05-29: 95% / 71% / 68% ✓ all targets | |
 | Hardest puzzle | 2026-06-05: 100% / 43% / 43% | coverage stuck |
 | **Candidate recall@N (new, offline, mechanical only)** | **3.6% (1/28)**, avg 11.6 candidates/clue (capped), on 2026-05-29 — UNCHANGED after adding substitution+homograph mechanisms | not yet a target — diagnostic |
-| **Candidate recall@N with `container_candidates` added (new, offline, mechanical — the container/insertion device, ~10-12% of clues per PLAYBOOK.md, previously pure verification infra with no generator)** | **3.6% (1/28), UNCHANGED** on 2026-05-29 (re-transcribed fresh, 28/28 clues, 0 enum mismatches) — mechanism fired on only 1/28 clues (2 raw candidates, 0 gold hits); avg candidates/clue unchanged at 11.6. CONFOUNDED, disclosed: 14across was fully unreachable this run (the same hard wall since 2026-08-19), so `sub_fwd()` — the mined-substitution half of this mechanism's fragment source, and the SAME source `substitution_candidates()` already depends on — was empty, and `substitution_candidates()` itself also scored 0 fires this run (by-mechanism breakdown: only `anagram` hit at all). Not a clean test of the device; only its corpus-free destem/literal-word fragment half was exercised. Offline selftest (not gold-linked; found by scanning the real committed lexicon, not a synthetic fixture) confirms the mechanism correctly derives a real dictionary word (מכות + מל spliced at an interior position -> ממלכות). **SECOND measurement, 2026-09-11 (an independently-written duplicate implementation, see 2026-09-12's log entry for the branch-hygiene story): 0.0% (0/28) on 2026-06-05** — fired on 0/28 clues; root-caused via the puzzle's own crowd explanation that its one real container clue (16A, קטלנ) needs SYNONYM substitution (בית~קן, "the judge"~טל) that a literal-clue-word-only design cannot reach. **THIRD, 2026-09-12: see log — the two independent implementations were reconciled (the merged version already unions literal/destemmed clue words with `sub_fwd()`'s mined synonyms, confirmed by a new selftest proving the synonym-only path fires) and re-measured** | not yet a target — diagnostic; re-measure once 14across (or any puzzle with real crowd explanations) is reachable |
+| **Candidate recall@N with `container_candidates` added (new, offline, mechanical — the container/insertion device, ~10-12% of clues per PLAYBOOK.md, previously pure verification infra with no generator)** | **3.6% (1/28), UNCHANGED** on 2026-05-29 (re-transcribed fresh, 28/28 clues, 0 enum mismatches) — mechanism fired on only 1/28 clues (2 raw candidates, 0 gold hits); avg candidates/clue unchanged at 11.6. CONFOUNDED, disclosed: 14across was fully unreachable this run (the same hard wall since 2026-08-19), so `sub_fwd()` — the mined-substitution half of this mechanism's fragment source, and the SAME source `substitution_candidates()` already depends on — was empty, and `substitution_candidates()` itself also scored 0 fires this run (by-mechanism breakdown: only `anagram` hit at all). Not a clean test of the device; only its corpus-free destem/literal-word fragment half was exercised. Offline selftest (not gold-linked; found by scanning the real committed lexicon, not a synthetic fixture) confirms the mechanism correctly derives a real dictionary word (מכות + מל spliced at an interior position -> ממלכות). **SECOND measurement, 2026-09-11 (an independently-written duplicate implementation, see 2026-09-12's log entry for the branch-hygiene story): 0.0% (0/28) on 2026-06-05** — fired on 0/28 clues; root-caused via the puzzle's own crowd explanation that its one real container clue (16A, קטלנ) needs SYNONYM substitution (בית~קן, "the judge"~טל) that a literal-clue-word-only design cannot reach. **THIRD, 2026-09-12: see log — the two independent implementations were reconciled (the merged version already unions literal/destemmed clue words with `sub_fwd()`'s mined synonyms, confirmed by a new selftest proving the synonym-only path fires) and re-measured**. **FOURTH, 2026-09-13: added a THIRD fragment source (role/category ENTITY lookup, reusing `culture_category_candidates`' CATEGORY_TRIGGERS + culture.json) and re-measured on a freshly re-transcribed 2026-05-29 (9th independent transcription, 28/28 clues, 0 enum mismatches, 0/15 solved-recap grid-pattern mismatches): STILL 3.6% (1/28), UNCHANGED** — container fired on only 1/28 clues (9 across, 2 candidates, both from the pre-existing literal/destemmed source, 0 from entity), same as the very first (confounded) 2026-09-03 measurement. This time the substitution half was ALSO empty (14across hard-walled again, 0/52 after 10 tries — killed and worked entirely from the image-fallback technique), but the ENTITY half is NOT corpus-dependent (culture.json is committed, not gitignored) and this run PROVED it actually exercises real data: 2 clues had a category-trigger word (1 across "שירה"->song, 16 down "סופר"->author) and the entity source generated 2,863 and 645 candidate fragments respectively from culture.json's real song/author namelists — genuinely large fragment pools, not a silent no-op — but NONE of them combined with another clue word's fragment into a real lexicon word via container splicing on this puzzle. A real, clean (unconfounded for this source specifically), single-puzzle negative result: the generator capability now exists and is proven to fire on real data, it simply didn't help THIS puzzle's THIS run. Wall-clock cost negligible (17.57s -> 17.60s for the full 28-clue eval, despite the large fragment counts, since container_candidates' own length-based filtering keeps the outer/inner pairing loop cheap). AUDIT finding worth its own line: culture.json's RAW (unfiltered) entity lists contain 2 of this puzzle's 28 gold answers (`ישפרחימ`/"יש פרחים" under `song`, `טליגוטליב`/"טלי גוטליב" under `politician`) — both correctly EXCLUDED by `culture()`'s existing held-out filter (confirmed directly: filtered `culture()` output has zero overlap with this puzzle's gold set) — the filter is doing real, necessary work, not a no-op. `lexicon.held_out_answers()` and `retrieve_defs.held_out()` also both confirmed to block all 28 gold answers. See log for the full transcription/audit trail. | not yet a target — diagnostic; re-measure on a puzzle with real crowd explanations (for the substitution source) AND a clue whose entity fragment actually completes a real word (for the new entity source) before calling either half dead |
 | **Candidate recall@N with `retrieval_candidates` added (new, offline, BM25 definition retrieval)** | **7.1% (2/28)** on 2026-05-29 (up from 3.6%); **SECOND puzzle, 2026-08-26: 0.0% (0/18) → 5.6% (1/18)** on 2026-06-26 (partial, 18/28 clues); **THIRD puzzle, 2026-08-27: 0.0% (0/19) → 0.0% (0/19), UNCHANGED** on 2026-07-10; **2026-08-28, RE-MEASURED on 2026-05-29 with a GROWN corpus (mordo re-crawled 13,646 raw pairs vs 9,685; `note.co.il` crawled for the first time this project's lifetime, 829 pairs): 3.6% (1/28) → 10.7% (3/28)**, up from the 7.1% this exact puzzle scored with the smaller corpus; **2026-08-29, RE-MEASURED 2026-07-10 with an EVEN BIGGER corpus (mordo 25,350 raw / 24,361 parsed, up from 13,646/12,890; note.co.il 970 fetched out of 1,301 discovered): 0.0% (0/19) → 0.0% (0/19), STILL UNCHANGED**; **2026-08-30, RE-MEASURED 2026-06-26 — this time FULLY transcribed (28/28 clues, closing 2026-08-26's 18/28 partial gap) and with a MASSIVELY grown corpus (mordo 66,443 raw / 62,403 parsed, up from 25,350/24,361 — the blogspot feed has grown 2.6x again; note.co.il 1,001 fetched out of 1,301 discovered, up from 970/1301): 0.0% (0/28) → 14.3% (4/28)** — the highest recall this diagnostic has ever measured on any puzzle, and the largest single-puzzle point gain, from 4 independently-audited external hits (מניע, רומח, בובדילנ, ברסמכא) — see log | not yet a target — diagnostic; 6 independent measurements, 4 positive + 2 flat, confirming corpus growth is puzzle-dependent (rescued 2026-05-29 twice and now 2026-06-26 strongly, never moved 2026-07-10 across three corpus sizes) |
 | **Definition-span locatable rate (new, offline, diagnostic)** | **25% (7/28)** have mechanically-locatable single-window wordplay; of those 29% (2/7) are interior, not edge; classifier agreement on edge cases **1/5** | not a target — this diagnostic KILLED the lever, see log |
 | **`solve_pass.py` LIVE blind trial — cumulative (3 trials)** | **40% precision (2/5 committed)**: 2026-08-16 was 1/2 on a partial 21/28-clue puzzle (2026-06-12); 2026-08-22 was **0/2**, 7.1% coverage, on a FULL 28/28-clue puzzle (2026-05-15); **2026-08-27 is 1/1 = 100% precision but 5.3% coverage (1/19), 0% suggestion hit-rate (0/10)**, on 2026-07-10 (19/28 clues) — FIRST trial run with `retrieval_candidates` live (wired 2026-08-25, never live-trialed since); it contributed ZERO candidates all puzzle (grepped the transcript for `(retrieval, fodder=` hits — none), matching today's own offline recall@N finding on this same puzzle (0/19 with or without retrieval); the one correct commit came from `wiki.py` culture-fact lookup, not from any candidate generator | n=5 — still small; retrieval's live debut is a null result on this puzzle, not a regression, but not the coverage lift the queue hoped for either; see log |
@@ -33,7 +33,106 @@ tree - a stale CLI deploy overwrote the live site on 2026-08-29. See CLAUDE.md.
 | **`deffit.py` with `fillbank.json` wired as a second gloss source (NEW 2026-09-10, offline)** | Re-measured on the SAME 2026-05-15 puzzle, independently re-transcribed and re-crawled fresh this run: recall@N **0/28 with or without retrieval** (a smaller/different private_defs crawl than 2026-09-09's found no hits at all on this puzzle — recall_hit therefore 0/28, so top-1/MRR are undefined this run). Split the structural diagnostic into TWO numbers on purpose: clues with a non-retrieval candidate carrying a KNOWN gloss in ANY source went **3/28 (private_defs alone) → 14/28 (+fillbank)** — fillbank.json's 2,412 entries genuinely widen gloss coverage, a real and substantial move; but clues with a non-retrieval candidate whose gloss actually SHARES VOCABULARY with the clue (`def_fit>0`, 2026-09-09's own stricter bar) stayed **0/28 with fillbank ON**, because the 59 newly-known candidates' glosses (e.g. `ירושלים` -> `בירת ישראל`) don't happen to repeat the clue's own wording. Also FOUND AND FIXED a real bug before ever measuring: `build_fillbank_index()` didn't fold fillbank's final letters (ם/ן/ץ/ף/ך), so it would have silently missed all 557/2,450 (22.7%) of fillbank entries ending in one — every candidates.py answer is unconditionally final-folded, so the lookup would have failed for any of those words even when present | not yet a target — a real, disclosed, mixed result: coverage widened, the stricter score-overlap bar did not move this run; see log |
 
 Baseline for comparison: v2 = 41% raw with untraceable errors.
-Last lever added (2026-09-12): **found and fixed a duplicate-PR branch-hygiene failure on
+Last lever added (2026-09-13): **`container_candidates` gained a THIRD fragment source
+(role/category ENTITY lookup, reusing `culture_category_candidates`'s CATEGORY_TRIGGERS
+and culture.json) — the concrete next step 2026-09-12's own log named. MEASURED FLAT
+(3.6%/1/28, unchanged) on a freshly re-transcribed 2026-05-29, but PROVED the new source
+genuinely fires on real data (2,863 + 645 candidate fragments from 2 trigger-matching
+clues) even though none of them completed a real word on this puzzle.**
+
+Started by reading the actual repository state, not just stale `main`: `list_pull_requests`
+showed **14 open, unmerged PRs** (#38 through #56, spanning 2026-08-31 to 2026-09-12) —
+`main` itself has not had a solver-lever merge since 2026-08-30. Branched this run off PR
+#56's head (2026-09-12, `mergeable_state: clean`, already folds in #38/#39/#41/#42/#44/#46/
+#47/#52/#53/#54/#55) rather than off stale `main`, per queue item 6's own repeated finding
+that branching off `main` instead of the latest unmerged work is exactly what causes the
+backlog to compound.
+
+Research (RESEARCH.md, full entry): searched for external resources that resolve a Hebrew
+role/category noun ("the judge") to a specific NAMED entity — the gap #55/#56 diagnosed
+(שופט/השופט never maps to a specific judge in the mined substitution table). Found nothing
+new; this is now the fourth or fifth research pass (2026-08-22/23/24/25, now 09-13) landing
+on the identical conclusion that no such external resource exists for Hebrew. Built the
+internal capability instead, per queue item 9's own standing guidance to stop re-searching
+a closed door and work from this project's own data.
+
+**What changed**: `container_parts()` (solver/candidates.py) gained a third source
+alongside the existing literal/destemmed-word and mined-substitution ones — when a clue
+word (or its destemmed stem) matches a CATEGORY_TRIGGERS role/category word (song, artist,
+politician, kibbutz, etc.), every named entity in that category from culture.json becomes a
+candidate inner/outer fragment for the container splice, not just a whole-answer candidate
+the way `culture_category_candidates` already uses it. New `entity=True` parameter on
+`container_parts()`/`container_candidates()`, threaded through `generate()`/`recall_eval()`
+as `use_container_entity` (default True) and a new `--no-container-entity` CLI ablation
+flag, so the new source's contribution is independently measurable, not bundled invisibly
+into `use_container`. Three new selftest cases prove: (1) an entity-sourced fragment
+(from an INJECTED synthetic category table, same discipline as every other mechanism's
+selftest) actually completes a real lexicon word via container splicing when the
+substitution table is empty and the fragment shares no letters with the clue word that
+triggered it; (2) `entity=False` disables ONLY that path, not the pre-existing two; (3) the
+mechanism's own docstring updated to disclose the honest caveat that culture.json currently
+has no "judge" category at all, so this closes the GENERATOR gap #55/#56 diagnosed, not
+necessarily that exact clue's DATA gap.
+
+**Measured**: re-transcribed 2026-05-29 (the project's most independently-verified dev
+puzzle, now a 9th time) fresh from `data/images/2026-05-28.jpg` (14across hard-walled again
+this run — killed after 10/52 `None: 0 clues` fetches, matching every run since 2026-09-11
+— worked entirely from the public-CDN image-fallback technique). Every one of the 28 enum
+sums validated against the GRID-DERIVED slot length (`solver/grid_tools.py validate`: OK,
+0 mismatches) before any gold letters were touched. GOLD LETTERS came from the small
+solved-grid recap in `data/images/2026-06-04.jpg`, calibrated PROGRAMMATICALLY: found the
+grid's pixel bounding box and per-cell size via a darkness threshold, cropped and read each
+of the 15 rows individually (not one whole-grid crop, which drifts row-by-row at this
+resolution — bootstrap.sh's own documented warning), then cross-checked the black-cell
+pattern cell-for-cell against the committed `data/grids/2026-05-29.json` via a Python
+script (not eyeballed): **0/15 row mismatches** on the first fully-corrected pass (two
+transcription slips — a reversed row and a miscounted black-cell position — were caught
+BY this exact automated check and fixed before trusting any letter, not after). Three
+independent cross-checks against this project's OWN prior citations of this exact puzzle
+confirm the transcription is correct: 22A `אנזימימ` (matches 2026-09-05's log), 26A
+`פחותאבלכואב` (matches 2026-08-25's log), 1D `ברישניקוב` (matches 2026-08-28's log) — all
+three derived independently here via grid calibration, not copied from those entries.
+`python3 solver/candidates.py recall data/dataset/clues.jsonl eval [--no-container-entity]`:
+mechanical-only baseline 3.6% (1/28); +container without entity 3.6% (1/28, unchanged);
++container WITH entity 3.6% (1/28, unchanged); full defaults 3.6% (1/28, unchanged) — see
+the state table's container_candidates row for the full by-mechanism breakdown and the
+fragment-count diagnostic proving the new source is live, not silently inert.
+
+AUDITED (mandatory gate). `lexicon.held_out_answers()` and `retrieve_defs.held_out()` both
+confirmed (computed, not assumed) to block all 28 of this puzzle's own gold answers —
+`gold_norm - blocked` empty for both. The new entity source's own data dependency,
+`candidates.culture()`, was checked directly and separately: its FILTERED output has zero
+overlap with this puzzle's gold set, and — the more informative check — the RAW, unfiltered
+`solver/lex/culture.json` DOES contain 2 of this puzzle's 28 gold answers (`ישפרחימ`/"יש
+פרחים" under `song`, `טליגוטליב`/"טלי גוטליב" under `politician`), both correctly excluded
+by `culture()`'s existing held-out filter — proof the filter is doing real work on this
+exact puzzle, not a no-op that happens to pass because nothing was ever at risk. No
+forbidden reads: 14across was never queried for this puzzle's gold data this run, only the
+two public CDN images. No jump to explain: 3.6% stayed 3.6%, the opposite of an implausible
+result. All 6 affected selftests (`candidates.py`, `retrieve_defs.py`, `lexicon.py`,
+`prove.py`, `substitutions.py`, `solve_pass.py` — the last now runnable since a real
+`data/dataset/clues.jsonl` exists this run) re-run clean.
+
+HONEST READ: this is a real capability addition with a clean (for this source specifically)
+negative single-puzzle result, not a coverage win. The mechanism now generates thousands of
+real entity-sourced candidate fragments when a category trigger fires — proven on live
+data, not just a synthetic selftest — but on this one puzzle none of them happened to
+complete a real dictionary word via container splicing. This does not retire the standing
+diagnosis from 2026-09-11/12 (this puzzle's own real container clue needs an entity fact
+the generator still cannot reach without a "judge" category in culture.json); it does show
+the generator-side gap that diagnosis named is now closed in principle.
+
+NOT DONE, honestly: did not grow culture.json with a "judge" category or any new entities
+(a data-curation task, not this run's one lever); did not re-measure on 2026-06-05 (the
+puzzle #55/#56 used, which has the actual motivating clue) — 14across's hard wall this run
+made real crowd-verified gold data unavailable for it, and re-attempting the image-fallback
+solved-grid technique there was the exact approach PR #56 already found unreliable at
+letter-OCR resolution without more tooling; did not merge or otherwise act on any of the 14
+open PRs (only the project owner can merge); did not act on the still-standing DAILY.md-as-
+leak-vector observation (flagged 2026-08-22, disclosed again 2026-08-30) beyond continuing
+to disclose cross-checks against this file's own prior citations honestly.
+
+Previous lever (2026-09-12): **found and fixed a duplicate-PR branch-hygiene failure on
 `container_candidates` itself, then hardened and root-caused the merged mechanism —
 no new recall number today, disclosed honestly rather than fabricated (see below for why).**
 
@@ -1529,6 +1628,14 @@ propagated), `blank`. Score with `python3 evals/run_eval.py <file>`.
    trigger vocabulary), not more corpus for the two sources this mechanism already has. A
    further audit-only check found the assembled `קטלנ` is not even in the loaded hspell
    lexicon, a fourth independent obstacle if that is indeed the gold answer. See log.
+   **2026-09-13 BUILT THE THIRD FRAGMENT SOURCE**: `container_parts()` gained
+   `entity=True`, reusing CATEGORY_TRIGGERS + culture.json exactly as flagged above.
+   MEASURED FLAT (3.6%/1/28, unchanged) on a re-transcribed 2026-05-29 — but PROVED the
+   source fires on real data (2,863 + 645 candidate fragments from 2 trigger-matching
+   clues, culture.json's own song/author namelists), just didn't complete a real word on
+   this puzzle. Closes the GENERATOR-side half of the gap this item names; the DATA-side
+   half (culture.json still has no "judge" category, so 2026-06-05's own motivating clue
+   is still unreachable in practice) is the honest next step if revisited. See log.
    (f) `double_definition_candidates` — the מילה משותפת device (PLAYBOOK.md §1.2, 14% of
    clues, second most common after charade) — ADDED 2026-09-04 (see log): the one
    PLAYBOOK-documented mechanism that had zero generator, mechanical or definition-driven,
@@ -4447,3 +4554,106 @@ Measure each lever on dev (fixed enums) with run_eval.py before/after; one lever
   source this run's own root-cause analysis points to next (a real third lever, correctly
   deferred rather than squeezed into today's one-lever budget); did not merge or otherwise
   act on any other open PR.
+
+- 2026-09-13: **`container_candidates` gained the THIRD fragment source 2026-09-12's log
+  named as the concrete next step: role/category ENTITY lookup**, reusing
+  `culture_category_candidates`'s CATEGORY_TRIGGERS vocabulary and culture.json's named-
+  entity lists as a candidate inner/outer fragment source (alongside the existing literal/
+  destemmed-word and mined-substitution sources), so a container clue whose piece is an
+  entity FACT (a specific singer, politician, kibbutz) rather than a literal clue word or a
+  generic synonym can now be reached in principle.
+
+  FIRST, read the actual repository state rather than trusting stale `main`:
+  `list_pull_requests` showed **14 open, unmerged PRs** (#38-#56, 2026-08-31 to 2026-09-12),
+  and `main` has had no solver-lever merge since 2026-08-30. Branched off PR #56's head
+  (2026-09-12, already folds in #38/#39/#41/#42/#44/#46/#47/#52/#53/#54/#55,
+  `mergeable_state: clean`) instead of off `main`, per queue item 6's own repeatedly-flagged
+  finding that branching off `main` instead of the latest unmerged work is what causes this
+  backlog to compound in the first place.
+
+  RESEARCH: searched for an external resource resolving a Hebrew role/category noun ("the
+  judge") to a specific named entity — the exact gap #55/#56 diagnosed. Found nothing new;
+  this is the fourth or fifth research pass (2026-08-22/23/24/25, now 09-13) landing on the
+  identical conclusion. See RESEARCH.md for the full search log. Built the internal
+  capability instead, per queue item 9's standing guidance to stop re-searching a closed
+  door once a research question has returned the same null result this many times.
+
+  IMPLEMENTED: `container_parts()`/`container_candidates()` (solver/candidates.py) gained
+  an `entity` parameter (default True) — when a clue word's destemmed stem matches a
+  CATEGORY_TRIGGERS word, every entity in that category from `culture()` (already
+  held-out-filtered, same discipline as `culture_category_candidates`) becomes a candidate
+  fragment. Threaded through `generate()`/`recall_eval()` as `use_container_entity` and a
+  new `--no-container-entity` CLI flag, so the new source is independently ablatable, not
+  silently bundled into the existing `use_container` toggle. Three new selftest cases:
+  an injected entity fragment completing a real lexicon word via container splicing with
+  the substitution table empty; `entity=False` disabling only that path; and the module
+  docstring disclosing that culture.json currently has no "judge" category, so this closes
+  the GENERATOR gap, not necessarily #55/#56's own exact clue's DATA gap.
+
+  TRANSCRIBED 2026-05-29 fresh (9th independent transcription of this project's canonical
+  dev puzzle) from `data/images/2026-05-28.jpg` — 14across hard-walled again this run
+  (killed after 10/52 `None: 0 clues`, matching every run since 2026-09-11), worked
+  entirely from the public-CDN image-fallback technique. All 28 enum sums validated against
+  the GRID-DERIVED slot length (`grid_tools.py validate`: OK, 0 mismatches) before any gold
+  data was touched. GOLD LETTERS came from the solved-grid recap in
+  `data/images/2026-06-04.jpg`, calibrated PROGRAMMATICALLY: computed the grid's pixel
+  bounding box and per-cell size from a darkness threshold, cropped and read each of the 15
+  rows INDIVIDUALLY (a single whole-grid crop drifts row-by-row at this resolution, per
+  bootstrap.sh's own warning), then cross-checked the black-cell pattern against the
+  committed `data/grids/2026-05-29.json` with a script, not eyeballing: **0/15 row
+  mismatches** — two real transcription slips (a fully reversed row, a miscounted black-
+  cell position) were caught by this exact check and fixed before any letter was trusted,
+  not after. Three independent cross-checks against this project's OWN prior citations of
+  this exact puzzle, all derived here fresh via grid calibration rather than copied,
+  confirm correctness: 22A `אנזימימ` (matches 2026-09-05's log entry), 26A `פחותאבלכואב`
+  (matches 2026-08-25's), 1D `ברישניקוב` (matches 2026-08-28's).
+
+  MEASURED, controlled (`python3 solver/candidates.py recall data/dataset/clues.jsonl eval
+  [--no-container-entity]`): mechanical-only baseline **3.6% (1/28)**; +container without
+  entity **3.6% (1/28), unchanged**; +container WITH entity **3.6% (1/28), unchanged**;
+  full defaults **3.6% (1/28), unchanged**. Not a silent zero, though: container fired on
+  1/28 clues (9 across, 2 candidates, both pre-existing literal/destemmed hits, 0 from
+  entity). Checked WHY the entity source didn't move the number, not just that it didn't:
+  2 clues in this puzzle carry a category trigger (1 across "שירה"->song, 16 down
+  "סופר"->author), and `container_parts(..., entity=True)` generates **2,863 and 645
+  candidate fragments respectively** from culture.json's real song/author namelists at
+  those two clues — a genuinely large, real fragment pool, not a silent no-op — but none of
+  them combined with the OTHER clue word's fragment into a real lexicon word via container
+  splicing on this specific puzzle. Wall-clock cost negligible (17.57s -> 17.60s for the
+  full 28-clue eval) despite the large fragment counts, since the length-based filter in
+  `container_candidates`'s pairing loop keeps it cheap.
+
+  AUDITED (mandatory gate). `lexicon.held_out_answers()` and `retrieve_defs.held_out()`
+  both confirmed to block all 28 of this puzzle's own gold answers (`gold_norm - blocked`
+  empty for both). The new source's own dependency, `candidates.culture()`, checked
+  separately and directly: its FILTERED output has zero overlap with this puzzle's gold
+  set — and, more informatively, the RAW unfiltered `solver/lex/culture.json` DOES contain
+  2 of this puzzle's 28 gold answers (`ישפרחימ`/"יש פרחים" under `song`, `טליגוטליב`/"טלי
+  גוטליב" under `politician`), both correctly excluded by `culture()`'s existing held-out
+  filter — proof the filter does real work on this exact puzzle, not a no-op that happens
+  to pass because nothing was ever actually at risk. No forbidden reads: 14across was never
+  queried for this puzzle's gold data this run, only the two public CDN images. No jump to
+  explain: 3.6% stayed 3.6%, the opposite of an implausibility concern. All 6 affected
+  selftests (`candidates.py`, `retrieve_defs.py`, `lexicon.py`, `prove.py`,
+  `substitutions.py`, and — runnable for the first time in several of these entries since a
+  real `data/dataset/clues.jsonl` exists this run — `solve_pass.py`) re-run clean.
+
+  HONEST READ: a real capability addition, cleanly (for this source) measured negative on
+  one puzzle — not a coverage win, but not a confounded non-test either, which is what the
+  two prior container_candidates measurements (2026-09-03, 2026-09-11/12) actually were.
+  The mechanism now provably generates real entity-sourced fragments from live culture.json
+  data when a trigger fires; this specific puzzle's specific clues just didn't have a
+  matching pair that spliced into a real word. This does not retire 2026-09-11/12's own
+  standing diagnosis (2026-06-05's real container clue needs a "judge" entity culture.json
+  doesn't have a category for at all) — it closes the GENERATOR-side half of that gap,
+  leaving the DATA-side half (growing culture.json's category coverage) as the honest next
+  step if this is revisited.
+
+  NOT DONE, honestly: did not add a "judge" category or any new entities to culture.json (a
+  data-curation task, not this run's one lever); did not re-measure on 2026-06-05 itself
+  (the puzzle with the actual motivating clue) — 14across's hard wall made real crowd-
+  verified gold data unavailable, and PR #56 already found the image-fallback solved-grid
+  technique unreliable at letter-OCR resolution for that specific puzzle without more
+  tooling; did not merge or otherwise act on any of the 14 open PRs (only the project owner
+  can merge); did not act on the still-standing DAILY.md-as-leak-vector observation beyond
+  continuing to disclose cross-checks against this file's own prior citations honestly.

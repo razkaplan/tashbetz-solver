@@ -1631,3 +1631,52 @@ DIFFERENT shape from every other retrieval-based mechanism already in this file
 open in PR #41, scores a single end-window) — a two-unrelated-definitions clue dilutes
 both of those, which is exactly the class this new mechanism targets. See DAILY.md for
 the measured recall number, mechanism breakdown, and audit.
+
+## 2026-09-13
+
+Started by reading the actual state of the project, not just main: `list_pull_requests`
+showed **14 open, unmerged PRs** (#38 through #56, spanning 2026-08-31 to 2026-09-12) —
+main itself (`git log`) has not had a solver-lever merge since 2026-08-30's PR. The most
+recent, PR #56 (2026-09-12), already reconciles the whole chain (folds in #38/#39/#41/#42/
+#44/#46/#47/#52/#53/#54/#55) and is `mergeable_state: clean` against current main. Branched
+this run off #56's head rather than off main, per the queue's own repeated finding (item 6,
+recurred four times now) that branching off stale main instead of the latest unmerged work
+is exactly what causes the backlog to compound — reading only main's DAILY.md would have
+meant redoing 09-01 through 09-12's work blind, not just missing it.
+
+**Research question this run picked**: PR #56's own log entry names a concrete, specific
+gap as `container_candidates`' next step — a puzzle's real container clue (16A,
+"חי בבית השופט" -> קטלנ = קן inside טל) needs an ENTITY fact (טל as a specific named
+judge) that neither the literal-clue-word source nor the mined-synonym source can reach,
+since בית~קן is a real recorded synonym but שופט/השופט never maps to טל in that table.
+Searched for whether any external resource does ROLE-NOUN -> NAMED-ENTITY resolution for
+Hebrew (the same category-lookup problem `culture_category_candidates`, 2026-08-24, already
+solved with a hand-curated internal table, not an external one).
+
+**"Hebrew named entity linking dictionary lookup role noun to person name crossword
+wordplay" / "cryptic crossword solver candidate generation entity role lookup LLM 2026"
+(general search).** Surfaced only the same paper set logged repeatedly since 2026-08-06
+(2506.04824/2406.09043/2403.12094/Bo5eKnJPML, all already confirmed and re-confirmed as
+non-transferable — see 2026-08-24/25/26 entries) plus generic Hebrew NER literature
+(entity RECOGNITION and LINKING to a knowledge base, not role-to-entity RESOLUTION — "the
+judge" naming a specific unstated judge is a different, harder problem no general NER
+system is built for) and crossword-clue-answer aggregator noise. **Transfer: none, and
+this is now the fourth or fifth research pass (2026-08-22/23/24/25, now 09-13) landing on
+the identical conclusion**: no external resource resolves a Hebrew role/category noun to a
+specific named entity. The next attempt on any definition-driven generator lever should
+stop re-searching this specific question and treat it as closed until this project's own
+data changes (e.g. culture.json growing a role-tagged entity list).
+
+**Conclusion, and the lever this run actually built.** Consistent with the closed-door
+finding above, and following PR #56's own concrete next step rather than a fresh redesign:
+extended `container_parts()` (solver/candidates.py) with a THIRD fragment source, reusing
+`culture_category_candidates`' existing CATEGORY_TRIGGERS vocabulary and culture.json
+namelists — when a clue word (or its destemmed stem) names a role/category ("the singer",
+"a kibbutz"), every entity in that category becomes a candidate inner/outer fragment for
+the container splice, not just a whole-answer candidate the way `culture_category_
+candidates` already uses it. This is a genuinely new CAPABILITY (proven by a new selftest
+showing the entity-sourced path fires and an `entity=False` toggle proving it is the ONLY
+route to that fragment), disclosed honestly as not yet a data fix for the exact clue that
+motivated it: culture.json currently has no "judge" category at all, so even with the
+generator capability in place, that specific clue's specific fragment is still absent from
+the corpus. See DAILY.md for the measured recall number and audit.
