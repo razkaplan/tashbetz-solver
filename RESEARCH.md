@@ -4,6 +4,74 @@ One entry per run: what was found, one-line summary, and an honest judgement of 
 it transfers to a Hebrew cryptic solver with an 8k-clue corpus. Default skepticism: most
 crossword-AI work targets non-cryptic (American-style) puzzles and does not transfer.
 
+## 2026-09-14
+
+Bootstrap: 14across hit the same intermittent-then-hard-wall pattern as most recent runs
+(9 fetches attempted, 1 succeeded — "03/07/2026: 28 clues" — before the failure rate made
+continuing not worth the wall-clock; killed rather than waited out, matching the
+established threshold). Worked entirely from the no-14across image-fallback technique for
+BOTH clue text and gold answers (see DAILY.md log for the full transcription/audit trail).
+`scraper/harvest_culture.py` was mistakenly re-run before checking that
+`solver/lex/culture.json` is already committed (bootstrap.sh's own
+`[ -s solver/lex/culture.json ] || ...` guard exists exactly to skip this) — caught and
+killed before it overwrote the good committed file with a rate-limited ("429 Too Many
+Requests") partial one; `git status` confirmed zero changes landed. Worth flagging for
+the next run: the guard is in bootstrap.sh, not in the script itself, so calling
+`harvest_culture.py` directly (as this run did, trying to satisfy step 3 after killing the
+whole bootstrap.sh process for the 14across hang) bypasses it silently.
+
+Continued the scheduled task's own stated priority (candidate generation) with a search
+angle not yet tried in this log: the ENGLISH cryptic-crossword tradition's own named
+device for the mechanism this session ended up building (PLAYBOOK.md 2.3's Hebrew
+gematria/institution-abbreviation charade), rather than another general "candidate
+generation diversity" or "definition-span" sweep (both repeatedly exhausted, see the last
+six-plus entries above this one).
+
+**"cryptic crossword letter substitution abbreviation numeral device candidate generation
+NLP".** Confirms English cryptics have a distinct, standard device category for exactly
+this shape: compass points (North=N), Roman numerals (ten=X), NATO alphabet
+(Quebec=Q), chemical symbols (Gold=Au) — a clue word stands for a short letter fragment
+via a FIXED, curated correspondence table, not a mined one
+([crypticcrosswordssolver.com/cryptic-crossword-abbreviations](https://crypticcrosswordssolver.com/cryptic-crossword-abbreviations/),
+[decryptic.app/cryptic-crossword-abbreviations](https://decryptic.app/cryptic-crossword-abbreviations),
+[en.wikipedia.org/wiki/Crossword_abbreviations](https://en.wikipedia.org/wiki/Crossword_abbreviations)).
+**Transfer: confirms the design choice, not the content** — English solving tools for
+this device universally use a small static lookup (compass/numeral/NATO tables), never a
+corpus-mined one, which is exactly the shape PLAYBOOK.md 2.3's own Hebrew table already
+takes (gematria letters, institution abbreviations) and exactly the shape today's
+`abbreviation_candidates` implements. No English-specific content transfers (Hebrew's
+gematria/institution abbreviations are a different, already-documented table), but the
+cross-check that this is a recognized, curated-table-shaped device class in the wider
+literature — not a Hebrew-specific curiosity needing a bespoke design — is worth having
+before building a whole new fragment-source mechanism around it.
+
+**"Are LLMs Good Cryptic Crossword Solvers?" (arXiv 2403.12094) and the rest of the
+citation chain (2506.04824, 2407.08824, 2104.08620, 2406.09043, 2412.09012).** Re-surfaced
+by the same search family; already logged repeatedly since 2026-08-06 (this is at least
+the 8th time this exact citation set has come back with nothing new to add — see the
+"already tried" pattern across almost every entry above). One detail worth a single new
+note since it bears directly on today's lever: the discussion of these papers' own prover
+designs (`is_synonym`/`is_abbreviation`/`is_anagram` assertions, logged 2026-08-xx) names
+an `is_abbreviation` VERIFICATION primitive in the literature's own formalization —
+checked directly against `solver/prove.py`: this project's prover has no such primitive
+(`is_word`/`is_anagram`/`is_reversal`/`is_container`/`is_hidden`/`is_homophone`/`means`/
+`word_order`/`concat` only). It does not need one for today's lever, though: an
+abbreviation-charade candidate is just a concatenation of known fragments, which the
+already-existing generic `concat(*parts)` + `is_word()` assertions already prove without
+any new verification code — confirmed by construction (every `abbreviation_candidates`
+hit is checked against `lex()` before it is ever returned, the same discipline
+`substitution_candidates` already uses). **Transfer: none new to build, but closes a
+question**: no new prove.py primitive is needed for this device.
+
+**Hebrew morphology/NLP.** No new resource beyond RFTokenizer/HebPipe/DictaBERT-seg/YAP/
+Splintering, logged repeatedly since 2026-08-06. **Transfer: none new.**
+
+**Conclusion for today's lever.** Research confirmed the device class (curated
+abbreviation/letter-substitution charades) is real, standard, and correctly modeled as a
+fixed table rather than a mined one — supporting evidence for the implementation below,
+not a new technique. See DAILY.md for the lever itself
+(`abbreviation_candidates`), its measurement, and the audit trail.
+
 ## 2026-09-12
 
 **"cryptic crossword candidate generation wordplay decomposition 2026" (general search).**

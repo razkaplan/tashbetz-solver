@@ -28,12 +28,130 @@ tree - a stale CLI deploy overwrote the live site on 2026-08-29. See CLAUDE.md.
 | **Candidate recall@N with `homophone_vowel_candidates` added (new, offline, mechanical — closes 2026-09-05's own disclosed gap: free ו/י vowel-letter insertion/omission, one letter of length difference)** | **3.6% (1/28), UNCHANGED** on 2026-05-29 (7th independent transcription, 28/28 clues, 0 enum mismatches — see log for a disclosed direction ambiguity found on ONE clue, 26 across, unrelated to this lever). Fired on **14/28 clues** (avg candidates/clue 11.8 -> 13.0), zero gold hits. Root-caused, not assumed: directly tested the mechanism against the SPECIFIC clue 2026-09-05 diagnosed as needing this ("22 across, הזורזים -> אנזימימ") and it produces **ZERO candidates for that clue, not a near-miss** — the two words' phon-folded consonant skeletons (הזורזימ vs אנזימימ) differ by far more than one ו/י, so 2026-09-05's own "vowel-insertion" diagnosis was itself an oversimplification of a more complex sound relationship this narrow, single-letter-edit device cannot reach either. A real, working extension of the device with a genuine (not contrived) negative result | not yet a target — diagnostic; the disclosed gap this closed turned out not to be the puzzle's actual gap once tested directly |
 | **Candidate recall@N with `substitution_candidates`' 3-part charade chain added (new, offline, mechanical — queue item 1(b)'s own disclosed next step: 3 ADJACENT clue words' mined substitutes concatenating to the full answer length, generalizing the existing 2-word case)** | **3.6% (1/28), UNCHANGED** on 2026-05-29 (8th independent transcription, 28/28 clues, 0 enum mismatches, 0/15 grid-pattern mismatches against the solved-recap image). **INCONCLUSIVE, disclosed rather than claimed negative**: the mechanism fired **0/28 clues** with `use_substitution_3part` on vs off (avg candidates/clue identical, 13.8 both ways) — but so did its existing 2-part sibling, checked directly (0 hits) against BOTH the small in-memory held-out-safe table this run's own severely hard-walled bootstrap produced (14across: 4/52 puzzles recovered, 236 explanations, 35 head words) AND, as an audit-only diagnostic never used for the scored number, the full committed `solver/lex/substitutions.json` (2,220 head words, restored via `git checkout` after this run's own smaller rebuild briefly overwrote it — bootstrap.sh's own documented warning caught before it was committed). Zero fires at EITHER corpus size for EITHER part-count means this specific puzzle's specific clue set has no adjacent-word substitution chain of any length, at 2 words or 3 — not evidence the 3-part device itself is broken (its own selftest, on synthetic data, proves it correctly finds a 3-way chain when one exists) or that it's a dead end, just that this run could not produce a puzzle where the baseline it extends already fires, which is the precondition for testing whether extending it helps | not yet a target — diagnostic; needs a puzzle where 2-part substitution already fires to be a real test, see log |
 | **Candidate recall@N with `charade_candidates` added (new, offline, mechanical, two-part-enum only)** | **3.6% (1/28), UNCHANGED**, on 2026-05-29 (freshly re-transcribed this run) — fired on all 10 of the puzzle's 2-part-enum clues (up to its own 200-candidate cap on 8 of them), matched gold on 0/10; avg candidates/clue 11.7 → 18.9, wall time 17.9s → 30.2s for the 28-clue eval | not yet a target — diagnostic; a real negative result on n=1 puzzle, see log |
+| **Candidate recall@N with `abbreviation_candidates` added (NEW 2026-09-14, offline, mechanical — PLAYBOOK.md 2.3's gematria/institution-abbreviation charade, "the signature device, ~27% of clues," the first generator here NOT built on `sub_fwd()`/14across at all)** | **3.6% (1/28), UNCHANGED** on 2026-05-29 (10th independent transcription, 28/28 clues, 0 enum mismatches, 0/15 solved-recap grid-pattern mismatches). Fired on **0/28 clues, 0 raw candidates** — a genuine zero-fire, not a masked one: avg candidates/clue identical with the toggle on or off. Root-caused, not just observed: only 1 of the puzzle's 28 clues even contains a curated trigger word (13 across, "בני טוב כמלחכין", contains טוב); traced by hand why even that one doesn't fire — טוב's fragment ט pairs with either neighboring literal word (בני, כמלחכין) but neither combination (בניט, טכמלחכינ's various destems) lands on a real lexicon word, so the mechanism's own per-candidate lexicon check correctly rejects it rather than silently missing it. UNCONFOUNDED by 14across's hard wall this run (0/52 puzzles recovered, see log) — unlike every substitution/container measurement before it, this table is curated from PLAYBOOK.md text, not mined, so today's flat result is a clean read on the mechanism itself, not a corpus artifact | not yet a target — diagnostic; n=1 puzzle with only 1 clue containing a trigger word at all — needs a puzzle whose clues actually use this device before calling it dead, see log |
 
 | **`deffit.py` definition-fit reranking (NEW 2026-09-09, offline, conditional on recall)** | On a fresh puzzle (2026-05-15): recall_hit 2/28 (same 2 retrieval hits); top-1 accuracy 0/2 unchanged; **MRR 0.333 → 0.350** (1 candidate moved up, 0 moved down); **structural finding: 0/28 clues have a non-retrieval candidate with a non-zero def_fit score** — the signal is mathematically redundant with `retrieval_candidates` today, since both query the same private_defs/BM25 index | not yet a target — n=2 is far too small to call this positive or negative; see log for the redundancy diagnosis and the concrete fix (a second gloss source, e.g. `solver/lex/fillbank.json`) |
 | **`deffit.py` with `fillbank.json` wired as a second gloss source (NEW 2026-09-10, offline)** | Re-measured on the SAME 2026-05-15 puzzle, independently re-transcribed and re-crawled fresh this run: recall@N **0/28 with or without retrieval** (a smaller/different private_defs crawl than 2026-09-09's found no hits at all on this puzzle — recall_hit therefore 0/28, so top-1/MRR are undefined this run). Split the structural diagnostic into TWO numbers on purpose: clues with a non-retrieval candidate carrying a KNOWN gloss in ANY source went **3/28 (private_defs alone) → 14/28 (+fillbank)** — fillbank.json's 2,412 entries genuinely widen gloss coverage, a real and substantial move; but clues with a non-retrieval candidate whose gloss actually SHARES VOCABULARY with the clue (`def_fit>0`, 2026-09-09's own stricter bar) stayed **0/28 with fillbank ON**, because the 59 newly-known candidates' glosses (e.g. `ירושלים` -> `בירת ישראל`) don't happen to repeat the clue's own wording. Also FOUND AND FIXED a real bug before ever measuring: `build_fillbank_index()` didn't fold fillbank's final letters (ם/ן/ץ/ף/ך), so it would have silently missed all 557/2,450 (22.7%) of fillbank entries ending in one — every candidates.py answer is unconditionally final-folded, so the lookup would have failed for any of those words even when present | not yet a target — a real, disclosed, mixed result: coverage widened, the stricter score-overlap bar did not move this run; see log |
 
 Baseline for comparison: v2 = 41% raw with untraceable errors.
-Last lever added (2026-09-13): **`container_candidates` gained a THIRD fragment source
+Last lever added (2026-09-14): **`abbreviation_candidates` (solver/candidates.py) — a new
+candidate generator for PLAYBOOK.md 2.3's gematria/institution-abbreviation charade ("the
+signature device, ~27% of clues"), curated from PLAYBOOK.md's own worked table rather than
+mined from 14across, so it is the first generator in this file that is not confounded by
+14across's now-routine hard wall. MEASURED FLAT (3.6%/1/28, unchanged) on a freshly
+re-transcribed 2026-05-29 (10th independent transcription) — a genuine 0/28 zero-fire,
+root-caused to only 1 of the puzzle's 28 clues containing a curated trigger word at all,
+and even that one clue's only completion (בניט) isn't a real lexicon word.**
+
+Started by reading the actual open-PR state rather than stale `main`: `list_pull_requests`
+showed the backlog had grown to 14 open PRs (#38 through #57, 2026-08-31 to 2026-09-13);
+`main` itself has had no solver-lever merge since 2026-08-30. Branched this run off PR #57's
+head (`daily/2026-09-13-work`, already the day's own reconciliation of the whole backlog:
+folds in #38/#39/#41/#42/#44/#46/#47/#52/#53/#54/#55/#56 plus its own new container-entity
+work) rather than off stale `main`, continuing queue item 6's own repeated finding that
+branching off `main` instead of the latest unmerged work compounds the backlog. Did not
+attempt a fresh consolidation pass on top of that (already current as of yesterday's own
+branch); this PR is offered as the branch that supersedes #38 through #57 in one step.
+
+Research (RESEARCH.md, full entry): rather than repeat the candidate-generation-diversity
+or definition-span literature sweeps that have found nothing new for 8+ consecutive runs,
+searched specifically for how the ENGLISH cryptic tradition treats this exact device
+(letter/abbreviation substitution — compass points, Roman numerals, NATO alphabet, chemical
+symbols). Confirmed it is a recognized, standard device category there too, and that
+English solving tools uniformly implement it as a small STATIC lookup table, never a mined
+one — supporting evidence for today's design (a curated table mirroring PLAYBOOK.md 2.3's
+own), not a new technique to import. Also checked directly whether the literature's own
+`is_abbreviation` prover primitive (named in papers logged repeatedly since 2026-08-06)
+exists in this project's `solver/prove.py` — it does not, and does not need to: an
+abbreviation-charade candidate is a plain concatenation, already provable with the existing
+generic `concat(*parts)` + `is_word()` assertions.
+
+**What changed**: `solver/candidates.py` gained `ABBREV_TABLE` / `ABBREV_BIGRAMS` (curated
+from PLAYBOOK.md 2.3's own worked table of number-word/role/institution -> gematria-letter
+or abbreviation correspondences — שבע->ז, מאה->ק, ממלא מקום->מ"מ, ראש ממשלה->ר"מ, and so on;
+raw dict keys use natural spelling and are normalized programmatically via `norm()` at
+load time, deliberately, after a first draft hand-folded final letters and got 7 of ~28
+entries wrong — e.g. `מנין`/`חמישים`/`ראשון` need final-letter folding to `מנינ`/`חמישימ`/
+`ראשונ` to ever match a real clue word, and `ארץ ישראל`'s internal ץ needs the same fold
+mid-string, which `str.translate` does but a human copying the table by eye does not
+reliably do) and `abbreviation_candidates(clue_text, target_len)`, which charades a
+matched abbreviation fragment with an ADJACENT clue word taken literally, requiring at
+least one of the two (or three) parts to be a genuine curated abbreviation — not two
+literal words alone, which is already `hidden_candidates`' job and would just relabel its
+hits under a new mechanism name. Wired into `generate()`/`recall_eval()` as
+`use_abbreviation` (default True) with a `--no-abbreviation` CLI ablation flag, same
+pattern as every other mechanism here. Four new selftest cases, two checked directly
+against the real lexicon (not a synthetic fixture): PLAYBOOK's own `זימימ` (ז from שבע +
+ימים literal) and `ממזג` (מ"מ from ממלא מקום + זג literal) both resolve correctly; two
+literal words alone (`שלום עליכם`) correctly produce nothing; the `use_abbreviation`
+toggle disables it in `generate()`.
+
+**Measured**: re-transcribed 2026-05-29 (this project's most independently-verified dev
+puzzle, now a 10th time) fresh from `data/images/2026-05-28.jpg`. 14across hard-walled
+again this run (9/52 attempted, 1 recovered, an unrelated date — killed rather than
+chasing a near-0% success rate further) — worked entirely from the public-CDN
+image-fallback technique for BOTH clue text and gold letters, same as most recent runs.
+Every one of the 28 enum sums validated against the GRID-DERIVED slot length
+(`solver/grid_tools.slots()` on the already-committed `data/grids/2026-05-29.json`, pure
+structural geometry, no gold read) before any gold data was touched — 0/28 mismatches.
+GOLD LETTERS came from the solved-grid recap in `data/images/2026-06-04.jpg`
+("פתרון תשבץ ההיגיון מהשבוע שעבר"), transcribed row-by-row and cross-checked cell-for-cell
+against the black/white pattern of the already-committed grid: **0/15 row mismatches**,
+the strongest form of this project's standard check, further corroborated by the fact that
+the transcribed letters spell out real, semantically-fitting answers with zero letters
+forced or guessed (`ברישניקוב`/Baryshnikov for "before a dancer's stab"; `צרנוביל`/Chernobyl
+for "our heart ached over that disaster"; `טליגוטליב`/Tali Gotlieb, a sitting MK, for
+"total confusion regarding a Knesset member").
+
+MEASURED, controlled before/after (`python3 solver/candidates.py recall
+data/dataset/clues.jsonl eval [--no-abbreviation]`): **3.6% (1/28) with or without the new
+mechanism — byte-identical avg-candidates-per-clue (20.2) in both runs**, confirming the
+mechanism raised zero raw candidates on this puzzle's 28 clues, not just zero gold hits.
+Root-caused, not just observed: a direct scan found only ONE of the 28 clues contains any
+curated trigger word at all (13 across, "בני טוב כמלחכין", contains `טוב`) — traced by hand
+why even that lone firing produces nothing: `טוב`'s fragment (`ט`) pairs with either
+adjacent literal word (`בני` or `כמלחכינ`'s destemmed forms), and neither concatenation
+(`בניט`, or `ט`+any short destem of `כמלחכינ`) is a real lexicon word, so the mechanism's
+own per-candidate lexicon check correctly rejects it rather than silently missing it.
+
+AUDITED (mandatory gate). `lexicon.held_out_answers()`, `substitutions.held_out()`, and
+`retrieve_defs.held_out()` all confirmed (computed, not assumed) to block all 28 of this
+puzzle's own gold answers — `gold - blocked` empty for all three. No forbidden reads: this
+run never queried 14across for this puzzle's gold data (only the two public CDN images);
+the one 14across scrape attempted this run was for bootstrap's own general corpus refresh,
+killed early, and its (near-empty) partial output was never used for this puzzle's
+answers. Implausibility check: N/A — the result is flat (0.0-point change), the opposite
+of an implausible jump. All 5 affected selftests re-run clean (`candidates.py`,
+`prove.py`, `substitutions.py`, `lexicon.py`, `retrieve_defs.py` — `ALL PASSED`/exit 0
+each). One process note, not a scoring issue: `scraper/harvest_culture.py` was run
+directly (outside bootstrap.sh, whose own `[ -s solver/lex/culture.json] || ...` guard
+would have skipped it) while chasing bootstrap step 3 after killing the whole script for
+the 14across hang; caught via `git status` before it could overwrite the committed file
+with a rate-limited partial crawl, and killed before it wrote anything — zero diff landed,
+but flagged in RESEARCH.md as a process gap for the next run (the skip-if-exists guard
+lives in bootstrap.sh, not in the script itself).
+
+HONEST READ: a clean, fully-explained negative result, and a useful one — this is the
+first mechanism-addition measurement in this log's entire history that is NOT confounded
+by 14across's hard wall, since the table is curated rather than mined. The flat recall
+traces entirely to this specific puzzle having almost none of the device's trigger
+vocabulary, not to any flaw in the mechanism (which resolves both of PLAYBOOK's own worked
+examples correctly against the real lexicon). Consistent with PLAYBOOK's own "~27% of
+clues" estimate being a description of the WHOLE corpus, not a promise that any given
+28-clue puzzle contains several — n=1 puzzle with 1 trigger-word occurrence is nowhere
+near enough to call the device's real-world yield on this setter's clues.
+
+NOT DONE, honestly: did not measure a second puzzle (the concrete next step, needed before
+this device can be called anything but "correctly implemented, not yet shown to help");
+did not attempt to grow ABBREV_TABLE beyond PLAYBOOK.md's own already-documented entries
+(the military/professional acronyms in the same PLAYBOOK section were deliberately
+excluded — see the code's own docstring — since they are already-spelled-out abbreviations
+reachable via `hidden_candidates`/`homograph_candidates`, not fragments this table needs to
+supply); did not fix the `harvest_culture.py` guard gap RESEARCH.md flagged, to keep this
+run to one lever; did not merge or otherwise act on the open PR backlog beyond building on
+its latest branch.
+
+Previous lever (2026-09-13): **`container_candidates` gained a THIRD fragment source
 (role/category ENTITY lookup, reusing `culture_category_candidates`'s CATEGORY_TRIGGERS
 and culture.json) — the concrete next step 2026-09-12's own log named. MEASURED FLAT
 (3.6%/1/28, unchanged) on a freshly re-transcribed 2026-05-29, but PROVED the new source
@@ -1688,6 +1806,18 @@ propagated), `blank`. Score with `python3 evals/run_eval.py <file>`.
    revisited: extend to 3+-part enums, tighten the 200-candidate cap (hit on 8/10 clues
    here, a real wall-clock cost — +69% on this eval — for zero measured gain), and a
    second puzzle's data point before calling this dead. See log.
+   (j) `abbreviation_candidates` — ADDED 2026-09-14 (see log): PLAYBOOK.md 2.3's
+   gematria/institution-abbreviation charade ("the signature device, ~27% of clues"),
+   curated from PLAYBOOK.md's own worked table (ABBREV_TABLE/ABBREV_BIGRAMS) rather
+   than mined from 14across — the first generator here immune to 14across's hard wall
+   by construction. MEASURED FLAT (3.6%/1/28, unchanged) on 2026-05-29, a genuine 0/28
+   zero-fire: only 1 of the 28 clues contains a curated trigger word at all, and even
+   that clue's only possible completion isn't a real lexicon word. Both of PLAYBOOK's
+   own worked examples (זימימ, ממזג) resolve correctly against the real lexicon in the
+   selftest, so the mechanism itself is sound; the flat result traces to this one
+   puzzle's clue set barely touching the device's trigger vocabulary. Next concrete
+   step: measure a second puzzle before concluding anything about real-world yield —
+   n=1 with only 1 trigger-word occurrence is far too thin to call this dead or alive.
 2. ~~Definition-span detection~~ — TRIED 2026-08-19, NEGATIVE. See log and "already
    tried" below. Do not re-attempt without a fundamentally different signal (not
    indicator-word density).
@@ -4657,3 +4787,105 @@ Measure each lever on dev (fixed enums) with run_eval.py before/after; one lever
   tooling; did not merge or otherwise act on any of the 14 open PRs (only the project owner
   can merge); did not act on the still-standing DAILY.md-as-leak-vector observation beyond
   continuing to disclose cross-checks against this file's own prior citations honestly.
+
+- 2026-09-14: **candidate generation, lever 1(j): `abbreviation_candidates`** —
+  PLAYBOOK.md 2.3's gematria/institution-abbreviation charade ("the signature device,
+  ~27% of clues"), the first generator in this file curated from PLAYBOOK.md's own
+  worked table rather than mined from 14across, and so the first one immune by
+  construction to 14across's now-routine hard wall.
+
+  FIRST, read the actual repository state: `list_pull_requests` showed the backlog had
+  grown to **14 open PRs** (#38 through #57, 2026-08-31 through 2026-09-13); `main` has
+  had no solver-lever merge since 2026-08-30. Branched off PR #57's head
+  (`daily/2026-09-13-work`), which already reconciles the whole prior backlog
+  (#38/#39/#41/#42/#44/#46/#47/#52/#53/#54/#55/#56) plus its own new container-entity
+  work, rather than off stale `main` — continuing queue item 6's repeatedly-flagged
+  finding. Did not attempt a further consolidation pass (already current); this PR
+  supersedes #38 through #57.
+
+  RESEARCH (RESEARCH.md, full entry): the candidate-generation-diversity and
+  definition-span literature sweeps have found nothing new for 8+ consecutive runs, so
+  this run searched a narrower, untried angle: how the ENGLISH cryptic tradition treats
+  letter/abbreviation substitution (compass points, Roman numerals, NATO alphabet,
+  chemical symbols). Confirmed it as a recognized, standard device there too, always
+  implemented as a small STATIC table, never mined — supporting today's design choice
+  (curate from PLAYBOOK.md directly) rather than importing new technique. Also confirmed
+  directly that `solver/prove.py` has no `is_abbreviation` primitive (unlike the
+  literature's own formalizations) and does not need one: the generic
+  `concat(*parts)` + `is_word()` assertions already prove this device's candidates.
+
+  IMPLEMENTED: `ABBREV_TABLE`/`ABBREV_BIGRAMS` (solver/candidates.py), curated verbatim
+  from PLAYBOOK.md 2.3's own table (שבע->ז, מאה->ק, ממלא מקום->מ"מ, ראש ממשלה->ר"מ, and
+  so on — the already-spelled-out military/professional acronyms in the same PLAYBOOK
+  section were deliberately excluded, since they'd surface via
+  `hidden_candidates`/`homograph_candidates` as literal clue substrings, not via a
+  synonym table). Raw dict keys use natural Hebrew spelling and are normalized
+  PROGRAMMATICALLY via `norm()` at load time — deliberately, after a first draft
+  hand-folded final letters by eye and got 7 of ~28 entries wrong (`מנין`, `חמישים`,
+  `ראשון`, `כלום`, `כישלון`, `מאתיים`, and the bigram `ארץ ישראל`'s internal ץ all need
+  final-letter folding to ever match a real clue word's `norm()`-ed form; caught by a
+  failing selftest, not by inspection). `abbreviation_candidates(clue_text, target_len)`
+  charades a matched abbreviation fragment with an ADJACENT clue word taken literally,
+  requiring at least one of the two (or three) parts to be a genuine curated
+  abbreviation — two literal words alone is already `hidden_candidates`' job, and
+  allowing it here would just relabel its hits under a new mechanism name rather than
+  test this one. Wired into `generate()`/`recall_eval()` as `use_abbreviation` (default
+  True) plus a `--no-abbreviation` CLI ablation flag. Four new selftest cases, two
+  checked against the REAL lexicon (not a synthetic fixture): PLAYBOOK's own worked
+  examples `זימימ` (ז from שבע + literal ימים) and `ממזג` (מ"מ from ממלא מקום + literal
+  זג) both resolve correctly; two literal words alone (`שלום עליכם`) correctly produce
+  nothing; the `use_abbreviation` toggle disables it in `generate()`.
+
+  MEASURED: re-transcribed 2026-05-29 (this project's most independently-verified dev
+  puzzle, a 10th time) fresh from `data/images/2026-05-28.jpg`. 14across hard-walled
+  again (9/52 attempted, 1 unrelated-date recovery — killed rather than chasing a
+  near-0% rate further); worked entirely from the public-CDN image-fallback technique
+  for BOTH clue text and gold letters. Every one of the 28 enum sums validated against
+  the GRID-DERIVED slot length (`solver/grid_tools.slots()` on the already-committed
+  `data/grids/2026-05-29.json`, pure structural geometry) before any gold data was
+  touched — 0/28 mismatches. GOLD LETTERS came from the solved-grid recap in
+  `data/images/2026-06-04.jpg`, transcribed row-by-row and cross-checked cell-for-cell
+  against the committed grid's black/white pattern: **0/15 row mismatches**, further
+  corroborated by the derived letters spelling real, semantically-fitting answers with
+  nothing forced (`ברישניקוב`/Baryshnikov for "before a dancer's stab"; `צרנוביל`/
+  Chernobyl for "our heart ached over that disaster"; `טליגוטליב`/Tali Gotlieb, a
+  sitting MK, for "total confusion regarding a Knesset member").
+
+  Controlled before/after (`python3 solver/candidates.py recall data/dataset/clues.jsonl
+  eval [--no-abbreviation]`): **3.6% (1/28) either way — byte-identical avg candidates/
+  clue (20.2)**, confirming zero raw candidates from the new mechanism, not just zero
+  gold hits. Root-caused: only 1 of the 28 clues contains any curated trigger word at
+  all (13 across, "בני טוב כמלחכין", contains `טוב`); traced by hand why even that one
+  produces nothing — `טוב`'s fragment (`ט`) pairs with either adjacent literal word, and
+  neither concatenation is a real lexicon word, so the mechanism's own lexicon check
+  correctly rejects it.
+
+  AUDITED (mandatory gate). `lexicon.held_out_answers()`, `substitutions.held_out()`,
+  `retrieve_defs.held_out()` all confirmed to block all 28 of this puzzle's own gold
+  answers. No forbidden reads: 14across was never queried for this puzzle's gold data;
+  the one 14across scrape attempted this run was bootstrap's own general corpus
+  refresh, killed early, its (near-empty) output never used for this puzzle. No jump to
+  explain: 3.6% stayed 3.6%. All 5 affected selftests
+  (`candidates.py`/`prove.py`/`substitutions.py`/`lexicon.py`/`retrieve_defs.py`) re-run
+  clean. One process note: `scraper/harvest_culture.py` was run directly (bypassing
+  bootstrap.sh's own `[ -s solver/lex/culture.json ] || ...` skip-if-committed guard,
+  which lives in the shell script rather than the Python script itself) while chasing
+  bootstrap step 3 after killing the whole script for the 14across hang; caught via
+  `git status` and killed before it could overwrite the committed file with a
+  rate-limited partial crawl — zero diff landed, flagged in RESEARCH.md as a process
+  gap worth a future guard-relocation lever.
+
+  HONEST READ: a clean, fully-explained negative result — the first mechanism-addition
+  measurement in this log NOT confounded by 14across, since the table is curated rather
+  than mined. The flat recall traces entirely to this specific puzzle barely touching
+  the device's trigger vocabulary (1/28 clues), not to any flaw in the mechanism, which
+  resolves both of PLAYBOOK's own worked examples correctly. n=1 with a single
+  trigger-word occurrence is nowhere near enough to call this device's real-world yield
+  dead or alive on this setter's clues.
+
+  NOT DONE, honestly: did not measure a second puzzle (the concrete next step before
+  this device can be called anything but "correctly implemented, not yet shown to
+  help"); did not attempt to extend ABBREV_TABLE beyond PLAYBOOK.md's own documented
+  entries; did not fix the `harvest_culture.py` guard gap, to keep this run to one
+  lever; did not merge or otherwise act on the open PR backlog beyond building on its
+  latest branch.

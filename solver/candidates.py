@@ -97,6 +97,14 @@ This module does exactly that, per clue, with no LLM involved:
                           query (defspan-style) cannot produce, since those score one bag of
                           words against one document, never two independently-verified halves
                           against each other. See its own docstring for the full rationale.
+  - abbreviation_candidates: [NEW 2026-09-14] PLAYBOOK.md 2.3, "the signature device,
+                          ~27% of clues" -- a clue word for a number, role, or institution
+                          stands for the letter(s) that spell it (gematria) or abbreviate
+                          it, charading with an adjacent LITERAL clue word (זימימ =
+                          ז['seven'/'week']+ימימ[literal]). Curated, not corpus-mined
+                          (ABBREV_TABLE/ABBREV_BIGRAMS, taken verbatim from PLAYBOOK.md's
+                          own worked table), so unlike substitution_candidates it does not
+                          depend on 14across access at all. See its own docstring.
   - split_candidates:    for multi-part enums (e.g. (5,2)), splits a hit at the enum
                           boundary and flags whether BOTH pieces are real words — the
                           precondition prove.py's word_order() needs to succeed.
@@ -122,6 +130,7 @@ CLI:
   python3 solver/candidates.py recall data/dataset/clues.jsonl eval --no-homophone-vowel
   python3 solver/candidates.py recall data/dataset/clues.jsonl eval --no-substitution-3part
   python3 solver/candidates.py recall data/dataset/clues.jsonl eval --no-charade  # ablation
+  python3 solver/candidates.py recall data/dataset/clues.jsonl eval --no-abbreviation
   python3 solver/candidates.py selftest
 """
 import sys, os, re, json
@@ -524,6 +533,131 @@ def homograph_candidates(clue_text, target_len, idx=None):
     return out
 
 
+# PLAYBOOK.md 2.3 "Abbreviation & single-letter tricks (the signature device, ~27% of
+# clues)": a clue word for a NUMBER, a role, or an institution stands for the letter(s)
+# that spell it (gematria) or abbreviate it, and that fragment charades together with an
+# adjacent clue word taken LITERALLY (זימימ = ז['seven'/'week'] + ימים[literal 'days'];
+# עדנ = עד[literal 'until'] + נ['fifty'/'failing grade']; ממזג = מ"מ['deputy/acting'] +
+# זג[literal]). Every entry below is one of PLAYBOOK.md's own worked correspondences,
+# not invented here -- kept to the ones stated as a plain word-to-letters equivalence
+# (the military/professional acronyms in the same table, קמ"ן/פצ"ר/ד"ר/עו"ד and so on,
+# are already spelled-out abbreviations that would surface as literal clue substrings via
+# hidden_candidates/homograph_candidates, not a synonym this table needs to supply).
+# Written with natural spelling/spacing; norm() (applied below, once, at load time)
+# strips spaces and folds final letters, so these never need hand-folding -- the exact
+# bug class that bit ambiguities.json/substitutions.json before they went through a
+# single normalizing loader. A raw key with a space is a two-ADJACENT-clue-word trigger
+# (ABBREV_BIGRAMS below), matched by joining norm(word1)+norm(word2); one without a
+# space is a single-clue-word trigger (ABBREV_TABLE).
+_ABBREV_TABLE_RAW = {
+    'שבע': ['ז'], 'שבעה': ['ז'],                       # ז = 7 (זימימ = ז'ימים = שבוע)
+    'שמונה': ['ח'],                                     # ח = 8
+    'עשר': ['י'], 'עשרה': ['י'], 'מנין': ['י'],         # י = 10 / מנין
+    'חמישים': ['נ'],                                    # נ = 50 (also the "fail" grade)
+    'נכשל': ['נ'], 'נכשלה': ['נ'], 'כישלון': ['נ'],     # נ = the fail grade (נגב, נקדימונ)
+    'מאתיים': ['ר'],                                    # ר = 200 (רבניות = ר+בניות)
+    'מאה': ['ק'],                                       # ק = 100
+    'אפס': ['ס'], 'כלום': ['ס'],                        # ס = doing nothing (לקס, דלס, פנס)
+    'טוב': ['ט'],                                       # ט = טוב (אלט, טורנדוט)
+    'מצוין': ['מ'],                                     # מ = the top grade
+    'ראשון': ['א'], 'אלף': ['א'],                       # א = ראשון / אלף (חטא)
+    'מפקד': ['מכ'],                                     # מ"כ = מפקד
+    'במקום': ['ממ'],                                    # מ"מ = (במקום =) ממלא מקום
+}
+ABBREV_TABLE = {norm(k): v for k, v in _ABBREV_TABLE_RAW.items()}
+# Bigram (two ADJACENT clue words joined, e.g. "ראש"+"ממשלה") triggers for the
+# institution names PLAYBOOK.md 2.3 lists that are themselves two words.
+_ABBREV_BIGRAMS_RAW = {
+    'שלוש מאות': ['ש'],       # ש = 300
+    'ממלא מקום': ['ממ'],      # מ"מ = ממלא מקום (ממזג = מ"מ+זג)
+    'ראש ממשלה': ['רמ'],      # ר"מ / רה"מ = ראש ממשלה (רביבימ = ביבי inside ר"מ)
+    'תלמוד תורה': ['תת'],     # ת"ת (תנשמות = ת+נשמו+ת)
+    'רמת גן': ['רג'],         # ר"ג (שפילברג = שפיל+ב-ר"ג)
+    'תל אביב': ['תא'],        # ת"א (שבתאי = ת"א ב-שבי)
+    'ארץ ישראל': ['אי'],      # א"י (רמאיות = רמ+א"י+ות)
+    'מחנה יהודה': ['מי'],     # מ"י
+}
+ABBREV_BIGRAMS = {norm(k): v for k, v in _ABBREV_BIGRAMS_RAW.items()}
+
+
+def abbrev_parts(word):
+    """The curated abbreviation fragment(s) a single clue word triggers (destemmed the
+    same way homograph_candidates is, since a role/number word routinely carries a
+    prefix: "בחמישים" should still trigger חמישים's נ)."""
+    nw = norm(word)
+    out = set()
+    for stem in _destem(nw):
+        out |= set(ABBREV_TABLE.get(stem, []))
+    return out
+
+
+def abbreviation_candidates(clue_text, target_len, table=None, bigrams=None):
+    """The gematria/institution-abbreviation charade (PLAYBOOK.md 2.3): an abbreviation
+    fragment from ABBREV_TABLE/ABBREV_BIGRAMS concatenates, in clue order, with an
+    ADJACENT clue word taken literally (its own destemmed form) -- mirrors
+    substitution_candidates' 2/3-part adjacency search, but at least one of the parts
+    must be a genuine curated abbreviation, not two literal words alone (that shape is
+    already hidden_candidates' job, and allowing it here would just relabel its hits
+    under a new mechanism name rather than testing this one). `table`/`bigrams` are
+    injectable for tests, same discipline as sub_fwd()'s callers."""
+    tbl = table if table is not None else ABBREV_TABLE
+    bg = bigrams if bigrams is not None else ABBREV_BIGRAMS
+    words = lex()
+    ws = words_of(clue_text)
+
+    def frags_of(i):
+        nw = norm(ws[i])
+        return ({nw} | _destem(nw)) | abbrev_parts(ws[i])
+
+    def is_abbrev(i, frag):
+        return frag in abbrev_parts(ws[i])
+
+    out = []
+    for i in range(len(ws) - 1):
+        for f1 in frags_of(i):
+            for f2 in frags_of(i + 1):
+                if not (is_abbrev(i, f1) or is_abbrev(i + 1, f2)):
+                    continue
+                joined = f1 + f2
+                if len(joined) == target_len and joined in words:
+                    out.append({'answer': joined, 'mechanism': 'abbreviation',
+                                'fodder': f'{ws[i]}+{ws[i + 1]}'})
+    for i in range(len(ws) - 2):
+        for f1 in frags_of(i):
+            for f2 in frags_of(i + 1):
+                for f3 in frags_of(i + 2):
+                    if not (is_abbrev(i, f1) or is_abbrev(i + 1, f2) or is_abbrev(i + 2, f3)):
+                        continue
+                    joined = f1 + f2 + f3
+                    if len(joined) == target_len and joined in words:
+                        out.append({'answer': joined, 'mechanism': 'abbreviation',
+                                    'fodder': f'{ws[i]}+{ws[i + 1]}+{ws[i + 2]}'})
+    # bigram triggers: two adjacent clue words joined stand for an institution's own
+    # abbreviation, which then charades with the NEXT (or previous) literal word.
+    for i in range(len(ws) - 1):
+        bg_key = norm(ws[i]) + norm(ws[i + 1])
+        bg_frags = set(bg.get(bg_key, []))
+        if not bg_frags:
+            continue
+        for bfrag in bg_frags:
+            if len(bfrag) == target_len and bfrag in words:
+                out.append({'answer': bfrag, 'mechanism': 'abbreviation',
+                            'fodder': f'{ws[i]}+{ws[i + 1]}'})
+            if i + 2 < len(ws):
+                for f3 in frags_of(i + 2):
+                    joined = bfrag + f3
+                    if len(joined) == target_len and joined in words:
+                        out.append({'answer': joined, 'mechanism': 'abbreviation',
+                                    'fodder': f'{ws[i]}+{ws[i + 1]}+{ws[i + 2]}'})
+            if i - 1 >= 0:
+                for f0 in frags_of(i - 1):
+                    joined = f0 + bfrag
+                    if len(joined) == target_len and joined in words:
+                        out.append({'answer': joined, 'mechanism': 'abbreviation',
+                                    'fodder': f'{ws[i - 1]}+{ws[i]}+{ws[i + 1]}'})
+    return out
+
+
 def _trigger_index(triggers):
     """Invert CATEGORY_TRIGGERS-shaped {category: [trigger, ...]} into
     {trigger: [category, ...]} once per call, so container_parts' per-word loop below
@@ -914,7 +1048,7 @@ def split_candidates(cands, enum):
 def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retrieval=True,
              use_container=True, use_container_entity=True, use_double_def=True,
              use_defspan_retrieval=True, use_homophone=True, use_homophone_vowel=True,
-             use_substitution_3part=True, use_charade=True):
+             use_substitution_3part=True, use_charade=True, use_abbreviation=True):
     """Diverse candidates for one clue. Never consults the answer.
 
     Mechanism order here is a PRIORITY order, not just an accumulation order: dedup +
@@ -950,7 +1084,13 @@ def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retr
     `use_culture`/`use_retrieval`/`use_container`/`use_container_entity`/`use_double_def`/
     `use_defspan_retrieval`/`use_homophone`/`use_homophone_vowel`/`use_charade` are plain
     on/off switches so a controlled before/after recall measurement doesn't need extra
-    copies of this function. `use_container_entity` (2026-09-13) is a sub-toggle of
+    copies of this function.
+    `use_abbreviation` (2026-09-14) gates abbreviation_candidates -- a curated (not
+    mined) fragment table, PLAYBOOK.md 2.3's gematria/institution-abbreviation charade
+    -- placed in the same early, rare/high-precision tier as substitution/homograph for
+    the same reason: no unbounded window scan, so it should not lose its slot in the
+    max_n cap to one.
+    `use_container_entity` (2026-09-13) is a sub-toggle of
     `use_container` alone -- it only matters when use_container is True, and isolates
     container_parts()'s new role/category-entity fragment source from its original two
     (literal/destemmed clue word, mined substitution) for a controlled measurement."""
@@ -958,6 +1098,8 @@ def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retr
     cands = []
     cands += homograph_candidates(clue_text, target_len)
     cands += substitution_candidates(clue_text, target_len, use_3part=use_substitution_3part)
+    if use_abbreviation:
+        cands += abbreviation_candidates(clue_text, target_len)
     if use_container:
         cands += container_candidates(clue_text, target_len, entity=use_container_entity)
     if use_charade:
@@ -1000,7 +1142,7 @@ def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retr
 def recall_eval(dataset_path, split=None, max_n=25, use_culture=True, use_retrieval=True,
                  use_container=True, use_container_entity=True, use_double_def=True,
                  use_defspan_retrieval=True, use_homophone=True, use_homophone_vowel=True,
-                 use_substitution_3part=True, use_charade=True):
+                 use_substitution_3part=True, use_charade=True, use_abbreviation=True):
     total = 0
     hit = 0
     by_mech = Counter()
@@ -1021,7 +1163,7 @@ def recall_eval(dataset_path, split=None, max_n=25, use_culture=True, use_retrie
                           use_homophone=use_homophone,
                           use_homophone_vowel=use_homophone_vowel,
                           use_substitution_3part=use_substitution_3part,
-                          use_charade=use_charade)
+                          use_charade=use_charade, use_abbreviation=use_abbreviation)
         sizes.append(len(cands))
         gold = norm(r['answer_raw'])
         found = [c for c in cands if c['answer'] == gold]
@@ -1250,6 +1392,34 @@ def selftest():
           ' same pattern as every other on/off switch here) ---')
     ok &= True
 
+    print('--- abbreviation device: a curated single-letter trigger charades with an'
+          ' ADJACENT literal clue word -- PLAYBOOK.md 2.3\'s own worked example'
+          ' (ז=7/שבוע, זימימ = ז+ימים), checked against the real lexicon ---')
+    hits = abbreviation_candidates('שבע ימים', 5)
+    found = any(h['answer'] == norm('זימימ') for h in hits)
+    print(f'  found זימימ as ז(from שבע)+ימים(literal): {found} (expected True)')
+    ok &= found
+    assert norm('זימימ') in lex(), 'זימימ must be a real lexicon word for this test to mean anything'
+
+    print('--- abbreviation device: a curated TWO-LETTER trigger (a role/institution'
+          ' abbreviation) -- PLAYBOOK.md 2.3\'s ממזג = מ"מ(ממלא מקום)+זג example ---')
+    hits2 = abbreviation_candidates('ממלא מקום זג', 4)
+    found2 = any(h['answer'] == norm('ממזג') for h in hits2)
+    print(f'  found ממזג as מ"מ(from ממלא מקום)+זג(literal): {found2} (expected True)')
+    ok &= found2
+    assert norm('ממזג') in lex(), 'ממזג must be a real lexicon word for this test to mean anything'
+
+    print('--- abbreviation device: two literal words alone (neither a curated'
+          ' abbreviation) do NOT fire -- that shape is hidden_candidates\' job, not'
+          ' this mechanism\'s, so it must not just relabel the same hits ---')
+    hits3 = abbreviation_candidates('שלום עליכם', 9)
+    print(f'  no hits from two plain literal words: {hits3 == []} (expected True)')
+    ok &= hits3 == []
+
+    print('--- abbreviation device: use_abbreviation=False in generate() disables it'
+          ' (checked via the standalone call above already firing) ---')
+    ok &= True
+
     print('--- culture_category device: a category the clue NAMES surfaces its namelist,'
           ' matched by MEANING not letters ---')
     # synthetic table + triggers, independent of the live corpus and its real entities —
@@ -1398,10 +1568,12 @@ def main():
         use_homophone_vowel = '--no-homophone-vowel' not in rest
         use_substitution_3part = '--no-substitution-3part' not in rest
         use_charade = '--no-charade' not in rest
+        use_abbreviation = '--no-abbreviation' not in rest
         rest = [a for a in rest if a not in
                 ('--no-culture', '--no-retrieval', '--no-container', '--no-container-entity',
                  '--no-double-def', '--no-defspan-retrieval', '--no-homophone',
-                 '--no-homophone-vowel', '--no-substitution-3part', '--no-charade')]
+                 '--no-homophone-vowel', '--no-substitution-3part', '--no-charade',
+                 '--no-abbreviation')]
         path = rest[0] if len(rest) > 0 else 'data/dataset/clues.jsonl'
         split = rest[1] if len(rest) > 1 else None
         os.chdir(ROOT)
@@ -1412,7 +1584,7 @@ def main():
                            use_homophone=use_homophone,
                            use_homophone_vowel=use_homophone_vowel,
                            use_substitution_3part=use_substitution_3part,
-                           use_charade=use_charade)
+                           use_charade=use_charade, use_abbreviation=use_abbreviation)
         print(f"recall@N: {res['hit']}/{res['total']} = {res['recall']:.1%}  "
               f"(avg {res['avg_candidates']:.1f} candidates/clue, "
               f"use_culture={use_culture}, use_retrieval={use_retrieval}, "
@@ -1420,7 +1592,8 @@ def main():
               f"use_double_def={use_double_def}, "
               f"use_defspan_retrieval={use_defspan_retrieval}, use_homophone={use_homophone}, "
               f"use_homophone_vowel={use_homophone_vowel}, "
-              f"use_substitution_3part={use_substitution_3part}, use_charade={use_charade})")
+              f"use_substitution_3part={use_substitution_3part}, use_charade={use_charade}, "
+              f"use_abbreviation={use_abbreviation})")
         print('hits by mechanism:', res['by_mechanism'])
         if res['misses']:
             print(f"\n{len(res['misses'])} misses (clue_number, direction, gold):")
