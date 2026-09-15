@@ -131,6 +131,8 @@ CLI:
   python3 solver/candidates.py recall data/dataset/clues.jsonl eval --no-substitution-3part
   python3 solver/candidates.py recall data/dataset/clues.jsonl eval --no-charade  # ablation
   python3 solver/candidates.py recall data/dataset/clues.jsonl eval --no-abbreviation
+  python3 solver/candidates.py lexicon-coverage data/dataset/clues.jsonl eval  # mechanism-
+    # agnostic ceiling: what fraction of gold answers are lex() members at all
   python3 solver/candidates.py selftest
 """
 import sys, os, re, json
@@ -1182,6 +1184,43 @@ def recall_eval(dataset_path, split=None, max_n=25, use_culture=True, use_retrie
 
 
 # ---------------------------------------------------------------------------
+# lexicon coverage: a decisive, MECHANISM-AGNOSTIC diagnostic recall_eval alone
+# cannot give. Every mechanism in this file (anagram/hidden/reversal/homograph/
+# container/...) only ever proposes an answer that is already a member of lex() —
+# none of them can invent a string outside it. So no matter how many mechanisms
+# exist or how well their fodder-matching works, a gold answer that lex() simply
+# does not contain is unreachable by this entire architecture, full stop. Past
+# per-mechanism measurements answered "did mechanism X find gold" (often "the
+# mechanism fired but missed"); this answers the prior, structural question:
+# "was gold even a candidate lex() could ever produce" — 2026-09-15's own
+# measurement on 2026-06-05 found only 8/28 (28.6%) were, which explains a flat
+# 0/28 recall@N far more directly than any single mechanism's own firing rate.
+# ---------------------------------------------------------------------------
+def lexicon_coverage_eval(dataset_path, split=None):
+    total = 0
+    covered = 0
+    missing = []
+    words = lex()
+    for line in open(dataset_path):
+        r = json.loads(line)
+        if split and r['split'] != split:
+            continue
+        if not r.get('answer_raw'):
+            continue
+        total += 1
+        gold = norm(r['answer_raw'])
+        if gold in words:
+            covered += 1
+        else:
+            missing.append((r['clue_number'], r['direction'], gold))
+    return {
+        'total': total, 'covered': covered,
+        'coverage': covered / total if total else 0.0,
+        'missing': missing,
+    }
+
+
+# ---------------------------------------------------------------------------
 def selftest():
     """Unit-level checks on synthetic examples — independent of any puzzle's gold
     data, so this file never embeds a dev/eval answer (same discipline lexicon.py
@@ -1540,6 +1579,28 @@ def selftest():
     print(f'  split result: {split[0]["split"]} (expected two real words, not None)')
     ok &= split[0]['split'] is not None
 
+    print('--- lexicon_coverage_eval: a real dictionary word counts as covered, an '
+          'invented string does not (mechanism-agnostic, no held-out corpus needed) ---')
+    import tempfile
+    fd, tmp_path = tempfile.mkstemp(suffix='.jsonl')
+    try:
+        with open(tmp_path, 'w', encoding='utf-8') as f:
+            f.write(json.dumps({'split': 'eval', 'answer_raw': 'שלום',
+                                 'clue_number': 1, 'direction': 'across'},
+                                ensure_ascii=False) + '\n')
+            f.write(json.dumps({'split': 'eval', 'answer_raw': 'זזקככץ',
+                                 'clue_number': 2, 'direction': 'down'},
+                                ensure_ascii=False) + '\n')
+        res = lexicon_coverage_eval(tmp_path, split='eval')
+        print(f'  coverage: {res["covered"]}/{res["total"]} (expected 1/2)')
+        ok &= res['covered'] == 1 and res['total'] == 2
+        print(f'  the invented string is the one flagged missing: '
+              f'{res["missing"] == [(2, "down", norm("זזקככץ"))]} (expected True)')
+        ok &= res['missing'] == [(2, 'down', norm('זזקככץ'))]
+    finally:
+        os.close(fd)
+        os.remove(tmp_path)
+
     print(f'\n{"ALL PASSED" if ok else "FAILURES ABOVE"}')
     return ok
 
@@ -1599,6 +1660,18 @@ def main():
             print(f"\n{len(res['misses'])} misses (clue_number, direction, gold):")
             for num, direction, text, gold in res['misses']:
                 print(f'  {num} {direction}: {gold}  <-  {text}')
+    elif cmd == 'lexicon-coverage':
+        rest = sys.argv[2:]
+        path = rest[0] if len(rest) > 0 else 'data/dataset/clues.jsonl'
+        split = rest[1] if len(rest) > 1 else None
+        os.chdir(ROOT)
+        res = lexicon_coverage_eval(path, split)
+        print(f"lexicon coverage: {res['covered']}/{res['total']} = {res['coverage']:.1%} "
+              f"of gold answers are members of lex() at all (mechanism-agnostic ceiling)")
+        if res['missing']:
+            print(f"\n{len(res['missing'])} not in lex() (clue_number, direction, gold):")
+            for num, direction, gold in res['missing']:
+                print(f'  {num} {direction}: {gold}')
     else:
         print(__doc__)
 

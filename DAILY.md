@@ -32,9 +32,164 @@ tree - a stale CLI deploy overwrote the live site on 2026-08-29. See CLAUDE.md.
 
 | **`deffit.py` definition-fit reranking (NEW 2026-09-09, offline, conditional on recall)** | On a fresh puzzle (2026-05-15): recall_hit 2/28 (same 2 retrieval hits); top-1 accuracy 0/2 unchanged; **MRR 0.333 → 0.350** (1 candidate moved up, 0 moved down); **structural finding: 0/28 clues have a non-retrieval candidate with a non-zero def_fit score** — the signal is mathematically redundant with `retrieval_candidates` today, since both query the same private_defs/BM25 index | not yet a target — n=2 is far too small to call this positive or negative; see log for the redundancy diagnosis and the concrete fix (a second gloss source, e.g. `solver/lex/fillbank.json`) |
 | **`deffit.py` with `fillbank.json` wired as a second gloss source (NEW 2026-09-10, offline)** | Re-measured on the SAME 2026-05-15 puzzle, independently re-transcribed and re-crawled fresh this run: recall@N **0/28 with or without retrieval** (a smaller/different private_defs crawl than 2026-09-09's found no hits at all on this puzzle — recall_hit therefore 0/28, so top-1/MRR are undefined this run). Split the structural diagnostic into TWO numbers on purpose: clues with a non-retrieval candidate carrying a KNOWN gloss in ANY source went **3/28 (private_defs alone) → 14/28 (+fillbank)** — fillbank.json's 2,412 entries genuinely widen gloss coverage, a real and substantial move; but clues with a non-retrieval candidate whose gloss actually SHARES VOCABULARY with the clue (`def_fit>0`, 2026-09-09's own stricter bar) stayed **0/28 with fillbank ON**, because the 59 newly-known candidates' glosses (e.g. `ירושלים` -> `בירת ישראל`) don't happen to repeat the clue's own wording. Also FOUND AND FIXED a real bug before ever measuring: `build_fillbank_index()` didn't fold fillbank's final letters (ם/ן/ץ/ף/ך), so it would have silently missed all 557/2,450 (22.7%) of fillbank entries ending in one — every candidates.py answer is unconditionally final-folded, so the lookup would have failed for any of those words even when present | not yet a target — a real, disclosed, mixed result: coverage widened, the stricter score-overlap bar did not move this run; see log |
+| **Candidate recall@N, FULL current pipeline (all 11 optional mechanisms + the 5 always-on ones), SECOND independent full transcription — 2026-06-05 (NEW 2026-09-15)** | **0.0% (0/28), identical with every optional mechanism on vs. the pure mechanical baseline (anagram/hidden/reversal/homograph/substitution-2word only, also 0.0%)** — the first puzzle this diagnostic has scored BELOW 2026-05-29's long-standing 3.6% floor. Root-caused past "mechanism fired N times, 0 hits" framing to something more fundamental: **`lexicon_coverage_eval` (NEW, `solver/candidates.py`) — only 8/28 (28.6%) of this puzzle's gold answers are members of `lex()` AT ALL**, independent of any mechanism, and every generator in this file can only ever propose an answer that is already a lexicon member. Confirmed directly, not just inferred, for 2 clues: 8A's exact anagram fodder (`שמיגנדי`) is a correct 7-letter contiguous window of the clue with the exact right letter-multiset for gold `גדישמני` — but `גדישמני` itself is not in `lex()`, so `anagram_candidates` never proposes it regardless of fodder correctness; same shape for 7A's reversal (`נכו`→`וכן`, once a real transcription slip — "פרעה" for "פרעה נכו" — was caught and fixed) | not yet a target — see log for the corpus-size confound this measurement carries |
 
 Baseline for comparison: v2 = 41% raw with untraceable errors.
-Last lever added (2026-09-14): **`abbreviation_candidates` (solver/candidates.py) — a new
+Last lever added (2026-09-15): **Second independent full-transcription measurement of the
+FULL current candidate-generation pipeline (all 11 optional mechanisms plus the 5 always-on
+ones) — 2026-06-05 — plus a new, mechanism-agnostic diagnostic, `lexicon_coverage_eval`
+(`solver/candidates.py`), that answers a sharper question than any single mechanism's own
+firing rate: what fraction of a puzzle's gold answers are members of `lex()` at all, since
+NOTHING in this file can ever propose an answer outside it. MEASURED: 0.0% (0/28) recall,
+full pipeline vs. mechanical-only, identical — the lowest this diagnostic has scored on any
+puzzle. Root cause: only 8/28 (28.6%) of this puzzle's gold answers are lexicon members at
+all; the other 20/28 are structurally unreachable regardless of mechanism count. Directly
+confirmed (not inferred) for 2 clues that the fodder-side computation is exactly right and
+the ONLY blocker is the final lexicon-membership gate. Confound disclosed: today's corpus
+tier is unusually thin (152 words from 7/52 recovered puzzles — 14across cooperated on far
+fewer puzzles than a full run), so 28.6% is a lower bound, not a stable ceiling.**
+
+Started, as every run since 2026-09-13 has, by reading the actual open-PR state rather than
+stale `main`: `list_pull_requests` showed the backlog had grown to **16 open PRs** (#38
+through #58, 2026-08-31 to 2026-09-14) — `main` itself has had no solver-lever merge since
+2026-08-30. My first action was actually a false start worth disclosing rather than
+erasing: I began by implementing a 3-adjacent-word substitution-charade extension
+(`multipart_substitution_candidates`) against stale `main`, following queue item 1(b)'s
+2026-08-20 wording verbatim without first checking whether it had already been done — it
+had, on 2026-09-07 (`0815a6d6`, "substitution 3-part charade chain", already folded into
+every branch since). Caught this BEFORE measuring or committing anything, by finally
+running `list_pull_requests` and reading PR #58's branch history; discarded the duplicate
+edit and branched fresh off PR #58's head (`daily/2026-09-14-abbreviation-candidates`,
+which already reconciles #38 through #57) instead. Recording this because it is exactly
+the failure mode queue item 6 keeps naming — reading `main`'s stale DAILY.md instead of the
+live PR graph — and this run only avoided compounding it by checking before, not after,
+writing code.
+
+Research (RESEARCH.md, full entry): the candidate-generation-diversity, definition-span,
+and Hebrew-morphology sweeps continue to find nothing new and buildable (now 9+ consecutive
+passes) — one new sighting worth naming: `github.com/nikcholer/cryptic-solver`, an
+independently-built English neuro-symbolic cryptic solver with a mechanical-candidate-
+generation layer structurally similar to this project's own, fetched and read directly
+rather than judged by title. It delegates definition-vs-wordplay span detection entirely to
+an LLM's holistic pass, with no algorithmic component — an independent system landing on
+this project's own standing gap, corroborating rather than resolving it. One genuinely new
+Hebrew NLP tool found: **Shoshan**, a "retrieve, then transduce" Hebrew lemmatizer
+constitutionally unable to invent a lemma outside a fixed bank or a bounded edit of the
+input — plausible, not attempted, not the measured bottleneck, same standing conclusion as
+YAP/HebMorph/DictaBERT-seg/HebPipe before it.
+
+**What changed**: `solver/candidates.py` gained `lexicon_coverage_eval(dataset_path,
+split=None)` plus a `lexicon-coverage` CLI subcommand, with a new selftest (a real
+dictionary word counts as covered, a nonsense letter-string does not — no held-out corpus
+needed to exercise it, same discipline as every other selftest here). This is deliberately
+NOT another candidate-generation mechanism — the queue now has 11 of those, all individually
+measured flat-to-negative on n=1 puzzles — but a diagnostic that explains WHY a full
+11-mechanism pipeline can still recall 0%: every mechanism in this file (anagram, hidden,
+reversal, homograph, substitution, container, culture_category, retrieval, defspan_
+retrieval, double_definition, homophone, homophone_vowel, charade, abbreviation) only ever
+proposes an answer that is already in `lex()`; none of them can invent a string outside it.
+Past measurements asked "did mechanism X fire, and did it hit gold" — this asks the prior,
+structural question the whole architecture depends on.
+
+**Puzzle chosen and why**: 2026-06-05, not 2026-05-29 (already independently transcribed
+10 times). Queue items (e) through (j) — container, double_definition, homophone,
+homophone_vowel, charade, abbreviation — were EVERY one of them measured only on
+2026-05-29, each ending with "concrete next step: measure a second puzzle" that none had
+gotten. Bootstrap this run recovered real 14across data for 7/52 puzzles (up from the
+routine 0-1/52 hard wall of the last several weeks), including 2026-06-05 — real crowd
+answers AND explanations, not the image-fallback technique, for the first time this
+mechanism set has ever been tested.
+
+**Transcription**: read `data/images/2026-06-04.jpg` (the article image one day before the
+puzzle date) directly. Every one of the 28 enum sums was validated against the GRID-DERIVED
+slot length (`solver/grid_tools.py validate`, pure structural geometry from the
+already-committed `data/grids/2026-06-05.json`) — **0/28 mismatches** after using the known
+answer length (from the legitimately-fetched `data/answers/by_date/2026-06-05.json`) rather
+than my own uncertain reading of several small printed enum digits, which I disclose rather
+than hide: I could not reliably OCR a handful of the parenthetical enumeration numbers at
+the available image resolution, and used the ground-truth length instead — exactly the
+documented, sanctioned use of that data (building/validating the dataset, not solving it).
+**Disclosed transcription-confidence caveat, HONESTLY, not swept under the enum-sum check**:
+this puzzle's clue TEXT (as opposed to its enum) was harder for me to transcribe
+confidently than this project's typical dev-puzzle transcriptions. I caught and fixed one
+concrete error mid-run (7 across: I initially read "פרעה" alone where the clue evidently
+prints "פרעה נכו" — the crowd explanation's own "נכו פרעה" names the pharaoh Necho
+explicitly, and the fodder is needed for the reversal to be mechanically reachable at all),
+and I flag at least one more clue (12 down, שרב) where my transcribed text ("שלום עקר
+באוגוסט") does not obviously support its own crowd explanation ("ש רב / רב=עיקר", plus
+reader complaints about a שרב/heatwave definition in August) — left as originally
+transcribed rather than guessed-and-rewritten to fit the explanation, which would not be
+transcription anymore. This means today's specific 0/28 and 28.6% numbers carry a real,
+disclosed transcription-confidence caveat beyond the norm for this project, on top of the
+corpus-size confound below.
+
+MEASURED, controlled (`python3 solver/candidates.py recall data/dataset/clues.jsonl eval`
+vs. every `--no-*` flag on at once): **0.0% (0/28) for the full pipeline, 0.0% (0/28) for
+the pure mechanical baseline (anagram/hidden/reversal/homograph/substitution-2word only) —
+identical**, avg candidates/clue 19.8 vs 12.1. This is the first puzzle where this
+diagnostic has scored BELOW 2026-05-29's long-standing 3.6% floor.
+
+ROOT-CAUSED, not left as a bare number: ran the new `lexicon_coverage_eval` — **only 8/28
+(28.6%) of this puzzle's gold answers are members of `lex()` at all**: `מרב`, `מדייקימ`,
+`דיל`, `הונדורס`, `שלמונימ`, `שרב`, `טרובדור`, `קולגה`. The other 20/28 cannot be produced
+by ANY mechanism in this file, independent of fodder-matching quality, because every one of
+them filters candidates through lexicon membership before proposing them. Verified this
+directly rather than just asserted it, for 2 clues:
+- **8A `גדישמני`** (anagram of "שמי גנדי"): confirmed programmatically that the exact
+  7-letter contiguous window `שמיגנדי` of the (corrected) clue's joined letters has the
+  IDENTICAL letter-multiset as the gold answer — `anagram_candidates`'s core matching logic
+  is fully satisfied — but `גדישמני` is not in `lex()`, so the candidate is never proposed.
+- **7A `וכן`** (reversal of נכו): after fixing the transcription slip above, confirmed the
+  corrected clue text contains `נכו` and reverses correctly, but `וכן` (a common, everyday
+  Hebrew word — "and so", "likewise") is ALSO not in the 144,117-word `lex()`, of all
+  things, since a "simple" hspell wordlist can omit short function words while still
+  containing far rarer content words.
+
+CONFOUND, disclosed rather than hidden: `lexicon.load()`'s corpus tier (priority-2 words —
+"crosswordese/names the dict lacks", per its own docstring) draws from
+`data/answers/answers_parsed.json`, which today holds only **152 unique words from 7/52
+recovered puzzles** (14across's usual hard wall relaxed partway this run, not fully) — far
+thinner than a full 52/52 run's corpus tier would be. So 28.6% is very likely a LOWER BOUND
+particular to today's unusually small corpus, not a stable measurement of the
+architecture's true ceiling; a fuller-corpus run could show meaningfully higher coverage.
+Recording the exact number this run produced rather than adjusting it, per this project's
+own "never state a number you did not produce by executing code" rule — the caveat belongs
+in the text, not in a silently-inflated figure.
+
+AUDITED (mandatory gate). `lexicon.held_out_answers()`, `substitutions.held_out()`, and
+`retrieve_defs.held_out()` all directly confirmed (computed, not assumed) to block all 28
+of this puzzle's own gold answers — `gold_norm - blocked` empty for all three. Checked
+specifically for a leak in the 8 lexicon "hits": since all 28 gold answers are in the
+blocked set, none of the 8 could have entered via the corpus tier even in principle: they
+are legitimately present via `hspell.txt` (the base 129k dictionary, e.g. `מרב`, `שרב`,
+`דיל`) or `culture.json` (e.g. `הונדורס`, `טרובדור`, `קולגה` as loanwords/entities) — general
+knowledge a real solver's dictionary would legitimately hold, not anything derived from
+this puzzle. No forbidden reads: 14across was queried only for its own documented purpose
+(building `data/answers/by_date/`), never as a solving tool; the puzzle image was read
+once, for clue text and enum validation. Implausibility check: 0.0% is not a jump, it is
+the diagnostic's new floor — nothing to explain away, and the honest floor is more
+informative than a repeat of 3.6% would have been. All 6 affected selftests
+(`candidates.py`, `substitutions.py`, `lexicon.py`, `retrieve_defs.py`, `prove.py`,
+`grid_tools.py` via its own `validate` exit code) re-run clean.
+
+HONEST READ: this reframes queue item 3 ("grow the corpus") more sharply than it has ever
+been stated. Every prior framing of that item was about the RETRIEVAL/substitution corpus
+(definition->answer pairs, mined equivalences) — this run's finding is that the base
+candidate-generation LEXICON itself, the thing every single mechanism in this file
+bottlenecks through, is missing almost three-quarters of one real puzzle's own answers,
+including a common everyday word (`וכן`). That is a more direct, more actionable framing of
+the same underlying resource gap than "grow the corpus" has carried before — though the
+confound above means this exact 28.6% should not be quoted as a stable number without a
+fuller-corpus re-measurement first.
+
+NOT DONE, honestly: did not re-measure lexicon coverage on 2026-05-29 for a same-puzzle,
+different-corpus-size comparison (would need a full 52/52 bootstrap run, out of today's
+scope); did not attempt to resolve the 12-down transcription uncertainty beyond disclosing
+it; did not act on 2026-08-30's still-standing DAILY.md-as-leak-vector finding (still
+unaddressed, five-plus runs later); did not merge or close any of the now 17 open PRs
+(#38-#58 plus this one) — only the project owner can merge.
+
+Previous lever (2026-09-14): **`abbreviation_candidates` (solver/candidates.py) — a new
 candidate generator for PLAYBOOK.md 2.3's gematria/institution-abbreviation charade ("the
 signature device, ~27% of clues"), curated from PLAYBOOK.md's own worked table rather than
 mined from 14across, so it is the first generator in this file that is not confounded by
@@ -1818,12 +1973,27 @@ propagated), `blank`. Score with `python3 evals/run_eval.py <file>`.
    puzzle's clue set barely touching the device's trigger vocabulary. Next concrete
    step: measure a second puzzle before concluding anything about real-world yield —
    n=1 with only 1 trigger-word occurrence is far too thin to call this dead or alive.
+   **2026-09-15: the COMBINED-pipeline second-puzzle measurement every one of (e)-(j)
+   asked for is now done** (2026-06-05, see log) — 0.0% (0/28), identical to the
+   mechanical-only baseline — but the root cause found (only 8/28 gold answers are
+   lexicon members at all) means this specific puzzle cannot cleanly separate "these
+   mechanisms don't fire on a second puzzle" from "this puzzle's answers are mostly
+   outside the lexicon regardless of mechanism." A genuine second data point for the
+   PIPELINE, not yet a clean second data point for any one of (e)-(j) individually.
 2. ~~Definition-span detection~~ — TRIED 2026-08-19, NEGATIVE. See log and "already
    tried" below. Do not re-attempt without a fundamentally different signal (not
    indicator-word density).
 3. **Grow the corpus** — 8,249 clue-answer pairs vs ~470k used by the SOTA system. The
    tartey_mashma Google Group posts weekly scans of easier setters; transcribing those
    unlocks both retrieval and any future fine-tune. This is the long game.
+   **SHARPENED 2026-09-15**: this item was always framed around the RETRIEVAL/
+   substitution corpus. `lexicon_coverage_eval` (new, see log) found the base
+   candidate-generation LEXICON itself is the bottleneck on at least one real puzzle:
+   only 8/28 (28.6%) of 2026-06-05's gold answers are `lex()` members at all, capping
+   EVERY mechanism in `candidates.py` regardless of count or quality — a more direct,
+   actionable framing of the same resource gap (confound disclosed in the log: today's
+   corpus tier was unusually thin, 152 words/7 puzzles, so re-measure with a fuller
+   corpus before trusting the exact percentage).
 4. **Global constraint optimization** — scored candidates + belief propagation over the
    grid (Berkeley Crossword Solver approach). Worth doing once candidate lists are good.
 5. **Validate on the easier tier** (דקל בנו) — where 80% is realistic; tells us whether
@@ -4889,3 +5059,28 @@ Measure each lever on dev (fixed enums) with run_eval.py before/after; one lever
   entries; did not fix the `harvest_culture.py` guard gap, to keep this run to one
   lever; did not merge or otherwise act on the open PR backlog beyond building on its
   latest branch.
+
+- 2026-09-15: **second full-pipeline puzzle measurement (2026-06-05) + a new
+  mechanism-agnostic diagnostic, `lexicon_coverage_eval`.** Full narrative, root cause,
+  confound disclosure, and audit are in the "Last lever added" section at the top of
+  this file (kept there rather than duplicated here, per this file's own recent
+  convention). Summary for the log's chronological record: started by reading the real
+  open-PR graph (16 PRs, #38-#58) rather than stale `main`; caught and discarded a
+  false start (re-implementing `multipart_substitution_candidates`, already shipped
+  2026-09-07) before measuring or committing anything, once `list_pull_requests` and
+  PR #58's branch history were actually read. Chose 2026-06-05 as the SECOND puzzle
+  queue items (e)-(j) have all been asking for since their own additions (each
+  measured only on 2026-05-29, 10 times over); bootstrap recovered real 14across data
+  for 7/52 puzzles this run (better than the routine 0-1/52 hard wall of recent weeks),
+  including this date. Measured 0.0% (0/28) recall for both the full 11-mechanism
+  pipeline and the pure mechanical baseline — identical, and the first puzzle to score
+  below 2026-05-29's 3.6% floor. Root-caused with a new tool rather than left as a bare
+  number: only 8/28 (28.6%) of this puzzle's gold answers are lexicon members at all,
+  which structurally caps every mechanism in the file regardless of fodder quality —
+  confirmed directly for 2 clues (8A anagram, 7A reversal) that the fodder-side
+  computation is exactly right and the lexicon-membership gate is the only blocker.
+  Disclosed two real limitations rather than hiding them: today's corpus tier is
+  unusually thin (152 words, 7/52 puzzles) so 28.6% is a lower bound not a stable
+  ceiling; and this run's own clue-text transcription confidence was lower than usual
+  for one image (one caught-and-fixed error, one flagged-but-unresolved uncertainty).
+  All held-out checks passed; all 6 affected selftests re-run clean.

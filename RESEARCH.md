@@ -4,6 +4,77 @@ One entry per run: what was found, one-line summary, and an honest judgement of 
 it transfers to a Hebrew cryptic solver with an 8k-clue corpus. Default skepticism: most
 crossword-AI work targets non-cryptic (American-style) puzzles and does not transfer.
 
+## 2026-09-15
+
+Bootstrap ran `--dev-only`: 14across recovered real data for **7/52 puzzles** (2026-05-21,
+2026-05-29, 2026-06-05, 2026-06-26, 2026-07-03, 2026-07-10, 2026-07-17) — meaningfully
+better than the routine 0-1/52 hard wall of the last several weeks, though still far short
+of a full 52/52 run. Started, as every run since 2026-09-13 has, by reading the actual
+open-PR graph rather than trusting stale `main`'s DAILY.md: `list_pull_requests` showed 16
+open PRs (#38-#58); branched off PR #58's head. Followed the scheduled task's stated
+priority order: candidate generation (diverse candidates by mechanism/definition-span
+hypothesis) first, then Hebrew NLP/morphology, checking each against 9+ prior consecutive
+passes already logged here before re-searching from scratch.
+
+**"cryptic crossword solver candidate generation LLM 2026" / general sweep.** Same paper
+set logged repeatedly (2406.09043 NAACL 2025 "Language Models are Crossword Solvers";
+2403.12094 "Are LLMs Good Cryptic Crossword Solvers?"; 2506.04824's 20-candidates +
+10-wordplay-explanations + Python-assertion-verification pipeline, structurally the same
+shape as this project's own `candidates.py` + `prove.py`, independently arrived at). One
+new sighting, **CrossWordBench (arXiv 2504.00043)**: checked directly — targets ordinary
+(non-cryptic), vision-grounded crossword reasoning, not wordplay decomposition. **Transfer:
+none** — wrong puzzle genre, the same conclusion this log reaches for every non-cryptic
+crossword-AI paper found to date.
+
+**Checked one specific new repo directly: github.com/nikcholer/cryptic-solver** ("a
+neuro-symbolic demo combining LLM clue parsing with deterministic Python validation"),
+fetched and read rather than judged by its description, since its framing sounded closest
+to this project's own architecture of anything found yet. Confirmed: anagram/hidden/
+reversal/container/charade candidate generation validated against a dictionary — the same
+shape as `candidates.py` — but definition-vs-wordplay SPAN detection is explicitly
+delegated to an LLM's holistic interpretation, not solved algorithmically (the README:
+the LLM "recognises that 'complicated' signals an anagram" and separately "verifies
+that... = HOTELIERS" for definition fit, no algorithmic component for either). English-
+specific, no language-agnostic technique discussed. **Transfer: a useful negative, not a
+new lead** — an independently-built system with a mechanically similar candidate-generation
+layer to this project's own landed on the SAME unsolved gap (definition-fit left to
+holistic judgment, not decomposed into a checkable sub-step), corroborating rather than
+contradicting this project's own standing finding that no buildable algorithmic
+definition-fit component exists in the literature yet.
+
+**Hebrew NLP/morphology — one genuinely new tool: Shoshan** (pypi.org/project/shoshan,
+named after Even-Shoshan's dictionary). A Hebrew lemmatizer with a specific, checkable
+design: "retrieve, then transduce" — it retrieves a lemma from a fixed bank of real Hebrew
+lemmas first, and falls back to transducing (editing the input: stripping a prefix, fixing
+a suffix) only when nothing in the bank looks like a form of the input, so it is
+constitutionally unable to invent a lemma that is neither a real dictionary headword nor a
+bounded edit of the input. Weights on HuggingFace, pip-installable. **Transfer: plausible,
+same standing conclusion as YAP/HebMorph/DictaBERT-seg/HebPipe (logged repeatedly since
+2026-08-06) — not attempted today, not the measured bottleneck.** Marginally sharper than
+those four for one specific future use (whether an inflected clue word reduces to a common
+headword, the same gap `topicgen_eval.py` already encodes for a different generator per
+the 2026-09-07 log) — but this project's own repeated finding across 9+ research passes is
+that vocabulary/morphology coverage has never been shown to be the bottleneck; corpus
+coverage and definition-fit judgment are. Flagging the sharper tool, not reopening the
+question.
+
+**BM25 vs. dense retrieval, Hebrew WordNet.** Re-checked; no update to either standing
+finding.
+
+**Conclusion, and what this run actually built.** No external resource turns into a
+buildable definition-fit or definition-span mechanism today — now 9+ consecutive passes
+with that result, independently corroborated this time by a second system's architecture
+landing on the identical gap. Given that, and given every one of `candidates.py`'s 11
+optional mechanisms has already been added and individually measured flat-to-negative on
+n=1 (2026-05-29), today's actual contribution came from EXECUTING a measurement rather than
+searching further: a second independent full transcription (2026-06-05, this mechanism
+set's first-ever second-puzzle full-pipeline measurement) turned up something the
+literature sweep didn't need to find, because it was sitting in this project's own data —
+a NEW mechanism-agnostic diagnostic, `lexicon_coverage_eval`, showing that only 8/28
+(28.6%) of this puzzle's gold answers are lexicon members at all, which bounds every
+existing and any future mechanism in this file regardless of how it's built. See DAILY.md
+for the measured recall, root-cause verification, confound disclosure, and audit.
+
 ## 2026-09-14
 
 Bootstrap: 14across hit the same intermittent-then-hard-wall pattern as most recent runs
