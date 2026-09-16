@@ -33,9 +33,95 @@ tree - a stale CLI deploy overwrote the live site on 2026-08-29. See CLAUDE.md.
 | **`deffit.py` definition-fit reranking (NEW 2026-09-09, offline, conditional on recall)** | On a fresh puzzle (2026-05-15): recall_hit 2/28 (same 2 retrieval hits); top-1 accuracy 0/2 unchanged; **MRR 0.333 → 0.350** (1 candidate moved up, 0 moved down); **structural finding: 0/28 clues have a non-retrieval candidate with a non-zero def_fit score** — the signal is mathematically redundant with `retrieval_candidates` today, since both query the same private_defs/BM25 index | not yet a target — n=2 is far too small to call this positive or negative; see log for the redundancy diagnosis and the concrete fix (a second gloss source, e.g. `solver/lex/fillbank.json`) |
 | **`deffit.py` with `fillbank.json` wired as a second gloss source (NEW 2026-09-10, offline)** | Re-measured on the SAME 2026-05-15 puzzle, independently re-transcribed and re-crawled fresh this run: recall@N **0/28 with or without retrieval** (a smaller/different private_defs crawl than 2026-09-09's found no hits at all on this puzzle — recall_hit therefore 0/28, so top-1/MRR are undefined this run). Split the structural diagnostic into TWO numbers on purpose: clues with a non-retrieval candidate carrying a KNOWN gloss in ANY source went **3/28 (private_defs alone) → 14/28 (+fillbank)** — fillbank.json's 2,412 entries genuinely widen gloss coverage, a real and substantial move; but clues with a non-retrieval candidate whose gloss actually SHARES VOCABULARY with the clue (`def_fit>0`, 2026-09-09's own stricter bar) stayed **0/28 with fillbank ON**, because the 59 newly-known candidates' glosses (e.g. `ירושלים` -> `בירת ישראל`) don't happen to repeat the clue's own wording. Also FOUND AND FIXED a real bug before ever measuring: `build_fillbank_index()` didn't fold fillbank's final letters (ם/ן/ץ/ף/ך), so it would have silently missed all 557/2,450 (22.7%) of fillbank entries ending in one — every candidates.py answer is unconditionally final-folded, so the lookup would have failed for any of those words even when present | not yet a target — a real, disclosed, mixed result: coverage widened, the stricter score-overlap bar did not move this run; see log |
 | **Candidate recall@N, FULL current pipeline (all 11 optional mechanisms + the 5 always-on ones), SECOND independent full transcription — 2026-06-05 (NEW 2026-09-15)** | **0.0% (0/28), identical with every optional mechanism on vs. the pure mechanical baseline (anagram/hidden/reversal/homograph/substitution-2word only, also 0.0%)** — the first puzzle this diagnostic has scored BELOW 2026-05-29's long-standing 3.6% floor. Root-caused past "mechanism fired N times, 0 hits" framing to something more fundamental: **`lexicon_coverage_eval` (NEW, `solver/candidates.py`) — only 8/28 (28.6%) of this puzzle's gold answers are members of `lex()` AT ALL**, independent of any mechanism, and every generator in this file can only ever propose an answer that is already a lexicon member. Confirmed directly, not just inferred, for 2 clues: 8A's exact anagram fodder (`שמיגנדי`) is a correct 7-letter contiguous window of the clue with the exact right letter-multiset for gold `גדישמני` — but `גדישמני` itself is not in `lex()`, so `anagram_candidates` never proposes it regardless of fodder correctness; same shape for 7A's reversal (`נכו`→`וכן`, once a real transcription slip — "פרעה" for "פרעה נכו" — was caught and fixed) | not yet a target — see log for the corpus-size confound this measurement carries |
+| **`lexicon_coverage_eval`, SECOND independent puzzle (2026-05-29, NEW 2026-09-16) + `--prefix` diagnostic** | **32.1% (9/28)** — same order of magnitude as 2026-09-15's 28.6% (0/28) on a DIFFERENT puzzle, confirming the lexicon-coverage ceiling is a real, puzzle-independent structural bottleneck, not a corpus-thinness artifact of that specific run. Root cause this run's own direct test surfaced: `hspell_simple.txt` (bootstrap.sh's wordlist source) does not enumerate Hebrew's productive ו/ה/ב/ל/מ/ש/כ prefixes as separate headwords — `כן` ("so") is a headword, `וכן` ("and so") is not, though both are equally real and either could legitimately be a crossword answer, confirmed directly against the committed wordlist. **NEW diagnostic, `prefix_stripped()`/`lexicon-coverage --prefix`**: of the 19 misses, **3 (15.8%) become `lex()` members after stripping one leading prefix** — but AUDITED further, not taken at face value: only 1/3 (`המוציא`→`מוציא`, "the one who brings out," a genuine ה-definite-article relationship) is a real morphological recovery; the other 2 (`מגמ`→`גמ`, `הלו`→`לו`) strip to a 2-letter residual, and 254/~144k lexicon entries are themselves 2 letters long — roughly half of the ~484 possible 2-letter consonant combinations are real words, so a 2-letter stem match is coincidence-prone, not evidence of a real prefix relationship. The LARGER category of miss on this puzzle (16/19) is multi-word phrases (`משה רבנו`, `פחות אבל כואב`, `לוע הארי`...) that no single-prefix strip addresses at all. `recall@N` unchanged at 3.6% (1/28), exactly reproducing this puzzle's own long-standing historical number (an 11th+ independent transcription) | not yet a target — diagnostic only, NOT wired into `is_word()`/candidate generation; see log for why (false-positive risk on short stems, disclosed rather than shipped) |
 
 Baseline for comparison: v2 = 41% raw with untraceable errors.
-Last lever added (2026-09-15): **Second independent full-transcription measurement of the
+Last lever added (2026-09-16): **`lexicon_coverage_eval` extended with a `--prefix`
+diagnostic (`solver/candidates.py`: `prefix_stripped()`), plus a SECOND independent puzzle
+measurement (2026-05-29) of the coverage ceiling 2026-09-15 discovered on 2026-06-05.**
+MEASURED: 32.1% (9/28) lexicon coverage on 2026-05-29 — same order of magnitude as
+2026-06-05's 28.6%, confirming the ceiling is real and puzzle-independent, not a
+corpus-thinness artifact of one thin run. Root cause of the gap, tested directly against
+the committed wordlist rather than assumed: `hspell_simple.txt` does not enumerate
+Hebrew's productive ו/ה/ב/ל/מ/ש/כ prefixes as separate headwords (`כן` is a headword,
+`וכן` is not). Built `prefix_stripped()` to measure how much of the gap this explains: of
+the 19 misses, 3 (15.8%) become `lex()` members after stripping one leading prefix — but
+AUDITED rather than taken at face value: only 1/3 is a genuine morphological recovery
+(`המוציא`→`מוציא`); the other 2 strip to a 2-letter residual, and 254/~144k lexicon
+entries are themselves 2 letters, so a short-stem match is coincidence-prone. Deliberately
+did NOT wire this into `is_word()` or any candidate generator — a diagnostic-only result,
+consistent with this project's own "measure before implementing" discipline, since wiring
+in a 2-letter-stem-permissive prefix check would risk the exact false-positive failure
+mode ("a word merely existing is not evidence it's the answer") already flagged as a
+standing risk in "Things already tried." Research (RESEARCH.md): today's actual finding
+came from directly testing this project's own bootstrapped data, not literature; the
+literature search run anyway surfaced one concretely relevant but not-fetchable resource
+(Dicta's Nakdan lexicon, 5.5M full inflected forms) — see RESEARCH.md for the full entry
+and the suffix-coverage question it raises as a concrete next diagnostic.
+
+TRANSCRIPTION: 2026-05-29 (this puzzle's 11th+ independent transcription) from
+`data/images/2026-05-28.jpg` (clue text) and `data/images/2026-06-04.jpg` (the following
+week's solved-grid recap, for gold letters) via the standard public-CDN image-fallback
+technique — 14across hard-walled again this run (0/7 attempted before killing it, `None: 0
+clues` every time, the same recurring bot-check pattern). All 28 enum sums validated
+against the grid-derived slot length (`solver/grid_tools.py validate`: OK) before any gold
+data was touched. Caught and fixed one real transcription error mid-run, disclosed rather
+than silently corrected: a first read of row 14 (26 across) came out as `באוכלבאתוחפ`, the
+exact character-reverse of the correct `פחותאבלכואב` — rows 0 and 14 are this puzzle's two
+all-white (palindromic-pattern) rows, the exact blind spot 2026-09-06's log already named
+("the two palindromic rows are a standing verification blind spot this project's own
+grid-pattern check cannot close by construction"). Caught it the same way that entry
+recommended: split the row into two independently-cropped halves and re-read strictly in
+pixel left-to-right order rather than trusting a single whole-row read (an easy failure
+mode when transcribing RTL script — the eye wants to read Hebrew glyphs in reading order,
+not pixel order). Cross-validated the fix, and the rest of the transcription, against 5
+independently-known-correct answers already on record in this file from unrelated prior
+sessions: 1D `ברישניקוב`, 25A `צרנוביל`, 14D `טליגוטליב`, and 26A `פחותאבלכואב` itself all
+came out correct once the row-14 fix was applied, plus 2D `יחפניות` (a real word,
+cross-checked against the live lexicon) and several other down answers reading as
+recognizable real phrases (`משה רבנו`, `לוע הארי`, `בת זוגתו`) — strong independent
+corroboration the whole grid, not just the one fixed row, is now read correctly.
+
+AUDITED (mandatory gate): `lexicon.held_out_answers()` confirmed (computed, not assumed)
+to block all 28 of this puzzle's own gold answers before `lexicon_coverage_eval` ran.
+`מגמ`/`הלו`'s prefix-strip hits checked for false-positive risk directly (254 two-letter
+lexicon entries counted, not estimated). No forbidden reads: 14across was queried only for
+its documented general-corpus purpose (killed after hard-walling, its empty output never
+used for this puzzle); this puzzle's gold data came entirely from the two public CDN
+images. No implausible jump: 32.1% vs. 2026-09-15's 28.6% is a 3.5-point difference,
+nowhere near the ~15-point suspicion bar, and the two numbers corroborate rather than
+contradict each other. All 6 affected selftests (`candidates.py`, `lexicon.py`,
+`prove.py`, `retrieve_defs.py`, `substitutions.py`, `grid_tools.py`) re-run clean.
+`recall@N` re-measured unchanged at 3.6% (1/28), exactly reproducing this puzzle's own
+long-standing historical number.
+
+NOT DONE, honestly: did not wire prefix-tolerance into `is_word()` or any generator (the
+false-positive risk on short stems makes that a bad trade without a stricter minimum stem
+length or frequency filter first — a concrete next step, not this run's); did not test
+SUFFIX coverage (plurals, construct forms, possessive suffixes), which RESEARCH.md's own
+findings suggest may be the larger of the two gaps in `hspell_simple.txt`; did not resolve
+the two genuinely lower-confidence letters this run's own transcription carries (15A `מגמ`
+and 22D `אושכפ` don't obviously read as recognizable words even after the row-14 fix,
+flagged rather than silently guessed-around); did not merge or otherwise act on the open
+PR backlog, which — see below — has now reached a size this run considers worth flagging
+explicitly rather than just building on top of again.
+
+**Standing operational finding, escalated rather than repeated as a footnote**: this run's
+own `list_pull_requests` check (done first, per queue item 6's now-institutionalized
+practice) shows **16 open PRs** (#38 through #59, spanning 2026-08-31 through 2026-09-15 —
+a few numbers in between are already merged or closed) still unmerged against `main`,
+which itself has had no solver-lever merge since 2026-08-30 — 17 calendar days of
+continuous daily work sitting unlanded, about to become 17 open PRs once this run's own is
+opened. Every recent entry in this Log has noted the backlog size and moved on; today's
+run flags it as the single most consequential fact about the project's current state,
+worth a human's attention independent of any specific lever: the daily-agent loop is
+technically healthy (each run correctly builds on the latest PR's head, so no work is
+being lost or duplicated), but zero of that accumulating, individually-audited work is
+reaching production or being validated end-to-end by a human. Not something this run can
+fix — only the project owner can merge — so raised here plainly rather than re-buried in
+another "did not merge the backlog" line.
+
+Previous lever (2026-09-15): **Second independent full-transcription measurement of the
 FULL current candidate-generation pipeline (all 11 optional mechanisms plus the 5 always-on
 ones) — 2026-06-05 — plus a new, mechanism-agnostic diagnostic, `lexicon_coverage_eval`
 (`solver/candidates.py`), that answers a sharper question than any single mechanism's own
@@ -2081,6 +2167,25 @@ propagated), `blank`. Score with `python3 evals/run_eval.py <file>`.
    so top-1/MRR remain untested since #53's own n=2. A real, mixed, disclosed result -- gloss
    coverage widened for real, the score-based signal this project plans to rank by did not.
    See log.
+10. **[NEW 2026-09-16] Lexicon coverage is a structural ceiling, confirmed on TWO puzzles
+    (28.6% on 2026-06-05, 32.1% on 2026-05-29) -- `lexicon_coverage_eval` and its new
+    `--prefix` diagnostic.** Of the ~70% of gold answers NOT in `lex()`, only a small,
+    AUDITED slice (1 genuine hit out of 3 raw hits on 2026-05-29) traces to Hebrew's
+    productive prefixes (`hspell_simple.txt` doesn't enumerate ו/ה/ב/ל/מ/ש/כ + headword as
+    its own entry). Do NOT wire prefix-stripping into `is_word()`/candidate generation as-is
+    -- measured false-positive risk is real (254/~144k lexicon entries are 2 letters, so a
+    2-letter residual stem is a coin-flip-ish coincidence, not evidence of a genuine prefix
+    relationship). Concrete next steps, not yet attempted: (a) require a minimum stem length
+    of 3+ before accepting a prefix-stripped match, and re-measure whether that still
+    recovers `המוציא`-class genuine hits while dropping `מגמ`/`הלו`-class noise; (b) the
+    LARGER category of miss (16/19 on 2026-05-29) is multi-word PHRASES with no space in the
+    grid (`משה רבנו`, `פחות אבל כואב`) -- a completely different fix (phrase-aware lexicon
+    membership, or a curated common-phrase list) that prefix-stripping does not address at
+    all and that may be the higher-value half of this queue item; (c) SUFFIX coverage
+    (plurals, construct forms, possessive suffixes) was not tested and, per RESEARCH.md's
+    2026-09-16 entry, may be the larger of the prefix/suffix gaps in `hspell_simple.txt` --
+    a full-form Hebrew lexicon (Dicta's Nakdan, 5.5M forms) is a plausible but unconfirmed
+    resource if this becomes worth fetching. See log for the full measurement and audit.
 
 ## Things already tried — do not repeat
 - More knowledge tooling (wiki, culture lexicon, shironet titles): helped early, now saturated.
@@ -2482,6 +2587,35 @@ propagated), `blank`. Score with `python3 evals/run_eval.py <file>`.
   this was a pure corpus-growth + re-measurement lever, matching 2026-08-28's shape); did
   not act on queue items 8 or 9 this run (item 9's research pass found nothing new, see
   RESEARCH.md); no PRs were open to merge or act on.
+
+- 2026-09-16: **lexicon coverage confirmed as a real structural ceiling on a SECOND
+  independent puzzle, plus a new `--prefix` diagnostic — queue item 10.** Full narrative,
+  root cause, audit, and the standing PR-backlog finding are in the "Last lever added"
+  section at the top of this file. Summary for the log's chronological record: read the
+  live PR graph first (16 open, #38-#59, `main` unchanged since 2026-08-30) rather than
+  stale `main`, per queue item 6's now-standard practice; bootstrap's 14across scrape
+  hard-walled completely again (0/7 before killing it), so worked entirely from the public
+  CDN image-fallback technique for 2026-05-29 (this puzzle's 11th+ independent
+  transcription). Caught and fixed a real transcription error mid-run: row 14 (26 across,
+  one of this puzzle's two all-white/palindromic rows) first read as the character-reverse
+  of the correct answer — exactly the blind-spot failure mode 2026-09-06's log entry had
+  already named and warned would recur; caught it by re-reading the row as two
+  independently-cropped halves in strict pixel left-to-right order, then cross-validated
+  the whole transcription against 6 independently-known-correct answers already on record
+  in this file. MEASURED: 32.1% (9/28) lexicon coverage, the same order of magnitude as
+  2026-09-15's 28.6% on a different puzzle — confirms the ceiling is real and
+  puzzle-independent. Built `prefix_stripped()` to test how much of the gap is Hebrew's
+  unenumerated productive prefixes: 3/19 misses recover, but audited down to 1 genuine hit
+  (`המוציא`) once the other 2's false-positive risk was quantified (254 two-letter
+  lexicon entries make a 2-letter residual stem coincidence-prone). Deliberately did NOT
+  wire this into `is_word()` or any generator — diagnostic only, per this project's
+  "measure before implementing" discipline. All held-out checks and 6 affected selftests
+  passed clean; `recall@N` unchanged at 3.6% (1/28), exactly reproducing this puzzle's own
+  historical number. NOT DONE, honestly: did not raise the minimum-stem-length bar and
+  re-test (the concrete next step for the prefix angle specifically); did not test suffix
+  coverage; did not act on the multi-word-phrase category of miss, which is larger than
+  the prefix category on this puzzle; did not merge or otherwise act on the PR backlog
+  beyond flagging its size explicitly for the project owner's attention.
 
 ---
 

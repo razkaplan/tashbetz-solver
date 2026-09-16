@@ -1819,3 +1819,55 @@ route to that fragment), disclosed honestly as not yet a data fix for the exact 
 motivated it: culture.json currently has no "judge" category at all, so even with the
 generator capability in place, that specific clue's specific fragment is still absent from
 the corpus. See DAILY.md for the measured recall number and audit.
+
+## 2026-09-16
+
+Today's actual lever did NOT come from a literature search -- it came from directly testing
+this project's own bootstrapped wordlist against a plain common word (see DAILY.md for the
+finding: כן is a headword in hspell_simple.txt, וכן is not, even though both are equally
+real and either could legitimately be a crossword answer). The searches below were run
+anyway, per this file's own standing discipline, and are honestly reported as mostly
+re-confirming prior conclusions rather than surfacing anything new.
+
+**"Hebrew morphological analyzer full-form lexicon generation prefix clitics 2026".**
+Surfaced one resource worth naming that had not come up in the 8+ prior sweeps (YAP /
+HebMorph / DictaBERT-seg / HebPipe / Shoshan, all logged 2026-08-22 through 2026-09-15):
+the lexicon behind Dicta's Nakdan diacritizer (Shmidman et al., ACL 2020 demo,
+aclanthology.org/2020.acl-demos.23.pdf) is built from 50K lexemes (10K roots, 30.5K nouns,
+9.5K adjectives) expanded via comprehensive inflection tables -- including every valid
+possessive/accusative SUFFIX combination -- into 5.5 million full inflected forms. This is
+exactly the shape of resource that would fix today's finding at the root (a proper
+full-form generator rather than a hand-maintained prefix-strip list), and unlike the
+definition-span dead ends, it targets a problem this project has now directly measured
+matters. Transfer: plausible in principle, not usable today -- the paper describes the
+lexicon's construction and scale but the search surfaced no public flat wordlist or API
+download for it (it lives inside Dicta's diacritizer service, not as a standalone
+resource), matching the same "real, relevant, not directly fetchable" verdict this project
+has now reached for several other Hebrew NLP tools. Worth a direct check of Dicta's own
+site/API terms in a future run if actually growing lexicon coverage (not just diagnosing
+it) becomes the day's chosen work -- today's diagnostic only needed a measurement of the
+gap, not a fix, so this was not pursued further.
+
+Also worth noting explicitly, since it bears on today's finding: the resource's own
+description weights suffix (possessive/accusative) inflection generation far more heavily
+than prefix generation, which suggests the productive-PREFIX gap this project measured
+(ו/ה/ב/ל/מ/ש/כ gluing onto a headword) may be the smaller of two coverage gaps in
+hspell_simple.txt relative to a full morphological lexicon -- SUFFIXED forms (plurals,
+construct states, possessive suffixes) were not tested today and are a concrete next
+diagnostic, not assumed already covered just because they were out of today's scope.
+
+**"cryptic crossword solver candidate generation 2026 wordplay neuro-symbolic" /
+Cryptonite SOTA re-check.** Reconfirms the same ICML 2025 reasoning-based pipeline
+(2506.04824, 32.5% top-1 on Cryptonite, three-stage generate-then-formalize-and-verify)
+this project's own prove.py is already explicitly modeled on, and the same
+github.com/nikcholer/cryptic-solver independent implementation logged 2026-09-15. No new
+finding -- both continue to corroborate rather than extend this project's own standing
+architecture and standing definition-span gap. Transfer: none new.
+
+**Conclusion.** Another consecutive research pass finding nothing new and directly
+actionable for candidate generation or definition-span detection specifically -- but this
+run's search was pointed at a different, newly-motivated question (full-form Hebrew
+lexicon generation) and found one concretely relevant, if not-yet-fetchable, resource
+(Nakdan's lexicon) rather than another confirmation of the closed-door culture/role-lookup
+question. The actionable finding of the day is internal, not literature-sourced: see
+DAILY.md for prefix_stripped()/lexicon_coverage_eval(check_prefix=True).

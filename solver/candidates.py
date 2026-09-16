@@ -133,6 +133,10 @@ CLI:
   python3 solver/candidates.py recall data/dataset/clues.jsonl eval --no-abbreviation
   python3 solver/candidates.py lexicon-coverage data/dataset/clues.jsonl eval  # mechanism-
     # agnostic ceiling: what fraction of gold answers are lex() members at all
+  python3 solver/candidates.py lexicon-coverage data/dataset/clues.jsonl eval --prefix
+    # of the answers NOT in lex(), how many become members after stripping one leading
+    # Hebrew prefix (ו/ה/ב/ל/מ/ש/כ and their pairs) -- diagnostic only, does not change
+    # what any mechanism accepts
   python3 solver/candidates.py selftest
 """
 import sys, os, re, json
@@ -1196,9 +1200,27 @@ def recall_eval(dataset_path, split=None, max_n=25, use_culture=True, use_retrie
 # measurement on 2026-06-05 found only 8/28 (28.6%) were, which explains a flat
 # 0/28 recall@N far more directly than any single mechanism's own firing rate.
 # ---------------------------------------------------------------------------
-def lexicon_coverage_eval(dataset_path, split=None):
+def prefix_stripped(w, words):
+    """If `w` is not itself a lexicon word but IS one glued to a leading Hebrew prefix
+    (the same HOMO_PREFIXES set homograph_candidates already strips off CLUE words --
+    reused here, not reinvented, and applied to a candidate ANSWER instead), return the
+    bare stem. Hebrew's ו/ה/ב/ל/מ/ש/כ prefixes attach productively to almost any word,
+    but `hspell_simple.txt` (bootstrap.sh's wordlist source) does not enumerate most
+    prefixed forms as their own headword -- confirmed directly: כן ('so') is a headword,
+    וכן ('and so') is not, though both are equally real, equally valid crossword answers.
+    Tries longer prefix combinations first so 'ומה' strips as one unit, not 'ו'+leftover
+    'מה' by coincidence. Requires the stem to be >=2 letters so a 1-letter leftover
+    (accidentally real, e.g. many letters double as words) can't manufacture a false hit."""
+    for p in sorted(HOMO_PREFIXES, key=len, reverse=True):
+        if w.startswith(p) and len(w) - len(p) >= 2 and w[len(p):] in words:
+            return w[len(p):]
+    return None
+
+
+def lexicon_coverage_eval(dataset_path, split=None, check_prefix=False):
     total = 0
     covered = 0
+    prefix_recovered = 0
     missing = []
     words = lex()
     for line in open(dataset_path):
@@ -1212,10 +1234,16 @@ def lexicon_coverage_eval(dataset_path, split=None):
         if gold in words:
             covered += 1
         else:
-            missing.append((r['clue_number'], r['direction'], gold))
+            stem = prefix_stripped(gold, words) if check_prefix else None
+            if stem:
+                prefix_recovered += 1
+                missing.append((r['clue_number'], r['direction'], gold, stem))
+            else:
+                missing.append((r['clue_number'], r['direction'], gold, None))
     return {
         'total': total, 'covered': covered,
         'coverage': covered / total if total else 0.0,
+        'prefix_recovered': prefix_recovered,
         'missing': missing,
     }
 
@@ -1595,8 +1623,45 @@ def selftest():
         print(f'  coverage: {res["covered"]}/{res["total"]} (expected 1/2)')
         ok &= res['covered'] == 1 and res['total'] == 2
         print(f'  the invented string is the one flagged missing: '
-              f'{res["missing"] == [(2, "down", norm("זזקככץ"))]} (expected True)')
-        ok &= res['missing'] == [(2, 'down', norm('זזקככץ'))]
+              f'{res["missing"] == [(2, "down", norm("זזקככץ"), None)]} (expected True)')
+        ok &= res['missing'] == [(2, 'down', norm('זזקככץ'), None)]
+    finally:
+        os.close(fd)
+        os.remove(tmp_path)
+
+    print('--- prefix_stripped: a real word glued to a leading Hebrew prefix is '
+          'recovered, an invented string is not ---')
+    words = lex()
+    # וכן ('and so') is ו + כן ('so'/'yes'); כן is a real hspell headword but וכן, like
+    # most productively-prefixed forms, is not enumerated as its own entry -- confirmed
+    # directly against the committed wordlist, not assumed.
+    stem = prefix_stripped(norm('וכן'), words)
+    print(f'  וכן strips to כן: {stem == norm("כן")} (expected True, got {stem!r})')
+    ok &= stem == norm('כן')
+    print(f'  a 1-letter leftover is rejected even if the prefix matches: '
+          f'{prefix_stripped(norm("ומ"), words) is None} (expected True)')
+    ok &= prefix_stripped(norm('ומ'), words) is None
+    print(f'  no accidental hit on a string with no valid prefix+stem split: '
+          f'{prefix_stripped(norm("זזקככץ"), words) is None} (expected True)')
+    ok &= prefix_stripped(norm('זזקככץ'), words) is None
+
+    print('--- lexicon_coverage_eval(check_prefix=True): counts prefix-recoverable '
+          'misses separately, without changing what counts as covered ---')
+    fd, tmp_path = tempfile.mkstemp(suffix='.jsonl')
+    try:
+        with open(tmp_path, 'w', encoding='utf-8') as f:
+            f.write(json.dumps({'split': 'eval', 'answer_raw': 'וכן',
+                                 'clue_number': 3, 'direction': 'across'},
+                                ensure_ascii=False) + '\n')
+            f.write(json.dumps({'split': 'eval', 'answer_raw': 'זזקככץ',
+                                 'clue_number': 4, 'direction': 'down'},
+                                ensure_ascii=False) + '\n')
+        res = lexicon_coverage_eval(tmp_path, split='eval', check_prefix=True)
+        print(f'  covered stays 0/2 (prefix recovery does not count as covered): '
+              f'{res["covered"] == 0} (expected True)')
+        ok &= res['covered'] == 0
+        print(f'  prefix_recovered: {res["prefix_recovered"]} (expected 1)')
+        ok &= res['prefix_recovered'] == 1
     finally:
         os.close(fd)
         os.remove(tmp_path)
@@ -1662,16 +1727,24 @@ def main():
                 print(f'  {num} {direction}: {gold}  <-  {text}')
     elif cmd == 'lexicon-coverage':
         rest = sys.argv[2:]
+        check_prefix = '--prefix' in rest
+        rest = [a for a in rest if a != '--prefix']
         path = rest[0] if len(rest) > 0 else 'data/dataset/clues.jsonl'
         split = rest[1] if len(rest) > 1 else None
         os.chdir(ROOT)
-        res = lexicon_coverage_eval(path, split)
+        res = lexicon_coverage_eval(path, split, check_prefix=check_prefix)
         print(f"lexicon coverage: {res['covered']}/{res['total']} = {res['coverage']:.1%} "
               f"of gold answers are members of lex() at all (mechanism-agnostic ceiling)")
+        if check_prefix and res['total'] - res['covered'] > 0:
+            print(f"  of the {res['total'] - res['covered']} NOT covered, "
+                  f"{res['prefix_recovered']} become lex() members after stripping one "
+                  f"leading Hebrew prefix (diagnostic only -- not wired into any mechanism)")
         if res['missing']:
-            print(f"\n{len(res['missing'])} not in lex() (clue_number, direction, gold):")
-            for num, direction, gold in res['missing']:
-                print(f'  {num} {direction}: {gold}')
+            print(f"\n{len(res['missing'])} not in lex() (clue_number, direction, gold"
+                  f"{', prefix-stripped stem' if check_prefix else ''}):")
+            for num, direction, gold, stem in res['missing']:
+                extra = f'  <- {stem}' if stem else ''
+                print(f'  {num} {direction}: {gold}{extra}')
     else:
         print(__doc__)
 
