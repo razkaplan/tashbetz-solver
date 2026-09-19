@@ -1916,3 +1916,55 @@ wordplay 2026" surfaced nothing beyond 2026-09-17's own four-search pass yesterd
 paper set: 2506.04824, 2406.09043, 2407.08824, 2607.26497; same one new-since-08-30
 citation, KibutzR, already checked and found not to transfer). Confirmed, not assumed:
 no material change since #61/2026-09-17's search.
+
+## 2026-09-19
+
+Started from 2026-09-16's own standing structural finding (`lexicon_coverage_eval`:
+only 28.6%/32.1% of two dev puzzles' gold answers are members of `lex()` at all,
+independent of any candidate-generation mechanism's fodder-matching quality — every
+mechanism in `candidates.py` can only ever propose an answer already in `lex()`) and
+2026-09-16's own research note that the one concretely relevant resource it found
+(Dicta's Nakdan diacritizer lexicon, 5.5M full inflected forms) is real but not
+fetchable as a standalone download. Two searches this run:
+
+**"crossword solver out-of-vocabulary lexicon coverage answer list generation 2026".**
+Surfaced this project's own PRs #59/#60 (expected — they're now indexed), and, more
+usefully, **spreadthewordlist.com** — a real, actively-maintained community project
+(120,178 of 314,276 candidate answers cleared as of 2026-07-01) that exists specifically
+to give crossword CONSTRUCTORS a vetted answer-word list mined from real published
+puzzles. **Transfer: validates the STRATEGY, not a usable resource** — it's
+English-language, standard (non-cryptic) American puzzles, no Hebrew content at all — but
+it confirms "mine a corpus of real, previously-used crossword answers as a lexicon/
+coverage source" is an established, non-idiosyncratic technique in the wider crossword
+world, not something invented for this project. This project already has the Hebrew
+equivalent of exactly that idea sitting unused: `data/answers/private_defs/` (note.co.il +
+pitaronfree/מורדו, crawled since 2026-08-08, ~37k definition->answer pairs this run) has
+been used ONLY as `retrieve_defs.py`'s BM25 retrieval documents, never as a straight
+lexicon-membership source for the mechanical generators — see DAILY.md for today's lever.
+
+**"Hebrew full form wordlist download open source inflected forms hspell alternative
+2026".** Reconfirmed hspell/hebrew_wordlists (already the bootstrap source) and surfaced
+one genuinely new citation: **`github.com/roni5604/hebrew-words-db`** — CC0 (public
+domain), nouns+plurals, verbs across all binyanim/tenses, adjectives, slang, explicitly
+built for NLP/LLM/word-game use, "not derived from any AGPL/CC-BY-NC dataset" (a direct,
+disclosed answer to the exact licensing question hspell's AGPL raises for anything built
+on top of it). **Checked directly, not assumed**: confirmed real via GitHub's search API
+(created 2026-09-10 — nine days old — Python, CC0, topics `hebrew-nlp`/`wordlist`/
+`word-games`). **Not integrated today**: this session's GitHub access is scoped to
+`razkaplan/tashbetz-solver` only, so the repo's actual file contents/size/quality could
+not be fetched and verified this run — flagging it exactly the way this project flagged
+Hebrew WordNet (2026-08-24) before fetching it: real and plausibly relevant, unconfirmed
+in substance, worth a dedicated check in a future run rather than a claim it works. If it
+holds real suffix-inflected forms (plurals, construct states — the gap 2026-09-16's
+research explicitly flagged as untested and likely LARGER than the prefix gap that run
+measured), it would attack the same lexicon-coverage ceiling as today's lever from the
+morphological-generation side rather than the attested-answer side.
+
+**Conclusion, and the lever this run actually built.** No external resource found today is
+both real AND fetchable AND Hebrew (hebrew-words-db is real but unverified in substance;
+Nakdan's lexicon, found 2026-09-16, remains real but unfetchable). Rather than wait on
+either, built the smallest concrete step available with data this project already holds:
+wiring `data/answers/private_defs/` into `lexicon.py`'s `load()` as a new, held-out-filtered
+membership source — see DAILY.md for the measurement (a clean, mechanically-audited
+negative result on the two puzzles tested: +49,158 words added, 0 of them among either
+puzzle's 38 combined missing gold answers).

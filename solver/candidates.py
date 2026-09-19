@@ -108,6 +108,23 @@ This module does exactly that, per clue, with no LLM involved:
   - split_candidates:    for multi-part enums (e.g. (5,2)), splits a hit at the enum
                           boundary and flags whether BOTH pieces are real words — the
                           precondition prove.py's word_order() needs to succeed.
+  - defs_lexicon (lexicon.py, [NEW 2026-09-19], not a candidate function of its own):
+                          every mechanism above can only ever propose an answer that is
+                          already a member of lex() (this file's cached wrapper around
+                          lexicon.load()) — `lexicon_coverage_eval` (2026-09-15/16)
+                          measured only 28.6%/32.1% of two dev puzzles' gold answers are
+                          lex() members AT ALL, which explains a flat recall@N far more
+                          directly than any one mechanism's own firing rate. lexicon.py's
+                          `load()` now also folds in `data/answers/private_defs/`'s
+                          answer-side vocabulary (already crawled and used by
+                          retrieve_defs.py as RETRIEVAL documents, never before as a
+                          LEXICON MEMBERSHIP source) — a large, independently-sourced
+                          list of real crossword answers from other puzzles, held-out
+                          filtered exactly like the corpus/culture tiers. Toggle with
+                          `set_use_defs_lexicon()` / `--no-defs-lexicon`; see
+                          lexicon.py's own docstring for the full rationale and the
+                          honest note on why this is stricter than retrieve_defs.py's
+                          own (deliberately unfiltered) use of the same source.
 
 None of this asserts an answer is CORRECT — it only asserts an answer is POSSIBLE by a
 named mechanism. Selecting among candidates and proving one is still prove.py's job.
@@ -131,12 +148,15 @@ CLI:
   python3 solver/candidates.py recall data/dataset/clues.jsonl eval --no-substitution-3part
   python3 solver/candidates.py recall data/dataset/clues.jsonl eval --no-charade  # ablation
   python3 solver/candidates.py recall data/dataset/clues.jsonl eval --no-abbreviation
+  python3 solver/candidates.py recall data/dataset/clues.jsonl eval --no-defs-lexicon
+    # ablation: private_defs answers removed from lex() (see defs_lexicon above)
   python3 solver/candidates.py lexicon-coverage data/dataset/clues.jsonl eval  # mechanism-
     # agnostic ceiling: what fraction of gold answers are lex() members at all
   python3 solver/candidates.py lexicon-coverage data/dataset/clues.jsonl eval --prefix
     # of the answers NOT in lex(), how many become members after stripping one leading
     # Hebrew prefix (ו/ה/ב/ל/מ/ש/כ and their pairs) -- diagnostic only, does not change
     # what any mechanism accepts
+  python3 solver/candidates.py lexicon-coverage data/dataset/clues.jsonl eval --no-defs-lexicon
   python3 solver/candidates.py selftest
 """
 import sys, os, re, json
@@ -152,6 +172,22 @@ def norm(s):
 
 
 _LEX = None
+_USE_DEFS_LEXICON = True  # lexicon.py's new private_defs membership source (2026-09-19)
+
+
+def set_use_defs_lexicon(v):
+    """Toggle lexicon.py's private_defs membership source (see its own docstring) for a
+    controlled before/after measurement, mirroring how use_retrieval/use_culture/etc.
+    already toggle other sources per recall_eval() run. Unlike those, this one lives
+    inside lex() itself (every mechanism reads lex()/by_len()/by_phon(), not a per-call
+    parameter), so flipping it must invalidate every cache derived from lex() or a
+    lingering stale _LEX from a prior call would silently ignore the new setting."""
+    global _USE_DEFS_LEXICON, _LEX, _BY_LEN, _BY_PHON
+    if v != _USE_DEFS_LEXICON:
+        _LEX = None
+        _BY_LEN = None
+        _BY_PHON = None
+    _USE_DEFS_LEXICON = v
 
 
 def lex():
@@ -162,7 +198,7 @@ def lex():
         cwd = os.getcwd()
         try:
             os.chdir(ROOT)
-            _LEX = lexicon.load()
+            _LEX = lexicon.load(include_private_defs=_USE_DEFS_LEXICON)
         finally:
             os.chdir(cwd)
     return _LEX
@@ -1148,7 +1184,9 @@ def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retr
 def recall_eval(dataset_path, split=None, max_n=25, use_culture=True, use_retrieval=True,
                  use_container=True, use_container_entity=True, use_double_def=True,
                  use_defspan_retrieval=True, use_homophone=True, use_homophone_vowel=True,
-                 use_substitution_3part=True, use_charade=True, use_abbreviation=True):
+                 use_substitution_3part=True, use_charade=True, use_abbreviation=True,
+                 use_defs_lexicon=True):
+    set_use_defs_lexicon(use_defs_lexicon)
     total = 0
     hit = 0
     by_mech = Counter()
@@ -1217,7 +1255,8 @@ def prefix_stripped(w, words):
     return None
 
 
-def lexicon_coverage_eval(dataset_path, split=None, check_prefix=False):
+def lexicon_coverage_eval(dataset_path, split=None, check_prefix=False, use_defs_lexicon=True):
+    set_use_defs_lexicon(use_defs_lexicon)
     total = 0
     covered = 0
     prefix_recovered = 0
@@ -1254,6 +1293,18 @@ def selftest():
     data, so this file never embeds a dev/eval answer (same discipline lexicon.py
     enforces at load time)."""
     ok = True
+
+    # Pin the base lexicon (private_defs OFF) for every test below except the ones
+    # that explicitly test set_use_defs_lexicon()/private_defs itself, which toggle
+    # it back on deliberately. WHY: every fixture above was tuned against the base
+    # hspell+corpus+culture lexicon's size and iteration order; private_defs
+    # (2026-09-19) can add tens of thousands of words from whatever got crawled this
+    # run, which is real and desired in production but makes a synthetic fixture
+    # test non-deterministic here -- e.g. charade_candidates' max_parts_out=200 cap
+    # can be reached by unrelated new hits before the expected combination is ever
+    # tried, once the lexicon grows large enough. A hermetic selftest must not
+    # depend on today's gitignored corpus's exact contents.
+    set_use_defs_lexicon(False)
 
     # anagram: every real-word anagram of a clue window is a candidate. 'שלום' (4)
     # is a real word; scrambled in the clue as 'םולש' it should still be found by
@@ -1656,12 +1707,64 @@ def selftest():
             f.write(json.dumps({'split': 'eval', 'answer_raw': 'זזקככץ',
                                  'clue_number': 4, 'direction': 'down'},
                                 ensure_ascii=False) + '\n')
-        res = lexicon_coverage_eval(tmp_path, split='eval', check_prefix=True)
+        # use_defs_lexicon=False: this test's fixture ('וכן') is chosen to be a real
+        # word absent from the base hspell+corpus+culture lexicon specifically so the
+        # prefix-diagnostic has something to recover -- private_defs (2026-09-19) is a
+        # large, real external corpus that may independently already contain 'וכן'
+        # (it's a common word), which would make this a false failure of a DIFFERENT
+        # mechanism entirely if left on; pin the base lexicon explicitly so this test
+        # verifies prefix_stripped(), not today's corpus content.
+        res = lexicon_coverage_eval(tmp_path, split='eval', check_prefix=True,
+                                     use_defs_lexicon=False)
         print(f'  covered stays 0/2 (prefix recovery does not count as covered): '
               f'{res["covered"] == 0} (expected True)')
         ok &= res['covered'] == 0
         print(f'  prefix_recovered: {res["prefix_recovered"]} (expected 1)')
         ok &= res['prefix_recovered'] == 1
+    finally:
+        os.close(fd)
+        os.remove(tmp_path)
+
+    print('--- set_use_defs_lexicon: toggling invalidates lex()/by_len()/by_phon(), '
+          "so a stale cache can't silently keep serving the old setting ---")
+    set_use_defs_lexicon(True)
+    lex(); by_len(); by_phon()
+    before = (_LEX is not None, _BY_LEN is not None, _BY_PHON is not None)
+    print(f'  caches populated before toggling: {before} (expected all True)')
+    ok &= all(before)
+    set_use_defs_lexicon(False)
+    after = (_LEX is None, _BY_LEN is None, _BY_PHON is None)
+    print(f'  caches invalidated immediately after toggling: {after} (expected all True)')
+    ok &= all(after)
+    lex()  # repopulate under the new setting
+    recomputed = _LEX is not None
+    print(f'  lex() recomputes cleanly under the new setting: {recomputed} (expected True)')
+    ok &= recomputed
+    set_use_defs_lexicon(True)  # restore the default so later selftest checks are unaffected
+
+    print('--- lexicon_coverage_eval(use_defs_lexicon=False) actually threads the flag '
+          'through to lex(), not just its own default arg -- checked on a synthetic '
+          'fixture so this passes even in a fresh checkout with no real dataset yet ---')
+    set_use_defs_lexicon(True)
+    import io, contextlib
+    fd, tmp_path = tempfile.mkstemp(suffix='.jsonl')
+    try:
+        with open(tmp_path, 'w', encoding='utf-8') as f:
+            f.write(json.dumps({'split': 'eval', 'answer_raw': 'שלום',
+                                 'clue_number': 1, 'direction': 'across'},
+                                ensure_ascii=False) + '\n')
+        with contextlib.redirect_stdout(io.StringIO()):
+            lexicon_coverage_eval(tmp_path, split='eval', use_defs_lexicon=False)
+        threaded = _USE_DEFS_LEXICON is False
+        print(f'  module toggle reflects the call\'s use_defs_lexicon=False: '
+              f'{threaded} (expected True)')
+        ok &= threaded
+        with contextlib.redirect_stdout(io.StringIO()):
+            lexicon_coverage_eval(tmp_path, split='eval', use_defs_lexicon=True)
+        threaded_back = _USE_DEFS_LEXICON is True
+        print(f'  and back to True on the next call: '
+              f'{threaded_back} (expected True)')
+        ok &= threaded_back
     finally:
         os.close(fd)
         os.remove(tmp_path)
@@ -1695,11 +1798,12 @@ def main():
         use_substitution_3part = '--no-substitution-3part' not in rest
         use_charade = '--no-charade' not in rest
         use_abbreviation = '--no-abbreviation' not in rest
+        use_defs_lexicon = '--no-defs-lexicon' not in rest
         rest = [a for a in rest if a not in
                 ('--no-culture', '--no-retrieval', '--no-container', '--no-container-entity',
                  '--no-double-def', '--no-defspan-retrieval', '--no-homophone',
                  '--no-homophone-vowel', '--no-substitution-3part', '--no-charade',
-                 '--no-abbreviation')]
+                 '--no-abbreviation', '--no-defs-lexicon')]
         path = rest[0] if len(rest) > 0 else 'data/dataset/clues.jsonl'
         split = rest[1] if len(rest) > 1 else None
         os.chdir(ROOT)
@@ -1710,7 +1814,8 @@ def main():
                            use_homophone=use_homophone,
                            use_homophone_vowel=use_homophone_vowel,
                            use_substitution_3part=use_substitution_3part,
-                           use_charade=use_charade, use_abbreviation=use_abbreviation)
+                           use_charade=use_charade, use_abbreviation=use_abbreviation,
+                           use_defs_lexicon=use_defs_lexicon)
         print(f"recall@N: {res['hit']}/{res['total']} = {res['recall']:.1%}  "
               f"(avg {res['avg_candidates']:.1f} candidates/clue, "
               f"use_culture={use_culture}, use_retrieval={use_retrieval}, "
@@ -1719,7 +1824,7 @@ def main():
               f"use_defspan_retrieval={use_defspan_retrieval}, use_homophone={use_homophone}, "
               f"use_homophone_vowel={use_homophone_vowel}, "
               f"use_substitution_3part={use_substitution_3part}, use_charade={use_charade}, "
-              f"use_abbreviation={use_abbreviation})")
+              f"use_abbreviation={use_abbreviation}, use_defs_lexicon={use_defs_lexicon})")
         print('hits by mechanism:', res['by_mechanism'])
         if res['misses']:
             print(f"\n{len(res['misses'])} misses (clue_number, direction, gold):")
@@ -1728,13 +1833,16 @@ def main():
     elif cmd == 'lexicon-coverage':
         rest = sys.argv[2:]
         check_prefix = '--prefix' in rest
-        rest = [a for a in rest if a != '--prefix']
+        use_defs_lexicon = '--no-defs-lexicon' not in rest
+        rest = [a for a in rest if a not in ('--prefix', '--no-defs-lexicon')]
         path = rest[0] if len(rest) > 0 else 'data/dataset/clues.jsonl'
         split = rest[1] if len(rest) > 1 else None
         os.chdir(ROOT)
-        res = lexicon_coverage_eval(path, split, check_prefix=check_prefix)
+        res = lexicon_coverage_eval(path, split, check_prefix=check_prefix,
+                                     use_defs_lexicon=use_defs_lexicon)
         print(f"lexicon coverage: {res['covered']}/{res['total']} = {res['coverage']:.1%} "
-              f"of gold answers are members of lex() at all (mechanism-agnostic ceiling)")
+              f"of gold answers are members of lex() at all (mechanism-agnostic ceiling, "
+              f"use_defs_lexicon={use_defs_lexicon})")
         if check_prefix and res['total'] - res['covered'] > 0:
             print(f"  of the {res['total'] - res['covered']} NOT covered, "
                   f"{res['prefix_recovered']} become lex() members after stripping one "

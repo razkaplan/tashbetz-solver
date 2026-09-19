@@ -56,9 +56,38 @@ def held_out_answers(clues_path='data/dataset/clues.jsonl', by_date_dir='data/an
     return out
 
 
-def load():
-    words = {}  # word -> priority (3 culture, 2 corpus, 1 dict)
-    BLOCK = held_out_answers()
+def load(clues_path='data/dataset/clues.jsonl', by_date_dir='data/answers/by_date',
+         include_private_defs=True, private_defs_glob='data/answers/private_defs/*.jsonl'):
+    """WHY include_private_defs (added 2026-09-19): candidates.py's own
+    `lexicon_coverage_eval` diagnostic (2026-09-15/16) measured that only 28.6%/32.1%
+    of two dev puzzles' gold answers are members of THIS function's output at all —
+    a ceiling every mechanical generator in candidates.py (anagram/hidden/reversal/
+    homograph/container/...) inherits directly, since none of them can ever propose a
+    string that is not already a lexicon member, no matter how correct its fodder is
+    (measured concretely: 8A's anagram fodder on 2026-06-05 had the exact right letter
+    multiset for gold `גדישמני`, but `anagram_candidates` still could not propose it,
+    because `גדישמני` itself was not a lex() member). Wiring in a corpus-mined "prefix
+    stripping" fix for this was tried and deliberately NOT shipped (2026-09-16, see
+    DAILY.md) because short stripped stems are coincidence-prone, not genuine recoveries.
+    This source is different in kind: `data/answers/private_defs/` (scraper/crawl_defs.py,
+    note.co.il + pitaronfree/מורדו, already crawled and used by retrieve_defs.py's BM25
+    index as RETRIEVAL documents) is a large, independently-sourced list of definition->
+    ANSWER pairs from OTHER crosswords. Every entry on the answer side is, by construction
+    of its source, an attested real Hebrew crossword answer (word, name, or phrase) —
+    not a guessed morphological form — so adding it as a LEXICON MEMBERSHIP source (not
+    just a retrieval document) needs no invented rule the way prefix-stripping did.
+
+    Held-out safety: filtered through the SAME BLOCK set as the corpus/culture tiers
+    below, unlike retrieve_defs.py's build_index() (which deliberately does NOT held-out
+    filter private_defs, on the reasoning that it is independent external knowledge, "like
+    a crossword dictionary," and only ranks as ONE of many candidates a human/proof-gate
+    still has to verify). This function feeds `is_word()`-style boolean membership checks
+    used by every mechanical generator — a false membership there would silently
+    manufacture a candidate that can pass the proof gate, a stronger leak risk than
+    appearing in a ranked retrieval list, so it gets the stricter, not the looser, of the
+    project's two existing disciplines."""
+    words = {}  # word -> priority (3 culture, 2 corpus/private_defs, 1 dict)
+    BLOCK = held_out_answers(clues_path, by_date_dir)
     hp = os.path.join(HERE, 'lex/hspell.txt')
     if os.path.exists(hp):
         for line in open(hp, encoding='utf-8'):
@@ -80,6 +109,23 @@ def load():
                 w = norm(c.get('answer'))
                 if w and w not in BLOCK:
                     words[w] = 2
+    # private definitions corpus (note.co.il + מורדו): independently-sourced crossword
+    # answers, gitignored, rebuilt fresh by scraper/crawl_defs.py — see the docstring
+    # above for why this belongs here now. Same priority tier as our own corpus answers.
+    if include_private_defs:
+        for f in glob.glob(private_defs_glob):
+            for line in open(f, encoding='utf-8'):
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    r = json.loads(line)
+                except ValueError:
+                    continue
+                for a in r.get('answers', []):
+                    w = norm(a)
+                    if w and w not in BLOCK:
+                        words[w] = 2
     # culture entities (song titles, artists, politicians, places) from he-wikipedia.
     # Highest priority: these are exactly the answers the solver cannot invent.
     cp = os.path.join(HERE, 'lex/culture.json')
@@ -138,6 +184,39 @@ def selftest():
         found = norm('שלום') in block2
         print(f'  falls back to dataset-row blocking, no crash: {found} (expected True)')
         ok &= found
+
+        print('--- load(): private_defs answers enter the lexicon, held-out ones do not ---')
+        # Deliberately unreal strings (a repeated letter 4-5x is not a Hebrew headword)
+        # so this test is not accidentally satisfied by hspell/corpus/culture already
+        # containing the word for an unrelated reason — isolates what THIS source does.
+        safe_word = 'ממממ'      # only ever sourced from the private_defs fixture below
+        leak_word = 'ששששש'    # ALSO this fixture's own dev-puzzle gold answer (BLOCK)
+        with open(clues_p, 'a', encoding='utf-8') as f:
+            f.write(json.dumps({'puzzle_date': '2099-01-01', 'clue_number': 2,
+                                 'direction': 'across', 'split': 'dev',
+                                 'answer_raw': leak_word}, ensure_ascii=False) + '\n')
+        pd_dir = os.path.join(tmp, 'private_defs')
+        os.makedirs(pd_dir)
+        with open(os.path.join(pd_dir, 'fixture.jsonl'), 'w', encoding='utf-8') as f:
+            f.write(json.dumps({'definition': 'fixture leak probe', 'answers': [leak_word]},
+                                ensure_ascii=False) + '\n')
+            f.write(json.dumps({'definition': 'fixture safe probe', 'answers': [safe_word]},
+                                ensure_ascii=False) + '\n')
+        words_on = load(clues_p, by_date_dir, include_private_defs=True,
+                         private_defs_glob=os.path.join(pd_dir, '*.jsonl'))
+        safe_in = safe_word in words_on
+        print(f'  safe private_defs answer enters lex(): {safe_in} (expected True)')
+        ok &= safe_in
+        leak_blocked = leak_word not in words_on
+        print(f"  this fixture's own held-out gold stays OUT even though a private_defs "
+              f'doc names it: {leak_blocked} (expected True)')
+        ok &= leak_blocked
+
+        words_off = load(clues_p, by_date_dir, include_private_defs=False,
+                          private_defs_glob=os.path.join(pd_dir, '*.jsonl'))
+        toggle_off = safe_word not in words_off
+        print(f'  include_private_defs=False excludes it: {toggle_off} (expected True)')
+        ok &= toggle_off
     finally:
         shutil.rmtree(tmp)
 
