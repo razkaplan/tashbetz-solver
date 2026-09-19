@@ -65,6 +65,9 @@ def proof_for(c):
         lines.append(f"assert is_hidden({fodder!r}, {answer!r})")
     elif mech == 'reversal':
         lines.append(f"assert is_reversal({fodder!r}, {answer!r})")
+    elif mech == 'container':
+        outer, inner = fodder.split('+', 1)
+        lines.append(f"assert is_container({outer!r}, {inner!r}, {answer!r})")
     else:
         return None  # pattern hits: possible by length only, nothing to formalize yet
     if c.get('split'):
