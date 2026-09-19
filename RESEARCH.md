@@ -4,6 +4,46 @@ One entry per run: what was found, one-line summary, and an honest judgement of 
 it transfers to a Hebrew cryptic solver with an 8k-clue corpus. Default skepticism: most
 crossword-AI work targets non-cryptic (American-style) puzzles and does not transfer.
 
+## 2026-09-01
+
+Bootstrap hit the same hard 14across wall as every recent run since 2026-08-19 (0/52
+fetches after full retry-with-backoff on the outer scrape step, killed at a 300s timeout
+rather than waited out further — same failure mode, not the intermittent ~50%-random one).
+Worked entirely from the no-14across image-fallback technique (bootstrap.sh step 6) for
+gold data on the canonical 2026-05-29 dev puzzle.
+
+**Search: "cryptic crossword clue solving candidate generation 2026 arxiv" / "definition
+span detection cryptic crossword clue neural 2026" / "Hebrew morphology NLP root pattern
+segmentation 2026".** Surfaced only the same paper family already logged repeatedly since
+2026-08-06 (2506.04824, 2407.08824, 2406.09043, 2104.08620, 2103.01242) and the same
+standing Hebrew-NLP resource list (AlephBERT, RFTokenizer, DictaBERT-seg). No new citation
+this run, and nothing in the existing set adds anything beyond what's already logged.
+**Transfer: none new.**
+
+**Conclusion for today's lever — not a literature find, a code-reading one.** With nothing
+new in the literature (an eighth-plus consecutive null literature pass on this queue item),
+re-read this project's OWN retrieval code end to end before defaulting to "implement
+nothing." `solver/retrieve_defs.py` has offered TWO query functions over the same BM25
+index since it was first built (2026-08-08): `candidates()` (the whole clue text as one
+query) and `end_candidates()` (queries each 2/3/4-word PREFIX and SUFFIX of the clue
+separately, on the stated premise "definition side is at one end"). The 5.4%/27%
+gold@25/ceiling number that `solver/candidates.py`'s `retrieval_candidates()` docstring has
+quoted ever since 2026-08-25 as this mechanism's standalone measurement — and the number
+`retrieve_defs.py`'s own `eval` CLI subcommand produces — both come from `end_candidates()`.
+But `retrieval_candidates()` itself, the function actually wired into `generate()`'s live
+candidate pool, has called `candidates()` (the OTHER one, never measured) since the day it
+was wired in. Grepped DAILY.md/RESEARCH.md for `end_candidates` before treating this as a
+finding: zero hits in either file — this mismatch has never been noticed or discussed in
+six-plus retrieval measurements (2026-08-25/26/27/28/29/30). **Transfer: this is an
+internal-consistency bug, not a research transfer question, but it directly targets
+queue item 1(d)'s own priority (candidate generation) with a concrete, mechanistic reason
+to expect a difference**: a whole-clue BM25 query lets every wordplay word in the surface
+reading (anagram fodder, indicators, credits) compete for term weight against the actual
+definitional words, exactly the dilution `end_candidates()`'s prefix/suffix split exists to
+avoid. Implemented as today's lever (see DAILY.md for the measured before/after) rather
+than another literature sweep, since the literature has now returned nothing new for eight
+consecutive runs on this exact queue item.
+
 ## 2026-08-30
 
 Bootstrap hit the same hard 14across wall as 2026-08-19/08-26/08-27/08-28 (4 consecutive
