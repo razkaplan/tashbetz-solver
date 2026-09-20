@@ -35,9 +35,23 @@ tree - a stale CLI deploy overwrote the live site on 2026-08-29. See CLAUDE.md.
 | **Candidate recall@N, FULL current pipeline (all 11 optional mechanisms + the 5 always-on ones), SECOND independent full transcription — 2026-06-05 (NEW 2026-09-15)** | **0.0% (0/28), identical with every optional mechanism on vs. the pure mechanical baseline (anagram/hidden/reversal/homograph/substitution-2word only, also 0.0%)** — the first puzzle this diagnostic has scored BELOW 2026-05-29's long-standing 3.6% floor. Root-caused past "mechanism fired N times, 0 hits" framing to something more fundamental: **`lexicon_coverage_eval` (NEW, `solver/candidates.py`) — only 8/28 (28.6%) of this puzzle's gold answers are members of `lex()` AT ALL**, independent of any mechanism, and every generator in this file can only ever propose an answer that is already a lexicon member. Confirmed directly, not just inferred, for 2 clues: 8A's exact anagram fodder (`שמיגנדי`) is a correct 7-letter contiguous window of the clue with the exact right letter-multiset for gold `גדישמני` — but `גדישמני` itself is not in `lex()`, so `anagram_candidates` never proposes it regardless of fodder correctness; same shape for 7A's reversal (`נכו`→`וכן`, once a real transcription slip — "פרעה" for "פרעה נכו" — was caught and fixed) | not yet a target — see log for the corpus-size confound this measurement carries |
 | **`lexicon_coverage_eval`, SECOND independent puzzle (2026-05-29, NEW 2026-09-16) + `--prefix` diagnostic** | **32.1% (9/28)** — same order of magnitude as 2026-09-15's 28.6% (0/28) on a DIFFERENT puzzle, confirming the lexicon-coverage ceiling is a real, puzzle-independent structural bottleneck, not a corpus-thinness artifact of that specific run. Root cause this run's own direct test surfaced: `hspell_simple.txt` (bootstrap.sh's wordlist source) does not enumerate Hebrew's productive ו/ה/ב/ל/מ/ש/כ prefixes as separate headwords — `כן` ("so") is a headword, `וכן` ("and so") is not, though both are equally real and either could legitimately be a crossword answer, confirmed directly against the committed wordlist. **NEW diagnostic, `prefix_stripped()`/`lexicon-coverage --prefix`**: of the 19 misses, **3 (15.8%) become `lex()` members after stripping one leading prefix** — but AUDITED further, not taken at face value: only 1/3 (`המוציא`→`מוציא`, "the one who brings out," a genuine ה-definite-article relationship) is a real morphological recovery; the other 2 (`מגמ`→`גמ`, `הלו`→`לו`) strip to a 2-letter residual, and 254/~144k lexicon entries are themselves 2 letters long — roughly half of the ~484 possible 2-letter consonant combinations are real words, so a 2-letter stem match is coincidence-prone, not evidence of a real prefix relationship. The LARGER category of miss on this puzzle (16/19) is multi-word phrases (`משה רבנו`, `פחות אבל כואב`, `לוע הארי`...) that no single-prefix strip addresses at all. `recall@N` unchanged at 3.6% (1/28), exactly reproducing this puzzle's own long-standing historical number (an 11th+ independent transcription) | not yet a target — diagnostic only, NOT wired into `is_word()`/candidate generation; see log for why (false-positive risk on short stems, disclosed rather than shipped) |
 | **`lexicon_coverage_eval` with `private_defs` wired into `lexicon.py`'s `load()` as a membership source (NEW 2026-09-19)** | **COMBINED across 2 independent puzzles (2026-05-15 + 2026-05-29, 56 gold slots): 32.1% (18/56) → 32.1% (18/56), UNCHANGED.** +49,158 words added to `lex()` (144,019 → 193,177, +34.1%, real and confirmed non-empty), but **mechanically verified 0/38 overlap** between the newly-added words and either puzzle's combined 38 still-missing gold answers — not one of the two puzzles' hard-setter answers happens to be among the ~37k crossword answers this specific crawl of note.co.il/מורדו turned up | not yet a target — a clean, disclosed negative result on n=2 puzzles; see log for the audit and the root-cause read |
+| **`lexicon_coverage_eval` with `hebrew-words-db` wired into `lexicon.py`'s `load()` as a second general-dictionary tier (NEW 2026-09-20)** | On 2026-05-29 (28 gold slots, isolated from `private_defs` by disabling it): **32.1% (9/28) → 35.7% (10/28), a real +1 gain** — `הלו` ("hello," a common loanword) newly covered. +38,824 words added to `lex()` (144,021 → 182,845, +27.0%, confirmed by direct diff), of which **38,906/67,008 (58%) are absent from hspell entirely** (verified by direct set diff, not assumed). Full defaults (private_defs+hwdb both on) land at the same 35.7% (10/28) — private_defs alone reproduces the flat 32.1% (9/28) 2026-09-19 already found on this puzzle, confirming hwdb's gain is independent of and not duplicated by that tier. `recall@N` on the 6/28 clues with real transcribed text stayed 0/6 both ways (uninformative floor effect, disclosed not hidden) | not yet a target — a real, small, positive, single-puzzle result; see log for the audit and next steps |
 
 Baseline for comparison: v2 = 41% raw with untraceable errors.
-Last lever added (2026-09-19): **`private_defs`-as-lexicon, closing 2026-09-16's own
+Last lever added (2026-09-20): **`hebrew-words-db`-as-lexicon, closing the OTHER half of
+2026-09-16's own flagged gap** (full-form Hebrew wordlist vs. the private_defs
+attested-answer side 2026-09-19 already tried and measured negative). Fetched and
+verified a real, CC0, previously-unconfirmed resource directly (not via search
+snippets) and wired it into `lexicon.py`'s `load()` as a second general-dictionary
+tier. MEASURED POSITIVE, modestly: 32.1% (9/28) -> 35.7% (10/28) lexicon coverage on
+a freshly, independently transcribed 2026-05-29 (+1 gain, `הלו`), isolated from
+`private_defs` (which reproduces its own established flat 32.1% on this exact
+puzzle, confirming the two tiers' effects are independent, not double-counted). See
+log for the full transcription/audit trail. Did NOT merge or act on any of the other
+18+ open PRs; did NOT re-run yesterday's private_defs measurement (see below, already
+stands on its own).
+
+Previous lever (2026-09-19): **`private_defs`-as-lexicon, closing 2026-09-16's own
 "NOT wired into any mechanism" gap with a source this file needs no invented rule for —
 see log for the full transcription/audit trail. MEASURED NEGATIVE, cleanly**: 0/38 overlap
 between the corpus's real, substantial growth (+34.1% of the lexicon) and either of two
@@ -2357,6 +2371,27 @@ propagated), `blank`. Score with `python3 evals/run_eval.py <file>`.
     2026-09-16 entry, may be the larger of the prefix/suffix gaps in `hspell_simple.txt` --
     a full-form Hebrew lexicon (Dicta's Nakdan, 5.5M forms) is a plausible but unconfirmed
     resource if this becomes worth fetching. See log for the full measurement and audit.
+    **2026-09-19 update**: attacked the ATTESTED-ANSWER side instead (not this item's own
+    (a)/(b)/(c) sub-steps) -- wired `data/answers/private_defs/` into `lex()` as a
+    membership source. MEASURED NEGATIVE: 0/38 overlap on 2 puzzles. See its own state-
+    table row and log entry.
+    **2026-09-20 update**: attacked this item's own (c) directly -- a full-form Hebrew
+    wordlist. Neither Dicta's Nakdan (still unfetchable, reconfirmed) nor Hebrew WordNet
+    was the answer; instead found and verified `github.com/roni5604/hebrew-words-db`
+    (CC0, 67,008 words, real inflected noun/verb/adjective forms, checked directly via
+    `curl`/`WebFetch` since this session's GitHub *tool* scoping -- unlike a plain HTTPS
+    fetch -- does not cover arbitrary repos). MEASURED POSITIVE, modestly: 32.1% (9/28)
+    -> 35.7% (10/28) on 2026-05-29, isolated from private_defs. The one new hit (`הלו`)
+    is exactly one of the two 2-letter-residual cases 2026-09-16's own `--prefix`
+    diagnostic named as coincidence-prone and declined to ship (`מגמ`/`הלו`) -- hwdb
+    recovers it as a genuine full-form entry, not a fragile prefix-strip heuristic,
+    and correctly does NOT recover `מגמ` (which really isn't a real word on its own).
+    (a) and (b) remain open: no minimum-stem-length prefix experiment was run, and the
+    multi-word-PHRASE category (still this item's own flagged "may be the higher-value
+    half," 16/19 misses on this same puzzle -- `בליברטיולנס`, `משהרבנו`, `פחותאבלכואב`,
+    `לועהארי` all remain uncovered by hwdb, a single-WORD list by construction) is
+    completely untouched by either of the two lexicon-tier levers tried so far. See log
+    for the full transcription/audit trail.
 
 ## Things already tried — do not repeat
 - More knowledge tooling (wiki, culture lexicon, shironet titles): helped early, now saturated.
@@ -5723,3 +5758,169 @@ Measure each lever on dev (fixed enums) with run_eval.py before/after; one lever
   leak vector" observation (flagged 2026-08-22, re-noted 2026-09-18, still unaddressed);
   did not merge or otherwise act on any of the other 18 open solver PRs; did not push to
   `main`.
+
+- 2026-09-20: **candidate generation, queue item 10's own sub-step (c) — a full-form
+  Hebrew wordlist to close the OTHER half of the lexicon-coverage gap 2026-09-19's
+  `private_defs` tier left open (0/38 overlap, that side attacked the attested-answer
+  side, not the morphological one).** Branched off yesterday's head
+  (`daily/2026-09-19-private-defs-lexicon`, PR #63), not stale `main`, per this queue's
+  own repeated branch-hygiene finding.
+
+  RESEARCH (full entries in RESEARCH.md): re-checked 2026-09-16's own two named leads.
+  Dicta's Nakdan lexicon (5.5M full inflected forms) remains real but not downloadable as
+  a standalone resource — reconfirmed, no change. `github.com/roni5604/hebrew-words-db`,
+  flagged 2026-09-19 as "real, unverified in substance" because this session's GitHub
+  *tool* access is scoped to `razkaplan/tashbetz-solver` only, was checked DIRECTLY this
+  run: that scoping restriction applies to the `mcp__github__*` tools, not to a plain
+  HTTPS fetch, so `WebFetch` + `curl` against `raw.githubusercontent.com` confirmed it
+  live: **CC0 public domain, 67,008 words**, built from noun/verb/adjective inflection
+  tables (plurals, verb conjugations across tenses/persons, adjective gender/number
+  agreement) — not just headwords, unlike `hspell_simple.txt`. Also surfaced a concrete,
+  disclosed non-coverage argument in its own favor (CC0 vs. hspell's AGPL / Dicta's
+  CC-BY-NC), not acted on since bootstrap.sh only fetches hspell, never redistributes it.
+  This is the FIRST Hebrew-morphology lead in six-plus research passes since 2026-08-23
+  (Hebrew WordNet, Nakdan, DictaBERT-seg, HebMorph, YAP all previously checked and found
+  either wrong-shaped or unfetchable) that is real, fetchable, Hebrew, AND license-clean.
+
+  BOOTSTRAP: added a step fetching `solver/lex/hwdb.txt` from the same raw-GitHub URL,
+  gitignored like `hspell.txt` (never committed, refetched every run — confirmed by
+  removing the file and re-running just that bootstrap step, which reproduced 67,008
+  words cleanly). 14across was not attempted with a full retry budget this run (the
+  hard wall has held since 2026-08-19 in every run that tried); confirmed the current
+  state directly with a single 10s-timeout probe (`curl` on one known answer URL) which
+  returned HTTP 202 (the sgcaptcha bot-check page), then moved straight to the
+  image-fallback technique rather than waiting out a doomed 52-puzzle retry loop.
+
+  IMPLEMENTATION: `lexicon.py`'s `load()` gained `include_hwdb=True` (default on),
+  loading `solver/lex/hwdb.txt` at the SAME priority tier as hspell (1, general
+  dictionary) and, unlike `private_defs`/culture, deliberately NOT held-out filtered —
+  disclosed and justified in the docstring: hwdb is not derived from any newspaper
+  crossword or this project's own puzzles, so an ordinary word it contributes that
+  happens to coincide with a held-out gold answer is the identical legitimate case
+  RESULTS.md's own INTEGRITY FINDING already ruled acceptable for hspell. Threaded
+  through `candidates.py` as `set_use_hwdb()` / `--no-hwdb` on `recall`/
+  `lexicon-coverage`, mirroring `set_use_defs_lexicon()` exactly (same cache-
+  invalidation shape, same CLI ablation pattern). Found and fixed one real interaction
+  before measuring: the existing `prefix_stripped()` selftest fixture (`וכן`) is a word
+  hwdb ALSO contains directly (confirmed: hwdb lists common function words, not just
+  content-word inflections), which would have silently broken that test's isolation of
+  the prefix-diagnostic mechanism once hwdb defaulted on — pinned `use_hwdb=False`
+  alongside the existing `use_defs_lexicon=False` in that one fixture call, and pinned
+  `set_use_hwdb(False)` in `selftest()`'s hermetic-lexicon setup, same discipline
+  `private_defs` already established for the same reason (a large exogenous wordlist
+  shifting dict-iteration order can silently perturb an unrelated capped mechanism like
+  `charade_candidates`).
+
+  TRANSCRIPTION: delegated to a fresh subagent (SOLVE_PROTOCOL.md as method, hard rules
+  against 14across/solution sites/verbatim clue search/reading any pre-existing
+  data/answers or data/dataset file for this date, only the two named local images).
+  2026-05-29 chosen as this project's most independently-transcribed canonical dev
+  puzzle, for maximal cross-checkability against a large body of prior, separately-
+  produced measurements naming this exact puzzle's answers. Got real, fully legible
+  clue text for **6 of 28 slots** (across 1, 7, 8, 9, 10, 11) from
+  `data/images/2026-05-28.jpg` — clue 13 across is visible but the page image runs out
+  of printed content (confirmed pixel-by-pixel: blank white below a fixed y-coordinate),
+  and no down-clue column appears in this image at all — both disclosed as real limits
+  of this specific scan, not guessed around. All **28 of 28 gold answers** recovered from
+  the solved-grid recap in `data/images/2026-06-04.jpg`, grid-pixel-calibrated (exact
+  gridline coordinates located first, not assumed uniform spacing; each row cropped and
+  its leftmost/rightmost cell read in isolation to fix direction): **0/15 row mismatches**
+  against the committed `data/grids/2026-05-29.json`. All 6 transcribed enum sums matched
+  their grid-derived slot lengths exactly (no reversed-enumeration quirk found in this
+  subset). `solver/build_dataset.py`: 6 rows, 0 length mismatches, 0 missing answers,
+  landed in the `eval` split (the only puzzle date present in a fresh `data/dataset/`).
+
+  STRONG INDEPENDENT CROSS-CHECK, not just the standard grid-pattern match: 7 of this
+  transcription's 28 gold answers exactly reproduce specific answers this project's own
+  history has independently named, by different agents, on different runs, for this
+  same puzzle date — `ברישניקוב` (Baryshnikov, 2026-08-28's log), `פחותאבלכואב`
+  (2026-08-25's log), `טליגוטליב` (2026-09-13's log), `מנחממנדל`, `משהרבנו` and `המוציא`
+  (all three named in 2026-09-16's own `--prefix` diagnostic misses), and `יחפניות`
+  (2026-08-06's very first candidate-generation hit on this puzzle, via anagram). Seven
+  independent confirmations across five different historical runs is far stronger
+  corroboration than the grid-pattern check alone, and gives high confidence this ninth-
+  plus independent transcription is correct.
+
+  MEASURED, controlled before/after. Built a small supplementary diagnostic dataset
+  (`/tmp/coverage_2026-05-29.jsonl`, not committed, disclosed as coverage-only) listing
+  all 28 gold slots with placeholder empty clue text (since only 6/28 have real
+  transcribed text) — `lexicon_coverage_eval` uses only `answer_raw`/`split`, never clue
+  text, so this is a legitimate way to test the FULL 28-slot gold set without
+  fabricating clue text or enum groupings; `data/dataset/clues.jsonl` itself stays
+  exactly the real 6-row transcription. `python3 solver/candidates.py lexicon-coverage`,
+  isolated from `private_defs` throughout to attribute the effect to hwdb alone:
+  - Baseline (`--no-defs-lexicon --no-hwdb`): **32.1% (9/28)** — exactly reproduces
+    2026-09-16's own historical number for this puzzle, a strong cross-check that this
+    independent transcription and the supplementary-dataset construction are correct.
+  - **+ hwdb (`--no-defs-lexicon`, hwdb default on): 35.7% (10/28), +1** — the new hit is
+    `הלו` (clue 23 across, "hello").
+  - `private_defs` alone (`--no-hwdb`, this run's own bounded corpus — see below):
+    **32.1% (9/28), UNCHANGED** — reproduces 2026-09-19's own negative finding on this
+    exact puzzle, confirming the two tiers' effects are independent, not double-counted.
+  - Full defaults (both tiers on): **35.7% (10/28)**, identical to hwdb alone.
+  `+38,824 words added to lex()` (144,021 → 182,845, +27.0%, confirmed by direct
+  before/after diff, not assumed from hwdb's own file size) — of which a direct set-diff
+  against a freshly-fetched `hspell.txt` (both fetched this run) confirms **38,906/67,008
+  (58%) are genuinely absent from hspell**, not a redundant re-listing.
+  `recall@N` on the 6/28 clues with real transcribed text: **0/6 both with and without
+  hwdb** — disclosed as UNINFORMATIVE for this lever (a floor-effect null on too small a
+  sample, the same honest caveat 2026-09-19 gave its own analogous partial-clue-text
+  number), not presented as a second confirming result.
+
+  Also ran a light, disclosed-bounded `private_defs` refresh this run (not the lever
+  itself, needed only so the "full defaults" combination above is a real measurement
+  rather than an empty glob): `crawl_defs.py mordo` to a 150s budget (8,762 raw / 8,149
+  parsed pairs — smaller than several prior runs' peaks, not run to a plateau) and
+  `crawl_defs.py note` to a 120s budget (URL discovery alone consumed most of it, only
+  62 pages fetched) — both disclosed as time-bounded, not exhaustive.
+
+  AUDITED (mandatory gate), each finding checked directly:
+  - `lexicon.held_out_answers()` and `retrieve_defs.held_out()` both confirmed (computed,
+    not assumed) to block all 28 of this puzzle's own gold answers — `gold - block` empty
+    for both.
+  - **Leak-shape check on the one new hit**: `הלו` is confirmed present in the freshly-
+    fetched `hwdb.txt` (an independent, generic third-party wordlist unrelated to any
+    newspaper crossword) and confirmed ABSENT from hspell — the same "ordinary dictionary
+    word that happens to be a gold answer" category RESULTS.md's own INTEGRITY FINDING
+    already ruled legitimate for hspell, not a corpus-derived leak. Computed the full raw
+    overlap too, not just the one hit: `gold ∩ hwdb(raw)` = `{ערב, סרבית, שלג, הלו}` — the
+    other three were already covered at baseline via hspell/corpus, so they contribute
+    nothing new; only `הלו` is hwdb's actual, isolated contribution, exactly matching the
+    controlled +1 measured above (no silent double-counting).
+  - **Subagent transcript audited directly** (grepped, not fully read, to avoid a context
+    overflow): zero `WebFetch`/`WebSearch`/network tool calls of any kind; every `Read`
+    call targets only the two named puzzle images, the two files it wrote, three
+    permitted `solver/*.py`/`bootstrap.sh` source files, and its own scratchpad crop
+    PNGs; the one `answers_parsed` string match in the transcript is bootstrap.sh's own
+    documentation text being read, not a read of that data file's actual content; `ls -la
+    data/answers/by_date/` was run BEFORE writing, to confirm no pre-existing file for
+    this date (matches its own report).
+  - **Implausibility check**: 32.1% → 35.7% is a 3.6-point movement, the opposite of
+    implausible — nothing to explain away.
+  - All 6 affected selftests re-run clean (exit 0): `candidates.py`, `lexicon.py`,
+    `retrieve_defs.py`, `prove.py`, `substitutions.py`, `deffit.py`.
+
+  HONEST READ: a real, small, positive, well-explained result on the one puzzle
+  transcribed this run — the first POSITIVE movement queue item 10 has produced since
+  its own 2026-09-16 diagnosis (2026-09-19's `private_defs` attempt at the same
+  structural gap was a clean negative). It closes exactly the case 2026-09-16's own
+  `--prefix` diagnostic flagged but declined to ship (`הלו`'s 2-letter residual was
+  coincidence-prone as a STRIPPING heuristic; as a genuine full-form LISTING it is not a
+  coincidence at all) — a genuinely different, more principled mechanism reaching the
+  same specific word a fragile heuristic could only guess at. It is also honestly modest:
+  +1/28 on a single puzzle is far too small to claim the lexicon-coverage ceiling is
+  meaningfully broken, and the LARGER category of miss this same puzzle carries
+  (multi-word phrases: `בליברטיולנס`, `משהרבנו`, `פחותאבלכואב`, `לועהארי`, `טליגוטליב`,
+  `מנחממנדל` — 6+ of the 18 remaining misses) is completely untouched by a single-word
+  wordlist by construction, exactly as queue item 10(b) already anticipated.
+
+  NOT DONE, honestly: did not measure a second puzzle (this run's budget went to one
+  puzzle's full transcription-plus-seven-way-cross-check-plus-audit cycle, plus the
+  `private_defs` refresh needed for the combined-defaults number); did not run either
+  private_defs crawl to a natural plateau (both were disclosed time-bounded); did not
+  attempt queue item 10(a) (a minimum-stem-length prefix experiment) or 10(b)
+  (phrase-aware lexicon membership) — both remain open, and 10(b) is now, on this run's
+  own evidence, the more promising of the two remaining sub-steps; did not act on the
+  still-standing "DAILY.md is a leak vector" observation (flagged 2026-08-22, re-noted
+  2026-09-18, still unaddressed); did not merge or otherwise act on any of the other 18+
+  open solver PRs; did not push to `main`.
