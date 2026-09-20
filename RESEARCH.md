@@ -1968,3 +1968,74 @@ wiring `data/answers/private_defs/` into `lexicon.py`'s `load()` as a new, held-
 membership source — see DAILY.md for the measurement (a clean, mechanically-audited
 negative result on the two puzzles tested: +49,158 words added, 0 of them among either
 puzzle's 38 combined missing gold answers).
+
+## 2026-09-20
+
+Started from 2026-09-19's own honest close: it tested the ATTESTED-ANSWER side of the
+lexicon-coverage gap (private_defs, negative on 2 puzzles) and left the other side —
+2026-09-16's own flagged, unconfirmed lead that a full-form Hebrew MORPHOLOGICAL lexicon
+(inflected forms, not just headwords) might close more of the gap than prefix-stripping
+did — explicitly unfetched. That run named two candidates and could not verify either:
+Dicta's Nakdan lexicon (5.5M forms, not downloadable as a standalone resource) and a
+nine-day-old repo, `github.com/roni5604/hebrew-words-db`, unconfirmed because this
+session's GitHub tool access is scoped to `razkaplan/tashbetz-solver` only. Two searches
+this run, plus a direct fetch (this session's GitHub scoping restriction applies to the
+`mcp__github__*` tools, not to a plain HTTPS fetch of a public repo, so `hebrew-words-db`
+was actually checkable today via `WebFetch`/`curl` against raw.githubusercontent.com,
+unlike via the GitHub API tools).
+
+**"cryptic crossword candidate generation LLM lexicon coverage 2026".** Reconfirms the
+same paper set logged repeatedly since 2026-08-06 (2506.04824, 2406.09043/NAACL 2025,
+2403.12094, nikcholer/cryptic-solver) — no new citation. One detail worth surfacing
+though not new in kind: the SOTA pipeline's own candidate-generation stage explicitly
+"filters out candidates not present in the crossword lexicon (UK Advanced Cryptics
+Dictionary)" after generating raw candidates with a fine-tuned LM. **Transfer: a direct,
+independent confirmation that lexicon-membership filtering is a standard, load-bearing
+stage of the established architecture this project's own `prove.py`/`candidates.py` is
+already modeled on** — not evidence for any new mechanism, but real corroboration that
+2026-09-15/16's "lexicon coverage is a structural ceiling" diagnosis is the right thing
+to be attacking, not a project-specific artifact.
+
+**"Hebrew full form wordlist inflected forms open source 2026 hebrew-words-db".**
+Surfaced `hebrew-words-db` again (now indexed, expected) and, in its own listed
+description this time, an additional concrete reason to prefer it over Dicta/hspell
+specifically for a project that redistributes nothing but wants to build freely on top
+of a wordlist: hspell is AGPL and Dicta's resources are typically CC-BY-NC, both of which
+are "legally awkward... for many commercial and closed-source projects," while
+hebrew-words-db is explicitly CC0 and states it was "not derived from any AGPL/CC-BY-NC
+dataset." This project's own hspell dependency is unaffected by this (bootstrap.sh
+already only *fetches* hspell at solve-time, never redistributes it), but it is a
+disclosed, real point in the new source's favor if this project ever needed to reconsider
+that dependency, not just a coverage argument.
+
+**Fetched and verified `hebrew-words-db` directly, not assumed from search snippets**
+(`curl` against `raw.githubusercontent.com/roni5604/hebrew-words-db/main/data/{stats.json,
+words.txt}`, the same technique bootstrap.sh already uses for hspell): real, live, CC0,
+**67,008 words**, `data/stats.json`'s own by-length/by-letter breakdown confirms it is not
+a truncated or placeholder file. Directly diffed against the committed hspell fetch
+(both freshly downloaded this run, same normalization `lexicon.py` already applies —
+final-letter folding, non-Hebrew stripped): **38,906 of hwdb's 67,008 words (58%) are NOT
+in hspell** — a substantial, real, independently-verified addition, not an assumption
+from the repo's own README claims. Spot-checked the two words 2026-09-16's own research
+entry named as suffix/function-word gaps in hspell (`וכן`, `הלו` — the latter from that
+run's `prefix_stripped()` diagnostic, the residual-stem-length-2 case it correctly
+declined to ship as a fix): **both ARE present in hwdb directly**, no prefix-stripping
+needed — a first, honest, small piece of corroborating evidence (not proof) that hwdb's
+inflected/function-word coverage is real and overlaps with a gap this project already
+independently found by a completely different method (prefix-diagnostic vs. a fresh
+external wordlist), before ever running today's controlled recall measurement. Two of
+2026-09-16's other named gaps (`גדישמני` from 2026-09-15's own puzzle, `המוציא`,
+multi-word phrases like `משה רבנו`/`פחות אבל כואב`/`לוע הארי`) are NOT in hwdb — disclosed
+honestly rather than cherry-picking the 2 hits: hwdb is a single-WORD inflection list, so
+it was never going to close the multi-word-phrase category of miss (2026-09-16's own
+"LARGER category, 16/19" finding), only the single-word morphological one.
+
+**Conclusion, and the lever this run actually built.** Unlike 2026-08-24 through
+2026-09-19's repeated "real but unfetchable" verdict on every Hebrew-morphology lead this
+project has checked (Hebrew WordNet, Dicta's Nakdan, DictaBERT-seg, HebMorph, YAP), this
+is the first one that is BOTH real AND fetchable AND Hebrew AND license-clean — a
+genuinely different outcome from six-plus prior research passes on adjacent questions,
+not a repeat of the same "checked, can't use it" pattern. Wired `hebrew-words-db` into
+`lexicon.py`'s `load()` as a second general-dictionary tier (`include_hwdb`, alongside
+hspell, same priority, NOT held-out filtered — see DAILY.md for the full rationale and
+the controlled before/after measurement).
