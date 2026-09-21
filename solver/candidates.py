@@ -143,6 +143,26 @@ This module does exactly that, per clue, with no LLM involved:
                           gold answer is the same legitimate case RESULTS.md's own
                           INTEGRITY FINDING already ruled acceptable for hspell). Toggle
                           with `set_use_hwdb()` / `--no-hwdb`.
+  - phrase_split (candidates.py, [NEW 2026-09-21], queue item 10(b), not a candidate
+                          function of its own): private_defs and hwdb (above) both attack
+                          lex() coverage by adding new SINGLE strings to lex() -- neither
+                          can ever cover a MULTI-WORD phrase that prints as one unbroken
+                          run of letters in the grid (`משה רבנו` -> `משהרבנו`), the LARGER
+                          category of lexicon-coverage miss 2026-09-16 flagged (16/19 vs.
+                          only 3/19 for the leading-prefix case `prefix_stripped` already
+                          handles) and explicitly named as still open. `phrase_split(w,
+                          words)` recognizes `w` as covered when it is the unbroken
+                          concatenation of 2 (or 3) words that ARE already lex() members --
+                          no external resource, no invented morphological rule, just the
+                          same test a human solver applies to an unfamiliar-looking string.
+                          Wired into `hidden_candidates`/`reversal_candidates` as a real
+                          generator-side acceptance path (toggle: `use_phrase=True` /
+                          `--no-phrase`) -- NOT into anagram/substitution/container, which
+                          would each need a structurally different change (a reverse-search
+                          over permutations, or a fragment-source redesign) to become
+                          phrase-aware; disclosed as unattempted rather than silently
+                          scoped out. Also wired into `lexicon_coverage_eval` as a
+                          `--phrase` diagnostic, mirroring `--prefix`'s existing shape.
 
 None of this asserts an answer is CORRECT — it only asserts an answer is POSSIBLE by a
 named mechanism. Selecting among candidates and proving one is still prove.py's job.
@@ -170,12 +190,18 @@ CLI:
     # ablation: private_defs answers removed from lex() (see defs_lexicon above)
   python3 solver/candidates.py recall data/dataset/clues.jsonl eval --no-hwdb
     # ablation: hebrew-words-db inflected forms removed from lex() (see hwdb lexicon above)
+  python3 solver/candidates.py recall data/dataset/clues.jsonl eval --no-phrase
+    # ablation: hidden/reversal lose their phrase_split() acceptance path (see phrase_split
+    # above) -- the answer must then be a literal, single lex() member as before 2026-09-21
   python3 solver/candidates.py lexicon-coverage data/dataset/clues.jsonl eval  # mechanism-
     # agnostic ceiling: what fraction of gold answers are lex() members at all
   python3 solver/candidates.py lexicon-coverage data/dataset/clues.jsonl eval --prefix
     # of the answers NOT in lex(), how many become members after stripping one leading
     # Hebrew prefix (ו/ה/ב/ל/מ/ש/כ and their pairs) -- diagnostic only, does not change
     # what any mechanism accepts
+  python3 solver/candidates.py lexicon-coverage data/dataset/clues.jsonl eval --phrase
+    # of the answers NOT in lex(), how many split into 2-3 already-lex() words with no
+    # space -- diagnostic AND the same acceptance test hidden/reversal now use for real
   python3 solver/candidates.py lexicon-coverage data/dataset/clues.jsonl eval --no-defs-lexicon
   python3 solver/candidates.py lexicon-coverage data/dataset/clues.jsonl eval --no-hwdb
   python3 solver/candidates.py selftest
@@ -307,22 +333,32 @@ def anagram_candidates(clue_text, target_len):
     return out
 
 
-def hidden_candidates(clue_text, target_len):
+def hidden_candidates(clue_text, target_len, use_phrase=True):
     words = lex()
     out = []
     for sub in _char_windows(clue_text, target_len):
         if sub in words:
             out.append({'answer': sub, 'mechanism': 'hidden', 'fodder': sub})
+        elif use_phrase:
+            parts = phrase_split(sub, words)
+            if parts:
+                out.append({'answer': sub, 'mechanism': 'hidden', 'fodder': sub,
+                            'phrase': '+'.join(parts)})
     return out
 
 
-def reversal_candidates(clue_text, target_len):
+def reversal_candidates(clue_text, target_len, use_phrase=True):
     words = lex()
     out = []
     for sub in _char_windows(clue_text, target_len):
         rev = sub[::-1]
         if rev in words:
             out.append({'answer': rev, 'mechanism': 'reversal', 'fodder': sub})
+        elif use_phrase:
+            parts = phrase_split(rev, words)
+            if parts:
+                out.append({'answer': rev, 'mechanism': 'reversal', 'fodder': sub,
+                            'phrase': '+'.join(parts)})
     return out
 
 
@@ -1124,7 +1160,8 @@ def split_candidates(cands, enum):
 def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retrieval=True,
              use_container=True, use_container_entity=True, use_double_def=True,
              use_defspan_retrieval=True, use_homophone=True, use_homophone_vowel=True,
-             use_substitution_3part=True, use_charade=True, use_abbreviation=True):
+             use_substitution_3part=True, use_charade=True, use_abbreviation=True,
+             use_phrase=True):
     """Diverse candidates for one clue. Never consults the answer.
 
     Mechanism order here is a PRIORITY order, not just an accumulation order: dedup +
@@ -1169,7 +1206,12 @@ def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retr
     `use_container_entity` (2026-09-13) is a sub-toggle of
     `use_container` alone -- it only matters when use_container is True, and isolates
     container_parts()'s new role/category-entity fragment source from its original two
-    (literal/destemmed clue word, mined substitution) for a controlled measurement."""
+    (literal/destemmed clue word, mined substitution) for a controlled measurement.
+    `use_phrase` (2026-09-21, queue item 10(b)) gates ONLY `hidden_candidates`/
+    `reversal_candidates`' new phrase_split() acceptance path -- see their own docstrings
+    and phrase_split()'s. It does not touch anagram/substitution/container, which would
+    each need a structurally different (reverse-search or fragment-source) change to
+    become phrase-aware, not attempted today; see DAILY.md for the honest scope note."""
     target_len = sum(enum)
     cands = []
     cands += homograph_candidates(clue_text, target_len)
@@ -1191,8 +1233,8 @@ def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retr
     if pattern:
         cands += pattern_candidates(pattern)
     cands += anagram_candidates(clue_text, target_len)
-    cands += hidden_candidates(clue_text, target_len)
-    cands += reversal_candidates(clue_text, target_len)
+    cands += hidden_candidates(clue_text, target_len, use_phrase=use_phrase)
+    cands += reversal_candidates(clue_text, target_len, use_phrase=use_phrase)
     if use_homophone:
         cands += homophone_candidates(clue_text, target_len)
     if use_homophone_vowel:
@@ -1219,7 +1261,7 @@ def recall_eval(dataset_path, split=None, max_n=25, use_culture=True, use_retrie
                  use_container=True, use_container_entity=True, use_double_def=True,
                  use_defspan_retrieval=True, use_homophone=True, use_homophone_vowel=True,
                  use_substitution_3part=True, use_charade=True, use_abbreviation=True,
-                 use_defs_lexicon=True, use_hwdb=True):
+                 use_defs_lexicon=True, use_hwdb=True, use_phrase=True):
     set_use_defs_lexicon(use_defs_lexicon)
     set_use_hwdb(use_hwdb)
     total = 0
@@ -1242,7 +1284,8 @@ def recall_eval(dataset_path, split=None, max_n=25, use_culture=True, use_retrie
                           use_homophone=use_homophone,
                           use_homophone_vowel=use_homophone_vowel,
                           use_substitution_3part=use_substitution_3part,
-                          use_charade=use_charade, use_abbreviation=use_abbreviation)
+                          use_charade=use_charade, use_abbreviation=use_abbreviation,
+                          use_phrase=use_phrase)
         sizes.append(len(cands))
         gold = norm(r['answer_raw'])
         found = [c for c in cands if c['answer'] == gold]
@@ -1290,13 +1333,56 @@ def prefix_stripped(w, words):
     return None
 
 
-def lexicon_coverage_eval(dataset_path, split=None, check_prefix=False, use_defs_lexicon=True,
-                           use_hwdb=True):
+def phrase_split(w, words, min_part=2, max_parts=3):
+    """[NEW 2026-09-21, queue item 10(b)] If `w` is not itself a lexicon word but is the
+    unbroken concatenation of 2 (or 3) words that ARE lex() members, return that tuple of
+    parts. Targets 2026-09-16's own flagged, LARGER category of lexicon-coverage miss
+    (16/19 on 2026-05-29, vs. only 3/19 for the leading-prefix case `prefix_stripped`
+    above already handles): multi-word Hebrew PHRASES that print as one unbroken run of
+    letters in the grid, no space -- `משה רבנו` -> `משהרבנו`, `פחות אבל כואב` ->
+    `פחותאבלכואב`, `לוע הארי` -> `לועהארי`. hebrew-words-db (2026-09-20) and private_defs
+    (2026-09-19) both attacked this gap from the "is the WHOLE phrase separately
+    attested somewhere" side and measured flat/negative on it (0/38 overlap, and none of
+    hwdb's 67k single-word entries cover a multi-word phrase by construction) -- this is
+    a different kind of fix, needing no external resource and no invented morphological
+    rule: it recognizes a phrase as covered because its OWN pieces are already
+    independently real dictionary words, the same test a human solver applies without
+    ever having seen `משהרבנו` as one string before.
+
+    `min_part` (default 2, same floor `prefix_stripped` uses) keeps a 1-letter residual
+    from manufacturing a coincidental split -- Hebrew has many short real words (254 of
+    ~144k base-lexicon entries are 2 letters alone), so an unbounded floor would make
+    almost any string 'split.' Tries every 2-way split first, left to right, then every
+    3-way split only if no 2-way split exists (2026-09-16's own audit of the analogous
+    `--prefix` diagnostic found unaudited multi-way matches are more coincidence-prone,
+    not less, as the number of parts grows) -- returns the FIRST split found, not
+    proof of a unique or setter-intended decomposition, same honesty `prefix_stripped`
+    already discloses about its own single answer."""
+    L = len(w)
+    for i in range(min_part, L - min_part + 1):
+        a, b = w[:i], w[i:]
+        if a in words and b in words:
+            return (a, b)
+    if max_parts >= 3:
+        for i in range(min_part, L - 2 * min_part + 1):
+            a = w[:i]
+            if a not in words:
+                continue
+            for j in range(i + min_part, L - min_part + 1):
+                b, c = w[i:j], w[j:]
+                if b in words and c in words:
+                    return (a, b, c)
+    return None
+
+
+def lexicon_coverage_eval(dataset_path, split=None, check_prefix=False, check_phrase=False,
+                           use_defs_lexicon=True, use_hwdb=True):
     set_use_defs_lexicon(use_defs_lexicon)
     set_use_hwdb(use_hwdb)
     total = 0
     covered = 0
     prefix_recovered = 0
+    phrase_recovered = 0
     missing = []
     words = lex()
     for line in open(dataset_path):
@@ -1311,15 +1397,20 @@ def lexicon_coverage_eval(dataset_path, split=None, check_prefix=False, use_defs
             covered += 1
         else:
             stem = prefix_stripped(gold, words) if check_prefix else None
+            parts = phrase_split(gold, words) if check_phrase else None
             if stem:
                 prefix_recovered += 1
                 missing.append((r['clue_number'], r['direction'], gold, stem))
+            elif parts:
+                phrase_recovered += 1
+                missing.append((r['clue_number'], r['direction'], gold, '+'.join(parts)))
             else:
                 missing.append((r['clue_number'], r['direction'], gold, None))
     return {
         'total': total, 'covered': covered,
         'coverage': covered / total if total else 0.0,
         'prefix_recovered': prefix_recovered,
+        'phrase_recovered': phrase_recovered,
         'missing': missing,
     }
 
@@ -1370,6 +1461,92 @@ def selftest():
     found = any(h['answer'] == norm('בר') for h in hits)
     print(f'  found בר as a reversal of רב: {found} (expected True)')
     ok &= found
+
+    print('--- phrase_split: a two-word phrase with no space is recognized when both '
+          'parts are already lex() members (queue item 10(b)) ---')
+    two_word = {norm('שלום'), norm('עולם')}
+    parts = phrase_split(norm('שלום') + norm('עולם'), two_word)
+    print(f'  שלום+עולם split found: {parts} (expected ({norm("שלום")!r}, {norm("עולם")!r}))')
+    ok &= parts == (norm('שלום'), norm('עולם'))
+    print('--- phrase_split: a genuine 3-way split is found only after no 2-way split '
+          'exists ---')
+    three_word = {norm('תפוח'), norm('עץ'), norm('ירוק')}
+    parts3 = phrase_split(norm('תפוח') + norm('עץ') + norm('ירוק'), three_word)
+    print(f'  תפוח+עץ+ירוק split found: {parts3} '
+          f'(expected ({norm("תפוח")!r}, {norm("עץ")!r}, {norm("ירוק")!r}))')
+    ok &= parts3 == (norm('תפוח'), norm('עץ'), norm('ירוק'))
+    print('--- phrase_split: a 1-letter residual is rejected even when that single letter '
+          "is itself (synthetically) 'in words' -- the min_part floor prefix_stripped "
+          'already uses, applied here too ---')
+    one_letter_trap = {norm('א'), norm('תפוח')}
+    no_hit = phrase_split(norm('א') + norm('תפוח'), one_letter_trap)
+    print(f'  א+תפוח (1+4) does NOT split: {no_hit is None} (expected True)')
+    ok &= no_hit is None
+    print('--- phrase_split: an unrelated string with no valid decomposition returns '
+          'None, not a coincidental hit ---')
+    ok &= phrase_split(norm('זזקככץ'), lex()) is None
+
+    print('--- hidden device: a phrase-decomposable window (not itself a lex() word) is '
+          'accepted via phrase_split when use_phrase=True, and rejected when False ---')
+    # 'שלומ'+'עולמ' (both real, final-folded hspell words) sit adjacent across a word
+    # boundary in the clue -- 'שלומעולמ' itself is not a lexicon entry, only its two
+    # halves are.
+    phrase_text = 'אמרו שלום עולם שקט'
+    on = hidden_candidates(phrase_text, 8, use_phrase=True)
+    found_phrase = [h for h in on if h['answer'] == norm('שלום') + norm('עולם')]
+    print(f'  found שלומעולמ via phrase_split: {bool(found_phrase)} (expected True), '
+          f'phrase field: {found_phrase[0].get("phrase") if found_phrase else None}')
+    ok &= bool(found_phrase) and found_phrase[0].get('phrase') == \
+        norm('שלום') + '+' + norm('עולם')
+    off = hidden_candidates(phrase_text, 8, use_phrase=False)
+    found_off = any(h['answer'] == norm('שלום') + norm('עולם') for h in off)
+    print(f'  use_phrase=False suppresses it: {not found_off} (expected True)')
+    ok &= not found_off
+
+    print('--- reversal device: same phrase-decomposable acceptance, on the REVERSED '
+          'window ---')
+    # 'מלועמולש' is the literal reverse of 'שלומעולמ' (שלומ+עולמ) -- placed as one clue
+    # token so the window scan finds it whole, then reversal_candidates reverses it back
+    # to the phrase-decomposable string before the lex()/phrase_split check.
+    rev_text = 'אמר מלועמולש עכשיו'
+    on_r = reversal_candidates(rev_text, 8, use_phrase=True)
+    found_rev = any(h['answer'] == norm('שלום') + norm('עולם') for h in on_r)
+    print(f'  found שלומעולמ via phrase_split on the reversed fodder: {found_rev} '
+          f'(expected True)')
+    ok &= found_rev
+    off_r = reversal_candidates(rev_text, 8, use_phrase=False)
+    found_rev_off = any(h['answer'] == norm('שלום') + norm('עולם') for h in off_r)
+    print(f'  use_phrase=False suppresses it: {not found_rev_off} (expected True)')
+    ok &= not found_rev_off
+
+    print('--- lexicon_coverage_eval(check_phrase=True): counts phrase-recoverable '
+          'misses separately, without changing what counts as covered ---')
+    import tempfile
+    fd, tmp_path = tempfile.mkstemp(suffix='.jsonl')
+    try:
+        with open(tmp_path, 'w', encoding='utf-8') as f:
+            f.write(json.dumps({'split': 'eval',
+                                 'answer_raw': 'שלום' + 'עולם',
+                                 'clue_number': 5, 'direction': 'across'},
+                                ensure_ascii=False) + '\n')
+            f.write(json.dumps({'split': 'eval', 'answer_raw': 'זזקככץ',
+                                 'clue_number': 6, 'direction': 'down'},
+                                ensure_ascii=False) + '\n')
+        # use_defs_lexicon/use_hwdb False: this fixture's whole phrase ('שלומעולמ') must
+        # not already be a lex() member in its own right for this to test phrase_split
+        # rather than an unrelated coincidence -- checked directly, not assumed.
+        assert norm('שלום' + 'עולם') not in lex(), \
+            'fixture phrase must not itself be a lex() member for this test to be valid'
+        res = lexicon_coverage_eval(tmp_path, split='eval', check_phrase=True,
+                                     use_defs_lexicon=False, use_hwdb=False)
+        print(f'  covered stays 0/2 (phrase recovery does not count as covered): '
+              f'{res["covered"] == 0} (expected True)')
+        ok &= res['covered'] == 0
+        print(f'  phrase_recovered: {res["phrase_recovered"]} (expected 1)')
+        ok &= res['phrase_recovered'] == 1
+    finally:
+        os.close(fd)
+        os.remove(tmp_path)
 
     print('--- homophone device: a clue fragment SOUNDS like a differently-spelled '
           'real word (ק/כ swap) ---')
@@ -1871,11 +2048,12 @@ def main():
         use_abbreviation = '--no-abbreviation' not in rest
         use_defs_lexicon = '--no-defs-lexicon' not in rest
         use_hwdb = '--no-hwdb' not in rest
+        use_phrase = '--no-phrase' not in rest
         rest = [a for a in rest if a not in
                 ('--no-culture', '--no-retrieval', '--no-container', '--no-container-entity',
                  '--no-double-def', '--no-defspan-retrieval', '--no-homophone',
                  '--no-homophone-vowel', '--no-substitution-3part', '--no-charade',
-                 '--no-abbreviation', '--no-defs-lexicon', '--no-hwdb')]
+                 '--no-abbreviation', '--no-defs-lexicon', '--no-hwdb', '--no-phrase')]
         path = rest[0] if len(rest) > 0 else 'data/dataset/clues.jsonl'
         split = rest[1] if len(rest) > 1 else None
         os.chdir(ROOT)
@@ -1887,7 +2065,8 @@ def main():
                            use_homophone_vowel=use_homophone_vowel,
                            use_substitution_3part=use_substitution_3part,
                            use_charade=use_charade, use_abbreviation=use_abbreviation,
-                           use_defs_lexicon=use_defs_lexicon, use_hwdb=use_hwdb)
+                           use_defs_lexicon=use_defs_lexicon, use_hwdb=use_hwdb,
+                           use_phrase=use_phrase)
         print(f"recall@N: {res['hit']}/{res['total']} = {res['recall']:.1%}  "
               f"(avg {res['avg_candidates']:.1f} candidates/clue, "
               f"use_culture={use_culture}, use_retrieval={use_retrieval}, "
@@ -1897,7 +2076,7 @@ def main():
               f"use_homophone_vowel={use_homophone_vowel}, "
               f"use_substitution_3part={use_substitution_3part}, use_charade={use_charade}, "
               f"use_abbreviation={use_abbreviation}, use_defs_lexicon={use_defs_lexicon}, "
-              f"use_hwdb={use_hwdb})")
+              f"use_hwdb={use_hwdb}, use_phrase={use_phrase})")
         print('hits by mechanism:', res['by_mechanism'])
         if res['misses']:
             print(f"\n{len(res['misses'])} misses (clue_number, direction, gold):")
@@ -1906,13 +2085,16 @@ def main():
     elif cmd == 'lexicon-coverage':
         rest = sys.argv[2:]
         check_prefix = '--prefix' in rest
+        check_phrase = '--phrase' in rest
         use_defs_lexicon = '--no-defs-lexicon' not in rest
         use_hwdb = '--no-hwdb' not in rest
-        rest = [a for a in rest if a not in ('--prefix', '--no-defs-lexicon', '--no-hwdb')]
+        rest = [a for a in rest if a not in
+                ('--prefix', '--phrase', '--no-defs-lexicon', '--no-hwdb')]
         path = rest[0] if len(rest) > 0 else 'data/dataset/clues.jsonl'
         split = rest[1] if len(rest) > 1 else None
         os.chdir(ROOT)
         res = lexicon_coverage_eval(path, split, check_prefix=check_prefix,
+                                     check_phrase=check_phrase,
                                      use_defs_lexicon=use_defs_lexicon, use_hwdb=use_hwdb)
         print(f"lexicon coverage: {res['covered']}/{res['total']} = {res['coverage']:.1%} "
               f"of gold answers are members of lex() at all (mechanism-agnostic ceiling, "
@@ -1921,9 +2103,21 @@ def main():
             print(f"  of the {res['total'] - res['covered']} NOT covered, "
                   f"{res['prefix_recovered']} become lex() members after stripping one "
                   f"leading Hebrew prefix (diagnostic only -- not wired into any mechanism)")
+        if check_phrase and res['total'] - res['covered'] > 0:
+            print(f"  of the {res['total'] - res['covered']} NOT covered, "
+                  f"{res['phrase_recovered']} split into 2-3 already-lex() words with no "
+                  f"space (diagnostic; ALSO wired into hidden_candidates/reversal_candidates "
+                  f"as a real generator-side acceptance path, see recall's --no-phrase)")
         if res['missing']:
+            extra_label = ''
+            if check_prefix and check_phrase:
+                extra_label = ', prefix-stripped stem or phrase split'
+            elif check_prefix:
+                extra_label = ', prefix-stripped stem'
+            elif check_phrase:
+                extra_label = ', phrase split'
             print(f"\n{len(res['missing'])} not in lex() (clue_number, direction, gold"
-                  f"{', prefix-stripped stem' if check_prefix else ''}):")
+                  f"{extra_label}):")
             for num, direction, gold, stem in res['missing']:
                 extra = f'  <- {stem}' if stem else ''
                 print(f'  {num} {direction}: {gold}{extra}')

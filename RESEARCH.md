@@ -2039,3 +2039,64 @@ not a repeat of the same "checked, can't use it" pattern. Wired `hebrew-words-db
 `lexicon.py`'s `load()` as a second general-dictionary tier (`include_hwdb`, alongside
 hspell, same priority, NOT held-out filtered — see DAILY.md for the full rationale and
 the controlled before/after measurement).
+
+## 2026-09-21
+
+Picked up 2026-09-20's own closing note: queue item 10(b), phrase-aware lexicon
+membership, flagged as "the more promising of the two remaining sub-steps" on that
+run's own evidence. Searched specifically for this lever's own topic (multi-word/
+compound handling, candidate generation, definition-span detection) in 2025-2026 work,
+rather than repeating the ninth-plus general sweep this log already carries.
+
+**"cryptic crossword candidate generation lexicon membership 2026" / general sweep.**
+Reconfirms the same paper set logged since 2026-08-06 (2506.04824, 2406.09043/NAACL
+2025, 2403.12094, Cryptonite 2103.01242). Nothing new. One detail worth re-surfacing
+because it bears directly on TODAY's lever: 2506.04824's own pipeline filters raw
+candidates through lexicon membership as a load-bearing stage (already noted
+2026-09-20) — that stage, in the English/UK-Advanced-Cryptics-Dictionary setting, is a
+single flat wordlist lookup, because English multi-word answers are usually printed
+WITH spaces preserved in the enum and the dictionary itself lists common phrases. This
+project's setter never prints internal spaces (the enumeration is letter-count only,
+`(6,3)` not "spelled with a space"), so the analogous lexicon-membership check here has
+to recognize an unbroken run of letters as phrase-shaped on its own — the English
+literature's own architecture doesn't hand this project a ready answer, it just
+confirms lexicon membership is the right layer to attack, which 2026-09-15/16 already
+established independently.
+
+**"Hebrew multiword expression compound lexicon 2025 2026."** Surfaced (not new in
+kind, but checked directly rather than left as a title): "A lexical resource of Hebrew
+verb-noun multi-word expressions" (Bar-Ilan, cris.biu.ac.il) and a 2026 ACL Hebrew
+coreference-resolution benchmark noting Hebrew forms can admit "both segmented and
+unsegmented analyses" for ~17% of a wide-coverage lexicon's entries. **Transfer:
+partial, and disclosed as such** — both confirm Hebrew's general propensity for
+space-free multi-word forms (the phenomenon this lever targets is real and
+recognized in the literature, not a project-specific quirk), but neither ships a
+usable RESOURCE: the Bar-Ilan MWE list is verb-noun collocations (a different
+grammatical shape than this setter's proper-name/idiom phrases like `משה רבנו`), and
+the coreference benchmark's segmentation-ambiguity statistic is about morpheme
+boundaries within a single word, not about recognizing a concatenation of two
+INDEPENDENT words. Neither changes today's decision to build the mechanism from this
+project's own lexicon rather than import an external phrase list.
+
+**Checked one specific tool directly: `github.com/Dvd848/Crossword-Solver`** ("a
+Hebrew pattern-matching crossword utility," found while searching for prior Hebrew
+crossword-solving work specifically). Fetched and read its README and its core
+`CrosswordSolver.js`, not judged by the description. It solves the SAME `?`-pattern
+lookup problem `solver/lexicon.py pattern` already solves — a single-word lookup over
+a DAWG built from Wiktionary + Wikipedia + Hebrew WordNet + hspell — with no
+multi-word or phrase capability of any kind, and no wordlist this project doesn't
+already have access to (hspell is already a dependency; the others are already-tried,
+already-logged leads — Hebrew WordNet was checked and ruled out for this project's
+purposes back on 2026-08-24). **Transfer: a useful negative, not a new lead** — an
+independently-built Hebrew crossword tool, built by someone else for a related but
+different purpose (finding words FOR a human, not generating candidates FOR an
+automated prover), converged on the same word-level architecture this project's own
+`lexicon.py` already has, and did not need or build a phrase-level capability. This
+corroborates, rather than undercuts, the standing finding across every research pass
+since 2026-08-23 on adjacent gaps: no external phrase-list or phrase-aware-lexicon
+resource has surfaced for Hebrew crosswords specifically, so the mechanism has to be
+built structurally from the project's own data, which is what today's lever
+(`phrase_split()`, recombining `lex()`'s own existing members) does. See DAILY.md for
+the full measurement: it recovers 10 of 16 (62.5%) of one puzzle's remaining
+lexicon-coverage misses this way — the largest single-diagnostic recovery this
+project's lexicon-coverage line of work has measured to date.
