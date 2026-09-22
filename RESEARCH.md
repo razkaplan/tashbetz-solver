@@ -4,6 +4,54 @@ One entry per run: what was found, one-line summary, and an honest judgement of 
 it transfers to a Hebrew cryptic solver with an 8k-clue corpus. Default skepticism: most
 crossword-AI work targets non-cryptic (American-style) puzzles and does not transfer.
 
+## 2026-09-22
+
+Bootstrap: 14across hit the same hard wall this run's first 20/52 puzzles all returned
+`None: 0 clues` after full retry-with-backoff each (killed, matching the
+2026-08-19/08-26/08-27/08-28/08-30 pattern) — worked from the public-CDN image-fallback
+technique for clue text, but a single, separately-retried direct fetch of THIS puzzle's
+own URL (not the full 52-URL batch) succeeded on the 5th attempt, giving real
+crowd-sourced answers+explanations for 2026-05-29 instead of the usual image-only
+solution-grid fallback — see DAILY.md log for the full transcription/audit trail.
+
+Research followed the scheduled task's stated priority order: candidate generation
+(diverse candidates per clue, by mechanism and by definition-span hypothesis) first,
+then definition-span detection, before falling back to the queue's own next step.
+
+**General search: "cryptic crossword clue solver LLM 2026 candidate generation
+definition span" / "diverse candidate generation constrained decoding crossword solver
+ensemble 2026" / "learned reranker candidate answer definition fit scoring crossword
+2026" / "semantic similarity embedding rerank cryptic crossword candidate answer
+definition match".** Surfaced mostly the same paper family logged repeatedly since
+2026-08-06 (2506.04824, 2412.09012, 2406.09043, 2403.12094, 2103.01242) plus one
+already-logged Arabic-crossword-generation paper. **Transfer: none new** — this is at
+least the seventh consecutive literature pass finding nothing new and buildable on
+candidate generation or definition-span/fit scoring specifically as an external
+resource; DAILY.md's own queue item 9 note (2026-08-24) already predicted this: "the
+next attempt on this item should assume none exists and work from the project's own
+data ... or be scoped as a genuinely new internal idea, not another literature sweep."
+
+**One genuinely new thread, followed to a concrete idea rather than left as a citation:**
+a Cruciform-line paper (Cruciform: Solving Crosswords with Natural Language Processing,
+arXiv:1611.02360) scores candidate answers by cosine similarity between a candidate and
+the clue's DEFINITION span using FastText embeddings — i.e. a definition-FIT scorer
+applied to already-hypothesized candidates, not a definition-span LOCATOR (which is what
+`defspan.py`, already measured NEGATIVE 2026-08-19, attempted). This distinction matters:
+queue item 9 names definition-fit scoring, not span detection, as "the sharpest gap PR
+#24 surfaced" — a candidate's wordplay can execute perfectly (prove.py's job, already
+solid) while still being the wrong word for what the clue MEANS, and nothing in this
+project scores that. Embeddings themselves don't transfer directly (no offline Hebrew
+embedding model is bundled or reconstructible by bootstrap.sh, and downloading one is a
+different, larger effort than one day's lever), but the SHAPE of the idea does: this
+project already has an analogous scorer for free. `solver/retrieve_defs.py`'s BM25 index
+maps definition-text -> answer for ~67k external private_defs pairs; the missing piece
+was only ever used FORWARD (clue text -> ranked answers, for candidate GENERATION). Nothing
+in this codebase let you ask the REVERSE question for an already-hypothesized candidate
+from a DIFFERENT mechanism (anagram/hidden/homograph/substitution): does an independent
+source separately define this exact word compatibly with the clue? That is exactly the
+missing definition-fit check, buildable from data already on disk with no new fetch and
+no literature dependency. Implemented today — see DAILY.md.
+
 ## 2026-08-30
 
 Bootstrap hit the same hard 14across wall as 2026-08-19/08-26/08-27/08-28 (4 consecutive
