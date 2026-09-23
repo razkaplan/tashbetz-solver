@@ -4,6 +4,70 @@ One entry per run: what was found, one-line summary, and an honest judgement of 
 it transfers to a Hebrew cryptic solver with an 8k-clue corpus. Default skepticism: most
 crossword-AI work targets non-cryptic (American-style) puzzles and does not transfer.
 
+## 2026-09-23
+
+Bootstrap step 2 (14across answers corpus) hit the same HARD WALL documented repeatedly
+since 2026-08-15/08-19/08-26/08-27/08-28/08-30: every request (tested 5 consecutive times,
+2s apart, after the scripted retry-with-backoff run itself timed out at 300s stuck on this
+step) returned HTTP 202 with the `/.well-known/sgcaptcha/` bot-check redirect, 0/5 real
+pages recovered — not the "~50% random" intermittent mode, the sustained wall mode. This
+run therefore has NO fresh `data/answers/answers_parsed.json` and, by extension, no fresh
+crowd-explanation corpus (`substitutions.py`'s `explanations()` sources that file
+unconditionally, so it returns empty this run regardless of any code change to
+`candidates.py`'s substitution mechanism). Worked from the documented no-14across
+image-fallback technique for gold data (see DAILY.md log below) instead of waiting the
+wall out further.
+
+Research followed the scheduled task's stated order: candidate generation first, then
+Hebrew NLP/morphology.
+
+**"cryptic crossword clue solving candidate generation 2026 arxiv."** Same paper family
+logged on every prior pass (2506.04824 ICML 2025 "A Reasoning-Based Approach to Cryptic
+Crossword Clue Solving", 2407.08824, 2104.08620, 2406.09043, 2412.09012 "What Makes
+Cryptic Crosswords Challenging for LLMs?"). Nothing dated after 2026-08 surfaced.
+**Transfer: none new** — this project's own `candidates.py` already does the
+mechanism-first half of what 2506.04824 does (answer-first, via a fine-tuned Gemma2 9B);
+replicating the paper's actual technique would still mean fine-tuning a model on this
+project's own explanation corpus, out of scope for one lever, and doubly so this run since
+that corpus is unreachable today (see above).
+
+**"container clue charade wordplay generation cryptic crossword solver mechanical."**
+Surfaced only standard English-cryptic tutorial pages (bestforpuzzles.com, puzzledpint.com)
+restating the textbook container-clue taxonomy (indicator words like "holding",
+"surrounding", "swallowing") that PLAYBOOK.md already documents empirically for this
+setter (section 1.4, ~10-12% of clues) with its own indicator list. **Transfer: none new
+as research** — but re-reading this alongside the codebase surfaced a real, previously
+unnoticed GAP worth treating as today's lever: `solver/prove.py` has verified the
+container device since it was written (`is_container(outer, inner, answer)`), and
+PLAYBOOK.md/`indicators.json` document its indicator words, but `solver/candidates.py`
+has never had a `container_candidates` generator — every other device with a `prove.py`
+assertion (anagram, reversal, hidden) has a matching mechanical generator; container does
+not. This is the same "verification exists, generation doesn't" shape the project's own
+framing (`candidates.py`'s docstring) identifies as the general bottleneck, just found in
+a specific mechanism nobody had closed yet. See DAILY.md for what was built and measured.
+
+**"Hebrew morphological segmentation tokenizer 2026 new model root pattern."** One
+genuinely new citation not in this log before: arXiv:2602.05648, "Modelling the
+Morphology of Verbal Paradigms: A Case Study in the Tokenization of Turkish and Hebrew"
+(2026). Checked past the title: it studies how transformer LLM tokenizers represent verb
+paradigms for TRAINING purposes (which subword-merge strategy best preserves a
+non-concatenative morpheme boundary for a language model's vocabulary), not clue-fodder
+recognition or wordplay decomposition. **Transfer: none** — this project has no LLM
+tokenizer to retrain; the "de-affix a clue word to its stem" logic candidates.py already
+does by hand (`_destem`, prefix/suffix stripping) is a much smaller, already-solved
+version of the same underlying problem this paper addresses at a different scale. The
+other new hit, arXiv:2603.15773 ("Morphemes Without Borders", root-pattern morphology in
+ARABIC tokenizers), is Arabic not Hebrew and equally a training-tokenization question.
+**Transfer: none.**
+
+**Conclusion for today's lever.** No new external resource transfers, same as most prior
+passes. Today's lever is internal: `container_candidates` (see DAILY.md), a mechanical,
+corpus-independent generator for the device `prove.py` could already verify but nothing
+produced — chosen partly because it fills a real, previously undocumented gap, and partly
+because (unlike growing the retrieval/substitution corpus, the queue's other open items)
+it needed no 14across access and was therefore actually buildable and measurable under
+today's bootstrap failure.
+
 ## 2026-08-30
 
 Bootstrap hit the same hard 14across wall as 2026-08-19/08-26/08-27/08-28 (4 consecutive
