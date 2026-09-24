@@ -1,33 +1,4 @@
 
-- 2026-09-24: **typed model replies via OpenRouter** (branch
-  `claude/blissful-davinci-t7bpij`). Experiment asked for: replace "reply with
-  one fenced json block" + regex with a strict JSON-schema contract, pin the
-  sampling, and put guardrails on what the model may commit to.
-  BUILT: `solver/or_client.py` (schemas for crack-a-clue and transcription,
-  `response_format=json_schema strict` + `temperature 0, seed 7` +
-  `provider.require_parameters`, a dependency-free validator, and
-  `guard_clue()`: length, word split vs enum, anagram letters AND a literal
-  contiguous clue window, crossings, single-word lexicon with one clitic
-  prefix, answer-echoes-clue, confidence >= 0.75; a failing committed claim
-  becomes a suggestion, never disappears). `evals/or_structured_eval.py` is
-  the A/B: arms `freeform` (the production contract as it was, incl. the
-  page's verifyClaims) vs `structured`, over the 53 committed demo answers
-  (3 puzzles) as gold, N repeats for a determinism figure, plus parse/schema
-  failure, fallback and guard catch-rate counters. `/solve/` now calls
-  `orJSON()` with the same schemas and `guardClue()` (free-form fallback on a
-  4xx; `localStorage.or_typed=0` restores the old path). 13 unit tests in
-  `tests/test_or_client.py`; ui_smoke 9/9 at both widths.
-  NOT MEASURED HERE: the agent sandbox has no OpenRouter key and the egress
-  proxy denies openrouter.ai (CONNECT 403), so the live numbers come from
-  `.github/workflows/or-structured-eval.yml` (workflow_dispatch; needs the
-  `OPENROUTER_API_KEY` repo secret; commits the run to
-  `evals/runs/or_structured/`) or a local run. Decision rule for the result:
-  keep typed mode on if precision is >= the free-form arm and parse failures
-  drop; if `guard_down` is large with few `guard_down_wrong`, the lexicon
-  check is the lever to loosen (it is the only check that can hit a right
-  answer).
-# Daily improvement runbook — tashbetz solver
-
 
 Read this first each run. It is the handoff between days.
 
@@ -2455,3 +2426,32 @@ Measure each lever on dev (fixed enums) with run_eval.py before/after; one lever
   "כולם חפצים מהבית" theme (an אוטובוס was due to appear on 09-08).
   Gates: ui_smoke 9/9 pages at both widths, topicgen_eval 52/52 boards,
   url_guard clean (6,071 URLs, none dropped), nativ regression 22/22.
+
+- 2026-09-24: **typed model replies via OpenRouter** (branch
+  `claude/blissful-davinci-t7bpij`). Experiment asked for: replace "reply with
+  one fenced json block" + regex with a strict JSON-schema contract, pin the
+  sampling, and put guardrails on what the model may commit to.
+  BUILT: `solver/or_client.py` (schemas for crack-a-clue and transcription,
+  `response_format=json_schema strict` + `temperature 0, seed 7` +
+  `provider.require_parameters`, a dependency-free validator, and
+  `guard_clue()`: length, word split vs enum, anagram letters AND a literal
+  contiguous clue window, crossings, single-word lexicon with one clitic
+  prefix, answer-echoes-clue, confidence >= 0.75; a failing committed claim
+  becomes a suggestion, never disappears). `evals/or_structured_eval.py` is
+  the A/B: arms `freeform` (the production contract as it was, incl. the
+  page's verifyClaims) vs `structured`, over the 53 committed demo answers
+  (3 puzzles) as gold, N repeats for a determinism figure, plus parse/schema
+  failure, fallback and guard catch-rate counters. `/solve/` now calls
+  `orJSON()` with the same schemas and `guardClue()` (free-form fallback on a
+  4xx; `localStorage.or_typed=0` restores the old path). 13 unit tests in
+  `tests/test_or_client.py`; ui_smoke 9/9 at both widths.
+  NOT MEASURED HERE: the agent sandbox has no OpenRouter key and the egress
+  proxy denies openrouter.ai (CONNECT 403), so the live numbers come from
+  `.github/workflows/or-structured-eval.yml` (workflow_dispatch; needs the
+  `OPENROUTER_API_KEY` repo secret; commits the run to
+  `evals/runs/or_structured/`) or a local run. Decision rule for the result:
+  keep typed mode on if precision is >= the free-form arm and parse failures
+  drop; if `guard_down` is large with few `guard_down_wrong`, the lexicon
+  check is the lever to loosen (it is the only check that can hit a right
+  answer).
+# Daily improvement runbook — tashbetz solver
