@@ -37,9 +37,121 @@ tree - a stale CLI deploy overwrote the live site on 2026-08-29. See CLAUDE.md.
 | **`lexicon_coverage_eval` with `private_defs` wired into `lexicon.py`'s `load()` as a membership source (NEW 2026-09-19)** | **COMBINED across 2 independent puzzles (2026-05-15 + 2026-05-29, 56 gold slots): 32.1% (18/56) → 32.1% (18/56), UNCHANGED.** +49,158 words added to `lex()` (144,019 → 193,177, +34.1%, real and confirmed non-empty), but **mechanically verified 0/38 overlap** between the newly-added words and either puzzle's combined 38 still-missing gold answers — not one of the two puzzles' hard-setter answers happens to be among the ~37k crossword answers this specific crawl of note.co.il/מורדו turned up | not yet a target — a clean, disclosed negative result on n=2 puzzles; see log for the audit and the root-cause read |
 | **`lexicon_coverage_eval` with `hebrew-words-db` wired into `lexicon.py`'s `load()` as a second general-dictionary tier (NEW 2026-09-20)** | On 2026-05-29 (28 gold slots, isolated from `private_defs` by disabling it): **32.1% (9/28) → 35.7% (10/28), a real +1 gain** — `הלו` ("hello," a common loanword) newly covered. +38,824 words added to `lex()` (144,021 → 182,845, +27.0%, confirmed by direct diff), of which **38,906/67,008 (58%) are absent from hspell entirely** (verified by direct set diff, not assumed). Full defaults (private_defs+hwdb both on) land at the same 35.7% (10/28) — private_defs alone reproduces the flat 32.1% (9/28) 2026-09-19 already found on this puzzle, confirming hwdb's gain is independent of and not duplicated by that tier. `recall@N` on the 6/28 clues with real transcribed text stayed 0/6 both ways (uninformative floor effect, disclosed not hidden) | not yet a target — a real, small, positive, single-puzzle result; see log for the audit and next steps |
 | **`lexicon_coverage_eval` with `phrase_split()` — queue item 10(b), phrase-aware lexicon membership (NEW 2026-09-21)** | On a freshly re-transcribed 2026-05-29 (26/28 clues; two clues excluded honestly, see log): base coverage **36.0% (9/25)**. `--phrase` diagnostic: **of the 16 NOT covered, 10 (62.5%) recover** as a 2-3-way concatenation of already-`lex()` words with no invented rule (`משהרבנו`→`משה`+`רבנו`; `ישפרחימ`→`יש`+`פרחימ`; `ברישניקוב`→`בר`+`יש`+`ניקוב`; `בתזוגתו`→`בת`+`זוג`+`תו`; 6 more) — by far the largest single-diagnostic recovery this queue item has measured (vs. `--prefix`'s 1 genuine hit out of 3 raw, 2026-09-16). **Wired as a real generator-side acceptance path into `hidden_candidates`/`reversal_candidates`** (`use_phrase=True` / `--no-phrase`): `recall@N` **UNCHANGED, 4.0% (1/25) both ways** (mechanical-only and full-defaults) — the phrase-recoverable answers are charade/definition/culture-reference outputs, not literal (or reversed) contiguous clue substrings, so `hidden`/`reversal`'s narrow acceptance-path wiring structurally cannot reach them; `avg_candidates` rose (12.8→18.6 mechanical-only, 20.9→22.6 full defaults), confirming the mechanism fires for real, just not on this puzzle's specific miss set | not yet a target — a real, large, disclosed structural (diagnostic) finding; the generator-side gap is the honest next step, see log |
+| **`private_defs`/mordo corpus quality: `clean_definition()` strips the SEO duplicate-title half (NEW 2026-09-24)** | **93.3% of mordo docs (7,836/8,400) were titled `"<phrase> \| <duplicate-or-paraphrase> תשחץ/תשבץ"`**, both halves tokenized into one BM25 doc; avg mordo doc length **9.93 → 4.63 tokens (-53.4%)** after the fix. `recall@N` on 2026-05-29 (fresh 28/28 transcription) **unchanged, 10.7% (3/28) before and after** (a scoring fix does not change top-25 presence by itself on this puzzle); concrete example score **10.87 → 8.48 (-22%)** for a spurious doc that had been outranking gold `ברישניקוב`'s own (also-padded, also-corrected) doc, `rerank_eval`'s rank for it unchanged (2→3, both before and after) since the competing doc stayed shorter even cleaned | not yet a target — a real, corpus-wide, mechanically-verified data-quality fix with a disclosed null effect on today's one sample; re-measuring other puzzles under the fixed corpus is the next step |
 
 Baseline for comparison: v2 = 41% raw with untraceable errors.
-Last lever added (2026-09-21): **`phrase_split()` — queue item 10(b), phrase-aware lexicon
+Last lever added (2026-09-24): **found and fixed a systemic data-quality bug in the mordo
+(pitaronfree.blogspot.com) half of `private_defs`, discovered while auditing a rerank_eval
+rank that would not budge: `crawl_defs.py crawl_mordo()` stores the blog post's TITLE
+verbatim as the retrieval `definition`, and **93.3% of mordo posts (7,836/8,400, measured
+directly) are titled `"<phrase> | <rephrased-or-duplicate phrase> תשחץ/תשבץ"`** — an SEO
+convention (search for the clue two ways, plus a generic crossword keyword), not prose.
+Both halves get tokenized into the SAME BM25 document, so the setter's clue-relevant words
+get counted against effectively double content, and the doc's LENGTH (the denominator in
+BM25's length normalization) is inflated too — but by less than the true "real" content
+would need, since half of it is a near-verbatim repeat. Concretely, on this puzzle (1 down,
+"באות לפני דקירת רקדן", gold `ברישניקוב`/Baryshnikov, a real ballet dancer): a doc titled
+`"חרפה, אות קלון | אות קלון, חרפה תשחץ"` (7 raw tokens, `אות`/"letter" appearing twice
+purely from the duplication) outscored `ברישניקוב`'s own genuinely on-topic doc
+(`"רקדן בלט ושחקן רוסי אמריקאי"`, dancer/actor/Russian-American) by matching only the
+generic, coincidental word `אות`, purely because that word's artificial tf=2 in a short
+doc dominates BM25's math. **Fix**: `solver/retrieve_defs.py` gains `clean_definition()`,
+which keeps only the text before the first `|` (verified across every sampled example:
+the second half never adds new information, only restates for search or appends the
+generic crossword keyword) and is applied in `build_index()` before tokenizing, so it
+fixes today's already-crawled corpus with no re-crawl needed and covers `retrieval_candidates`,
+`defspan_retrieval_candidates`, `double_definition_candidates` and PR #66's `score_answer`/
+`rerank_eval` alike (they all read the same `docs` list). MEASURED, corpus-wide: average
+mordo doc length **9.93 → 4.63 tokens (-53.4%)**; corpus-wide (mordo+note) BM25 average
+doc length **9.87 → 4.62**; the concrete example's inflated score **10.87 → 8.48** (-22%,
+and `ברישניקוב`'s own doc score also correctly drops, 9.66 → 6.65, since ITS doc had the
+identical `|`-padding too). **Honest, disclosed null on today's specific sample**: `recall@N`
+on today's freshly-transcribed 2026-05-29 (see below) is unchanged at 10.7% (3/28) before
+and after — a scoring fix does not add or remove candidates from a fixed-size ranked list
+by itself, and on this puzzle's 3 hit-clues, `rerank_eval`'s aggregate (`baseline_top1`
+1/3, `reranked_top1` 1/3, median rank 2→3) also did not move, because `ברישניקוב`'s
+competing document was independently short even after cleaning (BM25 length-normalization
+still favors the shorter of two short, now-clean documents on this one query) — the fix
+removes a genuine artifact, it does not by itself guarantee the right document wins. This
+was not a chosen-in-advance lever: it surfaced from auditing WHY `rerank_eval` (merged from
+PR #66 this run, see below) refused to promote a gold answer that a human can see is the
+better match, exactly the kind of root-causing the project's audit discipline is for. New
+selftests (`retrieve_defs.py`: `clean_definition` on an exact-duplicate title, a paraphrase
+title, a plain note.co.il-style title with no `|`, and `build_index()` tokenizing a
+synthetic mordo-shaped doc) all pass, alongside the other 4 affected files' selftests
+(`candidates.py`, `lexicon.py`, `prove.py`, `substitutions.py`) — 5/5 clean.
+
+RESEARCH this run followed the scheduled priority order (candidate generation, then
+Hebrew NLP) but ALSO, once the rerank anomaly surfaced, searched information-retrieval
+deduplication literature directly: near-duplicate/padded documents degrading BM25-style
+retrieval is a recognized, named problem (SimHash-based near-duplicate removal is standard
+practice building web-scale IR corpora, e.g. MS MARCO V2's overlap of near-duplicates
+measurably "degrades downstream retrieval accuracy and reduces diversity"), which is
+external grounding for treating this as a real bug worth fixing rather than a one-off
+curiosity — see RESEARCH.md. The cryptic-solving literature search itself repeated
+2506.04824 (candidate generation) yet again with no new development since 2026-08-30's
+first citation of it — 8th consecutive pass finding nothing new and buildable there.
+
+BOOTSTRAP (worth recording as its own finding): `./bootstrap.sh --dev-only`'s 14across
+step hit the same hard wall this run (killed after ~230s of `None: 0 clues` on
+`scraper/parse_answers.py`, matching the established hard-wall failure mode, not the
+~50%-random one) — worked entirely from the public-CDN image-fallback technique.
+Re-transcribed 2026-05-29 FULLY INDEPENDENTLY (28/28 clues, from `data/images/2026-05-28.jpg`,
+cross-checked against `data/grids/2026-05-29.json`'s pure structural geometry — 0/28 enum-sum
+mismatches once the print column's clue-to-enum PAIRING was worked out correctly: this
+setter's Hebrew justified text closes each clue's enum immediately before the NEXT clue's
+own number, not immediately after it, an off-by-one easy to get wrong by eye but caught
+by the grid cross-check) and recovered GOLD LETTERS from the solved-grid recap printed in
+`data/images/2026-06-04.jpg` ("פתרון תשבץ ההיגיון מהשבוע שעבר"), grid-pixel-calibrated
+(found the real column boundaries with a numpy darkness scan rather than eyeballing crops)
+rather than assumed: **0/15 row-pattern mismatches against the committed grid**, the
+strongest form of this project's standard cross-check, giving a FULL 28/28 gold-verified
+puzzle (most recent runs on this exact date had only 21/28, missing the across-1-13 gap —
+this run found that gap lives in a SEPARATE narrow column next to the small recap-grid
+graphic, read right-to-left as its own newspaper column before the main clue column, not a
+continuation of it). `crawl_defs.py mordo` was run under a bounded ~150s budget (killed,
+not exhausted): 8,400 raw entries, 7,798 with parsed answers after `reparse_mordo()`
+(smaller than several past runs' multi-hour crawls, sufficient for today's purpose);
+`crawl_defs.py note` under a ~90s budget recovered only 22 (matches its own documented
+much-slower per-page fetch rate).
+
+AUDITED (mandatory gate). `lexicon.held_out_answers()` and `retrieve_defs.held_out()` both
+confirmed (computed, not assumed) to block all 28 of today's gold answers (`gold_norm -
+blocked` empty for both). Checked the 9 gold answers that DO appear in `lexicon.load()`'s
+merged word list: all 9 are priority 1 (ordinary hspell/hwdb dictionary words — `שלג`/snow,
+`ערב`/evening, `נשי`/feminine, etc. — that legitimately coincide with gold answers, the
+precedent RESULTS.md's own INTEGRITY FINDING already accepted), zero at the corpus/culture
+priority tiers. No forbidden reads: 14across was attempted only via bootstrap's own
+sanctioned step 2 (killed on failure, not used as a lookup), gold came from the public CDN
+image fallback exclusively. Implausibility check: recall@N did not move at all (10.7% →
+10.7%, zero points) — nothing to explain, the opposite of a suspicious jump; the corpus-wide
+token-count changes (9.93→4.63 avg mordo doc length) are separately and directly verified
+by counting, not inferred from any score result.
+
+NOT DONE, honestly: did not re-measure any OTHER puzzle's historical recall@N/rerank_eval
+numbers under the fixed corpus (every past measurement using mordo used the padded/inflated
+version; recall@N is presence-in-top-25, not score-order, so it is NOT necessarily invalid,
+but a document that the padding pushed out of the top-25 on some OTHER puzzle could recover
+under the fix — unverified, a concrete next step); did not extend `clean_definition()` to
+handle the ~3,000 mordo titles whose two `|`-halves are a paraphrase rather than an exact
+prefix duplicate differently from the ~4,800 that are (today's fix drops the whole second
+half uniformly for both shapes, which the audit confirms never loses a first-half phrase,
+but a paraphrase half could in principle carry a genuinely different nuance worth keeping —
+not observed in any sampled example, but not exhaustively verified either); did not crawl
+either private_defs source to exhaustion (both were time-boxed); did not merge or otherwise
+act on any open PR. Consolidated PR #66 (definition-fit reranking, merged in whole — see
+below) into this branch; found PR #67 (`container_candidates`, opened 2026-09-23) to be a
+**full, independent REDUPLICATION of a mechanism this project already shipped and refined
+three times over** (PR #42 2026-09-03 added it, PR #55/#56/#57 2026-09-11/12/13 fixed and
+extended it) — PR #67 branched directly off `main`, which has never had ANY solver PR
+merged into it, so its author had no way to see the existing implementation. Not folded in
+here (it would be a pure regression: PR #67's version lacks the substitution/entity fragment
+sources the shipped one already has) — flagged for the project owner to close outright.
+This is the SAME root cause PR #66 partially hit too (it built a genuinely new mechanism,
+not a duplicate, but from a base three weeks stale). See the Lever queue for the standing,
+now twice-illustrated-this-week recommendation.
+
+Previous lever (2026-09-21): **`phrase_split()` — queue item 10(b), phrase-aware lexicon
 membership, closing the "may be the higher-value half" gap 2026-09-16 flagged and
 2026-09-19/20 both left untouched.** `lexicon_coverage_eval --phrase` measured a large,
 genuine structural recovery (10/16 = 62.5% of this puzzle's remaining lexicon-coverage
@@ -2399,6 +2511,27 @@ propagated), `blank`. Score with `python3 evals/run_eval.py <file>`.
    log merge, no content dropped) rather than re-deriving any of the three days' work. Only
    the project owner can merge PRs; this run's branch is offered as the single PR that
    supersedes #23/#25/#26 so they can close those three instead of merging four times.
+   **RECURRED AGAIN 2026-09-24, this time with a concrete cost attached, not just
+   duplicated effort**: PR #67 (2026-09-23, `container_candidates`) branched off `main`
+   directly and shipped a mechanism this project already built and refined three times
+   over (PR #42 2026-09-03 added it; PR #55/#56/#57 2026-09-11/12/13 fixed and extended
+   it with a mined-substitution fragment source) — its author had no way to know, since
+   `main` has never had a single solver PR merged into it. PR #67 is a pure regression
+   relative to what's already shipped in the `daily/` lineage (it lacks the substitution/
+   entity fragment sources), so it was NOT folded in; flagged for the project owner to
+   close outright rather than merge. PR #66 (2026-09-22, definition-fit reranking) hit
+   the milder version of the same problem — it built something genuinely NEW (not a
+   duplicate), but from a three-week-stale base, so today's run had to manually resolve
+   it against the `daily/` lineage instead of a clean fast-forward. **This item's own
+   fix has not stuck**: it was "struck" three times (2026-08-21, 2026-08-25, 2026-09-18)
+   and has recurred a fourth. The structural cause named every time is the same — new
+   branches are cut from `main`, not from the latest unmerged solver work — and the
+   fix each time has been a human (this agent) noticing and reconciling by hand after
+   the fact, which does not prevent the NEXT branch from repeating it. A durable fix
+   would need either the project owner merging promptly, or this file's own instructions
+   naming the current unmerged tip branch explicitly (not just "branch off main") so a
+   fresh agent starts from it — neither attempted today, out of one-lever scope, but
+   worth naming plainly as the standing gap rather than re-discovering it a fifth time.
 7. ~~Fix `lexicon.held_out_answers()`'s coverage gap~~ — FIXED 2026-08-21 (PR #23),
    confirmed byte-identical in PR #25's cherry-pick, both folded into this branch
    2026-08-25. It only blocked an answer when its clue had a row in

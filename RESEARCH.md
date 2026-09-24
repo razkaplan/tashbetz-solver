@@ -4,6 +4,43 @@ One entry per run: what was found, one-line summary, and an honest judgement of 
 it transfers to a Hebrew cryptic solver with an 8k-clue corpus. Default skepticism: most
 crossword-AI work targets non-cryptic (American-style) puzzles and does not transfer.
 
+## 2026-09-24
+
+Followed the scheduled task's stated priority order first (candidate generation
+diversity, definition-span detection, Hebrew NLP/morphology) — nothing new surfaced
+there; **"cryptic crossword clue solving candidate generation diverse hypotheses 2026
+arxiv"** returned the same paper family this log has cited every run since 2026-08-06
+(2506.04824 ICML 2025 remains the most relevant, still not a drop-in addition — it
+needs fine-tuning a small LM on this project's own explanation corpus, a different
+scale of effort than one day's lever). 8th consecutive pass with no new development in
+that specific literature.
+
+Once implementing today's lever (see DAILY.md: a `private_defs`/mordo corpus-quality
+fix, `clean_definition()`) surfaced FROM auditing an unexpected `rerank_eval` result —
+a spurious document beating a genuinely on-topic one — this run searched adjacent
+ground: **"BM25 near-duplicate documents SEO title padding inflate relevance score
+deduplication 2025 2026"**. Nothing specific to SEO-title duplication turned up (that
+seems to be a genuinely under-studied angle, or not indexed under this phrasing), but
+the search surfaced the general, well-established parallel directly: near-duplicate
+documents in a retrieval corpus are a recognized, named problem in IR — MS MARCO V2's
+document collection is reported to contain "substantial overlap of near-duplicates
+that degrade downstream retrieval accuracy and reduce diversity," and SimHash-based
+near-duplicate removal (identifying roughly 0.7% of documents as near-duplicates in
+that corpus) is standard practice when building web-scale retrieval corpora. **Transfer:
+directly relevant, though not a technique this project adopted wholesale** — this
+project's `private_defs`/mordo corpus turned out to have a FAR higher near-duplicate
+rate (93.3% of documents, measured directly) than the ~0.7% SimHash catches in a general
+web corpus, because mordo is not a general corpus at all but a single site with one
+templated SEO-title convention applied almost everywhere; a targeted structural fix
+(split on the site's own literal `|` separator) was more precise and far cheaper than
+general-purpose near-duplicate detection would have been for this specific, narrow
+case. The broader lesson this confirms for future audits: when a retrieval-based lever
+produces a result that looks wrong on manual inspection (as `rerank_eval`'s refusal to
+promote an obviously-better-matching answer did here), checking the SOURCE DOCUMENT
+TEXT directly — not just the score — is worth doing before concluding the mechanism
+itself doesn't work; the mechanism (BM25 length normalization + term frequency) was
+working exactly as designed, on artificially bad input.
+
 ## 2026-09-15
 
 Bootstrap ran `--dev-only`: 14across recovered real data for **7/52 puzzles** (2026-05-21,
