@@ -1,0 +1,69 @@
+name: Typed-replies eval (OpenRouter)
+
+# openrouter.ai is unreachable from the agent sandbox (the egress proxy denies
+# it), so the A/B between free-form JSON prompting and strict JSON-schema
+# replies runs here, where the network is open. Needs the OPENROUTER_API_KEY
+# repository secret. Results are committed to evals/runs/or_structured/ on the
+# branch the run was dispatched from, like every other eval run in the repo.
+
+on:
+  workflow_dispatch:
+    inputs:
+      model:
+        description: OpenRouter model id
+        default: anthropic/claude-sonnet-4.5
+      repeats:
+        description: repeats per clue and arm (determinism needs 2+)
+        default: '2'
+      arms:
+        description: comma list of freeform,structured
+        default: freeform,structured
+      crossings:
+        description: reveal crossing letters from the other gold answers
+        type: boolean
+        default: false
+      limit:
+        description: clues per puzzle (0 = all gold clues)
+        default: '0'
+
+permissions:
+  contents: write
+
+jobs:
+  eval:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install requests
+      - name: Offline gates first
+        run: |
+          python3 -m unittest tests.test_or_client
+          python3 evals/or_structured_eval.py --dry-run --limit 1 --out /tmp/dry
+      - name: Run the A/B
+        env:
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+        run: |
+          if [ -z "$OPENROUTER_API_KEY" ]; then
+            echo '::error::OPENROUTER_API_KEY secret is not set on this repository'; exit 1; fi
+          python3 evals/or_structured_eval.py \
+            --model "${{ inputs.model }}" --repeats "${{ inputs.repeats }}" \
+            --arms "${{ inputs.arms }}" --limit "${{ inputs.limit }}" \
+            ${{ inputs.crossings && '--crossings' || '' }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: or-structured-eval
+          path: evals/runs/or_structured/
+          if-no-files-found: ignore
+      - name: Commit the run
+        run: |
+          git config user.name 'or-structured-eval'
+          git config user.email 'noreply@github.com'
+          git add evals/runs/or_structured
+          if git diff --cached --quiet; then echo 'nothing to commit'; else
+            git commit -m "Typed-replies eval: ${{ inputs.model }}"
+            git pull --rebase && git push
+          fi

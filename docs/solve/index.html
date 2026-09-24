@@ -233,32 +233,118 @@ function gridValidate(grid,clues){
   }
   return probs;
 }
-/* mechanical proof checks (port of solver/prove.py essentials) */
-function verifyClaims(e,enumArr){
-  const a=norm(e.answer||'');if(!a)return false;
-  if(enumArr&&enumArr.reduce((x,y)=>x+y,0)!==a.length)return false;
-  if(e.mechanism==='anagram'&&e.fodder){
-    if(norm(e.fodder).split('').sort().join('')!==a.split('').sort().join(''))return false;}
-  if(enumArr&&enumArr.length>1&&e.words){
-    if(e.words.map(norm).join('')!==a)return false;}
-  return true;
+/* mechanical guardrails (port of solver/or_client.py guard_clue) - a "committed"
+   claim must survive every check or it is shown as a suggestion, never dropped */
+const PREFIXES='והבלמכש';
+const inLex=w=>LEX&&(LEX.has(w)||(w.length>2&&PREFIXES.includes(w[0])&&LEX.has(w.slice(1))));
+const clueWords=t=>(t||'').split(/[\s,.;:!?()"'\-־]+/).map(norm).filter(Boolean);
+function anagramWindow(clue,a){const toks=clueWords(clue),want=a.split('').sort().join('');
+  for(let i=0;i<toks.length;i++){let acc='';for(let j=i;j<toks.length;j++){acc+=toks[j];
+    if(acc.length>a.length)break;if(acc.length===a.length&&acc.split('').sort().join('')===want)return true}}
+  return false}
+function guardClue(e,enumArr,pat,clueText){
+  if(!e||typeof e!=='object')e={answer:'',tier:'blank'};
+  e.tier_raw=e.tier||'blank';const fails=[];const a=norm(e.answer||'');
+  if(!a){e.tier='blank';e.guard=[];return e}
+  const want=enumArr?enumArr.reduce((x,y)=>x+y,0):a.length;
+  if(want!==a.length)fails.push('length '+a.length+' != enum '+want);
+  const words=(Array.isArray(e.words)?e.words:[]).map(norm).filter(Boolean);
+  if(words.length){if(words.join('')!==a)fails.push('words do not join to answer');
+    else if(enumArr&&enumArr.length>1&&words.map(w=>w.length).join()!==enumArr.join())fails.push('word lengths != enum')}
+  else if(enumArr&&enumArr.length>1)fails.push('multi-word answer with no word split');
+  if(e.mechanism==='anagram'){const f=norm(e.fodder||'');
+    if(!f)fails.push('anagram without fodder');
+    else if(f.split('').sort().join('')!==a.split('').sort().join(''))fails.push('anagram fodder letters != answer letters');
+    else if(clueText&&!anagramWindow(clueText,a))fails.push('no contiguous window of the clue anagrams to the answer')}
+  if(pat){if(pat.length!==a.length)fails.push('pattern length != answer');
+    else for(let i=0;i<a.length;i++)if(pat[i]!=='?'&&norm(pat[i])!==a[i]){fails.push('crossing letter '+i+' is '+pat[i]);break}}
+  if(LEX&&e.mechanism!=='portmanteau'&&words.length<=1&&!inLex(a))fails.push('single word not in lexicon');
+  if(clueText&&clueWords(clueText).includes(a))fails.push('answer is a word of the clue');
+  if(typeof e.confidence==='number'&&e.confidence<0.75)fails.push('confidence below commit bar');
+  e.guard=fails;
+  e.tier=e.tier_raw==='committed'?(fails.length?'suggestion':'committed')
+    :['suggestion','blank'].includes(e.tier_raw)?e.tier_raw:'suggestion';
+  return e;
 }
 
 /* ================= OpenRouter ================= */
 const KEY=()=>localStorage.getItem('or_key')||'';
 const MODEL=()=>localStorage.getItem('or_model')||'anthropic/claude-sonnet-4.5';
-async function orChat(messages,max_tokens=4000){
+const TYPED=()=>localStorage.getItem('or_typed')!=='0';   // or_typed=0 restores free-form prompting
+const SEED=7;
+/* JSON schemas (mirror of solver/or_client.py): strict response_format so the reply IS
+   the object, no fenced-block regex; temperature 0 + seed so a run reproduces;
+   provider.require_parameters so a provider that ignores response_format is not routed to */
+const CLUE_SCHEMA={name:'tashbetz_clue',strict:true,schema:{type:'object',additionalProperties:false,
+  required:['answer','tier','confidence','mechanism','fodder','words','definition_side','hint_fragment','explanation'],
+  properties:{
+    answer:{type:'string',description:'The answer in Hebrew letters, spaces between words. Empty string when tier is blank.'},
+    tier:{type:'string',enum:['committed','suggestion','blank'],description:'committed only when every letter is explained by the wordplay and the definition fits.'},
+    confidence:{type:'number',description:'Probability in [0,1] that the answer is correct.'},
+    mechanism:{type:'string',enum:['anagram','reversal','container','hidden','charade','double','homophone','culture','portmanteau','definition','unknown']},
+    fodder:{type:'string',description:'For anagram: the exact words of the clue whose letters are rearranged. Otherwise empty.'},
+    words:{type:'array',items:{type:'string'},description:'The answer split into words in enumeration order. One element for a single-word answer.'},
+    definition_side:{type:'string',enum:['start','end','unknown']},
+    hint_fragment:{type:'string',description:'One clue word and what it stands for, without revealing the answer.'},
+    explanation:{type:'string',description:'Short Hebrew explanation of definition and wordplay.'}}}};
+const TRANSCRIBE_SCHEMA={name:'tashbetz_transcription',strict:true,schema:{type:'object',additionalProperties:false,
+  required:['grid','across','down'],
+  properties:{
+    grid:{type:'array',items:{type:'string'},description:"Rows top to bottom; '.' white, '#' black; index 0 is the RIGHTMOST cell."},
+    across:{type:'array',items:{$ref:'#/$defs/clue'}},
+    down:{type:'array',items:{$ref:'#/$defs/clue'}}},
+  $defs:{clue:{type:'object',additionalProperties:false,required:['num','clue','enum'],
+    properties:{num:{type:'integer'},clue:{type:'string'},enum:{type:'array',items:{type:'integer'}}}}}}};
+function validate(obj,schema){ // minimal check of the subset the schemas use
+  const probs=[],root=schema.schema||schema;
+  const walk=(o,s,p)=>{
+    if(s.$ref){let t=root;for(const k of s.$ref.slice(2).split('/'))t=t[k];return walk(o,t,p)}
+    const t=s.type;
+    if(t==='object'){if(!o||typeof o!=='object'||Array.isArray(o)){probs.push(p+': expected object');return}
+      const props=s.properties||{};for(const k of s.required||[])if(!(k in o))probs.push(p+'.'+k+': missing');
+      if(s.additionalProperties===false)for(const k in o)if(!(k in props))probs.push(p+'.'+k+': unexpected key');
+      for(const k in props)if(k in o)walk(o[k],props[k],p+'.'+k)}
+    else if(t==='array'){if(!Array.isArray(o)){probs.push(p+': expected array');return}
+      o.forEach((x,i)=>walk(x,s.items||{},p+'['+i+']'))}
+    else if(t==='string'){if(typeof o!=='string'){probs.push(p+': expected string');return}
+      if(s.enum&&!s.enum.includes(o))probs.push(p+': '+o+' not in enum')}
+    else if(t==='integer'){if(!Number.isInteger(o))probs.push(p+': expected integer')}
+    else if(t==='number'){if(typeof o!=='number'||Number.isNaN(o))probs.push(p+': expected number')}
+    else if(t==='boolean'){if(typeof o!=='boolean')probs.push(p+': expected boolean')}};
+  walk(obj,root,'$');return probs;
+}
+async function orPost(body){
   const r=await fetch('https://openrouter.ai/api/v1/chat/completions',{
     method:'POST',
     headers:{'Authorization':'Bearer '+KEY(),'Content-Type':'application/json',
       'HTTP-Referer':location.origin,'X-Title':'Tashbetz Solver'},
-    body:JSON.stringify({model:MODEL(),messages,max_tokens})});
-  if(!r.ok)throw new Error('OpenRouter '+r.status+': '+(await r.text()).slice(0,200));
+    body:JSON.stringify(body)});
+  if(!r.ok){const err=new Error('OpenRouter '+r.status+': '+(await r.text()).slice(0,200));err.status=r.status;throw err}
   const d=await r.json();
   return d.choices[0].message.content;
 }
+async function orChat(messages,max_tokens=4000){ // free-form (legacy) call
+  return orPost({model:MODEL(),messages,max_tokens});
+}
 const jsonOf=t=>{const m=t.match(/```json\s*([\s\S]*?)```/)||t.match(/([\[{][\s\S]*[\]}])/);
   if(!m)throw new Error('no JSON in model reply');return JSON.parse(m[1])};
+/* typed call: returns a schema-valid object, or null when the reply is unusable.
+   HTTP/network errors propagate. A provider that refuses response_format (4xx) is
+   retried once free-form, so no model that worked before stops working. */
+async function orJSON(messages,schema,max_tokens=4000){
+  let txt,typed=TYPED();
+  if(typed){
+    try{txt=await orPost({model:MODEL(),messages,max_tokens,temperature:0,seed:SEED,
+      response_format:{type:'json_schema',json_schema:schema},provider:{require_parameters:true}})}
+    catch(err){if(!(err.status>=400&&err.status<500))throw err;typed=false;console.warn('typed reply refused, free-form fallback:',err.message)}
+  }
+  if(!typed)txt=await orChat(messages,max_tokens);
+  let obj;
+  try{obj=typed?JSON.parse(txt):jsonOf(txt)}catch(_){try{obj=jsonOf(txt)}catch(__){console.warn('unparseable reply',txt.slice(0,200));return null}}
+  const probs=validate(obj,schema);
+  if(probs.length){console.warn('reply violates schema:',probs);if(typed)return null}
+  return obj;
+}
 
 /* ================= flows ================= */
 fetch('data/demos.json').then(r=>r.json()).then(demos=>{
@@ -322,7 +408,7 @@ async function handleFile(f){
     $('step').textContent='מתמלל הגדרות ורשת (חצי דקה עד דקה)...';
     let puz=null,feedback='';
     for(let attempt=0;attempt<2&&!puz;attempt++){
-      const txt=await orChat([{role:'user',content:[
+      const d=await orJSON([{role:'user',content:[
         {type:'text',text:
 `This image contains a Hebrew logic crossword (תשבץ היגיון). If several puzzles appear, use the one titled תשבץ היגיון and ignore others.
 Transcribe EVERY clue: number, direction (אופקי=across, אנכי=down), full Hebrew text, and the trailing parenthesized enumeration as an int list (enum[0]=first word of the answer; the RTL layout sometimes prints the tuple reversed). Rejoin hyphen-broken words.
@@ -332,8 +418,8 @@ Reply with ONE fenced json block only:
 \`\`\`json
 {"grid":["..."],"across":[{"num":1,"clue":"...","enum":[3,4]}],"down":[...]}
 \`\`\``},
-        {type:'image_url',image_url:{url:dataURL}}]}],8000);
-      const d=jsonOf(txt);
+        {type:'image_url',image_url:{url:dataURL}}]}],TRANSCRIBE_SCHEMA,8000);
+      if(!d){feedback='the reply was not valid JSON for the schema';continue}
       const probs=gridValidate(d.grid,{across:d.across,down:d.down});
       if(!probs.length){puz={grid:d.grid,clues:{across:d.across,down:d.down}}}
       else{feedback=probs.slice(0,12).join('\n');
@@ -458,7 +544,7 @@ async function crackClue(n,d){
     if(SUBS.fwd[nw])subsHits.push(nw+'~'+SUBS.fwd[nw].slice(0,3).map(x=>x[0]).join('/'));
     if(AMB[nw])senses.push(nw+': '+hebSenses(AMB[nw].senses));}
   $('engstat').textContent='· המנוע חושב על ההגדרה...';
-  const txt=await orChat([{role:'user',content:
+  let e=await orJSON([{role:'user',content:
 `אתה פותר תשבץ היגיון עברי. ${PLAYBOOK}
 ההגדרה: "${c.clue}" (${c.enum.join(',')}) - ${d==='across'?'מאוזן':'מאונך'}.
 אותיות ידועות מהצלבות (מימין לשמאל, ?=לא ידוע): ${pat}
@@ -468,13 +554,12 @@ ${senses.length?'מילים דו-משמעיות: '+senses.join(' | '):''}
 כלל: עדיף להשאיר ריק מלנחש. tier="committed" רק אם כל אות מוסברת; אחרת "suggestion" או "blank".
 השב אך ורק בבלוק json:
 \`\`\`json
-{"answer":"ללארווחים","tier":"committed","mechanism":"anagram","fodder":"אם אנגרם: המילים מההגדרה","words":["אם רב-מילים","סדר","נכון"],"definition_side":"start","hint_fragment":"מילה מההגדרה ומה היא מייצגת","explanation":"הסבר קצר"}
-\`\`\``}],2500);
-  let e=null;
-  try{e=jsonOf(txt)}catch(_){e={tier:'blank',answer:''}}
+{"answer":"ללארווחים","tier":"committed","confidence":0.9,"mechanism":"anagram","fodder":"אם אנגרם: המילים מההגדרה","words":["אם רב-מילים","סדר","נכון"],"definition_side":"start","hint_fragment":"מילה מההגדרה ומה היא מייצגת","explanation":"הסבר קצר"}
+\`\`\``}],CLUE_SCHEMA,2500);
+  if(!e)e={tier:'blank',answer:''};
   e.clue_number=n;e.direction=d;
-  // mechanical verification gate - a "committed" claim must survive the checks
-  if(e.tier==='committed'&&!verifyClaims(e,c.enum))e.tier='suggestion';
+  // mechanical guardrails - a "committed" claim must survive every check
+  guardClue(e,c.enum,pat,c.clue);
   crackCache[key]=e;
   $('engstat').textContent='';
   return e;

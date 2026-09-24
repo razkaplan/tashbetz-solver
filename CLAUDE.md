@@ -191,6 +191,19 @@ one was still ranking three weeks later. The pieces, all on committed data:
      `python3 app/url_guard.py`, commit, merge to main.
   4. If egress allows, `python3 app/drain_missed.py --resolve`.
 
+## Model calls through OpenRouter (typed replies)
+
+The hosted `/solve/` page and `evals/or_structured_eval.py` talk to OpenRouter
+through a JSON-schema contract, not a fenced block: `solver/or_client.py`
+holds the schemas (`CLUE_SCHEMA`, `TRANSCRIBE_SCHEMA`), the pinned sampling
+(temperature 0, seed 7, `provider.require_parameters`) and `guard_clue()`, the
+mechanical checks a committed answer must survive. `docs/solve/index.html`
+carries a line-for-line JS port (`orJSON`, `guardClue`); change both together.
+`tests/test_or_client.py` pins the guard in both directions.
+openrouter.ai is unreachable from the agent sandbox, so the A/B against the
+free-form contract runs in `.github/workflows/or-structured-eval.yml`
+(`OPENROUTER_API_KEY` secret, results committed to `evals/runs/or_structured/`).
+
 ## Content rules
 
 - No newspaper clue text is ever published (see README). This covers news
