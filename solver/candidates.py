@@ -1303,6 +1303,78 @@ def recall_eval(dataset_path, split=None, max_n=25, use_culture=True, use_retrie
     }
 
 
+def rerank_eval(dataset_path, split=None, max_n=25, use_culture=True, use_retrieval=True):
+    """Definition-fit RERANKING (queue item 9) — a different question from recall_eval.
+    recall_eval asks whether gold is IN the candidate list at all; this asks, of the
+    clues where it already is, whether SORTING the list by retrieve_defs.score_answer()
+    (does an independent source define this exact word compatibly with the clue?) would
+    put gold FIRST more often than the generator's own mechanism-priority order does.
+
+    WHY this is the gap, not another candidate source: this project's only two live
+    blind trials landed at 1/4 = 25% cumulative precision, and both misses were
+    prove.py correctly verifying a real device (hidden-word, anagram) on a real Hebrew
+    word that was simply not what the setter meant (DAILY.md 2026-08-16/2026-08-22).
+    A verified anagram is evidence a candidate is POSSIBLE; it is never evidence it is
+    what the clue MEANS. score_answer() is a DIFFERENT signal (does an external
+    dictionary/definition source separately attest this word for a similar sense) that
+    every mechanical mechanism here (anagram/hidden/reversal/homograph/substitution)
+    produces zero information about on its own.
+
+    Held-out safe by construction: score_answer() only ever consults the SAME
+    held-out-filtered index generate()'s own retrieval_candidates() already uses, so
+    this reranker cannot see a dev/eval puzzle's own gold answer any more than
+    retrieval already could.
+    """
+    sys.path.insert(0, HERE)
+    import retrieve_defs
+    docs_df = retrieve_defs.build_index()
+    ans_idx = retrieve_defs.answer_index(docs_df=docs_df)
+
+    total_hit = 0
+    baseline_top1 = 0
+    reranked_top1 = 0
+    baseline_ranks, reranked_ranks = [], []
+    for line in open(dataset_path):
+        r = json.loads(line)
+        if split and r['split'] != split:
+            continue
+        if not r.get('answer_raw'):
+            continue
+        gold = norm(r['answer_raw'])
+        cands = generate(r['clue_text'], r['enum'], max_n=max_n, use_culture=use_culture,
+                          use_retrieval=use_retrieval)
+        answers = [c['answer'] for c in cands]
+        if gold not in answers:
+            continue
+        total_hit += 1
+        baseline_rank = answers.index(gold) + 1
+        baseline_ranks.append(baseline_rank)
+        baseline_top1 += baseline_rank == 1
+
+        scores = [retrieve_defs.score_answer(a, r['clue_text'], docs_df=docs_df,
+                                              ans_idx=ans_idx) for a in answers]
+        order = sorted(range(len(answers)), key=lambda i: -scores[i])
+        reranked_answers = [answers[i] for i in order]
+        reranked_rank = reranked_answers.index(gold) + 1
+        reranked_ranks.append(reranked_rank)
+        reranked_top1 += reranked_rank == 1
+
+    def median(xs):
+        if not xs:
+            return None
+        s = sorted(xs)
+        n = len(s)
+        return s[n // 2] if n % 2 else (s[n // 2 - 1] + s[n // 2]) / 2
+
+    return {
+        'total_hit': total_hit,
+        'baseline_top1': baseline_top1,
+        'reranked_top1': reranked_top1,
+        'baseline_median_rank': median(baseline_ranks),
+        'reranked_median_rank': median(reranked_ranks),
+    }
+
+
 # ---------------------------------------------------------------------------
 # lexicon coverage: a decisive, MECHANISM-AGNOSTIC diagnostic recall_eval alone
 # cannot give. Every mechanism in this file (anagram/hidden/reversal/homograph/
@@ -1868,6 +1940,61 @@ def selftest():
           'the standalone function still firing, same discipline as culture/retrieval) ---')
     print(f'  standalone call still fires: {len(hits) >= 1} (expected True)')
     ok &= len(hits) >= 1
+
+    print('--- rerank_eval: definition-fit score promotes gold ABOVE a same-length '
+          'decoy the mechanical mechanisms rank first ---')
+    # generate() itself is exercised by every check above; this one isolates rerank_eval's
+    # OWN logic (measuring whether score_answer() reorders a candidate list to put gold
+    # first) by stubbing generate() to return a fixed, known list -- so the check does not
+    # depend on which real ambiguities.json/substitutions/lexicon entries happen to fire
+    # for a made-up clue. 'שלומ' is the DECOY, ranked first by generate()'s own mechanism
+    # order (as a real anagram would be); 'תורה' is GOLD, ranked second, exactly the
+    # queue-item-9 failure mode: a mechanically-real device outranks the actual answer.
+    # The injected retrieve_defs index defines 'תורה' compatibly with the clue and says
+    # nothing about 'שלומ', so reranking should promote it to rank 1.
+    import tempfile, os as _os, sys as _sys
+    tmp_dir = tempfile.mkdtemp()
+    try:
+        ds_path = _os.path.join(tmp_dir, 'clues.jsonl')
+        clue_text = 'החומש שניתן בהר סיני'
+        with open(ds_path, 'w', encoding='utf-8') as f:
+            f.write(json.dumps({
+                'puzzle_id': 'test-1', 'puzzle_date': '2099-01-01', 'clue_number': 1,
+                'direction': 'across', 'split': 'eval',
+                'clue_text': clue_text, 'enum': [4],
+                'answer_raw': 'תורה',
+            }, ensure_ascii=False) + '\n')
+
+        _sys.path.insert(0, HERE)
+        import retrieve_defs as _rd
+        def_text = 'החמישה חומשי משה שניתנו בהר סיני'
+        docs_df = ([(_rd.toks(def_text), [norm('תורה')], None)],
+                   {w: 1 for w in set(_rd.toks(def_text))})
+
+        orig_build_index = _rd.build_index
+        orig_generate = generate
+        _rd.build_index = lambda **kw: docs_df
+        globals()['generate'] = lambda *a, **kw: [
+            {'answer': norm('שלומ'), 'mechanism': 'anagram', 'fodder': 'test'},
+            {'answer': norm('תורה'), 'mechanism': 'hidden', 'fodder': 'test'},
+        ]
+        try:
+            res = rerank_eval(ds_path, split='eval')
+        finally:
+            _rd.build_index = orig_build_index
+            globals()['generate'] = orig_generate
+
+        print(f'  hit clues: {res["total_hit"]} (expected 1)')
+        ok &= res['total_hit'] == 1
+        print(f'  baseline top-1: {res["baseline_top1"]} (expected 0 -- generation '
+              f'order ranks the decoy שלומ first)')
+        ok &= res['baseline_top1'] == 0
+        print(f'  reranked top-1: {res["reranked_top1"]} (expected 1 -- definition '
+              f'fit promotes gold תורה)')
+        ok &= res['reranked_top1'] == 1
+    finally:
+        import shutil as _shutil
+        _shutil.rmtree(tmp_dir)
 
     print('--- split_candidates: flags whether a multi-part answer is two real words ---')
     split = split_candidates([{'answer': norm('שלוםעליכם'), 'mechanism': 'test'}], [4, 5])
