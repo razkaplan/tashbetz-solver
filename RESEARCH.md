@@ -4,6 +4,86 @@ One entry per run: what was found, one-line summary, and an honest judgement of 
 it transfers to a Hebrew cryptic solver with an 8k-clue corpus. Default skepticism: most
 crossword-AI work targets non-cryptic (American-style) puzzles and does not transfer.
 
+## 2026-09-25
+
+Bootstrap hit a FULL site-wide 14across wall today, not the usual per-page intermittent
+failure: five separate direct requests to `answers.php` (different dates) AND a request to
+the bare site root `https://www.14across.co.il/` all came back the `/.well-known/sgcaptcha/`
+bot-check redirect, 5/5 and 1/1 respectively — confirmed with a standalone script before
+touching the real scraper, to avoid burning ~38 minutes of guaranteed-fail retries across
+all 52 URLs. This is a stronger/different failure mode than the per-page ~50%-random one
+2026-08-06 fixed with retries: today nothing got through anywhere on the site. Per this
+project's own practice (kill rather than wait out a confirmed hard wall), the scrape was
+killed and the run proceeded entirely via the image-fallback technique for a FRESH puzzle
+(2026-07-31) rather than repeating an already-3x-measured one, since 14across access would
+not have changed which puzzle was worth choosing anyway (crowd EXPLANATIONS, which only
+come from 14across, were unavailable for ANY puzzle today, fresh or repeat).
+
+Research this run followed the scheduled task's stated priority order: candidate
+generation (diverse candidates by mechanism / definition-span hypothesis) first.
+
+**"cryptic crossword clue solver multi-part charade segmentation candidate generation
+2026" / "arxiv 2026 cryptic crossword wordplay decomposition large language model".**
+General search, general and Hebrew-specific. Surfaced only papers already in this log's
+citation chain (2406.09043, 2104.08620, 2403.12094, 2412.09012, 2506.04824, 2407.08824) plus
+two new-to-this-log titles, both checked directly rather than assumed from the abstract:
+- "Non Verbis, Sed Rebus: Large Language Models are Weak Solvers of Italian Rebuses"
+  (arXiv 2408.00584). Italian REBUSES (a distinct puzzle genre: a sequence of pictures/
+  letter-fragments that phonetically spell out a hidden phrase), not cryptic crosswords —
+  no wordplay-taxonomy or clue-answer structure in common beyond "LLMs are bad at
+  compositional decoding puzzles" as a general finding. **Transfer: none** — same high-level
+  moral as five other papers already logged (LLMs struggle with multi-step symbolic
+  decomposition), no new technique or dataset.
+- "CrossWordBench: Evaluating the Reasoning Capabilities of LLMs and LVLMs with
+  Controllable Puzzle Generation" (arXiv 2504.00043). A benchmark-GENERATION framework
+  (procedurally generates crossword puzzles, both standard and cryptic-style, to test
+  LLM/LVLM reasoning at controllable difficulty) rather than a solving technique. Checked
+  whether its cryptic-style generation encodes any candidate-generation or definition-span
+  method this project could reuse: no — it generates clues from answers (the opposite
+  direction again, same as the Arabic-crosswords paper logged 2026-08-30), and its solving
+  baselines are the same off-the-shelf LLM-prompting approach already tried here informally
+  in live blind trials. **Transfer: none actionable** — a benchmark-construction paper, not
+  a solving method.
+
+**Hebrew morphological root-pattern resources, general search.** Reconfirmed
+arXiv:2603.15773 ("Morphemes Without Borders", already logged 2026-08-2x) as still the
+closest available finding, still Arabic not Hebrew, still not buildable into a clue-solving
+mechanism today (it evaluates tokenizer/LLM root-pattern generalization, not a lookup table
+or parser this project could call). No new Hebrew-specific resource surfaced beyond what
+2026-08-2x already found (NNLP-IL's resource index, general morphological-disambiguation
+patents/tools with no root-pattern generation capability this project's mechanisms need).
+**Transfer: none new.**
+
+**"charade splitting algorithm dynamic programming crossword answer segments dictionary".**
+No paper or tool found addressing MULTI-PART (3+) charade segmentation specifically — every
+result was either general crossword-solving-site help pages (not research) or unrelated
+dynamic-programming applications (text segmentation, genome splitting). **Transfer: none.**
+This confirms (does not newly discover) that the lever queue's own next concrete step here
+— widen `candidates.py`'s `substitution_candidates` from its current 1-2-word special case
+to a general 1..3-word adjacent-run charade — is not something the literature has already
+solved; it has to be built and measured directly against this project's own mined
+substitution table, exactly as the queue already proposed.
+
+**Why today's lever is NOT that substitution widening, despite the above.** The natural
+next step per the queue text is exactly the multi-part charade widening just researched.
+It was implemented (generalizing `substitution_candidates` from a hardcoded 1-2-word case
+to a bounded 1..3-word adjacent-run loop, selftested clean including a new 3-part synthetic
+case) but then DELIBERATELY REVERTED before this run's measurement, for a reason specific
+to today and not the mechanism's own merit: `sub_fwd()` rebuilds its substitution table
+in-memory from `data/answers/answers_parsed.json`'s crowd EXPLANATIONS, and 14across (the
+sole source of crowd explanations, for both the main and secondary corpus — checked
+`scraper/parse_answers_multi.py` directly, confirmed it also hits 14across, just different
+crossword IDs, not an independent host) was completely walled today. With zero explanations
+available from any puzzle, train or dev, the widened mechanism could only be validated by
+its synthetic selftest (a code-correctness check), never by an honest recall@N number on
+real data — and this project's own standing rule is that no lever ships without a measured
+number. Rather than ship an architecturally-sound but entirely unmeasured code change under
+the "implement exactly one lever" discipline, it was reverted; the code (a bounded
+1..max_parts adjacent-run product over `sub_fwd()`, capped at `per_word_cap` substitutes per
+word to keep the combination count small) is fully designed and described here so a future
+run with working 14across access can re-implement and, this time, actually measure it in a
+single sitting rather than re-deriving the design from scratch.
+
 ## 2026-08-30
 
 Bootstrap hit the same hard 14across wall as 2026-08-19/08-26/08-27/08-28 (4 consecutive
