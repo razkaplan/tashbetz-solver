@@ -910,3 +910,50 @@ priority 2. Wiring in an already-built, already-audited tool as one more candida
 is not itself a research question — it is closing a gap between what the project's own
 research queue prioritized in 2026-08-08 and what got implemented, which is worth doing
 regardless of whether today's literature sweep turned up anything new.
+
+## 2026-09-27
+
+General search: "cryptic crossword solving LLM 2026 wordplay definition span" and
+"candidate generation constrained crossword puzzle solving 2026 belief propagation".
+Surfaced only the same paper family already logged repeatedly here across a dozen prior
+runs (2506.04824 ICML 2025, 2407.08824, 2412.09012, 2403.12094, 2104.08620 — the
+Cryptonite origin paper) plus the Berkeley Crossword Solver line (candidate generation +
+loopy belief propagation, 57%->82% exact-puzzle accuracy on NYT crosswords) already
+credited in PLAN_V2.md's item A. **Transfer: none new** — nth consecutive pass (the log
+no longer bothers counting) confirming rather than adding to the standing picture: the
+field's SOTA generate-then-verify pipeline is the one this project already mirrors
+(candidates.py -> prove.py), and the structural-optimization idea (PLAN_V2.md item A) is
+still correctly sequenced after candidate-pool quality, which retrieval_candidates is the
+project's own active lever for.
+
+**One genuinely new citation, checked directly rather than assumed to transfer.**
+"Beyond Word Boundaries: A Hebrew Coreference Benchmark and an Evaluation Protocol for
+Morphologically Complex Text" (arXiv 2604.17108, Greenfeld & Tsarfaty, ACL 2026) —
+KibutzR, the first comprehensive coreference-resolution dataset for Modern Hebrew,
+addressing mention/word-boundary mismatch in a morphologically rich language.
+**Transfer: none.** Coreference resolution answers "which mentions refer to the same
+entity across a text" — a document-level task with no analogue in a single short cryptic
+clue, which has no anaphora to resolve. It does NOT answer this project's actual open
+gaps (definition-fit scoring, queue item 9; candidate generation, queue item 1) any more
+than the previously-checked-and-rejected Hebrew WordNet did. Worth logging by name so a
+future run doesn't re-discover and re-evaluate the same non-transferring paper.
+
+**BM25 vs. embedding retrieval, re-checked once more.** No new finding beyond the
+2026-08-24/25/26 conclusions already on record. **Transfer: no change.**
+
+**Conclusion for today's lever.** No literature or resource finding this run unsticks
+queue item 9 (definition-fit) or adds a new candidate-generation mechanism — this is now
+well past the point of diminishing returns for a general literature sweep on this
+project's two open research questions; further passes should be triggered by a new paper
+actually appearing (e.g. a dated arXiv alert), not a repeat of the same query. Today's
+lever is therefore queue item 1(d)'s own repeatedly-flagged, still-not-closed gap: since
+2026-08-29, every entry that touched `retrieval_candidates` has explicitly named
+re-measuring 2026-07-10 (flat at 0.0% three times running, at three different corpus
+sizes: 2026-08-27's original crawl, 2026-08-29's near-doubled one) as the next concrete
+step, and named it as NOT DONE five runs in a row (2026-08-29, 2026-08-30, and every
+solver-track run since) because each day's one-lever budget went to a different puzzle
+instead. See DAILY.md for the measurement, this run's corpus size, and a transcription
+finding worth noting on its own: 2026-07-10 turns out to be FULLY transcribable (28/28
+clues, not the 19/28 all three prior attempts stopped at) once the across-clue text's
+column-wrap continuation is followed to the end — the same bug class 2026-08-30 found and
+fixed for 2026-06-26, now confirmed to recur on a second puzzle.
