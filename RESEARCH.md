@@ -2311,3 +2311,29 @@ finding worth noting on its own: 2026-07-10 turns out to be FULLY transcribable 
 clues, not the 19/28 all three prior attempts stopped at) once the across-clue text's
 column-wrap continuation is followed to the end — the same bug class 2026-08-30 found and
 fixed for 2026-06-26, now confirmed to recur on a second puzzle.
+
+## 2026-09-28
+
+Two general searches: "cryptic crossword clue solving candidate generation definition
+span 2026 arxiv" and "Hebrew morphological analysis root pattern lookup tool 2026" — the
+same two axes this log's stated priority order names (candidate generation, Hebrew
+NLP/morphology). Both surfaced nothing new. The first returned exactly the same paper
+family logged on every prior pass since 2026-08-06 (2506.04824, 2407.08824, 2104.08620,
+2412.09012, 2103.01242) with no new title. The second surfaced only Biblical/Torah-focused
+root-pattern analysis tools (a "torah_root_analyzer.py v4", Zenodo preprints on
+foundation-letter skeletons in Biblical Hebrew) — a different register of Hebrew entirely
+from this project's modern crossword vocabulary, not obviously fetchable or reconstructible
+by `bootstrap.sh`, and answering a semantic-classification question ("which root does this
+polysemic word belong to") rather than this project's actual gaps (candidate generation,
+definition-fit scoring). **Transfer: none.**
+
+**Conclusion for today.** No literature finding changes anything this run. Today's actual
+work was not a new mechanism: it was queue item 6, "merge or close the PR backlog," which
+has recurred five times now (2026-08-21, 08-25, 09-18, 09-24, and today) and had reached
+its worst point yet — 23 solver-lever PRs (#38 through #70) open simultaneously against a
+`main` that has not had a single one merged since roughly 2026-08-31, each branched from
+that same stale `main` rather than from any other unmerged branch, several independently
+reimplementing work another unmerged PR had already done (documented directly in PR #68's
+own 2026-09-24 commit message: PR #67's `container_candidates` duplicates PR
+#42/#55/#56/#57's already-shipped, more complete version). See DAILY.md for the
+consolidation this run performed and the concrete process observation it produced.

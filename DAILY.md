@@ -40,7 +40,33 @@ tree - a stale CLI deploy overwrote the live site on 2026-08-29. See CLAUDE.md.
 | **`private_defs`/mordo corpus quality: `clean_definition()` strips the SEO duplicate-title half (NEW 2026-09-24)** | **93.3% of mordo docs (7,836/8,400) were titled `"<phrase> \| <duplicate-or-paraphrase> תשחץ/תשבץ"`**, both halves tokenized into one BM25 doc; avg mordo doc length **9.93 → 4.63 tokens (-53.4%)** after the fix. `recall@N` on 2026-05-29 (fresh 28/28 transcription) **unchanged, 10.7% (3/28) before and after** (a scoring fix does not change top-25 presence by itself on this puzzle); concrete example score **10.87 → 8.48 (-22%)** for a spurious doc that had been outranking gold `ברישניקוב`'s own (also-padded, also-corrected) doc, `rerank_eval`'s rank for it unchanged (2→3, both before and after) since the competing doc stayed shorter even cleaned | not yet a target — a real, corpus-wide, mechanically-verified data-quality fix with a disclosed null effect on today's one sample; re-measuring other puzzles under the fixed corpus is the next step |
 
 Baseline for comparison: v2 = 41% raw with untraceable errors.
-Last lever added (2026-09-24): **found and fixed a systemic data-quality bug in the mordo
+Last lever added (2026-09-28): **no new mechanism — queue item 6, "merge or close the PR
+backlog," recurring a fifth time and worse than ever.** By this run, 23 solver-lever PRs
+(#38 through #70, spanning 2026-08-31 to 2026-09-27) were open simultaneously against a
+`main` that has not merged a single one of them since roughly 2026-08-31; #62 (2026-09-18,
+itself the previous "consolidate the backlog" run) had sat unmerged for 10 days while 8
+more piled on top. Found the longest unmerged chain (`daily/2026-09-24-work`, PR #68 —
+already a correct, self-aware consolidation of #62 through #66 that had itself flagged
+#67 as a duplicate, see its own log entry below) and folded in the two remaining PRs that
+turned out to be pure measurement/doc appends with no code conflicts (#69, #70) by hand,
+since neither could `git merge` cleanly onto it (both had also forked from the same stale
+`main`, unaware of #68's existence). Two puzzle measurements were absorbed this way, not
+newly run today: 2026-09-25's fifth-puzzle `retrieval_candidates` measurement (2026-07-31,
+0.0%→14.3%) and 2026-09-27's fourth re-measurement of 2026-07-10 (still flat at 0.0%,
+now confirmed at four different corpus sizes). Bootstrap was attempted (`./bootstrap.sh
+--dev-only`) to get a live puzzle for today's own measurement but hit the same 14across
+hard wall this project has now documented on the large majority of runs since 2026-08-19
+(13/52 fetches, all `None: 0 clues`, killed rather than waited out); with no new lever's
+own code to test, this run's verification is the 6 affected files' selftests
+(`candidates.py`, `deffit.py`, `lexicon.py`, `prove.py`, `retrieve_defs.py`,
+`substitutions.py`), all re-run clean post-merge, rather than a fresh recall@N number.
+HONEST READ: this is the fourth time in five weeks a "consolidate the backlog" run has
+been needed, and the backlog is BIGGER at each recurrence, not smaller — the structural
+fix (branch from the latest unmerged work, not from stale `main`; or the owner merging
+promptly) has been named in this file since 2026-08-21 and has not been acted on by
+anything with the authority to act on it. See the Lever queue's item 6 for the full
+count and RESEARCH.md for today's (negative) literature check.
+Previous lever (2026-09-24): **found and fixed a systemic data-quality bug in the mordo
 (pitaronfree.blogspot.com) half of `private_defs`, discovered while auditing a rerank_eval
 rank that would not budge: `crawl_defs.py crawl_mordo()` stores the blog post's TITLE
 verbatim as the retrieval `definition`, and **93.3% of mordo posts (7,836/8,400, measured
@@ -2786,6 +2812,31 @@ propagated), `blank`. Score with `python3 evals/run_eval.py <file>`.
    naming the current unmerged tip branch explicitly (not just "branch off main") so a
    fresh agent starts from it — neither attempted today, out of one-lever scope, but
    worth naming plainly as the standing gap rather than re-discovering it a fifth time.
+   **RECURRED A FIFTH TIME, worse than ever, 2026-09-28 — CONSOLIDATED again.** By today
+   the backlog had grown to 23 open solver-lever PRs (#38 through #70, 2026-08-31 through
+   2026-09-27) against a `main` that has not merged a single one of them; PR #62
+   (2026-09-18, itself a "consolidate 18-PR backlog" run) sat unmerged for 10 days while 8
+   more piled on top of it. This run's own attempted fix was the same as every prior
+   round: find the tip of the longest unmerged chain (`daily/2026-09-24-work`, which had
+   already itself absorbed #62-#66 and correctly identified #67 as a duplicate — see its
+   own 2026-09-24 log entry) and fold in the remaining PRs that turned out to be pure,
+   non-conflicting measurement/doc appends (#69 2026-09-25, #70 2026-09-27) by hand,
+   since their branches also forked from stale `main` and could not `git merge` cleanly.
+   Verified the merged tree is sound the only way available without live puzzle data:
+   all 6 affected files' selftests (`candidates.py`, `deffit.py`, `lexicon.py`, `prove.py`,
+   `retrieve_defs.py`, `substitutions.py`) re-run clean post-merge. **The fix has now
+   failed to stick FOUR times in a row** (2026-08-25, 2026-09-18, 2026-09-24, and this
+   consolidation itself will be a fifth data point once it is seen whether it merges).
+   The standing root-cause diagnosis (agents branch from `main`, not from the latest
+   unmerged work, because nothing tells them to) has been named in this exact file on
+   every one of the last four recurrences without anyone acting on it. Today's run still
+   did not act on either concrete fix named in 2026-09-24's entry (owner merging promptly;
+   this file naming the current unmerged tip branch explicitly) — both remain outside a
+   single agent run's authority or one-lever budget to force, but a fifth unaddressed
+   recurrence is itself the strongest evidence yet that "notice and reconcile by hand"
+   is not a durable fix and something upstream (the owner's merge cadence, or this
+   runbook's own instructions) needs to change instead. See DAILY.md's Log and this run's
+   PR description for the concrete list of what was folded in vs. what remains open.
 7. ~~Fix `lexicon.held_out_answers()`'s coverage gap~~ — FIXED 2026-08-21 (PR #23),
    confirmed byte-identical in PR #25's cherry-pick, both folded into this branch
    2026-08-25. It only blocked an answer when its clue had a row in
@@ -6762,3 +6813,86 @@ Measure each lever on dev (fixed enums) with run_eval.py before/after; one lever
   2026-06-26 with today's corpus; did not run note.co.il to 2026-08-29's size (a
   deliberate, disclosed trade-off); did not attempt a live `solve_pass.py` trial; no PR
   was open to act on.
+- 2026-09-28: **no new mechanism — PR-backlog consolidation, queue item 6, recurring a
+  fifth time and worse than every prior recurrence.** Read DAILY.md/RESULTS.md/PLAN_V2.md/
+  SOLVE_PROTOCOL.md per the runbook, then `mcp__github__list_pull_requests` to check
+  actual repo state before choosing a lever, which is what surfaced the scale of the
+  problem: **23 open solver-lever PRs** (#38 2026-08-31 through #70 2026-09-27), none
+  merged, against a `main` whose solver-relevant files (candidates.py, lexicon.py,
+  prove.py, retrieve_defs.py) have not changed since roughly 2026-08-31 — every daily
+  lever since has been landing in a branch nobody ever integrates. #62 (2026-09-18,
+  "Consolidate 18-PR backlog") — the previous fix for this exact problem — had itself
+  sat unmerged for 10 days while 8 more PRs (#63-#70) piled on top of it.
+
+  RESEARCH: two general searches ("cryptic crossword clue solving candidate generation
+  definition span 2026 arxiv"; "Hebrew morphological analysis root pattern lookup tool
+  2026") surfaced nothing new on either axis — same paper family as every prior pass, and
+  a set of Biblical/Torah-register Hebrew root-analysis tools with no transfer to a
+  modern crossword lexicon. See RESEARCH.md.
+
+  BOOTSTRAP: `./bootstrap.sh --dev-only` was run and hit 14across's now-familiar hard
+  wall (13/52 fetches, all `None: 0 clues`, killed after ~25 minutes rather than waited
+  out — matches the majority failure mode documented on nearly every run since
+  2026-08-19); hspell (129,574 words) came through cleanly via the unaffected path.
+  With no working 14across access and this run's chosen lever being consolidation rather
+  than a new mechanism, no fresh puzzle was transcribed today.
+
+  THE CONSOLIDATION: found the tip of the longest unmerged chain, `daily/2026-09-24-work`
+  (PR #68) — verified by diffing every open branch against `main` and against each other
+  (`git diff --stat`, `git merge-base`) rather than trusting branch names or PR titles.
+  #68 turned out to already be a correct, self-aware consolidation: its own 2026-09-24
+  commit message had merged PR #66 (definition-fit reranking) into the `daily/` lineage
+  and had directly diagnosed PR #67 (`container_candidates`, 2026-09-23) as a FULL
+  duplicate of a mechanism this project shipped and refined three times already (PR
+  #42/#55/#56/#57) — #67 branched straight off stale `main`, so its author had no way to
+  know the richer version existed. Independently re-derived and confirmed the same finding
+  by reading #67's actual diff against #68's `container_parts()` before trusting #68's own
+  account of it. Two more PRs remained un-integrated into #68: #69 (2026-09-25, fifth-
+  puzzle `retrieval_candidates` measurement, 2026-07-31, 0.0%→14.3%) and #70 (2026-09-27,
+  fourth re-measurement of 2026-07-10, still flat 0.0% at a fourth corpus size) — both
+  pure measurement/documentation appends with a `data/grids/2026-07-31.json` addition, no
+  code conflicts once inspected directly. Neither could `git merge` cleanly onto #68
+  (both forked from the same stale `main`, before #68 existed), so their DAILY.md/
+  RESEARCH.md state-table rows and log entries were folded in by hand — chronological
+  merge, no content dropped, same discipline as every prior consolidation
+  (2026-08-25, 2026-09-10, 2026-09-18) — and `data/grids/2026-07-31.json` was merged as a
+  plain file addition (grids are committed, not gitignored, per `.gitignore`'s own
+  documented exception).
+
+  VERIFIED (the closest this run could get to "run eval.py on anything you claim," given
+  no new mechanism and no live puzzle): all 6 affected files' selftests re-run clean
+  post-merge — `python3 solver/candidates.py selftest`, `deffit.py selftest`,
+  `lexicon.py selftest`, `prove.py selftest`, `retrieve_defs.py selftest`,
+  `substitutions.py selftest` — ALL PASSED / exit 0. No recall@N number changed today
+  because no mechanism changed today; the two recall numbers folded in (2026-09-25,
+  2026-09-27) were already independently measured and audited by their own PRs before
+  today, not re-derived here.
+
+  AUDIT: no puzzle data was read this run beyond `data/grids/2026-07-31.json` (pure
+  black/white cell geometry, already disclosed and audited in PR #69's own history) and
+  the two-selftest verification above touches no held-out answer. No forbidden reads: no
+  14across access succeeded, no solution site was queried. Nothing to check for an
+  implausible jump: no score changed.
+
+  HONEST READ: this is a real, necessary, but structurally unsatisfying contribution —
+  the fourth "fix" for the exact same recurring problem in five weeks, and the backlog
+  keeps arriving BIGGER at each recurrence (3 PRs in 2026-08-25, 18 in 2026-09-18, 23 in
+  2026-09-28) rather than smaller, which means "an agent notices and reconciles by hand"
+  is not a durable fix, only a periodic partial bailout. The root cause named at every
+  recurrence since 2026-08-21 is unchanged: new branches fork from `main`, not from the
+  latest unmerged solver work, because nothing in this runbook or the environment tells
+  them to, and no PR gets merged to make branching from `main` safe again. This run did
+  not solve that (outside a single agent's authority), but is naming it as plainly as
+  possible for the fifth time rather than quietly repeating the same manual fix and
+  calling it closed. PRs #38-#61 (folded into #62), #62 through #67 (folded into #68,
+  except #67 which is a flagged duplicate), #68, #69, and #70 are all superseded by this
+  run's branch and can be closed once it is reviewed.
+
+  NOT DONE, honestly: did not implement or measure any new candidate-generation or
+  definition-fit mechanism (the queue's own priority items 1/9) — a deliberate trade,
+  not an oversight, given the scale of the backlog found; did not get a working 14across
+  fetch, so no fresh puzzle's recall@N was measured today; did not close the 21 now-
+  superseded PRs (only the project owner can act on GitHub PR state at this project's
+  standing authorization level; they are named explicitly above and in this PR's
+  description instead); did not act on the standing DAILY.md-as-leak-vector observation
+  (open since 2026-08-22); did not merge this branch to `main` (never do this — PRs only).
