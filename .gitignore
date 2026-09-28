@@ -11,6 +11,7 @@ data/
 !docs/solve/data/
 !docs/solve/data/**
 solver/lex/hspell.txt
+solver/lex/hwdb.txt
 # scratch / tooling
 __pycache__/
 *.pyc
