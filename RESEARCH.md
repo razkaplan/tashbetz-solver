@@ -2337,3 +2337,28 @@ reimplementing work another unmerged PR had already done (documented directly in
 own 2026-09-24 commit message: PR #67's `container_candidates` duplicates PR
 #42/#55/#56/#57's already-shipped, more complete version). See DAILY.md for the
 consolidation this run performed and the concrete process observation it produced.
+
+## 2026-09-30
+
+Same two general searches as 2026-09-28 and most prior passes: "cryptic crossword clue
+solving definition span detection candidate generation 2026 arxiv" and "Hebrew NLP
+morphological lexicon crossword wordplay generation 2026". Both returned the same paper
+family logged on every prior pass since 2026-08-06 (2506.04824, 2407.08824, 2104.08620,
+2412.09012, 2403.12094, 2205.09665, 2406.09043) and the same Hebrew morphology resources
+(MILA/KC Analyzer lexicons, ~25k lemmas, already known and already smaller than this
+project's own 129k-word hspell-derived lexicon). **Transfer: none, no new titles.** This
+project's own two open research questions (candidate generation quality, definition-fit
+scoring) remain unaddressed by the literature; per 2026-09-28's conclusion, further
+general sweeps are past the point of diminishing returns absent a new dated paper.
+
+**Conclusion for today.** Today's lever, like 2026-08-21/08-25/09-18/09-24/09-28 before
+it, was not a new mechanism: queue item 6, PR backlog consolidation, recurring for the
+SIXTH time in five weeks. This time the backlog had already been "solved" only two days
+earlier (PR #71, 2026-09-28) and had immediately re-diverged: PR #72 (2026-09-29)
+branched from `main` before #71 merged and reimplemented `container_candidates` a fifth
+time (after #42/#55/#56/#57/#67), unaware any version already existed. See DAILY.md for
+the consolidation performed and a concrete process fix added this run (a new step 0 in
+"Each run, in order": check for and branch from the latest open solver PR instead of
+`main`) — the first attempt at a structural fix rather than another one-off manual merge,
+since five prior manual consolidations have not stopped the pattern from recurring bigger
+each time.
