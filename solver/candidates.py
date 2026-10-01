@@ -11,6 +11,14 @@ rather than have the solver guess once and rationalize.
 This module does exactly that, per clue, with no LLM involved:
   - anagram_candidates:  every contiguous word-window whose letter count matches the
                           enum total, checked against the lexicon for real-word anagrams.
+  - anagram_phrase_candidates: [NEW 2026-10-01] queue item 10(b)'s own named next step
+                          (2026-09-21 did hidden/reversal; this does anagram) --
+                          generalizes anagram_candidates' single-whole-word multiset
+                          match to a two-word PHRASE: are there two real lexicon words,
+                          of combined length target_len, whose combined letters rearrange
+                          to the fodder window's? Not phrase_split()-based -- see its own
+                          docstring for why an anagram (no fixed string to split) needs a
+                          structurally different search than hidden/reversal's.
   - hidden_candidates:   a contiguous run inside the space-removed clue that is itself
                           a real word (the "hidden word" device).
   - reversal_candidates: same search, reversed.
@@ -193,6 +201,9 @@ CLI:
   python3 solver/candidates.py recall data/dataset/clues.jsonl eval --no-phrase
     # ablation: hidden/reversal lose their phrase_split() acceptance path (see phrase_split
     # above) -- the answer must then be a literal, single lex() member as before 2026-09-21
+  python3 solver/candidates.py recall data/dataset/clues.jsonl eval --no-anagram-phrase
+    # ablation: anagram loses its two-word-phrase acceptance path (see
+    # anagram_phrase_candidates above) -- added 2026-10-01
   python3 solver/candidates.py lexicon-coverage data/dataset/clues.jsonl eval  # mechanism-
     # agnostic ceiling: what fraction of gold answers are lex() members at all
   python3 solver/candidates.py lexicon-coverage data/dataset/clues.jsonl eval --prefix
@@ -230,22 +241,24 @@ def set_use_defs_lexicon(v):
     inside lex() itself (every mechanism reads lex()/by_len()/by_phon(), not a per-call
     parameter), so flipping it must invalidate every cache derived from lex() or a
     lingering stale _LEX from a prior call would silently ignore the new setting."""
-    global _USE_DEFS_LEXICON, _LEX, _BY_LEN, _BY_PHON
+    global _USE_DEFS_LEXICON, _LEX, _BY_LEN, _BY_PHON, _SIG_BY_LEN
     if v != _USE_DEFS_LEXICON:
         _LEX = None
         _BY_LEN = None
         _BY_PHON = None
+        _SIG_BY_LEN = None
     _USE_DEFS_LEXICON = v
 
 
 def set_use_hwdb(v):
     """Toggle lexicon.py's hebrew-words-db inflected-forms source. Same cache-invalidation
     shape as set_use_defs_lexicon() above, for the same reason."""
-    global _USE_HWDB, _LEX, _BY_LEN, _BY_PHON
+    global _USE_HWDB, _LEX, _BY_LEN, _BY_PHON, _SIG_BY_LEN
     if v != _USE_HWDB:
         _LEX = None
         _BY_LEN = None
         _BY_PHON = None
+        _SIG_BY_LEN = None
     _USE_HWDB = v
 
 
@@ -330,6 +343,118 @@ def anagram_candidates(clue_text, target_len):
             if hit == sub:
                 continue  # not a rearrangement, just the fodder itself (that's `hidden`)
             out.append({'answer': hit, 'mechanism': 'anagram', 'fodder': sub})
+    return out
+
+
+_SIG_BY_LEN = None
+
+
+def _sig_index():
+    """Lexicon words indexed by (length, sorted-letter signature) -- lets
+    anagram_phrase_candidates look up "is there a real word with exactly these letters"
+    without rescanning a whole by_len() bucket per candidate split, same purpose by_len()
+    already serves for anagram_candidates' single-word case."""
+    global _SIG_BY_LEN
+    if _SIG_BY_LEN is None:
+        idx = {}
+        for length, ws in by_len().items():
+            bucket = {}
+            for w in ws:
+                bucket.setdefault(tuple(sorted(w)), []).append(w)
+            idx[length] = bucket
+        _SIG_BY_LEN = idx
+    return _SIG_BY_LEN
+
+
+def _multiset_subsets(counter, size):
+    """Yield every distinct sub-multiset of `counter` with exactly `size` letters, as a
+    sorted tuple -- the key _sig_index() is built on. Enumerates by DISTINCT LETTER, not
+    by lexicon word, so the cost is bounded by the fodder window's own letter diversity
+    (at most target_len distinct letters, almost always far fewer given Hebrew's heavy
+    letter reuse), never by how many lexicon words happen to share a length."""
+    items = list(counter.items())
+
+    def rec(i, remaining, acc):
+        if remaining == 0:
+            yield tuple(sorted(acc))
+            return
+        if i == len(items):
+            return
+        letter, count = items[i]
+        for take in range(min(count, remaining), -1, -1):
+            yield from rec(i + 1, remaining - take, acc + [letter] * take)
+
+    yield from rec(0, size, [])
+
+
+def anagram_phrase_candidates(clue_text, target_len, min_part=2, max_out=200):
+    """[NEW 2026-10-01] queue item 10(b)'s own named next step, left unattempted on
+    2026-09-21: "wiring phrase-awareness into anagram/substitution/charade/container,
+    each needing its own structurally different change" -- that run did hidden/reversal
+    (phrase_split()); this does anagram.
+
+    phrase_split() tests whether one SPECIFIC, already-fixed-order string (the fodder
+    itself, or its reverse) decomposes into real words at some split point -- cheap,
+    because the candidate string is already known. An anagram has no fixed string to
+    split: the fodder's LETTERS, pooled and rearranged, merely have to match some real
+    answer's multiset. So this does not call phrase_split() -- it generalizes
+    anagram_lookup()'s existing single-whole-word multiset match ("is there a real word
+    of target_len letters with sub's multiset?") to a two-word PHRASE ("are there two
+    real words, of combined length target_len, whose combined multiset is sub's?"),
+    built from the same by_len()/lex() this file already indexes -- no new corpus.
+
+    v1 scope, disclosed rather than silently narrow: two-word phrases only (phrase_split()
+    also tries three) -- a second split point's combinatorics were not measured to be
+    worth the added cost yet; a natural next step if this proves positive. `min_part`
+    (default 2, the same floor phrase_split()/prefix_stripped() use) blocks a 1-letter
+    residual from manufacturing a coincidental split.
+
+    `max_out` (default 200, the same cap charade_candidates() uses): MEASURED, not
+    assumed -- on a real puzzle (2026-05-29, 21 transcribed clues) an UNCAPPED version of
+    this function produced up to 23,450 raw candidates for a single 9-letter clue (common
+    short real words recombine combinatorially once letter order is no longer fixed),
+    totalling 123,475 across the puzzle. generate()'s own 2026-08-20 lesson is exactly
+    this failure mode: a high-volume mechanism appended before hidden_candidates/
+    reversal_candidates/homophone_candidates in the priority order can crowd them out of
+    the final max_n cap entirely before a recall eval (or the proof gate) ever sees them.
+    Capping here, at the source, is cheaper and more honest than hoping the priority order
+    alone saves the mechanisms listed after this one -- same reasoning charade_candidates'
+    own max_parts_out already uses one tier up."""
+    sig_index = _sig_index()
+    out = []
+    seen = set()
+    for sub in _char_windows(clue_text, target_len):
+        if len(out) >= max_out:
+            break
+        target = Counter(sub)
+        for l1 in range(min_part, target_len - min_part + 1):
+            l2 = target_len - l1
+            idx1 = sig_index.get(l1)
+            idx2 = sig_index.get(l2)
+            if not idx1 or not idx2:
+                continue
+            for s1 in _multiset_subsets(target, l1):
+                w1_list = idx1.get(s1)
+                if not w1_list:
+                    continue
+                remainder = target.copy()
+                for ch in s1:
+                    remainder[ch] -= 1
+                s2 = tuple(sorted(remainder.elements()))
+                w2_list = idx2.get(s2)
+                if not w2_list:
+                    continue
+                for w1 in w1_list:
+                    for w2 in w2_list:
+                        answer = w1 + w2
+                        key = (answer, sub)
+                        if key in seen:
+                            continue
+                        seen.add(key)
+                        out.append({'answer': answer, 'mechanism': 'anagram',
+                                    'fodder': sub, 'phrase': f'{w1}+{w2}'})
+                        if len(out) >= max_out:
+                            return out
     return out
 
 
@@ -1161,7 +1286,7 @@ def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retr
              use_container=True, use_container_entity=True, use_double_def=True,
              use_defspan_retrieval=True, use_homophone=True, use_homophone_vowel=True,
              use_substitution_3part=True, use_charade=True, use_abbreviation=True,
-             use_phrase=True):
+             use_phrase=True, use_anagram_phrase=True):
     """Diverse candidates for one clue. Never consults the answer.
 
     Mechanism order here is a PRIORITY order, not just an accumulation order: dedup +
@@ -1209,9 +1334,11 @@ def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retr
     (literal/destemmed clue word, mined substitution) for a controlled measurement.
     `use_phrase` (2026-09-21, queue item 10(b)) gates ONLY `hidden_candidates`/
     `reversal_candidates`' new phrase_split() acceptance path -- see their own docstrings
-    and phrase_split()'s. It does not touch anagram/substitution/container, which would
-    each need a structurally different (reverse-search or fragment-source) change to
-    become phrase-aware, not attempted today; see DAILY.md for the honest scope note."""
+    and phrase_split()'s.
+    `use_anagram_phrase` (2026-10-01, queue item 10(b)'s own named next step) gates
+    `anagram_phrase_candidates` -- the same queue item's two-word-phrase generalization
+    of anagram, not phrase_split()-based (see its own docstring for why). substitution/
+    container still have no phrase-aware path; see DAILY.md for the honest scope note."""
     target_len = sum(enum)
     cands = []
     cands += homograph_candidates(clue_text, target_len)
@@ -1233,6 +1360,8 @@ def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retr
     if pattern:
         cands += pattern_candidates(pattern)
     cands += anagram_candidates(clue_text, target_len)
+    if use_anagram_phrase:
+        cands += anagram_phrase_candidates(clue_text, target_len)
     cands += hidden_candidates(clue_text, target_len, use_phrase=use_phrase)
     cands += reversal_candidates(clue_text, target_len, use_phrase=use_phrase)
     if use_homophone:
@@ -1261,7 +1390,8 @@ def recall_eval(dataset_path, split=None, max_n=25, use_culture=True, use_retrie
                  use_container=True, use_container_entity=True, use_double_def=True,
                  use_defspan_retrieval=True, use_homophone=True, use_homophone_vowel=True,
                  use_substitution_3part=True, use_charade=True, use_abbreviation=True,
-                 use_defs_lexicon=True, use_hwdb=True, use_phrase=True):
+                 use_defs_lexicon=True, use_hwdb=True, use_phrase=True,
+                 use_anagram_phrase=True):
     set_use_defs_lexicon(use_defs_lexicon)
     set_use_hwdb(use_hwdb)
     total = 0
@@ -1285,6 +1415,7 @@ def recall_eval(dataset_path, split=None, max_n=25, use_culture=True, use_retrie
                           use_homophone_vowel=use_homophone_vowel,
                           use_substitution_3part=use_substitution_3part,
                           use_charade=use_charade, use_abbreviation=use_abbreviation,
+                          use_anagram_phrase=use_anagram_phrase,
                           use_phrase=use_phrase)
         sizes.append(len(cands))
         gold = norm(r['answer_raw'])
@@ -1590,6 +1721,69 @@ def selftest():
     found_rev_off = any(h['answer'] == norm('שלום') + norm('עולם') for h in off_r)
     print(f'  use_phrase=False suppresses it: {not found_rev_off} (expected True)')
     ok &= not found_rev_off
+
+    print('--- anagram_phrase device: a SCRAMBLED (no fixed order) fodder window whose '
+          'letters, pooled, match two real lex() words combined -- the anagram case '
+          'phrase_split() cannot handle, since there is no single fixed string to split '
+          '(queue item 10(b), 2026-10-01) ---')
+    # 'שלומ'+'עולמ' (8 letters total) shuffled into an order that is neither the clue-
+    # order concatenation nor its reverse, so only a true multiset match (not hidden/
+    # reversal's substring check) can recover it.
+    scrambled = 'שומוללעמ'
+    assert Counter(scrambled) == Counter(norm('שלום') + norm('עולם')), \
+        'fixture must be a genuine rearrangement of the two target words\' pooled letters'
+    assert scrambled not in (norm('שלום') + norm('עולם'), norm('עולם') + norm('שלום')), \
+        'fixture must not coincide with the literal (or swapped) concatenation -- that ' \
+        'would accidentally test hidden_candidates, not this mechanism'
+    # max_out raised well above the default 200: MEASURED on a real puzzle (see this
+    # function's own docstring) that even an 8-letter window can have hundreds of
+    # competing two-word combinations ahead of any one specific pairing in iteration
+    # order, so the production cap can legitimately miss a real answer on an unlucky
+    # clue -- that is the documented, accepted cost of the cap (same trade-off
+    # charade_candidates' max_parts_out already makes), not something this correctness
+    # check should depend on surviving.
+    phrase_cands = anagram_phrase_candidates(f'אמרו {scrambled} עכשיו', 8, max_out=5000)
+    found_ana_phrase = any(h['answer'] == norm('שלום') + norm('עולם') for h in phrase_cands)
+    print(f'  found שלומ+עולמ as a two-word anagram phrase of the scrambled fodder: '
+          f'{found_ana_phrase} (expected True)')
+    ok &= found_ana_phrase
+    print('--- anagram_phrase device: max_out caps the raw candidate count, so one '
+          'high-volume clue cannot crowd every other mechanism out of generate()\'s own '
+          'max_n cap (the 2026-08-20 failure mode) -- MEASURED on this exact fixture: '
+          'uncapped it produces hundreds of raw combinations ---')
+    uncapped = anagram_phrase_candidates(f'אמרו {scrambled} עכשיו', 8, max_out=100000)
+    capped = anagram_phrase_candidates(f'אמרו {scrambled} עכשיו', 8, max_out=50)
+    print(f'  uncapped count: {len(uncapped)} (expected > 50, proving the cap is real '
+          f'not vacuous); capped count: {len(capped)} (expected exactly 50)')
+    ok &= len(uncapped) > 50 and len(capped) == 50
+    print('--- anagram_phrase device: use_anagram_phrase toggle reaches generate() ---')
+    # A short (4-letter), two-word target: generate()'s own internal 200-cap on
+    # anagram_phrase_candidates (not raised here, unlike the two checks above) only
+    # stays correctness-testable on a short enough target that the combinatorial space
+    # is small -- MEASURED directly (not assumed) to be 50 raw combinations here, safely
+    # under the cap; the scrambled 8-letter fixture above needed max_out raised for
+    # exactly this reason, and would NOT reliably survive generate()'s uncustomizable cap.
+    short_target = norm('טל') + norm('דג')
+    short_text = f'אמרו {norm("דג")}{norm("טל")} עכשיו'
+    on_g = generate(short_text, [4], max_n=500, use_anagram_phrase=True)
+    # mechanism=='anagram' and a 'phrase' field isolates this generator from plain
+    # anagram_candidates (no 'phrase' key) and from hidden's own phrase_split path
+    # (mechanism=='hidden'), both of which could otherwise also fire on this fixture.
+    found_on = any(h['answer'] == short_target and h['mechanism'] == 'anagram'
+                   and h.get('phrase') for h in on_g)
+    off_g = generate(short_text, [4], max_n=500, use_anagram_phrase=False)
+    found_off = any(h['answer'] == short_target and h['mechanism'] == 'anagram'
+                    and h.get('phrase') for h in off_g)
+    print(f'  reachable through generate() when on: {found_on} (expected True); '
+          f'use_anagram_phrase=False suppresses it: {not found_off} (expected True)')
+    ok &= found_on and not found_off
+    print('--- anagram_phrase device: min_part floor -- a target_len too short to hold '
+          'two 2-letter-minimum words (< 4) returns nothing, for ANY fodder, same floor '
+          'phrase_split()/prefix_stripped() already enforce ---')
+    no_hit = anagram_phrase_candidates('זזקככץ עטלולבאא טקס', 3)
+    print(f'  no two-word split possible under target_len=3: {len(no_hit) == 0} '
+          f'(expected True, got {len(no_hit)})')
+    ok &= len(no_hit) == 0
 
     print('--- lexicon_coverage_eval(check_phrase=True): counts phrase-recoverable '
           'misses separately, without changing what counts as covered ---')
@@ -2176,11 +2370,13 @@ def main():
         use_defs_lexicon = '--no-defs-lexicon' not in rest
         use_hwdb = '--no-hwdb' not in rest
         use_phrase = '--no-phrase' not in rest
+        use_anagram_phrase = '--no-anagram-phrase' not in rest
         rest = [a for a in rest if a not in
                 ('--no-culture', '--no-retrieval', '--no-container', '--no-container-entity',
                  '--no-double-def', '--no-defspan-retrieval', '--no-homophone',
                  '--no-homophone-vowel', '--no-substitution-3part', '--no-charade',
-                 '--no-abbreviation', '--no-defs-lexicon', '--no-hwdb', '--no-phrase')]
+                 '--no-abbreviation', '--no-defs-lexicon', '--no-hwdb', '--no-phrase',
+                 '--no-anagram-phrase')]
         path = rest[0] if len(rest) > 0 else 'data/dataset/clues.jsonl'
         split = rest[1] if len(rest) > 1 else None
         os.chdir(ROOT)
@@ -2193,7 +2389,7 @@ def main():
                            use_substitution_3part=use_substitution_3part,
                            use_charade=use_charade, use_abbreviation=use_abbreviation,
                            use_defs_lexicon=use_defs_lexicon, use_hwdb=use_hwdb,
-                           use_phrase=use_phrase)
+                           use_phrase=use_phrase, use_anagram_phrase=use_anagram_phrase)
         print(f"recall@N: {res['hit']}/{res['total']} = {res['recall']:.1%}  "
               f"(avg {res['avg_candidates']:.1f} candidates/clue, "
               f"use_culture={use_culture}, use_retrieval={use_retrieval}, "
@@ -2203,7 +2399,8 @@ def main():
               f"use_homophone_vowel={use_homophone_vowel}, "
               f"use_substitution_3part={use_substitution_3part}, use_charade={use_charade}, "
               f"use_abbreviation={use_abbreviation}, use_defs_lexicon={use_defs_lexicon}, "
-              f"use_hwdb={use_hwdb}, use_phrase={use_phrase})")
+              f"use_hwdb={use_hwdb}, use_phrase={use_phrase}, "
+              f"use_anagram_phrase={use_anagram_phrase})")
         print('hits by mechanism:', res['by_mechanism'])
         if res['misses']:
             print(f"\n{len(res['misses'])} misses (clue_number, direction, gold):")

@@ -2362,3 +2362,42 @@ the consolidation performed and a concrete process fix added this run (a new ste
 `main`) — the first attempt at a structural fix rather than another one-off manual merge,
 since five prior manual consolidations have not stopped the pattern from recurring bigger
 each time.
+
+## 2026-10-01
+
+Two general searches, the same two axes this log always runs: "cryptic crossword clue
+solving candidate generation definition span detection 2026 arxiv" and "Hebrew word
+segmentation multiword expression lexicon lookup tool 2026".
+
+**Candidate generation / definition span.** Same paper family as every prior pass since
+2026-08-06: A Reasoning-Based Approach to Cryptic Crossword Clue Solving (2506.04824),
+Proving that Cryptic Crossword Clue Answers are Correct (2407.08824), Language Models are
+Crossword Solvers (2406.09043), Cryptonite (2103.01242). One detail worth restating
+precisely rather than just re-citing the title: 2506.04824's own pipeline generates ~20
+candidates per clue with a fine-tuned Gemma2-9B+LoRA, filters by crossword-wordlist
+membership, then formalizes wordplay as Python and verifies by execution — i.e. the
+EXACT generate-then-verify shape this project already runs (`candidates.py` ->
+`prove.py`), now confirmed on (at minimum) the 8th independent reading of this paper.
+**Transfer: none new** — reconfirms the architecture, adds no new technique this project
+doesn't already have.
+
+**Hebrew morphology / NLP.** No new 2026 resource beyond RFTokenizer/HebPipe/
+DictaBERT-seg/YAP/Splintering, logged repeatedly since 2026-08-06 (most recently
+2026-09-19/20/21's own passes). Checked directly, not assumed, why none of these apply to
+TODAY's specific lever (see DAILY.md: `anagram_phrase_candidates`, the two-word-phrase
+generalization of anagram): a general-purpose Hebrew morphological segmenter answers "how
+does this UNKNOWN running text split into words," which is the wrong question here. This
+project's phrase-recognition approach (`phrase_split()`, 2026-09-21, and today's anagram
+extension) never needs to guess a word boundary in unfamiliar text — it only has to check
+whether a CANDIDATE split's two pieces are each already independently attested in `lex()`,
+a lookup this project's own ~196k-word lexicon already answers with no segmenter at all.
+A morphological segmenter would be the right tool for the opposite problem (determining
+how a long UNFAMILIAR string divides), which is not this project's gap. **Transfer: none,
+and now explicitly root-caused why, not just re-logged as "no new title."**
+
+**Conclusion for today.** No literature or resource finding changes anything this run.
+Today's lever is `candidates.py`'s own queue item 10(b), its explicitly named next step
+left open on 2026-09-21: "wiring phrase-awareness into anagram/substitution/charade/
+container, each needing its own structurally different change" — hidden/reversal got it
+2026-09-21; this run does anagram. See DAILY.md for the mechanism, the measurement, and
+the audit.
