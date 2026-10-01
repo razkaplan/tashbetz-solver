@@ -38,9 +38,43 @@ tree - a stale CLI deploy overwrote the live site on 2026-08-29. See CLAUDE.md.
 | **`lexicon_coverage_eval` with `hebrew-words-db` wired into `lexicon.py`'s `load()` as a second general-dictionary tier (NEW 2026-09-20)** | On 2026-05-29 (28 gold slots, isolated from `private_defs` by disabling it): **32.1% (9/28) → 35.7% (10/28), a real +1 gain** — `הלו` ("hello," a common loanword) newly covered. +38,824 words added to `lex()` (144,021 → 182,845, +27.0%, confirmed by direct diff), of which **38,906/67,008 (58%) are absent from hspell entirely** (verified by direct set diff, not assumed). Full defaults (private_defs+hwdb both on) land at the same 35.7% (10/28) — private_defs alone reproduces the flat 32.1% (9/28) 2026-09-19 already found on this puzzle, confirming hwdb's gain is independent of and not duplicated by that tier. `recall@N` on the 6/28 clues with real transcribed text stayed 0/6 both ways (uninformative floor effect, disclosed not hidden) | not yet a target — a real, small, positive, single-puzzle result; see log for the audit and next steps |
 | **`lexicon_coverage_eval` with `phrase_split()` — queue item 10(b), phrase-aware lexicon membership (NEW 2026-09-21)** | On a freshly re-transcribed 2026-05-29 (26/28 clues; two clues excluded honestly, see log): base coverage **36.0% (9/25)**. `--phrase` diagnostic: **of the 16 NOT covered, 10 (62.5%) recover** as a 2-3-way concatenation of already-`lex()` words with no invented rule (`משהרבנו`→`משה`+`רבנו`; `ישפרחימ`→`יש`+`פרחימ`; `ברישניקוב`→`בר`+`יש`+`ניקוב`; `בתזוגתו`→`בת`+`זוג`+`תו`; 6 more) — by far the largest single-diagnostic recovery this queue item has measured (vs. `--prefix`'s 1 genuine hit out of 3 raw, 2026-09-16). **Wired as a real generator-side acceptance path into `hidden_candidates`/`reversal_candidates`** (`use_phrase=True` / `--no-phrase`): `recall@N` **UNCHANGED, 4.0% (1/25) both ways** (mechanical-only and full-defaults) — the phrase-recoverable answers are charade/definition/culture-reference outputs, not literal (or reversed) contiguous clue substrings, so `hidden`/`reversal`'s narrow acceptance-path wiring structurally cannot reach them; `avg_candidates` rose (12.8→18.6 mechanical-only, 20.9→22.6 full defaults), confirming the mechanism fires for real, just not on this puzzle's specific miss set | not yet a target — a real, large, disclosed structural (diagnostic) finding; the generator-side gap is the honest next step, see log |
 | **`private_defs`/mordo corpus quality: `clean_definition()` strips the SEO duplicate-title half (NEW 2026-09-24)** | **93.3% of mordo docs (7,836/8,400) were titled `"<phrase> \| <duplicate-or-paraphrase> תשחץ/תשבץ"`**, both halves tokenized into one BM25 doc; avg mordo doc length **9.93 → 4.63 tokens (-53.4%)** after the fix. `recall@N` on 2026-05-29 (fresh 28/28 transcription) **unchanged, 10.7% (3/28) before and after** (a scoring fix does not change top-25 presence by itself on this puzzle); concrete example score **10.87 → 8.48 (-22%)** for a spurious doc that had been outranking gold `ברישניקוב`'s own (also-padded, also-corrected) doc, `rerank_eval`'s rank for it unchanged (2→3, both before and after) since the competing doc stayed shorter even cleaned | not yet a target — a real, corpus-wide, mechanically-verified data-quality fix with a disclosed null effect on today's one sample; re-measuring other puzzles under the fixed corpus is the next step |
+| **Candidate recall@N with `anagram_phrase_candidates` added (NEW 2026-10-01, offline, mechanical — queue item 10(b)'s own named next step: "wiring phrase-awareness into anagram/substitution/charade/container," closing the `anagram` quarter after 2026-09-21 did `hidden`/`reversal`)** | **4.8% (1/21), UNCHANGED** on a freshly re-transcribed 2026-05-29 (11th independent transcription this project's history — only 21/28 clues this run, see log for the honest across-1-13 print-gap disclosure). Fired on **17/21 clues** (avg candidates/clue 22.0 → 25.0 mechanical-only; same 22.0 → 25.0 full-defaults), matched gold on 0/17 — the single hit (2 down, `יחפניות`) is the same pre-existing plain-`anagram` hit this puzzle has reproduced in every prior measurement since 2026-08-06, confirming no regression. **MEASURED, not assumed, why this mechanism needed a cap `charade_candidates` already precedents**: an uncapped version produced up to **23,450 raw candidates for a single 9-letter clue** (123,475 total across the puzzle) — two-word real-lexicon-pair combinations recombine far more combinatorially than single-word anagrams once letter order is unconstrained, confirmed directly by index-position checks on two synthetic fixtures (a target answer sitting at raw index 350 of 908, and 1150 of 2396). Added `max_out=200` (same cap value and rationale as `charade_candidates`) before shipping; capped firing totals 3,238 raw candidates across the same 17 clues, same 0 hits, same flat recall — the cap cost nothing on this puzzle and heads off the exact 2026-08-20 truncation-priority failure mode (a high-volume mechanism crowding `hidden`/`reversal`/`homophone` out of `generate()`'s own `max_n` before they're ever seen) before it could bite. Wall-clock: +1.1s/+2.8s over the 21-clue eval (mechanical-only/full-defaults) for the capped version — negligible | not yet a target — diagnostic; a real negative result on n=1 puzzle for RECALL, but a genuine positive finding about the mechanism's own precision ceiling (high volume, structurally low signal at scale) worth carrying into any future extension of this device; see log |
 
 Baseline for comparison: v2 = 41% raw with untraceable errors.
-Last lever added (2026-09-30): **queue item 6, sixth recurrence — the backlog PR #71
+Last lever added (2026-10-01): **branched from PR #73 (`daily/2026-09-30-consolidate`),
+not `main`, per that run's own new step-0 process fix — the first run to test whether it
+actually gets followed.** Implemented queue item 10(b)'s own explicitly-named next step:
+`anagram_phrase_candidates`, a two-word-phrase generalization of `anagram_candidates`
+(2026-09-21 did the analogous thing for `hidden`/`reversal` via `phrase_split()`; anagram
+needed a structurally different search since it has no fixed string to split — see the
+state table row and the function's own docstring). Bootstrap's 14across scrape hit the
+now-standard hard wall (3/52 recovered: 17/04/2026, 23/01/2026, 05/09/2025 — none of them
+this project's dev puzzle), so today's measurement puzzle (2026-05-29, the canonical dev
+puzzle, 11th independent transcription of it) came from the image-fallback technique:
+21/28 clues transcribed from `data/images/2026-05-28.jpg` (across clues 1/7/8/9/10/11 and
+part of 13 are genuinely absent from the printed column, confirmed by checking there is no
+separate clue-text block elsewhere on the page, not assumed), gold letters from the
+solved-recap grid in the following week's `data/images/2026-06-04.jpg` (0/165 cell
+mismatches against the committed black-pattern, the strongest form of this project's
+standard cross-check, plus 8 independent string matches against gold answers this exact
+puzzle's prior transcriptions have already logged — `ברישניקוב`, `פחותאבלכואב`,
+`משהרבנו`, `טליגוטליב`, `הלו`, `יחפניות`, `אנזימימ`, `אושכפ` — the strongest
+cross-validation this lever's dev-puzzle transcription has ever had). One real
+transcription bug caught and fixed before scoring, not after: a דלת/רישׁ (dalet/resh)
+confusion on 1 down's first letter, caught by directly comparing the ambiguous glyph
+against a calibrated reference crop of each letter from elsewhere in the same grid image
+(see log) — `בדישניקוב` corrected to `ברישניקוב` (Baryshnikov), matching the reference.
+MEASURED (`python3 solver/candidates.py recall data/dataset/clues.jsonl eval
+[--no-culture --no-retrieval] [--no-anagram-phrase]`): **4.8% (1/21), UNCHANGED**,
+mechanical-only and full-defaults alike — see the state table row for the full numbers,
+the cap this run added after MEASURING (not assuming) the mechanism's own uncapped
+candidate-volume problem, and the audit. All 5 affected selftests (`candidates.py`,
+`lexicon.py`, `prove.py`, `retrieve_defs.py`, `substitutions.py`) re-run clean. Also
+reverted an unrelated near-miss before committing: bootstrap's own step 4 regenerated
+`solver/lex/substitutions.json` from this run's severely hard-walled 14across corpus
+(the same documented regression bootstrap.sh itself warns about) — caught via `git diff
+--stat` and reverted with `git checkout`, never staged.
+Previous lever (2026-09-30): **queue item 6, sixth recurrence — the backlog PR #71
 consolidated two days earlier had already re-diverged (PR #72, a sixth independent
 `container_candidates` reimplementation), and this run added a process fix (branch from
 the latest open solver PR, not from `main`) rather than only merging by hand again.**
@@ -2992,6 +3026,21 @@ propagated), `blank`. Score with `python3 evals/run_eval.py <file>`.
     large; the GENERATOR gap (wiring phrase-awareness into anagram/substitution/charade/
     container, each needing its own structurally different change) is now this item's
     best-evidenced next step, not (a)'s minimum-stem-length experiment. See log.
+    **2026-10-01 update: closed the `anagram` quarter of the generator gap.**
+    `anagram_phrase_candidates` generalizes `anagram_candidates`' single-whole-word
+    multiset match to a two-word phrase (two real `lex()` words of combined length
+    target_len whose combined letters rearrange to the fodder's) -- not `phrase_split()`-
+    based, since an anagram has no fixed string to split, unlike `hidden`/`reversal`'s own
+    2026-09-21 wiring. MEASURED: 4.8% (1/21), UNCHANGED on 2026-05-29 (11th independent
+    transcription, 21/28 clues -- see log for the honest print-gap disclosure); fired on
+    17/21 clues, 0 hits. A genuinely important SECOND finding alongside the flat recall:
+    uncapped, this mechanism produces up to 23,450 raw candidates for a single clue (two-
+    word real-word combinations recombine far more than single-word anagrams once order is
+    unconstrained) -- capped at 200/clue (same value `charade_candidates` already uses)
+    before shipping, with 0 measured cost to this puzzle's recall. `substitution`/
+    `container` remain the two open quarters of this generator gap; `charade_candidates`
+    already has its own adjacency-based device so may not need a parallel phrase path at
+    all -- worth confirming rather than assuming before attempting it. See log.
 
 ## Things already tried — do not repeat
 - More knowledge tooling (wiki, culture lexicon, shironet titles): helped early, now saturated.
@@ -7004,3 +7053,137 @@ Measure each lever on dev (fixed enums) with run_eval.py before/after; one lever
   observation (open since 2026-08-22, still unaddressed); did not merge this branch to
   `main` (never do this — PRs only); did not verify the process fix actually works,
   which by construction only a future run can do.
+
+- 2026-10-01: **first run to test the 2026-09-30 branching-hygiene fix** — branched from
+  `origin/daily/2026-09-30-consolidate` (PR #73's head), not `main`, per that run's own
+  new step 0. The fix held for this run: no re-divergence to report, no PR to reconcile.
+
+  RESEARCH (RESEARCH.md): two general searches, same axes as every prior pass since
+  2026-08-06 (candidate generation / definition span; Hebrew NLP / morphology). Both
+  surfaced the same paper family and the same morphology tool set (YAP, RFTokenizer,
+  DictaBERT-seg) logged repeatedly since 2026-08-06/08-27. **Transfer: none new** — but
+  went one step further than "no new title" this time and explicitly root-caused WHY a
+  general-purpose Hebrew segmenter doesn't apply to today's lever: this project's phrase
+  recognition never needs to guess a word boundary in unfamiliar text, only check whether
+  a candidate split's two pieces are each already independent `lex()` members, a question
+  the project's own ~196k-word lexicon already answers.
+
+  IMPLEMENTED queue item 10(b)'s own explicitly-named next step: `anagram_phrase_candidates`
+  (`solver/candidates.py`), the `anagram` quarter of "wiring phrase-awareness into
+  anagram/substitution/charade/container" (2026-09-21 did `hidden`/`reversal` via
+  `phrase_split()`). Generalizes `anagram_candidates`' existing single-whole-word multiset
+  match ("is there one real word of target_len letters with the fodder's multiset?") to a
+  two-word PHRASE ("are there two real words, combined length target_len, whose combined
+  multiset is the fodder's?") — not `phrase_split()`-based, since an anagram's answer has
+  no fixed order to test a split against, unlike `hidden`/`reversal`'s fodder (or its
+  reverse), which IS a specific known string. Built on the same `by_len()`/`lex()` index
+  `anagram_lookup()` already uses, via a new `_sig_index()` (words indexed by sorted-letter
+  signature) and `_multiset_subsets()` (enumerates a fodder window's distinct sub-multisets
+  by DISTINCT LETTER, not by lexicon word, so cost is bounded by the window's own letter
+  diversity, never by lexicon size). New toggle `use_anagram_phrase` (default True) in
+  `generate()`/`recall_eval()`/the CLI (`--no-anagram-phrase`), new selftest block (6
+  checks: positive match on a scrambled fixture, the cap actually limiting output,
+  reachability through `generate()` and its toggle, the `min_part` floor).
+
+  Bootstrap (`./bootstrap.sh --dev-only`): step 1 (lexicon) succeeded fully (129,574 hspell
+  + 67,008 hwdb words). Step 2 (14across) hit the now-standard hard wall: 3/52 puzzles
+  recovered (17/04/2026, 23/01/2026, 05/09/2025), none of them this project's canonical dev
+  date — killed rather than waited out after confirming the failure mode (random bot-check
+  redirects, not a rate issue) matched every recent entry's description. Fetched the two
+  needed dev-puzzle images directly from the public CDN (`data/image_urls.txt`'s committed
+  manifest) rather than waiting for bootstrap's own sequential step 5.
+
+  TRANSCRIBED 2026-05-29 (the canonical dev puzzle) independently for the 11th time, this
+  run's own way: clue text from `data/images/2026-05-28.jpg` (image-fallback, since
+  14across missed this date), **21/28 clues** — across 1/7/8/9/10/11 and part of 13 are
+  genuinely absent from the printed clue column (checked directly: no separate clue-text
+  block exists elsewhere on the page near either grid graphic, not assumed from a quick
+  look), matching this project's long-standing, previously-documented across-1-13 print
+  gap (queue item 8) on several other weeks' images. One real transcription bug caught
+  and fixed BEFORE scoring, not after: 1 down's first letter was initially read as ד
+  (dalet) by eye; a direct calibrated comparison (cropping the ambiguous glyph next to a
+  confirmed ד from the same image and a confirmed ר from the same image, side by side at
+  high zoom) showed it is ר (resh) — curved/rounded shoulder, not the sharp flat-topped
+  corner the true dalet reference shows two cells over. Corrected `בדישניקוב` to
+  `ברישניקוב` (Baryshnikov), which also now matches this exact answer as logged in this
+  project's own history for this exact puzzle.
+
+  GOLD LETTERS came from the solved-recap grid in the following week's image
+  (`data/images/2026-06-04.jpg`, captioned "פתרון תשבץ ההיגיון מהשבוע שעבר"), transcribed
+  cell-by-cell using PROGRAMMATICALLY DETECTED gridlines (numpy dark-pixel-run detection
+  for both the outer border and the 15x11 internal grid, not eyeballed row heights — the
+  documented drift risk bootstrap.sh itself warns about) rather than a single crop. The
+  resulting 15x11 letter grid's black-cell pattern matched the committed
+  `data/grids/2026-05-29.json` EXACTLY: **0/165 cell mismatches**, the strongest form of
+  this project's standard cross-check. Beyond that structural check, 8 of the 28 derived
+  answers independently reproduce gold strings this exact puzzle's PRIOR, separately-run
+  transcriptions have already logged in this file across multiple past entries —
+  `ברישניקוב`, `פחותאבלכואב`, `משהרבנו`, `טליגוטליב`, `הלו`, `יחפניות`, `אנזימימ`,
+  `אושכפ` — the strongest cross-validation this recurring dev puzzle's transcription has
+  had to date. Every one of the 21 transcribed clues' enum sums matched its derived
+  answer's letter count exactly (0/21 mismatches, confirmed by `build_dataset.py`'s own
+  `len_ok` check, not just assumed).
+
+  MEASURED (executed, not estimated): `python3 solver/candidates.py recall
+  data/dataset/clues.jsonl eval [--no-culture --no-retrieval] [--no-anagram-phrase]` —
+  mechanical-only and full-defaults both land at **4.8% (1/21), UNCHANGED** whether
+  `anagram_phrase_candidates` is on or off (private_defs/retrieval contribute nothing
+  extra either way this run, since no `crawl_defs.py` run was done today — disclosed, not
+  hidden). The one hit (2 down, `יחפניות`) is the same plain-`anagram` hit this puzzle has
+  reproduced in effectively every prior measurement since 2026-08-06 — a strong
+  cross-check that today's independent transcription and gold derivation are correct, not
+  just that the new mechanism is inert. `anagram_phrase_candidates` fired on 17/21 clues
+  (avg candidates/clue 22.0 → 25.0 both mechanical-only and full-defaults), 0/17 gold hits.
+
+  A SECOND, genuinely important finding alongside the flat recall, measured not assumed:
+  an uncapped version of this function produces **up to 23,450 raw candidates for a
+  single 9-letter clue** (123,475 total across the 21 transcribed clues) — real two-word
+  lexicon-pair combinations recombine far more combinatorially than single-word anagrams
+  once letter ORDER is no longer constrained (unlike `phrase_split()`'s cheap fixed-string
+  split test). Confirmed directly on two synthetic fixtures that this is a genuine
+  precision problem, not just a volume one: a known-correct target answer sat at raw
+  index 350 of 908 candidates in one case and 1150 of 2396 in another — well past where a
+  naive small cap would ever see it. Added `max_out=200` (same cap value and rationale
+  `charade_candidates` already established) BEFORE shipping, specifically to head off the
+  2026-08-20 truncation-priority failure mode this project already learned the hard way
+  once (a high-volume mechanism appended early in `generate()`'s priority order crowding
+  `hidden`/`reversal`/`homophone` out of `max_n` before a recall eval or the proof gate
+  ever sees them) — re-measured capped-vs-uncapped on this run's own puzzle and confirmed
+  0 cost to recall here (capped: 3,238 raw candidates across the same 17 fired clues, same
+  0 hits).
+
+  AUDITED (mandatory gate). `lexicon.held_out_answers()` confirmed (computed, not assumed)
+  to block all 28 of this puzzle's own gold answers, including the 7 clues this run did
+  not even transcribe (the by-date block set does not require a transcribed row — see
+  2026-08-21/23's own fix for this exact gap); `gold_norm - blocked` empty for the 21
+  transcribed. No forbidden reads: 14across was never queried for this puzzle's gold data,
+  only the two public CDN images and the already-committed grid file. No private_defs
+  corpus exists this run (no `crawl_defs.py` run), so `retrieve_defs.held_out()` has
+  nothing to audit. All 5 affected selftests (`candidates.py`, `lexicon.py`, `prove.py`,
+  `retrieve_defs.py`, `substitutions.py`) re-run clean. No implausible jump to explain:
+  4.8% stayed 4.8%, the opposite of a suspicious result. One unrelated near-miss caught
+  and reverted before committing: bootstrap's own step 4 regenerated
+  `solver/lex/substitutions.json` from this run's severely hard-walled (3/52) 14across
+  corpus — exactly the regression bootstrap.sh's own comments warn never to commit —
+  caught via `git diff --stat` (1 line changed) and reverted with `git checkout` before
+  staging anything.
+
+  HONEST READ: a clean negative result for RECALL on this puzzle (no new mechanism moved
+  the needle, consistent with most single-mechanism additions this project has tried), but
+  a genuinely useful finding about the DEVICE itself: two-word anagram-phrase search is
+  structurally much noisier than its single-word sibling or than `phrase_split()`'s
+  fixed-string test, and needs a cap to stay a responsible addition to `generate()`'s
+  candidate pool regardless of what any one puzzle's recall number shows. `substitution`/
+  `container` remain this queue item's two open quarters; worth checking whether
+  `charade_candidates`' own existing adjacency-based device already covers what a
+  phrase-aware charade would add, rather than assuming a parallel path is needed, before
+  attempting either.
+
+  NOT DONE, honestly: did not re-measure any other puzzle (2026-06-05, 2026-07-10, etc.)
+  with this mechanism — one puzzle's full transcription-plus-audit cycle was this run's
+  budget; did not attempt the `substitution`/`container` quarters of the same generator
+  gap (today's one-lever discipline); did not run `crawl_defs.py` (14across's own hard
+  wall this run made a fresh corpus build moot for a measurement that doesn't depend on
+  it); did not act on the standing DAILY.md-as-leak-vector observation (open since
+  2026-08-22, still unaddressed); did not merge or otherwise act on any open PR; never
+  pushed to `main`; never ran `vercel --prod`.
