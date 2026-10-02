@@ -2398,6 +2398,46 @@ and now explicitly root-caused why, not just re-logged as "no new title."**
 **Conclusion for today.** No literature or resource finding changes anything this run.
 Today's lever is `candidates.py`'s own queue item 10(b), its explicitly named next step
 left open on 2026-09-21: "wiring phrase-awareness into anagram/substitution/charade/
-container, each needing its own structurally different change" — hidden/reversal got it
+container, each needing its own structurally different change" -- hidden/reversal got it
 2026-09-21; this run does anagram. See DAILY.md for the mechanism, the measurement, and
+the audit.
+
+## 2026-10-02
+
+Two general searches, same axes as the last several passes, with one search angled at
+today's specific lever (container) rather than purely generic.
+
+**"cryptic crossword container insertion clue candidate generation algorithm 2026".**
+Surfaced, notably, this very project's own PR #72 (`razkaplan/tashbetz-solver`) --
+confirmation the search engine indexes this repo's public GitHub activity, not a new
+external finding. Otherwise the same paper family logged since 2026-08-06 (2506.04824,
+2406.09043, 2104.08620) plus general crossword-solving help-site pages explaining what
+a container/insertion clue IS (ClueClinic, dailycryptic.org's indicator-word rankings)
+-- useful as PLAYBOOK.md-equivalent reference material, not as a candidate-generation
+algorithm or dataset. **Transfer: none new.**
+
+**"Hebrew multiword expression compound word detection lexicon segmentation 2026 tool".**
+Surfaced RFTokenizer (already logged repeatedly since 2026-08-06), a wide-coverage-
+lexicon finding that "17% of forms admit both segmented and unsegmented analyses"
+(a genuine, on-topic data point about Hebrew segmentation ambiguity, but describing the
+SAME kind of ambiguity 2026-10-01's own entry already root-caused as the wrong question
+for this project: `phrase_split()`/today's container extension never guesses a boundary
+in unfamiliar text, it only checks whether an already-fixed split point's two pieces are
+independently `lex()` members), and CKY-lattice joint segmentation/parsing (also already
+logged, 2026-09-19/20/21's passes). No new title, no new buildable resource.
+**Transfer: none new** -- and today's own measurement (see DAILY.md) gives a concrete,
+data-grounded reason this gap stays unsolved by a segmenter even for container
+specifically: the false-positive problem `container_candidates`' new phrase path hit
+on real data was not a boundary-detection failure (phrase_split correctly found real,
+independently-attested words at valid split points every time) -- it was a PRECISION
+problem, too many technically-valid-but-coincidental splits surviving to compete for a
+capped candidate slot. A better segmenter would not have helped; a better candidate-
+ranking or filtering signal would have, which is a different, not-yet-attempted next
+step (noted in the code's own docstring, not researched further today under one-lever
+discipline).
+
+**Conclusion for today.** No literature or resource finding changes anything this run.
+Today's lever closes the `container` quarter of the same queue item 10(b) 2026-10-01 did
+the `anagram` quarter of -- see DAILY.md for the mechanism, the measurement (a real
+regression when the new toggle is turned on, which is why it ships off by default), and
 the audit.

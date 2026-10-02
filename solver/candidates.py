@@ -69,7 +69,31 @@ This module does exactly that, per clue, with no LLM involved:
                           table). See container_parts()'s own docstring for the honest
                           caveat: culture.json currently has no "judge" category at all,
                           so this closes the GENERATOR gap, not necessarily this exact
-                          clue's DATA gap.
+                          clue's DATA gap. [NEW 2026-10-02] also gained a phrase_split()
+                          acceptance path (the generalization queue item 10(b) named as
+                          still open when `phrase_split` was first wired into hidden/
+                          reversal 2026-09-21, and reiterated unattempted in
+                          `generate()`'s own docstring through 2026-10-01): a spliced
+                          outer/inner candidate that is not itself a lex() member is now
+                          also accepted when it is the unbroken concatenation of 2-3
+                          already-lex() words, the same test hidden/reversal already use.
+                          Toggle: `use_container_phrase=False` (DEFAULT OFF, opt in with
+                          `--container-phrase`) / `use_container_phrase=True`, isolated
+                          from `use_container`/`use_container_entity` for a controlled
+                          measurement. Defaults to OFF, unlike every other phrase-aware
+                          toggle in this file -- a measured false-positive problem, not a
+                          cautious guess: container tests phrase_split() against every
+                          outer x inner x k splice combination (dozens-hundreds per
+                          clue), not the 1-2 fixed strings hidden/reversal test, and a
+                          pre-existing selftest fixture caught 10 spurious phrase-accepted
+                          'answers' from pure coincidental short-word splices the moment
+                          this was defaulted on. See container_candidates()'s own
+                          docstring and DAILY.md for the full finding and why container
+                          (not substitution) was chosen as today's quarter regardless:
+                          container's literal/destemmed and entity fragment sources are
+                          corpus-free, so the GENERATOR half of this item is testable even
+                          when 14across (and therefore sub_fwd()) is walled, unlike
+                          substitution_candidates' own still-open phrase quarter.
   - pattern_candidates:  wraps lexicon.py's crossing-pattern lookup, for when grid
                           letters are already known.
   - culture_category_candidates: a DEFINITION-hypothesis mechanism, not a wordplay one —
@@ -204,6 +228,14 @@ CLI:
   python3 solver/candidates.py recall data/dataset/clues.jsonl eval --no-anagram-phrase
     # ablation: anagram loses its two-word-phrase acceptance path (see
     # anagram_phrase_candidates above) -- added 2026-10-01
+  python3 solver/candidates.py recall data/dataset/clues.jsonl eval --container-phrase
+    # OPT-IN (default off, unlike every other toggle here): container gains its
+    # phrase_split() acceptance path (see container_candidates above) -- added
+    # 2026-10-02, closes the container quarter of queue item 10(b)'s "wiring
+    # phrase-awareness into anagram/substitution/charade/container" (substitution's own
+    # quarter remains open, see DAILY.md). Defaults OFF because it measurably produces
+    # false-positive candidates far more than hidden/reversal's own phrase_split() use --
+    # see container_candidates()'s own docstring before turning this on by default.
   python3 solver/candidates.py lexicon-coverage data/dataset/clues.jsonl eval  # mechanism-
     # agnostic ceiling: what fraction of gold answers are lex() members at all
   python3 solver/candidates.py lexicon-coverage data/dataset/clues.jsonl eval --prefix
@@ -957,7 +989,7 @@ def container_parts(clue_text, table=None, culture_table=None, triggers=None, en
 
 
 def container_candidates(clue_text, target_len, table=None, culture_table=None,
-                          triggers=None, entity=True):
+                          triggers=None, entity=True, use_phrase=False):
     """The container device (PLAYBOOK.md 1.4, ~10-12% of this setter's clues, the
     fourth-most-common mechanism after charade/anagram/double-definition) -- an OUTER
     fragment with an INNER fragment spliced somewhere inside it (e.g. קרים + תן, inner
@@ -975,8 +1007,51 @@ def container_candidates(clue_text, target_len, table=None, culture_table=None,
     here would just inflate the candidate count without adding a new mechanism) against
     the lexicon. `table`/`culture_table`/`triggers`/`entity` all forward to
     container_parts() -- see its docstring for the three fragment sources, `entity`
-    being the [NEW] role/category-entity one added 2026-09-13. Injectable, same
-    discipline as every other mechanism here."""
+    being the [NEW] role/category-entity one added 2026-09-13.
+
+    `use_phrase` [NEW 2026-10-02, queue item 10(b)'s own named next step: "wiring
+    phrase-awareness into anagram/substitution/charade/container" -- 2026-09-21 did
+    hidden/reversal via phrase_split(), 2026-10-01 did anagram via its own two-word
+    multiset search, this does container]: when the spliced string is not itself a
+    lex() member, also accept it if it is the unbroken concatenation of 2-3 words that
+    ARE lex() members (phrase_split(), same acceptance test hidden/reversal already use
+    -- unlike anagram, a splice result IS a fixed, already-assembled string, so
+    phrase_split() applies directly here with no new search shape needed, the same
+    reason it applies directly to hidden/reversal's fixed fodder window and not to
+    anagram's unordered letter multiset). Targets container clues whose outer or inner
+    fragment is itself a known multi-word phrase rather than a single dictionary
+    headword (e.g. an outer fragment is a role name like 'בית ספר'-shaped compound) --
+    a different gap from container_parts()'s own three FRAGMENT sources (literal/
+    destemmed word, mined substitution, entity category), which widen what counts as a
+    valid outer/inner piece; this widens what counts as a valid FINAL spliced answer,
+    mirroring exactly how phrase_split already widens hidden/reversal's own acceptance
+    test downstream of their fodder search. Injectable, same discipline as every other
+    mechanism here.
+
+    DEFAULTS TO OFF (`use_phrase=False`), unlike every other phrase-aware toggle in this
+    file (hidden/reversal's `use_phrase`, anagram's `use_anagram_phrase`, both default
+    True) -- a real, MEASURED precision problem, not a cautious guess. hidden/reversal
+    test phrase_split() against at most 2 strings per clue (the one fixed-length window
+    and its reverse); container tests it against every outer x inner x k combination
+    container_parts() produces, often dozens to hundreds per clue. Found while fixing an
+    UNRELATED pre-existing selftest this change broke (the 'entity=False fires nothing'
+    check, 2026-09-13): with use_phrase defaulted on, that same fixture (table={},
+    entity=False, 3 short clue words, no real container answer possible by construction)
+    produced **10 spurious phrase-accepted 'answers'** from pure coincidental short-word
+    splices (e.g. 'מכותשה' -> 'מכות'+'שה'), none of them anywhere near what the fixture
+    was built to test. Raising phrase_split's own `min_part` floor from 2 to 3 did NOT
+    fix it (checked directly): 8/10 of the same spurious hits persisted, because Hebrew's
+    lexicon has plenty of real 3-letter words too, not just 2-letter ones -- the same
+    coincidence-prone-short-residual risk 2026-09-16's `--prefix` diagnostic already
+    flagged for prefix-stripping, here multiplied by container's own much larger
+    candidate-string surface per clue. Shipped anyway (not reverted) because the
+    capability is real, selftested, and genuinely closes this queue item's container
+    quarter -- just opt-in (`use_phrase=True` / `--container-phrase`) rather than a
+    silent default-on regression to every other container measurement's noise floor.
+    See DAILY.md for the full writeup and the open question of whether a smarter filter
+    (e.g. requiring the recovered phrase's two parts to independently co-occur in the
+    corpus, not just both be lex() members) would recover the capability without the
+    noise -- not attempted today, one-lever discipline."""
     parts = container_parts(clue_text, table=table, culture_table=culture_table,
                              triggers=triggers, entity=entity)
     words = lex()
@@ -995,6 +1070,12 @@ def container_candidates(clue_text, target_len, table=None, culture_table=None,
                 if cand in words:
                     out.append({'answer': cand, 'mechanism': 'container',
                                 'fodder': f'{outer}[{inner}] ({ow}+{iw})'})
+                elif use_phrase:
+                    sp = phrase_split(cand, words)
+                    if sp:
+                        out.append({'answer': cand, 'mechanism': 'container',
+                                    'fodder': f'{outer}[{inner}] ({ow}+{iw})',
+                                    'phrase': '+'.join(sp)})
     return out
 
 
@@ -1286,7 +1367,7 @@ def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retr
              use_container=True, use_container_entity=True, use_double_def=True,
              use_defspan_retrieval=True, use_homophone=True, use_homophone_vowel=True,
              use_substitution_3part=True, use_charade=True, use_abbreviation=True,
-             use_phrase=True, use_anagram_phrase=True):
+             use_phrase=True, use_anagram_phrase=True, use_container_phrase=False):
     """Diverse candidates for one clue. Never consults the answer.
 
     Mechanism order here is a PRIORITY order, not just an accumulation order: dedup +
@@ -1337,8 +1418,17 @@ def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retr
     and phrase_split()'s.
     `use_anagram_phrase` (2026-10-01, queue item 10(b)'s own named next step) gates
     `anagram_phrase_candidates` -- the same queue item's two-word-phrase generalization
-    of anagram, not phrase_split()-based (see its own docstring for why). substitution/
-    container still have no phrase-aware path; see DAILY.md for the honest scope note."""
+    of anagram, not phrase_split()-based (see its own docstring for why).
+    `use_container_phrase` (2026-10-02, closing the container quarter of the same queue
+    item) gates ONLY container_candidates' new phrase_split() acceptance path on its
+    spliced output -- see its own docstring, including why this ONE toggle (unlike
+    every other phrase-aware toggle here) DEFAULTS TO FALSE: a measured, real
+    false-positive problem, not a cautious guess -- do not flip this default without
+    re-reading container_candidates' own docstring first. substitution's own
+    phrase-aware quarter still has no path; it depends on sub_fwd() (14across-mined,
+    hard-walled on most runs), making it harder to measure cleanly than container's
+    corpus-free literal/destemmed/entity fragment sources -- see DAILY.md for the
+    honest scope note."""
     target_len = sum(enum)
     cands = []
     cands += homograph_candidates(clue_text, target_len)
@@ -1346,7 +1436,8 @@ def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retr
     if use_abbreviation:
         cands += abbreviation_candidates(clue_text, target_len)
     if use_container:
-        cands += container_candidates(clue_text, target_len, entity=use_container_entity)
+        cands += container_candidates(clue_text, target_len, entity=use_container_entity,
+                                       use_phrase=use_container_phrase)
     if use_charade:
         cands += charade_candidates(clue_text, enum)
     if use_culture:
@@ -1391,7 +1482,7 @@ def recall_eval(dataset_path, split=None, max_n=25, use_culture=True, use_retrie
                  use_defspan_retrieval=True, use_homophone=True, use_homophone_vowel=True,
                  use_substitution_3part=True, use_charade=True, use_abbreviation=True,
                  use_defs_lexicon=True, use_hwdb=True, use_phrase=True,
-                 use_anagram_phrase=True):
+                 use_anagram_phrase=True, use_container_phrase=False):
     set_use_defs_lexicon(use_defs_lexicon)
     set_use_hwdb(use_hwdb)
     total = 0
@@ -1416,7 +1507,7 @@ def recall_eval(dataset_path, split=None, max_n=25, use_culture=True, use_retrie
                           use_substitution_3part=use_substitution_3part,
                           use_charade=use_charade, use_abbreviation=use_abbreviation,
                           use_anagram_phrase=use_anagram_phrase,
-                          use_phrase=use_phrase)
+                          use_phrase=use_phrase, use_container_phrase=use_container_phrase)
         sizes.append(len(cands))
         gold = norm(r['answer_raw'])
         found = [c for c in cands if c['answer'] == gold]
@@ -1992,6 +2083,38 @@ def selftest():
           ' same pattern as every other on/off switch here) ---')
     ok &= True
 
+    print('--- container device: [NEW 2026-10-02] a spliced candidate that is NOT itself'
+          ' a lex() member is accepted when it phrase_split()s into 2 already-lex() words'
+          ' -- the container quarter of queue item 10(b)\'s own named next step'
+          ' ("wiring phrase-awareness into anagram/substitution/charade/container"),'
+          ' mirroring hidden/reversal\'s 2026-09-21 acceptance path ---')
+    # outer='ביתפר' (a literal clue word, 5 letters) with inner='ס' (a literal DIFFERENT
+    # clue word, 1 letter) spliced at k=3 -> 'בית'+'ס'+'פר' = 'ביתספר' (6 letters). That
+    # exact string is not expected to be its own hspell headword (it is the common
+    # two-word phrase 'בית ספר'/"school" printed with no space), but phrase_split finds
+    # the real split 'בית'(house)+'ספר'(book/school) at i=3, both ordinary lex() words --
+    # checked against the REAL committed lexicon, not an injected fixture, so this also
+    # confirms the path reaches real dictionary data the way the first container test
+    # above (מכות+מל) already did for the direct-hit path.
+    words = lex()
+    assert norm('בית') in words and norm('ספר') in words, \
+        'fixture precondition: בית/ספר must be real lexicon words'
+    target = norm('בית') + norm('ספר')
+    assert target not in words, \
+        'fixture precondition: ביתספר must NOT already be a direct lex() member, or ' \
+        'this test would pass via the pre-existing direct-hit path instead of proving ' \
+        'the new phrase_split() path fired'
+    hits = container_candidates('ביתפר ס', 6, use_phrase=True)
+    found_phrase = [h for h in hits if h['answer'] == target]
+    print(f'  found ביתספר via phrase_split: {bool(found_phrase)} (expected True), '
+          f'phrase field: {found_phrase[0].get("phrase") if found_phrase else None}')
+    ok &= bool(found_phrase) and bool(found_phrase[0].get('phrase'))
+    off = container_candidates('ביתפר ס', 6)
+    found_off = [h for h in off if h['answer'] == target]
+    print(f'  use_phrase=False (the DEFAULT -- see container_candidates\' own docstring '
+          f'for why) suppresses it: {not found_off} (expected True)')
+    ok &= not found_off
+
     print('--- abbreviation device: a curated single-letter trigger charades with an'
           ' ADJACENT literal clue word -- PLAYBOOK.md 2.3\'s own worked example'
           ' (ז=7/שבוע, זימימ = ז+ימים), checked against the real lexicon ---')
@@ -2371,12 +2494,16 @@ def main():
         use_hwdb = '--no-hwdb' not in rest
         use_phrase = '--no-phrase' not in rest
         use_anagram_phrase = '--no-anagram-phrase' not in rest
+        # use_container_phrase is OPT-IN (default False), unlike every other toggle here
+        # -- see container_candidates()'s own docstring for the measured false-positive
+        # reason this one does not follow the --no-X default-on convention.
+        use_container_phrase = '--container-phrase' in rest
         rest = [a for a in rest if a not in
                 ('--no-culture', '--no-retrieval', '--no-container', '--no-container-entity',
                  '--no-double-def', '--no-defspan-retrieval', '--no-homophone',
                  '--no-homophone-vowel', '--no-substitution-3part', '--no-charade',
                  '--no-abbreviation', '--no-defs-lexicon', '--no-hwdb', '--no-phrase',
-                 '--no-anagram-phrase')]
+                 '--no-anagram-phrase', '--container-phrase')]
         path = rest[0] if len(rest) > 0 else 'data/dataset/clues.jsonl'
         split = rest[1] if len(rest) > 1 else None
         os.chdir(ROOT)
@@ -2389,7 +2516,8 @@ def main():
                            use_substitution_3part=use_substitution_3part,
                            use_charade=use_charade, use_abbreviation=use_abbreviation,
                            use_defs_lexicon=use_defs_lexicon, use_hwdb=use_hwdb,
-                           use_phrase=use_phrase, use_anagram_phrase=use_anagram_phrase)
+                           use_phrase=use_phrase, use_anagram_phrase=use_anagram_phrase,
+                           use_container_phrase=use_container_phrase)
         print(f"recall@N: {res['hit']}/{res['total']} = {res['recall']:.1%}  "
               f"(avg {res['avg_candidates']:.1f} candidates/clue, "
               f"use_culture={use_culture}, use_retrieval={use_retrieval}, "
@@ -2400,7 +2528,8 @@ def main():
               f"use_substitution_3part={use_substitution_3part}, use_charade={use_charade}, "
               f"use_abbreviation={use_abbreviation}, use_defs_lexicon={use_defs_lexicon}, "
               f"use_hwdb={use_hwdb}, use_phrase={use_phrase}, "
-              f"use_anagram_phrase={use_anagram_phrase})")
+              f"use_anagram_phrase={use_anagram_phrase}, "
+              f"use_container_phrase={use_container_phrase})")
         print('hits by mechanism:', res['by_mechanism'])
         if res['misses']:
             print(f"\n{len(res['misses'])} misses (clue_number, direction, gold):")
