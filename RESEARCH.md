@@ -4,6 +4,45 @@ One entry per run: what was found, one-line summary, and an honest judgement of 
 it transfers to a Hebrew cryptic solver with an 8k-clue corpus. Default skepticism: most
 crossword-AI work targets non-cryptic (American-style) puzzles and does not transfer.
 
+## 2026-10-04
+
+First run since 2026-09-07 (the intervening runs in the log were nativ/site work, not
+solver levers). Bootstrap hit the same hard 14across wall as every run since 2026-08-19
+(7 consecutive answer-page fetches returned `None: 0 clues`); killed rather than waited
+out, worked entirely from the no-14across image-fallback technique.
+
+Research followed the scheduled task's stated priority order: candidate generation
+(diverse candidates by mechanism / by definition-span hypothesis) first, Hebrew NLP
+second. **"cryptic crossword candidate generation wordplay mechanism 2026 arxiv"** /
+**"cryptic crossword definition span detection clue segmentation NLP 2025"** /
+**"Hebrew morphology analyzer root pattern generation NLP tool 2025"** (three general
+searches). Surfaced only the same paper family already logged repeatedly since 2026-08-06
+(2506.04824 "A Reasoning-Based Approach to Cryptic Crossword Clue Solving", ICML 2025;
+2412.09012 "What Makes Cryptic Crosswords Challenging for LLMs?"; 2104.08620; 2407.08824)
+plus the same Hebrew-morphology landscape (HAMSAH, HebPipe, RFTokenizer) this log has
+checked on nearly every prior run — no new citation, no new resource. 2506.04824's own
+framing (verify a hypothesized answer's wordplay by compiling it to executable assertions)
+remains the one idea this project already absorbed, via `prove.py`'s proof gate, back in
+2026-07-28; nothing in today's pass adds to that.
+
+**Transfer: none actionable, for the same reason as the last several passes** — the
+published candidate-generation literature either targets non-cryptic puzzles (clue
+generation, not solving) or assumes a fine-tuned LM as the generator, which is a
+different-scale effort than one day's lever. Rather than ship nothing on this front for
+what is now well over a half-dozen consecutive passes with no external lead, today's lever
+(see DAILY.md) comes from the project's OWN internal, already-documented gap instead:
+`SOLVE_PROTOCOL.md`'s own candidate-generation method section and `solver/PLAYBOOK.md`
+both list the container device (X בתוך Y / מוקף / עוטף) as one of the setter's standard
+devices, and `solver/prove.py` has verified it since the project's earliest commits
+(`is_container`, the 11a worked example, `קרתנימ`) — but `solver/candidates.py` never had
+a GENERATOR for it. Every other mechanism there derives an answer from a single clue
+window (anagram rearranges it, hidden/reversal read it as-is); container's answer is two
+separate windows spliced together, which is exactly why a single-window scan could never
+produce it. This is not a literature-sourced idea — it is closing a gap between what this
+project's own proof gate has checked for since day one and what its candidate generator
+actually enumerates, the same shape of gap-closing lever 2026-08-25's retrieval-wiring and
+2026-08-23's `held_out()` fix both were.
+
 ## 2026-08-30
 
 Bootstrap hit the same hard 14across wall as 2026-08-19/08-26/08-27/08-28 (4 consecutive
