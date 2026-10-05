@@ -703,7 +703,8 @@ def sub_fwd():
     return _SUB_FWD
 
 
-def substitution_candidates(clue_text, target_len, table=None, use_3part=True):
+def substitution_candidates(clue_text, target_len, table=None, use_3part=True,
+                             use_phrase=True):
     """The setter's private-vocabulary device (SOLVE_PROTOCOL.md 'Substitutions'): a clue
     word stands in for a fragment mined from crowd explanations (a name completed by a
     surname, an abbreviation, a gloss). Three shapes, all requiring FULL coverage of the
@@ -724,32 +725,57 @@ def substitution_candidates(clue_text, target_len, table=None, use_3part=True):
           the cost stays bounded because most head words have only a handful of mined
           substitutes (sub_fwd() sorts and callers don't cap it, but the table is sparse by
           construction -- it only holds equivalences actually mined from crowd text).
-    `table` is injectable (tests / callers) instead of always hitting sub_fwd()."""
+    `table` is injectable (tests / callers) instead of always hitting sub_fwd().
+
+    `use_phrase` [NEW 2026-10-05, queue item 10(b)'s own last-named open quarter: "anagram
+    done 2026-10-01, hidden/reversal 2026-09-21, container 2026-10-02; substitution
+    remains open"] applies the same phrase_split() acceptance test hidden/reversal/
+    container already use, to all three shapes above: when a shape's concatenated
+    result is not itself a lex() member, it is also accepted when it is the unbroken
+    concatenation of 2-3 words that ARE lex() members (e.g. a substitute landing on
+    'משה'+'רבנו' rather than requiring 'משהרבנו' to be one dictionary entry). This is a
+    narrower surface than container_candidates' own phrase path (which tests every
+    outer x inner x splice-point combination -- dozens to hundreds of strings per
+    clue, the volume that produced that mechanism's measured false-positive problem
+    and made its toggle default OFF): substitution tests phrase_split() on at most one
+    fixed string per shape per adjacent-word-window -- bounded by how many clue words
+    have a mined substitute at all, typically a handful, not a combinatorial splice
+    search -- so it ships default ON pending its own real-data measurement, not copied
+    blind from container's default."""
     fwd = table if table is not None else sub_fwd()
     words = lex()
     ws = words_of(clue_text)
     subs_of = lambda w: [b for b, n in fwd.get(norm(w), [])]
+
+    def _accept(answer, mechanism, fodder, out):
+        if answer in words:
+            out.append({'answer': answer, 'mechanism': mechanism, 'fodder': fodder})
+        elif use_phrase:
+            parts = phrase_split(answer, words)
+            if parts:
+                out.append({'answer': answer, 'mechanism': mechanism, 'fodder': fodder,
+                            'phrase': '+'.join(parts)})
+
     out = []
     for w in ws:
         for b in subs_of(w):
-            if len(b) == target_len and b in words:
-                out.append({'answer': b, 'mechanism': 'substitution', 'fodder': w})
+            if len(b) == target_len:
+                _accept(b, 'substitution', w, out)
     for i in range(len(ws) - 1):
         for b1 in subs_of(ws[i]):
             for b2 in subs_of(ws[i + 1]):
                 joined = b1 + b2
-                if len(joined) == target_len and joined in words:
-                    out.append({'answer': joined, 'mechanism': 'substitution',
-                                'fodder': f'{ws[i]}+{ws[i + 1]}'})
+                if len(joined) == target_len:
+                    _accept(joined, 'substitution', f'{ws[i]}+{ws[i + 1]}', out)
     if use_3part:
         for i in range(len(ws) - 2):
             for b1 in subs_of(ws[i]):
                 for b2 in subs_of(ws[i + 1]):
                     for b3 in subs_of(ws[i + 2]):
                         joined = b1 + b2 + b3
-                        if len(joined) == target_len and joined in words:
-                            out.append({'answer': joined, 'mechanism': 'substitution',
-                                        'fodder': f'{ws[i]}+{ws[i + 1]}+{ws[i + 2]}'})
+                        if len(joined) == target_len:
+                            _accept(joined, 'substitution',
+                                    f'{ws[i]}+{ws[i + 1]}+{ws[i + 2]}', out)
     return out
 
 
@@ -1367,7 +1393,8 @@ def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retr
              use_container=True, use_container_entity=True, use_double_def=True,
              use_defspan_retrieval=True, use_homophone=True, use_homophone_vowel=True,
              use_substitution_3part=True, use_charade=True, use_abbreviation=True,
-             use_phrase=True, use_anagram_phrase=True, use_container_phrase=False):
+             use_phrase=True, use_anagram_phrase=True, use_container_phrase=False,
+             use_substitution_phrase=True):
     """Diverse candidates for one clue. Never consults the answer.
 
     Mechanism order here is a PRIORITY order, not just an accumulation order: dedup +
@@ -1424,15 +1451,20 @@ def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retr
     spliced output -- see its own docstring, including why this ONE toggle (unlike
     every other phrase-aware toggle here) DEFAULTS TO FALSE: a measured, real
     false-positive problem, not a cautious guess -- do not flip this default without
-    re-reading container_candidates' own docstring first. substitution's own
-    phrase-aware quarter still has no path; it depends on sub_fwd() (14across-mined,
-    hard-walled on most runs), making it harder to measure cleanly than container's
-    corpus-free literal/destemmed/entity fragment sources -- see DAILY.md for the
-    honest scope note."""
+    re-reading container_candidates' own docstring first.
+    `use_substitution_phrase` (2026-10-05, closing queue item 10(b)'s last-named open
+    quarter: anagram 2026-10-01, hidden/reversal 2026-09-21, container 2026-10-02,
+    substitution now) gates ONLY substitution_candidates' new phrase_split() acceptance
+    path on all three of its shapes -- see its own docstring for why it ships default ON
+    (unlike container_phrase): the phrase test there runs on at most a handful of fixed
+    strings per clue (bounded by how many clue words have a mined substitute at all),
+    not container's dozens-to-hundreds-per-clue splice search, so it does not share that
+    mechanism's measured false-positive volume problem."""
     target_len = sum(enum)
     cands = []
     cands += homograph_candidates(clue_text, target_len)
-    cands += substitution_candidates(clue_text, target_len, use_3part=use_substitution_3part)
+    cands += substitution_candidates(clue_text, target_len, use_3part=use_substitution_3part,
+                                      use_phrase=use_substitution_phrase)
     if use_abbreviation:
         cands += abbreviation_candidates(clue_text, target_len)
     if use_container:
@@ -1482,7 +1514,8 @@ def recall_eval(dataset_path, split=None, max_n=25, use_culture=True, use_retrie
                  use_defspan_retrieval=True, use_homophone=True, use_homophone_vowel=True,
                  use_substitution_3part=True, use_charade=True, use_abbreviation=True,
                  use_defs_lexicon=True, use_hwdb=True, use_phrase=True,
-                 use_anagram_phrase=True, use_container_phrase=False):
+                 use_anagram_phrase=True, use_container_phrase=False,
+                 use_substitution_phrase=True):
     set_use_defs_lexicon(use_defs_lexicon)
     set_use_hwdb(use_hwdb)
     total = 0
@@ -1507,7 +1540,8 @@ def recall_eval(dataset_path, split=None, max_n=25, use_culture=True, use_retrie
                           use_substitution_3part=use_substitution_3part,
                           use_charade=use_charade, use_abbreviation=use_abbreviation,
                           use_anagram_phrase=use_anagram_phrase,
-                          use_phrase=use_phrase, use_container_phrase=use_container_phrase)
+                          use_phrase=use_phrase, use_container_phrase=use_container_phrase,
+                          use_substitution_phrase=use_substitution_phrase)
         sizes.append(len(cands))
         gold = norm(r['answer_raw'])
         found = [c for c in cands if c['answer'] == gold]
@@ -1996,6 +2030,23 @@ def selftest():
     print(f'  no שלום from the non-adjacent אחד+שלישי pair (שני sits between them and has '
           f'no substitute in this table): {not found} (expected True)')
     ok &= not found
+
+    print('--- substitution device: use_phrase accepts a substitute that is not itself a '
+          'lex() member but splits into two that are (queue item 10(b)\'s last-named open '
+          'quarter, closing it alongside hidden/reversal/anagram/container) ---')
+    sub_table_phrase = {norm('משהו'): [(norm('ביתספר'), 1)]}
+    hits = substitution_candidates('יש לי משהו', 6, table=sub_table_phrase)
+    # phrase_split() returns its FIRST valid split (own docstring: "not proof of a unique
+    # ... decomposition") -- 'בי'+'תספר' is found before 'בית'+'ספר', so this only checks
+    # that SOME phrase split fired with its 'phrase' field set, not a specific split.
+    found = any(h['answer'] == norm('ביתספר') and h.get('phrase') for h in hits)
+    print(f'  found ביתספר via phrase_split, phrase field set: {found} (expected True)')
+    ok &= found
+    hits_off = substitution_candidates('יש לי משהו', 6, table=sub_table_phrase,
+                                        use_phrase=False)
+    found_off = any(h['answer'] == norm('ביתספר') for h in hits_off)
+    print(f'  use_phrase=False suppresses it: {not found_off} (expected True)')
+    ok &= not found_off
 
     print('--- homograph device: a clue word, de-prefixed, already IS the answer ---')
     # שרה is the canonical example (PLAYBOOK.md/SOLVE_PROTOCOL.md): she sings / a female
@@ -2498,12 +2549,13 @@ def main():
         # -- see container_candidates()'s own docstring for the measured false-positive
         # reason this one does not follow the --no-X default-on convention.
         use_container_phrase = '--container-phrase' in rest
+        use_substitution_phrase = '--no-substitution-phrase' not in rest
         rest = [a for a in rest if a not in
                 ('--no-culture', '--no-retrieval', '--no-container', '--no-container-entity',
                  '--no-double-def', '--no-defspan-retrieval', '--no-homophone',
                  '--no-homophone-vowel', '--no-substitution-3part', '--no-charade',
                  '--no-abbreviation', '--no-defs-lexicon', '--no-hwdb', '--no-phrase',
-                 '--no-anagram-phrase', '--container-phrase')]
+                 '--no-anagram-phrase', '--container-phrase', '--no-substitution-phrase')]
         path = rest[0] if len(rest) > 0 else 'data/dataset/clues.jsonl'
         split = rest[1] if len(rest) > 1 else None
         os.chdir(ROOT)
@@ -2517,7 +2569,8 @@ def main():
                            use_charade=use_charade, use_abbreviation=use_abbreviation,
                            use_defs_lexicon=use_defs_lexicon, use_hwdb=use_hwdb,
                            use_phrase=use_phrase, use_anagram_phrase=use_anagram_phrase,
-                           use_container_phrase=use_container_phrase)
+                           use_container_phrase=use_container_phrase,
+                           use_substitution_phrase=use_substitution_phrase)
         print(f"recall@N: {res['hit']}/{res['total']} = {res['recall']:.1%}  "
               f"(avg {res['avg_candidates']:.1f} candidates/clue, "
               f"use_culture={use_culture}, use_retrieval={use_retrieval}, "
@@ -2529,7 +2582,8 @@ def main():
               f"use_abbreviation={use_abbreviation}, use_defs_lexicon={use_defs_lexicon}, "
               f"use_hwdb={use_hwdb}, use_phrase={use_phrase}, "
               f"use_anagram_phrase={use_anagram_phrase}, "
-              f"use_container_phrase={use_container_phrase})")
+              f"use_container_phrase={use_container_phrase}, "
+              f"use_substitution_phrase={use_substitution_phrase})")
         print('hits by mechanism:', res['by_mechanism'])
         if res['misses']:
             print(f"\n{len(res['misses'])} misses (clue_number, direction, gold):")

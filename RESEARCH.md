@@ -2441,3 +2441,40 @@ Today's lever closes the `container` quarter of the same queue item 10(b) 2026-1
 the `anagram` quarter of -- see DAILY.md for the mechanism, the measurement (a real
 regression when the new toggle is turned on, which is why it ships off by default), and
 the audit.
+
+## 2026-10-05
+
+Three general searches this run, following the scheduled task's own priority order
+(candidate generation / definition-span detection first, then Hebrew NLP):
+"cryptic crossword clue solving candidate generation definition detection 2026 arxiv",
+"cryptic crossword definition span location wordplay parsing transformer 2025 2026", and
+"Hebrew morphology segmentation templatic root pattern NLP 2026 new model". A fourth,
+targeted search ("Sadallah cryptic crossword 2025 Saha cryptic crossword LLM arxiv")
+checked one specific new-looking name surfaced by the first two searches' auto-summaries.
+
+**Candidate generation / definition detection**: surfaced only the same paper family
+logged on nearly every prior pass since 2026-08-06 (2407.08824 "Proving that Cryptic
+Crossword Clue Answers are Correct"; 2412.09012 "What Makes Cryptic Crosswords
+Challenging for LLMs?"; 2104.08620 "Decrypting Cryptic Crosswords"; 2403.12094 "Are LLMs
+Good Cryptic Crossword Solvers?"; 2406.09043 "Language Models are Crossword Solvers").
+The "Sadallah... 2025" name the auto-summary flagged as if it might be new turned out,
+checked directly, to be the SAME author/paper pair already in this log (Abdelrahman
+Sadallah, Daria Kotova, Ekaterina Kochmar, MBZUAI — 2403.12094 is their 2024 paper,
+2412.09012 their COLING 2025 follow-up; both already cited here since 2026-08-06/2026-08-22
+respectively). **Transfer: none** — this is at least the ninth consecutive pass that finds
+nothing new and buildable on this front; the search engine re-surfacing an already-logged
+paper under a slightly different framing is a recurring noise pattern of these searches,
+not a new signal.
+
+**Hebrew morphology**: DictaBERT, HebMorph, RFTokenizer/HebPipe, the Semitic-root-encoding
+NMT thesis — all already logged. **Transfer: none new.**
+
+**Conclusion for today's lever.** Ninth-plus consecutive literature pass with nothing new.
+Today's lever is accordingly the project's own internal queue again: item 10(b)'s
+last-named open quarter ("wiring phrase-awareness into anagram/substitution/charade/
+container" — anagram done 2026-10-01, hidden/reversal 2026-09-21, container 2026-10-02,
+substitution left explicitly open both times as "harder to measure cleanly, it depends on
+sub_fwd() (14across-mined, hard-walled on most runs)"). See DAILY.md for the mechanism,
+the measurement, and an unusually good break on that exact named obstacle: 14across
+responded fully for the specific puzzle date this run needed, after a full hard wall on
+the general 52-puzzle bootstrap scrape.
