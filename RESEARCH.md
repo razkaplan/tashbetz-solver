@@ -4,6 +4,51 @@ One entry per run: what was found, one-line summary, and an honest judgement of 
 it transfers to a Hebrew cryptic solver with an 8k-clue corpus. Default skepticism: most
 crossword-AI work targets non-cryptic (American-style) puzzles and does not transfer.
 
+## 2026-10-03
+
+First run in over a month (previous entry: 2026-08-30; the intervening 2026-08-31/09-04/
+09-07 DAILY.md entries were site/nativ work, not this solver). Bootstrap succeeded FULLY
+this run (52/52 puzzles at 14across, no bot-wall) — first clean bootstrap since 2026-08-06
+per the log, so this run's gold data is real crowd-sourced answers+explanations, not the
+image-fallback technique.
+
+**"cryptic crossword clue solving candidate generation LLM 2026" (general search).**
+Surfaced only the same paper family logged every run since 2026-08-06 (2506.04824/ICML
+2025, 2407.08824, 2406.09043) plus one new sighting: a PyData Amsterdam 2026 talk, "Beyond
+Benchmarks: Optimizing LLMs and Puzzle Agents for Cryptic Crosswords," comparing zero-shot
+cryptic performance across current frontier model families (GPT/Claude/Gemini/Mistral/
+DeepSeek), reportedly ~25% zero-shot in last year's SOTA. **Transfer: none actionable** —
+a benchmark/comparison talk, not a new generation or scoring technique; restates the same
+"LLMs alone are weak at cryptics, structure helps" premise this project's own proof-gate
+architecture already acts on.
+
+**"Hebrew morphology segmentation tool 2026 root pattern templatic NLP".** Same tools
+already logged repeatedly (HebPipe/Zeldes characterwise segmentation, SPMRL). One new
+sighting, a 2026 linguistics workshop (ProSegPatMo, DGfS 2026) on templatic/prosodic
+morphology theory in Afroasiatic languages generally. **Transfer: none** — theoretical
+linguistics, not a buildable NLP tool or resource.
+
+**"definition span detection cryptic clue wordplay segmentation 2026 arxiv".** Same paper
+set as every prior pass (2412.09012, 2104.08620, 2103.01242/Cryptonite) — no new paper.
+Re-read for the specific numbers once more: definition-extraction accuracy 19.3-41.2% and
+wordplay-type detection 20-44.5% depending on model/dataset, in these papers' own English-
+cryptic evaluations. **Transfer: none new** — this is the literature `defspan.py`
+(2026-08-19) already tested against, and measured WORSE on (1/5 on this setter's actual
+edge cases, after finding only 25% of clues even have a mechanically-locatable span). A
+general accuracy range from a different language's benchmark doesn't change that standing,
+measured, negative finding here.
+
+**Conclusion.** Eighth-plus consecutive literature pass (dating to 2026-08-06) with nothing
+new and buildable on candidate generation, definition-span/fit scoring, or Hebrew
+morphology. Per DAILY.md's own standing guidance once a research thread is this exhausted
+("scoped as a genuinely new internal idea, not another literature sweep" — queue item 9),
+today's lever is exactly that: an internal, previously-flagged, never-attempted extension
+to `solver/candidates.py`'s own `substitution_candidates` (queue item 1, flagged
+2026-08-20: "the mined substitution table needs to cover multi-part charades (3+
+segments), not just 1-2 word coverage of the full answer length"). See DAILY.md for the
+measurement — a clean, honest negative result on today's 2-puzzle/56-clue sample, with the
+root cause (table sparsity, not a bug) diagnosed directly rather than assumed.
+
 ## 2026-08-30
 
 Bootstrap hit the same hard 14across wall as 2026-08-19/08-26/08-27/08-28 (4 consecutive
