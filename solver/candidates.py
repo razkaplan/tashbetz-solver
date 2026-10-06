@@ -14,6 +14,16 @@ This module does exactly that, per clue, with no LLM involved:
   - hidden_candidates:   a contiguous run inside the space-removed clue that is itself
                           a real word (the "hidden word" device).
   - reversal_candidates: same search, reversed.
+  - container_candidates: the insertion device (SOLVE_PROTOCOL.md "container": X בתוך Y) —
+                          an OUTER word with an INNER fragment inserted somewhere inside
+                          it. Distinct from hidden_candidates: there the whole answer sits
+                          unbroken as a clue substring; here the outer word's two halves
+                          are only adjacent in the ANSWER, not in the clue. Never tried in
+                          this file before (SOLVE_PROTOCOL.md names it as a mechanism
+                          alongside anagram/hidden/reversal, but candidates.py had no
+                          generator for it). The inner fragment must be one of the clue's
+                          own WORDS (not an arbitrary letter run) — see its own docstring
+                          for the measured combinatorial explosion that forced this.
   - substitution_candidates: the setter's private-vocabulary device — a clue word (or two
                           adjacent ones) substituted for a fragment mined from crowd
                           explanations (solver/substitutions.py), when the substitute(s)
@@ -163,6 +173,57 @@ def reversal_candidates(clue_text, target_len):
         rev = sub[::-1]
         if rev in words:
             out.append({'answer': rev, 'mechanism': 'reversal', 'fodder': sub})
+    return out
+
+
+def container_candidates(clue_text, target_len):
+    """The insertion device (SOLVE_PROTOCOL.md "container": X בתוך Y): an OUTER word has
+    an INNER fragment inserted somewhere inside it to produce the answer. Checks every
+    lexicon word of the target length against every way of removing a middle run: if what
+    remains (prefix+suffix joined) is ALSO a real word, and the removed run is ONE OF THE
+    CLUE'S OWN WORDS, the whole word is a candidate.
+
+    MEASURED FALSE START #1, kept as documentation (same discipline solve_pass.py's own
+    docstring sets): the first cut required only that the removed run be a real word
+    occurring anywhere as a bare SUBSTRING of the clue's joined letters (no word-boundary
+    requirement), matching how anagram/hidden/reversal already search. That combinatorially
+    exploded -- measured 600-7,700 raw hits for a single mid-length clue, because Hebrew has
+    thousands of short real words and a bare substring check against the whole clue's
+    letters (no spaces) is satisfied by nearly any of them. It was not a derivation, it was
+    noise with extra steps. Fixed by requiring the inner fragment to be one of the clue's
+    actual WORDS (space-delimited, like homograph_candidates/substitution_candidates
+    already require) rather than an arbitrary run of its letters -- faithful to how a setter
+    actually builds this device (a real clue word gets inserted), and it cuts the hit count
+    by roughly two orders of magnitude on the same test clue.
+
+    MEASURED FALSE START #2: the word-boundary fix still let `i` (where the inner run
+    starts inside the answer) reach the very first or last position, so "outer" could be
+    pure prefix or pure suffix with nothing on the other side -- that is concatenation
+    (a charade), not insertion, and prove.py's own is_container(outer, inner, answer)
+    only accepts a split point STRICTLY inside outer (`for k in range(1, len(o))`, never
+    k=0). The generator was therefore proposing "container" candidates its own project's
+    verifier would reject -- caught by solve_pass.py's selftest, which wires a generated
+    candidate straight into is_container and failed. Fixed by requiring at least one
+    outer character on BOTH sides of the inserted inner (true containment).
+
+    Same cost class as anagram/hidden/reversal (every word of the target length, every
+    split point) — placed in generate()'s low-priority window-scan tier for the same
+    reason (2026-08-20 finding: cheap high-volume mechanisms crowd out precise ones if not
+    deprioritized)."""
+    clue_words = {norm(w) for w in words_of(clue_text) if norm(w)}
+    words = lex()
+    out = []
+    for w in by_len().get(target_len, []):
+        for i in range(1, target_len - 2):           # >=1 outer char before the inner
+            for inner_len in range(2, target_len - i):  # >=1 outer char after it
+                j = i + inner_len
+                inner = w[i:j]
+                if inner not in clue_words:
+                    continue
+                outer = w[:i] + w[j:]
+                if outer in words:
+                    out.append({'answer': w, 'mechanism': 'container',
+                                'fodder': inner, 'outer': outer})
     return out
 
 
@@ -459,7 +520,8 @@ def split_candidates(cands, enum):
     return out
 
 
-def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retrieval=True):
+def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retrieval=True,
+             use_container=True):
     """Diverse candidates for one clue. Never consults the answer.
 
     Mechanism order here is a PRIORITY order, not just an accumulation order: dedup +
@@ -493,6 +555,8 @@ def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retr
     cands += anagram_candidates(clue_text, target_len)
     cands += hidden_candidates(clue_text, target_len)
     cands += reversal_candidates(clue_text, target_len)
+    if use_container:
+        cands += container_candidates(clue_text, target_len)
 
     seen, uniq = set(), []
     for c in cands:
@@ -511,7 +575,8 @@ def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retr
 # isolation, BEFORE it is wired into a live solve+proof loop (which is a
 # separate integration step, not done by this lever).
 # ---------------------------------------------------------------------------
-def recall_eval(dataset_path, split=None, max_n=25, use_culture=True, use_retrieval=True):
+def recall_eval(dataset_path, split=None, max_n=25, use_culture=True, use_retrieval=True,
+                 use_container=True):
     total = 0
     hit = 0
     by_mech = Counter()
@@ -525,7 +590,7 @@ def recall_eval(dataset_path, split=None, max_n=25, use_culture=True, use_retrie
             continue
         total += 1
         cands = generate(r['clue_text'], r['enum'], max_n=max_n, use_culture=use_culture,
-                          use_retrieval=use_retrieval)
+                          use_retrieval=use_retrieval, use_container=use_container)
         sizes.append(len(cands))
         gold = norm(r['answer_raw'])
         found = [c for c in cands if c['answer'] == gold]
@@ -575,6 +640,27 @@ def selftest():
     found = any(h['answer'] == norm('בר') for h in hits)
     print(f'  found בר as a reversal of רב: {found} (expected True)')
     ok &= found
+
+    print('--- container device: an INNER real word inserted INSIDE an OUTER real word'
+          ' (outer chars on both sides, matching prove.py is_container exactly),'
+          ' inner literally present in the clue ---')
+    # אביב (4) = א + בי(inserted) + ב: outer אב ("father", split as א/ב with the inner
+    # landing strictly between them, k=1 of 1..len(outer)-1), inner בי (2, "in me"), both
+    # real words, neither is today's gold data for any transcribed puzzle (checked: not
+    # in solver/lex -- this is a synthetic fixture, same discipline as every other
+    # mechanism's selftest). Confirmed independently against prove.py itself:
+    # `assert is_container('אב', 'בי', 'אביב')` PROVES -- this is not just "some real
+    # word", it is one this project's own verifier accepts for this exact mechanism.
+    hits = container_candidates('הכל קרה בי השנה הזאת', 4)
+    found = any(h['answer'] == norm('אביב') and h.get('outer') == norm('אב') for h in hits)
+    print(f'  found אביב as אב with בי inserted strictly inside it, inner literally in '
+          f'the clue: {found} (expected True)')
+    ok &= found
+    print('--- container device: inner not literally in the clue fires nothing ---')
+    hits2 = container_candidates('שום מילה קשורה כאן בכלל', 4)
+    print(f'  no container candidate for an unrelated clue: '
+          f'{not any(h["answer"] == norm("אביב") for h in hits2)} (expected True)')
+    ok &= not any(h['answer'] == norm('אביב') for h in hits2)
 
     print('--- pattern device: crossing-pattern lookup wraps lexicon.pattern ---')
     hits = pattern_candidates('של?ם')
@@ -681,14 +767,17 @@ def main():
         rest = sys.argv[2:]
         use_culture = '--no-culture' not in rest
         use_retrieval = '--no-retrieval' not in rest
-        rest = [a for a in rest if a not in ('--no-culture', '--no-retrieval')]
+        use_container = '--no-container' not in rest
+        rest = [a for a in rest if a not in ('--no-culture', '--no-retrieval', '--no-container')]
         path = rest[0] if len(rest) > 0 else 'data/dataset/clues.jsonl'
         split = rest[1] if len(rest) > 1 else None
         os.chdir(ROOT)
-        res = recall_eval(path, split, use_culture=use_culture, use_retrieval=use_retrieval)
+        res = recall_eval(path, split, use_culture=use_culture, use_retrieval=use_retrieval,
+                           use_container=use_container)
         print(f"recall@N: {res['hit']}/{res['total']} = {res['recall']:.1%}  "
               f"(avg {res['avg_candidates']:.1f} candidates/clue, "
-              f"use_culture={use_culture}, use_retrieval={use_retrieval})")
+              f"use_culture={use_culture}, use_retrieval={use_retrieval}, "
+              f"use_container={use_container})")
         print('hits by mechanism:', res['by_mechanism'])
         if res['misses']:
             print(f"\n{len(res['misses'])} misses (clue_number, direction, gold):")

@@ -65,6 +65,8 @@ def proof_for(c):
         lines.append(f"assert is_hidden({fodder!r}, {answer!r})")
     elif mech == 'reversal':
         lines.append(f"assert is_reversal({fodder!r}, {answer!r})")
+    elif mech == 'container':
+        lines.append(f"assert is_container({c['outer']!r}, {fodder!r}, {answer!r})")
     else:
         return None  # pattern hits: possible by length only, nothing to formalize yet
     if c.get('split'):
@@ -127,6 +129,20 @@ def selftest():
     print(f'  every raw anagram hit mechanically "proves": {trivial} '
           f'(expected True — this is WHY rank() does not use that as a filter)')
     ok &= trivial
+
+    print('--- container device: proof_for builds a real is_container assertion ---')
+    # same fixture as candidates.py's own container selftest: אביב = אב with בי inserted
+    # strictly inside it (not a prefix/suffix concatenation) -- this is the exact shape
+    # a false-start version of container_candidates got wrong (caught here: the earlier
+    # version generated candidates whose own proof_for() string FAILED is_container,
+    # since it allowed the inner fragment to sit at outer's very edge).
+    cands = candidates.container_candidates('הכל קרה בי השנה הזאת', 4)
+    hit = next((c for c in cands if c['answer'] == candidates.norm('אביב')), None)
+    proof = proof_for(hit) if hit else None
+    checked = bool(proof and prove.check(proof, verbose=False)[0])
+    print(f'  container hit found and its proof string executes: {checked} '
+          f'(proof={proof!r}, expected a passing is_container assertion)')
+    ok &= checked
 
     print('--- split_ok distinguishes real-word pieces from junk splits ---')
     multi = rank('בדיקה של מלה ועוד מלה', [4, 5], pattern=None)

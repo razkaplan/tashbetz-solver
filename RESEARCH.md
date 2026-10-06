@@ -4,6 +4,66 @@ One entry per run: what was found, one-line summary, and an honest judgement of 
 it transfers to a Hebrew cryptic solver with an 8k-clue corpus. Default skepticism: most
 crossword-AI work targets non-cryptic (American-style) puzzles and does not transfer.
 
+## 2026-10-06
+
+First run in over a month (last solver-lever entry was 2026-08-30; the intervening
+2026-08-31/09-04/09-07 entries in DAILY.md are a separate nativ/site-UI workstream, not
+this routine). Bootstrap needed a plain re-run without an external `timeout` wrapper —
+the first attempt was killed by a 300s cap mid-scrape; 14across's intermittent bot-check
+retry-with-backoff (documented since 2026-08-06) just needs longer than that, not a
+different fix.
+
+Research followed the scheduled task's stated priority order: candidate generation
+(diverse candidates by mechanism / by definition-span hypothesis) first, then
+definition-span detection, then Hebrew NLP/morphology.
+
+**"cryptic crossword solver LLM candidate generation 2026" (general search).** Surfaced
+only the same paper family logged repeatedly since 2026-08-06 (2506.04824 ICML 2025,
+2406.09043, 2407.08824) plus one new name: **SweepClip**, reported elsewhere to reach 93%
+on NYT puzzles. Checked against this project's standing skepticism rule before getting
+excited: NYT puzzles are American-style (no wordplay layer, "candidate" = any
+right-length dictionary word crossing known letters) — exactly the class of result
+PLAN_V2.md and this log already judged non-transferable on 2026-08-19/08-27 (Berkeley
+Crossword Solver, Dr. Fill, Proverb). **Transfer: none** — a fourth independent
+confirmation of the same non-transfer finding, now against the newest-named system in
+that family. Also re-surfaced the already-logged "iterative rewrite loop" detail from
+2407.08824/2506.04824 (an LLM gets up to 5 repair attempts fed the prover's own failure
+message) — still not implemented here (flagged open since 2026-08-19), still not
+attempted today: it is a solve-LOOP change for an LLM-driven live trial, not a
+`candidates.py` mechanism, and today's lever went to a mechanical generator gap instead
+(see below).
+
+**"definition span detection cryptic crossword clue parsing wordplay 2025 2026" (general
+search).** Surfaced no new paper — only daily-puzzle hint-site pages (Parseword,
+unrelated commercial word games) and the same standard-heuristic restatement
+(definition at one end, rest is wordplay) that `defspan.py` (2026-08-19) already tested
+against this setter's own clues and measured FALSE: only 25% of clues have a
+mechanically-locatable single-window wordplay span at all, and 29% of those are interior,
+not edge. **Transfer: none new** — re-confirms, does not reopen, the standing struck
+item. Not re-attempted, per the queue's own "do not repeat with the same signal" note.
+
+**"Hebrew morphology NLP crossword wordplay generation research 2026" (general search).**
+Surfaced only general Hebrew-NLP resources (AlephBERT, root-and-pattern morphology
+surveys) already known to be real but not crossword-register-tuned, consistent with every
+prior pass on this query since 2026-08-06/08-27. **Transfer: none new.**
+
+**Conclusion for today's lever.** Seventh-plus consecutive literature pass confirming,
+not discovering: no new transferable technique for candidate generation, definition-span
+detection, or Hebrew-specific tooling. Chose the queue's own internal gap instead: queue
+item 1 (candidate generation) lists anagram/hidden/reversal/substitution/homograph/
+culture/retrieval as tried, but SOLVE_PROTOCOL.md names a sixth classical mechanism —
+**container** (X בתוך Y, an outer word with an inner fragment inserted) — that `prove.py`
+has carried a verifier for (`is_container`, since the proof gate's original build) but
+`candidates.py` never had a GENERATOR for. This is exactly the generator/verifier gap the
+project's own architecture is designed to close (prove.py can check it, nothing ever
+proposed one) — a real, previously unaddressed item under queue 1, not a re-hash of
+definition-span or a repeat of the already-negative substitution/homograph/culture
+sub-levers. See DAILY.md for the build, the measured combinatorial-explosion false start
+(600-7,700 raw hits per clue on the naive "any real-word substring of the clue" version),
+the fix (require the inserted fragment to be one of the clue's own WORDS, matching the
+discipline homograph_candidates/substitution_candidates already use), and the recall
+measurement.
+
 ## 2026-08-30
 
 Bootstrap hit the same hard 14across wall as 2026-08-19/08-26/08-27/08-28 (4 consecutive
