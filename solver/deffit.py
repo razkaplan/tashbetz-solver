@@ -56,10 +56,25 @@ RESULTS.md's INTEGRITY FINDING already established for lexicon.py ("ordinary
 dictionary words that happen to be answers legitimately remain, as they would in any
 real solver's dictionary").
 
+ANSWER-LEVEL IDF DAMPENER (2026-10-07, this run's lever — queue item 9's own named next
+step from 2026-09-22's reranking measurement): that run found two gold answers stuck
+below generic high-frequency idioms (מבעודמועד, בהצלחה) that outranked them not because
+they fit the clue better, but because the corpus happens to define them in MANY
+independent documents, and def_fit_score takes the MAX bm25 score over all of an
+answer's documents — more documents means more chances to land a high score by
+coincidence, which is a selection-size artifact, not evidence of topical fit.
+`_answer_idf()` reuses retrieve_defs.py's own per-token IDF shape, but counts documents
+PER ANSWER instead of per TOKEN, normalized to [0, 1] against the IDF of an answer
+attested in exactly one document (the ceiling — no dampening) so it only ever shrinks a
+score, never inflates one. `def_fit_score`/`rerank`/`eval_rerank` all take
+`use_answer_idf=True` by default; `--no-answer-idf` reproduces the exact pre-2026-10-07
+scoring for a controlled before/after measurement.
+
 CLI:
   python3 solver/deffit.py clue "<text>" <enum...>            # ranked, with def_fit scores
   python3 solver/deffit.py eval data/dataset/clues.jsonl eval   # rerank quality, conditional on recall
   python3 solver/deffit.py eval data/dataset/clues.jsonl eval --no-fillbank  # ablation
+  python3 solver/deffit.py eval data/dataset/clues.jsonl eval --no-answer-idf  # ablation
   python3 solver/deffit.py selftest
 """
 import sys, os, json, math
@@ -147,6 +162,38 @@ def build_fillbank_index(fillbank=None):
     return {'N': N, 'df': df, 'avg': avg, 'ans_docs': ans_docs}
 
 
+def _answer_idf(idx, answer):
+    """ANSWER-level IDF dampener (DAILY.md queue item 9's named next step, 2026-09-22:
+    "an IDF-style dampener for generic-idiom over-matching"). `def_fit_score` takes the
+    MAX bm25 score over every document that lists `answer` — but an idiom this corpus
+    happens to define in many independent documents (a common phrase like מבעודמועד /
+    בהצלחה that shows up across many unrelated private_defs entries) gets more "chances"
+    at that max than a rare, specific idiom defined in only one or two documents, purely
+    from having a larger document pool to pick the best match from. That selection-size
+    advantage is not evidence of a better topical fit — 2026-09-22's own measurement
+    found exactly this: two gold answers stayed buried below generic high-frequency
+    idioms whose outranking scores were high only because the corpus defines them
+    "almost everywhere," not because either matched the clue better.
+
+    This reuses retrieve_defs.py's own per-TOKEN IDF shape (log(1 + (N-n+.5)/(n+.5)))
+    but counts documents PER ANSWER instead of documents PER TOKEN, then normalizes to
+    [0, 1] by its own ceiling (the IDF of an answer attested in exactly one document) so
+    multiplying a BM25 score by it only ever shrinks, never inflates. An answer attested
+    once scores at the ceiling (no dampening); an answer attested in most of the corpus's
+    documents scores near 0 (heavily dampened, since matching ANY one of them by chance
+    is close to guaranteed and therefore uninformative)."""
+    docs = idx['ans_docs'].get(answer)
+    if not docs:
+        return 1.0
+    n = len(docs)
+    N = max(idx.get('N', n), n)
+    ceiling = math.log(1 + (N - 1 + .5) / (1 + .5))
+    if ceiling <= 0:
+        return 1.0
+    raw = math.log(1 + (N - n + .5) / (n + .5))
+    return raw / ceiling
+
+
 def _bm25_query_doc(q_toks, doc_toks, N, df, avg):
     """Identical scoring formula to retrieve_defs.candidates()'s per-doc term, so a
     def_fit score is directly comparable to the score retrieval_candidates() already
@@ -170,7 +217,7 @@ def _as_index_list(idxs):
     return [idxs] if isinstance(idxs, dict) else list(idxs)
 
 
-def def_fit_score(clue_text, answer, idxs):
+def def_fit_score(clue_text, answer, idxs, use_answer_idf=True):
     """0.0 means 'no known definition for this answer in ANY available source', NOT
     'known to be a bad fit' — most candidates (rare names, coined multi-word answers)
     will score 0.0 simply because nothing in a modest corpus defines them. This is why
@@ -184,7 +231,14 @@ def def_fit_score(clue_text, answer, idxs):
     Each source keeps its OWN BM25 statistics (N/df/avg computed only over its own
     corpus), so scores are comparable within a source but this file makes no claim
     that a private_defs score and a fillbank score are on a calibrated common scale —
-    only that a higher score within either source means stronger lexical overlap."""
+    only that a higher score within either source means stronger lexical overlap.
+
+    use_answer_idf (2026-10-07, queue item 9's own named next step): multiplies each
+    source's max per-doc score by that source's _answer_idf(answer) dampener before
+    taking the cross-source max, so a generic idiom with many defining documents in
+    ONE source cannot out-rank a rare, genuinely-matching idiom just because it had
+    more documents to pick its best match from. `--no-answer-idf` reproduces the
+    pre-2026-10-07 behaviour exactly, for a controlled before/after measurement."""
     _, retrieve_defs = _mods()
     q = set(retrieve_defs.toks(clue_text))
     best = 0.0
@@ -192,18 +246,22 @@ def def_fit_score(clue_text, answer, idxs):
         docs = idx['ans_docs'].get(answer)
         if not docs:
             continue
-        best = max(best, max(_bm25_query_doc(q, t, idx['N'], idx['df'], idx['avg']) for t in docs))
+        raw = max(_bm25_query_doc(q, t, idx['N'], idx['df'], idx['avg']) for t in docs)
+        if use_answer_idf:
+            raw *= _answer_idf(idx, answer)
+        best = max(best, raw)
     return best
 
 
-def rerank(clue_text, cands, idxs):
+def rerank(clue_text, cands, idxs, use_answer_idf=True):
     """Stable-sorts candidates by def_fit score, descending; ties (including the
     common 0.0-vs-0.0 case) preserve candidates.py's own mechanism-priority order.
     Returns NEW dicts (each carries a 'def_fit' key); never mutates the input or
     drops/adds a candidate, so recall@N over the result is identical to recall@N
     over the input by construction. `idxs` is one index dict or a list of them
     (def_fit_score's own _as_index_list handles both)."""
-    scored = [(def_fit_score(clue_text, c['answer'], idxs), i, c) for i, c in enumerate(cands)]
+    scored = [(def_fit_score(clue_text, c['answer'], idxs, use_answer_idf=use_answer_idf), i, c)
+              for i, c in enumerate(cands)]
     scored.sort(key=lambda x: (-x[0], x[1]))
     out = []
     for score, _i, c in scored:
@@ -220,7 +278,8 @@ NON_RETRIEVAL_MECHANISMS = {
 
 
 # ---------------------------------------------------------------------------
-def eval_rerank(dataset_path, split=None, max_n=25, idxs=None, use_fillbank=True):
+def eval_rerank(dataset_path, split=None, max_n=25, idxs=None, use_fillbank=True,
+                 use_answer_idf=True):
     """Reranking quality, CONDITIONAL on the gold answer already being present in
     candidates.generate()'s output (i.e. conditional on a recall@N hit) — this is
     the honest way to isolate what reranking can possibly contribute, since it can
@@ -261,14 +320,15 @@ def eval_rerank(dataset_path, split=None, max_n=25, idxs=None, use_fillbank=True
         if any(any(c['answer'] in idx['ans_docs'] for idx in _as_index_list(idxs))
                for c in nr_cands):
             nonretrieval_known_gloss_clues += 1
-        if any(def_fit_score(r['clue_text'], c['answer'], idxs) > 0 for c in nr_cands):
+        if any(def_fit_score(r['clue_text'], c['answer'], idxs, use_answer_idf=use_answer_idf) > 0
+               for c in nr_cands):
             nonretrieval_scored_clues += 1
         gold = candidates.norm(r['answer_raw'])
         base_rank = next((i + 1 for i, c in enumerate(cands) if c['answer'] == gold), None)
         if base_rank is None:
             continue
         recall_hit += 1
-        reranked = rerank(r['clue_text'], cands, idxs)
+        reranked = rerank(r['clue_text'], cands, idxs, use_answer_idf=use_answer_idf)
         re_rank = next((i + 1 for i, c in enumerate(reranked) if c['answer'] == gold), None)
         base_top1 += base_rank == 1
         rerank_top1 += re_rank == 1
@@ -356,6 +416,59 @@ def selftest():
     print(f'  order preserved: {[c["answer"] for c in out2] == ["א", "ב"]} (expected True)')
     ok &= [c['answer'] for c in out2] == ['א', 'ב']
 
+    print('--- _answer_idf / use_answer_idf: a generic idiom with MANY defining documents '
+          'cannot out-rank a rare idiom with ONE defining document via the same best-doc '
+          'match, even though the raw (undampened) scores are identical ---')
+    # One shared matching doc gives both answers the exact same raw bm25 score via
+    # max(). "generic" additionally has 9 unrelated filler documents (not matched by
+    # the query at all) -- these cannot raise its raw score (max() already ignores
+    # them), but they DO raise its answer-document-frequency, which is exactly the
+    # selection-size artifact 2026-09-22 diagnosed and this dampener targets.
+    matching_doc = ['נשיא', 'ראשון', 'מדינת', 'ישראל']
+    filler_docs = [['משהו', 'לא', 'קשור', str(i)] for i in range(9)]
+    idf_df = Counter()
+    for toks in [matching_doc] + filler_docs:
+        for w in set(toks):
+            idf_df[w] += 1
+    idf_idx = {
+        'N': 10, 'df': idf_df, 'avg': 4,
+        'ans_docs': {
+            'generic': [matching_doc] + filler_docs,  # 10 documents, 1 of them matches
+            'rare': [matching_doc],  # 1 document, the identical match
+        },
+    }
+    clue = 'מי היה הנשיא הראשון של המדינה'
+    raw_generic = def_fit_score(clue, 'generic', idf_idx, use_answer_idf=False)
+    raw_rare = def_fit_score(clue, 'rare', idf_idx, use_answer_idf=False)
+    print(f'  WITHOUT the dampener, scores are identical (same best-matching doc): '
+          f'generic={raw_generic:.3f} rare={raw_rare:.3f} '
+          f'({raw_generic == raw_rare} expected True)')
+    ok &= raw_generic == raw_rare
+    damp_generic = def_fit_score(clue, 'generic', idf_idx, use_answer_idf=True)
+    damp_rare = def_fit_score(clue, 'rare', idf_idx, use_answer_idf=True)
+    print(f'  WITH the dampener, the rare (1-doc) answer now scores higher than the '
+          f'generic (10-doc) one: generic={damp_generic:.3f} rare={damp_rare:.3f} '
+          f'({damp_rare > damp_generic} expected True)')
+    ok &= damp_rare > damp_generic
+    print(f'  the dampener never INFLATES a score past its undamped value: '
+          f'{damp_rare <= raw_rare and damp_generic <= raw_generic} (expected True)')
+    ok &= damp_rare <= raw_rare and damp_generic <= raw_generic
+    print('--- _answer_idf: an answer attested in exactly one document is never dampened '
+          '(sits at the ceiling, multiplier 1.0) ---')
+    one_doc_idf = _answer_idf(idf_idx, 'rare')
+    print(f'  _answer_idf(single-doc answer) == 1.0: {one_doc_idf == 1.0} (expected True)')
+    ok &= one_doc_idf == 1.0
+    print('--- rerank: use_answer_idf threads through end-to-end, same direction as '
+          'def_fit_score alone ---')
+    cands_idf = [
+        {'answer': 'generic', 'mechanism': 'retrieval', 'fodder': None},
+        {'answer': 'rare', 'mechanism': 'retrieval', 'fodder': None},
+    ]
+    out_idf = rerank(clue, cands_idf, idf_idx, use_answer_idf=True)
+    print(f'  rare ranks first with the dampener on: '
+          f'{out_idf[0]["answer"] == "rare"} (expected True)')
+    ok &= out_idf[0]['answer'] == 'rare'
+
     print('--- build_fillbank_index: an injected synthetic dictionary (never the real '
           'committed file) builds the same {N, df, avg, ans_docs} shape as '
           'build_answer_index, keyed by the fillbank word itself ---')
@@ -427,11 +540,12 @@ def main():
     elif cmd == 'eval':
         rest = sys.argv[2:]
         use_fillbank = '--no-fillbank' not in rest
-        rest = [a for a in rest if a != '--no-fillbank']
+        use_answer_idf = '--no-answer-idf' not in rest
+        rest = [a for a in rest if a not in ('--no-fillbank', '--no-answer-idf')]
         path = rest[0] if len(rest) > 0 else 'data/dataset/clues.jsonl'
         split = rest[1] if len(rest) > 1 else None
         os.chdir(ROOT)
-        res = eval_rerank(path, split, use_fillbank=use_fillbank)
+        res = eval_rerank(path, split, use_fillbank=use_fillbank, use_answer_idf=use_answer_idf)
         print(f"recall_hit (gold in candidate list): {res['recall_hit']}/{res['total']}")
         print(f"top-1 accuracy, conditional on recall: "
               f"baseline {res['base_top1']}/{res['recall_hit']} "
@@ -445,7 +559,8 @@ def main():
               f"(use_fillbank={use_fillbank}): "
               f"{res['nonretrieval_known_gloss_clues']}/{res['total']}")
         print(f"clues with a NON-retrieval candidate SCORING def_fit>0 "
-              f"(use_fillbank={use_fillbank}): {res['nonretrieval_scored_clues']}/{res['total']}")
+              f"(use_fillbank={use_fillbank}, use_answer_idf={use_answer_idf}): "
+              f"{res['nonretrieval_scored_clues']}/{res['total']}")
         if res['examples']:
             print('\nper-clue (number, direction, gold, base_rank, rerank_rank):')
             for num, direction, gold, br, rr in res['examples']:

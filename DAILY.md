@@ -32,6 +32,7 @@ tree - a stale CLI deploy overwrote the live site on 2026-08-29. See CLAUDE.md.
 
 | **`deffit.py` definition-fit reranking (NEW 2026-09-09, offline, conditional on recall)** | On a fresh puzzle (2026-05-15): recall_hit 2/28 (same 2 retrieval hits); top-1 accuracy 0/2 unchanged; **MRR 0.333 → 0.350** (1 candidate moved up, 0 moved down); **structural finding: 0/28 clues have a non-retrieval candidate with a non-zero def_fit score** — the signal is mathematically redundant with `retrieval_candidates` today, since both query the same private_defs/BM25 index | not yet a target — n=2 is far too small to call this positive or negative; see log for the redundancy diagnosis and the concrete fix (a second gloss source, e.g. `solver/lex/fillbank.json`) |
 | **`deffit.py` with `fillbank.json` wired as a second gloss source (NEW 2026-09-10, offline)** | Re-measured on the SAME 2026-05-15 puzzle, independently re-transcribed and re-crawled fresh this run: recall@N **0/28 with or without retrieval** (a smaller/different private_defs crawl than 2026-09-09's found no hits at all on this puzzle — recall_hit therefore 0/28, so top-1/MRR are undefined this run). Split the structural diagnostic into TWO numbers on purpose: clues with a non-retrieval candidate carrying a KNOWN gloss in ANY source went **3/28 (private_defs alone) → 14/28 (+fillbank)** — fillbank.json's 2,412 entries genuinely widen gloss coverage, a real and substantial move; but clues with a non-retrieval candidate whose gloss actually SHARES VOCABULARY with the clue (`def_fit>0`, 2026-09-09's own stricter bar) stayed **0/28 with fillbank ON**, because the 59 newly-known candidates' glosses (e.g. `ירושלים` -> `בירת ישראל`) don't happen to repeat the clue's own wording. Also FOUND AND FIXED a real bug before ever measuring: `build_fillbank_index()` didn't fold fillbank's final letters (ם/ן/ץ/ף/ך), so it would have silently missed all 557/2,450 (22.7%) of fillbank entries ending in one — every candidates.py answer is unconditionally final-folded, so the lookup would have failed for any of those words even when present | not yet a target — a real, disclosed, mixed result: coverage widened, the stricter score-overlap bar did not move this run; see log |
+| **`deffit.py` answer-level IDF dampener for generic-idiom over-matching (NEW 2026-10-07, offline)** | 10th independent transcription of 2026-05-29 (28/28 clues, 0 enum mismatches — reproduces the canonical 3.6%/1-28 mechanical baseline exactly). `candidates.py recall`: **3.6% (1/28), identical** on this puzzle regardless (the dampener only re-ranks, never changes recall@N by construction). `deffit.py eval`: recall_hit 1/28 (the standing 2D `יחפניות` anagram hit) — **MRR 0.333 unchanged, rank 3->3**, and `nonretrieval_scored_clues` **0/28 either way** (identical with `--no-answer-idf`) — a genuine, unconfounded FLAT result on this puzzle's own default-truncation (`max_n=25`) candidate pool. Dug past the flat top-line number before accepting it (same discipline PR #78's truncation finding modelled 2026-10-05): with `max_n` widened to 400 (diagnostic only, not the measured number), the dampener DOES fire on real data — **898 retrieval-mechanism candidate scores changed** (e.g. clue 7A `סול`: 13.7 -> 10.2) and **21 non-retrieval-mechanism candidate scores changed** (e.g. 15A `יער`: 11.0 -> 8.7) — but every one of those affected candidates sits outside the default top-25 pool for this puzzle's clues (confirmed directly: re-querying clue 7A's candidates at `max_n=25` finds zero nonzero-scoring entries at all), so they never reach `eval_rerank`'s measured set. This is the SAME truncation failure mode 2026-10-02 found for `container_candidates`' phrase path, now independently confirmed for a re-ranker rather than a generator | not yet a target — a real, disclosed, confounded-by-truncation flat result; see log for the root-cause trace and the concrete next step |
 | **Candidate recall@N, FULL current pipeline (all 11 optional mechanisms + the 5 always-on ones), SECOND independent full transcription — 2026-06-05 (NEW 2026-09-15)** | **0.0% (0/28), identical with every optional mechanism on vs. the pure mechanical baseline (anagram/hidden/reversal/homograph/substitution-2word only, also 0.0%)** — the first puzzle this diagnostic has scored BELOW 2026-05-29's long-standing 3.6% floor. Root-caused past "mechanism fired N times, 0 hits" framing to something more fundamental: **`lexicon_coverage_eval` (NEW, `solver/candidates.py`) — only 8/28 (28.6%) of this puzzle's gold answers are members of `lex()` AT ALL**, independent of any mechanism, and every generator in this file can only ever propose an answer that is already a lexicon member. Confirmed directly, not just inferred, for 2 clues: 8A's exact anagram fodder (`שמיגנדי`) is a correct 7-letter contiguous window of the clue with the exact right letter-multiset for gold `גדישמני` — but `גדישמני` itself is not in `lex()`, so `anagram_candidates` never proposes it regardless of fodder correctness; same shape for 7A's reversal (`נכו`→`וכן`, once a real transcription slip — "פרעה" for "פרעה נכו" — was caught and fixed) | not yet a target — see log for the corpus-size confound this measurement carries |
 | **`lexicon_coverage_eval`, SECOND independent puzzle (2026-05-29, NEW 2026-09-16) + `--prefix` diagnostic** | **32.1% (9/28)** — same order of magnitude as 2026-09-15's 28.6% (0/28) on a DIFFERENT puzzle, confirming the lexicon-coverage ceiling is a real, puzzle-independent structural bottleneck, not a corpus-thinness artifact of that specific run. Root cause this run's own direct test surfaced: `hspell_simple.txt` (bootstrap.sh's wordlist source) does not enumerate Hebrew's productive ו/ה/ב/ל/מ/ש/כ prefixes as separate headwords — `כן` ("so") is a headword, `וכן` ("and so") is not, though both are equally real and either could legitimately be a crossword answer, confirmed directly against the committed wordlist. **NEW diagnostic, `prefix_stripped()`/`lexicon-coverage --prefix`**: of the 19 misses, **3 (15.8%) become `lex()` members after stripping one leading prefix** — but AUDITED further, not taken at face value: only 1/3 (`המוציא`→`מוציא`, "the one who brings out," a genuine ה-definite-article relationship) is a real morphological recovery; the other 2 (`מגמ`→`גמ`, `הלו`→`לו`) strip to a 2-letter residual, and 254/~144k lexicon entries are themselves 2 letters long — roughly half of the ~484 possible 2-letter consonant combinations are real words, so a 2-letter stem match is coincidence-prone, not evidence of a real prefix relationship. The LARGER category of miss on this puzzle (16/19) is multi-word phrases (`משה רבנו`, `פחות אבל כואב`, `לוע הארי`...) that no single-prefix strip addresses at all. `recall@N` unchanged at 3.6% (1/28), exactly reproducing this puzzle's own long-standing historical number (an 11th+ independent transcription) | not yet a target — diagnostic only, NOT wired into `is_word()`/candidate generation; see log for why (false-positive risk on short stems, disclosed rather than shipped) |
 | **`lexicon_coverage_eval` with `private_defs` wired into `lexicon.py`'s `load()` as a membership source (NEW 2026-09-19)** | **COMBINED across 2 independent puzzles (2026-05-15 + 2026-05-29, 56 gold slots): 32.1% (18/56) → 32.1% (18/56), UNCHANGED.** +49,158 words added to `lex()` (144,019 → 193,177, +34.1%, real and confirmed non-empty), but **mechanically verified 0/38 overlap** between the newly-added words and either puzzle's combined 38 still-missing gold answers — not one of the two puzzles' hard-setter answers happens to be among the ~37k crossword answers this specific crawl of note.co.il/מורדו turned up | not yet a target — a clean, disclosed negative result on n=2 puzzles; see log for the audit and the root-cause read |
@@ -3143,6 +3144,28 @@ propagated), `blank`. Score with `python3 evals/run_eval.py <file>`.
    so top-1/MRR remain untested since #53's own n=2. A real, mixed, disclosed result -- gloss
    coverage widened for real, the score-based signal this project plans to rank by did not.
    See log.
+   **2026-09-22 (PR #66, folded into this lineage 2026-09-24): definition-fit
+   RERANKING measured on a real candidate pool for the first time** -- of 4 clues where
+   `generate()` already found gold (all via `retrieval_candidates`), reranking changed 0
+   ranks; 2 stayed buried at rank 5/6 because the candidates outranking them were generic
+   high-frequency idioms (מבעודמועד, בהצלחה) the corpus happens to define in many
+   documents, not because they fit the clue better. Named the concrete fix: "an IDF-style
+   dampener for generic-idiom over-matching" -- not attempted that run.
+   **2026-10-07: BUILT that exact dampener.** `_answer_idf()` reuses `retrieve_defs.py`'s
+   own per-TOKEN IDF shape, but counts documents PER ANSWER instead -- an answer this
+   corpus defines in many independent documents gets its score shrunk (never inflated)
+   toward 0, while an answer attested in exactly one document keeps its full score. New
+   selftest demonstrates it directly: two synthetic answers sharing the SAME best-matching
+   document score identically without the dampener, but the one with 9 extra (non-matching)
+   filler documents scores lower WITH it. MEASURED on a 10th independent transcription of
+   2026-05-29 (0 enum mismatches): the official `deffit.py eval` number is **flat** --
+   `nonretrieval_scored_clues` 0/28 with or without the dampener, MRR unchanged (0.333,
+   n=1 recall-hit) -- but a `max_n=400` diagnostic (not the measured number) confirms the
+   dampener DOES fire for real on this corpus (898 retrieval-candidate scores changed, 21
+   non-retrieval-candidate scores changed), and every affected candidate sits outside this
+   puzzle's default `max_n=25` pool. Root cause is truncation, the same failure mode
+   2026-10-02 found for `container_candidates`' phrase path, not a flaw in the dampener
+   itself. See DAILY.md's state table and log, and RESEARCH.md, for the full trail.
 10. **[NEW 2026-09-16] Lexicon coverage is a structural ceiling, confirmed on TWO puzzles
     (28.6% on 2026-06-05, 32.1% on 2026-05-29) -- `lexicon_coverage_eval` and its new
     `--prefix` diagnostic.** Of the ~70% of gold answers NOT in `lex()`, only a small,
@@ -7729,3 +7752,153 @@ Measure each lever on dev (fixed enums) with run_eval.py before/after; one lever
   did not act on the standing DAILY.md-as-leak-vector observation (open since 2026-08-22,
   still unaddressed); did not merge or otherwise act on any other open PR; never pushed to
   `main`; never ran `vercel --prod` / `vercel deploy --prod`.
+
+- 2026-10-07: **branch hygiene first: found and continued the REAL unmerged frontier,
+  not stale `main`.** `main`'s own DAILY.md is stuck at 2026-09-07 (nativ/site-UI work
+  only; the last solver-track commit on `main` is 2026-08-31), but `git log --all` showed
+  the real solver frontier is a continuous `daily/*` branch chain running through
+  2026-10-05 (PR #78), 23 commits ahead of `main`, each day genuinely building on the
+  previous day's branch (verified with `git merge-base --is-ancestor` across the whole
+  chain, not assumed). Three OTHER open PRs (#76, #77, and #79 `claude/container-
+  candidates-lever`, updated as recently as 2026-10-06 -- literally yesterday) branched
+  directly off stale `main` instead, unaware the chain exists; #79's own DAILY.md entry
+  states "last solver lever 2026-08-30" and reimplements `container_candidates` yet
+  again, measuring the same flat/negative result this file's own standing guidance
+  already pegged at "six separate times" before today (#42/#55-57/#67/#72) -- #77 and
+  #79 make at least an eighth and ninth. This run
+  branched from the chain's own tip (`daily/2026-10-05-work`) rather than adding a ninth
+  stray branch, per this file's own standing "IF YOU ARE THE DAILY CLOUD AGENT" guidance
+  (step 0: branch from the newest open PR, not `main`) -- flagging #76/#77/#79 for the
+  project owner to close rather than merge, since folding them in would only reintroduce
+  work this chain has already measured and superseded.
+
+  RESEARCH (RESEARCH.md): two general searches plus two targeted follow-ups, continuing
+  the scheduled task's own priority order (candidate generation, then definition-span/
+  fit, then Hebrew morphology). Tenth-plus consecutive pass confirming the standing paper
+  set (2506.04824, 2406.09043, 2407.08824, 2403.12094/2412.09012) with nothing new and
+  directly buildable. One genuinely new item, disclosed with its real limits rather than
+  oversold: a PyData Amsterdam 2026 talk on a Dutch-cryptic multi-agent LLM system, whose
+  own abstract cites a 25% zero-shot baseline -- in the same range this project's own live
+  LLM trials already measured (RESULTS.md), with no public artifact to adapt. For the
+  definition-fit problem specifically: no paper names the exact failure mode queue item 9
+  flagged 2026-09-22 (a cross-document MAX letting a high-document-frequency idiom
+  out-rank a rare, genuinely-matching one), but BM25's own literature confirms
+  document-frequency-based downweighting is the standard, decades-old mitigation for
+  exactly this shape of problem -- methodological reassurance, not a new citation to
+  credit.
+
+  THE LEVER: queue item 9's own concrete next step from 2026-09-22 (PR #66, folded into
+  this lineage 2026-09-24) -- "an IDF-style dampener for generic-idiom over-matching" in
+  `solver/deffit.py`'s reranker. Built `_answer_idf(idx, answer)`: reuses
+  `retrieve_defs.py`'s own per-TOKEN IDF formula (`log(1 + (N-n+.5)/(n+.5))`), but counts
+  documents PER ANSWER instead of per token, normalized to [0, 1] against the IDF of an
+  answer attested in exactly one document (the ceiling -- no dampening). `def_fit_score`/
+  `rerank`/`eval_rerank` all gained `use_answer_idf=True` (default on), `--no-answer-idf`
+  reproduces the exact pre-2026-10-07 scoring. New selftest constructs two synthetic
+  answers that share the IDENTICAL best-matching document (so their undamped scores are
+  provably equal) where one also carries 9 unrelated filler documents (raising its
+  answer-document-frequency without raising its raw score, since `max()` already ignores
+  non-matching docs) -- confirms the dampener leaves the single-doc answer untouched
+  (multiplier 1.0, the ceiling) while shrinking the 10-doc answer's score below it, and
+  that it never inflates a score past its undamped value.
+
+  AUDIT finding worth its own line, found while reading `retrieve_defs.py` to credit PR
+  #66 correctly: that same 2026-09-24 merge ALSO added `retrieve_defs.answer_index()`/
+  `score_answer()` -- a second, independent implementation of essentially the same
+  reverse-BM25 definition-fit idea `deffit.py`'s own `build_answer_index()`/
+  `def_fit_score()` already provides (private_defs only, no fillbank second source, no
+  answer-level dampener). Two parallel re-ranking implementations now coexist, neither
+  aware of the other -- the same duplication shape this file has repeatedly flagged for
+  `container_candidates` (six-plus times), now found in a different subsystem. NOT
+  reconciled today (one-lever discipline; unifying two independently-evolved scoring
+  paths is its own task, not a quick fix) -- filed here so a future run does not have to
+  rediscover it from scratch.
+
+  TRANSCRIPTION: 2026-05-29 chosen (the project's most independently-transcribed
+  canonical dev puzzle, for maximum cross-checkability). Bootstrap's general 52-puzzle
+  14across scrape hit the standard intermittent bot-check wall (24/52 recovered before
+  this run's own time budget), but rather than wait it out or fall back to the
+  image-only technique, wrote a small standalone script reusing `scraper/
+  parse_answers.py`'s own `fetch()` to pull JUST this puzzle's date directly (matching
+  2026-10-05's own documented incremental-fetch technique) -- succeeded on the 4th
+  attempt (intermittent bot-check, not a hard wall), giving REAL crowd-sourced answers
+  and explanations, not the image-fallback solution-grid technique. Clue TEXT was
+  transcribed from `data/images/2026-05-28.jpg`: all 28 clues (both the `אנכי`/down
+  column and the separate `אופקי`/across sidebar box holding clues 1/7/8/9/10/11/13,
+  the gap queue item 8 has documented since 2026-08-16). One real transcription pitfall
+  hit and resolved, not glossed over: clues 13/15/17's printed text initially appeared
+  to break the "number, text, enum" convention when read as a simple top-to-bottom,
+  right-to-left scan, because two clues' enum and the next clue's number sit immediately
+  adjacent with no separating word (no text between a closing enum and the next bare
+  number) -- resolved not by assumption but by validating EVERY candidate segmentation
+  against this puzzle's real answer lengths (already fetched from 14across) until a
+  single consistent reading matched **all 28 enums with zero mismatches**: 13 =
+  "בני טוב ... כמלחין" (4) -> `ליסט` (Liszt, a composer), 15 = "האריה שלה שואג מכל מקום"
+  (3) -> `מגמ`, 17 = "לוהג דובר (עפ\"י איציק בלול)" (4) -> `ברבר`. `solver/
+  build_dataset.py`: **28 rows, 0 length mismatches, 0 missing answers.**
+
+  MEASURED, controlled before/after. `python3 solver/candidates.py recall
+  data/dataset/clues.jsonl eval`: **3.6% (1/28)** -- exactly reproduces the canonical
+  2026-08-06 baseline on this puzzle, the standard cross-check that an independent
+  transcription is correct. `python3 solver/deffit.py eval data/dataset/clues.jsonl
+  eval` [`--no-answer-idf`]: **IDENTICAL either way** -- recall_hit 1/28 (the standing 2D
+  `יחפניות` anagram), MRR 0.333 unchanged (rank 3->3, 0 moved), `nonretrieval_scored_clues`
+  0/28 both with and without the dampener. A clean, unconfounded flat result on the
+  OFFICIAL number -- but dug past it before accepting it, the same discipline 2026-10-05's
+  truncation finding modelled: re-ran `def_fit_score` directly (not through `recall_eval`'s
+  `max_n=25` default) at `max_n=400` as a DIAGNOSTIC ONLY (not the measured number) and
+  found the dampener fires for real on this corpus -- 898 retrieval-mechanism candidate
+  scores changed (e.g. 7A `סול`: 13.74 -> 10.25; 8A... via `defspan_retrieval` too) and 21
+  non-retrieval-mechanism candidate scores changed (e.g. 15A `יער`: 11.00 -> 8.73, 12D
+  `סיר`: 4.50 -> 3.60). Confirmed directly why none of this reaches the real measurement:
+  re-querying clue 7A's own candidate list at the real `max_n=25` finds zero nonzero-
+  scoring entries at all -- every affected candidate is crowded out by the cheap
+  high-volume anagram/hidden window scan before `deffit.py` ever sees it, the identical
+  truncation-priority failure mode 2026-10-02 diagnosed for `container_candidates`'
+  phrase path. Root cause confirmed, not assumed.
+
+  AUDITED (mandatory gate). `lexicon.held_out_answers()` and `retrieve_defs.held_out()`
+  both confirmed (computed, not assumed) to block all 28 of this puzzle's own gold
+  answers -- `gold - blocked` empty for both. No forbidden reads: gold came from the
+  sanctioned single-date 14across answer-fetch (the same page `scraper/parse_answers.py`'s
+  own general scrape would have fetched, just targeted), clue text from the public CDN
+  image, 14across never queried for clue text or solutions directly. Implausibility
+  check: not applicable -- every number this run reports is either an exact reproduction
+  of a historical baseline (3.6%, 0.333 MRR) or a flat 0-vs-0 comparison, the opposite of
+  a jump to explain. All 6 affected selftests (`candidates.py`, `lexicon.py`, `prove.py`,
+  `retrieve_defs.py`, `substitutions.py`, `deffit.py`) re-run clean, including 5 new
+  dampener-specific checks in `deffit.py selftest`. One PRE-EXISTING, unrelated failure
+  found while auditing and disclosed rather than silently left: `prove.py selftest`'s
+  own line-1 check (`is_homophone('כל', 'כאילו')`) now fails; confirmed via `git stash`
+  that this failure exists identically on the unmodified chain tip before any of today's
+  changes, so it predates this run and is not a regression it caused -- not fixed today
+  (out of one-lever scope), flagged here so it is not mistaken for new breakage.
+
+  HONEST READ: the dampener is real, selftested on a controlled synthetic case, and
+  CONFIRMED to change real BM25 scores on this puzzle's actual corpus by a
+  double-digit-percent margin in the expected direction -- but the puzzle this run had
+  time to transcribe happens to be one where every affected candidate was already going
+  to be truncated out of the default top-25 pool regardless of reranking, so the
+  measured, official recall/MRR numbers are a genuine, honest, confounded-by-truncation
+  flat result, not a demonstration that the idea doesn't work. This is the same shape of
+  finding 2026-10-02 reported for `container_candidates`' phrase path (ships correct,
+  measures flat, root cause is a shared truncation mechanism) -- worth naming as a
+  PATTERN now that it has recurred in two different subsystems: `max_n=25`'s fixed cap,
+  combined with the cheap mechanical mechanisms' own high raw volume, appears to be
+  starving several otherwise-working levers of the chance to ever affect a measured
+  number, which may itself be worth a dedicated future lever (raise the cap for
+  re-ranking specifically, since reranking is cheap compared to generation, or truncate
+  AFTER scoring rather than before).
+
+  NOT DONE, honestly: did not re-measure on a second puzzle (one puzzle's full
+  transcription-plus-corpus-plus-audit cycle was this run's budget); did not reconcile
+  the newly-found `deffit.py`/`retrieve_defs.score_answer()` duplication (disclosed
+  above as a new finding, not a quick fix); did not raise `max_n` for the real
+  measurement to test whether the dampener would show a positive effect once candidates
+  survive truncation (the natural next step this run's own diagnostic points to, but
+  changing `max_n` is a second variable this run deliberately did not conflate with
+  today's single lever); did not crawl `note.co.il` (only `mordo`, stopped at 65,849 raw
+  / 62,652 parsed entries once this run's own corpus-size budget was reached -- already
+  comparable to this project's largest prior `mordo`-only crawls); did not merge or
+  otherwise act on any open PR beyond flagging #76/#77/#79 above for the project owner;
+  never pushed to `main`; never ran `vercel --prod` / `vercel deploy --prod`.

@@ -2478,3 +2478,71 @@ sub_fwd() (14across-mined, hard-walled on most runs)"). See DAILY.md for the mec
 the measurement, and an unusually good break on that exact named obstacle: 14across
 responded fully for the specific puzzle date this run needed, after a full hard wall on
 the general 52-puzzle bootstrap scrape.
+
+## 2026-10-07
+
+Two general searches following the scheduled task's own priority order (candidate
+generation first, then definition-span/fit, then Hebrew NLP), plus two targeted
+follow-ups once the first pass surfaced something worth chasing:
+"cryptic crossword clue solving candidate generation LLM 2026" and "definition fit
+reranking retrieval idiom frequency bias BM25 2025 2026", then "PyData Amsterdam 2026
+cryptic crossword LLM optimizing talk slides" and "Hebrew morphological segmenter
+full-form lexicon 2026 new release".
+
+**Candidate generation, general search.** Same paper family as every pass since
+2026-08-06 (2506.04824, 2406.09043, 2407.08824, 2403.12094/2412.09012 Sadallah/
+Kotova/Kochmar). One genuinely new item: a PyData Amsterdam 2026 conference talk,
+"Beyond Benchmarks: Optimizing LLMs and Puzzle Agents for Cryptic Crosswords" (Pauline
+van Nies, Sopra Steria, Sept 2026) — a multi-agent LangGraph architecture that
+"completes entire Dutch cryptic crosswords depending on the LLM powering it," built
+with DSPy for automated prompt engineering and model comparison across GPT/Claude/
+Gemini/Mistral/DeepSeek. No slides or paper found (checked directly — only the
+conference abstract page exists, no public write-up). **Transfer: limited, and worth
+naming the limit precisely rather than filing it as "nothing new" or "a new lead"
+without qualification.** Three honest reasons it doesn't change this project's own
+approach: (1) Dutch cryptics use Latin script and (per the abstract) are tackled
+end-to-end by prompting a capable LLM inside an agent loop — this project's own
+history (RESULTS.md) already tried the closest local analogue (unstructured live
+LLM solve passes) and measured it capping out around 25-40% with high run-to-run
+variance, which is exactly the "last year's SOTA solves 25% zero-shot" baseline the
+talk's own abstract cites as its starting point, not evidence that prompting alone
+gets further on a harder setter; (2) no technical artifact (paper, code, slide deck)
+is publicly available to check HOW it closes that gap beyond the abstract's own
+claim, so there is nothing concrete to adapt; (3) this project's architecture bet —
+mechanical generator + executable proof gate, chosen specifically because an LLM
+self-reporting confidence was measured to inflate precision (RESULTS.md's INTEGRITY
+FINDING) — is a different design philosophy than a prompt-engineered agent loop, not
+an inferior one lacking this technique. Worth re-checking in a future run if slides
+or a paper are published, but not actionable today.
+
+**Definition-fit / retrieval reranking, targeted search.** Looking for prior art on
+exactly the problem DAILY.md's queue item 9 flagged 2026-09-22 (a generic, high-
+document-frequency idiom out-ranking a rare, genuinely-matching one under a cross-
+document MAX). No paper specifically names this failure mode for a definition-fit
+reranker. What the search DOES confirm, generically: BM25's own literature is explicit
+that document-frequency-based inverse weighting (the IDF term) is the standard
+mitigation for "a term/document that is ubiquitous conveys less information" — i.e.
+the dampener this run builds is not a novel technique, it is the SAME idea BM25 already
+applies to query TOKENS, re-applied to ANSWER document-frequency instead (no token in
+this corpus plays that ubiquity role — the inflation here is structural to taking a
+MAX over a variable-size document set per answer, not to any one token's frequency).
+**Transfer: confirms the planned fix is methodologically sound and not a reinvention
+of something already superseded, without handing over a specific citation to credit
+for it** — it is a direct application of a decades-old IR principle (document-count-
+based downweighting) to a new aggregation point this project's own `def_fit_score`
+introduced, not a result from the cryptic-crossword literature at all.
+
+**Hebrew morphology, confirmatory re-check.** DictaBERT, HebMorph/RFTokenizer/HebPipe
+— no 2026 full-form lexicon or segmenter release found beyond what is already logged
+across roughly ten prior passes. **Transfer: none new**, consistent with every check
+since 2026-08-06; `hebrew-words-db` (wired in 2026-09-20) remains the most recent
+genuine addition on this front.
+
+**Conclusion for today's lever.** Tenth-plus consecutive pass with nothing
+cryptic-specific and directly buildable, and the one new item found (the PyData talk)
+is an abstract with no artifact to adapt, honestly disclosed as such rather than
+inflated into "new research supports X." Today's lever is accordingly the project's
+own internal queue: item 9's own named next step from 2026-09-22 ("an IDF-style
+dampener for generic-idiom over-matching" in `solver/deffit.py`'s reranker) — see
+DAILY.md for the mechanism, the selftest demonstrating it on a controlled synthetic
+case, and the measurement on real puzzle data.
