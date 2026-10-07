@@ -30,6 +30,23 @@ def toks(s):
                 out.append(w[len(p):]); break
     return out
 
+def clean_definition(text):
+    """mordo's blog titles are an SEO convention, not prose: 93% of crawled mordo posts
+    (measured 2026-09-24, 7,836/8,400) are titled '<phrase> | <rephrased-or-duplicate
+    phrase> תשחץ/תשבץ' -- e.g. 'תערובת ירקות | תערובת ירקות תשחץ' or the paraphrase form
+    'מין דבורה | סוג של דבורה תשבץ'. Both halves get tokenized into the SAME doc, so any
+    word the setter's clue shares with either phrasing is counted TWICE (or the paraphrase
+    contributes near-duplicate tokens) before BM25 even sees it -- inflating tf independent
+    of real relevance. Concretely: 'חרפה, אות קלון | אות קלון, חרפה תשחץ' let a 7-token doc
+    outscore a 15-token doc genuinely defining a puzzle's gold answer (ברישניקוב, a real
+    ballet dancer, via 'רקדן'), because 'אות' happened to appear twice in the short doc
+    purely from this duplication, not because the doc is about anything the clue means.
+    Keeping only the text before the first '|' removes the duplicate/paraphrase half (which
+    across every sampled example restates the same phrase, never adds new information) and
+    the generic trailing crossword-keyword with it. Text with no '|' passes through
+    unchanged -- this is a mordo-specific convention; note.co.il's titles never contain it."""
+    return text.split('|', 1)[0].strip()
+
 def held_out(clues_path='data/dataset/clues.jsonl', by_date_dir='data/answers/by_date'):
     """Mirrors lexicon.held_out_answers()'s by_date expansion (queue item 7, fixed
     2026-08-21; item 7b flagged the identical gap here, fixed now). NOTE, checked directly
@@ -73,7 +90,7 @@ def build_index(exclude_puzzle=None):
             r = json.loads(line)
             ans = [norm(a) for a in r.get('answers', []) if norm(a)]
             if ans:
-                docs.append((toks(r.get('definition', '')), ans, None))
+                docs.append((toks(clean_definition(r.get('definition', ''))), ans, None))
     for line in open('data/dataset/clues.jsonl'):
         c = json.loads(line)
         if c.get('split') != 'train': continue
@@ -110,6 +127,54 @@ def candidates(clue, length, topk=25, docs_df=None, skip_puzzle=None):
         for a in ans:
             if len(a) == length: scored[a] = max(scored[a], s)
     return sorted(scored.items(), key=lambda x: -x[1])[:topk]
+
+_ANS_IDX = None
+def answer_index(docs_df=None):
+    """answer -> [token lists] reverse index, built once from the same docs candidates()
+    scores against. Lets score_answer() look up only the (typically few) documents that
+    define a SPECIFIC word, instead of rescanning all ~65k docs per candidate."""
+    docs, df = docs_df or index()
+    by_ans = defaultdict(list)
+    for t, ans, _pid in docs:
+        for a in ans:
+            by_ans[a].append(t)
+    return by_ans
+
+def score_answer(answer, clue, docs_df=None, ans_idx=None):
+    """Definition-FIT score for one ALREADY-HYPOTHESIZED candidate (queue item 9: judging
+    whether a candidate matches the clue's DEFINITION, not whether its wordplay executes).
+
+    candidates()/end_candidates() answer 'which words of this LENGTH does the clue's text
+    resemble a definition of' -- useful for GENERATING candidates, but every mechanism in
+    candidates.py (anagram/hidden/reversal/homograph/substitution) also proposes candidates
+    with no definition check at all: a real anagram is evidence the letters CAN form a word,
+    never that this word is what the clue MEANS. This is the reverse query: given one
+    candidate answer (from any mechanism), does an INDEPENDENT external source (private_defs)
+    define that exact word in terms that overlap this clue's own words? If several docs
+    define the answer, take the best (max) BM25 score against the clue, same formula
+    candidates() uses, so the two scores are directly comparable.
+
+    Returns 0.0 if the answer never appears as a definition target in the corpus at all
+    (most coined/multi-word cryptic answers won't -- that is expected, not an error)."""
+    docs, df = docs_df or index()
+    idx = ans_idx if ans_idx is not None else answer_index(docs_df=(docs, df))
+    toklists = idx.get(answer)
+    if not toklists:
+        return 0.0
+    N = len(docs)
+    q = set(toks(clue))
+    avg = sum(len(t) for t, _, _ in docs) / max(N, 1)
+    best = 0.0
+    for t in toklists:
+        tl = len(t) or 1
+        s = 0.0
+        for w in q:
+            tf = t.count(w)
+            if not tf: continue
+            idf = math.log(1 + (N - df[w] + .5) / (df[w] + .5))
+            s += idf * tf * 2.2 / (tf + 1.2 * (0.25 + 0.75 * tl / avg))
+        best = max(best, s)
+    return best
 
 def end_candidates(clue, length, docs_df=None, skip_puzzle=None):
     """query each end of the clue separately (definition side is at one end)"""
@@ -163,6 +228,65 @@ def selftest():
     finally:
         shutil.rmtree(tmp)
 
+    print('--- clean_definition: drops mordo\'s duplicate/paraphrase SEO half after "|" ---')
+    # real example (2026-09-24): a 7-token doc padded by exact repetition of its own
+    # phrase outscored a genuine 15-token definition for a puzzle's gold answer, purely
+    # from the artificial extra term frequency -- see this function's own docstring.
+    cleaned = clean_definition('חרפה, אות קלון | אות קלון, חרפה תשחץ')
+    print(f'  kept only the phrase before "|": {cleaned!r} (expected \'חרפה, אות קלון\')')
+    ok &= cleaned == 'חרפה, אות קלון'
+    print('--- clean_definition: a paraphrase (not an exact duplicate) is also dropped ---')
+    cleaned2 = clean_definition('מין דבורה | סוג של דבורה תשבץ')
+    ok &= cleaned2 == 'מין דבורה'
+    print(f'  kept only the phrase before "|": {cleaned2!r} (expected \'מין דבורה\')')
+    print('--- clean_definition: text with no "|" (e.g. every note.co.il title) passes '
+          'through unchanged ---')
+    unchanged = clean_definition('אביו של יונה הנביא')
+    ok &= unchanged == 'אביו של יונה הנביא'
+    print(f'  unchanged: {unchanged!r} (expected \'אביו של יונה הנביא\')')
+
+    print('--- build_index: a mordo-shaped duplicate-title doc is tokenized from the '
+          'cleaned definition, not the raw doubled title -- the fix applies before tf is '
+          'counted, not after ---')
+    tmp2 = tempfile.mkdtemp()
+    try:
+        pd_dir = os.path.join(tmp2, 'data', 'answers', 'private_defs')
+        os.makedirs(pd_dir)
+        os.makedirs(os.path.join(tmp2, 'data', 'dataset'), exist_ok=True)
+        open(os.path.join(tmp2, 'data', 'dataset', 'clues.jsonl'), 'w').close()
+        with open(os.path.join(pd_dir, 'mordo.jsonl'), 'w', encoding='utf-8') as f:
+            f.write(json.dumps({'definition': 'חרפה, אות קלון | אות קלון, חרפה תשחץ',
+                                 'answers': ['חרפה נצחית']}, ensure_ascii=False) + '\n')
+        cwd = os.getcwd()
+        os.chdir(tmp2)
+        try:
+            docs, df = build_index()
+        finally:
+            os.chdir(cwd)
+        toks_got = docs[0][0]
+        expected = toks('חרפה, אות קלון')
+        print(f'  tokens: {toks_got} (expected {expected}, not the doubled 7-token form)')
+        ok &= toks_got == expected
+    finally:
+        shutil.rmtree(tmp2)
+
+    print('--- score_answer: a candidate matching an independent def gets a positive score ---')
+    docs_df = ([
+        (['נשיא', 'ראשון', 'מדינה'], [norm('וייצמן')], None),
+        (['פרח', 'לאומי', 'ישראל'], [norm('כלנית')], None),
+    ], {'נשיא': 1, 'ראשון': 1, 'מדינה': 1, 'פרח': 1, 'לאומי': 1, 'ישראל': 1})
+    s = score_answer(norm('וייצמן'), 'מי היה הנשיא הראשון של המדינה', docs_df=docs_df)
+    print(f'  score for the matching def: {s:.2f} (expected > 0)')
+    ok &= s > 0
+    print('--- score_answer: a candidate with NO matching def scores exactly 0 ---')
+    s0 = score_answer(norm('משהו'), 'מי היה הנשיא הראשון של המדינה', docs_df=docs_df)
+    print(f'  score for an answer absent from the index: {s0} (expected 0.0)')
+    ok &= s0 == 0.0
+    print('--- score_answer: an unrelated def for the SAME-length answer scores lower ---')
+    s2 = score_answer(norm('כלנית'), 'מי היה הנשיא הראשון של המדינה', docs_df=docs_df)
+    print(f'  matching-def score {s:.2f} > unrelated-def score {s2:.2f}: {s > s2} (expected True)')
+    ok &= s > s2
+
     print(f'\n{"ALL PASSED" if ok else "FAILURES ABOVE"}')
     return ok
 
@@ -172,6 +296,8 @@ def main():
     elif sys.argv[1] == 'candidates':
         for a, s in candidates(sys.argv[2], int(sys.argv[3])):
             print(f'[{s:.2f}] {a}')
+    elif sys.argv[1] == 'score':
+        print(f'{score_answer(norm(sys.argv[2]), sys.argv[3]):.3f}')
     elif sys.argv[1] == 'eval':
         docs_df = build_index()
         tot = hit1 = hit25 = 0

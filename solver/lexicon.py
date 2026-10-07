@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 """Hebrew lexicon tools for the solver — pattern match, anagram, contains.
 
-Wordlist = hspell (129k) + all corpus answers (crosswordese/names the dict lacks),
-all normalized to final-form-folded, space-free Hebrew letters.
+Wordlist = hspell (129k headwords) + hebrew-words-db (67k, inflected noun/verb/adjective
+forms hspell doesn't enumerate) + private_defs (other crosswords' attested answers) + all
+corpus answers (crosswordese/names the dict lacks), all normalized to final-form-folded,
+space-free Hebrew letters.
 
 CLI:
   python3 solver/lexicon.py pattern '?ו?ר'       # words matching (?=any letter), exact length
@@ -56,15 +58,79 @@ def held_out_answers(clues_path='data/dataset/clues.jsonl', by_date_dir='data/an
     return out
 
 
-def load():
-    words = {}  # word -> priority (3 culture, 2 corpus, 1 dict)
-    BLOCK = held_out_answers()
+def load(clues_path='data/dataset/clues.jsonl', by_date_dir='data/answers/by_date',
+         include_private_defs=True, private_defs_glob='data/answers/private_defs/*.jsonl',
+         include_hwdb=True, hwdb_path=None):
+    """WHY include_private_defs (added 2026-09-19): candidates.py's own
+    `lexicon_coverage_eval` diagnostic (2026-09-15/16) measured that only 28.6%/32.1%
+    of two dev puzzles' gold answers are members of THIS function's output at all —
+    a ceiling every mechanical generator in candidates.py (anagram/hidden/reversal/
+    homograph/container/...) inherits directly, since none of them can ever propose a
+    string that is not already a lexicon member, no matter how correct its fodder is
+    (measured concretely: 8A's anagram fodder on 2026-06-05 had the exact right letter
+    multiset for gold `גדישמני`, but `anagram_candidates` still could not propose it,
+    because `גדישמני` itself was not a lex() member). Wiring in a corpus-mined "prefix
+    stripping" fix for this was tried and deliberately NOT shipped (2026-09-16, see
+    DAILY.md) because short stripped stems are coincidence-prone, not genuine recoveries.
+    This source is different in kind: `data/answers/private_defs/` (scraper/crawl_defs.py,
+    note.co.il + pitaronfree/מורדו, already crawled and used by retrieve_defs.py's BM25
+    index as RETRIEVAL documents) is a large, independently-sourced list of definition->
+    ANSWER pairs from OTHER crosswords. Every entry on the answer side is, by construction
+    of its source, an attested real Hebrew crossword answer (word, name, or phrase) —
+    not a guessed morphological form — so adding it as a LEXICON MEMBERSHIP source (not
+    just a retrieval document) needs no invented rule the way prefix-stripping did.
+
+    Held-out safety: filtered through the SAME BLOCK set as the corpus/culture tiers
+    below, unlike retrieve_defs.py's build_index() (which deliberately does NOT held-out
+    filter private_defs, on the reasoning that it is independent external knowledge, "like
+    a crossword dictionary," and only ranks as ONE of many candidates a human/proof-gate
+    still has to verify). This function feeds `is_word()`-style boolean membership checks
+    used by every mechanical generator — a false membership there would silently
+    manufacture a candidate that can pass the proof gate, a stronger leak risk than
+    appearing in a ranked retrieval list, so it gets the stricter, not the looser, of the
+    project's two existing disciplines.
+
+    WHY include_hwdb (added 2026-09-20): 2026-09-19's private_defs tier measured a clean
+    negative (0/38 overlap on 2 puzzles) because it attacks the coverage gap from the
+    ATTESTED-ANSWER side (other crosswords' answers) — this setter's specific idioms
+    simply weren't among them. RESEARCH.md's 2026-09-16 entry independently flagged the
+    other side of the same gap and left it explicitly untested: `hspell_simple.txt`
+    (bootstrap.sh's only general dictionary source) is a HEADWORD list, not a full-form
+    one — it does not enumerate most Hebrew productive prefix forms (confirmed directly:
+    כן is a headword, וכן is not) and, per that research note, likely under-enumerates
+    SUFFIXED forms (plurals, construct states, possessive suffixes) even more, since
+    those inflect far more combinations per headword than prefixes do. Prefix-stripping
+    was tried and deliberately not shipped as a lexicon fix (short residual stems are
+    coincidence-prone); a full-form Hebrew lexicon needs no such invented rule because
+    each inflected form is already a real, independently-listed headword-equivalent, not
+    a guess. `github.com/roni5604/hebrew-words-db` (CC0 public domain, confirmed real and
+    fetchable this run — see RESEARCH.md's 2026-09-20 entry) is exactly this: 67,008
+    words built from noun/verb/adjective inflection tables (plurals, verb conjugations
+    across tenses/persons, adjective gender/number agreement), not just headwords.
+
+    Treated like hspell (the SAME general-dictionary tier, priority 1, NOT held-out
+    filtered) rather than like private_defs/culture: hwdb is not derived from any
+    newspaper crossword or from this project's own puzzles, so an ordinary word it
+    contributes that happens to coincide with a held-out gold answer is the same
+    legitimate case RESULTS.md's own INTEGRITY FINDING already ruled acceptable for
+    hspell ("ordinary dictionary words that happen to be answers... legitimately
+    remain, as they would in any real solver's dictionary") — filtering it would treat
+    a general-purpose wordlist as if it were corpus-derived, which it is not."""
+    words = {}  # word -> priority (3 culture, 2 corpus/private_defs, 1 dict/hwdb)
+    BLOCK = held_out_answers(clues_path, by_date_dir)
     hp = os.path.join(HERE, 'lex/hspell.txt')
     if os.path.exists(hp):
         for line in open(hp, encoding='utf-8'):
             w = norm(line)
             if w:
                 words.setdefault(w, 1)
+    if include_hwdb:
+        wp = hwdb_path or os.path.join(HERE, 'lex/hwdb.txt')
+        if os.path.exists(wp):
+            for line in open(wp, encoding='utf-8'):
+                w = norm(line)
+                if w:
+                    words.setdefault(w, 1)
     # corpus answers (high priority — names, slang, multiword grid entries)
     for pat in ['data/answers/answers_parsed.json']:
         if os.path.exists(pat):
@@ -80,6 +146,23 @@ def load():
                 w = norm(c.get('answer'))
                 if w and w not in BLOCK:
                     words[w] = 2
+    # private definitions corpus (note.co.il + מורדו): independently-sourced crossword
+    # answers, gitignored, rebuilt fresh by scraper/crawl_defs.py — see the docstring
+    # above for why this belongs here now. Same priority tier as our own corpus answers.
+    if include_private_defs:
+        for f in glob.glob(private_defs_glob):
+            for line in open(f, encoding='utf-8'):
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    r = json.loads(line)
+                except ValueError:
+                    continue
+                for a in r.get('answers', []):
+                    w = norm(a)
+                    if w and w not in BLOCK:
+                        words[w] = 2
     # culture entities (song titles, artists, politicians, places) from he-wikipedia.
     # Highest priority: these are exactly the answers the solver cannot invent.
     cp = os.path.join(HERE, 'lex/culture.json')
@@ -138,6 +221,71 @@ def selftest():
         found = norm('שלום') in block2
         print(f'  falls back to dataset-row blocking, no crash: {found} (expected True)')
         ok &= found
+
+        print('--- load(): private_defs answers enter the lexicon, held-out ones do not ---')
+        # Deliberately unreal strings (a repeated letter 4-5x is not a Hebrew headword)
+        # so this test is not accidentally satisfied by hspell/corpus/culture already
+        # containing the word for an unrelated reason — isolates what THIS source does.
+        safe_word = 'ממממ'      # only ever sourced from the private_defs fixture below
+        leak_word = 'ששששש'    # ALSO this fixture's own dev-puzzle gold answer (BLOCK)
+        with open(clues_p, 'a', encoding='utf-8') as f:
+            f.write(json.dumps({'puzzle_date': '2099-01-01', 'clue_number': 2,
+                                 'direction': 'across', 'split': 'dev',
+                                 'answer_raw': leak_word}, ensure_ascii=False) + '\n')
+        pd_dir = os.path.join(tmp, 'private_defs')
+        os.makedirs(pd_dir)
+        with open(os.path.join(pd_dir, 'fixture.jsonl'), 'w', encoding='utf-8') as f:
+            f.write(json.dumps({'definition': 'fixture leak probe', 'answers': [leak_word]},
+                                ensure_ascii=False) + '\n')
+            f.write(json.dumps({'definition': 'fixture safe probe', 'answers': [safe_word]},
+                                ensure_ascii=False) + '\n')
+        words_on = load(clues_p, by_date_dir, include_private_defs=True,
+                         private_defs_glob=os.path.join(pd_dir, '*.jsonl'))
+        safe_in = safe_word in words_on
+        print(f'  safe private_defs answer enters lex(): {safe_in} (expected True)')
+        ok &= safe_in
+        leak_blocked = leak_word not in words_on
+        print(f"  this fixture's own held-out gold stays OUT even though a private_defs "
+              f'doc names it: {leak_blocked} (expected True)')
+        ok &= leak_blocked
+
+        words_off = load(clues_p, by_date_dir, include_private_defs=False,
+                          private_defs_glob=os.path.join(pd_dir, '*.jsonl'))
+        toggle_off = safe_word not in words_off
+        print(f'  include_private_defs=False excludes it: {toggle_off} (expected True)')
+        ok &= toggle_off
+
+        print('--- load(): hwdb answers enter the lexicon at dict priority, NOT held-out '
+              'filtered (treated like hspell, see docstring) ---')
+        hwdb_word = 'קקקקק'      # only ever sourced from the hwdb fixture below
+        hwdb_leak = 'צצצצצ'      # this fixture's own dev-puzzle gold answer (BLOCK)
+        with open(clues_p, 'a', encoding='utf-8') as f:
+            f.write(json.dumps({'puzzle_date': '2099-01-01', 'clue_number': 3,
+                                 'direction': 'across', 'split': 'dev',
+                                 'answer_raw': hwdb_leak}, ensure_ascii=False) + '\n')
+        hwdb_p = os.path.join(tmp, 'hwdb.txt')
+        with open(hwdb_p, 'w', encoding='utf-8') as f:
+            f.write(hwdb_word + '\n' + hwdb_leak + '\n')
+        words_hwdb_on = load(clues_p, by_date_dir, include_private_defs=False,
+                              private_defs_glob=os.path.join(pd_dir, '*.jsonl'),
+                              include_hwdb=True, hwdb_path=hwdb_p)
+        hwdb_in = hwdb_word in words_hwdb_on
+        print(f'  hwdb word enters lex() at priority 1: '
+              f'{hwdb_in and words_hwdb_on.get(hwdb_word) == 1} (expected True)')
+        ok &= hwdb_in and words_hwdb_on.get(hwdb_word) == 1
+        # NOT held-out filtered by design (treated as a general dictionary, like hspell —
+        # see the load() docstring for why this differs from private_defs/culture).
+        hwdb_unfiltered = hwdb_leak in words_hwdb_on
+        print(f'  hwdb is NOT held-out filtered (an ordinary-word coincidence, same rule '
+              f'as hspell): {hwdb_unfiltered} (expected True)')
+        ok &= hwdb_unfiltered
+
+        words_hwdb_off = load(clues_p, by_date_dir, include_private_defs=False,
+                               private_defs_glob=os.path.join(pd_dir, '*.jsonl'),
+                               include_hwdb=False, hwdb_path=hwdb_p)
+        hwdb_toggle_off = hwdb_word not in words_hwdb_off
+        print(f'  include_hwdb=False excludes it: {hwdb_toggle_off} (expected True)')
+        ok &= hwdb_toggle_off
     finally:
         shutil.rmtree(tmp)
 
