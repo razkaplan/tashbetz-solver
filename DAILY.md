@@ -16,14 +16,80 @@ tree - a stale CLI deploy overwrote the live site on 2026-08-29. See CLAUDE.md.
 | Accurate fulfilment (yield) | 55% (unchanged, not re-run today) | ~67% |
 | Best single puzzle | 2026-05-29: 95% / 71% / 68% ✓ all targets | |
 | Hardest puzzle | 2026-06-05: 100% / 43% / 43% | coverage stuck |
-| **Candidate recall@N (new, offline, mechanical only)** | **3.6% (1/28)**, avg 11.6 candidates/clue (capped), on 2026-05-29 — UNCHANGED after adding substitution+homograph mechanisms | not yet a target — diagnostic |
+| **Candidate recall@N (new, offline, mechanical only)** | **3.6% (1/28)**, avg 11.6 candidates/clue (capped), on 2026-05-29 — UNCHANGED after adding substitution+homograph mechanisms. **2026-10-08, full defaults (mechanical+culture+retrieval) on a freshly transcribed 2026-05-15: 0.0% (0/28), avg 14.0 candidates/clue** — a new puzzle for this diagnostic, previously only used for live blind trials (2026-08-22, 0/2 precision), now also flat on the offline candidate-gen measure | not yet a target — diagnostic |
 | **Candidate recall@N with `retrieval_candidates` added (new, offline, BM25 definition retrieval)** | **7.1% (2/28)** on 2026-05-29 (up from 3.6%); **SECOND puzzle, 2026-08-26: 0.0% (0/18) → 5.6% (1/18)** on 2026-06-26 (partial, 18/28 clues); **THIRD puzzle, 2026-08-27: 0.0% (0/19) → 0.0% (0/19), UNCHANGED** on 2026-07-10; **2026-08-28, RE-MEASURED on 2026-05-29 with a GROWN corpus (mordo re-crawled 13,646 raw pairs vs 9,685; `note.co.il` crawled for the first time this project's lifetime, 829 pairs): 3.6% (1/28) → 10.7% (3/28)**, up from the 7.1% this exact puzzle scored with the smaller corpus; **2026-08-29, RE-MEASURED 2026-07-10 with an EVEN BIGGER corpus (mordo 25,350 raw / 24,361 parsed, up from 13,646/12,890; note.co.il 970 fetched out of 1,301 discovered): 0.0% (0/19) → 0.0% (0/19), STILL UNCHANGED**; **2026-08-30, RE-MEASURED 2026-06-26 — this time FULLY transcribed (28/28 clues, closing 2026-08-26's 18/28 partial gap) and with a MASSIVELY grown corpus (mordo 66,443 raw / 62,403 parsed, up from 25,350/24,361 — the blogspot feed has grown 2.6x again; note.co.il 1,001 fetched out of 1,301 discovered, up from 970/1301): 0.0% (0/28) → 14.3% (4/28)** — the highest recall this diagnostic has ever measured on any puzzle, and the largest single-puzzle point gain, from 4 independently-audited external hits (מניע, רומח, בובדילנ, ברסמכא) — see log | not yet a target — diagnostic; 6 independent measurements, 4 positive + 2 flat, confirming corpus growth is puzzle-dependent (rescued 2026-05-29 twice and now 2026-06-26 strongly, never moved 2026-07-10 across three corpus sizes) |
-| **Definition-span locatable rate (new, offline, diagnostic)** | **25% (7/28)** have mechanically-locatable single-window wordplay; of those 29% (2/7) are interior, not edge; classifier agreement on edge cases **1/5** | not a target — this diagnostic KILLED the lever, see log |
+| **Definition-span locatable rate (new, offline, diagnostic)** | **25% (7/28)** on the original 2026-08-19 puzzle; of those 29% (2/7) interior, not edge; classifier agreement on edge cases **1/5**. **2026-10-08, a SECOND puzzle (2026-05-15): 0% (0/28), the lowest ever recorded** — zero start/end edge cases existed to score either classifier against | not a target — this diagnostic KILLED the lever, see log |
 | **`solve_pass.py` LIVE blind trial — cumulative (3 trials)** | **40% precision (2/5 committed)**: 2026-08-16 was 1/2 on a partial 21/28-clue puzzle (2026-06-12); 2026-08-22 was **0/2**, 7.1% coverage, on a FULL 28/28-clue puzzle (2026-05-15); **2026-08-27 is 1/1 = 100% precision but 5.3% coverage (1/19), 0% suggestion hit-rate (0/10)**, on 2026-07-10 (19/28 clues) — FIRST trial run with `retrieval_candidates` live (wired 2026-08-25, never live-trialed since); it contributed ZERO candidates all puzzle (grepped the transcript for `(retrieval, fodder=` hits — none), matching today's own offline recall@N finding on this same puzzle (0/19 with or without retrieval); the one correct commit came from `wiki.py` culture-fact lookup, not from any candidate generator | n=5 — still small; retrieval's live debut is a null result on this puzzle, not a regression, but not the coverage lift the queue hoped for either; see log |
 | **Candidate recall@N with `culture_category_candidates` added (new, offline, definition-driven)** | **0% (0/28)**, on 2026-06-19 — mechanism fired on only 1/28 clues (avg candidates/clue 10.5 → 11.4); its one firing (339 raw candidates, an "author" category hit) matched 0 gold | not yet a target — small-n diagnostic, see log |
 
 Baseline for comparison: v2 = 41% raw with untraceable errors.
-Last lever added (2026-08-30): **closed 2026-08-29's own "NOT DONE" gap: re-measured
+Last lever added (2026-10-08): **built the one untried alternative signal DAILY.md's own
+"Things already tried" section named when it struck definition-span detection in
+2026-08-19** ("scoring by whether each end's residual is anagram-matchable" — queue items
+2/9). `solver/defspan.py` gained `split_mechanical`/`classifier_agrees_mechanical`: instead
+of indicator-word density (measured 1/5, worse than chance, 2026-08-19), it scores each
+(definition, wordplay) hypothesis by whether the WORDPLAY-side residual, searched ALONE
+(never the whole clue), is itself mechanically productive — produces any real-word
+anagram/hidden/reversal candidate of the target length via `candidates.py`'s own window
+search. Selftested, including a DISCLOSED weakness found by direct construction before any
+real-data run: when two hypotheses' residuals both land at exactly the target length (the
+common case), the "fewer raw hits wins" tiebreak just measures how many real words happen
+to share that one window's letter-multiset — a lexicon-density accident, not evidence of
+which span the setter intended. The selftest demonstrates this directly rather than hiding
+it (`solver/defspan.py selftest`, both new checks pass: the signal correctly excludes a
+too-short residual, and the tie case is confirmed to exist on a synthetic clue).
+
+Bootstrap ran fully clean this run (52/52 puzzles, 1,457 clues from 14across on the first
+pass — no hard wall, no image-fallback needed for gold data; the first clean run logged
+since 2026-08-06/2026-08-29). Transcribed a NEW dev puzzle for this diagnostic series,
+2026-05-15 (28/28 clues, from `data/images/2026-05-14.jpg`), previously used only for a
+2026-08-22 live blind trial (0/2 precision) and never run through `candidates.py recall`
+or `defspan.py stats`. Enum validation: 0/28 mismatches, including resolving a real
+typesetting quirk in this specific printed clue column — enum+credit for several clues
+print immediately AFTER the following clue's number rather than at the end of their own
+text (a bidi/line-wrap rendering artifact, not a setter convention), caught and corrected
+by cross-checking candidate enum assignments against the known gold answer lengths before
+trusting either reading, with every one of the 28 clues confirming len_ok.
+
+MEASURED, both diagnostics on this new puzzle: `candidates.py recall` (full defaults,
+culture+retrieval) **0.0% (0/28)**, avg 14.0 candidates/clue — a new, previously-untouched
+data point for the recall@N series (now flat on 2 of 8 measured puzzles: this one and
+2026-07-10 x3). `defspan.py stats` **0/28 located** — the lowest this diagnostic has ever
+recorded (previous low 25%, 7/28, on the original 2026-08-19 puzzle) — meaning there were
+ZERO start/end edge cases to score either classifier (old or new) against on real data this
+run; both report `n/a`.
+
+AUDITED. `lexicon.held_out_answers()` confirmed (computed, not assumed) to block all 28 of
+this puzzle's own gold answers (`gold_norm - blocked` empty). No forbidden reads: gold
+answers came from the sanctioned 14across bootstrap scrape (`data/answers/by_date/
+2026-05-15.json`, real crowd data, not image-fallback — bootstrap succeeded fully this
+run); clue text came only from the public CDN image. No implausible jump to explain: every
+number this run produced is flat or lower than its nearest comparator (0.0% recall, 0%
+located), the opposite direction a leak would produce. All affected selftests
+(`defspan.py`, `candidates.py`, `prove.py`, `lexicon.py`) re-run clean.
+
+HONEST READ: the new signal is a real improvement in KIND over indicator-word density (it
+can structurally rule out a residual too short to ever contain the target-length window,
+which word-counting never could), and its own failure mode is now documented rather than
+undiscovered — but it could not be validated or invalidated against real located cases
+this run, because this run's one transcribed puzzle happened to have zero of them. That
+is itself informative: it is the THIRD independent puzzle (after 2026-08-19's 25% and
+earlier offline recall measurements' general pattern) confirming that single-window
+mechanical locatability, not classifier quality, is this item's real bottleneck — refining
+how a classifier picks among located edge cases is lower-value than the located rate
+itself already implied. Queue items 2/9 stay struck; this does not reopen them, it closes
+the one concretely-named gap they left and confirms the same verdict from a different
+angle.
+
+NOT DONE, honestly: did not find a second real puzzle with a non-empty located set to
+properly score `classifier_agreement_mechanical` against (today's one-puzzle transcription
+budget was spent on 2026-05-15, chosen because it was untouched by this diagnostic, not
+because it was expected to have located cases — it did not); did not revisit candidate
+generation itself (queue item 1) despite today's new 0/28 recall data point being a
+byproduct, since that would be a second lever in one run; did not merge or otherwise act on
+any open PR.
+
+Previous lever (2026-08-30): **closed 2026-08-29's own "NOT DONE" gap: re-measured
 `retrieval_candidates` on 2026-06-26 — the puzzle 2026-08-28/08-29 both flagged as still
 needing a bigger corpus and no run had finished re-transcribing — this time FULLY (28/28
 clues, not the 18/28 partial 2026-08-26 left) and against a corpus grown far past any
@@ -2427,3 +2493,84 @@ Measure each lever on dev (fixed enums) with run_eval.py before/after; one lever
   "כולם חפצים מהבית" theme (an אוטובוס was due to appear on 09-08).
   Gates: ui_smoke 9/9 pages at both widths, topicgen_eval 52/52 boards,
   url_guard clean (6,071 URLs, none dropped), nativ regression 22/22.
+- 2026-10-08: **definition-span detection, queue items 2/9's own named next step: a
+  mechanical-matchability classifier signal, built and measured for the first time.**
+  Last solver lever was 2026-08-30; the runs between then and today (08-29, 08-31, 09-04,
+  09-07) were nativ/site UI work, so the solver queue was exactly where 08-30 left it.
+
+  Bootstrap ran fully clean (52/52 puzzles, 1,457 clues, real 14across data on the first
+  pass — no hard wall, first clean run since 2026-08-06/2026-08-29).
+
+  RESEARCH (full entries in RESEARCH.md): seventh-plus consecutive literature pass
+  (candidate generation, definition-span detection, Hebrew morphology) with nothing new
+  and buildable — same paper family logged since 2026-08-06, one new-but-irrelevant 2026
+  citation (an Italian, non-cryptic EVALITA shared-task paper), no definition-span
+  research-grade material at all, no new Hebrew-NLP resource.
+
+  LEVER: with literature exhausted again, built the one concretely-named, never-attempted
+  idea from DAILY.md's own "Things already tried" section (struck 2026-08-19 when
+  indicator-word density scored 1/5, worse than chance): score each (definition, wordplay)
+  hypothesis by whether the WORDPLAY-side residual, searched alone, is itself mechanically
+  productive (produces a real anagram/hidden/reversal candidate of the target length via
+  candidates.py's own window search), rather than by indicator-word count. Added
+  `solver/defspan.py:split_mechanical`/`classifier_agrees_mechanical`, wired into `stats()`
+  alongside the original classifier for a direct side-by-side. Selftested, including a
+  DISCLOSED weakness found by construction, not left for someone else to find: when two
+  hypotheses' residuals both land at exactly the target length (the common case), the
+  "fewer raw hits" tiebreak just reflects how many real words share that one window's
+  letter-multiset — a lexicon-density accident, not evidence of the setter's true span. A
+  synthetic selftest clue (`'ברכה חמה םולש'`, target_len=4) demonstrates two distinct
+  equal-length matchable residuals exist, confirming the weakness is real rather than
+  theoretical.
+
+  TRANSCRIPTION: 2026-05-15 (28/28 clues, from `data/images/2026-05-14.jpg`), chosen
+  because this diagnostic had never touched it (it was previously used only for 2026-08-22's
+  live blind trial, 0/2 precision). Gold answers came directly from the real 14across
+  scrape (`data/answers/by_date/2026-05-15.json`) since bootstrap succeeded fully — no
+  image-fallback needed for gold data this run. Enum validation hit and resolved a real
+  typesetting artifact in this specific printed clue column: several clues' enum+credit
+  print immediately AFTER the FOLLOWING clue's number marker rather than at the end of
+  their own text (a bidi/line-wrap rendering quirk in how the newspaper's layout engine
+  handles parenthetical digit runs embedded in RTL paragraphs, not a setter convention) —
+  caught by cross-checking each candidate enum assignment against the already-known gold
+  answer length before trusting either reading (e.g. the enum shown as `(7)` immediately
+  after clue 23's own number marker could only be clue 22's, since clue 23's gold answer
+  is 3 letters and clue 22's is 7). Every one of the 28 enum sums matched its answer's
+  letter count once resolved: 0/28 mismatches.
+
+  MEASURED (executed, not estimated), both diagnostics on this new puzzle:
+  `python3 solver/candidates.py recall data/dataset/clues.jsonl eval` — **0.0% (0/28)**,
+  avg 14.0 candidates/clue, full defaults (mechanical+culture+retrieval) — a new data point
+  for the recall@N series, previously untouched by it. `python3 solver/defspan.py stats
+  data/dataset/clues.jsonl eval` — **0/28 located** (0.0%), the lowest this diagnostic has
+  ever recorded (previous low 25%, 7/28, 2026-08-19) — meaning zero start/end edge cases
+  existed to score either classifier (indicator-density or mechanical-matchability)
+  against; both report `classifier_agreement: n/a`.
+
+  AUDITED (mandatory gate). `lexicon.held_out_answers()` confirmed (computed, not assumed)
+  to block all 28 of this puzzle's own gold answers (`gold_norm - blocked` empty). No
+  forbidden reads: gold came from the sanctioned bootstrap scrape of 14across, clue text
+  from the public CDN image only. No implausible jump: every number this run produced is
+  flat-to-lower than its nearest comparator (0.0% recall vs. the series' prior range
+  0.0-14.3%; 0% located vs. the prior 25%), the opposite direction a leak would produce.
+  Affected selftests (`defspan.py`, `candidates.py`, `prove.py`, `lexicon.py`) all re-run
+  clean.
+
+  HONEST READ: the new classifier signal is a genuine improvement in KIND over indicator
+  density — it can structurally exclude a residual too short to ever contain the target
+  window, which word-counting cannot express — and its own failure mode is now documented
+  by construction rather than left to be discovered later. But it could not be validated
+  OR invalidated against real located cases this run, because the one puzzle transcribed
+  today happened to have none. That absence is itself the more informative result: a
+  THIRD independent puzzle (after 2026-08-19's 25% and this run's own 0%) pointing at
+  single-window mechanical locatability, not classifier quality, as queue items 2/9's real
+  bottleneck. Consistent with — not a reversal of — the 2026-08-19 decision to strike these
+  items; this closes the one concretely-named open thread they left rather than reopening
+  them.
+
+  NOT DONE, honestly: did not find or transcribe a second puzzle with a non-empty located
+  set to actually score `classifier_agreement_mechanical`'s real-world accuracy (today's
+  one-puzzle budget went to 2026-05-15, picked for being untouched by this diagnostic, not
+  for being likely to have located cases); did not act on today's own byproduct 0/28
+  candidate-recall data point as a separate lever (would be a second lever in one run);
+  did not merge or otherwise act on any open PR.
