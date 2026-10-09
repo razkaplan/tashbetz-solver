@@ -2546,3 +2546,73 @@ own internal queue: item 9's own named next step from 2026-09-22 ("an IDF-style
 dampener for generic-idiom over-matching" in `solver/deffit.py`'s reranker) — see
 DAILY.md for the mechanism, the selftest demonstrating it on a controlled synthetic
 case, and the measurement on real puzzle data.
+
+## 2026-10-08 (PR #81)
+
+Bootstrap ran clean: 14across returned 52/52 puzzles (1,457 clues) on the first pass.
+
+Research followed the scheduled task's stated priority order (candidate generation /
+definition-span diversity, then Hebrew NLP) before falling back to the queue's own
+explicitly-flagged next step.
+
+**"cryptic crossword clue solving candidate generation neural 2026 arxiv" / "definition
+span detection cryptic crossword clue segmentation wordplay 2026" / "Hebrew morphological
+analyzer root pattern segmentation 2026 NLP" (general search, three queries).** Surfaced
+nothing not already in this log. The cryptic-specific results are the same paper family
+logged repeatedly since 2026-08-06 (2506.04824, 2406.09043, 2104.08620, Berkeley Crossword
+Solver); the one 2026-dated hit (an EVALITA 2026 Cruciverb-IT shared task paper, BERT-based
+masked-LM answer prediction) is Italian, non-cryptic, and its "candidate pooling" step is
+the Berkeley-style technique already logged, not a new idea. The definition-span query
+returned no research-grade material at all. The Hebrew-morphology query reconfirmed
+AlephBERT/DictaBERT/HebPipe/AlephBERTGimmel, all already logged; no 2026 publication found
+in any of the three searches. **Transfer: none new** — seventh-plus consecutive
+literature pass with nothing new and buildable on candidate generation or definition-
+span/fit scoring.
+
+**Conclusion for today's lever.** With literature exhausted again, today's lever is the
+queue's own standing, explicitly-named next step for item 2/9: a mechanical-matchability
+classifier signal for `defspan.py` ("scoring by whether each end's residual is
+anagram-matchable") — see DAILY.md's log for the full account, including a disclosed
+structural weakness and today's real-data measurement (0/28 located, the lowest this
+diagnostic has ever recorded).
+
+## 2026-10-09 (this run — backlog consolidation)
+
+RESEARCH done before touching the lever, per the scheduled task's own step order, even
+though today's chosen lever (see DAILY.md) turned out to be the backlog consolidation
+the project's own precedent (queue item 6, five prior failed fixes) calls for when the
+open-PR count has grown unmanaged again.
+
+**"cryptic crossword clue solving LLM candidate generation 2026 arxiv" (general search).**
+Surfaced the same standing paper family this log has cited every pass since 2026-08-06
+(2506.04824 "A Reasoning-Based Approach to Cryptic Crossword Clue Solving," 2406.09043
+"Language Models are Crossword Solvers," 2407.08824, plus the Efrat et al. Cryptonite
+baseline — T5-Large fine-tuned scores only 7.6%, GPT-class zero-shot ~9.5%, vs 99% human
+expert). No 2026-dated cryptic-specific paper found. **Transfer: none new** — eleventh-
+plus consecutive pass confirming the same conclusion.
+
+**"Hebrew morphological analyzer open source 2026 crossword solver word segmentation"
+(targeted search, following up on this project's own hand-rolled `prefix_stripped()`/
+`phrase_split()` segmenters).** One borderline-new item: an open-source Elasticsearch
+9.x analyzer plugin that performs Hebrew lemmatization via an embedded, INT8-quantized
+DictaBERT model run in-process through ONNX Runtime, handling the prefix/clitic
+segmentation ("ה-bayit", "la-bayit" etc. normalizing to one lemma) that makes Hebrew hard
+to tokenize. **Transfer: checked honestly, not inflated.** DictaBERT itself has already
+been checked and logged as "nothing new" across roughly ten prior passes (most recently
+2026-10-07/08) — this is a new PACKAGING (an Elasticsearch plugin) of the same underlying
+model, not a new capability. It targets search-index lemmatization, not candidate
+generation or word-existence membership, and would need real integration work (extracting
+the model from its Elasticsearch-plugin wrapper, or running DictaBERT directly via
+HuggingFace) to even reach parity with what `hebrew-words-db` (wired in 2026-09-20)
+already provides as a second dictionary tier. Not actionable today; worth a direct look
+at DictaBERT-via-HuggingFace specifically (rather than this Elasticsearch wrapper) if a
+future run wants a genuinely NEW Hebrew lexical resource rather than another confirmation
+that the existing ones are already the state of the art reachable without fine-tuning.
+
+**Conclusion for today's lever.** With literature exhausted again (eleventh-plus
+consecutive null pass), and with `list_pull_requests` showing 38 open, unmerged solver
+PRs — far more than the 21 this run's own task framing expected, and the fourth distinct
+branching-hygiene failure in the five days since PR #78's 2026-10-05 entry first
+root-caused the pattern — today's lever is the project's own internal queue, item 6:
+consolidate the backlog again, and this time diagnose why the standing process fix keeps
+failing rather than just re-merging and hoping. Full writeup in DAILY.md's log.
