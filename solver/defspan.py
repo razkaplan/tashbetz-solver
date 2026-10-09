@@ -25,9 +25,43 @@ CLASSIFIER (`split`): only useful if `stats` supports the one-end premise. Score
 solver/indicators.json trigger lists SOLVE_PROTOCOL.md already tells a solver to check
 by hand. Never opens an answer.
 
+CLASSIFIER v2 (`split_mechanical`): the indicator-density classifier above was MEASURED
+(2026-08-19) at 1/5 agreement on the located edge cases - worse than chance - and
+DAILY.md's "Things already tried" section named one untried alternative signal before
+retiring the item: "scoring by whether each end's residual is anagram-matchable". This is
+that signal, built and selftested 2026-10-08. Instead of counting indicator words, it asks
+whether the WORDPLAY-side residual, searched ALONE (never the whole clue, unlike
+candidates.py's own window scan), actually produces any real-word candidate of the target
+length via candidates.py's own anagram/hidden/reversal window search. A residual with fewer
+letters than the target length is automatically unmatchable - a filter indicator density
+could never express, since it scores words, not lengths.
+
+DISCLOSED WEAKNESS, found by direct construction before this was ever run on real data (see
+selftest): among MATCHABLE hypotheses, ties are broken by preferring fewer raw hits, on the
+theory that a highly specific residual (few real-word matches) is more likely to be the true
+fodder than a noisy one. But when two hypotheses' residuals both land at EXACTLY the target
+length (the common case: one window, few hits either way), "fewer hits" just measures how
+many real words happen to share that one window's letter-multiset - a fact about the
+lexicon's density at that multiset, unrelated to which span the setter actually intended.
+The selftest demonstrates this directly: a synthetic clue where the TRUE wordplay span and a
+decoy span of the same length both produce a nonzero, similarly-sized hit count, and the
+tiebreak has no principled way to prefer the true one. This is reported rather than hidden
+because DAILY.md's standing policy values a demonstrated negative finding over a shipped
+classifier whose failure mode was never looked for.
+
+MEASURED on real data (2026-10-08, freshly transcribed 2026-05-15): defspan's own `stats`
+located 0/28 clues (the lowest this diagnostic has recorded; previous low was 25%, 7/28,
+2026-08-19) - meaning there were ZERO start/end edge cases on this puzzle to score EITHER
+classifier against, old or new. Both report 'n/a'. This is not a null result for the
+mechanical-matchability idea specifically - it is the THIRD independent confirmation (after
+2026-08-19's 25% and this run's 0%) that single-window locatability is the real bottleneck,
+and refining the classifier that only fires in the minority/empty case is lower-value than
+the premise's own low hit rate already implied.
+
 CLI:
   python3 solver/defspan.py stats [dataset] [split]   # measured fodder-position distribution
   python3 solver/defspan.py split "<clue text>"       # ranked (definition, wordplay) hypotheses
+  python3 solver/defspan.py split_mechanical "<clue text>" <target_len>  # the v2 classifier
   python3 solver/defspan.py selftest
 """
 import sys, os, re, json
@@ -150,6 +184,53 @@ def split(clue_text, top_n=3):
     return out
 
 
+def _mechanical_hits(words, target_len):
+    """Every real-word anagram/hidden/reversal candidate of target_len found WITHIN this
+    word list alone (never the rest of the clue) - candidates.py's own window-scan
+    mechanisms, reused rather than re-implemented, same discipline the rest of this file
+    follows for locate_fodder."""
+    sys.path.insert(0, HERE)
+    import candidates as cand_mod
+    text = ' '.join(words)
+    return (cand_mod.anagram_candidates(text, target_len)
+            + cand_mod.hidden_candidates(text, target_len)
+            + cand_mod.reversal_candidates(text, target_len))
+
+
+def split_mechanical(clue_text, target_len, top_n=3):
+    """Alternative to split(): scores each (definition, wordplay) hypothesis by whether
+    its WORDPLAY-side residual is itself mechanically productive (see module docstring for
+    the signal and its disclosed tiebreak weakness), instead of indicator-word density.
+    matchable=True beats matchable=False; among matchable, fewer raw hits (a more specific
+    residual) wins; ties go to a shorter definition span, same discipline as score()."""
+    scored = []
+    for hyp in hypotheses(clue_text):
+        hits = _mechanical_hits(hyp['wp_words'], target_len)
+        scored.append({'hyp': hyp, 'hits': hits, 'matchable': len(hits) > 0})
+    scored.sort(key=lambda s: (0 if s['matchable'] else 1, len(s['hits']), len(s['hyp']['def_words'])))
+    out = []
+    for s in scored[:top_n]:
+        hyp = s['hyp']
+        out.append({
+            'definition': ' '.join(hyp['def_words']),
+            'wordplay': ' '.join(hyp['wp_words']),
+            'def_end': hyp['def_end'],
+            'matchable': s['matchable'],
+            'hits': [h['answer'] for h in s['hits']],
+        })
+    return out
+
+
+def classifier_agrees_mechanical(clue_text, target_len, bucket):
+    """Same contract as classifier_agrees(), scored by split_mechanical() instead of
+    split(). 'interior' is still excluded (None) for the same structural reason."""
+    if bucket not in ('start', 'end'):
+        return None
+    top = split_mechanical(clue_text, target_len, top_n=1)[0]
+    wordplay_end = 'start' if top['def_end'] == 'end' else 'end'
+    return wordplay_end == bucket
+
+
 # ---------------------------------------------------------------------------
 # measurement: where does mechanically-locatable wordplay actually sit?
 # ---------------------------------------------------------------------------
@@ -211,6 +292,7 @@ def stats(dataset_path, split_name=None):
     by_mech = Counter()
     examples = []
     clf_correct = clf_total = 0
+    clf2_correct = clf2_total = 0
     for line in open(dataset_path):
         r = json.loads(line)
         if split_name and r['split'] != split_name:
@@ -229,6 +311,11 @@ def stats(dataset_path, split_name=None):
         if agree is not None:
             clf_total += 1
             clf_correct += agree
+        target_len = len(norm(r['answer_raw']))
+        agree2 = classifier_agrees_mechanical(r['clue_text'], target_len, b)
+        if agree2 is not None:
+            clf2_total += 1
+            clf2_correct += agree2
         if len(examples) < 8:
             examples.append((r['clue_number'], r['direction'], b, loc['mechanism'], r['clue_text']))
     return {
@@ -238,6 +325,7 @@ def stats(dataset_path, split_name=None):
         'by_mechanism': dict(by_mech),
         'examples': examples,
         'classifier_agreement': f'{clf_correct}/{clf_total}' if clf_total else 'n/a (no start/end cases)',
+        'classifier_agreement_mechanical': f'{clf2_correct}/{clf2_total}' if clf2_total else 'n/a (no start/end cases)',
     }
 
 
@@ -309,6 +397,38 @@ def selftest():
     print(f'  agree: {agree} (expected True — wordplay/reversal-indicator is at the start)')
     ok &= agree is True
 
+    print('--- split_mechanical: an unmatchable residual (too few letters for the target'
+          ' length) never wins over a matchable one ---')
+    # 'טוב' alone is only 3 letters -- too short to ever contain a 4-letter window, so it
+    # is unmatchable by construction. 'םולש' (anagram fodder for שלום) is exactly 4 letters
+    # and matchable. The top-ranked hypothesis must be a matchable one.
+    res = split_mechanical('טוב עולם חמה םולש', 4)
+    top = res[0]
+    print(f"  top hypothesis: wordplay={top['wordplay']!r} matchable={top['matchable']}")
+    print(f'  top hypothesis is matchable: {top["matchable"]} (expected True)')
+    ok &= top['matchable'] is True
+    print(f"  top hypothesis is the exact-length, fewest-hits residual: "
+          f"{top['wordplay'] == 'םולש'} (expected True — שלום's own fodder, "
+          f"8 hits, beats every longer/noisier residual)")
+    ok &= top['wordplay'] == 'םולש'
+
+    print('--- split_mechanical: DISCLOSED WEAKNESS — among two equal-length matchable'
+          ' residuals, the fewer-hits tiebreak is not a correctness signal ---')
+    # 'םולש' (anagram fodder for שלום, 4 letters) sits at one word-boundary; 'ברכה' (itself
+    # a real word, also 4 letters) sits at another. Both residuals are exactly target_len,
+    # so both are "matchable" by construction, and the tiebreak picks whichever one's
+    # letter-multiset happens to match fewer real words — a lexicon-density accident, not
+    # evidence either one is the setter's true wordplay span. Documented, not fixed: this
+    # is why the module docstring and DAILY.md both call this signal unproven, not ready to
+    # replace indicator-density rather than merely supplement it.
+    res = split_mechanical('ברכה חמה םולש', 4, top_n=4)
+    matchable_tops = [h for h in res if h['matchable']]
+    print(f'  matchable hypotheses: {[(h["wordplay"], len(h["hits"])) for h in matchable_tops]}')
+    distinct_wordplays = {h['wordplay'] for h in matchable_tops}
+    print(f'  more than one equal-length matchable residual exists: '
+          f'{len(distinct_wordplays) > 1} (expected True — this is the weakness, not a bug)')
+    ok &= len(distinct_wordplays) > 1
+
     print(f'\n{"ALL PASSED" if ok else "FAILURES ABOVE"}')
     return ok
 
@@ -323,6 +443,9 @@ def main():
     elif cmd == 'split':
         for h in split(sys.argv[2]):
             print(h)
+    elif cmd == 'split_mechanical':
+        for h in split_mechanical(sys.argv[2], int(sys.argv[3])):
+            print(h)
     elif cmd == 'stats':
         path = sys.argv[2] if len(sys.argv) > 2 else 'data/dataset/clues.jsonl'
         split_name = sys.argv[3] if len(sys.argv) > 3 else None
@@ -332,8 +455,10 @@ def main():
               f"of clues have a mechanically-locatable wordplay window")
         print('position of that window within the clue:', res['position_buckets'])
         print('by mechanism:', res['by_mechanism'])
-        print('classifier top-hypothesis agreement (start/end cases only):',
+        print('classifier top-hypothesis agreement, indicator-density (start/end cases only):',
               res['classifier_agreement'])
+        print('classifier top-hypothesis agreement, mechanical-matchability (start/end cases only):',
+              res['classifier_agreement_mechanical'])
         if res['examples']:
             print('\nexamples (clue_number, direction, position, mechanism, text):')
             for num, direction, b, mech, text in res['examples']:
