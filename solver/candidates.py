@@ -14,11 +14,11 @@ This module does exactly that, per clue, with no LLM involved:
   - hidden_candidates:   a contiguous run inside the space-removed clue that is itself
                           a real word (the "hidden word" device).
   - reversal_candidates: same search, reversed.
-  - substitution_candidates: the setter's private-vocabulary device — a clue word (or two
-                          adjacent ones) substituted for a fragment mined from crowd
+  - substitution_candidates: the setter's private-vocabulary device — a run of 1-4
+                          ADJACENT clue words substituted for fragments mined from crowd
                           explanations (solver/substitutions.py), when the substitute(s)
-                          cover the FULL answer length. Rebuilt in-memory with held-out
-                          clues excluded (see sub_fwd()) rather than trusting the
+                          concatenate to the FULL answer length. Rebuilt in-memory with
+                          held-out clues excluded (see sub_fwd()) rather than trusting the
                           committed lex/substitutions.json, which predates that exclusion.
   - homograph_candidates: the setter's signature device — a clue word already has another
                           sense (lex/ambiguities.json) that matches the enum length, so it
@@ -58,7 +58,7 @@ CLI:
   python3 solver/candidates.py recall data/dataset/clues.jsonl eval --no-retrieval  # ablation
   python3 solver/candidates.py selftest
 """
-import sys, os, re, json
+import sys, os, re, json, itertools
 from collections import Counter
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -198,35 +198,45 @@ def sub_fwd():
     return _SUB_FWD
 
 
+MAX_CHARADE_PARTS = 4
+SUB_OPTIONS_PER_WORD = 5
+
+
 def substitution_candidates(clue_text, target_len, table=None):
     """The setter's private-vocabulary device (SOLVE_PROTOCOL.md 'Substitutions'): a clue
     word stands in for a fragment mined from crowd explanations (a name completed by a
-    surname, an abbreviation, a gloss). Two shapes:
-      (a) one clue word's substitute already has the FULL target length -- propose it
-          directly, filtered to real words/names (lex()) to cut noise;
-      (b) two ADJACENT clue words' substitutes concatenate, in clue order, to the full
-          target length -- a tightly scoped two-part charade. Deliberately NOT the
-          open-ended every-enum-split search charade.py already tried and measured weak
-          (2.8% recall, DAILY.md 2026-08-08): unrestricted part search over a sparse table
-          combinatorially explodes false positives. Adjacency + full-length coverage keeps
-          this mechanism precise instead.
+    surname, an abbreviation, a gloss). A run of 1..MAX_CHARADE_PARTS ADJACENT clue words'
+    substitutes concatenate, in clue order, to the full target length -- propose the
+    result, filtered to real words/names (lex()) to cut noise.
+
+    Was capped at 1-2 words until this run (DAILY.md 2026-08-20 measured that shape
+    negative and named the concrete next step: "the mined substitution table needs to
+    cover multi-part charades (3+ segments), not just 1-2 word coverage"). Extending to
+    k<=4 is NOT the open-ended every-enum-split search charade.py already tried and
+    measured weak (2.8% recall, DAILY.md 2026-08-08): that search tried every possible
+    SPLIT of the answer itself against a sparse table with no bound, which combinatorially
+    explodes false positives. This stays bounded two ways instead: the span is adjacency
+    in the CLUE (not a split of the answer), and each word's option list is capped to its
+    top SUB_OPTIONS_PER_WORD most-attested substitutes (sub_fwd() already sorts by count),
+    so the search stays precise rather than combinatorial regardless of MAX_CHARADE_PARTS.
     `table` is injectable (tests / callers) instead of always hitting sub_fwd()."""
     fwd = table if table is not None else sub_fwd()
     words = lex()
     ws = words_of(clue_text)
-    subs_of = lambda w: [b for b, n in fwd.get(norm(w), [])]
+    subs_of = lambda w: [b for b, n in fwd.get(norm(w), [])][:SUB_OPTIONS_PER_WORD]
     out = []
-    for w in ws:
-        for b in subs_of(w):
-            if len(b) == target_len and b in words:
-                out.append({'answer': b, 'mechanism': 'substitution', 'fodder': w})
-    for i in range(len(ws) - 1):
-        for b1 in subs_of(ws[i]):
-            for b2 in subs_of(ws[i + 1]):
-                joined = b1 + b2
+    n = len(ws)
+    for i in range(n):
+        for k in range(1, min(MAX_CHARADE_PARTS, n - i) + 1):
+            span = ws[i:i + k]
+            per_word = [subs_of(w) for w in span]
+            if any(not opts for opts in per_word):
+                continue
+            for combo in itertools.product(*per_word):
+                joined = ''.join(combo)
                 if len(joined) == target_len and joined in words:
                     out.append({'answer': joined, 'mechanism': 'substitution',
-                                'fodder': f'{ws[i]}+{ws[i + 1]}'})
+                                'fodder': '+'.join(span)})
     return out
 
 
@@ -598,6 +608,21 @@ def selftest():
     found = any(h['answer'] == norm('שלום') for h in hits)
     print(f'  found שלום as של+ום from two adjacent words: {found} (expected True)')
     ok &= found
+
+    print('--- substitution device: THREE adjacent clue words\' substitutes concatenate '
+          '(the 2026-10-10 extension — was capped at 1-2 words) ---')
+    sub_table3 = {norm('אחד'): [(norm('ש'), 1)], norm('שתיים'): [(norm('לו'), 1)],
+                  norm('שלוש'): [(norm('ם'), 1)]}
+    hits = substitution_candidates('אחד שתיים שלוש משהו', 4, table=sub_table3)
+    found = any(h['answer'] == norm('שלום') for h in hits)
+    print(f'  found שלום as ש+לו+ם from three adjacent words: {found} (expected True)')
+    ok &= found
+    print('--- substitution device: a non-adjacent triple does NOT fire (adjacency '
+          'still required, this is not the open-ended every-split search) ---')
+    hits = substitution_candidates('אחד משהו שתיים שלוש', 4, table=sub_table3)
+    found = any(h['answer'] == norm('שלום') for h in hits)
+    print(f'  did not find שלום once a word breaks the adjacency: {not found} (expected True)')
+    ok &= not found
 
     print('--- homograph device: a clue word, de-prefixed, already IS the answer ---')
     # שרה is the canonical example (PLAYBOOK.md/SOLVE_PROTOCOL.md): she sings / a female
