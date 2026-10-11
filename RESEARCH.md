@@ -957,3 +957,67 @@ sweep: `substitution_candidates`' charade shape is currently capped at one or tw
 adjacent clue words whose mined substitutes cover the full answer length; the log itself
 named "the mined substitution table needs to cover multi-part charades (3+ segments)" as
 the concrete next move on this mechanism. See the Log for what was built and measured.
+
+## 2026-10-11
+
+Bootstrap this run also hit NO 14across wall (52/52 puzzles, second clean run in a row
+after 2026-10-10's). Followed the scheduled task's stated priority order: candidate
+generation (diverse candidates by mechanism / by definition-span hypothesis) first.
+
+**"cryptic crossword clue solving candidate generation 2026 neural" (general search).**
+Same paper family logged every run since 2026-08-06. One search-summary sighting worth
+naming: an "Andrews and Witteveen" candidate-then-verify system (hypothesize an answer,
+propose wordplay, verify with a codified-reasoning check), reported as new SOTA on
+Cryptonite. Checked against this log's own citation list: this is almost certainly the
+same system as 2506.04824 ("A Reasoning-Based Approach to Cryptic Crossword Clue
+Solving"), already logged repeatedly — the "Andrews & Witteveen 2024" citation 2026-10-10's
+own entry already names in passing. Not a new citation, just a different search phrasing
+converging on the same one. **Transfer: none new.**
+
+**EVALITA 2026 Cruciverb-IT, a second look beyond 2026-10-10's MINDS/MLM finding.**
+2026-10-10 already logged and correctly dismissed this shared task's MINDS system
+(fine-tuned BERT MLM, Italian, non-cryptic, no wordplay layer). A second team's
+submission to the SAME shared task is worth adding rather than re-litigating the venue:
+the Politecnico di Torino team (AC/DG) compared BM25 lexical retrieval, dense embedding
+retrieval, and a hybrid retrieve-and-rerank setup for the identical clue-to-answer
+definition-retrieval problem this project's own `retrieve_defs.py` solves, and found
+DENSE retrieval the strongest of the three, beating both BM25 and the hybrid. This
+specifically contradicts (not just fails to support) the general-IR scaling study this
+project leaned on in 2026-08-24/08-25 ("BM25 leads embeddings past ~10M corpus tokens")
+to justify `retrieve_defs.py`'s BM25-only design — that study was about open-domain
+web-scale IR, not short-definition-to-short-answer retrieval over a corpus this project's
+own size, which is the regime Cruciverb-IT's result actually speaks to. **Transfer: real,
+but not actionable today, and here is why rather than a vague "worth trying": the honest
+version needs a multilingual sentence-embedding model that covers HEBREW (e.g.
+multilingual-e5, LaBSE) — such models exist, unlike the Hebrew-SPECIFIC embedding space
+this log has correctly said doesn't exist since 2026-08-06 — but this project has zero
+evidence yet that a generic multilingual model embeds Hebrew well enough to repeat an
+ITALIAN-favoring result, and downloading + wiring in a new ML dependency is a bigger
+change than one day's lever. Recorded as the concrete next step for the retrieval family
+specifically, not a generic "add embeddings" aspiration.
+
+**Conclusion, and the lever this run actually built.** Re-reading `solver/retrieve_defs.py`
+while evaluating the above surfaced a concrete gap independent of this run's literature
+search: the file has carried `end_candidates()` — querying short prefix/suffix spans of a
+clue SEPARATELY rather than the whole clue, i.e. diversifying by DEFINITION-SPAN
+HYPOTHESIS — since 2026-08-08 (it is what the state table's standing "gold@25=5.4%"
+number has always measured, via `retrieve_defs.py`'s own `eval` CLI), but nothing in
+`candidates.py`'s live `generate()` pool ever called it; only the whole-clue
+`retrieval_candidates()` (wired 2026-08-25) reached the pool. This is exactly the
+scheduled task's own framing of "candidate generation by definition-span hypothesis."
+
+**Important prior-art correction, found only by reading GitHub directly (this branch's
+own DAILY.md/RESEARCH.md say nothing about it):** PR #61 (2026-09-17,
+`claude/candidate-gen-retrieval-ends`) already built and measured almost exactly this
+wiring once — a clean NEGATIVE result (12.5% -> 12.5% on 2 puzzles / 56 clues, the
+identical 7-clue hit set with or without it). That PR was never merged and never folded
+into any later consolidation PR (#62/#71/#73/#82 all checked: none of their
+`candidates.py` has this mechanism, and neither DAILY.md nor RESEARCH.md on main or this
+branch mentions PR #61 or `end_candidates` anywhere) — the finding fell out of the
+backlog silently during consolidation. That is itself worth flagging as a process gap,
+same shape as 2026-08-30's "DAILY.md is a leak vector" finding: a PR's shipped, measured,
+audited work can simply vanish from the project's own record if a later consolidation
+run doesn't happen to pick it up, with no trace left behind to warn the next run. See
+DAILY.md for today's re-measurement (on a corpus roughly 2x PR #61's) and whether
+PR #61's negative holds or corpus growth moves it the way it has moved whole-clue
+`retrieval_candidates` on some puzzles.

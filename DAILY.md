@@ -19,12 +19,153 @@ tree - a stale CLI deploy overwrote the live site on 2026-08-29. See CLAUDE.md.
 | **Candidate recall@N (new, offline, mechanical only)** | **3.6% (1/28)**, avg 11.6 candidates/clue (capped), on 2026-05-29 — UNCHANGED after adding substitution+homograph mechanisms | not yet a target — diagnostic |
 | **Candidate recall@N, full pool, 2026-10-10 re-transcription of 2026-05-29** | **3.6% (1/28)**, avg 12.8 candidates/clue — IDENTICAL before/after extending `substitution_candidates` from 1-2 to 1-4 adjacent-word charades (see log): the extension fired 0 times on this puzzle (0 three/four-word spans even had every word individually substitutable, vs 27 one-word and 3 two-word spans that did) | not yet a target — diagnostic, see log for why this is a null result not a bug |
 | **Candidate recall@N with `retrieval_candidates` added (new, offline, BM25 definition retrieval)** | **7.1% (2/28)** on 2026-05-29 (up from 3.6%); **SECOND puzzle, 2026-08-26: 0.0% (0/18) → 5.6% (1/18)** on 2026-06-26 (partial, 18/28 clues); **THIRD puzzle, 2026-08-27: 0.0% (0/19) → 0.0% (0/19), UNCHANGED** on 2026-07-10; **2026-08-28, RE-MEASURED on 2026-05-29 with a GROWN corpus (mordo re-crawled 13,646 raw pairs vs 9,685; `note.co.il` crawled for the first time this project's lifetime, 829 pairs): 3.6% (1/28) → 10.7% (3/28)**, up from the 7.1% this exact puzzle scored with the smaller corpus; **2026-08-29, RE-MEASURED 2026-07-10 with an EVEN BIGGER corpus (mordo 25,350 raw / 24,361 parsed, up from 13,646/12,890; note.co.il 970 fetched out of 1,301 discovered): 0.0% (0/19) → 0.0% (0/19), STILL UNCHANGED**; **2026-08-30, RE-MEASURED 2026-06-26 — this time FULLY transcribed (28/28 clues, closing 2026-08-26's 18/28 partial gap) and with a MASSIVELY grown corpus (mordo 66,443 raw / 62,403 parsed, up from 25,350/24,361 — the blogspot feed has grown 2.6x again; note.co.il 1,001 fetched out of 1,301 discovered, up from 970/1301): 0.0% (0/28) → 14.3% (4/28)** — the highest recall this diagnostic has ever measured on any puzzle, and the largest single-puzzle point gain, from 4 independently-audited external hits (מניע, רומח, בובדילנ, ברסמכא) — see log | not yet a target — diagnostic; 6 independent measurements, 4 positive + 2 flat, confirming corpus growth is puzzle-dependent (rescued 2026-05-29 twice and now 2026-06-26 strongly, never moved 2026-07-10 across three corpus sizes) |
+| **Candidate recall@N with `defspan_retrieval_candidates` added (new, offline, BM25 by DEFINITION-SPAN HYPOTHESIS, 2026-10-11)** | On a 2026-10-11 re-transcription of 2026-05-29 (27/28 clues, 13 across excluded — see log), with a corpus roughly 2-4x bigger than PR #61's (2026-09-17): mechanical-only **3.7% (1/27)**; + culture + whole-clue retrieval **18.5% (5/27)**; + defspan_retrieval added on top **14.8% (4/27) — a REGRESSION**, diagnosed directly (not guessed): defspan_retrieval and retrieval_candidates sit in the same priority tier, and their combined raw output for 2 down pushes the already-working anagram hit (`יחפניות`) from position 31 of an uncapped 32-candidate list past the `max_n=25` truncation; defspan_retrieval ISOLATED (whole-clue retrieval off) scores **18.5% (4 defspan hits + 1 anagram) = the IDENTICAL hit set** whole-clue retrieval alone finds — confirms PR #61's negative (same redundancy) on a 3rd, independent, much-bigger-corpus puzzle. Shipped OFF BY DEFAULT (`use_defspan=False`) for exactly this reason — see log | not yet a target — diagnostic; net result is "do not enable," not "flat," see log |
 | **Definition-span locatable rate (new, offline, diagnostic)** | **25% (7/28)** have mechanically-locatable single-window wordplay; of those 29% (2/7) are interior, not edge; classifier agreement on edge cases **1/5** | not a target — this diagnostic KILLED the lever, see log |
 | **`solve_pass.py` LIVE blind trial — cumulative (3 trials)** | **40% precision (2/5 committed)**: 2026-08-16 was 1/2 on a partial 21/28-clue puzzle (2026-06-12); 2026-08-22 was **0/2**, 7.1% coverage, on a FULL 28/28-clue puzzle (2026-05-15); **2026-08-27 is 1/1 = 100% precision but 5.3% coverage (1/19), 0% suggestion hit-rate (0/10)**, on 2026-07-10 (19/28 clues) — FIRST trial run with `retrieval_candidates` live (wired 2026-08-25, never live-trialed since); it contributed ZERO candidates all puzzle (grepped the transcript for `(retrieval, fodder=` hits — none), matching today's own offline recall@N finding on this same puzzle (0/19 with or without retrieval); the one correct commit came from `wiki.py` culture-fact lookup, not from any candidate generator | n=5 — still small; retrieval's live debut is a null result on this puzzle, not a regression, but not the coverage lift the queue hoped for either; see log |
 | **Candidate recall@N with `culture_category_candidates` added (new, offline, definition-driven)** | **0% (0/28)**, on 2026-06-19 — mechanism fired on only 1/28 clues (avg candidates/clue 10.5 → 11.4); its one firing (339 raw candidates, an "author" category hit) matched 0 gold | not yet a target — small-n diagnostic, see log |
 
 Baseline for comparison: v2 = 41% raw with untraceable errors.
-Last lever added (2026-10-10): **extended `substitution_candidates` (queue item 1(b)'s own
+Last lever added (2026-10-11): **wired `solver/retrieve_defs.py`'s `end_candidates()`
+(DEFINITION-SPAN-HYPOTHESIS retrieval — short prefix/suffix queries instead of one
+whole-clue query) into `candidates.py`'s live pool as `defspan_retrieval_candidates`,
+the scheduled task's own explicit priority (a) framing: "diverse candidates ... by
+definition-span hypothesis." MEASURED NET NEGATIVE when combined with the existing
+whole-clue `retrieval_candidates` (truncation crowds out an unrelated mechanical hit) and
+REDUNDANT with it when isolated (identical hit set) — the same redundancy PR #61
+(2026-09-17, never merged, never folded into any later consolidation) already found on 2
+other puzzles with a smaller corpus. Shipped the mechanism as inert, selftested code,
+OFF BY DEFAULT.** Second clean 14across run in a row (52/52 puzzles, no bot wall) —
+gold answers for today's re-transcription came from the real scrape, not the image
+fallback.
+
+RESEARCH (full entries in RESEARCH.md): a general search for the scheduled task's own
+"candidate generation ... by mechanism and by definition-span hypothesis" priority found
+nothing new to build externally (same paper family logged since 2026-08-06). A second
+look at EVALITA 2026 Cruciverb-IT (2026-10-10 already dismissed its MINDS/MLM entry as
+non-cryptic) surfaced one new, real-but-not-actionable-today detail: a different team in
+that same shared task (Politecnico di Torino) found DENSE retrieval beats BM25 for
+exactly the clue-to-answer definition-retrieval problem `retrieve_defs.py` solves —
+worth a correction to 2026-08-24/08-25's standing "BM25 wins at this scale" conclusion
+(that cited a general open-domain IR study, not this specific regime), but not buildable
+today without a new Hebrew-capable embedding dependency (see RESEARCH.md for the honest
+scoping). Re-reading `retrieve_defs.py` for that comparison surfaced the actual lever:
+`end_candidates()` has existed since 2026-08-08, is what the state table's own
+"gold@25=5.4%" number has always measured, and was never wired into `generate()`.
+
+**Important correction found only by reading GitHub directly, not this branch's own
+DAILY.md/RESEARCH.md (neither says a word about it):** PR #61 (2026-09-17,
+`claude/candidate-gen-retrieval-ends`) already built and measured almost exactly this
+wiring once — negative, 12.5% -> 12.5% on 2 puzzles / 56 clues, identical 7-clue hit set
+with or without it. It was never merged and never folded into PR #62/#71/#73/#82's
+consolidations (checked directly: none of their `candidates.py` has the mechanism, and
+grepping this branch's DAILY.md/RESEARCH.md for "PR #61" or "end_candidates" returns
+nothing). A shipped, measured, audited finding fell out of the project's own record
+during backlog consolidation with no trace left behind — the same shape of problem
+2026-08-30 flagged for DAILY.md's own log prose (an answer-bearing vector nothing marks
+as one), now observed via a second vector (another PR's own description). Worth its own
+future lever (an index of PR numbers -> one-line findings, checked before building
+anything, so this can't recur silently a third time) — not attempted today, flagged
+honestly instead, consistent with keeping this run to one lever.
+
+**A second audit finding from the same discovery, disclosed rather than hidden:** PR
+#61's own description names `ברישניקוב` as one of its audit examples ("ברישניקוב's docs
+are about a Russian ballet dancer") — and `ברישניקוב` is today's own puzzle's 1-down gold
+answer. Reading that PR's description (for the honest prior-art check above) therefore
+exposed one gold string for 2026-05-29 before today's own derivation of it. This did NOT
+compromise today's measurement: the transcription and gold answer for 1-down came
+entirely from bootstrap's sanctioned 14across scrape, completed and dataset-built BEFORE
+any PR was read (checked against this session's own tool-call order); the recall
+measurement itself (`candidates.py recall`) is a mechanical string-equality comparison
+over a batch of 27 clues with no step where seeing one answer string in advance could
+bias the result either way, same reasoning DAILY.md's 2026-08-30 entry already applied to
+an identical situation. Flagged because the pattern (any other open PR's own description
+can carry a dev-puzzle gold answer, and nothing marks that as sensitive before reading
+it) is real and will recur, not because this specific instance moved any number.
+
+BUILT: `candidates.py` gained `defspan_retrieval_candidates(clue_text, target_len,
+docs_df=None)`, wrapping `retrieve_defs.end_candidates()` exactly as `retrieval_candidates`
+already wraps `retrieve_defs.candidates()` (same held-out-safety: filtering happens once
+inside `retrieve_defs.build_index()`). Wired into `generate()`/`recall_eval()` behind a
+new `use_defspan` toggle — **defaulting to `False`**, unlike every other toggle in this
+file, because of the measured regression below. CLI gained an opt-in `--defspan` flag
+(not `--no-defspan`, since the default is already off). Three new selftest cases: a
+definition-span query recovers a hit a whole-clue query would have diluted with noise
+words; hits are tagged `defspan_retrieval` (distinct from `retrieval`) so `recall_eval`
+attributes them correctly; `generate()`'s `use_defspan` parameter defaults to `False`.
+
+TRANSCRIPTION: re-transcribed 2026-05-29 independently this run (own image read, own
+enum validation) rather than reuse PR #83's; `solver/grid_tools.py validate` reports 0
+mismatches on the 27 transcribed clues (13 across excluded: its printed text is
+genuinely cut off mid-clue in the narrow column next to the small reference grid, with
+no legible continuation anywhere on the page — disclosed and excluded, not guessed,
+matching this project's own 2026-06-12/2026-08-26 precedent for the identical situation).
+`solver/build_dataset.py` reports 0 enum mismatches, 0 missing answers across all 27 rows.
+
+CORPUS: `crawl_defs.py mordo` re-crawled fresh (gitignored, redone every run): 38,849 raw
+/ 37,508 with parsed answers. `crawl_defs.py note` ran under a 600s bound: 580 URLs
+fetched (577 parsed) of 1,301 discovered. Both roughly 2-4x PR #61's crawl sizes
+(unknown exact baseline — PR #61 doesn't state its own corpus size — but smaller than
+2026-08-30's 66,443/62,403 mordo and 1,001/1,301 note).
+
+MEASURED, controlled, on the 27-clue transcription (`python3 solver/candidates.py recall
+data/dataset/clues.jsonl eval [flags]`):
+- mechanical only: **3.7% (1/27)** (the same `יחפניות` anagram hit this exact puzzle has
+  scored since 2026-08-06, now on 27 of 28 clues instead of 28 — not comparable point-for-
+  point to the historical 3.6%/28, same single hit).
+- + culture + whole-clue `retrieval_candidates` (today's default path, `defspan` off):
+  **18.5% (5/27)** — 1 anagram + 4 retrieval hits (23A `הלו`, 26A `פחותאבלכואב`, 1D
+  `ברישניקוב`, 21D `המוציא`).
+- + `defspan_retrieval` added on top (full pool, both retrieval mechanisms on):
+  **14.8% (4/27) — a REGRESSION**, not a null result. Diagnosed directly: `generate()`
+  truncates to `max_n=25` in insertion order (not ranked) once mechanisms are combined;
+  with `defspan_retrieval` added, 2 down's uncapped candidate list grows from 17 to 32
+  entries and the gold anagram hit (`יחפניות`) moves from inside the cap to position 31 —
+  confirmed by instrumenting `generate()` directly, not inferred from the aggregate delta.
+- `defspan_retrieval` ISOLATED (whole-clue retrieval + culture off): **18.5% (4 defspan
+  hits + 1 anagram) = 5/27** — the IDENTICAL clue set the whole-clue query alone finds
+  (verified by direct set comparison of the miss lists, not just the count), confirming
+  PR #61's "same hit set either way" finding independently, on a 3rd puzzle, with a
+  bigger corpus: this is not a corpus-size problem, the two queries structurally converge
+  on this setter's short clues (mean ~6 letters) the same way PR #61 hypothesized.
+
+AUDITED (mandatory gate). `lexicon.held_out_answers()` and `retrieve_defs.held_out()`
+both confirmed (computed, not assumed) to block all 27 of this puzzle's own gold answers.
+Provenance of all 4 retrieval hits checked directly against the built index: every
+matching document carries `pid=None` (external private_defs corpus) and each one's
+definition text is a clean semantic fit for its clue (`ברישניקוב`'s docs describe a
+Russian/American ballet dancer and choreographer; `המוציא`'s docs describe the blessing
+said before eating bread; `הלו`'s docs describe a telephone greeting; `פחותאבלכואב`'s
+docs name the Yehonatan Geffen / Yehuda Poliker song directly) — not a coincidental
+string match. No forbidden reads: 14across was queried only via bootstrap's sanctioned
+scrape; clue text came from the public CDN image; no answers/solution site was ever
+queried. The two disclosed PR-reading findings above are their own audit items. Implausi-
+bility check: 3.7% -> 18.5% is a 14.8-point jump, just under the project's own ~15-point
+suspicion bar — treated as suspect until explained, and fully explained by 4 individually
+verified external hits (same discipline 2026-08-30's 14.3-point jump was held to), not a
+single anomalous mechanism. All 6 affected selftests (`candidates.py`, `retrieve_defs.py`,
+`lexicon.py`, `prove.py`, `substitutions.py`, and `candidates.py`'s own new defspan cases)
+re-run clean.
+
+HONEST READ: this is the strongest evidence yet that definition-span-hypothesis retrieval
+is not a free lunch here — not because it never finds anything (it does, the same 4 hits
+whole-clue retrieval finds), but because naively adding it to the SAME candidate pool
+actively costs recall via truncation, a concrete, previously-seen-in-a-different-shape
+failure mode (2026-08-20) recurring between two mechanisms this run is the first to
+combine. Shipping it off-by-default, rather than not shipping it at all, is the correct
+middle ground: the code is tested and available for a future run that de-duplicates
+retrieval-family hits before truncating or switches `recall_eval` itself to rank-then-cut
+(matching what `solve_pass.py`'s `rank()` already does for its own caller), without
+forcing that redesign today under a one-lever budget.
+
+NOT DONE, honestly: did not de-duplicate retrieval_candidates/defspan_retrieval's
+overlapping hits or switch `recall_eval` to rank-before-truncating (the real fix for the
+crowding bug, scoped as its own future lever, not today's); did not test the EVALITA
+dense-retrieval finding with an actual embedding model (no Hebrew-capable model is wired
+into this project yet, and adding one is a bigger change than today's budget); did not
+act on the "PR findings can vanish from the record" process gap beyond disclosing it; did
+not merge or otherwise act on any other open PR.
+
+Previous lever (2026-10-10): **extended `substitution_candidates` (queue item 1(b)'s own
 named next step from 2026-08-20: "the mined substitution table needs to cover multi-part
 charades (3+ segments), not just 1-2 word coverage") from a 1-2-adjacent-word charade cap
 to 1-4.** First solver-specific run since 2026-08-30 (the six-week gap was site/game UI
@@ -2560,3 +2701,64 @@ Measure each lever on dev (fixed enums) with run_eval.py before/after; one lever
   `retrieval_candidates` or grow `private_defs` this run (today's lever was substitution-
   side only); did not merge or act on any open PR; the standing DAILY.md-as-leak-vector
   observation (2026-08-30) is still open.
+- 2026-10-11: **candidate generation, queue item 1(a)'s own framing: "diverse candidates
+  per clue by mechanism and by definition-span hypothesis."** Second clean 14across run
+  in a row (52/52 puzzles).
+
+  RESEARCH (RESEARCH.md): nothing new externally on candidate generation; a second look
+  at EVALITA 2026 Cruciverb-IT (beyond 2026-10-10's MINDS entry) found a different team
+  reporting dense retrieval beats BM25 for clue-to-answer definition retrieval — a real
+  correction to 2026-08-24/08-25's "BM25 wins at this scale" read, but not buildable
+  today without a new Hebrew-capable embedding dependency.
+
+  BUILT: wired `retrieve_defs.end_candidates()` (definition-span-hypothesis BM25,
+  querying short prefix/suffix spans instead of the whole clue; built 2026-08-08, never
+  called from `candidates.py`) into `generate()` as `defspan_retrieval_candidates`,
+  behind a new `use_defspan` toggle. Three new selftest cases.
+
+  **Correction found only by reading GitHub directly: PR #61 (2026-09-17, never merged,
+  never folded into any later consolidation) already built and measured almost exactly
+  this wiring — negative, 12.5% -> 12.5% on 2 puzzles / 56 clues, same 7-clue hit set
+  either way. Neither this branch's DAILY.md nor RESEARCH.md mentions it anywhere** — a
+  shipped, audited finding fell out of the project's own record during backlog
+  consolidation, the same shape of gap 2026-08-30 flagged for log prose, now seen via a
+  second vector (an unmerged PR's own description). Also disclosed: that PR's
+  description names `ברישניקוב` as an audit example, which is today's own puzzle's
+  1-down gold answer — reading it (for this prior-art check) exposed that string before
+  today's independent derivation of it, though the derivation itself (bootstrap's
+  sanctioned scrape) happened first and the recall measurement is a mechanical
+  string-equality check with no room for that exposure to bias the result (same
+  reasoning DAILY.md's 2026-08-30 entry already applied to an identical situation).
+
+  Re-transcribed 2026-05-29 independently (13 across excluded — genuinely cut off in the
+  source image, disclosed not guessed); `build_dataset.py` reports 0 enum mismatches, 0
+  missing answers on 27/28 clues. Corpus: mordo 38,849 raw/37,508 parsed; note.co.il
+  580/1,301 fetched (577 parsed) under a 600s bound.
+
+  MEASURED, controlled: mechanical only **3.7% (1/27)**; + culture + whole-clue
+  retrieval **18.5% (5/27)**; + `defspan_retrieval` added on top **14.8% (4/27) — a
+  REGRESSION**, diagnosed directly (not guessed): both retrieval mechanisms share a
+  priority tier, and their combined output for 2 down grows past `max_n=25`, pushing an
+  already-working anagram hit out of the truncation window (confirmed: 17 -> 32
+  candidates, gold hit at position 31 once truncated). `defspan_retrieval` ISOLATED
+  scores **18.5% (5/27), the IDENTICAL hit set** whole-clue retrieval alone finds —
+  independently confirms PR #61's redundancy finding on a 3rd puzzle with a bigger
+  corpus. Shipped `use_defspan=False` by default for exactly this reason.
+
+  AUDITED: `lexicon.held_out_answers()` and `retrieve_defs.held_out()` confirmed to block
+  all 27 gold answers. All 4 retrieval hits' source docs confirmed `pid=None`, clean
+  semantic fits. No forbidden reads. Implausibility check: 3.7% -> 18.5% (+14.8 points)
+  is just under the ~15-point bar, fully explained by 4 individually verified hits. All 6
+  affected selftests re-run clean.
+
+  HONEST READ: the strongest evidence yet that definition-span retrieval isn't a free
+  lunch here — it finds the same answers whole-clue retrieval does, and combining the two
+  naively costs recall via truncation rather than merely adding nothing. Shipping the
+  mechanism off-by-default (not deleting it) keeps it available for a future run that
+  de-duplicates retrieval-family hits or ranks before truncating, without forcing that
+  redesign today.
+
+  NOT DONE: did not fix the truncation/de-dup root cause (scoped as its own future
+  lever); did not test the dense-retrieval finding with an actual embedding model; did
+  not act on the "PR findings can vanish from the record" process gap beyond disclosing
+  it; did not merge or act on any other open PR.
