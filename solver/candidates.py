@@ -1515,9 +1515,26 @@ def recall_eval(dataset_path, split=None, max_n=25, use_culture=True, use_retrie
                  use_substitution_3part=True, use_charade=True, use_abbreviation=True,
                  use_defs_lexicon=True, use_hwdb=True, use_phrase=True,
                  use_anagram_phrase=True, use_container_phrase=False,
-                 use_substitution_phrase=True):
+                 use_substitution_phrase=True, use_rank=False):
+    """`use_rank` (2026-10-12): solve_pass.py's rank() found and fixed a real bug in
+    2026(ish) -- generate() truncates to max_n BEFORE any ranking happens, so a
+    genuine, high-priority hit can sit outside the default max_n=25 window and never
+    reach the caller, discovered by instrumenting a LIVE solve. That fix (pull a raw
+    pool 8x larger / >=200, rank by lexicon tier + split feasibility, truncate LAST) was
+    never ported to THIS function -- the project's own primary diagnostic metric, cited
+    in nearly every DAILY.md entry -- so recall_eval() has been measuring a worse
+    candidate pool than what a live solve_pass.rank() call actually serves the solver.
+    Measured directly (2026-10-12, see DAILY.md): raising max_n alone (no ranking) from
+    25 to 250 on a 2-puzzle/40-clue eval set recovered +1 hit (5.0% -> 7.5%) before this
+    flag existed, confirming real recall sits outside the default window; `use_rank=True`
+    reuses solve_pass.rank_candidates() (refactored out of rank() today for this reuse)
+    on the SAME wide raw pool instead of the bare generate(max_n=max_n) call below, so
+    this function finally measures what the live path can actually surface."""
     set_use_defs_lexicon(use_defs_lexicon)
     set_use_hwdb(use_hwdb)
+    if use_rank:
+        sys.path.insert(0, HERE)
+        import solve_pass
     total = 0
     hit = 0
     by_mech = Counter()
@@ -1530,7 +1547,8 @@ def recall_eval(dataset_path, split=None, max_n=25, use_culture=True, use_retrie
         if not r.get('answer_raw'):
             continue
         total += 1
-        cands = generate(r['clue_text'], r['enum'], max_n=max_n, use_culture=use_culture,
+        gen_max_n = max(max_n * 8, 200) if use_rank else max_n
+        cands = generate(r['clue_text'], r['enum'], max_n=gen_max_n, use_culture=use_culture,
                           use_retrieval=use_retrieval, use_container=use_container,
                           use_container_entity=use_container_entity,
                           use_double_def=use_double_def,
@@ -1542,6 +1560,8 @@ def recall_eval(dataset_path, split=None, max_n=25, use_culture=True, use_retrie
                           use_anagram_phrase=use_anagram_phrase,
                           use_phrase=use_phrase, use_container_phrase=use_container_phrase,
                           use_substitution_phrase=use_substitution_phrase)
+        if use_rank:
+            cands = solve_pass.rank_candidates(cands, r['enum'], max_n=max_n)
         sizes.append(len(cands))
         gold = norm(r['answer_raw'])
         found = [c for c in cands if c['answer'] == gold]
@@ -2512,6 +2532,34 @@ def selftest():
         os.close(fd)
         os.remove(tmp_path)
 
+    print('--- recall_eval(use_rank=True): a real hit buried past max_n by the raw '
+          'char-window scan is NOT lost, same fix solve_pass.rank() already ships live ---')
+    # same fixture solve_pass.py's own selftest uses ('שלום' is the only real-dictionary
+    # hit among ~40 raw anagram windows of this fodder) -- at max_n=5 the bare
+    # generate() call truncates before שלום's turn comes up; use_rank=True pulls the
+    # same wide raw pool solve_pass.rank() does, ranks by lexicon tier, and truncates
+    # LAST, so the genuine hit survives into the top 5.
+    fd, tmp_path = tempfile.mkstemp(suffix='.jsonl')
+    try:
+        with open(tmp_path, 'w', encoding='utf-8') as f:
+            f.write(json.dumps({'split': 'eval', 'answer_raw': 'שלום', 'clue_number': 1,
+                                 'direction': 'across', 'clue_text': 'הביטו אל םולש עכשיו',
+                                 'enum': [4]}, ensure_ascii=False) + '\n')
+        off_kwargs = dict(max_n=5, use_culture=False, use_retrieval=False, use_container=False,
+                           use_double_def=False, use_defspan_retrieval=False, use_homophone=False,
+                           use_homophone_vowel=False, use_charade=False, use_abbreviation=False,
+                           use_anagram_phrase=False)
+        with contextlib.redirect_stdout(io.StringIO()):
+            res_plain = recall_eval(tmp_path, split='eval', **off_kwargs)
+            res_rank = recall_eval(tmp_path, split='eval', use_rank=True, **off_kwargs)
+        print(f'  bare generate(max_n=5) misses it: {res_plain["hit"] == 0} (expected True)')
+        ok &= res_plain['hit'] == 0
+        print(f'  use_rank=True recovers it: {res_rank["hit"] == 1} (expected True)')
+        ok &= res_rank['hit'] == 1
+    finally:
+        os.close(fd)
+        os.remove(tmp_path)
+
     print(f'\n{"ALL PASSED" if ok else "FAILURES ABOVE"}')
     return ok
 
@@ -2550,12 +2598,18 @@ def main():
         # reason this one does not follow the --no-X default-on convention.
         use_container_phrase = '--container-phrase' in rest
         use_substitution_phrase = '--no-substitution-phrase' not in rest
+        # use_rank is OPT-IN (default False, like use_container_phrase above) so every
+        # historical recall@N number in DAILY.md stays reproducible under the bare flag;
+        # --ranked switches to the wide-pool-then-rank methodology solve_pass.rank()
+        # already uses live (see recall_eval()'s own docstring for why the two diverged).
+        use_rank = '--ranked' in rest
         rest = [a for a in rest if a not in
                 ('--no-culture', '--no-retrieval', '--no-container', '--no-container-entity',
                  '--no-double-def', '--no-defspan-retrieval', '--no-homophone',
                  '--no-homophone-vowel', '--no-substitution-3part', '--no-charade',
                  '--no-abbreviation', '--no-defs-lexicon', '--no-hwdb', '--no-phrase',
-                 '--no-anagram-phrase', '--container-phrase', '--no-substitution-phrase')]
+                 '--no-anagram-phrase', '--container-phrase', '--no-substitution-phrase',
+                 '--ranked')]
         path = rest[0] if len(rest) > 0 else 'data/dataset/clues.jsonl'
         split = rest[1] if len(rest) > 1 else None
         os.chdir(ROOT)
@@ -2570,7 +2624,8 @@ def main():
                            use_defs_lexicon=use_defs_lexicon, use_hwdb=use_hwdb,
                            use_phrase=use_phrase, use_anagram_phrase=use_anagram_phrase,
                            use_container_phrase=use_container_phrase,
-                           use_substitution_phrase=use_substitution_phrase)
+                           use_substitution_phrase=use_substitution_phrase,
+                           use_rank=use_rank)
         print(f"recall@N: {res['hit']}/{res['total']} = {res['recall']:.1%}  "
               f"(avg {res['avg_candidates']:.1f} candidates/clue, "
               f"use_culture={use_culture}, use_retrieval={use_retrieval}, "
@@ -2583,7 +2638,7 @@ def main():
               f"use_hwdb={use_hwdb}, use_phrase={use_phrase}, "
               f"use_anagram_phrase={use_anagram_phrase}, "
               f"use_container_phrase={use_container_phrase}, "
-              f"use_substitution_phrase={use_substitution_phrase})")
+              f"use_substitution_phrase={use_substitution_phrase}, use_rank={use_rank})")
         print('hits by mechanism:', res['by_mechanism'])
         if res['misses']:
             print(f"\n{len(res['misses'])} misses (clue_number, direction, gold):")

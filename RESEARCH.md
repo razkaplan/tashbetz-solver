@@ -4,6 +4,62 @@ One entry per run: what was found, one-line summary, and an honest judgement of 
 it transfers to a Hebrew cryptic solver with an 8k-clue corpus. Default skepticism: most
 crossword-AI work targets non-cryptic (American-style) puzzles and does not transfer.
 
+## 2026-10-12
+
+First run on this branch since PR #82's consolidation (2026-10-09, `daily/2026-10-09-work`,
+the real frontier branch — see DAILY.md for why: PRs #83 and #84, 2026-10-10/11, both
+branched from stale `main` instead and are missing everything #82 folded in, including a
+`defspan_retrieval_candidates` mechanism and 40+ other merged commits of solver work).
+
+Re-read the full standing queue before researching, specifically to avoid re-covering
+ground already logged here across the last several weeks of entries below.
+
+**"cryptic crossword solving AI 2026 wordplay formalization definition detection" /
+"cryptic crossword clue definition span detection neural model 2025" (general search).**
+Surfaced nothing newer than what this log already has on file: the same Andrews &
+Witteveen ICML 2025 paper (arXiv:2506.04824, "A Reasoning-Based Approach to Cryptic
+Crossword Clue Solving") logged in detail on 2026-08-30, plus the same Cryptonite-family
+citations (2104.08620, 2407.08824) and a 2024-12 "What Makes Cryptic Crosswords
+Challenging for LLMs?" survey that reports LLMs still trail humans on this task. Pulled
+the paper's own GitHub repo (`mdda/cryptic-crossword-reasoning-verifier`) directly rather
+than trusting the abstract alone. The repo's file layout (`05_filter_candidates.py`,
+`08_samples_to_wordplay.py`, `09_prove_all_samples.py`) confirms the standing reading:
+the method SAMPLES many candidate answers from a fine-tuned LLM first, filters them, and
+only then constructs a Python wordplay proof per surviving candidate — answer-first, not
+mechanism-first. **Transfer: still none actionable today** — this project has no
+fine-tuned Hebrew answer-proposal model, and building one is a multi-day effort, not a
+drop-in addition to `candidates.py`.
+
+**"Hebrew morphology NLP lexicon crossword candidate generation 2025 2026" (general
+search).** Turned up nothing newer than the 2006-07 HAMSAH/Haifa-lexicon papers already
+implicitly superseded by this project's own hspell-based `lexicon.py`. **Transfer: none**
+— reconfirms there is no external Hebrew NLP resource to adopt.
+
+**Checking the PR backlog before picking a lever (now standard practice per PR #82)** found
+the branch-split described above, and a second, sharper problem while investigating it.
+PR #84, built on the orphaned stale-`main` fork, found `defspan_retrieval_candidates`
+regresses recall via truncation (candidate-list cap crowds out a working anagram hit) and
+shipped it off by default; this branch already ships the same mechanism ON by default,
+unaware of that finding. Re-ran PR #84's exact before/after on THIS branch's much larger
+candidate pool (13+ mechanisms now, not the handful `main` has): **no regression appears
+here** — `use_defspan_retrieval` on vs. off gives an identical 2/40 on a fresh 2-puzzle eval
+set. But that measurement surfaced something more fundamental: every clue's raw (pre-
+truncation) candidate pool averages ~250 candidates, while `generate()`'s own `max_n=25`
+default keeps only the first 10% — confirmed directly, not inferred, by sweeping `max_n`
+from 25 to 500 and watching recall move (5.0% -> 7.5%) purely from the cap, no mechanism
+changed. `solver/solve_pass.py`'s `rank()` already found and fixed this exact bug for LIVE
+solving (pull an 8x-wider raw pool, rank by lexicon tier, truncate last) — but
+`candidates.py`'s own `recall_eval()`, the metric cited in nearly every entry in this log,
+never got that fix, meaning the project's primary diagnostic has been measuring a worse
+pipeline than what live solving already uses. That gap, not a literature finding, is
+today's lever — see DAILY.md for the fix (`recall_eval(use_rank=True)` / CLI `--ranked`)
+and a second bug it caught along the way: `rank()`'s own ranking logic never credited a
+`split`- or `phrase`-accepted multi-word hit (built entirely from verified real words) in
+its PRIMARY sort key, only as a weak tiebreaker — which, left unfixed, actively regressed
+recall (2/40 -> 1/40) once the wider pool put more competing tier-1 noise ahead of it. That
+bug was live in `solve_pass.rank()` itself, not just today's new diagnostic path, so
+fixing it changes already-shipped live-solving behavior, not only an offline number.
+
 ## 2026-09-25
 
 Bootstrap hit a FULL site-wide 14across wall today, not the usual per-page intermittent

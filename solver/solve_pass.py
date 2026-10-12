@@ -72,6 +72,55 @@ def proof_for(c):
     return '\n'.join(lines)
 
 
+def rank_candidates(cands, enum, max_n=25):
+    """Annotate an already-generated candidate list with lexicon priority tier + split
+    feasibility, and rank by the signals that actually discriminate (see module
+    docstring): culture/corpus-tier hits first, then multi-part hits whose pieces are
+    real words, then a proof-string convenience field. Does NOT claim any candidate is
+    correct. Factored out of rank() (2026-10-12) so a caller that already has a WIDE raw
+    pool (e.g. candidates.py recall_eval's `use_rank` diagnostic, see its own docstring
+    for why the offline recall metric needs this same fix) can rank it without
+    regenerating candidates a second time.
+
+    `phrase_ok`/crediting `split_ok` in the PRIMARY key (2026-10-12, found while building
+    the `use_rank` fix above, in two parts): several mechanisms (anagram/hidden/reversal/
+    container/substitution) can accept a hit via `phrase_split()` -- the WHOLE answer is
+    not itself a lex() entry, but IS the unbroken concatenation of 2-3 words that each ARE
+    (e.g. `צר`+`נוביל` -> `צרנוביל`, a real anagram hit on 2026-05-29's 25 across).
+    Those hits carry a `phrase` field but `lexicon_tier` only ever looks up the WHOLE
+    answer string, so `words.get()` correctly returns 0 -- not a bug in the lookup, but
+    the ranker then treated verified-real-words-glued-together identically to pure
+    noise. The SAME gap existed, worse, for `split` (candidates.split_candidates(), the
+    OLDER field, used for every multi-part-enum candidate including retrieval hits):
+    it was already read here, but only as a SECONDARY tiebreaker (`split_ok is False`),
+    never promoted into the PRIMARY tier -- so a `split_ok=True` hit with
+    `lexicon_tier=0` (e.g. a retrieval-sourced multi-word answer, 2026-05-29's 26 across
+    `פחותאבלכואב`, `split=['פחות','אבל','כואב']`) still sorted behind every single tier-1
+    dictionary word, and in practice got pushed OUT of the top 25 entirely once the raw
+    pool widened enough to surface more tier>=1 noise ahead of it -- measured directly:
+    fixing ONLY `phrase_ok` first and shipping it alone made `recall_eval(use_rank=True)`
+    REGRESS (2/40 -> 1/40) by demoting this exact retrieval hit, which is why both fields
+    are fixed together here, not one at a time. Both `phrase_split()` and
+    `split_candidates()` only ever accept a hit when EVERY piece is independently a
+    lex() member, so either signal deserves the same tier-1 floor a plain dictionary
+    word gets."""
+    words = candidates.lex()
+    out = []
+    for c in cands:
+        c = dict(c)
+        c['lexicon_tier'] = words.get(c['answer'], 0)
+        c['split_ok'] = bool(c.get('split')) if len(enum) > 1 else None
+        c['phrase_ok'] = bool(c.get('phrase'))
+        c['proof'] = proof_for(c)
+        out.append(c)
+    out.sort(key=lambda c: (
+        -max(c['lexicon_tier'], 1 if (c['phrase_ok'] or c['split_ok']) else 0),
+        c['split_ok'] is False,       # multi-part hits with real-word pieces rank first
+        len(c.get('fodder') or ''),
+    ))
+    return out[:max_n]
+
+
 def rank(clue_text, enum, pattern=None, max_n=25):
     """generate() candidates, annotate with lexicon priority tier + split feasibility,
     and rank by the signals that actually discriminate (see module docstring):
@@ -84,22 +133,9 @@ def rank(clue_text, enum, pattern=None, max_n=25):
     can sit outside the default max_n=25 window and never reach this function. Fixed by
     pulling a much larger raw pool, ranking all of it, and truncating LAST.
     """
-    words = candidates.lex()
     raw_pool = max(max_n * 8, 200)
     cands = candidates.generate(clue_text, enum, pattern=pattern, max_n=raw_pool)
-    out = []
-    for c in cands:
-        c = dict(c)
-        c['lexicon_tier'] = words.get(c['answer'], 0)
-        c['split_ok'] = bool(c.get('split')) if len(enum) > 1 else None
-        c['proof'] = proof_for(c)
-        out.append(c)
-    out.sort(key=lambda c: (
-        -c['lexicon_tier'],
-        c['split_ok'] is False,       # multi-part hits with real-word pieces rank first
-        len(c.get('fodder') or ''),
-    ))
-    return out[:max_n]
+    return rank_candidates(cands, enum, max_n=max_n)
 
 
 # ---------------------------------------------------------------------------
