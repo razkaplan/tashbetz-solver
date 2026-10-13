@@ -42,6 +42,10 @@ This module does exactly that, per clue, with no LLM involved:
   - split_candidates:    for multi-part enums (e.g. (5,2)), splits a hit at the enum
                           boundary and flags whether BOTH pieces are real words — the
                           precondition prove.py's word_order() needs to succeed.
+  - segment_candidates:  a multi-part charade built from anagram/hidden/reversal applied
+                          PER ENUM PART (not to the whole answer) and then combined — see
+                          its own docstring for why this reaches charades the full-length
+                          scan above structurally cannot.
 
 None of this asserts an answer is CORRECT — it only asserts an answer is POSSIBLE by a
 named mechanism. Selecting among candidates and proving one is still prove.py's job.
@@ -56,6 +60,7 @@ CLI:
   python3 solver/candidates.py recall data/dataset/clues.jsonl eval   # offline recall@N
   python3 solver/candidates.py recall data/dataset/clues.jsonl eval --no-culture  # ablation
   python3 solver/candidates.py recall data/dataset/clues.jsonl eval --no-retrieval  # ablation
+  python3 solver/candidates.py recall data/dataset/clues.jsonl eval --no-segment  # ablation
   python3 solver/candidates.py selftest
 """
 import sys, os, re, json
@@ -163,6 +168,94 @@ def reversal_candidates(clue_text, target_len):
         rev = sub[::-1]
         if rev in words:
             out.append({'answer': rev, 'mechanism': 'reversal', 'fodder': sub})
+    return out
+
+
+def _segment_hits(joined, L, words):
+    """Every real-word anagram/hidden-word/reversal hit of length L inside `joined`,
+    tagged with the (start, end) window it came from so segment_candidates can forbid
+    two parts of a charade from double-dipping the same clue letters."""
+    hits = []
+    for i in range(len(joined) - L + 1):
+        sub = joined[i:i + L]
+        end = i + L
+        for w in anagram_lookup(sub, L):
+            if w != sub:
+                hits.append((w, i, end, 'anagram'))
+        if sub in words:
+            hits.append((sub, i, end, 'hidden'))
+        rev = sub[::-1]
+        if rev in words:
+            hits.append((rev, i, end, 'reversal'))
+    seen, uniq = set(), []
+    for h in hits:
+        if h in seen:
+            continue
+        seen.add(h)
+        uniq.append(h)
+    return uniq
+
+
+def segment_candidates(clue_text, enum, max_per_part=40, max_combos=300):
+    """Multi-part charade, built from the SAME mechanical devices as anagram/hidden/
+    reversal above, but applied PER ENUM PART instead of to the whole answer.
+
+    WHY: anagram_candidates/hidden_candidates/reversal_candidates all search for a
+    window whose length is the FULL target_len (sum(enum)). That can only ever find a
+    multi-part answer (enum e.g. (4,7)) when the ENTIRE clue fodder forms one single
+    anagram/hidden/reversal run of the full length — but a real charade typically
+    derives each part from a DIFFERENT device, from a DIFFERENT part of the clue (e.g.
+    part 1 is an anagram of one fragment, part 2 is hidden in another). The existing
+    mechanisms structurally cannot find that; only split_candidates() checks post-hoc
+    whether an already-found FULL-length hit happens to split into two real words,
+    which still requires the full-length window to have matched first.
+
+    This mechanism instead finds candidates PER PART (each part's own length, searched
+    with the same anagram/hidden/reversal primitives) and then combines one hit per
+    part, in enum order, into a full answer — the direct mechanical analogue of
+    `split_candidates`, but generating the split answer instead of only validating one
+    found by accident. Hits for different parts must come from NON-OVERLAPPING windows
+    of the clue (a letter cannot fund two parts of the same charade); this does not
+    require clue-order to match answer-order, the same looseness `substitution_candidates`
+    already accepts for its two-word case, kept here too to avoid being narrower than a
+    mechanism already in the pool. Order is left to prove.py's word_order() to settle
+    with real crossing-letter evidence once this is wired into a live solve pass — this
+    diagnostic only asks whether the right MULTISET of parts is reachable at all.
+
+    Deliberately NOT charade.py's open-ended substitution-table search (already measured
+    weak, 2.8% recall, DAILY.md 2026-08-08) — this uses the mechanical anagram/hidden/
+    reversal devices instead of the mined substitution table, so it is a different
+    mechanism on the same multi-part structure, not a retry of the same one.
+    Only fires for enum with 2 or 3 parts (bounds the combinatorics; charades longer
+    than 3 segments are rare in this corpus per PLAYBOOK.md)."""
+    if not (2 <= len(enum) <= 3):
+        return []
+    words = lex()
+    joined = joined_letters(clue_text)
+    parts_hits = [_segment_hits(joined, L, words)[:max_per_part] for L in enum]
+    if any(not h for h in parts_hits):
+        return []
+
+    def overlap(a, b):
+        return not (a[1] >= b[2] or b[1] >= a[2])
+
+    out = []
+
+    def rec(idx, chosen):
+        if len(out) >= max_combos:
+            return
+        if idx == len(parts_hits):
+            answer = ''.join(h[0] for h in chosen)
+            fodder = '+'.join(f'{h[0]}({h[3]})' for h in chosen)
+            out.append({'answer': answer, 'mechanism': 'segment_charade', 'fodder': fodder})
+            return
+        for h in parts_hits[idx]:
+            if all(not overlap(h, c) for c in chosen):
+                rec(idx + 1, chosen + [h])
+                if len(out) >= max_combos:
+                    return
+
+    rec(0, [])
     return out
 
 
@@ -459,7 +552,8 @@ def split_candidates(cands, enum):
     return out
 
 
-def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retrieval=True):
+def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retrieval=True,
+             use_segment=True):
     """Diverse candidates for one clue. Never consults the answer.
 
     Mechanism order here is a PRIORITY order, not just an accumulation order: dedup +
@@ -477,7 +571,10 @@ def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retr
     docstrings) — placed in the same early tier as homograph/substitution: culture_category
     fires rarely and each hit is a real named entity; retrieval is capped at its own topk
     (25 by default) and ranked, not an unbounded window scan, so it does not need to wait
-    behind the cheap mechanisms either. `use_culture`/`use_retrieval` are plain on/off
+    behind the cheap mechanisms either. segment_candidates (multi-part charade, per-part
+    anagram/hidden/reversal — see its own docstring) only ever fires on multi-part enums,
+    where it does not compete with any single-part clue's budget at all, so it sits in the
+    same early tier too. `use_culture`/`use_retrieval`/`use_segment` are plain on/off
     switches so a controlled before/after recall measurement doesn't need extra copies of
     this function."""
     target_len = sum(enum)
@@ -488,6 +585,8 @@ def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retr
         cands += culture_category_candidates(clue_text, target_len)
     if use_retrieval:
         cands += retrieval_candidates(clue_text, target_len)
+    if use_segment:
+        cands += segment_candidates(clue_text, enum)
     if pattern:
         cands += pattern_candidates(pattern)
     cands += anagram_candidates(clue_text, target_len)
@@ -511,7 +610,8 @@ def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retr
 # isolation, BEFORE it is wired into a live solve+proof loop (which is a
 # separate integration step, not done by this lever).
 # ---------------------------------------------------------------------------
-def recall_eval(dataset_path, split=None, max_n=25, use_culture=True, use_retrieval=True):
+def recall_eval(dataset_path, split=None, max_n=25, use_culture=True, use_retrieval=True,
+                 use_segment=True):
     total = 0
     hit = 0
     by_mech = Counter()
@@ -525,7 +625,7 @@ def recall_eval(dataset_path, split=None, max_n=25, use_culture=True, use_retrie
             continue
         total += 1
         cands = generate(r['clue_text'], r['enum'], max_n=max_n, use_culture=use_culture,
-                          use_retrieval=use_retrieval)
+                          use_retrieval=use_retrieval, use_segment=use_segment)
         sizes.append(len(cands))
         gold = norm(r['answer_raw'])
         found = [c for c in cands if c['answer'] == gold]
@@ -656,6 +756,29 @@ def selftest():
           f'not here): {len(off) >= 1} (expected True)')
     ok &= len(off) >= 1
 
+    print('--- segment_candidates: a two-part charade from TWO DIFFERENT devices, one '
+          'per part, that the full-length scan cannot reach ---')
+    # part 1 ('שלום', 4) comes from an anagram of 'םולש' (reusing the anagram selftest's
+    # own scrambled fodder); part 2 ('בר', 2) comes from a reversal of 'רב' (reusing the
+    # reversal selftest's own clue word). No single full-length (6-char) window of this
+    # clue is an anagram of 'שלומבר', nor is 'שלומבר' hidden in it, nor is its reversal —
+    # the full-length mechanisms above cannot find it; only combining two independent
+    # per-part hits can.
+    text = 'םולש אמר רב'
+    full_len = anagram_candidates(text, 6) + hidden_candidates(text, 6) + reversal_candidates(text, 6)
+    none_full = not any(h['answer'] == norm('שלומבר') for h in full_len)
+    print(f'  full-length anagram/hidden/reversal at len 6 find nothing (as expected): '
+          f'{none_full} (expected True)')
+    ok &= none_full
+    hits = segment_candidates(text, [4, 2])
+    found = any(h['answer'] == norm('שלומבר') for h in hits)
+    print(f'  found שלום+בר as a two-device segment charade: {found} (expected True)')
+    ok &= found
+    print('--- segment_candidates: single-part enum never fires (needs 2-3 parts) ---')
+    off = segment_candidates(text, [6])
+    print(f'  single-part enum returns nothing: {off == []} (expected True)')
+    ok &= off == []
+
     print('--- split_candidates: flags whether a multi-part answer is two real words ---')
     split = split_candidates([{'answer': norm('שלוםעליכם'), 'mechanism': 'test'}], [4, 5])
     print(f'  split result: {split[0]["split"]} (expected two real words, not None)')
@@ -681,14 +804,17 @@ def main():
         rest = sys.argv[2:]
         use_culture = '--no-culture' not in rest
         use_retrieval = '--no-retrieval' not in rest
-        rest = [a for a in rest if a not in ('--no-culture', '--no-retrieval')]
+        use_segment = '--no-segment' not in rest
+        rest = [a for a in rest if a not in ('--no-culture', '--no-retrieval', '--no-segment')]
         path = rest[0] if len(rest) > 0 else 'data/dataset/clues.jsonl'
         split = rest[1] if len(rest) > 1 else None
         os.chdir(ROOT)
-        res = recall_eval(path, split, use_culture=use_culture, use_retrieval=use_retrieval)
+        res = recall_eval(path, split, use_culture=use_culture, use_retrieval=use_retrieval,
+                           use_segment=use_segment)
         print(f"recall@N: {res['hit']}/{res['total']} = {res['recall']:.1%}  "
               f"(avg {res['avg_candidates']:.1f} candidates/clue, "
-              f"use_culture={use_culture}, use_retrieval={use_retrieval})")
+              f"use_culture={use_culture}, use_retrieval={use_retrieval}, "
+              f"use_segment={use_segment})")
         print('hits by mechanism:', res['by_mechanism'])
         if res['misses']:
             print(f"\n{len(res['misses'])} misses (clue_number, direction, gold):")
