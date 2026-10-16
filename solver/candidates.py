@@ -249,7 +249,7 @@ CLI:
   python3 solver/candidates.py lexicon-coverage data/dataset/clues.jsonl eval --no-hwdb
   python3 solver/candidates.py selftest
 """
-import sys, os, re, json
+import sys, os, re, json, itertools
 from collections import Counter
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -671,6 +671,133 @@ def charade_candidates(clue_text, enum, max_parts_out=200):
     return out
 
 
+def _segment_hits(joined, L, words):
+    """Every real-word anagram/hidden-word/reversal hit of length L inside `joined`,
+    tagged with the (start, end) window it came from so segment_candidates can forbid
+    two parts of a charade from double-dipping the same clue letters. [2026-10-13,
+    PR #86, folded in during the 2026-10-16 backlog re-consolidation.]"""
+    out = []
+    for i in range(len(joined) - L + 1):
+        sub = joined[i:i + L]
+        end = i + L
+        for w in anagram_lookup(sub, L):
+            if w != sub:
+                out.append((w, i, end, 'anagram'))
+        if sub in words:
+            out.append((sub, i, end, 'hidden'))
+        rev = sub[::-1]
+        if rev in words:
+            out.append((rev, i, end, 'reversal'))
+    seen, uniq = set(), []
+    for h in out:
+        if h in seen:
+            continue
+        seen.add(h)
+        uniq.append(h)
+    return uniq
+
+
+def _word_spans(clue_text):
+    """(word, start, end) for each clue word's own position in joined_letters()'s
+    character stream -- gives substitution-table hits (word-granular, below) the same
+    (start, end) coordinate system anagram/hidden/reversal hits already use (character-
+    window-granular), so segment_candidates' one overlap check works across both kinds
+    of hit without a separate code path."""
+    spans = []
+    pos = 0
+    for w in words_of(clue_text):
+        nw = norm(w)
+        spans.append((w, pos, pos + len(nw)))
+        pos += len(nw)
+    return spans
+
+
+def segment_candidates(clue_text, enum, max_per_part=40, max_combos=300,
+                        use_substitution=True, table=None):
+    """Multi-part charade, built from the SAME mechanical devices as anagram/hidden/
+    reversal above, but applied PER ENUM PART instead of to the whole answer.
+    [2026-10-13, PR #86, folded in during the 2026-10-16 backlog re-consolidation.]
+
+    WHY: anagram_candidates/hidden_candidates/reversal_candidates all search for a
+    window whose length is the FULL target_len (sum(enum)). That can only ever find a
+    multi-part answer (enum e.g. (4,7)) when the ENTIRE clue fodder forms one single
+    anagram/hidden/reversal run of the full length — but a real charade typically
+    derives each part from a DIFFERENT device, from a DIFFERENT part of the clue (e.g.
+    part 1 is an anagram of one fragment, part 2 is hidden in another). The existing
+    mechanisms structurally cannot find that; only split_candidates() checks post-hoc
+    whether an already-found FULL-length hit happens to split into two real words at
+    the enum boundary, which still requires the full-length window to have matched
+    first. This finds candidates PER PART (each part's own length) and combines one
+    hit per part, in enum order, from NON-OVERLAPPING windows of the clue, into a full
+    answer — the direct mechanical analogue of split_candidates, but generating the
+    split answer instead of only validating one found by accident. Only fires for enum
+    with 2 or 3 parts (bounds the combinatorics).
+
+    `use_substitution` [NEW 2026-10-16, TODAY'S lever, queue item 1's own standing
+    diagnosis applied one level deeper]: PLAYBOOK.md 1.3 describes a real charade's
+    parts as coming from a MIX of devices — "part 1 is a synonym, part 2 is an
+    anagram" — but until today every multi-part generator in this file only combined
+    ONE kind of part across the whole answer: #86's segment_candidates above combines
+    anagram/hidden/reversal hits across parts but never a mined-substitution fragment;
+    substitution_candidates (above) combines mined-substitution fragments across
+    ADJACENT clue words but requires FULL target-length coverage from that one source
+    alone, so it can never pair a substitution part with a mechanical part either. This
+    closes that gap directly: when True, each part's hit pool ALSO includes any single
+    clue word whose mined substitute (sub_fwd()) is exactly that part's length,
+    tagged 'substitution' and positioned at that word's own (start, end) span (via
+    `_word_spans`, which puts it on the same character-offset footing the mechanical
+    hits already use, so the SAME overlap check guards both). A full answer can now be
+    e.g. one part anagram + one part substitution, or two substitution parts from
+    non-adjacent clue words — neither reachable by #86's mechanical-only version or by
+    substitution_candidates' adjacency-and-full-length-only version. `table` is
+    injectable (tests / callers), same discipline as sub_fwd()'s other callers."""
+    if not (2 <= len(enum) <= 3):
+        return []
+    words = lex()
+    joined = joined_letters(clue_text)
+    fwd = (table if table is not None else sub_fwd()) if use_substitution else {}
+    spans = _word_spans(clue_text) if use_substitution else []
+
+    def sub_hits_for_len(L):
+        hits = []
+        for w, start, end in spans:
+            for b, _n in fwd.get(norm(w), []):
+                if len(b) == L and b in words:
+                    hits.append((b, start, end, 'substitution'))
+        return hits
+
+    parts_hits = []
+    for L in enum:
+        h = _segment_hits(joined, L, words)[:max_per_part]
+        if use_substitution:
+            h = h + sub_hits_for_len(L)[:max_per_part]
+        parts_hits.append(h)
+    if any(not h for h in parts_hits):
+        return []
+
+    def overlap(a, b):
+        return not (a[1] >= b[2] or b[1] >= a[2])
+
+    out = []
+
+    def rec(idx, chosen):
+        if len(out) >= max_combos:
+            return
+        if idx == len(parts_hits):
+            answer = ''.join(h[0] for h in chosen)
+            fodder = '+'.join(f'{h[0]}({h[3]})' for h in chosen)
+            out.append({'answer': answer, 'mechanism': 'segment_charade', 'fodder': fodder})
+            return
+        for h in parts_hits[idx]:
+            if all(not overlap(h, c) for c in chosen):
+                rec(idx + 1, chosen + [h])
+                if len(out) >= max_combos:
+                    return
+
+    rec(0, [])
+    return out
+
+
 _SUB_FWD = None
 
 
@@ -703,11 +830,16 @@ def sub_fwd():
     return _SUB_FWD
 
 
+SUB_OPTIONS_PER_WORD = 5  # cap on how many of a word's mined substitutes _4part tries,
+# since sub_fwd() sorts by attestation count but does not itself cap -- see use_4part's
+# own docstring note below for why 4 adjacent words needs this bound and 1-3 did not.
+
+
 def substitution_candidates(clue_text, target_len, table=None, use_3part=True,
-                             use_phrase=True):
+                             use_4part=True, use_phrase=True):
     """The setter's private-vocabulary device (SOLVE_PROTOCOL.md 'Substitutions'): a clue
     word stands in for a fragment mined from crowd explanations (a name completed by a
-    surname, an abbreviation, a gloss). Three shapes, all requiring FULL coverage of the
+    surname, an abbreviation, a gloss). Four shapes, all requiring FULL coverage of the
     target length (never a partial charade the way charade.py's open-ended enum-split
     search worked):
       (a) one clue word's substitute already has the FULL target length -- propose it
@@ -723,8 +855,23 @@ def substitution_candidates(clue_text, target_len, table=None, use_3part=True,
           keeps this mechanism precise instead of that combinatorial blowup -- (b) and (c)
           are the same adjacency search generalized from 2 to 3 fragments, not a new shape;
           the cost stays bounded because most head words have only a handful of mined
-          substitutes (sub_fwd() sorts and callers don't cap it, but the table is sparse by
-          construction -- it only holds equivalences actually mined from crowd text).
+          substitutes (sub_fwd() sorts but (b)/(c) don't cap it, since 2-3 nested loops
+          over a sparse table never got expensive enough to need one).
+      (d) [2026-10-10, PR #83: the next increment of the same (b)/(c) generalization --
+          four ADJACENT clue words' substitutes concatenating to the full target length.
+          Four nested loops over an UNCAPPED per-word option list is where the
+          combinatorics actually start to matter (5 options/word -> 5^4=625 combinations
+          per 4-word window vs. 5^3=125 for (c)), so (d) caps each word's option list to
+          its top SUB_OPTIONS_PER_WORD most-attested substitutes (sub_fwd() already sorts
+          by count, so truncating keeps the most-attested ones) -- still adjacency +
+          full-length-coverage bounded, same discipline as (b)/(c), just with an explicit
+          cap where (b)/(c) could get away without one. PR #83 measured this shape FLAT
+          (3.6% -> 3.6% on 2026-05-29, 2026-10-10): the extension never fired at all on
+          that puzzle (0 four-word spans where every word had a mined substitute) -- a
+          table-sparsity ceiling, not a bug, consistent with (c)'s own 2026-09-08
+          INCONCLUSIVE finding (even the 2-word baseline didn't fire that run). Kept
+          default ON since it costs nothing when the table doesn't support it and the cap
+          keeps it from costing anything combinatorially either.]
     `table` is injectable (tests / callers) instead of always hitting sub_fwd().
 
     `use_phrase` [NEW 2026-10-05, queue item 10(b)'s own last-named open quarter: "anagram
@@ -776,6 +923,16 @@ def substitution_candidates(clue_text, target_len, table=None, use_3part=True,
                         if len(joined) == target_len:
                             _accept(joined, 'substitution',
                                     f'{ws[i]}+{ws[i + 1]}+{ws[i + 2]}', out)
+    if use_4part:
+        for i in range(len(ws) - 3):
+            span = ws[i:i + 4]
+            per_word = [subs_of(w)[:SUB_OPTIONS_PER_WORD] for w in span]
+            if any(not opts for opts in per_word):
+                continue
+            for combo in itertools.product(*per_word):
+                joined = ''.join(combo)
+                if len(joined) == target_len:
+                    _accept(joined, 'substitution', '+'.join(span), out)
     return out
 
 
@@ -1392,9 +1549,10 @@ def split_candidates(cands, enum):
 def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retrieval=True,
              use_container=True, use_container_entity=True, use_double_def=True,
              use_defspan_retrieval=True, use_homophone=True, use_homophone_vowel=True,
-             use_substitution_3part=True, use_charade=True, use_abbreviation=True,
-             use_phrase=True, use_anagram_phrase=True, use_container_phrase=False,
-             use_substitution_phrase=True):
+             use_substitution_3part=True, use_substitution_4part=True, use_charade=True,
+             use_abbreviation=True, use_phrase=True, use_anagram_phrase=True,
+             use_container_phrase=False, use_substitution_phrase=True,
+             use_segment=True, use_segment_substitution=True):
     """Diverse candidates for one clue. Never consults the answer.
 
     Mechanism order here is a PRIORITY order, not just an accumulation order: dedup +
@@ -1459,14 +1617,34 @@ def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retr
     (unlike container_phrase): the phrase test there runs on at most a handful of fixed
     strings per clue (bounded by how many clue words have a mined substitute at all),
     not container's dozens-to-hundreds-per-clue splice search, so it does not share that
-    mechanism's measured false-positive volume problem."""
+    mechanism's measured false-positive volume problem.
+    `use_substitution_4part` (2026-10-10, PR #83, folded in during the 2026-10-16
+    backlog re-consolidation) gates ONLY substitution_candidates' 4-adjacent-word shape
+    -- see its own docstring for the measured-flat result and the option-capping that
+    keeps it bounded.
+    `use_segment` (2026-10-13, PR #86, folded in during the same 2026-10-16
+    re-consolidation) gates `segment_candidates` -- a per-ENUM-PART mechanical charade
+    generator (anagram/hidden/reversal applied to each part's own length, combined from
+    non-overlapping clue windows) that reaches multi-part answers no whole-answer-length
+    mechanism above can, since anagram_candidates/hidden_candidates/reversal_candidates
+    all search a window the length of the FULL answer. Capped (max_per_part/max_combos),
+    only fires for 2-3 part enums -- see its own docstring.
+    `use_segment_substitution` (2026-10-16, TODAY'S lever, a sub-toggle of `use_segment`
+    alone) extends the SAME per-part combination to also draw a part's hit from the mined
+    substitution table (sub_fwd()), not only anagram/hidden/reversal -- see
+    `segment_candidates`' own docstring for why this is a genuinely different mechanism
+    from both #86's mechanical-only version and substitution_candidates' adjacency-and-
+    full-length-only version, and the measured result."""
     target_len = sum(enum)
     cands = []
     cands += homograph_candidates(clue_text, target_len)
     cands += substitution_candidates(clue_text, target_len, use_3part=use_substitution_3part,
+                                      use_4part=use_substitution_4part,
                                       use_phrase=use_substitution_phrase)
     if use_abbreviation:
         cands += abbreviation_candidates(clue_text, target_len)
+    if use_segment:
+        cands += segment_candidates(clue_text, enum, use_substitution=use_segment_substitution)
     if use_container:
         cands += container_candidates(clue_text, target_len, entity=use_container_entity,
                                        use_phrase=use_container_phrase)
@@ -1512,10 +1690,11 @@ def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retr
 def recall_eval(dataset_path, split=None, max_n=25, use_culture=True, use_retrieval=True,
                  use_container=True, use_container_entity=True, use_double_def=True,
                  use_defspan_retrieval=True, use_homophone=True, use_homophone_vowel=True,
-                 use_substitution_3part=True, use_charade=True, use_abbreviation=True,
-                 use_defs_lexicon=True, use_hwdb=True, use_phrase=True,
+                 use_substitution_3part=True, use_substitution_4part=True, use_charade=True,
+                 use_abbreviation=True, use_defs_lexicon=True, use_hwdb=True, use_phrase=True,
                  use_anagram_phrase=True, use_container_phrase=False,
-                 use_substitution_phrase=True, use_rank=False):
+                 use_substitution_phrase=True, use_segment=True,
+                 use_segment_substitution=True, use_rank=False):
     """`use_rank` (2026-10-12): solve_pass.py's rank() found and fixed a real bug in
     2026(ish) -- generate() truncates to max_n BEFORE any ranking happens, so a
     genuine, high-priority hit can sit outside the default max_n=25 window and never
@@ -1556,10 +1735,13 @@ def recall_eval(dataset_path, split=None, max_n=25, use_culture=True, use_retrie
                           use_homophone=use_homophone,
                           use_homophone_vowel=use_homophone_vowel,
                           use_substitution_3part=use_substitution_3part,
+                          use_substitution_4part=use_substitution_4part,
                           use_charade=use_charade, use_abbreviation=use_abbreviation,
                           use_anagram_phrase=use_anagram_phrase,
                           use_phrase=use_phrase, use_container_phrase=use_container_phrase,
-                          use_substitution_phrase=use_substitution_phrase)
+                          use_substitution_phrase=use_substitution_phrase,
+                          use_segment=use_segment,
+                          use_segment_substitution=use_segment_substitution)
         if use_rank:
             cands = solve_pass.rank_candidates(cands, r['enum'], max_n=max_n)
         sizes.append(len(cands))
@@ -2050,6 +2232,75 @@ def selftest():
     print(f'  no שלום from the non-adjacent אחד+שלישי pair (שני sits between them and has '
           f'no substitute in this table): {not found} (expected True)')
     ok &= not found
+
+    print('--- substitution device: FOUR adjacent clue words\' substitutes concatenate '
+          '(2026-10-10, PR #83, folded in during the 2026-10-16 re-consolidation) ---')
+    sub_table4 = {norm('אחד'): [(norm('שלו'), 1)], norm('שני'): [(norm('ם'), 1)],
+                  norm('שלישי'): [(norm('על'), 1)], norm('רביעי'): [(norm('יכם'), 1)]}
+    hits = substitution_candidates('אחד שני שלישי רביעי משהו', 9, table=sub_table4)
+    found = any(h['answer'] == norm('שלוםעליכם') for h in hits)
+    print(f'  found שלוםעליכם as שלו+ם+על+יכם from four adjacent words: {found} '
+          f'(expected True)')
+    ok &= found
+    hits_off = substitution_candidates('אחד שני שלישי רביעי משהו', 9, table=sub_table4,
+                                        use_4part=False)
+    found_off = any(h['answer'] == norm('שלוםעליכם') for h in hits_off)
+    print(f'  use_4part=False suppresses it: {not found_off} (expected True)')
+    ok &= not found_off
+
+    print('--- segment_candidates: a two-part charade from TWO DIFFERENT devices, one '
+          'per part, that the full-length scan cannot reach (2026-10-13, PR #86, folded '
+          'in during the 2026-10-16 re-consolidation) ---')
+    # part 1 ('שלום', 4) comes from a reversal of 'םולש'; part 2 ('בר', 2) comes from a
+    # reversal of 'רב'. No single full-length (6-char) window of this clue is an anagram
+    # of 'שלומבר', nor is it hidden in it, nor is its own reversal -- the full-length
+    # mechanisms above cannot find it; only combining two independent per-part hits can.
+    seg_text = 'םולש אמר רב'
+    full_len = (anagram_candidates(seg_text, 6) + hidden_candidates(seg_text, 6)
+                + reversal_candidates(seg_text, 6))
+    none_full = not any(h['answer'] == norm('שלומבר') for h in full_len)
+    print(f'  full-length anagram/hidden/reversal at len 6 find nothing (as expected): '
+          f'{none_full} (expected True)')
+    ok &= none_full
+    hits = segment_candidates(seg_text, [4, 2], use_substitution=False)
+    found = any(h['answer'] == norm('שלומבר') for h in hits)
+    print(f'  found שלום+בר as a two-device segment charade: {found} (expected True)')
+    ok &= found
+    print('--- segment_candidates: single-part enum never fires (needs 2-3 parts) ---')
+    off = segment_candidates(seg_text, [6], use_substitution=False)
+    print(f'  single-part enum returns nothing: {off == []} (expected True)')
+    ok &= off == []
+
+    print('--- segment_candidates: use_substitution mixes a mined-substitution part with '
+          'a mechanical part -- NOT reachable by #86\'s mechanical-only version (above) '
+          'or by substitution_candidates\' adjacency-and-full-length-only version '
+          '(2026-10-16, TODAY\'S lever) ---')
+    # part 1 ('שלום', 4) is the SAME reversal hit as above; part 2 ('לך', 2) does NOT
+    # appear anywhere in the clue text (literally, reversed, or as any letter window --
+    # the clue has no כ at all) -- it exists ONLY as a mined substitute of the clue word
+    # 'טרמפ', non-adjacent to 'םולש' (two filler words sit between them, so this is also
+    # NOT reachable by substitution_candidates, which requires ADJACENT clue words).
+    seg_sub_text = 'םולש אמר קיבלתי טרמפ'
+    seg_sub_table = {norm('טרמפ'): [(norm('לך'), 1)]}
+    hits_sub_off = segment_candidates(seg_sub_text, [4, 2], use_substitution=False,
+                                       table=seg_sub_table)
+    found_sub_off = any(h['answer'] == norm('שלום') + norm('לך') for h in hits_sub_off)
+    print(f'  use_substitution=False misses it (לך has no mechanical fodder in this clue '
+          f'at all -- it only exists as טרמפ\'s mined substitute): {not found_sub_off} '
+          f'(expected True)')
+    ok &= not found_sub_off
+    hits_sub_on = segment_candidates(seg_sub_text, [4, 2], use_substitution=True,
+                                      table=seg_sub_table)
+    found_sub_on = any(h['answer'] == norm('שלום') + norm('לך') for h in hits_sub_on)
+    print(f'  use_substitution=True finds it by combining the reversal hit (part 1) with '
+          f'טרמפ\'s mined substitute לך (part 2): {found_sub_on} (expected True)')
+    ok &= found_sub_on
+    no_adjacent = substitution_candidates(seg_sub_text, 6, table=seg_sub_table)
+    found_adjacent = any(h['answer'] == norm('שלום') + norm('לך') for h in no_adjacent)
+    print(f'  (sanity) substitution_candidates alone, which requires adjacency, does NOT '
+          f'find it either (םולש and טרמפ are not adjacent): {not found_adjacent} '
+          f'(expected True)')
+    ok &= not found_adjacent
 
     print('--- substitution device: use_phrase accepts a substitute that is not itself a '
           'lex() member but splits into two that are (queue item 10(b)\'s last-named open '
@@ -2587,6 +2838,9 @@ def main():
         use_homophone = '--no-homophone' not in rest
         use_homophone_vowel = '--no-homophone-vowel' not in rest
         use_substitution_3part = '--no-substitution-3part' not in rest
+        use_substitution_4part = '--no-substitution-4part' not in rest
+        use_segment = '--no-segment' not in rest
+        use_segment_substitution = '--no-segment-substitution' not in rest
         use_charade = '--no-charade' not in rest
         use_abbreviation = '--no-abbreviation' not in rest
         use_defs_lexicon = '--no-defs-lexicon' not in rest
@@ -2606,7 +2860,8 @@ def main():
         rest = [a for a in rest if a not in
                 ('--no-culture', '--no-retrieval', '--no-container', '--no-container-entity',
                  '--no-double-def', '--no-defspan-retrieval', '--no-homophone',
-                 '--no-homophone-vowel', '--no-substitution-3part', '--no-charade',
+                 '--no-homophone-vowel', '--no-substitution-3part', '--no-substitution-4part',
+                 '--no-segment', '--no-segment-substitution', '--no-charade',
                  '--no-abbreviation', '--no-defs-lexicon', '--no-hwdb', '--no-phrase',
                  '--no-anagram-phrase', '--container-phrase', '--no-substitution-phrase',
                  '--ranked')]
@@ -2620,11 +2875,14 @@ def main():
                            use_homophone=use_homophone,
                            use_homophone_vowel=use_homophone_vowel,
                            use_substitution_3part=use_substitution_3part,
+                           use_substitution_4part=use_substitution_4part,
                            use_charade=use_charade, use_abbreviation=use_abbreviation,
                            use_defs_lexicon=use_defs_lexicon, use_hwdb=use_hwdb,
                            use_phrase=use_phrase, use_anagram_phrase=use_anagram_phrase,
                            use_container_phrase=use_container_phrase,
                            use_substitution_phrase=use_substitution_phrase,
+                           use_segment=use_segment,
+                           use_segment_substitution=use_segment_substitution,
                            use_rank=use_rank)
         print(f"recall@N: {res['hit']}/{res['total']} = {res['recall']:.1%}  "
               f"(avg {res['avg_candidates']:.1f} candidates/clue, "
@@ -2633,12 +2891,15 @@ def main():
               f"use_double_def={use_double_def}, "
               f"use_defspan_retrieval={use_defspan_retrieval}, use_homophone={use_homophone}, "
               f"use_homophone_vowel={use_homophone_vowel}, "
-              f"use_substitution_3part={use_substitution_3part}, use_charade={use_charade}, "
+              f"use_substitution_3part={use_substitution_3part}, "
+              f"use_substitution_4part={use_substitution_4part}, use_charade={use_charade}, "
               f"use_abbreviation={use_abbreviation}, use_defs_lexicon={use_defs_lexicon}, "
               f"use_hwdb={use_hwdb}, use_phrase={use_phrase}, "
               f"use_anagram_phrase={use_anagram_phrase}, "
               f"use_container_phrase={use_container_phrase}, "
-              f"use_substitution_phrase={use_substitution_phrase}, use_rank={use_rank})")
+              f"use_substitution_phrase={use_substitution_phrase}, "
+              f"use_segment={use_segment}, "
+              f"use_segment_substitution={use_segment_substitution}, use_rank={use_rank})")
         print('hits by mechanism:', res['by_mechanism'])
         if res['misses']:
             print(f"\n{len(res['misses'])} misses (clue_number, direction, gold):")
