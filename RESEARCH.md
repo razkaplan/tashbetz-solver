@@ -4,6 +4,82 @@ One entry per run: what was found, one-line summary, and an honest judgement of 
 it transfers to a Hebrew cryptic solver with an 8k-clue corpus. Default skepticism: most
 crossword-AI work targets non-cryptic (American-style) puzzles and does not transfer.
 
+## 2026-10-16
+
+**Re-consolidation run.** Per the daily scheduled task's own backlog-aware instructions,
+read every open PR before researching or picking a lever. 30 open, unmerged PRs (#59-#88)
+existed; PRs #83-#88 (2026-10-10 through 10-15, six days) all forked from the SAME stale
+base (081631420..., PR #82's own base sha) that PR #82's consolidation (2026-10-09) was
+supposed to have fixed — the compounding-loss pattern already flagged 2026-08-21, 08-25,
+09-18, 09-24, 09-28, 09-30, 10-09 recurred immediately after the last fix, one PR cycle
+later and at 6x the scale. See DAILY.md for the full reconciliation; this branch starts
+from PR #85's branch (itself built on PR #82's branch, confirmed by `git merge-base
+--is-ancestor`), the verified-richest frontier, not from `main` or from #83-88 directly.
+
+Four fresh literature searches this run (candidate generation / diverse hypotheses,
+definition-span detection, Hebrew morphology/DictaBERT/YAP, charade segmentation as
+dynamic programming), explicitly trying DIFFERENT query angles than the 6+ prior
+consecutive null passes rather than re-running the same searches:
+
+**"cryptic crossword clue solving candidate generation 2026 arxiv diverse hypotheses" /
+"definition span detection cryptic crossword clue neural classifier 2026" (general
+search).** Surfaced only the same paper family already logged repeatedly since 2026-08-06
+(2104.08620, 2403.12094, 2406.09043, 2407.08824, 2412.09012, 2506.04824). One new citation
+surfaced and checked directly rather than assumed from the snippet: the Edinburgh
+DataShare "Cryptic dataset" (datashare.ed.ac.uk/handle/10283/9132), a BERT-encoded binary
+classifier dataset for "is the definition at the start or the end of the clue" on English
+Times/Hindu clues (direct fetch blocked by a 403, so read from the search index's own
+description, not the primary source — disclosed, not hidden). **Transfer: none, and this
+is the same structural approach already killed here.** It is a training-data resource for
+exactly the "classify which end holds the definition" signal 2026-08-19 measured on this
+setter's own clues and found does not hold well (only 25% of clues have a mechanically-
+locatable single-end span at all, 29% of those interior) — more English training data for
+a signal already shown not to transfer to this setter's convention doesn't change that.
+
+**"Hebrew morphology segmentation crossword solver 2026 DictaBERT YAP update."** No new
+Hebrew-specific resource beyond RFTokenizer/HebPipe/DictaBERT-seg/YAP already logged
+repeatedly since 2026-08-06; one third-party benchmark listing restates DictaBERT's own
+2023 prefix-segmentation numbers (99.1% on a small 2-entry leaderboard), not new
+information. **Transfer: none new.**
+
+**"charade segmentation dynamic programming wordplay decomposition crossword 2026"** —
+tried specifically because today's lever (below) IS a charade-segmentation mechanism, to
+check whether the field has a validated technique beyond what was independently built
+here. Surfaced no crossword-specific DP solver and nothing dated 2026; the closest hit was
+a Hacker News thread's informal description of the standard word-break recurrence
+(`A[i]` segmentable if some `A[j]` is segmentable and `[j,i)` is a dictionary word).
+**Transfer: confirms engineering soundness, not a new technique** — this is the same
+non-overlap-and-combine shape `segment_candidates` (folded in from PR #86 this run) and
+today's `use_substitution` extension already implement via recursive search; the thread
+doesn't offer anything `segment_candidates` doesn't already do, and it isn't cryptic- or
+Hebrew-specific. Not actioned.
+
+**Conclusion for today's lever.** Ninth-plus consecutive research pass with nothing new
+and buildable on candidate generation, definition-span detection, or Hebrew morphology —
+the one new citation (Edinburgh dataset) doesn't transfer once checked against this
+setter's own already-measured non-conformance to the one-end-definition convention.
+Per the task's own standing priority (a) (diverse candidates per clue by mechanism), and
+per PLAYBOOK.md's own description of a real charade's parts coming from a MIX of
+devices ("part 1 a synonym, part 2 an anagram") — not yet reachable by any single
+mechanism in this file — today's lever is `segment_candidates(use_substitution=True)`:
+extending PR #86's per-enum-part mechanical generator (anagram/hidden/reversal per part)
+to also draw a part's hit from the mined substitution table, so a full answer can combine
+one mechanical part with one substitution part from non-adjacent clue words — reachable
+by neither #86's mechanical-only version nor `substitution_candidates`' adjacency-and-
+full-length-only version. Measured FLAT (4.8%, 1/21, identical in all three
+configurations: mechanical-only, segment mechanical-only, segment mixed) on a freshly
+re-transcribed 2026-05-29 (21/28 clues, the standard across-1-13 image-cutoff gap, 0/21
+enum mismatches). Root-caused, not just reported flat: all 8 of this puzzle's multi-part-
+enum clues hit `segment_candidates`' own combinatorial cap without finding gold, AND
+re-checked uncapped (up to 20,000 combinations) found 0/8 gold hits even then — the same
+"0/10 even uncapped" finding PR #86 reported on its own independent transcription of this
+same puzzle, now independently reproduced on a second transcription. This is a genuine
+mechanism-level null (these specific multi-part answers' individual parts aren't
+recoverable from mechanical devices or the mined-substitution table at all, not a
+truncation artifact), consistent with `charade.py`'s 2026-08-08 finding that the
+open-ended substitution-table version of this same idea also measured weak. See DAILY.md
+for the full audit and measurement trail.
+
 ## 2026-10-12
 
 First run on this branch since PR #82's consolidation (2026-10-09, `daily/2026-10-09-work`,

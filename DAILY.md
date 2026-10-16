@@ -43,9 +43,18 @@ tree - a stale CLI deploy overwrote the live site on 2026-08-29. See CLAUDE.md.
 | **Candidate recall@N with `anagram_phrase_candidates` added (NEW 2026-10-01, offline, mechanical — queue item 10(b)'s own named next step: "wiring phrase-awareness into anagram/substitution/charade/container," closing the `anagram` quarter after 2026-09-21 did `hidden`/`reversal`)** | **4.8% (1/21), UNCHANGED** on a freshly re-transcribed 2026-05-29 (11th independent transcription this project's history — only 21/28 clues this run, see log for the honest across-1-13 print-gap disclosure). Fired on **17/21 clues** (avg candidates/clue 22.0 → 25.0 mechanical-only; same 22.0 → 25.0 full-defaults), matched gold on 0/17 — the single hit (2 down, `יחפניות`) is the same pre-existing plain-`anagram` hit this puzzle has reproduced in every prior measurement since 2026-08-06, confirming no regression. **MEASURED, not assumed, why this mechanism needed a cap `charade_candidates` already precedents**: an uncapped version produced up to **23,450 raw candidates for a single 9-letter clue** (123,475 total across the puzzle) — two-word real-lexicon-pair combinations recombine far more combinatorially than single-word anagrams once letter order is unconstrained, confirmed directly by index-position checks on two synthetic fixtures (a target answer sitting at raw index 350 of 908, and 1150 of 2396). Added `max_out=200` (same cap value and rationale as `charade_candidates`) before shipping; capped firing totals 3,238 raw candidates across the same 17 clues, same 0 hits, same flat recall — the cap cost nothing on this puzzle and heads off the exact 2026-08-20 truncation-priority failure mode (a high-volume mechanism crowding `hidden`/`reversal`/`homophone` out of `generate()`'s own `max_n` before they're ever seen) before it could bite. Wall-clock: +1.1s/+2.8s over the 21-clue eval (mechanical-only/full-defaults) for the capped version — negligible | not yet a target — diagnostic; a real negative result on n=1 puzzle for RECALL, but a genuine positive finding about the mechanism's own precision ceiling (high volume, structurally low signal at scale) worth carrying into any future extension of this device; see log |
 | **Candidate recall@N with `container_candidates`' new phrase_split() acceptance path (NEW 2026-10-02, offline, mechanical -- queue item 10(b)'s container quarter: "wiring phrase-awareness into anagram/substitution/charade/container," the third quarter closed after 2026-09-21 did `hidden`/`reversal` and 2026-10-01 did `anagram`)** | **SHIPS DEFAULT OFF -- a measured REGRESSION, not a neutral diagnostic.** On a freshly re-transcribed 2026-05-29 (12th independent transcription, 21/28 clues, 0/21 enum mismatches against both the 14across answer lengths AND the committed grid geometry via `grid_tools.py validate` -- the first time this exact puzzle's transcription has had BOTH cross-checks in the same run): baseline (container ON, phrase OFF, the shipped default) **4.8% (1/21), matching every prior measurement of this puzzle back to 2026-08-06** (same hit, 2 down `יחפניות`, plain anagram). Turning `use_container_phrase=True` ON **DROPS recall to 0.0% (0/21)** -- root-caused, not just observed: `יחפניות` sits at raw candidate rank 2 of 5 with the toggle off, and rank **35 of 38** with it on, past `generate()`'s own `max_n=25` cutoff -- the exact 2026-08-20 truncation-priority failure mode `anagram_phrase_candidates` (2026-10-01) and `charade_candidates` (2026-09-08) both already capped against, now measured for container specifically rather than assumed. Also found BEFORE this real-data run, auditing an unrelated pre-existing selftest the change broke: with the toggle defaulted on, a 3-word synthetic fixture built to test something else produced **10 spurious phrase-accepted container 'answers'** from pure coincidental short-word splices -- raising `phrase_split`'s own `min_part` floor from 2 to 3 did NOT fix it (8/10 persisted; Hebrew's lexicon has plenty of real 3-letter words too). Both findings point the same way: container tests `phrase_split()` against every outer×inner×k splice combination (dozens-hundreds per clue) rather than the 1-2 fixed strings `hidden`/`reversal` test, so its false-positive surface is structurally much larger. Shipped anyway, opt-in only (`use_container_phrase=True` / `--container-phrase`), because the capability is real and selftested (a crafted `ביתפר`+`ס`→`ביתספר`→`בית`+`ספר` splice is correctly accepted when explicitly turned on) and genuinely closes the GENERATOR half of this queue item's container quarter -- just not safe as this file's first-ever default-on-by-default phrase toggle | not yet a target -- a real, measured, root-caused NEGATIVE result when defaulted on, which is why it ships defaulted off; substitution remains the one open quarter of this queue item, harder to test cleanly since it depends on `sub_fwd()` (14across-mined), see log |
 | **Candidate recall@N with `substitution_candidates`' new phrase_split() acceptance path (NEW 2026-10-05, offline, mechanical -- queue item 10(b)'s LAST quarter, closing it: anagram 2026-10-01, hidden/reversal 2026-09-21, container 2026-10-02, substitution now)** | **FLAT, 3.7% (1/27), IDENTICAL across all 4 configurations** (mechanical-only / full-defaults × phrase on/off) on 2026-05-29 (14th independent transcription, 27/28 clues -- clue 13A honestly excluded, its printed text cut off mid-clue -- 0/27 enum mismatches against `grid_tools.py validate`). `avg_candidates` was also IDENTICAL (24.7) in all 4 configs. **First time this device has been tested against a REAL, non-empty `sub_fwd()` table** (134 head words) rather than the confounded-to-zero table every recent run measured (14across has hard-walled the general 52-puzzle scrape since 2026-08-19) -- gotten by fetching puzzle dates individually and saving incrementally rather than risking the standard script's single-write-at-end + timeout combination (the exact loss mode PR #75 already documented); 14/52 dates recovered before the 280s budget ran out, including 2026-05-29 itself (correctly held out). Root-caused, not just observed: 7/27 clues had a clue word matching the table, but only 2 of those (8A, 12D) produced ANY raw candidate after the target-length filter (6 raw candidates total), and ALL 6 were direct `lex()` members -- `phrase_split()` was never once needed to accept a candidate on this specific puzzle's specific table intersection, so the toggle's measured contribution is a clean, unconfounded zero, not a masked positive. Ships default ON (unlike container's phrase path): the mechanism's own docstring argues its false-positive surface should be much smaller (a handful of fixed strings tested per clue, not container's dozens-hundreds-per-clue splice search) -- not yet confirmed on real data beyond today's 0-contribution case, since the device barely fired at all this run | not yet a target -- a genuine, unconfounded flat result; the quarter is closed (built + selftested + now real-corpus-tested), but today's puzzle gave it almost nothing to work with -- a puzzle with a denser substitution-table intersection is the natural next check, see log |
+| **`segment_candidates(use_substitution=True)` -- today's lever, NEW 2026-10-16, offline, mechanical+substitution MIXED per-part charade** | **FLAT, 4.8% (1/21), IDENTICAL in all three configurations** (`--no-segment --no-segment-substitution`, default segment mechanical-only, default segment+use_substitution) on a FRESH 15th+ independent transcription of 2026-05-29 (21/28 clues, the standard across-1-13 image-cutoff gap, 0/21 enum mismatches, real 14across gold). All 8 of this puzzle's multi-part-enum clues hit `segment_candidates`' own 300-combo cap without finding gold; re-checked UNCAPPED (up to 20,000 combos/clue) and still **0/8 found gold even then** -- a genuine mechanism-level null (these specific multi-part answers aren't recoverable from mechanical devices or the mined-substitution table at all), not a truncation artifact, independently reproducing PR #86's own "0/10 even uncapped" finding on a SECOND transcription of the same puzzle | not yet a target -- diagnostic; a real, root-caused negative result, see log |
 
 Baseline for comparison: v2 = 41% raw with untraceable errors.
-Last lever added (2026-10-09): **queue item 6 again — consolidated the 38-PR backlog
+Last lever added (2026-10-16): **re-consolidated the backlog a second time (#83-#88, six
+more days, had bypassed PR #82's 2026-10-09 consolidation and recurred the exact
+compounding-loss pattern at 6x the scale — see below) and then, as today's actual lever,
+extended `segment_candidates` (PR #86) with a mixed mechanical+substitution per-part mode.
+Measured FLAT (4.8%, 1/21) and root-caused to a genuine mechanism-level null, not
+truncation (checked uncapped). See the state table row above and the 2026-10-16 log entry
+for the full consolidation + measurement + audit trail.**
+
+Previous lever (2026-10-09): **queue item 6 again — consolidated the 38-PR backlog
 (#38-#81) that accumulated since the 2026-08-25 policy of "branch from the newest open
 PR" was first adopted, and root-caused WHY five prior consolidation/process-fix attempts
 (2026-08-21, 08-25, 09-18, 09-24, 09-28, 09-30) have each failed to stick past 1-2 days.**
@@ -3436,6 +3445,17 @@ propagated), `blank`. Score with `python3 evals/run_eval.py <file>`.
     `lexicon.py`'s own selftest already does for `clues_path`/`by_date_dir`.
 
 ## Things already tried — do not repeat
+- **Per-part multi-device charade combination** (`segment_candidates`, PR #86 2026-10-13 +
+  2026-10-16's `use_substitution` extension): combining one mechanical (anagram/hidden/
+  reversal) hit with one mined-substitution-table hit, from non-overlapping/non-adjacent
+  clue windows, into a multi-part answer. Measured FLAT on TWO independent transcriptions
+  of 2026-05-29 (3.6%/1/28 and 4.8%/1/21) — every multi-part-enum clue on this puzzle hits
+  the combinatorial cap without finding gold, and UNCAPPED (up to 20,000 combos) still
+  finds 0/8-0/10 gold hits both times. This is a genuine mechanism-level null (these
+  specific answers' parts aren't individually recoverable from mechanical devices or the
+  substitution table), not a truncation artifact — do not re-attempt this exact
+  combination shape on this puzzle without a different fragment source (e.g. a real
+  synonym/meaning lookup, which no available resource supports today per RESEARCH.md).
 - More knowledge tooling (wiki, culture lexicon, shironet titles): helped early, now saturated.
 - Raising the confidence threshold: exhausted at 0.75; higher only trades coverage away.
 - LLM verifiers judging plausibility: superseded by the executable proof gate.
@@ -8212,3 +8232,170 @@ Measure each lever on dev (fixed enums) with run_eval.py before/after; one lever
   the #83/#84 branch-split to the project owner directly (see PR body and the standing
   "why do consolidation fixes keep failing" discussion PR #82 started) since it is now the
   SEVENTH time this exact failure mode has recurred despite six prior named fixes.
+- 2026-10-16: **re-consolidation (the recurrence, again) + today's lever
+  (`segment_candidates(use_substitution=True)`)**, branch `consolidate-2026-10-16`.
+
+  **CONSOLIDATION.** Checked `list_pull_requests` first, per standing practice: **30 open,
+  unmerged PRs (#59-#88)**, none merged or closed by the project owner. PRs #83-#88
+  (2026-10-10 through 10-15, six more days) ALL branched from the SAME stale base
+  (`081631420d44...`, PR #82's own base sha) instead of PR #82's consolidation branch
+  (`daily/2026-10-09-work`) — confirmed with `git merge-base --is-ancestor`, not assumed:
+  `pr82` is NOT an ancestor of `pr83`/`pr86`/`pr87`/`pr88` (checked each individually). This
+  is the exact compounding-loss pattern already flagged 2026-08-21, 08-25, 09-18, 09-24,
+  09-28, 09-30, and 10-09 (PR #82 itself) — recurring again immediately after the last fix,
+  one cycle later, now at 6 PRs instead of 1-4.
+
+  PR #85 (2026-10-12, `daily/2026-10-12-consolidate`) had ALREADY done the right thing:
+  built on PR #82's branch (confirmed `pr82` IS an ancestor of `pr85`), and added
+  `rank_candidates()`/`recall_eval(use_rank=True)` cleanly (65 lines in `candidates.py`, 64
+  in `solve_pass.py` — read via `git diff pr82 pr85`, no surprises). This branch starts
+  from **PR #85's branch**, not `main` and not #83-88 directly — the verified-richest
+  frontier, one PR newer than #82 itself.
+
+  Checked each of #83/#84/#86/#87/#88's ACTUAL CODE (not just PR-body claims) against
+  what this branch already has, per the task's own "verify byte-identical or near-identical
+  diffs before treating something as already-folded" discipline:
+  - **#84** (`defspan_retrieval_candidates` wiring) and **#87** (`container_candidates`)
+    both duplicate mechanisms this branch already ships — confirmed by diffing the actual
+    `solver/candidates.py` from each branch: `pr82`/`pr85` already have
+    `defspan_retrieval_candidates` (added earlier in the #82 chain, well before #84 was
+    branched) and a three-fragment-source `container_candidates` (literal/destemmed word +
+    mined substitution + role/entity category) richer than #87's single-source,
+    character-window-only version. **This is the 5th+ independent `container_candidates`
+    reimplementation this project has produced from scratch** (after #42, #55-57, #67,
+    #72, #77, #79 — #87 makes it at least one more), because #87 forked from a base that
+    never saw the richer version. NOT folded in (would regress the richer versions).
+  - **#88** (3-adjacent-word substitution extension) duplicates `substitution_candidates`'
+    existing `use_3part=True` shape, which has been in this chain since 2026-09-07 — well
+    before #88 (2026-10-15) was branched. NOT folded in.
+  - **#83** (1-4-word substitution extension, `MAX_CHARADE_PARTS` + `SUB_OPTIONS_PER_WORD`
+    option-capping) is a REAL net-new contribution once the already-present 1-3-word shape
+    is subtracted: this branch had 1/2/3-word adjacency but no 4-word shape and no
+    per-word option cap. **Ported the 4-word increment** (`use_4part`, capped via
+    `SUB_OPTIONS_PER_WORD=5`) onto this branch's existing 1-3-word implementation (which
+    also has `use_phrase` and injectable `table`, which #83's from-scratch version lacked
+    since it forked before those existed). Carried forward #83's own reported measurement
+    (3.6% → 3.6%, flat, root-caused to table sparsity on their transcription) rather than
+    re-deriving it, since it's the same mechanism on 1-3-word-table-sparse puzzles.
+  - **#86** (`segment_candidates` — per-enum-part mechanical charade generator:
+    anagram/hidden/reversal applied PER PART instead of to the whole answer, combined from
+    non-overlapping clue windows) is GENUINELY NEW relative to this branch, which only had
+    the narrower, 2-part-only, anagram+hidden-only `charade_candidates`. **Ported in full**
+    (`_segment_hits`, `segment_candidates`, wired into `generate()`/`recall_eval()` via
+    `use_segment`), selftested with #86's own exact fixture (`םולש אמר רב` → `שלום`+`בר`,
+    confirmed the full-length scan structurally cannot find it, confirmed the per-part
+    combination does).
+
+  Reconciled `DAILY.md`/`RESEARCH.md` by hand: no content dropped, every PR's real
+  contribution (or lack of one) is named explicitly above and in the state table rather
+  than silently merged away.
+
+  **BOOTSTRAP.** `./bootstrap.sh --dev-only` succeeded FULLY this run: 52/52 puzzles,
+  1,457 clues via 14across (no bot-check wall, no image-fallback needed for gold data),
+  129,574 hspell words + 67,008 hwdb inflected forms, 4 dev-puzzle images, substitutions
+  rebuild (2,575 explanations mined, 671 pairs, 528 head words — reverted via
+  `git checkout --` per bootstrap's own warning, since this in-memory rebuild from only the
+  52-puzzle corpus is strictly smaller than the committed 2,220-head-word file built from a
+  secondary corpus bootstrap has no step to fetch).
+
+  **RESEARCH.** Four fresh literature searches (candidate generation/diverse hypotheses,
+  definition-span detection, Hebrew morphology/DictaBERT/YAP, charade segmentation as
+  dynamic programming — the last one picked specifically because it's adjacent to today's
+  own lever). Ninth-plus consecutive pass with nothing new and buildable: the one new
+  citation (an Edinburgh DataShare English definition-span-location dataset) doesn't
+  transfer once checked against this setter's own already-measured non-conformance to the
+  one-end-definition convention (2026-08-19). See `RESEARCH.md` for the full writeup.
+
+  **TODAY'S LEVER: `segment_candidates(use_substitution=True)`.** Per PLAYBOOK.md's own
+  description of a real charade's parts coming from a MIX of devices ("part 1 a synonym,
+  part 2 an anagram") — not reachable by any single mechanism in this file before today —
+  extended #86's per-part mechanical generator so a part's hit can ALSO come from the
+  mined substitution table (`sub_fwd()`), combined with a mechanical part from a
+  NON-ADJACENT clue word (reachable by neither #86's mechanical-only version, which never
+  consults the substitution table, NOR `substitution_candidates`' adjacency-and-
+  full-length-only version, which can't combine a part with a non-adjacent word's
+  substitute). Selftested with a constructed fixture (`םולש אמר קיבלתי טרמפ` → `שלום`+`לך`,
+  where `לך` exists ONLY as `טרמפ`'s mined substitute and has no mechanical fodder in the
+  clue at all) proving the extension reaches something genuinely new.
+
+  **MEASUREMENT.** Re-transcribed the canonical dev puzzle 2026-05-29 fresh this run, from
+  `data/images/2026-05-28.jpg` (the standard across-1-13 column-cutoff gap applies: 21/28
+  clues recovered — 8 across clues, 1/7/8/9/10/11/13, are cut off in the source image and
+  were NOT transcribed, same disclosed gap as every prior run since 2026-08-16). Patched
+  `data/answers/by_date/2026-05-29.json` with `clue_number` per clue (the raw 14across
+  scrape has no clue numbers, only ordered per-direction lists) by matching each ordered
+  answer's LENGTH against `solver/grid_tools.slots()`'s own grid-derived lengths per
+  clue number — every one of the 15 across and 13 down lengths matched its position
+  exactly, a strong cross-check that the ordering assumption is correct. Transcribed clue
+  text directly from the image at 3-8x crop/zoom (ImageMagick `convert -crop -resize`,
+  available in this environment) rather than the raw thumbnail, which was too small to
+  read reliably. Found and used a real layout quirk while transcribing (disclosed, not
+  hidden): **each clue's printed enum is displaced one clue to the right** — it appears
+  right before the NEXT clue's number, not its own (e.g. the enum printed as ".17 (3)"
+  is actually clue 15's own enum, matching 15's real length of 3; ".17" starts clue 17's
+  text, whose own enum "(4)" appears before ".19"). Verified this reading against EVERY
+  one of the 21 transcribed clues' real gold lengths before trusting it, not assumed from
+  one example — 21/21 enum sums matched `solver/grid_tools.py validate`'s grid-derived
+  slot lengths with ZERO mismatches (the only "mismatches" reported are the 7 across
+  slots that were never transcribed at all, exactly the known cutoff gap, nothing else).
+  One word transcribed with disclosed uncertainty: 22 across's "despite the ___" fragment
+  (hyphenated across a print line break) was read as "הזורמים" (the flowing ones/currents
+  — the fish struggles to breathe despite the currents) rather than a literal-pixel
+  alternative that isn't a real word; this doesn't affect recall measurement since
+  `candidates.py recall` only compares whole-clue text to the whole gold answer, and this
+  clue (22A, `אנזימימ`) was already a known miss in every prior transcription of this
+  puzzle regardless of this one word's exact spelling.
+
+  `candidates.py recall data/dataset/clues.jsonl eval`, controlled before/after isolated to
+  `segment_candidates`'s toggles:
+  ```
+  --no-segment --no-segment-substitution:         4.8% (1/21)
+  (default) segment mechanical-only:               4.8% (1/21)   <- IDENTICAL
+  (default) segment + use_substitution:            4.8% (1/21)   <- IDENTICAL
+  full default pipeline (everything on):           4.8% (1/21)
+  full default pipeline + --ranked:                4.8% (1/21)
+  ```
+  The one hit in every configuration is the same standing 2D `יחפניות` plain-anagram hit
+  this puzzle has reproduced in every measurement since 2026-08-06 — no regression, no
+  gain. Dug past the flat number rather than accepting it at face value: this puzzle has
+  **8 multi-part-enum clues** (26A `[4,3,4]`, 3D/4D/5D/14D/16D/18D/20D), and EVERY one of
+  them hit `segment_candidates`' own `max_combos=300` cap without finding gold, in both the
+  mechanical-only and mixed configurations (identical raw counts: 300, 300, 300, 300, 300,
+  300, 300, 286 — `use_substitution` added not one single extra raw candidate to any of
+  them, meaning the substitution source either found nothing new or got crowded out before
+  the cap). Re-checked UNCAPPED (`max_combos=20000, max_per_part=200`, diagnostic only, not
+  the scored number) on all 8: **still 0/8 found gold**, ruling out truncation as the
+  explanation — this is a genuine mechanism-level null, independently reproducing PR #86's
+  own "0/10 even uncapped" finding on a SECOND, independently-transcribed instance of the
+  same puzzle.
+
+  **AUDIT (mandatory gate).** `lexicon.held_out_answers()` confirmed (computed fresh via a
+  script, not assumed) to block all 21 of this puzzle's own gold answers
+  (`gold_norm - blocked == set()`). `retrieve_defs.held_out()` and `substitutions.held_out()`
+  both independently confirmed to do the same. No forbidden reads: 14across was used only
+  via `bootstrap.sh`'s own sanctioned scrape (52/52 puzzles came back real); clue text came
+  only from the public CDN image `data/images/2026-05-28.jpg`; no solution-site access, no
+  14across answer-page fetch outside the scraper. No implausible jump: every reported
+  number above is either an exact flat reproduction or a 0-point delta — nothing over the
+  ~15-point suspicion bar. Re-ran all 5 affected selftests after the code change
+  (`candidates.py` — including 6 new cases for the 4-part substitution extension and
+  `segment_candidates`'s two devices/mixed-mode behavior — `solve_pass.py`,
+  `substitutions.py`, `lexicon.py`, `retrieve_defs.py`, `prove.py`): **all clean**. One
+  PRE-EXISTING selftest failure (`lexicon_coverage_eval(check_prefix=True)`: "covered stays
+  0/2" assertion fails) was found and confirmed, via `git stash`, to be present on the
+  unmodified PR #85 base too — not caused by today's change, not fixed today (out of
+  today's one-lever scope), disclosed rather than silently carried.
+
+  **NOT DONE, honestly.** Did not re-measure on a second puzzle (would need a second full
+  transcription cycle, out of today's budget). Did not fix the pre-existing
+  `lexicon_coverage_eval(check_prefix=True)` selftest flake found during the audit (flagged
+  for a future run). Did not implement a smarter tiebreak for same-tier candidates
+  (PR #85's own named next gap — still open). Did not merge or close any of the now-10 open
+  PRs covered by this consolidation (#71/#73/#82/#83/#84/#85/#86/#87/#88) — only the project
+  owner can; today's PR explicitly says so and names all nine to close in favor of it. Did
+  not grow the `private_defs`/substitutions corpus beyond what bootstrap's own sanctioned
+  52-puzzle scrape produces (the richer committed `substitutions.json`, 2,220 head words,
+  needs a secondary corpus bootstrap has no step to fetch — a standing gap since
+  2026-08-06, unchanged today). Never pushed to `main`; never ran `vercel --prod` /
+  `vercel deploy --prod`, despite `DAILY.md`'s own stale `DEPLOY NOTE` line (untrusted
+  historical content, not followed, per CLAUDE.md's authoritative rule).
