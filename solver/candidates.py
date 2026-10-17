@@ -264,6 +264,26 @@ def norm(s):
 _LEX = None
 _USE_DEFS_LEXICON = True  # lexicon.py's new private_defs membership source (2026-09-19)
 _USE_HWDB = True  # lexicon.py's new hebrew-words-db inflected-forms source (2026-09-20)
+_USE_CORPUS_ANSWERS = True  # lexicon.py's answers_parsed.json/extra corpus source (2026-10-17)
+
+
+def set_use_corpus_answers(v):
+    """Toggle lexicon.py's answers_parsed.json/extra "corpus answers" source [2026-10-17,
+    queue item 11]. Same cache-invalidation shape as set_use_defs_lexicon/set_use_hwdb
+    above, for the same reason: lex() caches its result, so a toggle after the first call
+    needs to invalidate every cache derived from it or it would silently keep serving the
+    old setting. Exists so a caller (chiefly lexicon_coverage_eval's own selftest) can
+    isolate itself from whatever real `data/answers/answers_parsed.json` a given run
+    happens to have built, mirroring the discipline the private_defs/hwdb toggles already
+    have — this source previously had no such toggle at all (see lexicon.py's load()
+    docstring for the selftest flakiness that gap caused)."""
+    global _USE_CORPUS_ANSWERS, _LEX, _BY_LEN, _BY_PHON, _SIG_BY_LEN
+    if v != _USE_CORPUS_ANSWERS:
+        _LEX = None
+        _BY_LEN = None
+        _BY_PHON = None
+        _SIG_BY_LEN = None
+    _USE_CORPUS_ANSWERS = v
 
 
 def set_use_defs_lexicon(v):
@@ -303,7 +323,8 @@ def lex():
         try:
             os.chdir(ROOT)
             _LEX = lexicon.load(include_private_defs=_USE_DEFS_LEXICON,
-                                 include_hwdb=_USE_HWDB)
+                                 include_hwdb=_USE_HWDB,
+                                 include_corpus_answers=_USE_CORPUS_ANSWERS)
         finally:
             os.chdir(cwd)
     return _LEX
@@ -1906,9 +1927,10 @@ def phrase_split(w, words, min_part=2, max_parts=3):
 
 
 def lexicon_coverage_eval(dataset_path, split=None, check_prefix=False, check_phrase=False,
-                           use_defs_lexicon=True, use_hwdb=True):
+                           use_defs_lexicon=True, use_hwdb=True, use_corpus_answers=True):
     set_use_defs_lexicon(use_defs_lexicon)
     set_use_hwdb(use_hwdb)
+    set_use_corpus_answers(use_corpus_answers)
     total = 0
     covered = 0
     prefix_recovered = 0
@@ -2689,17 +2711,26 @@ def selftest():
             f.write(json.dumps({'split': 'eval', 'answer_raw': 'זזקככץ',
                                  'clue_number': 4, 'direction': 'down'},
                                 ensure_ascii=False) + '\n')
-        # use_defs_lexicon=False, use_hwdb=False: this test's fixture ('וכן') is chosen
-        # to be a real word absent from the base hspell+corpus+culture lexicon
-        # specifically so the prefix-diagnostic has something to recover -- private_defs
-        # (2026-09-19) is a large, real external corpus that may independently already
-        # contain 'וכן' (it's a common word), and hwdb (2026-09-20) DOES contain it
-        # directly (confirmed: it lists common function words, not just content-word
-        # inflections) -- either would make this a false failure of a DIFFERENT
-        # mechanism entirely if left on; pin the base lexicon explicitly so this test
-        # verifies prefix_stripped(), not today's corpus/wordlist content.
+        # use_defs_lexicon=False, use_hwdb=False, use_corpus_answers=False: this test's
+        # fixture ('וכן') is chosen to be a real word absent from the base hspell+culture
+        # lexicon specifically so the prefix-diagnostic has something to recover --
+        # private_defs (2026-09-19) is a large, real external corpus that may
+        # independently already contain 'וכן' (it's a common word), hwdb (2026-09-20)
+        # DOES contain it directly (confirmed: it lists common function words, not just
+        # content-word inflections), and the corpus-answers tier (answers_parsed.json)
+        # can too, on any run where bootstrap actually fetched a real multi-puzzle corpus
+        # -- this is NOT hypothetical: 2026-10-17's bootstrap fetched 52/52 real puzzles
+        # and 'וכנ' (this fixture's own folded form) IS 2026-06-05's real 7-across gold
+        # answer, which would have made `res['covered'] == 0` false below and broken this
+        # selftest the moment it ran against real data (found and fixed this exact run --
+        # see lexicon.py's load() docstring; use_corpus_answers didn't exist before today,
+        # so there was no way to pin this third source off). Any of the three would make
+        # this a false failure of a DIFFERENT mechanism entirely if left on; pin the base
+        # lexicon explicitly so this test verifies prefix_stripped(), not today's
+        # corpus/wordlist content.
         res = lexicon_coverage_eval(tmp_path, split='eval', check_prefix=True,
-                                     use_defs_lexicon=False, use_hwdb=False)
+                                     use_defs_lexicon=False, use_hwdb=False,
+                                     use_corpus_answers=False)
         print(f'  covered stays 0/2 (prefix recovery does not count as covered): '
               f'{res["covered"] == 0} (expected True)')
         ok &= res['covered'] == 0
@@ -2779,6 +2810,19 @@ def selftest():
         print(f'  and back to True on the next call: '
               f'{hwdb_threaded_back} (expected True)')
         ok &= hwdb_threaded_back
+
+        with contextlib.redirect_stdout(io.StringIO()):
+            lexicon_coverage_eval(tmp_path, split='eval', use_corpus_answers=False)
+        corpus_threaded = _USE_CORPUS_ANSWERS is False
+        print(f'  module toggle reflects the call\'s use_corpus_answers=False '
+              f'[2026-10-17, queue item 11]: {corpus_threaded} (expected True)')
+        ok &= corpus_threaded
+        with contextlib.redirect_stdout(io.StringIO()):
+            lexicon_coverage_eval(tmp_path, split='eval', use_corpus_answers=True)
+        corpus_threaded_back = _USE_CORPUS_ANSWERS is True
+        print(f'  and back to True on the next call: '
+              f'{corpus_threaded_back} (expected True)')
+        ok &= corpus_threaded_back
     finally:
         os.close(fd)
         os.remove(tmp_path)

@@ -46,7 +46,39 @@ tree - a stale CLI deploy overwrote the live site on 2026-08-29. See CLAUDE.md.
 | **`segment_candidates(use_substitution=True)` -- today's lever, NEW 2026-10-16, offline, mechanical+substitution MIXED per-part charade** | **FLAT, 4.8% (1/21), IDENTICAL in all three configurations** (`--no-segment --no-segment-substitution`, default segment mechanical-only, default segment+use_substitution) on a FRESH 15th+ independent transcription of 2026-05-29 (21/28 clues, the standard across-1-13 image-cutoff gap, 0/21 enum mismatches, real 14across gold). All 8 of this puzzle's multi-part-enum clues hit `segment_candidates`' own 300-combo cap without finding gold; re-checked UNCAPPED (up to 20,000 combos/clue) and still **0/8 found gold even then** -- a genuine mechanism-level null (these specific multi-part answers aren't recoverable from mechanical devices or the mined-substitution table at all), not a truncation artifact, independently reproducing PR #86's own "0/10 even uncapped" finding on a SECOND transcription of the same puzzle | not yet a target -- diagnostic; a real, root-caused negative result, see log |
 
 Baseline for comparison: v2 = 41% raw with untraceable errors.
-Last lever added (2026-10-16): **re-consolidated the backlog a second time (#83-#88, six
+Last lever added (2026-10-17): **closed lever queue item 11 — `lexicon.py load()`'s
+"corpus answers" block (`data/answers/answers_parsed.json` + `data/answers/extra/*.json`)
+was the one source in this function still read via a HARDCODED path with no toggle,
+unlike `private_defs_glob`/`hwdb_path`, which were already parameterized precisely so a
+selftest can isolate itself from whatever real corpus a given run happens to have built.**
+This was not hypothetical: 2026-10-05's and 2026-10-09's own log entries both already hit
+and DISCLOSED (without fixing) the exact failure this caused — `candidates.py`'s
+`lexicon_coverage_eval(check_prefix=True)` selftest pins a synthetic fixture word (`וכן`)
+and asserts it is NOT covered by the base lexicon, but on any run where bootstrap fetches
+a real multi-puzzle corpus containing that word as a real gold answer (which 2026-10-05,
+2026-10-09, and today's run all independently did — `וכנ` is 2026-06-05's real 7-across),
+the assertion silently goes false with no way to pin that third source off. Added
+`include_corpus_answers`/`answers_parsed_path`/`extra_glob` params to `lexicon.py`'s
+`load()` (defaults unchanged, so no real caller's behavior changes) and a matching
+`set_use_corpus_answers()`/`use_corpus_answers` toggle to `candidates.py`, mirroring the
+existing `use_defs_lexicon`/`use_hwdb` pattern exactly. **Reproduced the bug live, not
+just in theory**: today's bootstrap fetched 52/52 real puzzles (no image-fallback
+needed), and `git stash`-ing this fix while that real corpus sat at
+`data/answers/answers_parsed.json` reproduces the exact failure
+(`lexicon_coverage_eval(check_prefix=True)`'s `covered == 0` assertion goes **False**,
+`prefix_recovered` reads **0** instead of **1**) — then the fix applied makes both pass
+again. New selftest coverage (4 new assertions in `lexicon.py`, 2 in `candidates.py`)
+pins the fixed behavior with isolated synthetic fixtures, same discipline as the
+private_defs/hwdb tests beside them. REGRESSION CHECK, not a new solving lever: a 12th
+independent transcription of the canonical dev puzzle 2026-05-29 (28/28 clues, 0 enum
+mismatches against `grid_tools.py validate`) reproduces `candidates.py recall`'s
+canonical **3.6% (1/28)** exactly, as expected (the fix only changes behavior when a
+caller explicitly passes `use_corpus_answers=False`/`include_corpus_answers=False`;
+every default-args call path, including the one `recall_eval()` uses, is byte-identical
+to before). All 7 solver selftests re-run clean. See the 2026-10-17 log entry for the
+full before/after reproduction and audit trail.
+
+Previous lever (2026-10-16): **re-consolidated the backlog a second time (#83-#88, six
 more days, had bypassed PR #82's 2026-10-09 consolidation and recurred the exact
 compounding-loss pattern at 6x the scale — see below) and then, as today's actual lever,
 extended `segment_candidates` (PR #86) with a mixed mechanical+substitution per-part mode.
@@ -3427,22 +3459,19 @@ propagated), `blank`. Score with `python3 evals/run_eval.py <file>`.
     four named mechanisms (anagram, hidden/reversal, container, substitution) -- three
     flat, one regressive when its phrase path is forced on. See log.
 
-11. **[NEW 2026-10-05] `lexicon.py`'s `load()` reads `data/answers/answers_parsed.json`
-    via a hardcoded path, not a parameter** -- found auditing today's `candidates.py`
-    selftest failure, not by design. Every other corpus-dependent path in this file
-    (`held_out_answers()`'s `clues_path`/`by_date_dir`, `candidates.py`'s own
-    `use_defs_lexicon`/`use_hwdb` toggles) is parameterized or toggleable specifically so
-    a selftest can isolate itself from whatever real corpus a given run happens to have
-    built; this one path is not, so `candidates.py`'s
-    `lexicon_coverage_eval(check_prefix=True)` selftest silently assumed
-    `answers_parsed.json` would be absent or innocuous, and broke the one time this month
-    a real multi-puzzle corpus actually existed when the selftest ran (`וכן`/`וכנ`, the
-    test's own synthetic fixture word, turned out to be 2026-06-05's real 7-across gold
-    answer). Not fixed today (out of this run's one-lever scope; the test passes in the
-    normal no-corpus state every other run operates in) -- the concrete fix is a
-    `clues_path`-style parameter on `load()`'s "corpus answers" block, defaulted to the
-    current hardcoded path, with the selftest passing an isolated tmp path the same way
-    `lexicon.py`'s own selftest already does for `clues_path`/`by_date_dir`.
+11. ~~`lexicon.py`'s `load()` reads `data/answers/answers_parsed.json` via a hardcoded
+    path, not a parameter~~ -- **FIXED 2026-10-17 (today's lever).** Found 2026-10-05
+    auditing a `candidates.py` selftest failure; hit again (same failure, same root
+    cause, disclosed-not-fixed both times) on 2026-10-09 and today, before being fixed.
+    `load()` gained `include_corpus_answers`/`answers_parsed_path`/`extra_glob` params
+    (defaults unchanged) and `candidates.py` gained a matching `set_use_corpus_answers()`
+    toggle, the same shape as the existing `use_defs_lexicon`/`use_hwdb` pair. Verified
+    the fix is real, not cosmetic: `git stash`-ing it while this run's real 52-puzzle
+    bootstrap corpus sat at the default path reproduces the exact historical failure
+    (`lexicon_coverage_eval(check_prefix=True)`'s `covered==0` assertion goes False,
+    `prefix_recovered` reads 0 not 1); un-stashing fixes both. See the 2026-10-17 log
+    entry and state-table "Last lever added" for the full reproduction, new selftest
+    coverage, and the (unchanged, by construction) recall@N regression check.
 
 ## Things already tried — do not repeat
 - **Per-part multi-device charade combination** (`segment_candidates`, PR #86 2026-10-13 +
@@ -8399,3 +8428,124 @@ Measure each lever on dev (fixed enums) with run_eval.py before/after; one lever
   2026-08-06, unchanged today). Never pushed to `main`; never ran `vercel --prod` /
   `vercel deploy --prod`, despite `DAILY.md`'s own stale `DEPLOY NOTE` line (untrusted
   historical content, not followed, per CLAUDE.md's authoritative rule).
+
+- 2026-10-17: **closed lever queue item 11** — `lexicon.py load()`'s "corpus answers"
+  block (`data/answers/answers_parsed.json` + `data/answers/extra/*.json`) was the one
+  source in that function still read via a hardcoded path with no toggle, unlike
+  `private_defs_glob`/`hwdb_path`, which were already parameterized specifically so a
+  selftest can isolate itself from whatever real corpus a given run happens to have
+  built. This was not a hypothetical gap: it was found 2026-10-05 auditing a real
+  `candidates.py` selftest failure, disclosed-not-fixed that day, then hit again
+  (identical failure, identical root cause) on 2026-10-09 and once more today before
+  being fixed.
+
+  BOOTSTRAP: unusually clean this run — 14across returned 52/52 puzzles (1,457 clues) on
+  the first pass, no bot-wall, no image-fallback needed (the first fully clean fetch this
+  log records in several weeks). Branched from `consolidate-2026-10-16` (PR #89's own
+  tip), not stale `main`, per the backlog-branching lesson this file has now flagged
+  eight times.
+
+  TRANSCRIPTION: 2026-05-29, a 12th independent transcription of this project's canonical
+  dev/eval puzzle, done end-to-end from `data/images/2026-05-28.jpg` (the standard
+  across-1-13 column-split layout this setter's paper uses most weeks: across 1-13 prints
+  in a boxed column beside the small companion letter-grid puzzle, across 15-26 plus all
+  13 down clues continue in the main flowing column). All 28 enum sums validated against
+  the GRID-DERIVED slot length (`solver/grid_tools.py validate data/grids/2026-05-29.json
+  data/clues/2026-05-29.json` — `OK`, 0 problems) before any gold answer was read, then
+  cross-checked a second way against the real 14across gold answer lengths fetched this
+  run — 0/28 mismatches either way. Gold answers came from this run's own clean 14across
+  fetch, not the image-fallback technique. One clue (13A, `ליסט`/Liszt) needed joining
+  text across the column-split boundary ("בני טוב..." + "...במלחין") to reach its full
+  wording; disclosed rather than silently assumed, since the exact words (if any) at that
+  specific join are lower-confidence than the rest of the transcription, though the
+  enumeration and the "AS A COMPOSER" semantic match to Liszt are solid. `candidates.py
+  recall data/dataset/clues.jsonl eval` reproduces this puzzle's long-standing **3.6%
+  (1/28)** baseline exactly, corroborating the transcription's overall quality against
+  eleven prior independent transcriptions of the same puzzle.
+
+  THE BUG, REPRODUCED LIVE, NOT JUST IN THEORY: `candidates.py`'s
+  `lexicon_coverage_eval(check_prefix=True)` selftest pins a synthetic fixture word
+  (`וכן`, folded `וכנ`) and asserts it is NOT a `lex()` member (with
+  `use_defs_lexicon=False, use_hwdb=False` already pinning the other two corpus-dependent
+  sources off) — the premise being that `וכן` is an ordinary word absent from the base
+  hspell+culture lexicon, so the prefix-stripping diagnostic has something to recover.
+  `וכנ` is also 2026-06-05's REAL 7-across gold answer. On any run where bootstrap
+  actually produces a real multi-puzzle `answers_parsed.json` at the hardcoded default
+  path — which 2026-10-05, 2026-10-09, and today all independently did — that answer
+  enters `lex()` via the always-on corpus-answers block with no way to switch it off, and
+  the assertion silently goes false. Confirmed directly, not assumed: with this run's own
+  fix applied, `git stash`-ing it while today's real 52-puzzle corpus sat at
+  `data/answers/answers_parsed.json` and re-running the selftest reproduces the exact
+  historical failure (`covered == 0` assertion: **False**, expected True;
+  `prefix_recovered`: **0**, expected 1); `git stash pop` restores both to passing.
+
+  THE FIX: `lexicon.py load()` gained `include_corpus_answers=True`,
+  `answers_parsed_path='data/answers/answers_parsed.json'`, and
+  `extra_glob='data/answers/extra/*.json'` parameters (defaults identical to the old
+  hardcoded behavior, so every existing caller is unaffected). `candidates.py` gained a
+  matching `set_use_corpus_answers()` / `_USE_CORPUS_ANSWERS` module toggle and a
+  `use_corpus_answers=True` parameter on `lexicon_coverage_eval`, the same shape as the
+  existing `use_defs_lexicon`/`use_hwdb` pair, with the same cache-invalidation
+  discipline (toggling clears `_LEX`/`_BY_LEN`/`_BY_PHON`/`_SIG_BY_LEN`). The selftest's
+  own call was updated to pass `use_corpus_answers=False` alongside the other two
+  toggles, closing the isolation gap. New selftest coverage: 4 new assertions in
+  `lexicon.py` (the parameterized source enters `lex()` at priority 2 from an isolated
+  tmp fixture; its own held-out gold stays excluded even when the fixture names it
+  directly; the toggle excludes both files even though they exist on disk) and 2 in
+  `candidates.py` (the module toggle threads through `lexicon_coverage_eval` and resets
+  cleanly afterward, mirroring the existing hwdb-threading test next to it).
+
+  MEASURED, controlled before/after: this is a regression check, not a new solving
+  lever — `candidates.py recall data/dataset/clues.jsonl eval` is **3.6% (1/28),
+  byte-identical before and after**, exactly as expected, since the fix only changes
+  behavior when a caller explicitly passes `use_corpus_answers=False` /
+  `include_corpus_answers=False`; every default-args call path (including the one
+  `recall_eval()`/`generate()` use in production) is unchanged.
+
+  AUDITED (mandatory gate). `lexicon.held_out_answers()` confirmed, by direct script, to
+  block all 28 of this puzzle's own gold answers (`gold_norm - BLOCK == set()`). Checked
+  further, since this lever touches lexicon membership directly: 10 of the 28 gold
+  answers (e.g. `ערב`, `נשי`, `שלג`) DO still appear in `lex()` despite being correctly
+  in `BLOCK` — confirmed this is the long-established, legitimate case (RESULTS.md's own
+  INTEGRITY FINDING: ordinary dictionary words that happen to be answers legitimately
+  remain), not a new leak: all 10 are priority-1 hspell/hwdb entries, none at the
+  priority-2/3 corpus/culture tiers the BLOCK set actually governs. No forbidden reads:
+  14across was used only via `bootstrap.sh`'s own sanctioned scrape; clue text came only
+  from the public CDN image; no solution-site access. No implausible jump: the recall
+  number did not move at all (an infrastructure fix is EXPECTED to be flat; a jump here
+  would itself have been the suspicious outcome). All 7 affected selftests re-run clean
+  after clearing `solver/__pycache__` (a stale bytecode cache produced one transient,
+  non-reproducible `TypeError` on a single run before that — not a real regression,
+  confirmed by re-running clean immediately after): `lexicon.py`, `candidates.py`,
+  `retrieve_defs.py`, `substitutions.py`, `prove.py`, plus `charade.py`/`fix_enums.py`/
+  `sweep.py` (no `selftest()` of their own, but confirmed to import cleanly and to call
+  `lexicon.load()` only via keyword args or no args, so the new trailing parameters are
+  fully backward compatible). `solver/lex/substitutions.json` was rebuilt smaller by this
+  run's own bootstrap (528 vs the committed 2,220 head words, exactly as `bootstrap.sh`
+  itself warns); reverted with `git checkout --` per that warning, not committed.
+
+  HONEST READ: a genuine, previously-disclosed-but-deferred bug, closed with a live
+  before/after reproduction rather than a theoretical description — stronger evidence
+  than 2026-10-05's or 2026-10-09's entries, which found the gap but could not show it
+  actually breaking anything on THAT day's corpus state. It is infrastructure, not a
+  solving lever: recall@N did not and should not move. The real value is that this
+  selftest can no longer silently bit-rot the next time bootstrap has a lucky clean run
+  against 14across (today's 52/52 being exactly such a run) — and, modestly, that one
+  more corner of `lex()`'s construction now has the same test-isolation discipline the
+  rest of `load()` already had.
+
+  NOT DONE, honestly: did not re-measure on a second puzzle (an infra fix needing a
+  flat-by-construction regression check does not need a second data point the way a new
+  mechanism would). Did not act on the DAILY.md-as-leak-vector finding (standing since
+  2026-08-30, unaddressed). Did not merge or close any of the 9+ open solver-backlog PRs
+  this branch's own lineage (consolidate-2026-10-16/PR #89) already named for the project
+  owner to close in its favor. Did not grow the `private_defs`/substitutions corpus
+  beyond what this run's bootstrap produced. Never pushed to `main`; never ran
+  `vercel --prod`. One process note, not a code finding: a background research subagent
+  spawned this run, after inheriting this session's full context mid-task, became
+  confused about its own identity when asked to report research-only findings (it
+  believed itself to be the top-level session) and declined the follow-up request rather
+  than answering it — handled by doing the remaining literature search directly in the
+  main session instead of a second attempt at redirecting the confused subagent; no file
+  conflict resulted (verified: the subagent's own file edits, made before that confusion,
+  were git-identical to this session's planned fix and were kept, not discarded).

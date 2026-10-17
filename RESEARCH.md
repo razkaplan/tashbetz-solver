@@ -2748,3 +2748,69 @@ branching-hygiene failure in the five days since PR #78's 2026-10-05 entry first
 root-caused the pattern — today's lever is the project's own internal queue, item 6:
 consolidate the backlog again, and this time diagnose why the standing process fix keeps
 failing rather than just re-merging and hoping. Full writeup in DAILY.md's log.
+
+## 2026-10-17
+
+Bootstrap ran clean, and unusually well: 14across returned 52/52 puzzles (1,457 clues)
+on the first pass with no retries needed — the first time in several weeks this project's
+log records a fully clean fetch with no bot-wall or image-fallback workaround. Branched
+from `consolidate-2026-10-16` (PR #89's own tip), not stale `main`, per the backlog
+lesson this file has now flagged eight separate times.
+
+Three targeted searches, following the scheduled task's stated priority order (candidate
+generation / definition-span diversity, then Hebrew NLP), after thirteen-plus consecutive
+null passes on the same ground:
+
+**"cryptic crossword clue solving LLM candidate generation wordplay formalisation 2026"
+(general search).** Returned the same standing paper family logged on nearly every prior
+pass since 2026-08-06: Andrews & Witteveen's reasoning-based approach (arXiv 2506.04824 /
+ICML 2025, arxiv.org/abs/2506.04824) — hypothesise-then-verify over codified wordplay
+proofs, which is structurally the closest published system to this project's own
+mechanical-generation-plus-`prove.py`-executable-gate design — and 2407.08824. An Oxford
+student-project page (cs.ox.ac.uk/teaching/studentprojects/1072.html) gives a useful
+reality check: fine-tuned LLMs reach only ~10% on a UK-newspaper dataset, and even the
+formaliser-verifier approach stays under 50%. **Transfer: none new.** The core idea
+(generate candidates, verify by execution) is exactly what `candidates.py`/`prove.py`
+already do; nothing in this family suggests a *diverse-hypothesis-generation* technique
+this project hasn't already tried across its dozen-plus mechanism-specific generators
+(anagram/hidden/reversal/container/double-definition/homophone/charade/segment/
+abbreviation/substitution/culture/retrieval).
+
+**"charade segmentation dynamic programming multi-device cryptic clue decomposition"
+(general search).** No cryptic-specific hit on DP-based charade segmentation. One
+tangential lead: a USPTO patent on segmenting unbroken text into chunks without
+separators via a lowest-cost dynamic-programming split
+(image-ppubs.uspto.gov/dirsearch-public/print/downloadPdf/7536296) — a general string-
+segmentation technique, not crossword-specific, that *could* in principle replace
+`segment_candidates`'/`charade_candidates`' brute-force combinatorial search with a
+scored DP over per-part device hits. **Transfer: honestly weak.** The project's own
+2026-10-16 measurement already showed the bottleneck on real data is not search cost
+(every multi-part clue hit its combinatorial cap AND stayed at 0/8 gold even uncapped) —
+a DP reformulation would make the search faster/cleaner, not find hits the brute-force
+version is structurally incapable of finding. Not worth building for a performance
+problem this project doesn't currently have.
+
+**"Hebrew open source full-form lexicon inflection wordlist 2026 NLP dictionary"
+(targeted search, following up on the project's own hspell/hwdb/Nakdan/HebrewWordnetShuly
+history).** One genuinely new name: the **Haifa Lexicon of Contemporary Hebrew** (Itai,
+Wintner & Yona, LREC 2006, aclanthology.org/L06-1031) — a ~20,000-entry Modern Hebrew
+lexicon built to support morphological analyzers/generators, distinct from hspell and
+from `hebrew-words-db`. **Transfer: checked honestly, not inflated — not actionable.**
+Two reasons: (1) availability/license unconfirmed by this search (a 2006 academic
+resource, no confirmed public download found); (2) even if fetchable, it is a ~20k-entry
+*lemma* lexicon, smaller than the 67,008-entry *inflected-form* `hebrew-words-db` this
+project already wired in 2026-09-20 — it would need to ALSO be a full-form generator
+(not just lemmas) to beat what's already shipped, which this search could not confirm.
+Not worth chasing further without first confirming it offers inflected forms hwdb lacks.
+
+**Conclusion for today's lever.** With literature again confirming no new, directly
+buildable technique (candidate-generation diversity and definition-span detection are
+both queue items this project has independently exhausted through more than a dozen
+real-data measurements each — see DAILY.md's lever queue items 1 and 2), today's lever
+is the project's own internal queue: item 11, a concrete, previously-disclosed-but-
+unfixed correctness/test-isolation bug in `lexicon.py load()`'s hardcoded corpus-answers
+path, found auditing a real selftest failure on 2026-10-05 and hit again (same failure,
+still unfixed) on 2026-10-09. Closing it is in scope of "candidate generation" in the
+sense that `lex()` membership gates every mechanical generator in `candidates.py` — but
+it is an infrastructure fix, not a new mechanism, and is reported as such rather than
+dressed up as a recall gain. See DAILY.md for the reproduction, fix, and regression check.

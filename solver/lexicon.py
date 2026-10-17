@@ -60,8 +60,32 @@ def held_out_answers(clues_path='data/dataset/clues.jsonl', by_date_dir='data/an
 
 def load(clues_path='data/dataset/clues.jsonl', by_date_dir='data/answers/by_date',
          include_private_defs=True, private_defs_glob='data/answers/private_defs/*.jsonl',
-         include_hwdb=True, hwdb_path=None):
-    """WHY include_private_defs (added 2026-09-19): candidates.py's own
+         include_hwdb=True, hwdb_path=None,
+         include_corpus_answers=True, answers_parsed_path='data/answers/answers_parsed.json',
+         extra_glob='data/answers/extra/*.json'):
+    """WHY include_corpus_answers/answers_parsed_path/extra_glob (added 2026-10-17,
+    closing lever queue item 11): this "corpus answers" block used to read
+    `data/answers/answers_parsed.json` via a HARDCODED path literal and an unconditional
+    `data/answers/extra/*.json` glob — unlike every other corpus-dependent source in this
+    function (private_defs_glob, hwdb_path), which was already parameterized specifically
+    so a caller/selftest can isolate itself from whatever real corpus a given run happens
+    to have built. Found auditing a real selftest failure, not by design: candidates.py's
+    `lexicon_coverage_eval(check_prefix=True)` selftest pins a SYNTHETIC two-answer
+    fixture and asserts neither answer is covered by the base lexicon (with
+    use_defs_lexicon=False, use_hwdb=False) — but had no way to also disable this THIRD,
+    always-on corpus-answers source, so the one month this bootstrap actually produced a
+    real multi-puzzle `answers_parsed.json` at the hardcoded path (2026-10-17, 52/52
+    puzzles fetched), the fixture's own test word ('וכן'/'וכנ') turned out to collide
+    with a real puzzle's gold answer and the selftest would have silently started failing
+    — exactly the kind of corpus-state-dependent flakiness clues_path/by_date_dir/
+    private_defs_glob/hwdb_path were already parameterized to prevent for every OTHER
+    source. Same discipline now applied here: `include_corpus_answers=False` disables the
+    whole block (for a selftest that wants a corpus-free base lexicon), and
+    `answers_parsed_path`/`extra_glob` let a caller point it at an isolated tmp fixture
+    instead of the real committed-at-runtime data. Defaults are unchanged (the current
+    hardcoded path/glob), so no real caller's behavior changes.
+
+    WHY include_private_defs (added 2026-09-19): candidates.py's own
     `lexicon_coverage_eval` diagnostic (2026-09-15/16) measured that only 28.6%/32.1%
     of two dev puzzles' gold answers are members of THIS function's output at all —
     a ceiling every mechanical generator in candidates.py (anagram/hidden/reversal/
@@ -132,20 +156,20 @@ def load(clues_path='data/dataset/clues.jsonl', by_date_dir='data/answers/by_dat
                 if w:
                     words.setdefault(w, 1)
     # corpus answers (high priority — names, slang, multiword grid entries)
-    for pat in ['data/answers/answers_parsed.json']:
-        if os.path.exists(pat):
-            for p in json.load(open(pat)):
+    if include_corpus_answers:
+        if os.path.exists(answers_parsed_path):
+            for p in json.load(open(answers_parsed_path)):
                 for c in p['clues']:
                     w = norm(c.get('answer'))
                     if w and w not in BLOCK:
                         words[w] = 2
-    for f in glob.glob('data/answers/extra/*.json'):
-        d = json.load(open(f))
-        for p in d.get('puzzles', []):
-            for c in p['clues']:
-                w = norm(c.get('answer'))
-                if w and w not in BLOCK:
-                    words[w] = 2
+        for f in glob.glob(extra_glob):
+            d = json.load(open(f))
+            for p in d.get('puzzles', []):
+                for c in p['clues']:
+                    w = norm(c.get('answer'))
+                    if w and w not in BLOCK:
+                        words[w] = 2
     # private definitions corpus (note.co.il + מורדו): independently-sourced crossword
     # answers, gitignored, rebuilt fresh by scraper/crawl_defs.py — see the docstring
     # above for why this belongs here now. Same priority tier as our own corpus answers.
@@ -286,6 +310,53 @@ def selftest():
         hwdb_toggle_off = hwdb_word not in words_hwdb_off
         print(f'  include_hwdb=False excludes it: {hwdb_toggle_off} (expected True)')
         ok &= hwdb_toggle_off
+
+        print('--- load(): corpus answers (answers_parsed_path/extra_glob) are now '
+              'parameterized and toggleable, same discipline as private_defs/hwdb above '
+              '[2026-10-17, queue item 11] — reproduces the exact selftest-flakiness '
+              'this closes: a real answers_parsed.json at the (previously hardcoded) '
+              'default path used to leak into every caller with no way to isolate it ---')
+        corpus_word = 'תתתתת'     # only ever sourced from the answers_parsed fixture below
+        corpus_leak = 'פפפפפ'     # this fixture's own dev-puzzle gold answer (BLOCK)
+        extra_word = 'חחחחח'      # only ever sourced from the extra/*.json fixture below
+        with open(clues_p, 'a', encoding='utf-8') as f:
+            f.write(json.dumps({'puzzle_date': '2099-01-01', 'clue_number': 4,
+                                 'direction': 'across', 'split': 'dev',
+                                 'answer_raw': corpus_leak}, ensure_ascii=False) + '\n')
+        ap_path = os.path.join(tmp, 'answers_parsed.json')
+        json.dump([{'clues': [{'answer': corpus_word}, {'answer': corpus_leak}]}],
+                  open(ap_path, 'w', encoding='utf-8'), ensure_ascii=False)
+        extra_dir = os.path.join(tmp, 'extra')
+        os.makedirs(extra_dir)
+        json.dump({'puzzles': [{'clues': [{'answer': extra_word}]}]},
+                  open(os.path.join(extra_dir, 'fixture.json'), 'w', encoding='utf-8'),
+                  ensure_ascii=False)
+
+        words_corpus_on = load(clues_p, by_date_dir, include_private_defs=False,
+                                include_hwdb=False, include_corpus_answers=True,
+                                answers_parsed_path=ap_path,
+                                extra_glob=os.path.join(extra_dir, '*.json'))
+        corpus_in = corpus_word in words_corpus_on and extra_word in words_corpus_on
+        print(f'  answers_parsed_path/extra_glob fixtures enter lex() at priority 2: '
+              f'{corpus_in} (expected True)')
+        ok &= corpus_in
+        corpus_blocked = corpus_leak not in words_corpus_on
+        print(f"  this fixture's own held-out gold stays OUT even though "
+              f'answers_parsed_path names it: {corpus_blocked} (expected True)')
+        ok &= corpus_blocked
+
+        words_corpus_off = load(clues_p, by_date_dir, include_private_defs=False,
+                                 include_hwdb=False, include_corpus_answers=False,
+                                 answers_parsed_path=ap_path,
+                                 extra_glob=os.path.join(extra_dir, '*.json'))
+        corpus_toggle_off = (corpus_word not in words_corpus_off
+                              and extra_word not in words_corpus_off)
+        print(f'  include_corpus_answers=False excludes both, even though the fixture '
+              f'files exist on disk: {corpus_toggle_off} (expected True) — THIS is what '
+              f"candidates.py's lexicon_coverage_eval(check_prefix=True) selftest "
+              f'needed and lacked: a way to isolate itself from a real answers_parsed.json '
+              f'at the default path instead of relying on it happening to be absent')
+        ok &= corpus_toggle_off
     finally:
         shutil.rmtree(tmp)
 
