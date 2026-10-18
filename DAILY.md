@@ -21,9 +21,111 @@ tree - a stale CLI deploy overwrote the live site on 2026-08-29. See CLAUDE.md.
 | **Definition-span locatable rate (new, offline, diagnostic)** | **25% (7/28)** have mechanically-locatable single-window wordplay; of those 29% (2/7) are interior, not edge; classifier agreement on edge cases **1/5** | not a target — this diagnostic KILLED the lever, see log |
 | **`solve_pass.py` LIVE blind trial — cumulative (3 trials)** | **40% precision (2/5 committed)**: 2026-08-16 was 1/2 on a partial 21/28-clue puzzle (2026-06-12); 2026-08-22 was **0/2**, 7.1% coverage, on a FULL 28/28-clue puzzle (2026-05-15); **2026-08-27 is 1/1 = 100% precision but 5.3% coverage (1/19), 0% suggestion hit-rate (0/10)**, on 2026-07-10 (19/28 clues) — FIRST trial run with `retrieval_candidates` live (wired 2026-08-25, never live-trialed since); it contributed ZERO candidates all puzzle (grepped the transcript for `(retrieval, fodder=` hits — none), matching today's own offline recall@N finding on this same puzzle (0/19 with or without retrieval); the one correct commit came from `wiki.py` culture-fact lookup, not from any candidate generator | n=5 — still small; retrieval's live debut is a null result on this puzzle, not a regression, but not the coverage lift the queue hoped for either; see log |
 | **Candidate recall@N with `culture_category_candidates` added (new, offline, definition-driven)** | **0% (0/28)**, on 2026-06-19 — mechanism fired on only 1/28 clues (avg candidates/clue 10.5 → 11.4); its one firing (339 raw candidates, an "author" category hit) matched 0 gold | not yet a target — small-n diagnostic, see log |
+| **Definition-fit RERANKING (new, offline, `candidates.rerank_eval`) — queue item 9** | **0/4 rank changes** on 2026-05-29 (21/28 clues, all defaults): the 2 clues where gold already ranked #1 stayed #1; the 2 where it didn't (rank 5, rank 6) stayed at the SAME rank after reranking by `retrieve_defs.score_answer()`. Root cause inspected directly: the candidates that outrank gold in both cases are generic high-frequency Hebrew idioms (e.g. `מבעודמועד`/"in advance", `בהצלחה`/"good luck") that share common words with almost any clue, so the BM25 definition-fit score is dominated by idiom frequency, not topical match | not yet a target — n=4 is a small-sample NEGATIVE result, see log |
 
 Baseline for comparison: v2 = 41% raw with untraceable errors.
-Last lever added (2026-08-30): **closed 2026-08-29's own "NOT DONE" gap: re-measured
+Last lever added (2026-09-22): **built and measured definition-fit RERANKING**
+(`solver/retrieve_defs.py`'s new `score_answer()`/`answer_index()`, `solver/candidates.py`'s
+new `rerank_eval()`) — queue item 9, open since 2026-08-23 as "the sharpest gap PR #24
+surfaced" (both live blind trials' misses were `prove.py` correctly verifying a real
+mechanism on a plausible-but-wrong answer; the gap is judging DEFINITION fit, not whether
+wordplay executes). Research (7th consecutive pass with nothing new in the literature)
+surfaced one useful SHAPE worth building even though its own tooling doesn't transfer: a
+Cruciform-line paper scores hypothesized answers by embedding similarity to the clue's
+definition span. This project already owns an analogous signal for free — `retrieve_defs.py`'s
+BM25 index (definition text -> answer, ~67k external private_defs pairs) was only ever
+queried FORWARD (clue -> ranked answers, for candidate generation). `score_answer()` is the
+reverse query: given an ALREADY-HYPOTHESIZED candidate from ANY mechanism (anagram/hidden/
+homograph/substitution/retrieval), does an independent external source separately define
+that exact word compatibly with the clue? `rerank_eval()` sorts `candidates.generate()`'s
+own output by this score and measures whether gold moves to rank 1 more often than the
+generator's own mechanism-priority order already puts it there. Both functions ship with
+selftests (`retrieve_defs.py selftest` uses a synthetic 2-doc index; `candidates.py selftest`
+stubs `generate()` with a fixed decoy-then-gold list so the check does not depend on which
+real ambiguities.json/substitutions entries happen to fire for a made-up clue) — all 5
+affected selftests (`candidates.py`, `retrieve_defs.py`, `lexicon.py`, `prove.py`,
+`substitutions.py`) run clean.
+
+BOOTSTRAP: 14across hit the same hard wall as 2026-08-19/08-26/08-27/08-28/08-30 on the
+full 52-URL batch (20/20 attempted before stopping came back `None: 0 clues`), but a
+separate, single retried fetch of THIS puzzle's own URL (2026-05-29, 8 retries with
+backoff) succeeded on attempt 5 — real crowd-sourced answers+explanations recovered
+directly, not the usual image-only solution-grid fallback. Re-transcribed clue TEXT for
+2026-05-29 from `data/images/2026-05-28.jpg` (21/28 clues — the standard missing-across-1-13
+gap, queue item 8, which this week's image genuinely does not print anywhere: checked the
+small side box next to the "previous week's solution" grid and confirmed it recaps a
+DIFFERENT week, 2026-05-22, not this one). Caught and fixed one real transcription bug
+before it reached any measurement: an early pass at the grid image (fetched from
+`data/images/2026-06-04.jpg`'s own "last week's solution" recap, used only to CROSS-CHECK
+the transcription, not as the answer source) had row 0 read in mirrored pixel order — the
+derived 1-across came out as the exact character-reversal of the real 14across answer.
+Caught by comparing against the real 14across data (which is why fetching it, even for a
+single URL, was worth the retries) rather than trusting the image alone; the committed
+grid's own black-cell pattern still matched the solved-grid image exactly (0/15 row
+mismatches) throughout, confirming the mismatch was a transcription slip, not a wrong-week
+mixup. Also normalized every enum to the answer's real Hebrew letter length (rather than
+the printed multi-part split) after finding my own reading of the tightly-wrapped early
+clues' enum digits kept mis-attributing which token belonged to which clue number
+(disclosed rather than silently fixed) — `build_dataset.py` reports 0/21 length
+mismatches against this normalization.
+
+MEASURED (executed): `rerank_eval('data/dataset/clues.jsonl', 'eval')` with full defaults
+(culture+retrieval) — of this puzzle's 4 clues where `generate()`'s candidate list already
+contains gold (all 4 via `retrieval_candidates`, matching this run's own recall@N number
+below), reranking by `score_answer()` changed **0 ranks**: 23A `הלו` and 26A `פחותאבלכואב`
+were already rank 1 and stayed rank 1 (their def-fit score IS the list's max, so reranking
+agrees with — does not improve on — the existing order); 1D `ברישניקוב` (rank 5) and 21D
+`המוציא` (rank 6) stayed at the identical rank, because the candidates that already
+outrank them ALSO score higher by `score_answer()` — inspected directly (see state table):
+these are generic idiomatic phrases (`מבעודמועד`, `בהצלחה`) that the private_defs corpus
+defines in many documents sharing common words with nearly any clue, not a real semantic
+match. The one mechanical-only hit (2D `יחפניות`, an anagram) scored 0.0 on both
+candidates in its 2-candidate list (this coined/inflected form is not independently
+defined anywhere in private_defs), so reranking had no signal to act on there either.
+
+AUDITED (mandatory gate). `lexicon.held_out_answers()` and `retrieve_defs.held_out()`
+both confirmed (computed, not assumed) to block all 21 of this puzzle's transcribed gold
+answers — `gold_norm - blocked` empty for both. Provenance of the 4 retrieval hits
+checked directly: all 4 carry `pid=None` (external private_defs corpus) with clearly
+on-topic defining text (`ברישניקוב`'s docs mention "רקדן בלט... רוסי אמריקאי"; `המוציא`'s
+mention "ברכה... לפני אכילת לחם", the actual blessing before bread). No forbidden reads:
+14across was fetched exactly as bootstrap.sh's own step 2 does routinely (plain HTTP, no
+login), not as a blind-solving lookup — no live blind trial ran today. Implausibility
+check: recall (below) moved 4.8%→19.0%, a 14.2-point jump just under this project's own
+~15-point suspicion bar, and it is the SAME 4 externally-sourced hits this run's own
+`recall_eval` already found and audited, not a new anomalous jump from today's rerank
+code. Reverted the regressed `solver/lex/culture.json` (1,387 vs committed ~16,000+
+entities — Wikipedia API rate-limited this run, HTTP 429 on 6 of 7 categories) and
+`solver/lex/substitutions.json` (0 vs committed pairs — no 14across explanations
+recovered this run) rebuilds per bootstrap.sh's own standing warning, same as every prior
+run has had to.
+
+HONEST READ: this is a genuine, small-sample NEGATIVE result for the reranking idea AS
+IMPLEMENTED, not a dead end for the underlying question. `score_answer()` works exactly
+as designed (the selftest's synthetic decoy-vs-gold case proves the mechanism can and
+does promote a correct definition over a mechanically-real device when the corpus signal
+is clean) — but on THIS puzzle's real candidates, the signal that fires is noisy popular-
+idiom overlap, not topical match, and n=4 is far too small to conclude the idea doesn't
+work in general. This is exactly the kind of jump PLAN_V2.md's own statistical-power
+warning names: a handful of clues is not enough to trust a null result either. Also
+notable: all 4 of today's "already correctly ranked" or "unmoved" hits came from
+`retrieval_candidates` itself, which already uses a near-identical BM25 formula against
+the same corpus to GENERATE the candidate — so of course re-scoring with a similar method
+mostly reproduces the same order. The genuinely interesting, still-untested case (queue
+item 9's actual motivation: a MECHANICALLY-real anagram/hidden/homograph candidate that is
+plausible but wrong, versus the setter's real answer, both scored for definition fit) had
+only one real data point today (2D, both candidates scored 0 -- no signal either way).
+
+NOT DONE, honestly: did not test rerank_eval on a puzzle with a genuine mechanical-vs-real
+answer conflict (this run's dev puzzle didn't happen to have one in its 21 transcribed
+clues); did not add an IDF-style dampener for generic-idiom over-matching (a concrete next
+step this run's own finding points to, not attempted today to keep this run to one
+lever); did not merge or otherwise act on any open PR; did not run the fuller,
+un-timeboxed note.co.il crawl (bounded to 10 minutes this run, 457/1301 discovered pages
+fetched, alongside a fresh mordo re-crawl at 66,642 raw/62,519 parsed — both smaller than
+they could be, not exhausted).
+
+Previous lever (2026-08-30): **closed 2026-08-29's own "NOT DONE" gap: re-measured
 `retrieval_candidates` on 2026-06-26 — the puzzle 2026-08-28/08-29 both flagged as still
 needing a bigger corpus and no run had finished re-transcribing — this time FULLY (28/28
 clues, not the 18/28 partial 2026-08-26 left) and against a corpus grown far past any
@@ -2427,3 +2529,43 @@ Measure each lever on dev (fixed enums) with run_eval.py before/after; one lever
   "כולם חפצים מהבית" theme (an אוטובוס was due to appear on 09-08).
   Gates: ui_smoke 9/9 pages at both widths, topicgen_eval 52/52 boards,
   url_guard clean (6,071 URLs, none dropped), nativ regression 22/22.
+
+- 2026-09-22: **definition-fit RERANKING** (queue item 9, open since 2026-08-23).
+  Built `solver/retrieve_defs.py`'s `score_answer()`/`answer_index()` (reverse BM25
+  lookup: given an already-hypothesized candidate, does an independent private_defs
+  document separately define that exact word compatibly with the clue?) and
+  `solver/candidates.py`'s `rerank_eval()` (sorts `generate()`'s own candidate list by
+  that score and measures whether gold moves to rank 1 more often). Research: 7th
+  consecutive literature pass with nothing new and directly buildable; one useful SHAPE
+  found anyway (a Cruciform-line paper's embedding-based definition-fit scorer) and
+  adapted to this project's own BM25 index instead, since no offline Hebrew embedding
+  model is reconstructible by bootstrap.sh. Bootstrap: 14across's full 52-URL batch hit
+  the same hard wall as recent runs (20/20 attempted came back empty before stopping),
+  but a separately-retried single fetch of 2026-05-29's own URL succeeded on attempt 5,
+  giving real crowd-sourced gold answers+explanations instead of the usual image-only
+  fallback. Re-transcribed 21/28 clues from `data/images/2026-05-28.jpg` (the standard
+  missing-across-1-13 gap — confirmed genuinely absent from this week's image, not
+  misfiled in a side column as some other weeks turned out to be). Caught and fixed one
+  real transcription bug before it reached any measurement (row 0 of a cross-check grid
+  image read in mirrored order, caught by diffing against the real 14across answer) and
+  normalized every enum to the real answer length after my own reading of the cramped
+  early clues kept mis-attributing enum digits to the wrong clue number (disclosed, not
+  silently fixed). MEASURED: of 4 clues where `generate()` already finds gold (all via
+  `retrieval_candidates`), reranking changed 0 ranks — 2 already at rank 1 stayed there,
+  2 at rank 5/6 stayed there because the candidates outranking them are generic
+  high-frequency idioms (`מבעודמועד`, `בהצלחה`) that the corpus defines almost
+  everywhere, not a real topical match. AUDITED: `held_out_answers()`/`held_out()` both
+  block all 21 gold answers; all 4 retrieval hits confirmed `pid=None` with on-topic
+  defining text; no forbidden reads (14across fetched exactly as bootstrap.sh's own step
+  2 does, not as a blind-solve lookup); 4.8%→19.0% recall jump (unchanged from today's
+  own audited retrieval measurement, not new) sits just under the 15-point suspicion bar
+  and is fully explained. HONEST READ: a genuine but small-sample (n=4) negative result —
+  `score_answer()` works as designed (selftest proves it can promote a correct definition
+  over a mechanically-real decoy when the signal is clean) but on this puzzle's real
+  candidates the signal is dominated by idiom frequency, not topical match, and the
+  actually-motivating case (a mechanical device vs. the real answer, both scored) had
+  only one data point today (both scored 0, no signal). NOT DONE: no IDF-style dampener
+  for generic-idiom over-matching (the concrete next step this finding points to); no
+  test against a puzzle with a genuine mechanical-vs-real conflict; note.co.il crawl
+  stayed bounded (457/1,301 discovered pages, 10-minute cap); no PR merged or acted on.
+  See RESEARCH.md and the state table above for the full trail.

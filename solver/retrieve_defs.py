@@ -111,6 +111,54 @@ def candidates(clue, length, topk=25, docs_df=None, skip_puzzle=None):
             if len(a) == length: scored[a] = max(scored[a], s)
     return sorted(scored.items(), key=lambda x: -x[1])[:topk]
 
+_ANS_IDX = None
+def answer_index(docs_df=None):
+    """answer -> [token lists] reverse index, built once from the same docs candidates()
+    scores against. Lets score_answer() look up only the (typically few) documents that
+    define a SPECIFIC word, instead of rescanning all ~65k docs per candidate."""
+    docs, df = docs_df or index()
+    by_ans = defaultdict(list)
+    for t, ans, _pid in docs:
+        for a in ans:
+            by_ans[a].append(t)
+    return by_ans
+
+def score_answer(answer, clue, docs_df=None, ans_idx=None):
+    """Definition-FIT score for one ALREADY-HYPOTHESIZED candidate (queue item 9: judging
+    whether a candidate matches the clue's DEFINITION, not whether its wordplay executes).
+
+    candidates()/end_candidates() answer 'which words of this LENGTH does the clue's text
+    resemble a definition of' -- useful for GENERATING candidates, but every mechanism in
+    candidates.py (anagram/hidden/reversal/homograph/substitution) also proposes candidates
+    with no definition check at all: a real anagram is evidence the letters CAN form a word,
+    never that this word is what the clue MEANS. This is the reverse query: given one
+    candidate answer (from any mechanism), does an INDEPENDENT external source (private_defs)
+    define that exact word in terms that overlap this clue's own words? If several docs
+    define the answer, take the best (max) BM25 score against the clue, same formula
+    candidates() uses, so the two scores are directly comparable.
+
+    Returns 0.0 if the answer never appears as a definition target in the corpus at all
+    (most coined/multi-word cryptic answers won't -- that is expected, not an error)."""
+    docs, df = docs_df or index()
+    idx = ans_idx if ans_idx is not None else answer_index(docs_df=(docs, df))
+    toklists = idx.get(answer)
+    if not toklists:
+        return 0.0
+    N = len(docs)
+    q = set(toks(clue))
+    avg = sum(len(t) for t, _, _ in docs) / max(N, 1)
+    best = 0.0
+    for t in toklists:
+        tl = len(t) or 1
+        s = 0.0
+        for w in q:
+            tf = t.count(w)
+            if not tf: continue
+            idf = math.log(1 + (N - df[w] + .5) / (df[w] + .5))
+            s += idf * tf * 2.2 / (tf + 1.2 * (0.25 + 0.75 * tl / avg))
+        best = max(best, s)
+    return best
+
 def end_candidates(clue, length, docs_df=None, skip_puzzle=None):
     """query each end of the clue separately (definition side is at one end)"""
     words = re.findall(r'[א-ת"\']+', clue)
@@ -163,6 +211,23 @@ def selftest():
     finally:
         shutil.rmtree(tmp)
 
+    print('--- score_answer: a candidate matching an independent def gets a positive score ---')
+    docs_df = ([
+        (['נשיא', 'ראשון', 'מדינה'], [norm('וייצמן')], None),
+        (['פרח', 'לאומי', 'ישראל'], [norm('כלנית')], None),
+    ], {'נשיא': 1, 'ראשון': 1, 'מדינה': 1, 'פרח': 1, 'לאומי': 1, 'ישראל': 1})
+    s = score_answer(norm('וייצמן'), 'מי היה הנשיא הראשון של המדינה', docs_df=docs_df)
+    print(f'  score for the matching def: {s:.2f} (expected > 0)')
+    ok &= s > 0
+    print('--- score_answer: a candidate with NO matching def scores exactly 0 ---')
+    s0 = score_answer(norm('משהו'), 'מי היה הנשיא הראשון של המדינה', docs_df=docs_df)
+    print(f'  score for an answer absent from the index: {s0} (expected 0.0)')
+    ok &= s0 == 0.0
+    print('--- score_answer: an unrelated def for the SAME-length answer scores lower ---')
+    s2 = score_answer(norm('כלנית'), 'מי היה הנשיא הראשון של המדינה', docs_df=docs_df)
+    print(f'  matching-def score {s:.2f} > unrelated-def score {s2:.2f}: {s > s2} (expected True)')
+    ok &= s > s2
+
     print(f'\n{"ALL PASSED" if ok else "FAILURES ABOVE"}')
     return ok
 
@@ -172,6 +237,8 @@ def main():
     elif sys.argv[1] == 'candidates':
         for a, s in candidates(sys.argv[2], int(sys.argv[3])):
             print(f'[{s:.2f}] {a}')
+    elif sys.argv[1] == 'score':
+        print(f'{score_answer(norm(sys.argv[2]), sys.argv[3]):.3f}')
     elif sys.argv[1] == 'eval':
         docs_df = build_index()
         tot = hit1 = hit25 = 0
