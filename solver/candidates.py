@@ -24,6 +24,12 @@ This module does exactly that, per clue, with no LLM involved:
                           sense (lex/ambiguities.json) that matches the enum length, so it
                           IS the answer undisguised. Cannot invent an answer that isn't
                           already a literal clue substring.
+  - container_candidates: the container device (PLAYBOOK.md 1.4, ~10-12% of clues) — one
+                          clue word (or de-affixed stem) inserted inside another, checked
+                          against the lexicon. prove.py has verified this device
+                          (is_container) since it was written; this is the first generator
+                          for it. Corpus-independent like anagram/hidden/reversal, unlike
+                          the semantic containers SOLVE_PROTOCOL.md's worked examples show.
   - pattern_candidates:  wraps lexicon.py's crossing-pattern lookup, for when grid
                           letters are already known.
   - culture_category_candidates: a DEFINITION-hypothesis mechanism, not a wordplay one —
@@ -56,6 +62,7 @@ CLI:
   python3 solver/candidates.py recall data/dataset/clues.jsonl eval   # offline recall@N
   python3 solver/candidates.py recall data/dataset/clues.jsonl eval --no-culture  # ablation
   python3 solver/candidates.py recall data/dataset/clues.jsonl eval --no-retrieval  # ablation
+  python3 solver/candidates.py recall data/dataset/clues.jsonl eval --no-container  # ablation
   python3 solver/candidates.py selftest
 """
 import sys, os, re, json
@@ -279,6 +286,54 @@ def homograph_candidates(clue_text, target_len, idx=None):
     return out
 
 
+def container_candidates(clue_text, target_len):
+    """The container device (PLAYBOOK.md 1.4, "X בתוך Y" / "X ב-Y", ~10-12% of clues) —
+    one clue fragment inserted inside another. prove.py has verified this device since it
+    was written (is_container(outer, inner, answer)), and PLAYBOOK.md/indicators.json
+    document its indicator words, but until now nothing in this file GENERATED a container
+    candidate: every other device with a prove.py assertion (anagram, reversal, hidden) had
+    a matching mechanical generator here; container did not. Same "verification exists,
+    generation doesn't" gap this module's own docstring names as the general bottleneck,
+    just found in one specific mechanism nobody had closed.
+
+    Mechanical variant, like anagram/hidden/reversal above: tries every ordered pair of
+    clue WORDS (and their de-affixed stems, via _destem — reused from the homograph
+    mechanism) whose combined length equals the enum, inserting one into the other at
+    every internal split point (mirroring is_container's own search), checked against the
+    lexicon. This is weaker than the worked examples in PLAYBOOK.md/SOLVE_PROTOCOL.md,
+    where the outer/inner are usually a SYNONYM for a clue word (a substitution-table
+    lookup, e.g. "מציאות" standing for "ראליה"), not the literal clue word itself —
+    replicating that would need the mined substitutions table, which (like every other
+    corpus-backed source in this file) needs the crowd-explanation corpus and is not what
+    this generator does. What this DOES give, uniquely among the mechanisms here: a fully
+    corpus-independent generator for a top-3 device, measurable even when the
+    explanations/private_defs corpus is unreachable (e.g. a 14across outage) — every other
+    new-mechanism lever this project has tried needed that corpus to fire at all.
+    Excludes position 0 and len(outer) (is_container's own range is 1..len(outer)-1):
+    those two positions are plain concatenation, already the province of
+    substitution_candidates' two-word case, not a genuine container reading."""
+    words = lex()
+    frags = set()
+    for w in words_of(clue_text):
+        frags |= _destem(norm(w))
+    frags = sorted(f for f in frags if f)
+    out = []
+    seen = set()
+    for a in frags:
+        for b in frags:
+            if a == b or len(a) + len(b) != target_len:
+                continue
+            if (a, b) in seen:
+                continue
+            seen.add((a, b))
+            for k in range(1, len(a)):
+                cand = a[:k] + b + a[k:]
+                if cand in words:
+                    out.append({'answer': cand, 'mechanism': 'container',
+                                'fodder': f'{b} in {a}'})
+    return out
+
+
 _CULTURE = None
 
 
@@ -459,7 +514,8 @@ def split_candidates(cands, enum):
     return out
 
 
-def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retrieval=True):
+def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retrieval=True,
+             use_container=True):
     """Diverse candidates for one clue. Never consults the answer.
 
     Mechanism order here is a PRIORITY order, not just an accumulation order: dedup +
@@ -477,13 +533,17 @@ def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retr
     docstrings) — placed in the same early tier as homograph/substitution: culture_category
     fires rarely and each hit is a real named entity; retrieval is capped at its own topk
     (25 by default) and ranked, not an unbounded window scan, so it does not need to wait
-    behind the cheap mechanisms either. `use_culture`/`use_retrieval` are plain on/off
+    behind the cheap mechanisms either. container_candidates is bounded by (number of clue
+    words)^2, not a window scan, so it goes in the same early tier too — same reasoning as
+    homograph/substitution. `use_culture`/`use_retrieval`/`use_container` are plain on/off
     switches so a controlled before/after recall measurement doesn't need extra copies of
     this function."""
     target_len = sum(enum)
     cands = []
     cands += homograph_candidates(clue_text, target_len)
     cands += substitution_candidates(clue_text, target_len)
+    if use_container:
+        cands += container_candidates(clue_text, target_len)
     if use_culture:
         cands += culture_category_candidates(clue_text, target_len)
     if use_retrieval:
@@ -511,7 +571,8 @@ def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retr
 # isolation, BEFORE it is wired into a live solve+proof loop (which is a
 # separate integration step, not done by this lever).
 # ---------------------------------------------------------------------------
-def recall_eval(dataset_path, split=None, max_n=25, use_culture=True, use_retrieval=True):
+def recall_eval(dataset_path, split=None, max_n=25, use_culture=True, use_retrieval=True,
+                 use_container=True):
     total = 0
     hit = 0
     by_mech = Counter()
@@ -525,7 +586,7 @@ def recall_eval(dataset_path, split=None, max_n=25, use_culture=True, use_retrie
             continue
         total += 1
         cands = generate(r['clue_text'], r['enum'], max_n=max_n, use_culture=use_culture,
-                          use_retrieval=use_retrieval)
+                          use_retrieval=use_retrieval, use_container=use_container)
         sizes.append(len(cands))
         gold = norm(r['answer_raw'])
         found = [c for c in cands if c['answer'] == gold]
@@ -609,6 +670,20 @@ def selftest():
     print(f'  found שרה (destemmed from ושרה) as a homograph: {found} (expected True)')
     ok &= found
 
+    print('--- container device: one clue word inserted inside another forms a real word ---')
+    # שם (2, "there"/"name") and לו (2, "to him") are both plain clue words; inserting לו
+    # into שם after its first letter gives ש+לו+ם = שלום (4), a real hspell word neither
+    # fragment resembles on its own — matches is_container's own outer/inner/answer shape.
+    hits = container_candidates('שם ואחריו לו הלך', 4)
+    found = any(h['answer'] == norm('שלום') for h in hits)
+    print(f'  found שלום as לו inserted into שם: {found} (expected True)')
+    ok &= found
+    print('--- container device: a length that cannot split across two clue words fires '
+          'nothing ---')
+    hits2 = container_candidates('שם ואחריו לו הלך', 3)
+    print(f'  no pair sums to 3: {hits2 == []} (expected True)')
+    ok &= hits2 == []
+
     print('--- culture_category device: a category the clue NAMES surfaces its namelist,'
           ' matched by MEANING not letters ---')
     # synthetic table + triggers, independent of the live corpus and its real entities —
@@ -681,14 +756,18 @@ def main():
         rest = sys.argv[2:]
         use_culture = '--no-culture' not in rest
         use_retrieval = '--no-retrieval' not in rest
-        rest = [a for a in rest if a not in ('--no-culture', '--no-retrieval')]
+        use_container = '--no-container' not in rest
+        rest = [a for a in rest
+                if a not in ('--no-culture', '--no-retrieval', '--no-container')]
         path = rest[0] if len(rest) > 0 else 'data/dataset/clues.jsonl'
         split = rest[1] if len(rest) > 1 else None
         os.chdir(ROOT)
-        res = recall_eval(path, split, use_culture=use_culture, use_retrieval=use_retrieval)
+        res = recall_eval(path, split, use_culture=use_culture, use_retrieval=use_retrieval,
+                           use_container=use_container)
         print(f"recall@N: {res['hit']}/{res['total']} = {res['recall']:.1%}  "
               f"(avg {res['avg_candidates']:.1f} candidates/clue, "
-              f"use_culture={use_culture}, use_retrieval={use_retrieval})")
+              f"use_culture={use_culture}, use_retrieval={use_retrieval}, "
+              f"use_container={use_container})")
         print('hits by mechanism:', res['by_mechanism'])
         if res['misses']:
             print(f"\n{len(res['misses'])} misses (clue_number, direction, gold):")
