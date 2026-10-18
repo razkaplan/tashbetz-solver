@@ -910,3 +910,50 @@ priority 2. Wiring in an already-built, already-audited tool as one more candida
 is not itself a research question — it is closing a gap between what the project's own
 research queue prioritized in 2026-08-08 and what got implemented, which is worth doing
 regardless of whether today's literature sweep turned up anything new.
+
+## 2026-10-10
+
+First solver-specific run since 2026-08-30 (the six-week gap between 09-07 and now was
+site/game UI work, not this lever queue). Bootstrap this run hit NO 14across wall at all
+— 52/52 puzzles recovered cleanly on the first try, the first run since 2026-08-06 that
+did not need the image-fallback technique for gold answers.
+
+**"cryptic crossword clue solving candidate generation neural 2026 arxiv".** Same paper
+family logged every run since 2026-08-06 (2506.04824, 2406.09043, 2104.08620, 2407.08824,
+2403.12094/2103.01242 Cryptonite). One citation not seen in this log before: a CEUR-WS
+paper for the Cruciverb-IT shared task at EVALITA 2026 (MINDS system, Vol-4195/37.pdf),
+fine-tuning a BERT masked-language-model on clue-answer pairs to generate and pool answer
+candidates. Checked directly: Cruciverb-IT is ITALIAN, and — more importantly — ORDINARY
+(definition-only) crosswords, not cryptic; there is no wordplay layer, no indicator words,
+no charade/anagram/container device to parse, so a masked-LM-over-definition approach
+transfers to this project's `retrieval_candidates`/`culture_category_candidates` (both
+already definition-driven) in spirit only, not as a new technique — this project already
+has a definition-driven BM25 retrieval source; a fine-tuned MLM would be a strictly bigger
+version of the same idea, not a different one. **Transfer: none actionable today** (same
+verdict as every non-cryptic paper logged previously; would also need a Hebrew MLM
+fine-tune, a much larger effort than one lever).
+
+**"definition span detection cryptic crossword clue segmentation parsing 2025 2026".**
+Nothing from 2025/2026 surfaced at all — the search fell back to the same pre-2022
+background (Cryptonite, PICCUP 1992, Andrews & Witteveen 2024) already in this log.
+**Transfer: none new.** Reinforces, rather than revisits, the 2026-08-19/08-30 conclusion
+that `defspan.py`'s single-end indicator-density classifier is a dead end for this setter
+and that no literature pass has yet produced a *different* signal worth trying in its
+place — the log's own standing suggestion (score each end's residual by whether it is
+itself anagram-matchable, instead of classifying by indicator words) remains unbuilt and
+is still the one concrete idea on the table, not something today's search added to.
+
+**"Hebrew morphology NLP root pattern templatic word solver 2026".** No new 2026 resource
+beyond RFTokenizer/HebPipe/DictaBERT-seg/YAP/Splintering (arXiv 2503.14433), logged
+repeatedly since 2026-08-06. **Transfer: none new.**
+
+**Conclusion for today's lever.** Eighth-plus consecutive literature pass with nothing
+new and buildable on candidate generation, definition-span, or definition-fit scoring —
+the one new citation (Italian non-cryptic MLM) doesn't transfer for the same structural
+reason every prior non-cryptic paper hasn't. Per the standing diagnosis (DAILY.md queue
+item 1(b), 2026-08-20 log entry), today's lever instead takes the one concretely-scoped,
+previously-flagged-but-unbuilt next step on the project's OWN data rather than another
+sweep: `substitution_candidates`' charade shape is currently capped at one or two
+adjacent clue words whose mined substitutes cover the full answer length; the log itself
+named "the mined substitution table needs to cover multi-part charades (3+ segments)" as
+the concrete next move on this mechanism. See the Log for what was built and measured.
