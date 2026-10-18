@@ -21,9 +21,82 @@ tree - a stale CLI deploy overwrote the live site on 2026-08-29. See CLAUDE.md.
 | **Definition-span locatable rate (new, offline, diagnostic)** | **25% (7/28)** have mechanically-locatable single-window wordplay; of those 29% (2/7) are interior, not edge; classifier agreement on edge cases **1/5** | not a target — this diagnostic KILLED the lever, see log |
 | **`solve_pass.py` LIVE blind trial — cumulative (3 trials)** | **40% precision (2/5 committed)**: 2026-08-16 was 1/2 on a partial 21/28-clue puzzle (2026-06-12); 2026-08-22 was **0/2**, 7.1% coverage, on a FULL 28/28-clue puzzle (2026-05-15); **2026-08-27 is 1/1 = 100% precision but 5.3% coverage (1/19), 0% suggestion hit-rate (0/10)**, on 2026-07-10 (19/28 clues) — FIRST trial run with `retrieval_candidates` live (wired 2026-08-25, never live-trialed since); it contributed ZERO candidates all puzzle (grepped the transcript for `(retrieval, fodder=` hits — none), matching today's own offline recall@N finding on this same puzzle (0/19 with or without retrieval); the one correct commit came from `wiki.py` culture-fact lookup, not from any candidate generator | n=5 — still small; retrieval's live debut is a null result on this puzzle, not a regression, but not the coverage lift the queue hoped for either; see log |
 | **Candidate recall@N with `culture_category_candidates` added (new, offline, definition-driven)** | **0% (0/28)**, on 2026-06-19 — mechanism fired on only 1/28 clues (avg candidates/clue 10.5 → 11.4); its one firing (339 raw candidates, an "author" category hit) matched 0 gold | not yet a target — small-n diagnostic, see log |
+| **Candidate recall@N with 3-adjacent-word substitution charades added (new, offline, mechanical)** | **1/56 = 1.8% → 1/56 = 1.8%, UNCHANGED**, on 2026-05-29 + 2026-06-05 combined (2 puzzles, first multi-puzzle baseline this diagnostic has used) — the new mechanism fired ZERO times (0 raw 3-word-adjacent combos, before any length/real-word filter, across all 56 clues); root-caused, not assumed: only 17/145 clue words (~12%) are head words in today's bootstrap-reconstructible substitution table, so 3 consecutive clue words all being heads is combinatorially rare at this density | not yet a target — small-n diagnostic KILLED this exact shape on today's sample, see log |
 
 Baseline for comparison: v2 = 41% raw with untraceable errors.
-Last lever added (2026-08-30): **closed 2026-08-29's own "NOT DONE" gap: re-measured
+Last lever added (2026-10-03): **queue item 1's long-flagged "multi-part charades (3+
+segments)" extension to `substitution_candidates`** (DAILY.md 2026-08-20: "the mined
+substitution table needs to cover multi-part charades, not just 1-2 word coverage of the
+FULL answer length"), never attempted until today. First run in over a month (previous
+solver lever: 2026-08-30; the intervening log entries were site/nativ work). Bootstrap
+succeeded FULLY (52/52 puzzles at 14across, 1,457 clues, no bot-wall this run), so gold
+answers came from real crowd data, not the image fallback. Transcribed TWO dev puzzles
+from their public CDN images for a combined 56-clue sample (the first time this specific
+diagnostic has used more than one puzzle at once): 2026-05-29 (the canonical dev puzzle,
+re-transcribed independently for a fourth time — reproduced the historical 3.6%/28
+mechanical-only baseline exactly, a strong cross-check) and 2026-06-05 (freshly
+transcribed, RESULTS.md's other original v2 baseline puzzle). Both validated 28/28 against
+grid-derived slot lengths via `solver/grid_tools.py validate` (0 mismatches) before any
+gold answer was read for content. One real transcription bug caught and fixed mid-run,
+disclosed rather than silently corrected: 2026-06-05 clue 8 across's enum was first
+mis-split as `(3)` instead of the correct `(4,3)` (a credit-tag line-wrap misread); caught
+by the grid validator rejecting the mismatch, not assumed correct.
+
+Built the extension: `substitution_candidates()` already covered one clue word's full-length
+substitute and two ADJACENT words' concatenated substitutes; added the symmetric three-word
+case (three adjacent clue words' mined substitutes concatenate, in order, to the exact
+target length), same adjacency + full-length discipline as the existing two-word case so the
+search stays local rather than combinatorially exploding over the sparse table. New selftest
+case (synthetic table, independent of any puzzle's gold data) confirms the mechanism works
+mechanically. MEASURED, controlled before/after on the same 56-clue combined set (`git stash`
+the one changed file to get a clean pre-lever run, same dataset, same command): mechanical-
+only baseline **1/56 = 1.8%** both before AND after — completely unchanged, down to the
+average-candidates-per-clue figure (11.8 both runs). AUDITED: a direct diagnostic (not
+inference from the unchanged recall number alone) confirms the new mechanism generated
+ZERO raw 3-word-adjacent combinations across all 56 clues, even before the length/real-word
+filter that would reject most of them — so this is a true "never fired," not a "fired but
+missed." Root cause checked directly: only 17 of this sample's 145 clue words (~12%) are
+head words in `sub_fwd()`'s in-memory, held-out-safe table (525 head words this run, the
+bootstrap-reconstructible size — see the standing 2026-08-06 finding that this is smaller
+than the committed 2,220-head-word version, which draws on a secondary corpus bootstrap.sh
+cannot fetch). Three consecutive clue words all being table heads is combinatorially rare at
+that density (back-of-envelope: ~145 × 0.12³ ≈ 0.25 expected occurrences per 56-clue sample
+even before requiring the concatenation to also hit the exact enum length and be a real
+word) — a genuine sparsity finding, not a bug in the new code. `lexicon.held_out_answers()`
+and `substitutions.held_out()` both confirmed (computed, not assumed) to block all 56 of
+these two puzzles' own gold answers (`gold - blocked` empty for both). All 5 affected
+selftests (`candidates.py`, `retrieve_defs.py`, `lexicon.py`, `prove.py`, `substitutions.py`)
+re-run clean. No forbidden reads: both puzzles' clue text came from the public CDN images;
+gold answer LENGTHS (not explanations) were read only through the sanctioned
+enum-sum-validation step, same as every prior transcription in this log. No implausibility
+to explain — the result is an exact flat null (1.8% → 1.8%, 11.8 → 11.8 avg candidates),
+the opposite of a jump. One incidental fix: `bootstrap.sh` step 4
+(`solver/substitutions.py build`) regenerates `solver/lex/substitutions.json` in place as a
+documented side effect; reverted with `git checkout` before committing, per the file's own
+standing warning, so today's commit touches only `solver/candidates.py`.
+
+HONEST READ: a clean, fully-explained negative result for this exact shape (3-adjacent-word,
+full-length-only charades) on today's 2-puzzle sample. It does not show multi-part charades
+never help this setter — RESULTS.md's PLAYBOOK diagnosis that this setter leans on charade-
+style devices still stands — only that the CURRENT mined table is too sparse (12% head-word
+coverage) for three-in-a-row to co-occur often enough to matter, and that sparsity itself
+traces to the known, pre-existing bootstrap-vs-committed substitution-table size gap, not to
+anything about three-part charades specifically. The concrete next step, if this is
+revisited, is the same one 2026-08-06 already named for the two-word case and never
+acted on: the committed 2,220-head-word table (built from the 310-puzzle secondary corpus
+bootstrap.sh cannot fetch) would need a held-out-safe equivalent before it could be used
+here without risking the same leak shape `sub_fwd()`'s in-memory rebuild exists to prevent.
+
+NOT DONE, honestly: did not re-measure with the fuller committed substitution table (using
+it directly would risk the held-out leak `sub_fwd()`'s in-memory rebuild is specifically
+designed to avoid, and building a held-out-safe version of it is a separate, larger task);
+did not crawl `private_defs` (mordo/note.co.il) this run, so `retrieval_candidates`
+contributed nothing to the full-defaults number either (consistent with having no corpus,
+not a finding about retrieval itself); did not merge or otherwise act on any open PR (none
+were open); did not re-run the live `solve_pass.py` blind trial (unrelated to today's
+candidate-generation-only lever).
+
+Previous lever (2026-08-30): **closed 2026-08-29's own "NOT DONE" gap: re-measured
 `retrieval_candidates` on 2026-06-26 — the puzzle 2026-08-28/08-29 both flagged as still
 needing a bigger corpus and no run had finished re-transcribing — this time FULLY (28/28
 clues, not the 18/28 partial 2026-08-26 left) and against a corpus grown far past any
@@ -451,7 +524,16 @@ propagated), `blank`. Score with `python3 evals/run_eval.py <file>`.
    PLAYBOOK.md diagnosis (setter leans on these devices) may still be right even though
    this implementation of them didn't capture it — candidate: the mined substitution
    table needs to cover multi-part charades (3+ segments), not just 1-2 word coverage of
-   the FULL answer length, which is what today's version required. A separate, earlier
+   the FULL answer length, which is what today's version required.
+   2026-10-03 TRIED THIS EXACT EXTENSION, NEGATIVE: added the 3-adjacent-word case to
+   `substitution_candidates`, same adjacency+full-length discipline as the existing 2-word
+   case. Measured on a combined 56-clue, 2-puzzle sample: 1.8% -> 1.8%, unchanged, because
+   the mechanism never fired at all (0 raw 3-word combos, before filtering) — root-caused
+   to the bootstrap-reconstructible table's sparsity (~12% of clue words are table heads),
+   not a defect in the extension itself. Do not re-attempt this exact shape against the
+   same small table; the concrete next step is a held-out-safe version of the larger
+   2,220-head-word committed table, not another tweak to the 3-word search itself. See log.
+   A separate, earlier
    attempt at this same lever (2026-08-17, see log) measured the same negative result on
    a THIRD dev puzzle (2026-04-03, 4.0% recall unchanged) with an independently-written
    version of these two mechanisms — two different implementations, two different
@@ -2427,3 +2509,73 @@ Measure each lever on dev (fixed enums) with run_eval.py before/after; one lever
   "כולם חפצים מהבית" theme (an אוטובוס was due to appear on 09-08).
   Gates: ui_smoke 9/9 pages at both widths, topicgen_eval 52/52 boards,
   url_guard clean (6,071 URLs, none dropped), nativ regression 22/22.
+
+- 2026-10-03: **solver lever: 3-adjacent-word substitution charades, NEGATIVE.** First
+  solver run in over a month (prior solver entries: 2026-08-30 and earlier; 08-31/09-04/
+  09-07 above were site/nativ work). `./bootstrap.sh --dev-only` succeeded FULLY this run:
+  52/52 puzzles, 1,457 clues from 14across, no bot-wall — gold answers are real crowd data,
+  not the image-fallback technique. Transcribed two dev puzzles from their public CDN
+  images: 2026-05-29 (the canonical puzzle, re-transcribed independently for a fourth time
+  — reproduced the historical 3.6%/28 mechanical-only baseline exactly) and 2026-06-05
+  (RESULTS.md's other original v2 baseline, freshly transcribed). Both validated 28/28
+  against `solver/grid_tools.py validate`'s grid-derived slot lengths (0 mismatches) before
+  any gold answer content was read. One transcription bug caught by the validator and
+  fixed, disclosed not hidden: 2026-06-05 clue 8 across's enum was first mis-split as (3)
+  instead of the correct (4,3) — a credit-tag line-wrap misread.
+
+  RESEARCH this run (full web search, not skipped): "cryptic crossword clue solving
+  candidate generation LLM 2026", "Hebrew morphology segmentation tool 2026 root pattern
+  templatic NLP", "definition span detection cryptic clue wordplay segmentation 2026
+  arxiv". Eighth-plus consecutive pass (since 2026-08-06) with nothing new and buildable:
+  same paper family every time (2506.04824, 2412.09012, 2104.08620, 2103.01242, 2407.08824,
+  2406.09043), one new but non-actionable sighting (a PyData Amsterdam 2026 benchmark talk
+  comparing frontier models' zero-shot cryptic performance — not a new technique), and one
+  theoretical-linguistics workshop (DGfS 2026 ProSegPatMo) with nothing buildable. Full
+  write-up in RESEARCH.md. Per the project's own standing guidance once a thread is this
+  exhausted, today's lever is an internal, previously-flagged idea instead of another
+  literature sweep.
+
+  IMPLEMENTED: extended `solver/candidates.py`'s `substitution_candidates()` with the
+  3-adjacent-word case queue item 1 flagged and never attempted since 2026-08-20 ("the
+  mined substitution table needs to cover multi-part charades (3+ segments), not just 1-2
+  word coverage of the FULL answer length"). Same adjacency + full-length discipline as the
+  existing two-word case: three adjacent clue words' mined substitutes must concatenate, in
+  order, to exactly the enum total and be a real word — bounded search, not an open-ended
+  combinatorial one. New selftest case added (synthetic table, independent of gold data).
+
+  MEASURED, controlled before/after (`git stash` the one changed file for a clean baseline
+  run, same 56-clue combined dataset, same command): `python3 solver/candidates.py recall
+  data/dataset/clues.jsonl eval --no-culture --no-retrieval` — **1/56 = 1.8% before, 1/56 =
+  1.8% after, completely unchanged**, including the average-candidates-per-clue figure
+  (11.8 both runs). AUDITED the mechanism directly rather than inferring from the flat
+  recall number: a standalone diagnostic confirms it generated ZERO raw 3-word-adjacent
+  combinations across all 56 clues, even before the length/real-word filter — a true
+  "never fired," not "fired but missed." Root cause checked, not assumed: only 17/145
+  (~12%) of this sample's clue words are head words in `sub_fwd()`'s in-memory, held-out-
+  safe table (525 head words this run — the smaller, bootstrap-reconstructible size per the
+  standing 2026-08-06 finding, not the committed 2,220-head-word version built from a
+  secondary corpus bootstrap.sh cannot fetch). Three consecutive clue words all being table
+  heads is combinatorially rare at that density. `lexicon.held_out_answers()` and
+  `substitutions.held_out()` both confirmed to block all 56 of these two puzzles' own gold
+  answers (`gold - blocked` empty for both). All 5 affected selftests (`candidates.py`,
+  `retrieve_defs.py`, `lexicon.py`, `prove.py`, `substitutions.py`) re-run clean. No
+  forbidden reads: clue text from the public CDN images only; gold answer LENGTHS (not
+  explanations) read only through the sanctioned enum-validation step. No implausibility to
+  explain — an exact flat null is the opposite of a suspicious jump. Incidental cleanup:
+  reverted `solver/lex/substitutions.json`, which `bootstrap.sh` step 4 regenerates in
+  place as a documented side effect — today's commit touches only `solver/candidates.py`.
+
+  HONEST READ: a clean, fully negative result for this exact mechanism shape on today's
+  sample. Does not show 3+-part charades never help this setter (RESULTS.md's standing
+  PLAYBOOK diagnosis that this setter leans on charade-style devices is untouched by this
+  finding) — only that the currently reconstructible table is too sparse (12% head-word
+  coverage of clue words) for three-in-a-row co-occurrence to matter yet. The concrete next
+  step, if revisited, is building a held-out-safe version of the fuller 2,220-head-word
+  committed table (using it as-is would risk the exact leak shape `sub_fwd()`'s in-memory
+  rebuild exists to prevent), not another tweak to the 3-word search itself.
+
+  NOT DONE, honestly: did not build a held-out-safe fuller substitution table (a separate,
+  larger task); did not crawl `private_defs` (mordo/note.co.il), so `retrieval_candidates`
+  contributed nothing to the full-defaults number this run either (no corpus, not a finding
+  about retrieval); did not merge or act on any open PR (none open); did not run a live
+  `solve_pass.py` blind trial (orthogonal to today's offline candidate-generation lever).
