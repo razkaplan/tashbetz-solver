@@ -4,6 +4,66 @@ One entry per run: what was found, one-line summary, and an honest judgement of 
 it transfers to a Hebrew cryptic solver with an 8k-clue corpus. Default skepticism: most
 crossword-AI work targets non-cryptic (American-style) puzzles and does not transfer.
 
+## 2026-10-15
+
+First solver run in six weeks (the last was 2026-08-30; the interim runs worked the
+nativ/site UI instead, per DAILY.md's log — see that file for 2026-09-04/07's entries).
+Bootstrap succeeded FULLY this run (52/52 puzzles, 1,457 clues via 14across, not the
+image-fallback route) — the first clean run since 2026-08-30. Research followed the
+scheduled task's own priority order: candidate generation diversity first, then
+definition-span detection, then Hebrew NLP/morphology.
+
+**"cryptic crossword clue solving LLM candidate generation 2026" / "cryptic crossword
+definition span detection wordplay parsing arxiv 2026" (general search).** Surfaced
+exactly the same paper family logged on every prior pass since 2026-08-06: Rozner et al.
+(2104.08620, the Cryptonite benchmark and definition/wordplay split), Andrews & Witteveen
+(2407.08824, prover-as-discriminator), Saha et al. and the "Language Models are Crossword
+Solvers" line (2406.09043, grid-level search reaching 93% on NYT-style non-cryptic
+puzzles), Sadallah et al. (2412.09012, "What Makes Cryptic Crosswords Challenging for
+LLMs?"), and 2506.04824 (hypothesise-then-verify, ICML 2025). No 2026-dated paper turned
+up in either search despite the six-week gap since this project last checked — this
+suggests the field genuinely hasn't moved, not that the gap was skipped. **Transfer: none
+new.** One detail worth restating since it bears directly on today's chosen lever:
+2506.04824 hypothesises ANSWERS first (fine-tuned LM proposes a word, then wordplay is
+searched to justify it) — the opposite of this project's own `candidates.py`
+(mechanism-first: enumerate what each device CAN produce, then check the lexicon). This
+project's own live blind trials already do the answer-first version informally (a solver
+agent proposes an answer, `prove.py` checks it); the paper doesn't add a new technique.
+
+**"diverse candidate generation multiple hypothesis constrained text generation anagram
+wordplay enumeration technique."** Surfaced Nishino et al. (EMNLP-IJCNLP 2019, anagram
+generation via DFS over word combinations + a neural LM) and Yuan et al. (lexically
+constrained generation via pool-enlargement). Both are GENERATION-from-scratch techniques
+(produce novel fluent text containing given letters/keywords), not the CONSTRAINED-SEARCH
+problem this project has (given a fixed clue + enum, find which of a small vocabulary's
+words fit). **Transfer: none** — these solve a materially different problem (open
+vocabulary, fluency-optimized) from candidates.py's (closed vocabulary, exact-length
+lookup against a committed lexicon).
+
+**Hebrew morphology/NLP, re-checked after the six-week gap.** No new 2026 resource beyond
+SPLINTER (arXiv 2503.14433, root-template linearization for subword tokenizers) and
+HebPipe, both already logged repeatedly. The one new-to-this-log citation (Tal, Shmidman &
+Shmidman, 2026, a BERT model for historical Hebrew with prefix segmentation) targets
+prefix splitting, not root extraction, and is trained on historical/rabbinic text, not
+modern crossword-register Hebrew. **Transfer: none** — this project's own `lexicon.py`
+and `_destem()` (candidates.py) already handle the relevant prefix/suffix stripping for
+crossword-register words with a hand-written affix list; a historical-text BERT model
+doesn't improve on that for this corpus's register.
+
+**Conclusion for today's lever.** Eighth-plus consecutive literature pass with nothing
+new and buildable on candidate generation, definition-span, or Hebrew morphology — the
+standing judgement (most crossword-AI and generation work targets a different problem
+shape than this project's closed-vocabulary, held-out-safe, exact-enum search) continues
+to hold, now also checked after a genuine multi-week gap rather than day-over-day, which
+rules out "the search just hasn't had time to find anything new" as an explanation. Per
+DAILY.md queue item 1(b)'s own twice-flagged, never-attempted concrete next step ("the
+mined substitution table needs to cover multi-part charades (3+ segments), not just 1-2
+word coverage of the FULL answer length"), today's lever extends
+`substitution_candidates()` to a three-adjacent-word charade shape, staying inside the
+project's own established discipline (bounded adjacency, not the open-ended every-split
+search `charade.py` already measured weak) rather than importing an external technique —
+see DAILY.md for the measured (negative, on this puzzle) result and root-cause diagnosis.
+
 ## 2026-08-30
 
 Bootstrap hit the same hard 14across wall as 2026-08-19/08-26/08-27/08-28 (4 consecutive
