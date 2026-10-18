@@ -4,7 +4,51 @@ One entry per run: what was found, one-line summary, and an honest judgement of 
 it transfers to a Hebrew cryptic solver with an 8k-clue corpus. Default skepticism: most
 crossword-AI work targets non-cryptic (American-style) puzzles and does not transfer.
 
-## 2026-08-30
+## 2026-10-13
+
+First run since 2026-08-30 (a six-week gap). Bootstrap ran fully clean this time — all
+52/52 puzzles recovered from 14across on the first attempt, no bot-check wall, no
+image-fallback needed — the first time this log can report that without caveats.
+
+Research followed the scheduled task's stated priority order: candidate generation
+first, then definition-span detection, then Hebrew NLP/morphology, before falling back
+to the queue's own next concrete step.
+
+**"cryptic crossword clue solving candidate generation 2026 arxiv" / "definition span
+detection cryptic crossword clue parsing new method 2026" / "Hebrew morphology
+segmentation tokenizer 2026 new model DictaBERT" / ""cryptic crossword" LLM reasoning
+wordplay October 2026" (general search, four separate queries).** Surfaced only the
+same paper family logged repeatedly since 2026-08-06: Andrews & Witteveen's
+"A Reasoning-Based Approach to Cryptic Crossword Clue Solving" (arXiv:2506.04824, now
+also indexed as its ICML 2025 proceedings version), Sadallah et al. "What Makes Cryptic
+Crosswords Challenging for LLMs?" (2412.09012), "Cryptic Verification" (2407.08824),
+Saha et al. "Language Models are Crossword Solvers" (2406.09043, now also indexed as
+2025.naacl-long.104 — checked directly: this is the SAME paper, not a new one; its
+headline 93% figure is on NYT-style American (non-cryptic) grids, a different track
+already judged non-transferring here). No 2026-dated cryptic-crossword-solving paper
+turned up in any of the four searches. **Transfer: none new** — eighth-plus consecutive
+literature pass with nothing new and buildable on candidate generation or
+definition-fit/span scoring.
+
+**Hebrew morphology/NLP.** No new 2026 resource beyond RFTokenizer/HebPipe/
+DictaBERT-seg/YAP/Splintering, already logged repeatedly since 2026-08-06. **Transfer:
+none new.**
+
+**Conclusion for today's lever.** With literature exhausted again, today's lever is an
+internal, previously-flagged-but-unbuilt idea rather than a new external resource: queue
+item 1's own standing diagnosis (DAILY.md, since 2026-08-20) is that the mined
+substitution table "needs multi-part charade coverage (3+ segments), not just 1-2 word
+coverage of the full length" — and separately, `candidates.py`'s own anagram/hidden/
+reversal mechanisms were VERIFIED (by direct code reading, not assumed) to only ever
+search a window of the FULL target_len (sum of the enum), never a single enum PART's own
+length. For a multi-part clue (10 of this run's 28 transcribed clues have a 2+ part
+enum), that means those three mechanical devices can only ever recover an answer whose
+ENTIRE fodder is one contiguous anagram/hidden/reversal run — never the much more common
+real-charade shape where part 1 comes from one device and part 2 from a different one,
+applied to a different stretch of the clue. This is a structural gap in the existing
+mechanical generator, not a new paper's idea, but it was never built: built today as
+`segment_candidates` in `solver/candidates.py` — see DAILY.md for the measured (negative)
+result and the full audit trail.
 
 Bootstrap hit the same hard 14across wall as 2026-08-19/08-26/08-27/08-28 (4 consecutive
 answer-page fetches returned `None: 0 clues` after several minutes of retry-with-backoff
