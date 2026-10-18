@@ -4,6 +4,55 @@ One entry per run: what was found, one-line summary, and an honest judgement of 
 it transfers to a Hebrew cryptic solver with an 8k-clue corpus. Default skepticism: most
 crossword-AI work targets non-cryptic (American-style) puzzles and does not transfer.
 
+## 2026-10-08
+
+Bootstrap ran clean this time: 14across returned 52/52 puzzles (1,457 clues) on the first
+pass, the first fully clean run logged since 2026-08-06/2026-08-29 rather than hitting the
+intermittent hard wall most recent runs have hit. No image-fallback technique needed for
+gold data this run.
+
+Research followed the scheduled task's stated priority order (candidate generation /
+definition-span diversity, then Hebrew NLP) before falling back to the queue's own
+explicitly-flagged next step.
+
+**"cryptic crossword clue solving candidate generation neural 2026 arxiv" / "definition
+span detection cryptic crossword clue segmentation wordplay 2026" / "Hebrew morphological
+analyzer root pattern segmentation 2026 NLP" (general search, three queries).** Surfaced
+nothing not already in this log. The cryptic-specific results are the same paper family
+logged repeatedly since 2026-08-06 (2506.04824, 2406.09043, 2104.08620, Berkeley Crossword
+Solver); the one 2026-dated hit (an EVALITA 2026 Cruciverb-IT shared task paper, BERT-based
+masked-LM answer prediction) is Italian, non-cryptic, and its "candidate pooling" step is
+the Berkeley-style technique already logged, not a new idea. The definition-span query
+returned no research-grade material at all (SEO filler and a few general cryptic-solving
+guides restating the textbook start/or/end heuristic `defspan.py` already tested and
+falsified for this setter in 2026-08-19). The Hebrew-morphology query reconfirmed
+AlephBERT/DictaBERT/HebPipe/AlephBERTGimmel, all already logged; no 2026 publication found
+in any of the three searches. **Transfer: none new** — this is now the seventh-plus
+consecutive literature pass with nothing new and buildable on candidate generation or
+definition-span/fit scoring, over more than a month of elapsed project time (last solver
+lever: 2026-08-30; the runs between then and today were non-solver site/game work per
+DAILY.md's log, so the standing research gap is genuinely unchanged, not re-confirmed on
+stale information).
+
+**Conclusion for today's lever.** With literature exhausted again, today's lever is the
+queue's own standing, explicitly-named next step for item 2/9: DAILY.md's "Things already
+tried" section, when it struck definition-span detection via indicator-word density
+(2026-08-19, 1/5 classifier agreement — worse than chance), named one untried alternative
+before giving up on the item entirely: "scoring by whether each end's residual is
+anagram-matchable". That signal had never been built. Built and selftested it today in
+`solver/defspan.py` (`split_mechanical`) — full account, including a disclosed structural
+weakness found by direct construction (ties between two equal-length matchable residuals
+are broken by how many real words happen to share that letter-multiset, not by which span
+the setter intended) and today's real-data measurement, in DAILY.md's log. Net honest
+read: the new signal is a real, selftested improvement in KIND over indicator-word density
+(it can rule out a residual that is structurally too short, which indicator density could
+never do), but defspan's own underlying premise is confirmed even weaker than previously
+measured — 0/28 located on today's freshly transcribed puzzle, the lowest this diagnostic
+has ever recorded (previous low 25%, 2026-08-19) — so there were zero edge cases to score
+either classifier against on real data this run, old or new. This is the third independent
+puzzle confirming single-window locatability, not classifier quality, is the real
+bottleneck on this item.
+
 ## 2026-08-30
 
 Bootstrap hit the same hard 14across wall as 2026-08-19/08-26/08-27/08-28 (4 consecutive
