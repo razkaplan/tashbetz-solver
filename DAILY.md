@@ -21,9 +21,64 @@ tree - a stale CLI deploy overwrote the live site on 2026-08-29. See CLAUDE.md.
 | **Definition-span locatable rate (new, offline, diagnostic)** | **25% (7/28)** have mechanically-locatable single-window wordplay; of those 29% (2/7) are interior, not edge; classifier agreement on edge cases **1/5** | not a target — this diagnostic KILLED the lever, see log |
 | **`solve_pass.py` LIVE blind trial — cumulative (3 trials)** | **40% precision (2/5 committed)**: 2026-08-16 was 1/2 on a partial 21/28-clue puzzle (2026-06-12); 2026-08-22 was **0/2**, 7.1% coverage, on a FULL 28/28-clue puzzle (2026-05-15); **2026-08-27 is 1/1 = 100% precision but 5.3% coverage (1/19), 0% suggestion hit-rate (0/10)**, on 2026-07-10 (19/28 clues) — FIRST trial run with `retrieval_candidates` live (wired 2026-08-25, never live-trialed since); it contributed ZERO candidates all puzzle (grepped the transcript for `(retrieval, fodder=` hits — none), matching today's own offline recall@N finding on this same puzzle (0/19 with or without retrieval); the one correct commit came from `wiki.py` culture-fact lookup, not from any candidate generator | n=5 — still small; retrieval's live debut is a null result on this puzzle, not a regression, but not the coverage lift the queue hoped for either; see log |
 | **Candidate recall@N with `culture_category_candidates` added (new, offline, definition-driven)** | **0% (0/28)**, on 2026-06-19 — mechanism fired on only 1/28 clues (avg candidates/clue 10.5 → 11.4); its one firing (339 raw candidates, an "author" category hit) matched 0 gold | not yet a target — small-n diagnostic, see log |
+| **Candidate recall@N with `container_candidates` added (new, offline, mechanical)** | **0% (0/28)** on 2026-06-05 — fired on **0/28 clues** (avg candidates/clue 11.8 → 11.8, unchanged); this puzzle DOES have one real container clue (16A, קטלנ = קן containing טל) per the crowd's own explanation, but the printed clue text ("חי בבית השופט") never contains קן or טל literally — the device needs SYNONYM substitution (בית~קן, "the judge"~טל), which this mechanism's literal-clue-word design cannot reach, root-cause matching the already-established charade/substitution finding | not yet a target — n=1 puzzle, root-caused not just flat; see log |
 
 Baseline for comparison: v2 = 41% raw with untraceable errors.
-Last lever added (2026-08-30): **closed 2026-08-29's own "NOT DONE" gap: re-measured
+Last lever added (2026-09-11): **`container_candidates` (`solver/candidates.py`) — the
+container device ("X בתוך Y", ~10-12% of this setter's clues per PLAYBOOK.md 1.4) had a
+verifiable proof primitive in `prove.py` (`is_container`) since the proof gate's first
+version, but no candidate generator anywhere in this file had ever produced a container
+HYPOTHESIS for it to check — every other named mechanism (anagram/hidden/reversal/
+substitution/homograph) had one, this was the one gap left in the roster.** Bootstrap ran
+mostly clean this run (33/52 puzzles, 925 clues recovered from 14across; 19 came back with
+no date — the familiar intermittent, not hard-wall, failure mode). Transcribed 2026-06-05
+fresh from `data/images/2026-06-04.jpg` (a puzzle never before used for this diagnostic;
+"hardest puzzle" per this file's own state table). Validated all 28 enum sums against the
+GRID-DERIVED slot length (`grid_tools.validate()`, zero problems) rather than the printed
+enumerations, which this run found genuinely misprinted for 3 clues (8, 10, 11 across —
+disclosed, not silently fixed: clue 8's enum is simply absent in print, and clues 10/11
+show numerals that belong to a different clue in the sequence, a new sub-type of print
+error distinct from this project's already-catalogued "reversed enumeration" quirk).
+MEASURED, controlled (`python3 solver/candidates.py recall data/dataset/clues.jsonl eval
+--no-culture --no-retrieval --no-container` vs the same command without `--no-container`):
+**0.0% (0/28) both before and after** — `container_candidates` fired on **zero of 28
+clues** (avg candidates/clue 11.8 in both runs, exactly unchanged). ROOT-CAUSED, not just
+reported flat: this puzzle has one genuine container clue (16A, `קטלנ`, per the crowd's own
+explanation "טל הוא השופט / בתוך קן שזה בית" — Justice טל inserted inside קן/nest, a
+synonym for בית/home), but the PRINTED clue text ("חי בבית השופט, עפ"י מיקי זבדי") never
+contains קן or טל as literal words — the device needs SYNONYM substitution (בית~קן, "the
+judge"~טל), which this generator's literal-whole-clue-word design cannot reach by
+construction. This mirrors, rather than contradicts, this project's own established
+finding for the closely related charade device (2.8% recall, DAILY.md 2026-08-08,
+"the mined substitution table is too sparse for full-answer generation") — container and
+charade share the same underlying difficulty: most real instances of either device draw
+their outer/inner pieces from SYNONYMS of clue words, not the literal clue words
+themselves. AUDITED: `lexicon.held_out_answers()` confirmed (computed, `gold_norm -
+blocked` empty) to block all 28 of this puzzle's own gold answers before the measurement
+ran, so `container_candidates`' `cand in lex()` check could not leak one even by
+coincidence; no forbidden reads (gold from the sanctioned `data/answers/by_date/` path via
+bootstrap's own 14across scrape, clue text from the public CDN image); no jump to explain
+(0.0% stayed 0.0%, the opposite of an implausible result). All 6 affected selftests
+(`candidates.py`, `solve_pass.py`, `prove.py`, `lexicon.py`, `substitutions.py`,
+`retrieve_defs.py`) re-run clean, including two NEW `candidates.py` selftest cases for
+`container_candidates` itself (a positive hit reusing `prove.py`'s own worked
+`is_container` example, קרים+תן→קרתנים, and a negative check that edge-position
+concatenation is correctly rejected). HONEST READ: this is a genuine negative recall result
+on the one puzzle available this run, but not an uninformative one — it fills a real,
+previously-unnoticed gap in the mechanism roster (verifiable via selftest, near-zero cost
+when it doesn't fire, same design philosophy as `culture_category`/`retrieval`), and the
+root-cause trace gives a concrete, well-scoped next step rather than a dead end: extend
+`container_candidates` to also try OUTER/INNER from `substitutions.py`'s mined synonym
+table, not just literal clue words — NOT attempted today, correctly scoped as its own
+future lever rather than expanding today's one-lever budget. NOT DONE, honestly: only one
+puzzle measured (n=1; container's own ~10-12% base rate means a single puzzle showing zero
+real firings and zero mechanical hits is not yet enough to call the mechanism's real-world
+yield, only that today's specific literal-word design has a known, explained blind spot);
+did not crawl `private_defs` this run (retrieval/culture ablations in the "full defaults"
+line reflect whatever corpus was already present, not a fresh crawl — out of scope for a
+mechanism-generation lever); did not merge or otherwise act on any open PR.
+
+Previous lever (2026-08-30): **closed 2026-08-29's own "NOT DONE" gap: re-measured
 `retrieval_candidates` on 2026-06-26 — the puzzle 2026-08-28/08-29 both flagged as still
 needing a bigger corpus and no run had finished re-transcribing — this time FULLY (28/28
 clues, not the 18/28 partial 2026-08-26 left) and against a corpus grown far past any
@@ -518,6 +573,16 @@ propagated), `blank`. Score with `python3 evals/run_eval.py <file>`.
    leak-adjacent vector — it named 2 of today's 4 gold answers in a prior entry, before
    this run's required reading. Worth a future lever (redact specific answer strings from
    log prose, or split required-reading history from an answer-bearing appendix).
+   2026-09-11 ADDED (e): `container_candidates` — the container device ("X בתוך Y") had a
+   `prove.py` verifier (`is_container`) since the proof gate's first version but NO
+   generator anywhere in this file, the one gap left in the mechanism roster after (a)-(d).
+   MEASURED on a freshly transcribed 2026-06-05 (never used for this diagnostic before):
+   0.0% (0/28), fired on 0/28 clues. ROOT-CAUSED: this puzzle's one real container clue
+   (16A) needs SYNONYM substitution (בית~קן, "the judge"~טל) that a literal-clue-word-only
+   generator cannot reach by construction — the same underlying difficulty already
+   documented for the charade device (2.8% recall, 2026-08-08). Concrete next step, not
+   attempted today: let `container_candidates` also draw OUTER/INNER from
+   `substitutions.py`'s mined table, not just literal clue words. See log.
 2. ~~Definition-span detection~~ — TRIED 2026-08-19, NEGATIVE. See log and "already
    tried" below. Do not re-attempt without a fundamentally different signal (not
    indicator-word density).
@@ -2427,3 +2492,38 @@ Measure each lever on dev (fixed enums) with run_eval.py before/after; one lever
   "כולם חפצים מהבית" theme (an אוטובוס was due to appear on 09-08).
   Gates: ui_smoke 9/9 pages at both widths, topicgen_eval 52/52 boards,
   url_guard clean (6,071 URLs, none dropped), nativ regression 22/22.
+
+- 2026-09-11: **solver lever: `container_candidates` (`solver/candidates.py`), queue item
+  1(e), closing the last gap in the mechanism roster** — `prove.py` has verified container
+  proofs (`is_container`) since its first version, but no generator ever produced one to
+  check; every other named mechanism (anagram/hidden/reversal/substitution/homograph) had
+  a generator already. Full detail (bootstrap state, transcription/enum-anomaly audit,
+  measurement, root-cause, and honest read) is in the "Last lever added" section above, not
+  duplicated here. Bootstrap: 33/52 puzzles recovered from 14across (925 clues; 19 came
+  back dateless, the ordinary intermittent pattern, not a hard wall). Transcribed
+  2026-06-05 fresh (first time this puzzle has been used for the candidate-recall
+  diagnostic) from `data/images/2026-06-04.jpg`, validating all 28 enum sums against the
+  GRID-DERIVED slot length rather than the printed numerals, which this run found genuinely
+  wrong for 3 clues (8/10/11 across) — a new print-error sub-type, disclosed rather than
+  silently patched over. MEASURED: `python3 solver/candidates.py recall
+  data/dataset/clues.jsonl eval --no-culture --no-retrieval [--no-container]`: **0.0%
+  (0/28) unchanged, container fired on 0/28 clues** (avg candidates/clue 11.8 both ways).
+  ROOT-CAUSED via the puzzle's own crowd explanation: this puzzle's one real container clue
+  (16A, קטלנ) needs synonym substitution (בית~קן, "the judge"~טל) the literal-clue-word
+  design cannot reach — the same underlying gap already documented for the charade device.
+  AUDITED: `lexicon.held_out_answers()` confirmed to block all 28 gold answers
+  (`gold_norm - blocked` empty) before the measurement ran, so the mechanism's `cand in
+  lex()` check could not leak one by coincidence; no forbidden reads; no jump to explain.
+  All 6 affected selftests re-run clean, including two new `container_candidates` cases
+  (a positive hit reusing `prove.py`'s own worked example, and a negative edge-insertion
+  check). Research (full entry in RESEARCH.md): fresh literature pass found nothing new and
+  buildable on candidate generation or definition-span/fit scoring — the same conclusion
+  every pass since 2026-08-06 has reached — so this run's lever came from the project's own
+  code (an unfilled gap between `prove.py`'s DSL and `candidates.py`'s generator roster),
+  not from a paper. HONEST READ: a real, well-audited negative recall result on the one
+  puzzle measured (n=1), but not an uninformative one — it fills a genuine mechanism-roster
+  gap at near-zero cost when it doesn't fire, and the root-cause trace names a concrete,
+  correctly-deferred next step (draw container's OUTER/INNER from `substitutions.py`'s
+  mined table too, not just literal clue words) rather than a dead end. NOT DONE, honestly:
+  only one puzzle measured; did not crawl `private_defs` this run; did not merge or
+  otherwise act on any open PR.
