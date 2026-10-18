@@ -4,6 +4,68 @@ One entry per run: what was found, one-line summary, and an honest judgement of 
 it transfers to a Hebrew cryptic solver with an 8k-clue corpus. Default skepticism: most
 crossword-AI work targets non-cryptic (American-style) puzzles and does not transfer.
 
+## 2026-09-17
+
+Gap since the last solver-pipeline entry (2026-08-30): confirmed via `git log --since
+2026-08-30 -- solver/candidates.py solver/prove.py solver/retrieve_defs.py
+solver/defspan.py solver/substitutions.py solver/lexicon.py solver/solve_pass.py
+solver/sweep.py evals/run_eval.py` that zero commits touched the core cryptic-solving
+pipeline in the intervening weeks — the DAILY.md log entries in between are all `nativ`/
+topic-crossword site-game work, a different part of this repo. So this run re-checked
+the literature from a genuinely stale baseline rather than assuming yesterday's sweep.
+
+**Four searches**: (1) "cryptic crossword clue solving candidate generation LLM
+definition span 2026"; (2) "retrieval augmented crossword solver BM25 definition
+retrieval arxiv 2026"; (3) "Hebrew morphology NLP crossword wordplay generation 2026";
+(4) "cryptic crossword definition location start end clue heuristic 2026".
+
+**Nothing new and buildable.** The same paper set already logged here resurfaces:
+2506.04824 ("A Reasoning-Based Approach to Cryptic Crossword Clue Solving" — fine-tuned
+Gemma2-9B generates ~20 candidates per clue, then a Python verification loop; still the
+closest published system to this project's own candidates.py+prove.py shape, still
+English-only and untransferable to Hebrew without its own fine-tune), 2406.09043/NAACL
+2025 ("Language Models are Crossword Solvers"), 2407.08824 ("Proving that Cryptic
+Crossword Clue Answers are Correct" — the formal-verification framing `prove.py` already
+follows). One paper newly has a stable arXiv id since it was last logged informally:
+2607.26497 "BM25 Wins at Scale" — same conclusion as before (BM25 beats a strong
+embedding model past ~10M corpus tokens), still just reconfirms `retrieve_defs.py`'s
+existing choice, not a new lever.
+
+**One genuinely new citation**: KibutzR (ACL 2026), a Hebrew coreference-resolution
+benchmark and evaluation protocol for morphologically complex text. Checked directly
+against this project's actual open problems (candidate generation, definition-span
+detection): coreference resolution answers "which mentions in a text refer to the same
+entity" — a different task from identifying which END of a cryptic clue carries the
+definition, or from generating wordplay-derived candidates. **Does not transfer.** Also
+does not unstick the standing Hebrew WordNet lead from 2026-08-24 (role-category lookup,
+not coreference, is still the missing piece there).
+
+**Search (4) reconfirms, rather than newly discovers, the standard literature framing**
+this project has cited since its first defspan.py attempt: "the definition sits at one
+END of the clue." That framing is exactly what motivated today's lever (see DAILY.md) —
+not a NEW finding, but useful confirmation that `retrieve_defs.py`'s pre-existing
+`end_candidates()` function (built 2026-08-08, used only by that file's own standalone
+`eval` command, never wired into `candidates.py`'s live pool) is a reasonable, literature-
+grounded operationalization of the same idea `defspan.py` tried and failed to operationalize
+differently (indicator-word density classification — struck 2026-08-19, do not repeat).
+The distinction matters: defspan.py tried to CLASSIFY which end carries the definition and
+use only that end; end_candidates() instead queries BOTH ends and lets the retrieval
+score (plus the eventual proof gate) sort out which hit is real — hypothesis generation,
+not classification, sidestepping the exact failure mode (a classifier defaulting to a
+fixed answer when most clues carry no lexical indicator at all) that killed defspan.py.
+
+**Conclusion, and the lever this run actually built.** No new external resource or paper
+changes anything actionable today. Built the standing internal gap instead:
+`retrieve_defs.end_candidates()` — real, already-measured-in-isolation (it is what that
+file's own `eval` CLI has reported gold@1/gold@25 with since 2026-08-08), never reaching
+`candidates.py`'s live candidate pool — wired in as a new `retrieval_end_candidates`
+mechanism. See DAILY.md for the measured result: a clean, well-powered NEGATIVE finding
+(12.5% -> 12.5% on 56 clues across 2 freshly-transcribed puzzles, exact same 7 clues hit
+either way). Shipped anyway per this project's own standing rule that a negative result
+closing a real gap, selftested and held-out-safe, is worth landing — future runs can
+re-measure for free via the new `--no-retrieval-ends` ablation flag rather than re-deriving
+whether this specific gap was worth closing.
+
 ## 2026-08-30
 
 Bootstrap hit the same hard 14across wall as 2026-08-19/08-26/08-27/08-28 (4 consecutive

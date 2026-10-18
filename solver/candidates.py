@@ -423,6 +423,46 @@ def retrieval_candidates(clue_text, target_len, topk=25, docs_df=None):
     return [{'answer': a, 'mechanism': 'retrieval', 'fodder': None} for a, _score in hits]
 
 
+def retrieval_end_candidates(clue_text, target_len, docs_df=None):
+    """DEFINITION-SPAN-hypothesis candidate generation — the queue's other still-untried
+    half of 'RANKED RETRIEVAL': retrieve_defs.py has carried an end_candidates() function
+    since its own 2026-08-08 introduction (it is what retrieve_defs.py's own `eval` CLI
+    command has always used to report gold@1/gold@25), built on the standard cryptic-clue
+    fact that the DEFINITION sits at one END of the clue, not spread across the whole
+    surface. retrieval_candidates() above queries the FULL clue text as one BM25 bag of
+    words; that dilutes the query with wordplay-fodder tokens the definition doesn't
+    contain, and is a different (weaker, by construction) signal than querying just the
+    first 2/3/4 words or just the last 2/3/4 words, i.e. explicitly hypothesizing BOTH
+    "definition is at the start" and "definition is at the end" as separate queries and
+    keeping the best-scoring hit for each candidate answer across all of them. Despite
+    end_candidates() existing since the tool's introduction and being the function used
+    for retrieve_defs.py's own standalone eval, nothing in candidates.py's generate() pool
+    has ever called it — only the weaker whole-clue query was wired in (2026-08-25). This
+    closes that specific, narrow gap: same corpus, same held-out guarantee (identical
+    call into retrieve_defs.build_index()/held_out(), see retrieval_candidates()'s
+    docstring for the full argument), different query shape.
+
+    Kept as a SEPARATE mechanism (not merged into retrieval_candidates) so a recall
+    ablation can isolate whether the end-anchored query finds anything the whole-clue
+    query does not, rather than only ever seeing their union.
+    `docs_df` is injectable (tests / callers), same discipline as retrieval_candidates."""
+    sys.path.insert(0, HERE)
+    import retrieve_defs
+    cwd = os.getcwd()
+    try:
+        os.chdir(ROOT)
+        if docs_df is not None:
+            hits = retrieve_defs.end_candidates(clue_text, target_len, docs_df=docs_df)
+        else:
+            global _RETRIEVE_DOCS_DF
+            if _RETRIEVE_DOCS_DF is None:
+                _RETRIEVE_DOCS_DF = retrieve_defs.build_index()
+            hits = retrieve_defs.end_candidates(clue_text, target_len, docs_df=_RETRIEVE_DOCS_DF)
+    finally:
+        os.chdir(cwd)
+    return [{'answer': a, 'mechanism': 'retrieval_end', 'fodder': None} for a, _score in hits]
+
+
 def pattern_candidates(pattern):
     """pattern like '?ו?ר??' — '?' or '_' = unknown crossing letter. The lexicon folds
     final letters (ם/ן/ץ/ף/ך -> מ/נ/צ/פ/כ) everywhere, so fixed cells must be folded
@@ -459,7 +499,8 @@ def split_candidates(cands, enum):
     return out
 
 
-def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retrieval=True):
+def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retrieval=True,
+             use_retrieval_ends=True):
     """Diverse candidates for one clue. Never consults the answer.
 
     Mechanism order here is a PRIORITY order, not just an accumulation order: dedup +
@@ -477,9 +518,12 @@ def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retr
     docstrings) — placed in the same early tier as homograph/substitution: culture_category
     fires rarely and each hit is a real named entity; retrieval is capped at its own topk
     (25 by default) and ranked, not an unbounded window scan, so it does not need to wait
-    behind the cheap mechanisms either. `use_culture`/`use_retrieval` are plain on/off
-    switches so a controlled before/after recall measurement doesn't need extra copies of
-    this function."""
+    behind the cheap mechanisms either. `retrieval_end_candidates` sits in the same tier
+    for the same reason (capped, ranked, not a window scan) right after the whole-clue
+    retrieval, since it is the same corpus queried a different way, not a new tier of
+    quality. `use_culture`/`use_retrieval`/`use_retrieval_ends` are plain on/off switches
+    so a controlled before/after recall measurement doesn't need extra copies of this
+    function."""
     target_len = sum(enum)
     cands = []
     cands += homograph_candidates(clue_text, target_len)
@@ -488,6 +532,8 @@ def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retr
         cands += culture_category_candidates(clue_text, target_len)
     if use_retrieval:
         cands += retrieval_candidates(clue_text, target_len)
+    if use_retrieval_ends:
+        cands += retrieval_end_candidates(clue_text, target_len)
     if pattern:
         cands += pattern_candidates(pattern)
     cands += anagram_candidates(clue_text, target_len)
@@ -511,7 +557,8 @@ def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retr
 # isolation, BEFORE it is wired into a live solve+proof loop (which is a
 # separate integration step, not done by this lever).
 # ---------------------------------------------------------------------------
-def recall_eval(dataset_path, split=None, max_n=25, use_culture=True, use_retrieval=True):
+def recall_eval(dataset_path, split=None, max_n=25, use_culture=True, use_retrieval=True,
+                 use_retrieval_ends=True):
     total = 0
     hit = 0
     by_mech = Counter()
@@ -525,7 +572,7 @@ def recall_eval(dataset_path, split=None, max_n=25, use_culture=True, use_retrie
             continue
         total += 1
         cands = generate(r['clue_text'], r['enum'], max_n=max_n, use_culture=use_culture,
-                          use_retrieval=use_retrieval)
+                          use_retrieval=use_retrieval, use_retrieval_ends=use_retrieval_ends)
         sizes.append(len(cands))
         gold = norm(r['answer_raw'])
         found = [c for c in cands if c['answer'] == gold]
@@ -656,6 +703,27 @@ def selftest():
           f'not here): {len(off) >= 1} (expected True)')
     ok &= len(off) >= 1
 
+    print('--- retrieval_end device: BM25 over each END of the clue separately (definition-'
+          'span hypothesis), no letters shared with the clue ---')
+    # same synthetic index shape as the whole-clue retrieval test above; here the definition
+    # phrase sits at the clue's END, behind unrelated filler words at the start, mirroring
+    # the real setter's convention (definition at one end) that end_candidates() targets.
+    docs_df2 = ([
+        (['נשיא', 'ראשון', 'מדינה'], [norm('וייצמן')], None),
+        (['פרח', 'לאומי', 'ישראל'], [norm('כלנית')], None),
+    ], {'נשיא': 1, 'ראשון': 1, 'מדינה': 1, 'פרח': 1, 'לאומי': 1, 'ישראל': 1})
+    end_clue = 'סתם איזו הקדמה חסרת חשיבות מי היה הנשיא הראשון של המדינה'
+    ends = retrieval_end_candidates(end_clue, 6, docs_df=docs_df2)
+    found = any(h['answer'] == norm('וייצמן') for h in ends)
+    print(f'  found וייצמן via the end-anchored query, sharing no letters with the clue: '
+          f'{found} (expected True)')
+    ok &= found
+    print('--- retrieval_end device: use_retrieval_ends=False in generate() disables it ---')
+    off = retrieval_end_candidates(end_clue, 6, docs_df=docs_df2)
+    print(f'  standalone call still fires (sanity check the toggle lives in generate(), '
+          f'not here): {len(off) >= 1} (expected True)')
+    ok &= len(off) >= 1
+
     print('--- split_candidates: flags whether a multi-part answer is two real words ---')
     split = split_candidates([{'answer': norm('שלוםעליכם'), 'mechanism': 'test'}], [4, 5])
     print(f'  split result: {split[0]["split"]} (expected two real words, not None)')
@@ -681,14 +749,18 @@ def main():
         rest = sys.argv[2:]
         use_culture = '--no-culture' not in rest
         use_retrieval = '--no-retrieval' not in rest
-        rest = [a for a in rest if a not in ('--no-culture', '--no-retrieval')]
+        use_retrieval_ends = '--no-retrieval-ends' not in rest
+        rest = [a for a in rest if a not in
+                ('--no-culture', '--no-retrieval', '--no-retrieval-ends')]
         path = rest[0] if len(rest) > 0 else 'data/dataset/clues.jsonl'
         split = rest[1] if len(rest) > 1 else None
         os.chdir(ROOT)
-        res = recall_eval(path, split, use_culture=use_culture, use_retrieval=use_retrieval)
+        res = recall_eval(path, split, use_culture=use_culture, use_retrieval=use_retrieval,
+                           use_retrieval_ends=use_retrieval_ends)
         print(f"recall@N: {res['hit']}/{res['total']} = {res['recall']:.1%}  "
               f"(avg {res['avg_candidates']:.1f} candidates/clue, "
-              f"use_culture={use_culture}, use_retrieval={use_retrieval})")
+              f"use_culture={use_culture}, use_retrieval={use_retrieval}, "
+              f"use_retrieval_ends={use_retrieval_ends})")
         print('hits by mechanism:', res['by_mechanism'])
         if res['misses']:
             print(f"\n{len(res['misses'])} misses (clue_number, direction, gold):")

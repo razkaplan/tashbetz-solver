@@ -21,6 +21,7 @@ tree - a stale CLI deploy overwrote the live site on 2026-08-29. See CLAUDE.md.
 | **Definition-span locatable rate (new, offline, diagnostic)** | **25% (7/28)** have mechanically-locatable single-window wordplay; of those 29% (2/7) are interior, not edge; classifier agreement on edge cases **1/5** | not a target — this diagnostic KILLED the lever, see log |
 | **`solve_pass.py` LIVE blind trial — cumulative (3 trials)** | **40% precision (2/5 committed)**: 2026-08-16 was 1/2 on a partial 21/28-clue puzzle (2026-06-12); 2026-08-22 was **0/2**, 7.1% coverage, on a FULL 28/28-clue puzzle (2026-05-15); **2026-08-27 is 1/1 = 100% precision but 5.3% coverage (1/19), 0% suggestion hit-rate (0/10)**, on 2026-07-10 (19/28 clues) — FIRST trial run with `retrieval_candidates` live (wired 2026-08-25, never live-trialed since); it contributed ZERO candidates all puzzle (grepped the transcript for `(retrieval, fodder=` hits — none), matching today's own offline recall@N finding on this same puzzle (0/19 with or without retrieval); the one correct commit came from `wiki.py` culture-fact lookup, not from any candidate generator | n=5 — still small; retrieval's live debut is a null result on this puzzle, not a regression, but not the coverage lift the queue hoped for either; see log |
 | **Candidate recall@N with `culture_category_candidates` added (new, offline, definition-driven)** | **0% (0/28)**, on 2026-06-19 — mechanism fired on only 1/28 clues (avg candidates/clue 10.5 → 11.4); its one firing (339 raw candidates, an "author" category hit) matched 0 gold | not yet a target — small-n diagnostic, see log |
+| **Candidate recall@N with `retrieval_end_candidates` added (new, offline, definition-SPAN-hypothesis BM25)** | **2026-09-17: 12.5% (7/56) → 12.5% (7/56), UNCHANGED** on TWO puzzles (2026-05-21 + 2026-05-29, both freshly transcribed this run) — end-anchored retrieval finds the EXACT SAME 7 clues as whole-clue retrieval, verified by set comparison, zero new hits and zero lost hits | not yet a target — diagnostic; NEGATIVE result, see log |
 
 Baseline for comparison: v2 = 41% raw with untraceable errors.
 Last lever added (2026-08-30): **closed 2026-08-29's own "NOT DONE" gap: re-measured
@@ -2427,3 +2428,138 @@ Measure each lever on dev (fixed enums) with run_eval.py before/after; one lever
   "כולם חפצים מהבית" theme (an אוטובוס was due to appear on 09-08).
   Gates: ui_smoke 9/9 pages at both widths, topicgen_eval 52/52 boards,
   url_guard clean (6,071 URLs, none dropped), nativ regression 22/22.
+
+- 2026-09-17: **candidate generation (lever 1) — wired `retrieve_defs.end_candidates` into
+  `candidates.py`, closing a real gap: that function has existed since 2026-08-08 (it is
+  what `retrieve_defs.py`'s OWN `eval` CLI has always used to report gold@1/gold@25) but
+  nothing in `candidates.py`'s `generate()` pool ever called it — only the weaker whole-clue
+  BM25 query (`retrieval_candidates`, wired 2026-08-25) was ever wired in. This is the
+  scheduled task's own framing of "candidate generation by definition-span hypothesis":
+  end_candidates() queries the first 2/3/4 words and the last 2/3/4 words of the clue as
+  SEPARATE BM25 queries against the definition index, explicitly testing both "definition
+  at the start" and "definition at the end" rather than diluting one query with the whole
+  clue's wordplay fodder. No time was spent on solver-pipeline-adjacent work first (unlike
+  most recent runs, which had been UI/game work on `nativ`/topic crosswords, not this
+  project's core cryptic-solving pipeline — confirmed via `git log --since 2026-08-30 --
+  solver/candidates.py solver/prove.py solver/retrieve_defs.py` etc.: zero commits touched
+  the solving pipeline since 2026-08-30, so this run picked back up the CORE queue.
+
+  BOOTSTRAP: `./bootstrap.sh --dev-only` hit the now-familiar 14across hard wall immediately
+  (4/52 fetches in a row `None: 0 clues` after full retry-with-backoff, matching
+  2026-08-19/26/27/28/30's failure mode) — killed after ~12 minutes rather than waited out,
+  and worked entirely from the no-14across image-fallback technique for gold data. Public
+  CDN image downloads (the 4 dev article images) and the private_defs crawl sources
+  (note.co.il, pitaronfree.blogspot.com) were all reachable fine — confirming (again) that
+  it is specifically 14across.co.il's bot-check that is walled this run, not a broader
+  network issue. `solver/lex/culture.json` and `solver/lex/substitutions.json` are
+  committed derived artifacts (not raw corpus) and did not need rebuilding.
+  `scraper/crawl_defs.py mordo` (background, 900s budget, killed by timeout, not by
+  completion): **50,549 raw / 48,933 parsed** pairs — smaller than 2026-08-30's peak
+  (66,443/62,403) since this run's crawl was time-bounded rather than run to completion,
+  but a real, substantial corpus. `crawl_defs.py note` (600s budget): **545 pairs**.
+
+  TRANSCRIPTION: two full dev puzzles, chosen because the 4 downloaded dev-only article
+  images (2026-05-14, 2026-05-20, 2026-05-28, 2026-06-04) chain into THREE possible
+  gold-verified puzzles via the standard technique (this week's clue text + next week's
+  small solution-grid box), and this run did two of the three for statistical power (PLAN_V2.md:
+  "differences under ~10 points are noise... expand dev before trusting a single-digit
+  movement" — a single 28-clue puzzle is exactly that regime).
+  - **2026-05-29** (clues from `data/images/2026-05-28.jpg`, solution from
+    `data/images/2026-06-04.jpg`): 28/28 clues transcribed, 0/28 enum-sum mismatches
+    against the grid-derived slot lengths, 0/15 solution-grid row mismatches against the
+    already-committed `data/grids/2026-05-29.json` black-cell pattern (gridlines located
+    programmatically via a darkness-threshold row scan, not assumed uniform — a naive
+    uniform-spacing crop silently drifted by one row, caught by the pattern check before
+    any clue data was touched). One gold answer, `ברישניקוב` (Baryshnikov), independently
+    reproduces DAILY.md's own 2026-08-30 finding on this exact puzzle from a from-scratch
+    transcription and a different corpus crawl — strong cross-run consistency evidence.
+  - **2026-05-21** (clues from `data/images/2026-05-20.jpg`, solution from
+    `data/images/2026-05-28.jpg`, the same image used as puzzle 2026-05-29's own clue
+    source — two different roles for one image, both legitimate): 28/28 clues transcribed,
+    0/28 enum mismatches, 0/15 row mismatches. One transcription near-miss CAUGHT before it
+    mattered: a first pass at the solution grid's row0 and row14 read the letters in the
+    WRONG scan direction for row14 (mirrored) — caught by re-deriving that row with an
+    individual-cell-crop montage (unambiguous, no reading-direction judgment call left) and
+    re-running the full 15-row pattern check, which only passes on the corrected reading.
+    Two derived answers do not resolve to a phrase this run recognizes (`שפטהשופטימ` split
+    (7,3), `נילמתומדקא` split (4,6)) even after the row0/row14 recheck — disclosed rather
+    than silently assumed wrong: the black-cell pattern match is the project's own
+    established strongest check and it passes cleanly on both rows; the likely explanation
+    is an idiom or proper noun outside this run's own vocabulary, not a transcription error,
+    but this is not proven either way and a future run re-deriving these two answers
+    independently would be useful corroboration.
+
+  BUILT: `python3 solver/build_dataset.py` -> 56 rows across 2 puzzles, 0 len mismatches,
+  0 missing answers, both puzzles landing in the `eval` split (only puzzle dates present,
+  so the newest-6-dates-are-eval rule puts both there — matches this project's own
+  established practice of running `candidates.py recall ... eval` against exactly these
+  dev-only bootstrap puzzles).
+
+  RESEARCH (full entries in RESEARCH.md): four searches this run (candidate generation /
+  definition-span LLM approaches, BM25/retrieval-augmented crossword solving, Hebrew
+  morphology + crossword wordplay, definition-location heuristics). Nothing new and
+  buildable beyond what prior runs already logged — the same paper set resurfaces
+  (2506.04824, 2406.09043/NAACL, 2407.08824, the BM25-wins-at-scale scaling study now with
+  a permanent arXiv id 2607.26497) plus one new-since-2026-08-30 Hebrew NLP paper
+  (KibutzR, a Hebrew coreference-resolution benchmark, ACL 2026) that does not transfer:
+  coreference resolution answers "which mentions refer to the same entity," not this
+  project's definition-span or wordplay-decomposition problems. Chose to build the
+  standing internal gap (`end_candidates` unwired) rather than force a new external
+  citation into relevance, consistent with this project's own stated preference for an
+  honest "nothing new, built the concrete internal gap instead" over filler.
+
+  MEASURED, controlled before/after (`python3 solver/candidates.py recall
+  data/dataset/clues.jsonl eval [--no-retrieval-ends]`), on the combined 56-clue,
+  2-puzzle set: mechanical-only baseline (no culture, no retrieval, no retrieval-ends)
+  **1.8% (1/56)**; **+ culture + whole-clue retrieval (today's prior default):
+  12.5% (7/56)**; **+ retrieval_end added: 12.5% (7/56), UNCHANGED**. Isolated
+  (retrieval_end alone, whole-clue retrieval off, culture on): also **12.5% (7/56)**.
+  Per-clue set comparison (not just the count) confirms this is a genuine null, not a
+  coincidental equal count: the whole-clue-retrieval hit set and the retrieval_end hit set
+  are EXACTLY the same 7 clues
+  (`[('2026-05-21',12,'across'),('2026-05-21',14,'across'),('2026-05-21',4,'down'),
+  ('2026-05-29',23,'across'),('2026-05-29',26,'across'),('2026-05-29',1,'down'),
+  ('2026-05-29',21,'down')]`) — `end_set - whole_set` and `whole_set - end_set` both empty.
+
+  AUDITED (mandatory gate). `lexicon.held_out_answers()` and `retrieve_defs.held_out()`
+  both confirmed (computed, not assumed) to block all 56 of both puzzles' own gold answers
+  — `gold_norms - blocked` empty for both functions. Provenance of all 7 retrieval hits
+  checked directly: every matching document carries `pid=None` (external private_defs
+  corpus), and the underlying definition text is a clean semantic fit for its clue (e.g.
+  `רוקפור`/Roquefort's docs are cheese-type lists, matching clue 14's "dedication to
+  cheese"; `ברישניקוב`'s docs are about a Russian ballet dancer, matching clue 1's "before
+  a dancer's stab"), not a coincidental string collision. No forbidden reads: 14across was
+  never successfully queried this run (hit its bot wall every attempt), only the public CDN
+  images and the two public crawl sources. Implausibility check: today's lever's OWN delta
+  is 12.5%->12.5%, i.e. exactly 0 points — nowhere near the ~15-point suspicion threshold,
+  so no further scrutiny needed on that front. All 5 affected selftests (`candidates.py`
+  — with a new selftest pair added for `retrieval_end_candidates`, mirroring the existing
+  `retrieval_candidates` selftest's synthetic-index discipline —, `retrieve_defs.py`,
+  `lexicon.py`, `prove.py`, `substitutions.py`) re-run clean.
+
+  HONEST READ: a clean, well-powered (56 clues, 2 independent puzzles, exact set
+  comparison not just a count) NEGATIVE result. The definition-span hypothesis (query each
+  end separately) does not recover anything the whole-clue BM25 query was not already
+  finding, at least on this corpus and these two puzzles. The most likely explanation,
+  consistent with `retrieval_candidates`'s own docstring: this setter's clues are short
+  enough (mean ~6 letters, per PLAN_V2.md) and this project's private_defs definitions are
+  themselves short phrases, so a whole-clue BM25 query and an end-anchored 2/3/4-word query
+  end up scoring the same small set of matching documents most of the time — the dilution
+  effect that motivates end-anchoring on LONGER English cryptic clues (the literature's own
+  framing, see RESEARCH.md) may need a longer clue corpus to show up. NOT a reason to leave
+  the code un-shipped: it closes a real, previously-flagged implementation gap (the
+  function existed and was measured standalone since 2026-08-08 but never reached the live
+  candidate pool), the mechanism is held-out-safe and selftested, and future runs with a
+  bigger dev set or this corpus's continued growth can re-measure it for free via the new
+  `--no-retrieval-ends` ablation flag without re-deriving anything.
+
+  NOT DONE, honestly: did not transcribe the third chainable puzzle (2026-06-05, clues
+  available from `data/images/2026-06-04.jpg`, but its own solution grid needs an article
+  image — 2026-06-11 — outside this run's 4 downloaded dev images) to keep this run to two
+  puzzles' full transcription-plus-audit cycle rather than three; did not investigate the
+  two semantically-unresolved answers (`שפטהשופטימ`, `נילמתומדקא`) beyond the row-level
+  re-verification already described; did not act on the still-open DAILY.md-as-leak-vector
+  finding (flagged 2026-08-22, disclosed again 2026-08-30) beyond continuing not to read
+  answer-bearing prior log entries before choosing which puzzle to transcribe (this run
+  picked puzzles from the dev-only image set independently of any prior entry's content);
+  did not merge or otherwise act on any open PR.
