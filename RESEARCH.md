@@ -910,3 +910,63 @@ priority 2. Wiring in an already-built, already-audited tool as one more candida
 is not itself a research question — it is closing a gap between what the project's own
 research queue prioritized in 2026-08-08 and what got implemented, which is worth doing
 regardless of whether today's literature sweep turned up anything new.
+
+## 2026-09-04
+
+Four solver-lever PRs opened and unmerged since this file's last entry (#38 2026-08-31
+culture_category 2nd puzzle, #39 2026-09-01 retrieval end-anchored-query fix, #41
+2026-09-02 defspan_retrieval_candidates, #42 2026-09-03 container_candidates) — read
+directly (diffs against their own merge-bases, since none share a branch point) before
+choosing today's lever, specifically so today's search and build would not repeat
+ground those four already covered. None of the four touches double-definition
+(מילה משותפת, PLAYBOOK.md §1.2) — the second most common mechanism in this setter's
+clues (103/728 = 14%, behind only charade/assembly) and, per a grep of `candidates.py`'s
+function list, the one PLAYBOOK-documented device with literally zero dedicated
+generator in this file, mechanical or definition-driven. That gap, not a fresh
+literature hit, is what set today's search direction.
+
+**"cryptic crossword double definition clue automatic detection candidate generation
+NLP" (general search).** Surfaced the known arXiv 2104.08620 (Wallace/Kordjamshidi
+definition-span line, already logged repeatedly since 2026-08-06) and a WordNet-relation
+candidate-generation ScienceDirect paper for non-cryptic definition clues, already
+logged 2026-08-24 as "confirms a closed door" (synonym relations, not the role-category
+membership this project's culture clues need). One genuinely new sighting: **GitHub
+`raphm72-spec/cryptic_crossword_helper`**, a 2026 hybrid rule+ML English cryptic helper.
+Checked directly (fetched and read, not cited from the search snippet alone) rather than
+assumed: it DOES mechanically generate double-definition candidates, not just classify —
+it scores WordNet/MiniLM-embedding similarity between each clue half and a dictionary
+headword. **Transfer: none of the actual generation machinery** — it depends on English
+WordNet and an English sentence-embedding model, neither of which has a Hebrew
+equivalent this project can reach (the same closed door Hebrew WordNet's role-category
+mismatch already established 2026-08-23/24). The one thing that DOES transfer is the
+*structural idea*, independent of any specific resource: split the clue at a boundary
+into two independent halves and require a candidate to satisfy BOTH sides' scoring
+separately, rather than scoring the whole clue as one bag of words. This project already
+owns a held-out-safe scoring function that plays the same role WordNet/embeddings play
+for the English tool — `retrieve_defs.py`'s BM25 index over private_defs + train-split
+explanations — so the transferable idea can be implemented with an existing, already-
+audited tool instead of a new external dependency.
+
+**"crossword clue split point definition span retrieval 2026 cryptic solver" (general
+search).** Mostly commercial crossword-clue-answer sites (crosswordsolver.com/.org,
+crossword-tracker) — noise, not research. One useful confirmation buried in an aggregator
+snippet, consistent with (not new relative to) this project's own PLAYBOOK.md: "the key
+starting point... is that the word is defined TWICE... the first question... is where one
+definition stops and the other starts" — restates the double-definition/definition-span
+framing PLAYBOOK.md §1.2 already documents from this setter's own crowd explanations, no
+new technique.
+
+**Conclusion, and the lever this run actually built.** No external resource generates
+double-definition candidates for a language without WordNet/embeddings — confirmed
+directly by reading the one new candidate repo rather than assumed from its title, same
+discipline as every WordNet check since 2026-08-23. The one structural idea that
+transfers (score each clue half independently against a definition index, require both
+to agree) is buildable today with `retrieve_defs.py`, already built and already
+held-out-audited: `solver/candidates.py` gained `double_definition_candidates()` — for
+every word-boundary split of the clue, query the BM25 index separately on each half and
+keep only an answer that ranks in BOTH halves' independent top-K. This is deliberately a
+DIFFERENT shape from every other retrieval-based mechanism already in this file
+(`retrieval_candidates` scores the whole clue as one query; `defspan_retrieval_candidates`,
+open in PR #41, scores a single end-window) — a two-unrelated-definitions clue dilutes
+both of those, which is exactly the class this new mechanism targets. See DAILY.md for
+the measured recall number, mechanism breakdown, and audit.
