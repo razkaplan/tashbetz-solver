@@ -111,7 +111,7 @@ def candidates(clue, length, topk=25, docs_df=None, skip_puzzle=None):
             if len(a) == length: scored[a] = max(scored[a], s)
     return sorted(scored.items(), key=lambda x: -x[1])[:topk]
 
-def end_candidates(clue, length, docs_df=None, skip_puzzle=None):
+def end_candidates(clue, length, docs_df=None, skip_puzzle=None, topk=25):
     """query each end of the clue separately (definition side is at one end)"""
     words = re.findall(r'[א-ת"\']+', clue)
     queries = {' '.join(words[:n]) for n in (2, 3, 4)} | \
@@ -120,7 +120,7 @@ def end_candidates(clue, length, docs_df=None, skip_puzzle=None):
     for q in queries:
         for a, sc in candidates(q, length, docs_df=docs_df, skip_puzzle=skip_puzzle):
             best[a] = max(best.get(a, 0), sc)
-    return sorted(best.items(), key=lambda x: -x[1])[:25]
+    return sorted(best.items(), key=lambda x: -x[1])[:topk]
 
 def selftest():
     """Unit-level check on synthetic fixture files in a temp dir — never touches real

@@ -404,20 +404,35 @@ def retrieval_candidates(clue_text, target_len, topk=25, docs_df=None):
     category list (culture_category) — a different signal is likely to miss on a different
     subset of clues, so the interesting number is the UNION's recall, not this mechanism's
     own gold@25 in isolation. `docs_df` is injectable (tests / callers) so a selftest can
-    supply a tiny synthetic index instead of loading the real corpus."""
+    supply a tiny synthetic index instead of loading the real corpus.
+
+    QUERY SHAPE (fixed 2026-09-01): retrieve_defs.py has always offered TWO query functions
+    over the same BM25 index — candidates() (the whole clue text as one query) and
+    end_candidates() (queries each 2/3/4-word PREFIX and SUFFIX of the clue separately,
+    "definition side is at one end" — its own docstring). The 5.4%/27% number quoted above,
+    and retrieve_defs.py's own `eval` CLI, were BOTH produced by end_candidates(), never by
+    candidates(). But this function, ever since it was first wired into generate()'s pool on
+    2026-08-25, called candidates() — the function that was NEVER measured, not the one that
+    was. A whole-clue BM25 query dilutes the definitional signal with every wordplay word in
+    the surface reading (anagram fodder, indicators, credits), which is exactly the noise
+    end_candidates()'s prefix/suffix split was built to avoid. Switched to end_candidates()
+    here so the mechanism actually wired into live candidate generation is the one this
+    project already validated, instead of an unmeasured sibling that happened to share a
+    docstring's borrowed numbers. See DAILY.md/RESEARCH.md for the measured recall@N
+    before/after this change on a real dev puzzle."""
     sys.path.insert(0, HERE)
     import retrieve_defs
     cwd = os.getcwd()
     try:
         os.chdir(ROOT)
         if docs_df is not None:
-            hits = retrieve_defs.candidates(clue_text, target_len, topk=topk, docs_df=docs_df)
+            hits = retrieve_defs.end_candidates(clue_text, target_len, topk=topk, docs_df=docs_df)
         else:
             global _RETRIEVE_DOCS_DF
             if _RETRIEVE_DOCS_DF is None:
                 _RETRIEVE_DOCS_DF = retrieve_defs.build_index()
-            hits = retrieve_defs.candidates(clue_text, target_len, topk=topk,
-                                             docs_df=_RETRIEVE_DOCS_DF)
+            hits = retrieve_defs.end_candidates(clue_text, target_len, topk=topk,
+                                                 docs_df=_RETRIEVE_DOCS_DF)
     finally:
         os.chdir(cwd)
     return [{'answer': a, 'mechanism': 'retrieval', 'fodder': None} for a, _score in hits]
