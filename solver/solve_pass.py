@@ -72,6 +72,19 @@ def proof_for(c):
     return '\n'.join(lines)
 
 
+# Mechanisms that only ever emit a hit backed by TARGETED evidence -- a mined equivalence
+# match, a literal clue-word occurrence, or an independent BM25 definition match -- never
+# a blind scan of every same-length character window the way anagram/hidden/reversal/
+# pattern/charade/container/homophone(_vowel) do. A hit from one of these is evidence in
+# itself, the same reason phrase_ok/split_ok below get a tier-1 floor (see that docstring):
+# a verified-real-words-glued-together hit and a targeted-mechanism hit are both signal a
+# plain window scan cannot produce by accident, so neither should rank behind one.
+PRECISION_MECHANISMS = {
+    'retrieval', 'defspan_retrieval', 'culture_category', 'homograph', 'substitution',
+    'abbreviation', 'double_definition',
+}
+
+
 def rank_candidates(cands, enum, max_n=25):
     """Annotate an already-generated candidate list with lexicon priority tier + split
     feasibility, and rank by the signals that actually discriminate (see module
@@ -103,7 +116,21 @@ def rank_candidates(cands, enum, max_n=25):
     are fixed together here, not one at a time. Both `phrase_split()` and
     `split_candidates()` only ever accept a hit when EVERY piece is independently a
     lex() member, so either signal deserves the same tier-1 floor a plain dictionary
-    word gets."""
+    word gets.
+
+    `mechanism_ok` (2026-10-18): 2026-10-12's fix only promotes a MULTI-part hit (via
+    split_ok/phrase_ok). A SINGLE-part retrieval/culture_category/homograph/substitution
+    hit has neither field set (split_ok is None when len(enum)==1, phrase_ok is only ever
+    set by the phrase_split() path those mechanisms don't use) -- so it still sat at the
+    unmodified lexicon_tier, usually 0, and still lost to every tier>=1 dictionary-word
+    window-scan hit once the wide raw pool was ranked. Found by RUNNING recall_eval
+    (use_rank=True) on a fresh, independently transcribed 2026-05-29 and seeing recall
+    regress 7.1%->3.6% (2/28->1/28): the lost hit was 1D `ברישניקוב` (Baryshnikov), a
+    single-part (9) `retrieval` hit with split=None, phrase unset, lexicon_tier=0 (it is
+    not itself a lex() member -- the whole point of retrieval is finding an answer the
+    lexicon doesn't already contain). PRECISION_MECHANISMS gets the exact same tier-1
+    floor phrase_ok/split_ok already get, for the exact same reason: a hit from one of
+    these mechanisms cannot have been produced by blind character-window noise."""
     words = candidates.lex()
     out = []
     for c in cands:
@@ -111,10 +138,12 @@ def rank_candidates(cands, enum, max_n=25):
         c['lexicon_tier'] = words.get(c['answer'], 0)
         c['split_ok'] = bool(c.get('split')) if len(enum) > 1 else None
         c['phrase_ok'] = bool(c.get('phrase'))
+        c['mechanism_ok'] = c.get('mechanism') in PRECISION_MECHANISMS
         c['proof'] = proof_for(c)
         out.append(c)
     out.sort(key=lambda c: (
-        -max(c['lexicon_tier'], 1 if (c['phrase_ok'] or c['split_ok']) else 0),
+        -max(c['lexicon_tier'],
+             1 if (c['phrase_ok'] or c['split_ok'] or c['mechanism_ok']) else 0),
         c['split_ok'] is False,       # multi-part hits with real-word pieces rank first
         len(c.get('fodder') or ''),
     ))
@@ -178,6 +207,24 @@ def selftest():
     print(f'  שלום survives ranking into the top 5: {found} (expected True — it is the '
           f'only real-dictionary-tier hit among ~40 raw anagram windows)')
     ok &= found
+
+    print('--- mechanism_ok: a SINGLE-part precision-mechanism hit outranks tier-0 '
+          'window-scan noise (2026-10-18 regression: 1D ברישניקוב, a retrieval hit, '
+          'measured dropped by ranking before this fix) ---')
+    # synthetic, controlled noise -- 30 fake tier-0 anagram hits (not real lex() words,
+    # so lexicon_tier=0 and mechanism_ok=False for every one), same shape generate()'s
+    # raw char-window scan produces in bulk. The precision_hit's answer is ALSO not a
+    # lex() member (tier 0) -- mechanism_ok is the ONLY signal that can rank it above
+    # the noise, same as a real retrieval hit (not itself a dictionary word) relies on.
+    fake_noise = [{'answer': candidates.norm('קקקק') + str(i), 'mechanism': 'anagram',
+                   'fodder': 'xx'} for i in range(30)]
+    precision_hit = {'answer': candidates.norm('קקקק'), 'mechanism': 'retrieval', 'fodder': None}
+    mixed = rank_candidates(fake_noise + [precision_hit], [4], max_n=5)
+    kept = any(c['answer'] == precision_hit['answer'] and c.get('mechanism_ok')
+               for c in mixed)
+    print(f'  single-part retrieval hit survives ranking into the top 5: {kept} '
+          f'(expected True)')
+    ok &= kept
 
     print(f'\n{"ALL PASSED" if ok else "FAILURES ABOVE"}')
     return ok

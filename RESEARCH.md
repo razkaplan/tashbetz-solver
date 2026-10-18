@@ -2814,3 +2814,65 @@ still unfixed) on 2026-10-09. Closing it is in scope of "candidate generation" i
 sense that `lex()` membership gates every mechanical generator in `candidates.py` — but
 it is an infrastructure fix, not a new mechanism, and is reported as such rather than
 dressed up as a recall gain. See DAILY.md for the reproduction, fix, and regression check.
+
+## 2026-10-18
+
+Bootstrap succeeded fully this run (52/52 puzzles, 1,457 clues from 14across on the first
+try — no retry-wall). Transcribed 2026-05-29 (the canonical dev puzzle) independently
+from `data/images/2026-05-28.jpg`; all 28 enum sums match the real
+`data/answers/by_date/2026-05-29.json` answer lengths (0 mismatches), and the
+mechanical-only baseline reproduces the historical 3.6% (1/28) exactly on this branch's
+much larger pipeline — a strong cross-check. Crawled a fresh `private_defs/mordo.jsonl`
+corpus (14,249 raw / 13,456 parsed pairs after `reparse_mordo()`).
+
+**"cryptic crossword solver definition span detection candidate generation 2026" /
+"Berkeley Crossword Solver definition retrieval clue boundary wordplay split ACL"
+(standard search).** Nothing dated 2026; same paper family this log already knows well
+(2104.08620, 2407.08824, 2412.09012, Andrews & Witteveen ICML 2025). Re-confirmed BCS
+(ACL 2022) targets NYT-style American puzzles via a DPR bi-encoder and gets no credit for
+solving the definition/wordplay split specifically. One number worth logging for
+calibration: Saha et al. 2024's GPT-4-turbo CoT+self-consistency baseline on generalist
+cryptic clues is 20.85% — our own live blind trials sit at 25% cumulative precision on a
+much harder setter with a tiny corpus and far less compute. **Transfer: none actionable
+today**, consistent with every prior pass on this query.
+
+**"Hebrew morphological analyzer open source 2025 2026 lemmatization NLP tool" (standard
+search).** One new find: an open-source Hebrew lemmatization plugin for Elasticsearch
+(fork of Korra.ai's MIT-licensed analyzer, MAFAT-funded), running DictaBERT
+(`dicta-il/dictabert-lex`, CC-BY-4.0) via ONNX for context-aware lemma selection — a real
+model instead of this project's hand-written `HOMO_PREFIXES`/`HOMO_SUFFIXES` strip lists.
+**Transfer: plausible but not actionable today** — an ONNX runtime + 100MB+ model is a
+much bigger lift than one day's lever, and every measurement this project has run points
+to candidate-generation COVERAGE on semantic/charade/culture devices as the bottleneck,
+not prefix/suffix mis-stripping on anagram fodder. Worth a real trial if cheaper levers
+run out.
+
+**This run's actual lever came from an audit, not the literature — and the audit first
+caught a near-miss of its own.** Read `retrieve_defs.py` to understand what
+`candidates.py`'s `retrieval_candidates()` wires in, and found `end_candidates(clue,
+length)` — queries the SAME BM25 index at the clue's two END windows (2/3/4-word prefix
+and suffix) instead of the whole clue text, operationalizing "a cryptic clue's definition
+sits at one end." It looked unused from outside `retrieve_defs.py` and this run nearly
+shipped a brand-new `retrieval_end_candidates()` wiring it in as today's lever — until
+`list_pull_requests` (always run before trusting that a gap is actually open — DAILY.md's
+own backlog-aware instructions) turned up **PR #61 (2026-09-17)**, an independent,
+unmerged implementation of the identical idea under the identical name, measured NEGATIVE
+on two real puzzles (56 clues: 12.5% with or without, byte-identical hit sets). Deeper
+still: that finding was **already folded into this very branch** under a different name —
+`defspan_retrieval_candidates` (PR #84, wired in and shipped OFF by default) — confirmed
+in `candidates.py`'s own docstring and DAILY.md's state table (3 independent puzzles, 84
+clues, net negative). Two prior independent reimplementations of the same idea, one of
+them already merged into this branch's own history. Discarded the new code rather than
+shipping a third redundant copy — the file's docstring area now cross-references this so
+a FOURTH run doesn't rediscover it a third time (see DAILY.md "Things already tried").
+
+**The real, if smaller, finding from chasing that dead end**: running `recall_eval(...,
+use_rank=True)` on this run's own fresh transcription regressed recall (7.1% -> 3.6%,
+2/28 -> 1/28) — the exact failure shape 2026-10-12's `rank_candidates()` fix was built to
+close, recurring for a case that fix doesn't cover (a SINGLE-part precision-mechanism
+hit, not a multi-part one). Root-caused and fixed — see DAILY.md's log for the full
+measurement, audit, and fix (`solve_pass.py`'s `PRECISION_MECHANISMS` tier floor). Not a
+new candidate-generation mechanism, but a genuine correctness bug in the ranking layer
+every one of this project's dozen-plus mechanisms depends on to survive truncation,
+caught by actually running the diagnostic end to end rather than trusting that a
+previously-measured fix still holds.

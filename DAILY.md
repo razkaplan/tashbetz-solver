@@ -34,6 +34,7 @@ tree - a stale CLI deploy overwrote the live site on 2026-08-29. See CLAUDE.md.
 | **`deffit.py` with `fillbank.json` wired as a second gloss source (NEW 2026-09-10, offline)** | Re-measured on the SAME 2026-05-15 puzzle, independently re-transcribed and re-crawled fresh this run: recall@N **0/28 with or without retrieval** (a smaller/different private_defs crawl than 2026-09-09's found no hits at all on this puzzle — recall_hit therefore 0/28, so top-1/MRR are undefined this run). Split the structural diagnostic into TWO numbers on purpose: clues with a non-retrieval candidate carrying a KNOWN gloss in ANY source went **3/28 (private_defs alone) → 14/28 (+fillbank)** — fillbank.json's 2,412 entries genuinely widen gloss coverage, a real and substantial move; but clues with a non-retrieval candidate whose gloss actually SHARES VOCABULARY with the clue (`def_fit>0`, 2026-09-09's own stricter bar) stayed **0/28 with fillbank ON**, because the 59 newly-known candidates' glosses (e.g. `ירושלים` -> `בירת ישראל`) don't happen to repeat the clue's own wording. Also FOUND AND FIXED a real bug before ever measuring: `build_fillbank_index()` didn't fold fillbank's final letters (ם/ן/ץ/ף/ך), so it would have silently missed all 557/2,450 (22.7%) of fillbank entries ending in one — every candidates.py answer is unconditionally final-folded, so the lookup would have failed for any of those words even when present | not yet a target — a real, disclosed, mixed result: coverage widened, the stricter score-overlap bar did not move this run; see log |
 | **`deffit.py` answer-level IDF dampener for generic-idiom over-matching (NEW 2026-10-07, offline)** | 10th independent transcription of 2026-05-29 (28/28 clues, 0 enum mismatches — reproduces the canonical 3.6%/1-28 mechanical baseline exactly). `candidates.py recall`: **3.6% (1/28), identical** on this puzzle regardless (the dampener only re-ranks, never changes recall@N by construction). `deffit.py eval`: recall_hit 1/28 (the standing 2D `יחפניות` anagram hit) — **MRR 0.333 unchanged, rank 3->3**, and `nonretrieval_scored_clues` **0/28 either way** (identical with `--no-answer-idf`) — a genuine, unconfounded FLAT result on this puzzle's own default-truncation (`max_n=25`) candidate pool. Dug past the flat top-line number before accepting it (same discipline PR #78's truncation finding modelled 2026-10-05): with `max_n` widened to 400 (diagnostic only, not the measured number), the dampener DOES fire on real data — **898 retrieval-mechanism candidate scores changed** (e.g. clue 7A `סול`: 13.7 -> 10.2) and **21 non-retrieval-mechanism candidate scores changed** (e.g. 15A `יער`: 11.0 -> 8.7) — but every one of those affected candidates sits outside the default top-25 pool for this puzzle's clues (confirmed directly: re-querying clue 7A's candidates at `max_n=25` finds zero nonzero-scoring entries at all), so they never reach `eval_rerank`'s measured set. This is the SAME truncation failure mode 2026-10-02 found for `container_candidates`' phrase path, now independently confirmed for a re-ranker rather than a generator | not yet a target — a real, disclosed, confounded-by-truncation flat result; see log for the root-cause trace and the concrete next step |
 | **`recall_eval(use_rank=True)` / CLI `--ranked` (NEW 2026-10-12, offline) — ports `solve_pass.rank()`'s already-shipped live truncation fix into `candidates.py`'s own recall metric, plus a ranking-logic bug found and fixed along the way** | On a fresh 2-puzzle/40-clue eval set (2026-05-29 re-transcribed 12th+ time, 21/28 clues from the standard across-1-13 image gap, 0 enum mismatches; 2026-07-10 re-transcribed 5th+ time, 19/28 clues, same gap, 0 enum mismatches): bare default (`max_n=25`, no ranking) **5.0% (2/40)**. Swept `max_n` alone (no ranking) from 25→500 and watched recall move **5.0%→7.5% (3/40)** purely from the cap — confirmed the raw (pre-truncation) candidate pool now averages ~250/clue (13+ mechanisms deep) while `max_n=25` keeps only the first 10%, the exact failure mode `solve_pass.py`'s `rank()` already found and fixed for LIVE solving (pull an 8x/≥200 raw pool, rank by lexicon tier, truncate last) but `recall_eval()` never got. Wired `use_rank=True` to reuse that fix (`rank_candidates()`, factored out of `rank()` for this reuse) — **first attempt (crediting only the NEW `phrase_ok` signal) REGRESSED: 2/40 → 1/40**, caught before shipping: it demoted a real retrieval hit (26A `פחותאבלכואב`, `split=['פחות','אבל','כואב']`) that was already relying on the PRE-EXISTING `split_ok` field, which `rank()`'s sort key had only ever used as a weak secondary tiebreaker, never primary-tier credit — the identical gap `phrase_ok` was being added to fix, just on the older field. Fixed both together (`split_ok` OR `phrase_ok` now grants the same tier-1 floor a plain dictionary word gets, since both `phrase_split()` and `split_candidates()` only ever accept a hit built entirely from verified `lex()`-member pieces): **`--ranked` now reproduces the bare baseline exactly, 5.0% (2/40), no regression** — a genuine FLAT result for recall@N on this specific sample (the one buried hit this run could directly explain, 25A `צרנוביל` at raw position 125/200, stays unrecovered because tied tier-1 candidates fall back to insertion order, which this fix does not address). **The split_ok bug was live in `solve_pass.rank()` itself before today, not only in the new diagnostic path** — any live blind trial since `rank()` was built could have had a genuine multi-word retrieval/charade hit silently outranked by weaker single-word noise; today's fix changes already-shipped live-solving behavior, not just an offline number. AUDITED: `lexicon.held_out_answers()` confirmed to block all 40 gold answers (`gold_norm - blocked` empty); no forbidden reads (gold from the sanctioned 14across bootstrap scrape — both puzzles came back real, 52/52 — clue text from the two public CDN images); no implausible jump (every number here is either an exact reproduction, a diagnostic sweep, or a 0-point delta). 6 affected selftests (`candidates.py` incl. 1 new case, `solve_pass.py` incl. refactor-safety re-check, `lexicon.py`, `substitutions.py`, `retrieve_defs.py`, `prove.py`) re-run clean | not yet a target — a real infrastructure fix (ported + bug-fixed), flat on this specific small sample; see log for the full trace and why insertion-order ties are the next concrete gap |
+| **`recall_eval(use_rank=True)` / CLI `--ranked` — SECOND regression found and fixed (NEW 2026-10-18): 2026-10-12's `phrase_ok`/`split_ok` fix only covers MULTI-part hits** | Fresh independently-transcribed 2026-05-29 (13th+ transcription, 28/28 clues, 0 enum mismatches): full-defaults bare (`max_n=25`, no ranking) **7.1% (2/28)**, mechanisms `{retrieval: 1, anagram: 1}`. `--ranked` on this same data **REGRESSED to 3.6% (1/28)** — the `retrieval` hit (1D `ברישניקוב`, single-part enum `(9)`) vanished. Root-caused, not assumed: this hit's `lexicon_tier=0` (it is not itself a `lex()` member — the entire point of retrieval is finding an answer the lexicon lacks) and `split_ok=None` (single-part enum, 2026-10-12's field is only ever set for `len(enum)>1`) and `phrase_ok=False` (no `phrase_split()` path involved) — none of 2026-10-12's two promotion signals apply, so the ranker's primary sort key fell back to raw `lexicon_tier=0`, identical to ordinary tier-0 window-scan noise, and it lost the tiebreak once the wide 200-candidate raw pool surfaced enough real tier>=1 dictionary words ahead of it. Fixed: `solve_pass.rank_candidates()` gained a `PRECISION_MECHANISMS` set (`retrieval`, `defspan_retrieval`, `culture_category`, `homograph`, `substitution`, `abbreviation`, `double_definition` — every mechanism that only ever emits a hit backed by targeted evidence, never a blind same-length character-window scan the way `anagram`/`hidden`/`reversal`/`pattern`/`charade`/`container`/`homophone`(`_vowel`) do) granting the SAME tier-1 floor `phrase_ok`/`split_ok` already get. **`--ranked` now reproduces the bare baseline exactly, 7.1% (2/28), no regression** | not yet a target — a genuine correctness fix to the ranking layer every mechanism in this file depends on to survive truncation into a live solve pass, not a new mechanism; recall moving from the REGRESSED 3.6% back to the correct 7.1% is a bug fix, not a measured gain — see log |
 | **Candidate recall@N, FULL current pipeline (all 11 optional mechanisms + the 5 always-on ones), SECOND independent full transcription — 2026-06-05 (NEW 2026-09-15)** | **0.0% (0/28), identical with every optional mechanism on vs. the pure mechanical baseline (anagram/hidden/reversal/homograph/substitution-2word only, also 0.0%)** — the first puzzle this diagnostic has scored BELOW 2026-05-29's long-standing 3.6% floor. Root-caused past "mechanism fired N times, 0 hits" framing to something more fundamental: **`lexicon_coverage_eval` (NEW, `solver/candidates.py`) — only 8/28 (28.6%) of this puzzle's gold answers are members of `lex()` AT ALL**, independent of any mechanism, and every generator in this file can only ever propose an answer that is already a lexicon member. Confirmed directly, not just inferred, for 2 clues: 8A's exact anagram fodder (`שמיגנדי`) is a correct 7-letter contiguous window of the clue with the exact right letter-multiset for gold `גדישמני` — but `גדישמני` itself is not in `lex()`, so `anagram_candidates` never proposes it regardless of fodder correctness; same shape for 7A's reversal (`נכו`→`וכן`, once a real transcription slip — "פרעה" for "פרעה נכו" — was caught and fixed) | not yet a target — see log for the corpus-size confound this measurement carries |
 | **`lexicon_coverage_eval`, SECOND independent puzzle (2026-05-29, NEW 2026-09-16) + `--prefix` diagnostic** | **32.1% (9/28)** — same order of magnitude as 2026-09-15's 28.6% (0/28) on a DIFFERENT puzzle, confirming the lexicon-coverage ceiling is a real, puzzle-independent structural bottleneck, not a corpus-thinness artifact of that specific run. Root cause this run's own direct test surfaced: `hspell_simple.txt` (bootstrap.sh's wordlist source) does not enumerate Hebrew's productive ו/ה/ב/ל/מ/ש/כ prefixes as separate headwords — `כן` ("so") is a headword, `וכן` ("and so") is not, though both are equally real and either could legitimately be a crossword answer, confirmed directly against the committed wordlist. **NEW diagnostic, `prefix_stripped()`/`lexicon-coverage --prefix`**: of the 19 misses, **3 (15.8%) become `lex()` members after stripping one leading prefix** — but AUDITED further, not taken at face value: only 1/3 (`המוציא`→`מוציא`, "the one who brings out," a genuine ה-definite-article relationship) is a real morphological recovery; the other 2 (`מגמ`→`גמ`, `הלו`→`לו`) strip to a 2-letter residual, and 254/~144k lexicon entries are themselves 2 letters long — roughly half of the ~484 possible 2-letter consonant combinations are real words, so a 2-letter stem match is coincidence-prone, not evidence of a real prefix relationship. The LARGER category of miss on this puzzle (16/19) is multi-word phrases (`משה רבנו`, `פחות אבל כואב`, `לוע הארי`...) that no single-prefix strip addresses at all. `recall@N` unchanged at 3.6% (1/28), exactly reproducing this puzzle's own long-standing historical number (an 11th+ independent transcription) | not yet a target — diagnostic only, NOT wired into `is_word()`/candidate generation; see log for why (false-positive risk on short stems, disclosed rather than shipped) |
 | **`lexicon_coverage_eval` with `private_defs` wired into `lexicon.py`'s `load()` as a membership source (NEW 2026-09-19)** | **COMBINED across 2 independent puzzles (2026-05-15 + 2026-05-29, 56 gold slots): 32.1% (18/56) → 32.1% (18/56), UNCHANGED.** +49,158 words added to `lex()` (144,019 → 193,177, +34.1%, real and confirmed non-empty), but **mechanically verified 0/38 overlap** between the newly-added words and either puzzle's combined 38 still-missing gold answers — not one of the two puzzles' hard-setter answers happens to be among the ~37k crossword answers this specific crawl of note.co.il/מורדו turned up | not yet a target — a clean, disclosed negative result on n=2 puzzles; see log for the audit and the root-cause read |
@@ -8549,3 +8550,107 @@ Measure each lever on dev (fixed enums) with run_eval.py before/after; one lever
   main session instead of a second attempt at redirecting the confused subagent; no file
   conflict resulted (verified: the subagent's own file edits, made before that confusion,
   were git-identical to this session's planned fix and were kept, not discarded).
+
+- 2026-10-18: **built on `daily/2026-10-17-work` (PR #90, itself on PR #89's
+  `consolidate-2026-10-16`, the richest verified frontier) rather than branching from
+  stale `main`** — `list_pull_requests` showed 30 open, unmerged PRs (#61-#90); confirmed
+  `daily/2026-10-17-work`'s ancestry includes PR #89's tip directly (`git merge-base
+  --is-ancestor`), so this run did not repeat the compounding-loss pattern PR #89 itself
+  diagnosed. Bootstrap succeeded fully (52/52 puzzles, 1,457 clues on the first try).
+  Transcribed 2026-05-29 independently (13th+ transcription, from
+  `data/images/2026-05-28.jpg`): all 28 enum sums match the real
+  `data/answers/by_date/2026-05-29.json` gold lengths (0 mismatches). Crawled a fresh
+  `private_defs/mordo.jsonl` (14,249 raw / 13,456 parsed after `reparse_mordo()`).
+
+  RESEARCH (see RESEARCH.md for full detail): three searches, nothing new and buildable
+  for candidate generation or definition-span detection (same paper family this log has
+  tracked since 2026-08-06); one real Hebrew-morphology find (a DictaBERT-backed
+  Elasticsearch lemmatizer) judged not actionable today (too large a dependency for the
+  measured bottleneck, which every prior run has root-caused to candidate-generation
+  COVERAGE, not morphological stripping precision).
+
+  **NEAR-MISS, disclosed rather than hidden**: while reading `retrieve_defs.py` this run
+  nearly shipped a NEW `retrieval_end_candidates()` wiring `end_candidates()` (queries
+  the clue's two END windows via BM25, instead of the whole clue text) into
+  `candidates.py` as "today's lever" — it looked unused from outside `retrieve_defs.py`.
+  `list_pull_requests` (run as part of the backlog check above, not as a second check)
+  turned up **PR #61 (2026-09-17)**: an independent, unmerged implementation of the
+  identical idea under the identical name, MEASURED NEGATIVE on 56 real clues across two
+  puzzles (12.5% with or without, byte-identical hit sets). Deeper still: this exact
+  finding is **already shipped on this very branch**, under a different name —
+  `defspan_retrieval_candidates` (PR #84, confirmed in `candidates.py`'s own docstring
+  and this file's state table: 3 independent puzzles / 84 clues, net negative, shipped
+  OFF by default). Discarded the new code before writing a selftest for it, rather than
+  shipping a third redundant implementation of an already-twice-measured-negative idea.
+
+  **Today's actual lever, found chasing that dead end**: running this run's own
+  transcription through `recall_eval(..., use_rank=True)` (the `--ranked` CLI flag)
+  REGRESSED recall from the bare baseline's 7.1% (2/28) to 3.6% (1/28) — the exact
+  failure shape 2026-10-12's `phrase_ok`/`split_ok` fix was built to close, recurring for
+  a case that fix does not cover. Root-caused by direct inspection (not assumed): the
+  lost hit is 1D `ברישניקוב` (Baryshnikov), a single-part-enum `(9)` `retrieval` hit —
+  `lexicon_tier=0` (it is not a `lex()` member; that is the entire point of retrieval),
+  `split_ok=None` (2026-10-12's field is only ever set for multi-part enums,
+  `len(enum)>1`), `phrase_ok=False` (no `phrase_split()` involved) — none of
+  2026-10-12's two promotion signals apply to a single-part precision-mechanism hit, so
+  it fell back to raw `lexicon_tier=0`, indistinguishable from ordinary tier-0
+  window-scan noise, and lost the tiebreak once the wide 200-candidate raw pool surfaced
+  enough real tier>=1 dictionary words ahead of it.
+
+  FIXED in `solver/solve_pass.py`: `rank_candidates()` gained a module-level
+  `PRECISION_MECHANISMS` set — `retrieval`, `defspan_retrieval`, `culture_category`,
+  `homograph`, `substitution`, `abbreviation`, `double_definition` (every mechanism in
+  `candidates.py` that only ever emits a hit backed by targeted evidence — a mined
+  equivalence match, a literal clue-word occurrence, or an independent BM25 definition
+  match — never a blind scan of every same-length character window the way
+  `anagram`/`hidden`/`reversal`/`pattern`/`charade`/`container`/`homophone`(`_vowel`) do)
+  — granting the exact same tier-1 floor `phrase_ok`/`split_ok` already get, for the
+  exact same reason stated in that fix's own docstring: a hit from one of these
+  mechanisms cannot have been produced by blind window-scan noise, so it should not rank
+  behind an arbitrary one. New selftest (`solve_pass.py`): 30 synthetic tier-0 anagram
+  hits plus one synthetic single-part `retrieval` hit, neither a real `lex()` member —
+  confirms `mechanism_ok` alone (not `lexicon_tier`, which is 0 for both) is what keeps
+  the precision hit in the ranked top-5.
+
+  MEASURED (executed): `python3 solver/candidates.py recall data/dataset/clues.jsonl eval
+  --ranked` **now reproduces the bare baseline exactly, 7.1% (2/28)**, no regression.
+  `solve_pass.py selftest` and `candidates.py selftest` (including the existing
+  `use_rank=True` case from 2026-10-12, unaffected) both re-run clean.
+
+  AUDITED (mandatory gate). `lexicon.held_out_answers()`, `retrieve_defs.held_out()`, and
+  `substitutions.held_out()` all confirmed (computed, not assumed) to block all 28 gold
+  answers of this puzzle (`gold_norm - blocked` empty, all three). Provenance of the
+  `retrieval` hit checked directly: both matching private_defs documents carry `pid=None`
+  (external corpus, never this project's own puzzle text) and their tokens
+  (`רקדן`/`בלט`/`רוסי`/`אמריקאי` — dancer/ballet/Russian/American) are a clean,
+  semantically correct external definition of Baryshnikov, not a coincidental string
+  match. No forbidden reads: 14across was used only via `bootstrap.sh`'s sanctioned
+  scrape (gold answers came from the real `data/answers/by_date/2026-05-29.json`); clue
+  text from the public CDN image only; no solution-site access. No implausible jump:
+  today's number is a restoration of the pre-regression 7.1% baseline, not a new high —
+  recall going from a REGRESSED 3.6% back to the correct 7.1% is what a bug fix is
+  supposed to do, not a surprising result needing extra scrutiny. 5 affected selftests
+  (`candidates.py`, `solve_pass.py`, `lexicon.py`, `retrieve_defs.py`, `substitutions.py`,
+  `prove.py`) re-run clean.
+
+  HONEST READ: not a new candidate-generation mechanism — a correctness fix to the
+  ranking layer every one of this file's dozen-plus mechanisms depends on to survive
+  truncation into a live solve pass. The recall number it restores (7.1%) is not new
+  either; it is the already-known full-defaults baseline this exact bug was silently
+  hiding behind `--ranked`. The genuinely new information is narrower but real: a SECOND,
+  independent instance of "a promotion signal only covers multi-part hits" existed in the
+  same function 2026-10-12 already fixed once for a different pair of fields, found only
+  by actually re-running the diagnostic rather than trusting that fix still holds — the
+  same lesson 2026-09-12's container-mechanism reconciliation and 2026-10-12's own fix
+  both already taught, recurring a third time in the same ranking function.
+
+  NOT DONE, honestly: did not re-measure on a second puzzle (the bug is deterministic and
+  mechanism-identity-based, not corpus- or puzzle-dependent, so a second puzzle would
+  only re-confirm the same code path rather than add new information — unlike a new
+  mechanism, which genuinely needs a second data point). Did not check whether a THIRD
+  such gap exists elsewhere in the sort key (the tertiary `len(fodder or '')` tiebreaker
+  was not audited this run). Did not act on the still-open DAILY.md-as-leak-vector finding
+  (standing since 2026-08-30). Did not merge or close any of the 29 other open solver PRs
+  — only the project owner can. Did not grow the `private_defs` corpus beyond today's
+  mordo-only crawl (no `note.co.il` run this time, to keep this run to one lever). Never
+  pushed to `main`; never ran `vercel --prod`.
