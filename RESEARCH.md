@@ -4,6 +4,59 @@ One entry per run: what was found, one-line summary, and an honest judgement of 
 it transfers to a Hebrew cryptic solver with an 8k-clue corpus. Default skepticism: most
 crossword-AI work targets non-cryptic (American-style) puzzles and does not transfer.
 
+## 2026-10-14
+
+Six-week gap since the last solver-lever run (2026-08-30; the runs in between, 09-04/09-07,
+were site/game UI work, not this track). Re-confirmed the whole standing paper set before
+assuming it still holds rather than skipping straight to "nothing new": Andrews & Witteveen
+(ICML 2025, 2506.04824, propose-then-formalise-then-prove), the ICML 2024 workshop prover
+(2407.08824), Saha et al. (NAACL 2025, 2406.09043, SweepClip + full-grid solving), Sadallah
+et al.'s two LLM-benchmark papers (2403.12094, 2412.09012, definition-extraction/wordplay-
+typing as separate subtasks), Rozner et al. (2104.08620) and Cryptonite (2103.01242). A
+dedicated arXiv search for "cryptic crossword" dated Sept/Oct 2026 and for NAACL/EMNLP 2026
+turned up nothing newer than the above — either nothing has been published in this narrow
+niche since the summer, or it has not been indexed yet by the tools available here.
+
+**Hebrew morphology/NLP** — same landscape as every prior pass (RFTokenizer, HebPipe,
+HAMSAH, the Haifa Lexicon of Contemporary Hebrew, root-pattern morphology). HebPipe's last
+GitHub release is June 2025, so still the most current option. **Transfer: none new** — as
+every prior entry has found, this project's bottleneck has never been tokenization or
+morphological tagging (the hspell + corpus lexicon already handles that); it is candidate
+generation and definition-fit, which general Hebrew NLP infrastructure does not address.
+
+**One concrete, disclosable mishap worth logging as a methodology note**: a search for
+"charade segmentation wordplay cipher enumeration algorithm crossword" surfaced
+arXiv:2601.00514 with an auto-summary claiming it contained "one LLM prompt for cryptic
+solving" with specific requirements (enumeration matching, anagram-indicator gating).
+Fetched the PDF directly before trusting that claim (per the 2026-08-25 entry's own
+standing lesson about not trusting search summaries of this project's own results — this
+is the same failure mode, one level removed, hitting an unrelated paper instead). The
+paper is "The Illusion of Insight in Reasoning Models" (d'Aliberti & Horta Ribeiro) — about
+insight-problem psychology (the Duncker candle problem) and chain-of-thought reasoning,
+with nothing about cryptic crosswords, anagram indicators, or enumeration at all. The
+search tool's summarizer fabricated the crossword-solving content wholesale. **Transfer:
+none — but the methodology point stands on its own**: this is now the THIRD time this
+project's research process has caught a search summarizer inventing or misattributing
+content (2026-08-20, 2026-08-25, now this), always caught by fetching the primary source
+before citing it. Worth stating again for whoever reads this log: a WebSearch/WebFetch
+summary is a lead to verify, never a citation to use directly.
+
+**Conclusion, and the lever this run actually built.** No new external resource turned up
+again (research pass #12+ on this same question, by this file's own count). Rather than
+re-run the heavily-measured retrieval_candidates lever an unproductive 7th time on a
+puzzle already measured flat, or force a definition-span-classifier re-attempt the
+2026-08-19 entry explicitly warns against repeating with the same signal, this run closes
+a structural gap in `solver/candidates.py` that the DAILY.md queue's own priority (a)
+implies but nothing had built: `prove.py`'s `is_container` assertion (the container/
+insertion device, "X בתוך Y") has been verifiable since the proof gate existed, but no
+generator ever proposed a container-shaped candidate — every existing mechanism is
+anagram/hidden/reversal/substitution/homograph/culture/retrieval, none of which splices
+one fodder span inside another. This is not a literature-driven lever (nothing found this
+run motivates it); it is a plain code-reading observation: `is_container`'s own docstring
+worked example, 'קרים + תן -> קרתנים', is this exact dev puzzle's 11 across, and it is
+still unsolved. See DAILY.md for the implementation (`container_candidates`) and the
+measured (null) effect on today's puzzle.
+
 ## 2026-08-30
 
 Bootstrap hit the same hard 14across wall as 2026-08-19/08-26/08-27/08-28 (4 consecutive

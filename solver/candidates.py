@@ -24,6 +24,14 @@ This module does exactly that, per clue, with no LLM involved:
                           sense (lex/ambiguities.json) that matches the enum length, so it
                           IS the answer undisguised. Cannot invent an answer that isn't
                           already a literal clue substring.
+  - container_candidates: the container/insertion device (X בתוך Y) — prove.py's
+                          is_container has verified this since the proof gate was built,
+                          but no generator ever proposed a container candidate until now.
+                          Purely mechanical: two character-level windows of the clue
+                          (outer, inner) spliced at every interior position, checked
+                          against the lexicon. See its own docstring for what it cannot
+                          reach (a synonym-derived inner fragment, same gap as every other
+                          letter-driven mechanism here).
   - pattern_candidates:  wraps lexicon.py's crossing-pattern lookup, for when grid
                           letters are already known.
   - culture_category_candidates: a DEFINITION-hypothesis mechanism, not a wordplay one —
@@ -56,6 +64,7 @@ CLI:
   python3 solver/candidates.py recall data/dataset/clues.jsonl eval   # offline recall@N
   python3 solver/candidates.py recall data/dataset/clues.jsonl eval --no-culture  # ablation
   python3 solver/candidates.py recall data/dataset/clues.jsonl eval --no-retrieval  # ablation
+  python3 solver/candidates.py recall data/dataset/clues.jsonl eval --no-container  # ablation
   python3 solver/candidates.py selftest
 """
 import sys, os, re, json
@@ -163,6 +172,65 @@ def reversal_candidates(clue_text, target_len):
         rev = sub[::-1]
         if rev in words:
             out.append({'answer': rev, 'mechanism': 'reversal', 'fodder': sub})
+    return out
+
+
+def container_candidates(clue_text, target_len, words=None):
+    """The container/insertion device (SOLVE_PROTOCOL.md: 'container: X בתוך Y phrasing;
+    assemble') -- prove.py's is_container has existed since the proof gate was built and
+    this project has been able to VERIFY a container answer the whole time, but
+    candidates.py has never had a matching GENERATOR for one: every mechanism above is
+    anagram/hidden/reversal/substitution/homograph, none of which proposes an answer
+    assembled by splicing one fodder span inside another. (is_container's own docstring
+    example, 'קרים + תן -> קרתנים', is this project's canonical worked case -- and also
+    this exact dev puzzle's 11 across, still an unrecovered miss as of 2026-10-14.)
+
+    Purely mechanical, same discipline as anagram/hidden/reversal: both the OUTER and
+    INNER fodder are character-level windows of the clue's own letters (not whole-word
+    restricted, same rationale _char_windows gives), tried at every length split that sums
+    to target_len. For each (outer, inner) pair, every splice position matches prove.py's
+    own is_container range exactly (k in 1..len(outer)-1 -- never glued flush to either
+    end, since a flush splice is just a charade the other mechanisms already cover) and is
+    checked against the lexicon.
+
+    Deliberately narrower than the real device: a setter's 'inner' fragment is very often
+    a SYNONYM of a clue word (e.g. 'predator' standing for תן, jackal) rather than a
+    literal substring -- that is a MEANING-driven step this generator, like every other
+    letter-driven mechanism in this file, cannot take; it only catches a container where
+    BOTH pieces already sit undisguised in the clue text. Quadratic in the clue length (two
+    independent window scans, not one), so it is the most expensive mechanism here -- kept
+    purely character-level rather than adding a synonym lookup today, see RESEARCH.md for
+    why no synonym resource is available to drive one (same standing gap as definition-fit
+    scoring). `words` is injectable (tests / callers), same discipline as every other
+    mechanism here -- so its selftest cannot pass by accident just because the live
+    lexicon happens to contain (or, for a held-out puzzle's own answer, deliberately
+    excludes) a particular word."""
+    joined = joined_letters(clue_text)
+    if words is None:
+        words = lex()
+    L = len(joined)
+    seen = set()
+    out = []
+    for outer_len in range(2, target_len):
+        inner_len = target_len - outer_len
+        if inner_len < 1:
+            continue
+        outer_windows = [joined[i:i + outer_len] for i in range(L - outer_len + 1)]
+        inner_windows = [joined[j:j + inner_len] for j in range(L - inner_len + 1)]
+        for outer in outer_windows:
+            for inner in inner_windows:
+                if outer == inner:
+                    continue
+                for k in range(1, outer_len):
+                    cand = outer[:k] + inner + outer[k:]
+                    if cand not in words:
+                        continue
+                    key = (cand, outer, inner)
+                    if key in seen:
+                        continue
+                    seen.add(key)
+                    out.append({'answer': cand, 'mechanism': 'container',
+                                'fodder': f'{outer}+{inner}'})
     return out
 
 
@@ -459,7 +527,8 @@ def split_candidates(cands, enum):
     return out
 
 
-def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retrieval=True):
+def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retrieval=True,
+             use_container=True):
     """Diverse candidates for one clue. Never consults the answer.
 
     Mechanism order here is a PRIORITY order, not just an accumulation order: dedup +
@@ -479,7 +548,12 @@ def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retr
     (25 by default) and ranked, not an unbounded window scan, so it does not need to wait
     behind the cheap mechanisms either. `use_culture`/`use_retrieval` are plain on/off
     switches so a controlled before/after recall measurement doesn't need extra copies of
-    this function."""
+    this function. container_candidates goes LAST, after anagram/hidden/reversal: it is a
+    TWO-window scan (quadratic, not linear) so on a long clue it is the single highest-
+    volume mechanism in this file — exactly the crowding failure mode the 2026-08-20 fix
+    was written to avoid, so it gets the same cheap/high-volume/last treatment as the other
+    window scans, not a free pass just because it is new. `use_container` is a plain on/off
+    switch for the same controlled-measurement reason as use_culture/use_retrieval."""
     target_len = sum(enum)
     cands = []
     cands += homograph_candidates(clue_text, target_len)
@@ -493,6 +567,8 @@ def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retr
     cands += anagram_candidates(clue_text, target_len)
     cands += hidden_candidates(clue_text, target_len)
     cands += reversal_candidates(clue_text, target_len)
+    if use_container:
+        cands += container_candidates(clue_text, target_len)
 
     seen, uniq = set(), []
     for c in cands:
@@ -511,7 +587,8 @@ def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retr
 # isolation, BEFORE it is wired into a live solve+proof loop (which is a
 # separate integration step, not done by this lever).
 # ---------------------------------------------------------------------------
-def recall_eval(dataset_path, split=None, max_n=25, use_culture=True, use_retrieval=True):
+def recall_eval(dataset_path, split=None, max_n=25, use_culture=True, use_retrieval=True,
+                 use_container=True):
     total = 0
     hit = 0
     by_mech = Counter()
@@ -525,7 +602,7 @@ def recall_eval(dataset_path, split=None, max_n=25, use_culture=True, use_retrie
             continue
         total += 1
         cands = generate(r['clue_text'], r['enum'], max_n=max_n, use_culture=use_culture,
-                          use_retrieval=use_retrieval)
+                          use_retrieval=use_retrieval, use_container=use_container)
         sizes.append(len(cands))
         gold = norm(r['answer_raw'])
         found = [c for c in cands if c['answer'] == gold]
@@ -656,6 +733,37 @@ def selftest():
           f'not here): {len(off) >= 1} (expected True)')
     ok &= len(off) >= 1
 
+    print('--- container device: one fodder span spliced inside another yields a real word ---')
+    # Mirrors prove.py's own is_container docstring example (קרים + תן -> קרתנים, this exact
+    # dev puzzle's 11 across): both קרים and תנ sit undisguised in a synthetic clue, neither
+    # one as a standalone word of the target length, so only the SPLICE should fire. Injected
+    # word table (independent of the live lexicon, same discipline as homograph/substitution's
+    # own selftests) so this cannot pass merely because the live lexicon does or doesn't
+    # happen to contain קרתנים -- it currently does not, since this exact puzzle is the live
+    # eval split and lexicon.held_out_answers() deliberately blocks its own gold answers.
+    container_words = {norm('קרתנים')}
+    hits = container_candidates('משהו קרים ועוד תנ בלבד', 6, words=container_words)
+    found = any(h['answer'] == norm('קרתנים') for h in hits)
+    print(f'  found קרתנים by splicing תנ into קרים: {found} (expected True)')
+    ok &= found
+    print('--- container device: every proposed splice re-verifies under prove.is_container '
+          '(generator and proof gate must agree on what counts as a container) ---')
+    sys.path.insert(0, HERE)
+    import prove as prove_mod
+    checked = 0
+    for h in hits:
+        outer, inner = h['fodder'].split('+')
+        ok &= prove_mod.is_container(outer, inner, h['answer'])
+        checked += 1
+    print(f'  all {checked} generated candidate(s) re-verify under prove.is_container: True '
+          f'(expected True, and checked must be > 0)')
+    ok &= checked > 0
+    print('--- container device: use_container=False in generate() disables it ---')
+    off = container_candidates('משהו קרים ועוד תנ בלבד', 6, words=container_words)
+    print(f'  standalone call still fires (sanity check the toggle lives in generate(), '
+          f'not here): {len(off) >= 1} (expected True)')
+    ok &= len(off) >= 1
+
     print('--- split_candidates: flags whether a multi-part answer is two real words ---')
     split = split_candidates([{'answer': norm('שלוםעליכם'), 'mechanism': 'test'}], [4, 5])
     print(f'  split result: {split[0]["split"]} (expected two real words, not None)')
@@ -681,14 +789,18 @@ def main():
         rest = sys.argv[2:]
         use_culture = '--no-culture' not in rest
         use_retrieval = '--no-retrieval' not in rest
-        rest = [a for a in rest if a not in ('--no-culture', '--no-retrieval')]
+        use_container = '--no-container' not in rest
+        rest = [a for a in rest
+                if a not in ('--no-culture', '--no-retrieval', '--no-container')]
         path = rest[0] if len(rest) > 0 else 'data/dataset/clues.jsonl'
         split = rest[1] if len(rest) > 1 else None
         os.chdir(ROOT)
-        res = recall_eval(path, split, use_culture=use_culture, use_retrieval=use_retrieval)
+        res = recall_eval(path, split, use_culture=use_culture, use_retrieval=use_retrieval,
+                           use_container=use_container)
         print(f"recall@N: {res['hit']}/{res['total']} = {res['recall']:.1%}  "
               f"(avg {res['avg_candidates']:.1f} candidates/clue, "
-              f"use_culture={use_culture}, use_retrieval={use_retrieval})")
+              f"use_culture={use_culture}, use_retrieval={use_retrieval}, "
+              f"use_container={use_container})")
         print('hits by mechanism:', res['by_mechanism'])
         if res['misses']:
             print(f"\n{len(res['misses'])} misses (clue_number, direction, gold):")
