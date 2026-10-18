@@ -19,13 +19,18 @@ set -euo pipefail
 cd "$(dirname "$0")"
 DEV_ONLY=${1:-}
 
-echo "==> 1/6  Hebrew lexicon (129k words)"
+echo "==> 1/6  Hebrew lexicon (129k words + inflected-forms wordlist)"
 mkdir -p solver/lex
 if [ ! -s solver/lex/hspell.txt ]; then
   curl -sL -o solver/lex/hspell.txt \
     "https://raw.githubusercontent.com/eyaler/hebrew_wordlists/main/hspell_simple.txt"
 fi
 wc -l < solver/lex/hspell.txt | xargs echo "    words:"
+if [ ! -s solver/lex/hwdb.txt ]; then
+  curl -sL -o solver/lex/hwdb.txt \
+    "https://raw.githubusercontent.com/roni5604/hebrew-words-db/main/data/words.txt"
+fi
+wc -l < solver/lex/hwdb.txt | xargs echo "    hwdb words (incl. verb/noun inflections hspell lacks):"
 
 echo "==> 2/6  answers corpus from 14across (52 puzzles, ~1,450 clues)"
 echo "    NOTE: 14across.co.il intermittently serves a bot-check redirect (HTTP 202,"
