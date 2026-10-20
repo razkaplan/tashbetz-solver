@@ -50,10 +50,15 @@ def main():
     if os.path.exists(p):
         red = json.load(open(p, encoding='utf-8')).get('redirects', {})
     tomb = {}
+    tomb_prefixes = {}
     p = os.path.join(ROOT, 'solver/lex/tombstones.json')
     if os.path.exists(p):
         tomb = json.load(open(p, encoding='utf-8')).get('tombstones', {})
-    bad = sorted(u for u in gone if u not in red and u not in tomb)
+        tomb_prefixes = json.load(open(p, encoding='utf-8')).get('tombstone_prefixes', {})
+    # Whole families can be retired by prefix (tombstone_prefixes), so a
+    # 5,000-page cut does not need 5,000 entries.
+    prefixes = tuple(tomb_prefixes)
+    bad = sorted(u for u in gone if u not in red and u not in tomb and not u.startswith(prefixes))
     print(f'url_guard: {len(gone)} URLs left the sitemap; '
           f'{len(gone) - len(bad)} have a redirect or a tombstone')
     if bad:
