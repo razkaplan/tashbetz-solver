@@ -59,6 +59,11 @@ def convert(s, path):
     desc = html.unescape(re.search(r'<meta name="description" content="(.*?)">', s, re.S).group(1))
     canon = re.search(r'<link rel="canonical" href="([^"]+)">', s).group(1)
     meta = re.search(r'<link rel="canonical" href="[^"]+">(.*?)(?:<style>|<link rel="icon"|</head>)', s, re.S).group(1).strip()
+    # A robots meta can sit anywhere in the old head (the 2026-10-20 index cut
+    # injected it right after the charset). Carry it through, once.
+    robots = re.search(r'<meta name="robots" content="[^"]*">', s)
+    if robots and robots.group(0) not in meta:
+        meta = robots.group(0) + meta
     h1 = html.unescape(re.search(r'<h1>(.*?)</h1>', s, re.S).group(1))
     bc = re.search(r'<script type="application/ld\+json">(\{"@context": "https://schema.org", "@type": "BreadcrumbList".*?\})</script>', meta)
     crumbs = [(it['name'], it['item'].replace(BASE, '') or '/')

@@ -18,6 +18,8 @@ FONTS = ('https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700'
          '&family=Rubik:wght@400;500;700&display=swap')
 
 # Goes in <head>: favicon, fonts, the shared stylesheet.
+CLARITY = '<script>(function(c,l,a,r,i,t,y){c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);})(window,document,"clarity","script","z0mh7paigf");(function(){var r=document.referrer||"";if(/chatgpt\\.com|openai\\.com|perplexity\\.ai|claude\\.ai|anthropic\\.com|copilot\\.microsoft\\.com|gemini\\.google\\.com|you\\.com|phind\\.com/i.test(r)){clarity("set","traffic","ai-assistant");clarity("set","ai_source",r.replace(/^https?:\\/\\//,"").split("/")[0]);}})();</script>'
+
 HEAD = ('<link rel="icon" href="/favicon.svg" type="image/svg+xml">'
         '<link rel="preconnect" href="https://fonts.googleapis.com">'
         '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>'
@@ -27,7 +29,9 @@ HEAD = ('<link rel="icon" href="/favicon.svg" type="image/svg+xml">'
         # redesign dropped this and GA went dark for the whole site.
         '<script async src="https://www.googletagmanager.com/gtag/js?id=G-V7LGK8CMHQ"></script>'
         '<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}'
-        'gtag("js",new Date());gtag("config","G-V7LGK8CMHQ")</script>')
+        'gtag("js",new Date());gtag("config","G-V7LGK8CMHQ")</script>'
+        # Microsoft Clarity, shared gtmascode.dev project; tags AI-assistant referrers.
+        + CLARITY)
 
 LOGO_SVG = ('<svg viewBox="0 0 32 32" aria-hidden="true" focusable="false">'
             '<rect x="1" y="1" width="30" height="30" rx="8" fill="currentColor"/>'
