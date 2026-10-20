@@ -2876,3 +2876,56 @@ new candidate-generation mechanism, but a genuine correctness bug in the ranking
 every one of this project's dozen-plus mechanisms depends on to survive truncation,
 caught by actually running the diagnostic end to end rather than trusting that a
 previously-measured fix still holds.
+
+## 2026-10-20
+
+Checked the open PR backlog first (`list_pull_requests`, state=open): 20 PRs (#63-#92,
+excluding the ones folded into consolidations already on this branch's own history).
+The richest unmerged frontier is `daily/2026-10-18-work` (PR #91: consolidate-2026-10-16
++ PR #90's `lexicon.py` path param + PR #91's own `rank_candidates()` precision-mechanism
+fix) — branched from today, not stale `main`. PR #92 (2026-10-19, container_candidates,
+"8th duplicate measurement, flat") branched from stale `main` instead and reimplemented a
+mechanism this branch already has; its own PROCESS ALERT names 7+ prior independent
+implementations. Built on `daily/2026-10-18-work`, not `main` or #92, to avoid a 9th.
+
+**"definition fit reranking candidate answer cryptic crossword clue 2026" (standard
+search).** Same paper family this log already knows well: 2104.08620 (definition at one
+end, reverse-dictionary + overlap reranking — the shape `deffit.py` already generalizes
+with a real corpus instead of WordNet), Andrews & Witteveen 2024/2025 (wordplay
+verification over definition-fit, which this project's `prove.py` proof gate already
+implements), a 2014 ACL workshop paper on paraphrase-based reranking for American
+crosswords. Nothing dated 2026, nothing new. **Transfer: none actionable today**,
+consistent with every prior pass on reranking/definition-fit.
+
+**"retrieve then rerank truncation bug wide candidate pool before reranking information
+retrieval 2026" (standard search) — checking whether today's actual lever (see below) is
+a known, named failure mode outside this project, not just a local quirk.** It is: 2024
+SIGIR work on "Ranked List Truncation" studies exactly this interaction (how much of the
+first-stage retrieval to keep before a reranker sees it), and current RAG/search
+practitioner guidance independently names "reranking too few candidates" as a common,
+specifically-called-out mistake — the reranker can only reorder what the first stage
+already supplied, so a shallow cutoff before the rerank step silently caps the reranker's
+own effectiveness regardless of how good its scoring is. **Transfer: the GENERAL
+principle transfers and independently validates today's fix's direction (no cryptic-
+specific paper addresses it, so there is no off-the-shelf technique to port, only
+confirmation that the shape of the bug is a known one)** — this project already
+discovered and fixed the identical interaction for `solve_pass.rank_candidates()`
+(2026-10-12/10-18) without citing the IR literature; today extends the same fix to
+`deffit.py`'s definition-fit reranker, which never received it.
+
+**This run's lever came from re-reading this project's own disclosed gap, not the
+literature.** 2026-10-07's log entry built `deffit.py`'s answer-level IDF dampener,
+measured it FLAT on 2026-05-29 (MRR unchanged, 0.333→0.333), then dug past the flat
+number and found why: with `max_n` manually widened to 400 as a one-off diagnostic
+probe (never shipped), the dampener DOES change real scores (898 retrieval-mechanism +
+21 non-retrieval-mechanism candidates moved) — but `eval_rerank()` itself has always
+called `candidates.generate(max_n=25)` BEFORE reranking runs, so none of those changed
+scores could ever reach the measured recall-affecting set; they all sat outside the
+default top-25 window. That entry named this "the SAME truncation failure mode 2026-10-02
+found for `container_candidates`' phrase path" but shipped no fix for `deffit.py`'s own
+copy of it, even though a near-identical fix (generate a wide raw pool, rank/score it,
+truncate LAST) already existed two files over in `solve_pass.rank_candidates()` /
+`candidates.recall_eval(use_rank=True)` (2026-10-12, extended 2026-10-18). Checked
+directly that nothing in the 2026-10-18 frontier branch had already ported it to
+`deffit.py` (grepped `eval_rerank`'s signature and body — still the bare `max_n=25` call)
+before building it. See DAILY.md for the fix, the real-data measurement, and the audit.

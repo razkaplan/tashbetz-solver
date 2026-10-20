@@ -279,13 +279,45 @@ NON_RETRIEVAL_MECHANISMS = {
 
 # ---------------------------------------------------------------------------
 def eval_rerank(dataset_path, split=None, max_n=25, idxs=None, use_fillbank=True,
-                 use_answer_idf=True):
+                 use_answer_idf=True, use_rank=False):
     """Reranking quality, CONDITIONAL on the gold answer already being present in
     candidates.generate()'s output (i.e. conditional on a recall@N hit) — this is
     the honest way to isolate what reranking can possibly contribute, since it can
     never rescue a clue candidates.py never generated the answer for at all. Reports
     top-1 accuracy and mean reciprocal rank (MRR) before vs after, on the exact same
     hit set both times, so any movement is attributable to reranking alone.
+
+    `use_rank` (2026-10-20): closes a confound 2026-10-07's own log entry disclosed
+    but did not fix. This function has always called `candidates.generate(max_n=25)`
+    BEFORE reranking ever runs — the exact truncate-before-rank bug
+    `solve_pass.rank()`/`candidates.recall_eval(use_rank=True)` already found and
+    fixed for the mechanism-priority ranker (2026-10-12/2026-10-18), but never
+    ported here. 2026-10-07 diagnosed it by hand on this same puzzle (widening
+    `max_n` to 400 as a one-off probe moved 898 retrieval-mechanism and 21
+    non-retrieval-mechanism candidate scores, none of which could ever reach
+    `eval_rerank`'s measured set because every one sat outside the default top-25
+    window) but shipped no fix, leaving `def_fit` scoring confined to whatever
+    narrow, mechanism-priority-ordered slice of the pool happened to survive
+    truncation first. When `use_rank=True`, candidates are generated at the SAME
+    wide pool width `candidates.recall_eval(use_rank=True)` uses
+    (`max(max_n * 8, 200)`), `rerank()` scores the WHOLE wide pool by `def_fit`,
+    and only the reranked result is truncated to `max_n` — i.e. the width used for
+    scoring and the width used for truncation are decoupled, exactly reversing the
+    bug's ordering. `base_rank`/`base_top1`/`base_mrr` stay computed against the
+    unchanged narrow-pool call (`max_n=25`, `use_rank=False`'s own historical
+    behavior) so every existing DAILY.md number stays reproducible under the bare
+    default; only the reranked side changes shape.
+
+    `rescued` (2026-10-20, new counter, use_rank only): candidates.generate's
+    narrow default pool (max_n=25) does not contain gold at all (`base_rank is
+    None` — outside this function's own "conditional on recall" measured set
+    entirely) BUT the wide pool, once def_fit-reranked and truncated to the same
+    final max_n, DOES surface it at some rank. This is the outcome 2026-10-07's
+    diagnostic stopped short of measuring: not just "do scores change" but "does
+    widening-then-reranking ever turn a non-hit into a hit." Reported separately
+    from top1/MRR (which stay strictly conditional on the narrow-pool base_rank,
+    for comparability with every prior measurement of this function) rather than
+    silently folded into them.
 
     Also reports two structural diagnostics, kept SEPARATE because they measure
     different things: `nonretrieval_known_gloss_clues` — at least one non-retrieval
@@ -301,10 +333,12 @@ def eval_rerank(dataset_path, split=None, max_n=25, idxs=None, use_fillbank=True
     candidates, _ = _mods()
     idxs = idxs if idxs is not None else (
         [build_answer_index()] + ([build_fillbank_index()] if use_fillbank else []))
+    gen_max_n = max(max_n * 8, 200) if use_rank else max_n
     total = 0
     recall_hit = 0
     base_top1 = base_rr = rerank_top1 = rerank_rr = 0
     moved_up = moved_down = unchanged = 0
+    rescued = 0
     nonretrieval_scored_clues = 0
     nonretrieval_known_gloss_clues = 0
     examples = []
@@ -315,8 +349,10 @@ def eval_rerank(dataset_path, split=None, max_n=25, idxs=None, use_fillbank=True
         if not r.get('answer_raw'):
             continue
         total += 1
-        cands = candidates.generate(r['clue_text'], r['enum'], max_n=max_n)
-        nr_cands = [c for c in cands if c['mechanism'] in NON_RETRIEVAL_MECHANISMS]
+        base_cands = candidates.generate(r['clue_text'], r['enum'], max_n=max_n)
+        wide_cands = (candidates.generate(r['clue_text'], r['enum'], max_n=gen_max_n)
+                      if use_rank else base_cands)
+        nr_cands = [c for c in wide_cands if c['mechanism'] in NON_RETRIEVAL_MECHANISMS]
         if any(any(c['answer'] in idx['ans_docs'] for idx in _as_index_list(idxs))
                for c in nr_cands):
             nonretrieval_known_gloss_clues += 1
@@ -324,17 +360,22 @@ def eval_rerank(dataset_path, split=None, max_n=25, idxs=None, use_fillbank=True
                for c in nr_cands):
             nonretrieval_scored_clues += 1
         gold = candidates.norm(r['answer_raw'])
-        base_rank = next((i + 1 for i, c in enumerate(cands) if c['answer'] == gold), None)
+        base_rank = next((i + 1 for i, c in enumerate(base_cands) if c['answer'] == gold), None)
+        reranked_full = rerank(r['clue_text'], wide_cands, idxs, use_answer_idf=use_answer_idf)
+        reranked = reranked_full[:max_n]
+        re_rank = next((i + 1 for i, c in enumerate(reranked) if c['answer'] == gold), None)
         if base_rank is None:
+            if use_rank and re_rank is not None:
+                rescued += 1
             continue
         recall_hit += 1
-        reranked = rerank(r['clue_text'], cands, idxs, use_answer_idf=use_answer_idf)
-        re_rank = next((i + 1 for i, c in enumerate(reranked) if c['answer'] == gold), None)
         base_top1 += base_rank == 1
         rerank_top1 += re_rank == 1
         base_rr += 1.0 / base_rank
-        rerank_rr += 1.0 / re_rank
-        if re_rank < base_rank:
+        rerank_rr += 1.0 / re_rank if re_rank else 0.0
+        if re_rank is None:
+            moved_down += 1  # fell out of the final top-max_n entirely after reranking
+        elif re_rank < base_rank:
             moved_up += 1
         elif re_rank > base_rank:
             moved_down += 1
@@ -342,7 +383,7 @@ def eval_rerank(dataset_path, split=None, max_n=25, idxs=None, use_fillbank=True
             unchanged += 1
         examples.append((r['clue_number'], r['direction'], gold, base_rank, re_rank))
     return {
-        'total': total, 'recall_hit': recall_hit,
+        'total': total, 'recall_hit': recall_hit, 'rescued': rescued,
         'base_top1': base_top1, 'rerank_top1': rerank_top1,
         'base_mrr': base_rr / recall_hit if recall_hit else 0.0,
         'rerank_mrr': rerank_rr / recall_hit if recall_hit else 0.0,
@@ -517,6 +558,49 @@ def selftest():
           f'{out3[0]["answer"] == "תפוח"} (expected True)')
     ok &= out3[0]['answer'] == 'תפוח'
 
+    print('--- eval_rerank(use_rank=True): gold absent from the narrow default pool '
+          '(the 2026-10-07 truncate-before-rank confound this run closes) is RESCUED '
+          'once the WIDE pool is scored by def_fit before truncation -- a synthetic '
+          'generate() stub, never real puzzle data, same discipline as this project\'s '
+          'other recall-shaped selftests ---')
+    import tempfile, contextlib, io
+    candidates, _ = _mods()
+    orig_generate = candidates.generate
+    GOLD = 'ורדהגולד'
+    try:
+        def _stub_generate(clue_text, enum, max_n=25, **kwargs):
+            # 200 decoys the def_fit index knows nothing about; gold sits at raw
+            # index 60 -- outside any max_n=25 call, inside any max_n>=61 one, so
+            # whether it is reachable at all depends entirely on pool width, not on
+            # def_fit scoring quality.
+            out = [{'answer': (GOLD if i == 60 else f'מלית{i}'),
+                    'mechanism': 'pattern', 'fodder': None} for i in range(200)]
+            return out[:max_n]
+        candidates.generate = _stub_generate
+        gold_idx = {'N': 1, 'df': {'נשיא': 1}, 'avg': 1, 'ans_docs': {GOLD: [['נשיא']]}}
+        fd, tmp_path = tempfile.mkstemp(suffix='.jsonl')
+        try:
+            with open(tmp_path, 'w', encoding='utf-8') as f:
+                f.write(json.dumps({'split': 'eval', 'answer_raw': GOLD, 'clue_number': 1,
+                                     'direction': 'across', 'clue_text': 'נשיא',
+                                     'enum': [8]}, ensure_ascii=False) + '\n')
+            with contextlib.redirect_stdout(io.StringIO()):
+                res_narrow = eval_rerank(tmp_path, split='eval', idxs=gold_idx, use_rank=False)
+                res_wide = eval_rerank(tmp_path, split='eval', idxs=gold_idx, use_rank=True)
+            print(f'  narrow pool (use_rank=False): recall_hit={res_narrow["recall_hit"]} '
+                  f'rescued={res_narrow["rescued"]} (expected 0, 0 -- gold stays unreachable)')
+            ok &= res_narrow['recall_hit'] == 0 and res_narrow['rescued'] == 0
+            print(f'  wide pool (use_rank=True): recall_hit={res_wide["recall_hit"]} '
+                  f'rescued={res_wide["rescued"]} (expected 0, 1 -- the narrow-pool '
+                  f'recall_hit metric is UNCHANGED by design, see eval_rerank\'s own '
+                  f'docstring; rescued is the new, separate signal)')
+            ok &= res_wide['recall_hit'] == 0 and res_wide['rescued'] == 1
+        finally:
+            os.close(fd)
+            os.remove(tmp_path)
+    finally:
+        candidates.generate = orig_generate
+
     print(f'\n{"ALL PASSED" if ok else "FAILURES ABOVE"}')
     return ok
 
@@ -541,12 +625,17 @@ def main():
         rest = sys.argv[2:]
         use_fillbank = '--no-fillbank' not in rest
         use_answer_idf = '--no-answer-idf' not in rest
-        rest = [a for a in rest if a not in ('--no-fillbank', '--no-answer-idf')]
+        use_rank = '--ranked' in rest
+        rest = [a for a in rest if a not in
+                ('--no-fillbank', '--no-answer-idf', '--ranked')]
         path = rest[0] if len(rest) > 0 else 'data/dataset/clues.jsonl'
         split = rest[1] if len(rest) > 1 else None
         os.chdir(ROOT)
-        res = eval_rerank(path, split, use_fillbank=use_fillbank, use_answer_idf=use_answer_idf)
-        print(f"recall_hit (gold in candidate list): {res['recall_hit']}/{res['total']}")
+        res = eval_rerank(path, split, use_fillbank=use_fillbank,
+                           use_answer_idf=use_answer_idf, use_rank=use_rank)
+        print(f"recall_hit (gold in candidate list): {res['recall_hit']}/{res['total']}"
+              + (f"  (+{res['rescued']} rescued by the wide pool, gold absent from the "
+                 f"narrow default pool but present after --ranked)" if use_rank else ""))
         print(f"top-1 accuracy, conditional on recall: "
               f"baseline {res['base_top1']}/{res['recall_hit']} "
               f"({res['base_top1']/max(res['recall_hit'],1):.1%})  ->  "
