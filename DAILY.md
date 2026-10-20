@@ -33,6 +33,7 @@ tree - a stale CLI deploy overwrote the live site on 2026-08-29. See CLAUDE.md.
 | **`deffit.py` definition-fit reranking (NEW 2026-09-09, offline, conditional on recall)** | On a fresh puzzle (2026-05-15): recall_hit 2/28 (same 2 retrieval hits); top-1 accuracy 0/2 unchanged; **MRR 0.333 → 0.350** (1 candidate moved up, 0 moved down); **structural finding: 0/28 clues have a non-retrieval candidate with a non-zero def_fit score** — the signal is mathematically redundant with `retrieval_candidates` today, since both query the same private_defs/BM25 index | not yet a target — n=2 is far too small to call this positive or negative; see log for the redundancy diagnosis and the concrete fix (a second gloss source, e.g. `solver/lex/fillbank.json`) |
 | **`deffit.py` with `fillbank.json` wired as a second gloss source (NEW 2026-09-10, offline)** | Re-measured on the SAME 2026-05-15 puzzle, independently re-transcribed and re-crawled fresh this run: recall@N **0/28 with or without retrieval** (a smaller/different private_defs crawl than 2026-09-09's found no hits at all on this puzzle — recall_hit therefore 0/28, so top-1/MRR are undefined this run). Split the structural diagnostic into TWO numbers on purpose: clues with a non-retrieval candidate carrying a KNOWN gloss in ANY source went **3/28 (private_defs alone) → 14/28 (+fillbank)** — fillbank.json's 2,412 entries genuinely widen gloss coverage, a real and substantial move; but clues with a non-retrieval candidate whose gloss actually SHARES VOCABULARY with the clue (`def_fit>0`, 2026-09-09's own stricter bar) stayed **0/28 with fillbank ON**, because the 59 newly-known candidates' glosses (e.g. `ירושלים` -> `בירת ישראל`) don't happen to repeat the clue's own wording. Also FOUND AND FIXED a real bug before ever measuring: `build_fillbank_index()` didn't fold fillbank's final letters (ם/ן/ץ/ף/ך), so it would have silently missed all 557/2,450 (22.7%) of fillbank entries ending in one — every candidates.py answer is unconditionally final-folded, so the lookup would have failed for any of those words even when present | not yet a target — a real, disclosed, mixed result: coverage widened, the stricter score-overlap bar did not move this run; see log |
 | **`deffit.py` answer-level IDF dampener for generic-idiom over-matching (NEW 2026-10-07, offline)** | 10th independent transcription of 2026-05-29 (28/28 clues, 0 enum mismatches — reproduces the canonical 3.6%/1-28 mechanical baseline exactly). `candidates.py recall`: **3.6% (1/28), identical** on this puzzle regardless (the dampener only re-ranks, never changes recall@N by construction). `deffit.py eval`: recall_hit 1/28 (the standing 2D `יחפניות` anagram hit) — **MRR 0.333 unchanged, rank 3->3**, and `nonretrieval_scored_clues` **0/28 either way** (identical with `--no-answer-idf`) — a genuine, unconfounded FLAT result on this puzzle's own default-truncation (`max_n=25`) candidate pool. Dug past the flat top-line number before accepting it (same discipline PR #78's truncation finding modelled 2026-10-05): with `max_n` widened to 400 (diagnostic only, not the measured number), the dampener DOES fire on real data — **898 retrieval-mechanism candidate scores changed** (e.g. clue 7A `סול`: 13.7 -> 10.2) and **21 non-retrieval-mechanism candidate scores changed** (e.g. 15A `יער`: 11.0 -> 8.7) — but every one of those affected candidates sits outside the default top-25 pool for this puzzle's clues (confirmed directly: re-querying clue 7A's candidates at `max_n=25` finds zero nonzero-scoring entries at all), so they never reach `eval_rerank`'s measured set. This is the SAME truncation failure mode 2026-10-02 found for `container_candidates`' phrase path, now independently confirmed for a re-ranker rather than a generator | not yet a target — a real, disclosed, confounded-by-truncation flat result; see log for the root-cause trace and the concrete next step |
+| **`deffit.py eval_rerank(use_rank=True)` / CLI `--ranked` (NEW 2026-10-20, offline) — closes 2026-10-07's own disclosed truncation-before-rank confound, porting the SAME wide-pool-then-rank-then-truncate fix `solve_pass.rank_candidates()`/`candidates.recall_eval(use_rank=True)` already use (2026-10-12/10-18) into `deffit.py`'s own reranker, which never received it** | 16th independent transcription of 2026-05-29, this time including a fresh direct re-derivation from the puzzle image with 0/28 enum mismatches against BOTH the real 14across answer lengths and the grid-derived slot lengths (`grid_tools.slots()`, 0/28 numbering/length mismatches too). Fresh `private_defs/mordo.jsonl` crawl this run (15,448 raw pairs; `note.co.il` not crawled today, disclosed). Bare (`use_rank=False`, today's pre-existing behavior, unchanged): recall_hit 1/28, MRR 0.333→0.333 (rank 3→3, the standing `יחפניות` anagram hit), `nonretrieval_scored_clues` **0/28** — reproduces 2026-10-07's exact numbers on this puzzle, confirming no regression. `--ranked`: recall_hit **still 1/28, rescued 0** (the wide pool surfaced no NEW gold-bearing clue on this specific puzzle/corpus) and MRR **still 0.333→0.333, rank 3→3 unchanged** — a genuine flat result for THIS puzzle's recall/MRR numbers. But `nonretrieval_scored_clues` moved **0/28 → 1/28** — the fix's own mechanism of action, CONFIRMED on real data rather than left as the diagnostic-only sweep 2026-10-07 stopped at: clue 12D (`את החסרון הפך ליתרון במים`, gold `מגפ`) now shows a non-retrieval candidate (`חסר`, via `hidden`/`homophone_vowel`) scoring `def_fit=3.994` (private_defs defines `חסר` compatibly with this clue's own vocabulary) — checked directly that this candidate sat at raw rank 40 (hidden) and 169 (homophone_vowel), both outside the pre-fix `max_n=25` window, confirming the truncation story held for this concrete example, not just the 2026-10-07 diagnostic sweep. `חסר` is not this clue's gold answer, so this did not flip a recall outcome — an honest partial result: the confound is real and the fix closes it (proven on live data), but closing it did not, on this one puzzle, change which clue gets solved. `nonretrieval_known_gloss_clues` also moved 6/28→8/28 (wide pool exposes 2 more candidates with SOME known gloss, a weaker bar than `def_fit>0`). Wall-clock cost disclosed, not hidden: the 28-clue `--ranked` eval took on the order of several minutes against this run's ~15k-doc corpus (vs. seconds for the bare call) — generating + scoring an 8x-wider pool per clue is not free, and a larger corpus or more puzzles would cost proportionally more. AUDITED: `lexicon.held_out_answers()` and `retrieve_defs.held_out()` both confirmed (computed) to block all 28 of this puzzle's gold answers; `חסר`'s matching index entries carry `pid=None` (external private_defs, not this project's own text); no forbidden reads (gold from the sanctioned 14across scrape + the public CDN image, no answers site, no verbatim clue search); no implausible jump (every number here is either an exact reproduction or a disclosed 0-point/1-clue delta). New selftest (synthetic `candidates.generate` stub, gold planted at raw index 60 of 200 — unreachable at `max_n=25`, reachable once scored and truncated last) directly exercises the `rescued` code path independent of real puzzle data, since this run's own real-data measurement happened to find 0 rescues. All 6 affected selftests (`deffit.py` incl. 1 new case, `candidates.py`, `retrieve_defs.py`, `lexicon.py`, `prove.py`, `substitutions.py`) re-run clean | not yet a target — a real infrastructure fix, confirmed working on live data (truncation lifted, a previously-invisible score now visible), flat for recall/MRR on this one puzzle; the natural next check is a puzzle/corpus combination where a def_fit-scoring non-retrieval candidate IS gold, see log |
 | **`recall_eval(use_rank=True)` / CLI `--ranked` (NEW 2026-10-12, offline) — ports `solve_pass.rank()`'s already-shipped live truncation fix into `candidates.py`'s own recall metric, plus a ranking-logic bug found and fixed along the way** | On a fresh 2-puzzle/40-clue eval set (2026-05-29 re-transcribed 12th+ time, 21/28 clues from the standard across-1-13 image gap, 0 enum mismatches; 2026-07-10 re-transcribed 5th+ time, 19/28 clues, same gap, 0 enum mismatches): bare default (`max_n=25`, no ranking) **5.0% (2/40)**. Swept `max_n` alone (no ranking) from 25→500 and watched recall move **5.0%→7.5% (3/40)** purely from the cap — confirmed the raw (pre-truncation) candidate pool now averages ~250/clue (13+ mechanisms deep) while `max_n=25` keeps only the first 10%, the exact failure mode `solve_pass.py`'s `rank()` already found and fixed for LIVE solving (pull an 8x/≥200 raw pool, rank by lexicon tier, truncate last) but `recall_eval()` never got. Wired `use_rank=True` to reuse that fix (`rank_candidates()`, factored out of `rank()` for this reuse) — **first attempt (crediting only the NEW `phrase_ok` signal) REGRESSED: 2/40 → 1/40**, caught before shipping: it demoted a real retrieval hit (26A `פחותאבלכואב`, `split=['פחות','אבל','כואב']`) that was already relying on the PRE-EXISTING `split_ok` field, which `rank()`'s sort key had only ever used as a weak secondary tiebreaker, never primary-tier credit — the identical gap `phrase_ok` was being added to fix, just on the older field. Fixed both together (`split_ok` OR `phrase_ok` now grants the same tier-1 floor a plain dictionary word gets, since both `phrase_split()` and `split_candidates()` only ever accept a hit built entirely from verified `lex()`-member pieces): **`--ranked` now reproduces the bare baseline exactly, 5.0% (2/40), no regression** — a genuine FLAT result for recall@N on this specific sample (the one buried hit this run could directly explain, 25A `צרנוביל` at raw position 125/200, stays unrecovered because tied tier-1 candidates fall back to insertion order, which this fix does not address). **The split_ok bug was live in `solve_pass.rank()` itself before today, not only in the new diagnostic path** — any live blind trial since `rank()` was built could have had a genuine multi-word retrieval/charade hit silently outranked by weaker single-word noise; today's fix changes already-shipped live-solving behavior, not just an offline number. AUDITED: `lexicon.held_out_answers()` confirmed to block all 40 gold answers (`gold_norm - blocked` empty); no forbidden reads (gold from the sanctioned 14across bootstrap scrape — both puzzles came back real, 52/52 — clue text from the two public CDN images); no implausible jump (every number here is either an exact reproduction, a diagnostic sweep, or a 0-point delta). 6 affected selftests (`candidates.py` incl. 1 new case, `solve_pass.py` incl. refactor-safety re-check, `lexicon.py`, `substitutions.py`, `retrieve_defs.py`, `prove.py`) re-run clean | not yet a target — a real infrastructure fix (ported + bug-fixed), flat on this specific small sample; see log for the full trace and why insertion-order ties are the next concrete gap |
 | **`recall_eval(use_rank=True)` / CLI `--ranked` — SECOND regression found and fixed (NEW 2026-10-18): 2026-10-12's `phrase_ok`/`split_ok` fix only covers MULTI-part hits** | Fresh independently-transcribed 2026-05-29 (13th+ transcription, 28/28 clues, 0 enum mismatches): full-defaults bare (`max_n=25`, no ranking) **7.1% (2/28)**, mechanisms `{retrieval: 1, anagram: 1}`. `--ranked` on this same data **REGRESSED to 3.6% (1/28)** — the `retrieval` hit (1D `ברישניקוב`, single-part enum `(9)`) vanished. Root-caused, not assumed: this hit's `lexicon_tier=0` (it is not itself a `lex()` member — the entire point of retrieval is finding an answer the lexicon lacks) and `split_ok=None` (single-part enum, 2026-10-12's field is only ever set for `len(enum)>1`) and `phrase_ok=False` (no `phrase_split()` path involved) — none of 2026-10-12's two promotion signals apply, so the ranker's primary sort key fell back to raw `lexicon_tier=0`, identical to ordinary tier-0 window-scan noise, and it lost the tiebreak once the wide 200-candidate raw pool surfaced enough real tier>=1 dictionary words ahead of it. Fixed: `solve_pass.rank_candidates()` gained a `PRECISION_MECHANISMS` set (`retrieval`, `defspan_retrieval`, `culture_category`, `homograph`, `substitution`, `abbreviation`, `double_definition` — every mechanism that only ever emits a hit backed by targeted evidence, never a blind same-length character-window scan the way `anagram`/`hidden`/`reversal`/`pattern`/`charade`/`container`/`homophone`(`_vowel`) do) granting the SAME tier-1 floor `phrase_ok`/`split_ok` already get. **`--ranked` now reproduces the bare baseline exactly, 7.1% (2/28), no regression** | not yet a target — a genuine correctness fix to the ranking layer every mechanism in this file depends on to survive truncation into a live solve pass, not a new mechanism; recall moving from the REGRESSED 3.6% back to the correct 7.1% is a bug fix, not a measured gain — see log |
 | **Candidate recall@N, FULL current pipeline (all 11 optional mechanisms + the 5 always-on ones), SECOND independent full transcription — 2026-06-05 (NEW 2026-09-15)** | **0.0% (0/28), identical with every optional mechanism on vs. the pure mechanical baseline (anagram/hidden/reversal/homograph/substitution-2word only, also 0.0%)** — the first puzzle this diagnostic has scored BELOW 2026-05-29's long-standing 3.6% floor. Root-caused past "mechanism fired N times, 0 hits" framing to something more fundamental: **`lexicon_coverage_eval` (NEW, `solver/candidates.py`) — only 8/28 (28.6%) of this puzzle's gold answers are members of `lex()` AT ALL**, independent of any mechanism, and every generator in this file can only ever propose an answer that is already a lexicon member. Confirmed directly, not just inferred, for 2 clues: 8A's exact anagram fodder (`שמיגנדי`) is a correct 7-letter contiguous window of the clue with the exact right letter-multiset for gold `גדישמני` — but `גדישמני` itself is not in `lex()`, so `anagram_candidates` never proposes it regardless of fodder correctness; same shape for 7A's reversal (`נכו`→`וכן`, once a real transcription slip — "פרעה" for "פרעה נכו" — was caught and fixed) | not yet a target — see log for the corpus-size confound this measurement carries |
@@ -47,7 +48,20 @@ tree - a stale CLI deploy overwrote the live site on 2026-08-29. See CLAUDE.md.
 | **`segment_candidates(use_substitution=True)` -- today's lever, NEW 2026-10-16, offline, mechanical+substitution MIXED per-part charade** | **FLAT, 4.8% (1/21), IDENTICAL in all three configurations** (`--no-segment --no-segment-substitution`, default segment mechanical-only, default segment+use_substitution) on a FRESH 15th+ independent transcription of 2026-05-29 (21/28 clues, the standard across-1-13 image-cutoff gap, 0/21 enum mismatches, real 14across gold). All 8 of this puzzle's multi-part-enum clues hit `segment_candidates`' own 300-combo cap without finding gold; re-checked UNCAPPED (up to 20,000 combos/clue) and still **0/8 found gold even then** -- a genuine mechanism-level null (these specific multi-part answers aren't recoverable from mechanical devices or the mined-substitution table at all), not a truncation artifact, independently reproducing PR #86's own "0/10 even uncapped" finding on a SECOND transcription of the same puzzle | not yet a target -- diagnostic; a real, root-caused negative result, see log |
 
 Baseline for comparison: v2 = 41% raw with untraceable errors.
-Last lever added (2026-10-17): **closed lever queue item 11 — `lexicon.py load()`'s
+Last lever added (2026-10-20): **closed `deffit.py`'s own disclosed-but-unfixed
+truncate-before-rank confound (2026-10-07): `eval_rerank(use_rank=True)` / CLI `--ranked`
+now generates a WIDE candidate pool, scores it by `def_fit`, and truncates to `max_n`
+only AFTER reranking — the same wide-pool-then-rank-then-truncate shape
+`solve_pass.rank_candidates()`/`candidates.recall_eval(use_rank=True)` already use.
+Measured on a 16th independent transcription of 2026-05-29 (0/28 enum mismatches against
+both real 14across answer lengths and grid-derived slot lengths): recall/MRR flat (1/28,
+0.333→0.333, 0 rescued) but `nonretrieval_scored_clues` moved 0/28→1/28 — confirmed on
+real data, not just a diagnostic sweep, that a previously-invisible def_fit-scoring
+candidate (`חסר`, raw rank 40/169, past the old `max_n=25` cutoff) is now visible; it was
+not this clue's gold answer, so the fix is proven working without (yet) moving recall on
+this one puzzle. See the state table and log for the full measurement and audit.**
+
+Previous lever (2026-10-17): **closed lever queue item 11 — `lexicon.py load()`'s
 "corpus answers" block (`data/answers/answers_parsed.json` + `data/answers/extra/*.json`)
 was the one source in this function still read via a HARDCODED path with no toggle,
 unlike `private_defs_glob`/`hwdb_path`, which were already parameterized precisely so a
@@ -8654,3 +8668,111 @@ Measure each lever on dev (fixed enums) with run_eval.py before/after; one lever
   — only the project owner can. Did not grow the `private_defs` corpus beyond today's
   mordo-only crawl (no `note.co.il` run this time, to keep this run to one lever). Never
   pushed to `main`; never ran `vercel --prod`.
+
+- 2026-10-20: **built on `daily/2026-10-18-work` (PR #91: consolidate-2026-10-16 +
+  PR #90's `lexicon.py` path param + PR #91's own `rank_candidates()` precision-mechanism
+  fix), not stale `main`.** Checked the open PR backlog first (`list_pull_requests`): this
+  was the richest unmerged frontier; PR #92 (2026-10-19, container_candidates, "8th
+  duplicate measurement") branched from stale `main` instead and reimplemented a mechanism
+  this branch already has, so building on it would have risked a 9th — skipped.
+
+  Bootstrap ran fully clean (52/52 puzzles, 1,457 clues from 14across on the first try).
+  Transcribed 2026-05-29 (the canonical dev puzzle, 16th independent transcription of this
+  project's history) fresh from `data/images/2026-05-28.jpg`, reading the full
+  across-1-13/15-26 column-wrap and all 13 down clues directly (not reusing any prior
+  run's text). Every one of the 28 enum sums validated TWICE, independently: against the
+  real `data/answers/by_date/2026-05-29.json` answer lengths (0/28 mismatches, 14across
+  worked cleanly this run) AND against the grid-derived slot lengths/numbering from
+  `grid_tools.slots()` on the already-committed `data/grids/2026-05-29.json` (0/28
+  mismatches on both length and which numbers are across vs. down) — the first time this
+  exact puzzle's transcription has had both cross-checks confirmed programmatically in the
+  same run. `candidates.py recall`: **3.6% (1/28), exactly reproduces** the long-standing
+  historical number on this puzzle (anagram hit, 2D `יחפניות`).
+
+  RESEARCH (RESEARCH.md): definition-fit/reranking literature search found nothing new
+  (same paper family this log already knows). A second, more targeted search — "is a
+  retrieve-then-rerank truncation bug a known failure mode outside this project" —
+  confirmed it is: 2024 SIGIR work on Ranked List Truncation and current practitioner
+  guidance both independently name "reranking too few candidates" as a standard mistake
+  (a reranker can only reorder what the first stage already supplied). No cryptic-specific
+  paper addresses it, so nothing to port directly, but it confirms today's fix is a known
+  failure shape, not a local quirk.
+
+  LEVER: `deffit.py`'s `eval_rerank()` has, since it was written, always called
+  `candidates.generate(max_n=25)` BEFORE `def_fit` reranking ever runs — 2026-10-07's own
+  log entry disclosed this precisely (a manual `max_n=400` diagnostic probe showed 898+21
+  candidate scores would change, all of them outside the default top-25 window) but shipped
+  no fix, even though the identical bug had already been found and fixed two files over in
+  `solve_pass.rank_candidates()`/`candidates.recall_eval(use_rank=True)` (2026-10-12,
+  extended 2026-10-18). Added `use_rank=True` (CLI `--ranked`) to `eval_rerank()`: generates
+  a wide pool (`max(max_n*8, 200)`, the same formula), scores the WHOLE wide pool by
+  `def_fit`, and truncates to `max_n` only after reranking — decoupling the width used for
+  scoring from the width used for truncation, the exact reverse of the bug's ordering.
+  `base_rank`/`base_top1`/`base_mrr` stay computed against the unchanged narrow-pool call so
+  every historical number in this file stays reproducible under the bare default. Added a
+  new `rescued` counter (clues where gold is entirely absent from the narrow pool but
+  surfaces after wide-pool reranking) — the outcome 2026-10-07's diagnostic stopped short of
+  measuring (it only showed scores changed, never whether a clue's reachability changed).
+  New selftest: stubs `candidates.generate` with a synthetic 200-candidate pool (gold
+  planted at raw index 60 — unreachable at `max_n=25`, reachable once scored and truncated
+  last), proving the rescue path works independent of real data, since real puzzle data
+  happened to find 0 rescues this run (see below).
+
+  CORPUS: ran a fresh `crawl_defs.py mordo` (15,448 raw pairs recovered before the harness's
+  own timeout killed it, a disclosed bound, not exhaustion). `note.co.il` not crawled this
+  run, disclosed, to keep this run to one lever.
+
+  MEASURED (executed): `python3 solver/deffit.py eval data/dataset/clues.jsonl eval` (bare)
+  vs. `--ranked`. Bare: recall_hit 1/28, MRR 0.333→0.333 (rank 3→3, the standing `יחפניות`
+  hit), `nonretrieval_scored_clues` 0/28 — reproduces 2026-10-07's exact numbers on this
+  puzzle. `--ranked`: recall_hit still 1/28, **rescued 0** (no clue gained a new reachable
+  gold answer on this specific puzzle/corpus combination), MRR still 0.333→0.333 (unchanged)
+  — a genuine flat result for this puzzle's own recall/MRR. But `nonretrieval_scored_clues`
+  moved **0/28 → 1/28**, confirming the fix's mechanism of action on live data rather than
+  only in a diagnostic sweep: 12D (`את החסרון הפך ליתרון במים`, gold `מגפ`) now shows a
+  non-retrieval candidate (`חסר`, via `hidden`/`homophone_vowel`) scoring `def_fit=3.994`.
+  Checked directly, not assumed: `חסר` sits at raw rank 40 (hidden) and 169
+  (homophone_vowel) in the wide pool — both genuinely past the old `max_n=25` cutoff,
+  confirming the truncation story holds for this concrete example, not only for 2026-10-07's
+  manual `max_n=400` sweep. `חסר` is not this clue's gold answer, so this did not flip a
+  recall outcome this run. `nonretrieval_known_gloss_clues` also moved 6/28→8/28 (a weaker
+  bar: ANY known gloss, not necessarily clue-vocabulary overlap). Wall-clock: `--ranked`
+  took on the order of several minutes for this 28-clue eval against the ~15k-doc corpus,
+  vs. seconds for the bare call — disclosed as a real, non-negligible cost, not hidden.
+
+  AUDITED (mandatory gate). `lexicon.held_out_answers()` and `retrieve_defs.held_out()`
+  both confirmed (computed, not assumed) to block all 28 of this puzzle's gold answers —
+  `gold_norm - blocked` empty for both. `חסר`'s matching private_defs documents confirmed
+  `pid=None` (external corpus, not this project's own puzzle text). No forbidden reads:
+  gold came from the sanctioned 14across bootstrap scrape and the public CDN image; no
+  answers site, no verbatim clue search, no solution image used as a gold source this run
+  (14across worked cleanly, so the image-fallback technique was not needed). No implausible
+  jump: every number here is either an exact reproduction of a prior measurement or a
+  disclosed, small, honestly-explained delta (0 recall/MRR movement, a 1-clue move on the
+  `def_fit>0` diagnostic). All 6 affected selftests (`deffit.py` incl. 1 new case,
+  `candidates.py`, `retrieve_defs.py`, `lexicon.py`, `prove.py`, `substitutions.py`) re-run
+  clean.
+
+  HONEST READ: this is a genuine infrastructure fix, not a new mechanism and not a measured
+  recall gain — it closes a real, previously-disclosed-but-unfixed confound, and today's own
+  real-data measurement proves the fix does what it claims (a specific, previously-invisible
+  candidate is now visible, at the specific raw rank the fix predicts), but on THIS one
+  puzzle the newly-visible signal does not happen to be gold, so recall/MRR stay flat. This
+  is the same shape as 2026-10-12/10-18's `--ranked` fixes for `candidates.py`/`solve_pass.py`
+  — both were also flat-to-small on their first real-data measurement, and both were
+  genuine, necessary correctness fixes regardless. The honest claim is "the truncation
+  confound is now closed, proven on live data" — not "this moved the number."
+
+  NOT DONE, honestly: did not re-measure on a second puzzle (would need a second full
+  transcription-plus-audit cycle, out of today's one-lever budget); did not crawl
+  `note.co.il` (mordo-only corpus this run, disclosed); did not investigate WHY this run's
+  wide pool found 0 rescues — a natural next step is a puzzle where a def_fit-scoring
+  non-retrieval candidate IS actually gold, to see whether `--ranked` recovers it, which
+  today's single data point cannot distinguish from "the fix doesn't help" vs. "this
+  puzzle's gold answers just aren't independently defined anywhere in a ~15k-doc corpus";
+  did not wire `use_rank`/wide-pool scoring into `solve_pass.py`'s LIVE solving path (today's
+  fix is scoped to the offline `eval_rerank()` diagnostic only, matching how
+  `candidates.recall_eval(use_rank=True)` also shipped offline-only before `solve_pass.rank()`
+  got its own fix) — a natural next lever if this one is revisited; did not merge or
+  otherwise act on any open PR — only the project owner can; never pushed to `main`; never
+  ran `vercel --prod`.
