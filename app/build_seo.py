@@ -111,7 +111,13 @@ KICKER=brand.MILON_KICKER
 # app/rebrand_pages.py rewrites already-built pages with the same shell, so a
 # shell change here must be mirrored there (or the pages rebuilt).
 
-def page(path,title,desc,body,jsonld=None,crumb=None):
+NOINDEX='<meta name="robots" content="noindex, follow">'
+
+def page(path,title,desc,body,jsonld=None,crumb=None,noindex=False):
+    # noindex: served and linked (follow) but kept out of the index. Used for
+    # the entity pages: Google trialled 639 of them for one week in Aug 2026
+    # at 0.9% CTR, then dropped the whole host, homepage included.
+
     os.makedirs(os.path.dirname(path),exist_ok=True)
     rel='/'+os.path.relpath(path,'docs').replace('index.html','').replace(os.sep,'/')
     crumbs=[("דף הבית",BASE+"/"),("מילון",BASE+"/milon/")]
@@ -140,7 +146,7 @@ def page(path,title,desc,body,jsonld=None,crumb=None):
 <meta name="twitter:title" content="{esc_title}"><meta name="twitter:description" content="{esc_desc}">
 <meta name="twitter:image" content="{BASE}/milon/og.png">"""
     open(path,'w').write(brand.document(
-        title=title,desc=desc,canonical=canon,meta=og+ld,kicker=KICKER,
+        title=title,desc=desc,canonical=canon,meta=(NOINDEX if noindex else '')+og+ld,kicker=KICKER,
         crumbs=[(n,u.replace(BASE,'') or '/') for n,u in crumbs],
         body=body,note=NOTE,current='milon'))
 
@@ -432,8 +438,8 @@ for cat,t in sorted(page_set):
          (f'{t}: פירוש ומשמעות, {single} ב-{len(n)} אותיות בתשבץ' if d else
           f'{t} בתשבץ: {single} ב-{len(n)} אותיות (כתיב: {n})'),
          meta_desc(t,n,single,d,c,a,sb,related,senses),
-         body, ld, crumb=t)
-    urls.append(f'/milon/e/{urllib.parse.quote(t,safe="")}/')
+         body, ld, crumb=t, noindex=True)
+    # entity pages are deliberately NOT in the sitemap (see NOINDEX)
 
 # ---------- ORPHAN CLEANUP: entity pages whose entity no longer exists ----------
 import shutil

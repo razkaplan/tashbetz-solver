@@ -1,4 +1,8 @@
 {
  "_note": "URLs deliberately removed with no redirect, with the reason. app/url_guard.py accepts these; everything else that leaves the sitemap needs a redirect.",
- "tombstones": {}
+ "tombstones": {},
+ "tombstone_prefixes": {
+  "/milon/e/": "2026-10-20 index cut: entity pages are served with noindex,follow and left the sitemap. Google trialled 639 of them for one week in Aug 2026 (0.9% CTR) then dropped the whole host, homepage included.",
+  "/milon/w/": "2026-10-20 index cut: same as /milon/e/."
+ }
 }

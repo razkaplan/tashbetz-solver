@@ -125,6 +125,8 @@ def page(word, d, src, ctx):
             f'<meta property="og:url" content="{BASE}{url}"><meta property="og:type" content="article">'
             f'<script type="application/ld+json">{json.dumps(ld, ensure_ascii=False)}</script>'
             f'<script type="application/ld+json">{json.dumps(bc, ensure_ascii=False)}</script>')
+    # Word pages are served and linked but noindex: same cut as the entity pages.
+    meta = '<meta name="robots" content="noindex, follow">' + meta
     doc = brand.document(title=title, desc=desc, canonical=f'{BASE}{url}', meta=meta,
                          kicker=brand.MILON_KICKER, h1=title,
                          crumbs=[('דף הבית', '/'), ('מילון', '/milon/'), (word, url)],
@@ -197,7 +199,7 @@ def main():
     for w in sorted(built):
         ctx['words_by_len'].setdefault(len(norm(w)), []).append(w)
     for w, (d, src) in sorted(built.items()):
-        urls.append(page(w, d, src, ctx))
+        page(w, d, src, ctx)  # not added to urls: word pages stay out of the sitemap
     hub(ctx['words_by_len'], urls)
     update_sitemap(urls)
     update_milon_hub(len(built))
