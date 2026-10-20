@@ -22,7 +22,12 @@ HEAD = ('<link rel="icon" href="/favicon.svg" type="image/svg+xml">'
         '<link rel="preconnect" href="https://fonts.googleapis.com">'
         '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>'
         f'<link href="{FONTS}" rel="stylesheet">'
-        '<link rel="stylesheet" href="/assets/brand.css">')
+        '<link rel="stylesheet" href="/assets/brand.css">'
+        # Shared GA4 property for every gtmascode.dev site. The 2026-09-01
+        # redesign dropped this and GA went dark for the whole site.
+        '<script async src="https://www.googletagmanager.com/gtag/js?id=G-V7LGK8CMHQ"></script>'
+        '<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}'
+        'gtag("js",new Date());gtag("config","G-V7LGK8CMHQ")</script>')
 
 LOGO_SVG = ('<svg viewBox="0 0 32 32" aria-hidden="true" focusable="false">'
             '<rect x="1" y="1" width="30" height="30" rx="8" fill="currentColor"/>'
