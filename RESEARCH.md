@@ -4,6 +4,63 @@ One entry per run: what was found, one-line summary, and an honest judgement of 
 it transfers to a Hebrew cryptic solver with an 8k-clue corpus. Default skepticism: most
 crossword-AI work targets non-cryptic (American-style) puzzles and does not transfer.
 
+## 2026-10-21
+
+Bootstrap succeeded FULLY this run (52/52 puzzles, 1,457 clues, no 14across wall) — the
+first clean run in a while per the standing log of intermittent hard-wall failures.
+Transcribed 2026-05-29 (28/28 clues) fresh from `data/images/2026-05-28.jpg`, the right-
+column "אופקי: 1...13" block this project's queue item 8 has repeatedly documented
+(across clues 1-13 live in a separate column beside the previous-week solution grid, easy
+to miss if only the main clue-text column is read) — read correctly this run, all 28 enum
+sums validated against the grid-derived slot length with 0 mismatches, one enum (13 across)
+derived rather than printed (the print column's right margin cuts the clue off right after
+its text, before any "(N)"; derived as (4) from both the grid slot length and the gold
+answer's letter count, both of which agree — same disclosed-not-silent practice as prior
+runs' recovered enums).
+
+Research followed the scheduled task's stated priority order: candidate generation
+(diverse candidates by mechanism / by definition-span hypothesis) first.
+
+**"cryptic crossword solver candidate generation definition span detection 2026" /
+"LLM formalize wordplay execute proof cryptic clue solving 2026 paper" (web search).**
+Surfaced the same paper family logged repeatedly since 2026-08-06 (2506.04824 ICML 2025,
+2407.08824, 2403.12094, 2412.09012) — nothing new in the cryptic-specific literature this
+pass. **Transfer: none new.**
+
+**"constrained decoding diverse candidate generation crossword clue solving arxiv 2026"
+(web search).** Surfaced **UniTor at Cruciverb-IT** (EVALITA 2026, Shcherbakov/Croce/
+Basili, `apa.dipsco.unitn.it/evalita2026/15.pdf`) — a new citation to this log, fetched
+and read directly (pdftotext, not just the abstract). Confirmed NOT cryptic: Cruciverb-IT
+is standard Italian definitional crosswords ("Capitale della Norvegia" (4) -> OSLO), the
+same non-cryptic gap this log flags by default. The system won the shared task with a
+**single-LLM-call two-phase prompt**: phase 1 asks the model for up to K candidates
+"prioritizing semantic coverage and diversity rather than strict constraint satisfaction"
+(length violations allowed); phase 2 re-evaluates that list, enforces the hard length
+constraint, and assigns confidence-ranked scores — explicitly separating EXPLORATION from
+SELECTION within one call, grounded by retrieval over a ~375k definition->word index
+(BGE-M3 neural retrieval beat BM25 and a hybrid in their ablations).
+
+**Transfer judgement, direct and actionable despite the non-cryptic domain**: the
+METHODOLOGY (generate broadly and diversely first, filter/rank against hard constraints
+second, as two explicit phases rather than one shot) is exactly this project's own
+standing diagnosis (DAILY.md: "the solver produces ONE candidate and tries to justify it,
+which is backwards") and exactly what `candidates.py`'s mechanism-first design already
+does mechanically. It also pointed at a concrete, previously-built-but-unused piece of
+this project's own code: `solver/retrieve_defs.py:end_candidates()` (built 2026-08-08,
+the original "RANKED RETRIEVAL" lever) queries short 2/3/4-word windows at BOTH ends of
+the clue separately — i.e. it already implements a definition-SPAN-HYPOTHESIS version of
+retrieval, as opposed to `retrieve_defs.candidates()` / `candidates.py`'s
+`retrieval_candidates()`, which queries the clue's FULL text (wordplay half included as
+noise) in one shot. `end_candidates()` was wired into `retrieve_defs.py`'s own standalone
+`eval` CLI command on 2026-08-08 but **never into `candidates.py`'s candidate pool** —
+confirmed by grep, zero other call sites. This is today's lever (see DAILY.md log): wire
+it in as `span_retrieval_candidates`, additive next to (not replacing) full-clue
+retrieval, so the proof gate sees candidates generated under both hypotheses rather than
+the solver or a brittle upfront classifier committing to one end. This is a DIFFERENT
+shape from the struck `defspan.py` lever (2026-08-19, indicator-word-density
+CLASSIFICATION that commits to one guess before generating anything) — it generates under
+every hypothesis and lets the existing gate filter, never classifies.
+
 ## 2026-08-30
 
 Bootstrap hit the same hard 14across wall as 2026-08-19/08-26/08-27/08-28 (4 consecutive
