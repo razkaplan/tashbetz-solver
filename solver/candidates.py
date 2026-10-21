@@ -39,6 +39,18 @@ This module does exactly that, per clue, with no LLM involved:
                           before combined with the mechanisms above as one candidate pool —
                           see its own docstring for why the union, not either number alone,
                           is the point of wiring it in here.
+  - span_retrieval_candidates: the definition-SPAN-HYPOTHESIS generator the lever queue has
+                          asked for repeatedly — see its own docstring. Queries
+                          retrieve_defs.end_candidates() (built 2026-08-08, never wired into
+                          this file until now) instead of retrieval_candidates' whole-clue
+                          query. MEASURED 2026-10-21 (see DAILY.md): OFF by default — on the
+                          one dev puzzle tested, its candidate set was always a SUBSET of
+                          what full-clue retrieval already finds (0 net recall gain) while
+                          pushing 3 more clues' candidate lists to the max_n=25 cap than
+                          without it — real crowding risk for zero measured benefit. Opt in
+                          with use_span_retrieval=True / --span-retrieval to re-test on a
+                          bigger corpus or a different puzzle; do not flip the default back
+                          to on without a positive measurement first.
   - split_candidates:    for multi-part enums (e.g. (5,2)), splits a hit at the enum
                           boundary and flags whether BOTH pieces are real words — the
                           precondition prove.py's word_order() needs to succeed.
@@ -56,6 +68,7 @@ CLI:
   python3 solver/candidates.py recall data/dataset/clues.jsonl eval   # offline recall@N
   python3 solver/candidates.py recall data/dataset/clues.jsonl eval --no-culture  # ablation
   python3 solver/candidates.py recall data/dataset/clues.jsonl eval --no-retrieval  # ablation
+  python3 solver/candidates.py recall data/dataset/clues.jsonl eval --span-retrieval  # opt-in, see span_retrieval_candidates docstring
   python3 solver/candidates.py selftest
 """
 import sys, os, re, json
@@ -423,6 +436,48 @@ def retrieval_candidates(clue_text, target_len, topk=25, docs_df=None):
     return [{'answer': a, 'mechanism': 'retrieval', 'fodder': None} for a, _score in hits]
 
 
+def span_retrieval_candidates(clue_text, target_len, docs_df=None):
+    """DEFINITION-SPAN-HYPOTHESIS candidate generation (lever queue item 1: "generating N
+    diverse candidates per clue by mechanism and by definition-span hypothesis so the
+    existing proof gate has something to filter").
+
+    A cryptic clue's definition sits at ONE END (SOLVE_PROTOCOL.md), with the wordplay
+    filling the rest. `retrieval_candidates` above queries BM25 with the clue's FULL text,
+    so on a clue where the wordplay half is long, those words are pure noise to a
+    definition-matching query -- they dilute the few real definition tokens against a
+    denominator of words that have nothing to do with the answer's meaning. This function
+    does not try to CLASSIFY which end is the definition (that is defspan.py's
+    indicator-word-density approach, TRIED 2026-08-19 and struck as NEGATIVE, see
+    DAILY.md "things already tried" -- a brittle single-shot classifier that commits to one
+    guess before generating anything). Instead it tries EVERY plausible short span at
+    BOTH ends (2/3/4-word prefix and suffix windows, via retrieve_defs.end_candidates(),
+    built 2026-08-08 for its own standalone eval CLI but never wired into this file's
+    candidate pool until now) and hands the proof gate the union -- exactly the
+    generate-broadly-let-the-gate-filter shape the queue has been asking for, applied to
+    retrieval the same way the mechanical mechanisms already apply it to anagram/hidden/
+    reversal windows.
+
+    Held-out safe by construction: end_candidates() shares retrieve_defs.build_index()'s
+    held-out-filtered index with retrieval_candidates above, so this adds no new leak
+    surface.
+    """
+    sys.path.insert(0, HERE)
+    import retrieve_defs
+    cwd = os.getcwd()
+    try:
+        os.chdir(ROOT)
+        if docs_df is not None:
+            hits = retrieve_defs.end_candidates(clue_text, target_len, docs_df=docs_df)
+        else:
+            global _RETRIEVE_DOCS_DF
+            if _RETRIEVE_DOCS_DF is None:
+                _RETRIEVE_DOCS_DF = retrieve_defs.build_index()
+            hits = retrieve_defs.end_candidates(clue_text, target_len, docs_df=_RETRIEVE_DOCS_DF)
+    finally:
+        os.chdir(cwd)
+    return [{'answer': a, 'mechanism': 'span_retrieval', 'fodder': None} for a, _score in hits]
+
+
 def pattern_candidates(pattern):
     """pattern like '?ו?ר??' — '?' or '_' = unknown crossing letter. The lexicon folds
     final letters (ם/ן/ץ/ף/ך -> מ/נ/צ/פ/כ) everywhere, so fixed cells must be folded
@@ -459,7 +514,8 @@ def split_candidates(cands, enum):
     return out
 
 
-def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retrieval=True):
+def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retrieval=True,
+             use_span_retrieval=False):
     """Diverse candidates for one clue. Never consults the answer.
 
     Mechanism order here is a PRIORITY order, not just an accumulation order: dedup +
@@ -477,9 +533,12 @@ def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retr
     docstrings) — placed in the same early tier as homograph/substitution: culture_category
     fires rarely and each hit is a real named entity; retrieval is capped at its own topk
     (25 by default) and ranked, not an unbounded window scan, so it does not need to wait
-    behind the cheap mechanisms either. `use_culture`/`use_retrieval` are plain on/off
-    switches so a controlled before/after recall measurement doesn't need extra copies of
-    this function."""
+    behind the cheap mechanisms either. span_retrieval would sit in the same tier if enabled
+    (also ranked and capped, 25 per end-query, see retrieve_defs.end_candidates) — OFF by
+    default (see its own docstring: measured 2026-10-21 net-zero recall with a real
+    crowding cost, pushing more clues to the max_n cap). `use_culture`/`use_retrieval`/
+    `use_span_retrieval` are plain on/off switches so a controlled before/after recall
+    measurement doesn't need extra copies of this function."""
     target_len = sum(enum)
     cands = []
     cands += homograph_candidates(clue_text, target_len)
@@ -488,6 +547,8 @@ def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retr
         cands += culture_category_candidates(clue_text, target_len)
     if use_retrieval:
         cands += retrieval_candidates(clue_text, target_len)
+    if use_span_retrieval:
+        cands += span_retrieval_candidates(clue_text, target_len)
     if pattern:
         cands += pattern_candidates(pattern)
     cands += anagram_candidates(clue_text, target_len)
@@ -511,7 +572,8 @@ def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retr
 # isolation, BEFORE it is wired into a live solve+proof loop (which is a
 # separate integration step, not done by this lever).
 # ---------------------------------------------------------------------------
-def recall_eval(dataset_path, split=None, max_n=25, use_culture=True, use_retrieval=True):
+def recall_eval(dataset_path, split=None, max_n=25, use_culture=True, use_retrieval=True,
+                 use_span_retrieval=False):
     total = 0
     hit = 0
     by_mech = Counter()
@@ -525,7 +587,7 @@ def recall_eval(dataset_path, split=None, max_n=25, use_culture=True, use_retrie
             continue
         total += 1
         cands = generate(r['clue_text'], r['enum'], max_n=max_n, use_culture=use_culture,
-                          use_retrieval=use_retrieval)
+                          use_retrieval=use_retrieval, use_span_retrieval=use_span_retrieval)
         sizes.append(len(cands))
         gold = norm(r['answer_raw'])
         found = [c for c in cands if c['answer'] == gold]
@@ -656,6 +718,29 @@ def selftest():
           f'not here): {len(off) >= 1} (expected True)')
     ok &= len(off) >= 1
 
+    print('--- span_retrieval device: a definition-only doc matches the clue\'s END span '
+          'even though a long unrelated wordplay prefix sits in front of it ---')
+    # A long wordplay-looking prefix that shares nothing with the indexed doc, followed by
+    # a short definition tail ("הנשיא הראשון של המדינה" -- "the first president of the
+    # state") that is exactly what the doc indexes. end_candidates() queries short
+    # prefix/suffix windows (2/3/4 words), so it sees the tail in isolation; this is the
+    # definition-SPAN-HYPOTHESIS mechanism, distinct from retrieval_candidates above (which
+    # queries the WHOLE clue, wordplay prefix included).
+    span_docs_df = ([
+        (['נשיא', 'ראשון', 'מדינה'], [norm('וייצמן')], None),
+    ], {'נשיא': 1, 'ראשון': 1, 'מדינה': 1})
+    clue = 'תן בחג פתרון תשחץ ישן שלא קשור בכלל לשום דבר מי היה הנשיא הראשון של המדינה'
+    hits = span_retrieval_candidates(clue, 6, docs_df=span_docs_df)
+    found = any(h['answer'] == norm('וייצמן') and h['mechanism'] == 'span_retrieval'
+                for h in hits)
+    print(f'  found וייצמן via the clue\'s end span: {found} (expected True)')
+    ok &= found
+    print('--- span_retrieval device: use_span_retrieval=False in generate() disables it ---')
+    off = span_retrieval_candidates(clue, 6, docs_df=span_docs_df)
+    print(f'  standalone call still fires (sanity check the toggle lives in generate(), '
+          f'not here): {len(off) >= 1} (expected True)')
+    ok &= len(off) >= 1
+
     print('--- split_candidates: flags whether a multi-part answer is two real words ---')
     split = split_candidates([{'answer': norm('שלוםעליכם'), 'mechanism': 'test'}], [4, 5])
     print(f'  split result: {split[0]["split"]} (expected two real words, not None)')
@@ -681,14 +766,18 @@ def main():
         rest = sys.argv[2:]
         use_culture = '--no-culture' not in rest
         use_retrieval = '--no-retrieval' not in rest
-        rest = [a for a in rest if a not in ('--no-culture', '--no-retrieval')]
+        use_span_retrieval = '--span-retrieval' in rest  # opt-in: measured net-zero, see docstring
+        rest = [a for a in rest if a not in
+                ('--no-culture', '--no-retrieval', '--span-retrieval')]
         path = rest[0] if len(rest) > 0 else 'data/dataset/clues.jsonl'
         split = rest[1] if len(rest) > 1 else None
         os.chdir(ROOT)
-        res = recall_eval(path, split, use_culture=use_culture, use_retrieval=use_retrieval)
+        res = recall_eval(path, split, use_culture=use_culture, use_retrieval=use_retrieval,
+                           use_span_retrieval=use_span_retrieval)
         print(f"recall@N: {res['hit']}/{res['total']} = {res['recall']:.1%}  "
               f"(avg {res['avg_candidates']:.1f} candidates/clue, "
-              f"use_culture={use_culture}, use_retrieval={use_retrieval})")
+              f"use_culture={use_culture}, use_retrieval={use_retrieval}, "
+              f"use_span_retrieval={use_span_retrieval})")
         print('hits by mechanism:', res['by_mechanism'])
         if res['misses']:
             print(f"\n{len(res['misses'])} misses (clue_number, direction, gold):")
