@@ -4,6 +4,49 @@ One entry per run: what was found, one-line summary, and an honest judgement of 
 it transfers to a Hebrew cryptic solver with an 8k-clue corpus. Default skepticism: most
 crossword-AI work targets non-cryptic (American-style) puzzles and does not transfer.
 
+## 2026-10-22
+
+Bootstrap succeeded FULLY this run (52/52 puzzles, 1,457 clues, 14across worked cleanly —
+the first clean full run logged since 2026-08-29) — gold data for today's lever came
+directly from `data/answers/by_date/2026-05-29.json`, not the image-fallback technique.
+Research followed the scheduled task's stated priority order (candidate generation first,
+then Hebrew NLP), same as 2026-08-30.
+
+**"charade wordplay segmentation cryptic crossword substitution dictionary mining crowd
+explanations 2026" (general search).** Surfaced only generic English-cryptic charade
+explainer pages (crosswordunclued.com, sutherland-studios.com.au) — standard "WINSTON =
+WINS+TON" teaching material, nothing about mining a substitution/equivalence table from
+solver-community explanation text, which is this project's own technique
+(`solver/substitutions.py`), not a published one. **Transfer: none** — confirms (again)
+that the substitution-mining idea has no external literature to check against; it stands
+or falls on this project's own measurements.
+
+**"weighted constraint satisfaction crossword solver belief propagation candidate scoring
+2026 arxiv" (queue item 4, global constraint optimization — PLAN_V2.md's "real prize").**
+Surfaced the same Dr.Fill paper (arXiv:1401.4597) and the 1999 AAAI probabilistic-CSP
+crossword paper already known to this project (PLAN_V2.md cites Dr.Fill/Berkeley Crossword
+Solver by name) — no 2025/2026 successor found. **Transfer: none new** — the standing plan
+(build this once candidate LISTS are good enough to optimize over) is unchanged by
+today's search; it reconfirms rather than advances the existing citation.
+
+**"Hebrew NLP morphological segmentation root pattern 2026 new tool".** Same tool set
+already logged repeatedly since 2026-08-06 (HebPipe, now at a mid-2025 release; DictaBERT;
+Zeldes 2018's character-wise segmenter). No 2026 root-pattern (templatic) analyzer found.
+**Transfer: none new.**
+
+**Conclusion for today's lever.** A further, now eighth-plus consecutive literature pass
+with nothing new and buildable on candidate generation, definition-span/fit, or global
+optimization. Today's lever is therefore the queue's own concrete, already-scoped internal
+idea instead (queue item 1, the note appended after sub-item (b)): extend
+`substitution_candidates`'s mined-equivalence device from 1-2 word coverage of the FULL
+answer to 3-4 word CHAINS, which the queue itself names as the next step ("the mined
+substitution table needs to cover multi-part charades (3+ segments)"). See DAILY.md for
+the implementation and measurement — the honest result is a clean negative, but a
+MECHANISTICALLY explained one (the table that would need to supply three simultaneous
+fragments is currently too sparse, not that chains don't occur in this setter's clues —
+`דבריאמת` = `ד`+`בריא`+`מת` sits in this project's own corpus as a real, confirmed
+3-part charade of exactly the shape this lever was built to catch).
+
 ## 2026-08-30
 
 Bootstrap hit the same hard 14across wall as 2026-08-19/08-26/08-27/08-28 (4 consecutive

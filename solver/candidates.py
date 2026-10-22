@@ -24,6 +24,13 @@ This module does exactly that, per clue, with no LLM involved:
                           sense (lex/ambiguities.json) that matches the enum length, so it
                           IS the answer undisguised. Cannot invent an answer that isn't
                           already a literal clue substring.
+  - charade_chain_candidates: queue item 1(b)'s own explicitly-flagged next step
+                          (DAILY.md: "the mined substitution table needs to cover
+                          multi-part charades (3+ segments), not just 1-2 word coverage of
+                          the FULL answer length"). Same mined table as
+                          substitution_candidates, but chains 3-4 ADJACENT clue words'
+                          substitutes instead of 1-2, and does NOT require the join to
+                          already be a real lexicon word — see its own docstring for why.
   - pattern_candidates:  wraps lexicon.py's crossing-pattern lookup, for when grid
                           letters are already known.
   - culture_category_candidates: a DEFINITION-hypothesis mechanism, not a wordplay one —
@@ -227,6 +234,56 @@ def substitution_candidates(clue_text, target_len, table=None):
                 if len(joined) == target_len and joined in words:
                     out.append({'answer': joined, 'mechanism': 'substitution',
                                 'fodder': f'{ws[i]}+{ws[i + 1]}'})
+    return out
+
+
+def charade_chain_candidates(clue_text, target_len, table=None, max_parts=4, max_out=40):
+    """3-to-4-part charade chains: concatenate the MINED substitutes (same sub_fwd() table
+    as substitution_candidates) of 3 or more CONSECUTIVE clue words, in clue order, to the
+    full answer length.
+
+    WHY this is a distinct mechanism and not just a bigger loop bound on
+    substitution_candidates: that function requires the final joined string to already be
+    a real lexicon word (`in words`), which is the right filter for 1-2 part coverage
+    (cuts noise) but structurally EXCLUDES this setter's longest charades, which build a
+    nonce string out of several short real fragments rather than landing on an independent
+    dictionary word. Example already sitting in this project's own corpus
+    (data/answers/by_date, clue explanation "ד בריא מת"): the answer דבריאמת is
+    ד+בריא+מת, three mined/literal fragments concatenated — not a word any dictionary
+    would contain, so the old `in words` filter could never have produced it even with an
+    unbounded loop count. Validity here is deferred downstream (split_candidates / the
+    proof gate), exactly like anagram/hidden/reversal fodder windows already are — those
+    aren't lex()-filtered into their own enumeration split either, only the final answer
+    pattern/word_order proof is.
+
+    Deliberately NOT the same shape as charade.py's already-measured-weak open search
+    (2.8% recall, DAILY.md 2026-08-08): this requires BOTH adjacency AND a mined
+    substitute at every step, so the branching factor is the sub table's own sparsity
+    (bounded) rather than "every enum-matching split of any clue substring" (combinatorial).
+    `max_parts` bounds chain depth and `max_out` caps hits per clue, as a second guard
+    against flooding generate()'s max_n budget the way 2026-08-20's priority-order bug did.
+    `table` is injectable (tests / callers), same discipline as substitution_candidates."""
+    fwd = table if table is not None else sub_fwd()
+    ws = words_of(clue_text)
+    n = len(ws)
+    subs_of = lambda w: [b for b, _n in fwd.get(norm(w), [])]
+    out = []
+    for i in range(n):
+        stack = [(i, (), 0)]
+        while stack:
+            j, pieces, cum = stack.pop()
+            if len(pieces) >= 3 and cum == target_len:
+                out.append({'answer': ''.join(pieces), 'mechanism': 'substitution_chain',
+                            'fodder': '+'.join(ws[i:i + len(pieces)])})
+                if len(out) >= max_out:
+                    return out
+                continue
+            if j >= n or len(pieces) >= max_parts or cum >= target_len:
+                continue
+            for b in subs_of(ws[j]):
+                nb = norm(b)
+                if nb and cum + len(nb) <= target_len:
+                    stack.append((j + 1, pieces + (nb,), cum + len(nb)))
     return out
 
 
@@ -459,7 +516,8 @@ def split_candidates(cands, enum):
     return out
 
 
-def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retrieval=True):
+def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retrieval=True,
+             use_chain=True):
     """Diverse candidates for one clue. Never consults the answer.
 
     Mechanism order here is a PRIORITY order, not just an accumulation order: dedup +
@@ -477,13 +535,17 @@ def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retr
     docstrings) — placed in the same early tier as homograph/substitution: culture_category
     fires rarely and each hit is a real named entity; retrieval is capped at its own topk
     (25 by default) and ranked, not an unbounded window scan, so it does not need to wait
-    behind the cheap mechanisms either. `use_culture`/`use_retrieval` are plain on/off
+    behind the cheap mechanisms either. charade_chain is capped at its own max_out (40) and
+    gated by adjacency + a mined substitute at every step (see its own docstring), so it
+    sits in the same early tier. `use_culture`/`use_retrieval`/`use_chain` are plain on/off
     switches so a controlled before/after recall measurement doesn't need extra copies of
     this function."""
     target_len = sum(enum)
     cands = []
     cands += homograph_candidates(clue_text, target_len)
     cands += substitution_candidates(clue_text, target_len)
+    if use_chain:
+        cands += charade_chain_candidates(clue_text, target_len)
     if use_culture:
         cands += culture_category_candidates(clue_text, target_len)
     if use_retrieval:
@@ -511,7 +573,8 @@ def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retr
 # isolation, BEFORE it is wired into a live solve+proof loop (which is a
 # separate integration step, not done by this lever).
 # ---------------------------------------------------------------------------
-def recall_eval(dataset_path, split=None, max_n=25, use_culture=True, use_retrieval=True):
+def recall_eval(dataset_path, split=None, max_n=25, use_culture=True, use_retrieval=True,
+                 use_chain=True):
     total = 0
     hit = 0
     by_mech = Counter()
@@ -525,7 +588,7 @@ def recall_eval(dataset_path, split=None, max_n=25, use_culture=True, use_retrie
             continue
         total += 1
         cands = generate(r['clue_text'], r['enum'], max_n=max_n, use_culture=use_culture,
-                          use_retrieval=use_retrieval)
+                          use_retrieval=use_retrieval, use_chain=use_chain)
         sizes.append(len(cands))
         gold = norm(r['answer_raw'])
         found = [c for c in cands if c['answer'] == gold]
@@ -598,6 +661,28 @@ def selftest():
     found = any(h['answer'] == norm('שלום') for h in hits)
     print(f'  found שלום as של+ום from two adjacent words: {found} (expected True)')
     ok &= found
+
+    print('--- charade_chain device: 3 adjacent clue words\' mined substitutes concatenate'
+          ' to a NON-dictionary nonce string (the gap substitution_candidates cannot'
+          ' reach, since it requires the join to already be a real lexicon word) ---')
+    chain_table = {norm('דלת'): [(norm('ד'), 3)], norm('גוף'): [(norm('בריא'), 2)],
+                   norm('נפטר'): [(norm('מת'), 5)]}
+    hits = charade_chain_candidates('דלת גוף נפטר', 7, table=chain_table)
+    found = any(h['answer'] == norm('דבריאמת') for h in hits)
+    print(f'  found דבריאמת as ד+בריא+מת from 3 adjacent substitutes: {found} (expected True)')
+    ok &= found
+    print('--- charade_chain device: a 2-word-only join is NOT produced (that is'
+          ' substitution_candidates\' job, not this one\'s) ---')
+    hits2 = charade_chain_candidates('דלת גוף', 5, table=chain_table)
+    print(f'  no 2-part hit from this mechanism: {hits2 == []} (expected True)')
+    ok &= hits2 == []
+    print('--- charade_chain device: use_chain=False in generate() disables it ---')
+    only_chain_table = {norm('דלת'): [(norm('ד'), 3)], norm('גוף'): [(norm('בריא'), 2)],
+                         norm('נפטר'): [(norm('מת'), 5)]}
+    standalone = charade_chain_candidates('דלת גוף נפטר', 7, table=only_chain_table)
+    print(f'  standalone call still fires (sanity check the toggle lives in generate(), '
+          f'not here): {len(standalone) >= 1} (expected True)')
+    ok &= len(standalone) >= 1
 
     print('--- homograph device: a clue word, de-prefixed, already IS the answer ---')
     # שרה is the canonical example (PLAYBOOK.md/SOLVE_PROTOCOL.md): she sings / a female
@@ -681,14 +766,17 @@ def main():
         rest = sys.argv[2:]
         use_culture = '--no-culture' not in rest
         use_retrieval = '--no-retrieval' not in rest
-        rest = [a for a in rest if a not in ('--no-culture', '--no-retrieval')]
+        use_chain = '--no-chain' not in rest
+        rest = [a for a in rest if a not in ('--no-culture', '--no-retrieval', '--no-chain')]
         path = rest[0] if len(rest) > 0 else 'data/dataset/clues.jsonl'
         split = rest[1] if len(rest) > 1 else None
         os.chdir(ROOT)
-        res = recall_eval(path, split, use_culture=use_culture, use_retrieval=use_retrieval)
+        res = recall_eval(path, split, use_culture=use_culture, use_retrieval=use_retrieval,
+                           use_chain=use_chain)
         print(f"recall@N: {res['hit']}/{res['total']} = {res['recall']:.1%}  "
               f"(avg {res['avg_candidates']:.1f} candidates/clue, "
-              f"use_culture={use_culture}, use_retrieval={use_retrieval})")
+              f"use_culture={use_culture}, use_retrieval={use_retrieval}, "
+              f"use_chain={use_chain})")
         print('hits by mechanism:', res['by_mechanism'])
         if res['misses']:
             print(f"\n{len(res['misses'])} misses (clue_number, direction, gold):")
