@@ -15,10 +15,10 @@ This module does exactly that, per clue, with no LLM involved:
                           a real word (the "hidden word" device).
   - reversal_candidates: same search, reversed.
   - substitution_candidates: the setter's private-vocabulary device — a clue word (or two
-                          adjacent ones) substituted for a fragment mined from crowd
-                          explanations (solver/substitutions.py), when the substitute(s)
-                          cover the FULL answer length. Rebuilt in-memory with held-out
-                          clues excluded (see sub_fwd()) rather than trusting the
+                          or three adjacent ones, a charade) substituted for a fragment
+                          mined from crowd explanations (solver/substitutions.py), when the
+                          substitute(s) cover the FULL answer length. Rebuilt in-memory with
+                          held-out clues excluded (see sub_fwd()) rather than trusting the
                           committed lex/substitutions.json, which predates that exclusion.
   - homograph_candidates: the setter's signature device — a clue word already has another
                           sense (lex/ambiguities.json) that matches the enum length, so it
@@ -201,15 +201,21 @@ def sub_fwd():
 def substitution_candidates(clue_text, target_len, table=None):
     """The setter's private-vocabulary device (SOLVE_PROTOCOL.md 'Substitutions'): a clue
     word stands in for a fragment mined from crowd explanations (a name completed by a
-    surname, an abbreviation, a gloss). Two shapes:
+    surname, an abbreviation, a gloss). Three shapes, all requiring ADJACENT clue words and
+    FULL-length coverage -- deliberately NOT the open-ended every-enum-split search
+    charade.py already tried and measured weak (2.8% recall, DAILY.md 2026-08-08):
+    unrestricted part search over a sparse table combinatorially explodes false positives.
       (a) one clue word's substitute already has the FULL target length -- propose it
           directly, filtered to real words/names (lex()) to cut noise;
       (b) two ADJACENT clue words' substitutes concatenate, in clue order, to the full
-          target length -- a tightly scoped two-part charade. Deliberately NOT the
-          open-ended every-enum-split search charade.py already tried and measured weak
-          (2.8% recall, DAILY.md 2026-08-08): unrestricted part search over a sparse table
-          combinatorially explodes false positives. Adjacency + full-length coverage keeps
-          this mechanism precise instead.
+          target length -- a tightly scoped two-part charade;
+      (c) three ADJACENT clue words' substitutes concatenate to the full target length --
+          queue item 1's own next step (DAILY.md: "the mined substitution table needs to
+          cover multi-part charades (3+ segments), not just 1-2 word coverage"). Cheap to
+          search despite the extra nesting: this corpus mines ~1.3 substitutes per head
+          word on average (measured), so a 3-adjacent-word clue window tries only a
+          handful of combinations, not a combinatorial blowup -- adjacency is what keeps
+          both (b) and (c) tractable where the unrestricted charade.py attempt wasn't.
     `table` is injectable (tests / callers) instead of always hitting sub_fwd()."""
     fwd = table if table is not None else sub_fwd()
     words = lex()
@@ -227,6 +233,14 @@ def substitution_candidates(clue_text, target_len, table=None):
                 if len(joined) == target_len and joined in words:
                     out.append({'answer': joined, 'mechanism': 'substitution',
                                 'fodder': f'{ws[i]}+{ws[i + 1]}'})
+    for i in range(len(ws) - 2):
+        for b1 in subs_of(ws[i]):
+            for b2 in subs_of(ws[i + 1]):
+                for b3 in subs_of(ws[i + 2]):
+                    joined = b1 + b2 + b3
+                    if len(joined) == target_len and joined in words:
+                        out.append({'answer': joined, 'mechanism': 'substitution',
+                                    'fodder': f'{ws[i]}+{ws[i + 1]}+{ws[i + 2]}'})
     return out
 
 
@@ -598,6 +612,22 @@ def selftest():
     found = any(h['answer'] == norm('שלום') for h in hits)
     print(f'  found שלום as של+ום from two adjacent words: {found} (expected True)')
     ok &= found
+
+    print('--- substitution device: three ADJACENT clue words\' substitutes concatenate (charade) ---')
+    sub_table3 = {norm('אחד'): [(norm('ש'), 1)], norm('שני'): [(norm('לו'), 1)],
+                  norm('שלישי'): [(norm('ם'), 1)]}
+    hits = substitution_candidates('אחד שני שלישי משהו', 4, table=sub_table3)
+    found = any(h['answer'] == norm('שלום') for h in hits)
+    print(f'  found שלום as ש+לו+ם from three adjacent words: {found} (expected True)')
+    ok &= found
+
+    print('--- substitution device: three-part charade does NOT fire on non-adjacent words ---')
+    # same table, but the three substitutable words are not all adjacent in this clue —
+    # the mechanism must not skip over 'דבר' to chain the outer two anyway.
+    hits = substitution_candidates('אחד דבר שני שלישי', 4, table=sub_table3)
+    found = any(h['answer'] == norm('שלום') for h in hits)
+    print(f'  did NOT find שלום across a non-adjacent gap: {not found} (expected True)')
+    ok &= not found
 
     print('--- homograph device: a clue word, de-prefixed, already IS the answer ---')
     # שרה is the canonical example (PLAYBOOK.md/SOLVE_PROTOCOL.md): she sings / a female

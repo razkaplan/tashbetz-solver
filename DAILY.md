@@ -16,14 +16,122 @@ tree - a stale CLI deploy overwrote the live site on 2026-08-29. See CLAUDE.md.
 | Accurate fulfilment (yield) | 55% (unchanged, not re-run today) | ~67% |
 | Best single puzzle | 2026-05-29: 95% / 71% / 68% ✓ all targets | |
 | Hardest puzzle | 2026-06-05: 100% / 43% / 43% | coverage stuck |
-| **Candidate recall@N (new, offline, mechanical only)** | **3.6% (1/28)**, avg 11.6 candidates/clue (capped), on 2026-05-29 — UNCHANGED after adding substitution+homograph mechanisms | not yet a target — diagnostic |
+| **Candidate recall@N (new, offline, mechanical only)** | **3.6% (1/28)**, avg 11.8 candidates/clue (capped), on 2026-05-29 — UNCHANGED after adding substitution+homograph mechanisms, and STILL UNCHANGED 2026-10-23 after extending `substitution_candidates` to a three-adjacent-word charade (the new shape fired 0/28 times on this puzzle — see log) | not yet a target — diagnostic |
 | **Candidate recall@N with `retrieval_candidates` added (new, offline, BM25 definition retrieval)** | **7.1% (2/28)** on 2026-05-29 (up from 3.6%); **SECOND puzzle, 2026-08-26: 0.0% (0/18) → 5.6% (1/18)** on 2026-06-26 (partial, 18/28 clues); **THIRD puzzle, 2026-08-27: 0.0% (0/19) → 0.0% (0/19), UNCHANGED** on 2026-07-10; **2026-08-28, RE-MEASURED on 2026-05-29 with a GROWN corpus (mordo re-crawled 13,646 raw pairs vs 9,685; `note.co.il` crawled for the first time this project's lifetime, 829 pairs): 3.6% (1/28) → 10.7% (3/28)**, up from the 7.1% this exact puzzle scored with the smaller corpus; **2026-08-29, RE-MEASURED 2026-07-10 with an EVEN BIGGER corpus (mordo 25,350 raw / 24,361 parsed, up from 13,646/12,890; note.co.il 970 fetched out of 1,301 discovered): 0.0% (0/19) → 0.0% (0/19), STILL UNCHANGED**; **2026-08-30, RE-MEASURED 2026-06-26 — this time FULLY transcribed (28/28 clues, closing 2026-08-26's 18/28 partial gap) and with a MASSIVELY grown corpus (mordo 66,443 raw / 62,403 parsed, up from 25,350/24,361 — the blogspot feed has grown 2.6x again; note.co.il 1,001 fetched out of 1,301 discovered, up from 970/1301): 0.0% (0/28) → 14.3% (4/28)** — the highest recall this diagnostic has ever measured on any puzzle, and the largest single-puzzle point gain, from 4 independently-audited external hits (מניע, רומח, בובדילנ, ברסמכא) — see log | not yet a target — diagnostic; 6 independent measurements, 4 positive + 2 flat, confirming corpus growth is puzzle-dependent (rescued 2026-05-29 twice and now 2026-06-26 strongly, never moved 2026-07-10 across three corpus sizes) |
 | **Definition-span locatable rate (new, offline, diagnostic)** | **25% (7/28)** have mechanically-locatable single-window wordplay; of those 29% (2/7) are interior, not edge; classifier agreement on edge cases **1/5** | not a target — this diagnostic KILLED the lever, see log |
 | **`solve_pass.py` LIVE blind trial — cumulative (3 trials)** | **40% precision (2/5 committed)**: 2026-08-16 was 1/2 on a partial 21/28-clue puzzle (2026-06-12); 2026-08-22 was **0/2**, 7.1% coverage, on a FULL 28/28-clue puzzle (2026-05-15); **2026-08-27 is 1/1 = 100% precision but 5.3% coverage (1/19), 0% suggestion hit-rate (0/10)**, on 2026-07-10 (19/28 clues) — FIRST trial run with `retrieval_candidates` live (wired 2026-08-25, never live-trialed since); it contributed ZERO candidates all puzzle (grepped the transcript for `(retrieval, fodder=` hits — none), matching today's own offline recall@N finding on this same puzzle (0/19 with or without retrieval); the one correct commit came from `wiki.py` culture-fact lookup, not from any candidate generator | n=5 — still small; retrieval's live debut is a null result on this puzzle, not a regression, but not the coverage lift the queue hoped for either; see log |
 | **Candidate recall@N with `culture_category_candidates` added (new, offline, definition-driven)** | **0% (0/28)**, on 2026-06-19 — mechanism fired on only 1/28 clues (avg candidates/clue 10.5 → 11.4); its one firing (339 raw candidates, an "author" category hit) matched 0 gold | not yet a target — small-n diagnostic, see log |
 
 Baseline for comparison: v2 = 41% raw with untraceable errors.
-Last lever added (2026-08-30): **closed 2026-08-29's own "NOT DONE" gap: re-measured
+
+Last lever added (2026-10-23): **first run in almost two months** (DAILY.md's and
+RESEARCH.md's logs both last show solver work on 2026-08-30/2026-08-25 respectively; the
+commits since then are all site/SEO/nativ work unrelated to this solver — see below,
+disclosed rather than silently resumed as if nothing happened). Bootstrap succeeded FULLY
+this run (14across 52/52 puzzles, 1,457 clues, no bot-wall at all today). Re-transcribed
+the canonical dev puzzle (2026-05-29) independently for a fourth time, from
+`data/images/2026-05-28.jpg` — across clues 1-13 are printed in a separate box next to the
+small reference-grid graphic and the LAST of those (13 across) overflows that box, wrapping
+into the top of the main clue column before clue 15 begins ("...13. בני טוב" + "כמלחין (4)
+15. ..." — the clue is "בני טוב כמלחין" (4)), the same cross-column wrap pattern already
+documented for 2026-06-26's clue 19/22. `python3 solver/build_dataset.py` reported **0/28
+enum-sum mismatches** against the grid-derived answer lengths pulled from 14across's own
+real data (not the image-fallback technique — 14across worked today). Mechanical-only
+recall@N on this fresh transcription reproduced the historical **3.6% (1/28)** exactly,
+the same cross-check prior re-transcriptions of this puzzle have used to confirm
+correctness.
+
+RESEARCH (see RESEARCH.md 2026-10-23 for the full entry): three searches (general cryptic-
+candidate-generation literature, charade/wordplay-segmentation specifically, Hebrew
+morphological-segmentation tooling) turned up nothing new over two-plus months of prior
+passes — same closed paper set (2506.04824 et al.), same closed Hebrew-NLP tool set
+(HebPipe/RFTokenizer/ONLP, no 2026 activity confirmed for any of them). No external
+technique or resource to build on.
+
+IMPLEMENTED (queue item 1's own long-open next step, flagged since 2026-08-20: "the mined
+substitution table needs to cover multi-part charades (3+ segments), not just 1-2 word
+coverage of the FULL answer length"): extended `solver/candidates.py`'s
+`substitution_candidates` with a third shape — three ADJACENT clue words' mined
+substitutes concatenating to the full target length — scoped the same way the existing
+two-word shape is (adjacency + full-length coverage only, never the open-ended every-split
+search `charade.py` already measured weak at 2.8% recall, DAILY.md 2026-08-08). Cheap to
+search: this corpus mines ~1.26 substitutes per head word on average (measured), so a
+three-adjacent-word window tries only a handful of combinations per clue, not a
+combinatorial blowup. Added two new selftest cases (a positive three-part hit, and a
+negative control confirming the mechanism does NOT chain across a non-adjacent gap) —
+`python3 solver/candidates.py selftest`, all checks pass, including the 5 pre-existing
+mechanism checks unchanged.
+
+MEASURED, controlled before/after on 2026-05-29 (`python3 solver/candidates.py recall
+data/dataset/clues.jsonl eval --no-culture --no-retrieval`): **3.6% (1/28) → 3.6% (1/28),
+UNCHANGED**. Instrumented directly (not inferred from the aggregate number) to check
+whether the new shape fired at all: **0 three-part hits out of 28 clues** — the mechanism
+never chained three adjacent clue words into a full-length answer on this puzzle at all
+(total substitution-mechanism candidates from all three shapes combined: 4, same count as
+before this change, all from the pre-existing one- and two-word shapes, against the
+session's in-memory 525-word corpus rebuild). Also checked the COMMITTED
+`solver/lex/substitutions.json` (the real 2,220-head-word table) as an audit-only
+diagnostic (same discipline as 2026-08-20's audit-only check): **still 0 three-part hits**,
+even though the larger table raised the total substitution-mechanism candidate count to 11
+(up from 4) — a stronger negative result than the in-memory table alone gives, since it
+rules out "the in-memory corpus is just too small" as the full explanation and points at
+this specific puzzle's clue structure (how many runs of 3+ adjacent substitutable words it
+even contains) as a second, independent limiting factor. One real near-miss caught and
+fixed before this measurement, not after: bootstrap.sh's own step 4 unconditionally
+rebuilds `solver/lex/substitutions.json` from whatever this session can reach, silently
+overwriting the committed 2,220-head-word file in the working tree with a 528-word
+regression (`git status` showed it modified) — exactly the hazard bootstrap.sh's own
+inline comment warns about. First audit pass of this file misread the clobbered 528-word
+copy as "what's committed" and nearly shipped that as a finding; caught by checking `git
+diff --stat` before trusting the file, reverted with `git checkout -- solver/lex/
+substitutions.json`, and the audit-only diagnostic above re-run against the real 2,220-word
+committed table.
+
+AUDITED (mandatory gate). `lexicon.held_out_answers()`, `substitutions.held_out()`, and
+`retrieve_defs.held_out()` all confirmed (computed, not assumed) to block all 28 of this
+puzzle's own gold answers — `gold - blocked` empty for all three. No forbidden reads: gold
+data came from 14across's own real scrape via bootstrap (the sanctioned corpus-construction
+path, not a live blind-solve lookup), clue text from the public CDN image only. All 5
+affected selftests (`candidates.py`, `substitutions.py`, `lexicon.py`, `prove.py`,
+`retrieve_defs.py`) re-run clean. No implausibility to explain: the result stayed flat
+(3.6% → 3.6%), the opposite of a suspicious jump.
+
+HONEST READ: a genuine, informative NEGATIVE result, not a failure to execute the lever —
+the extension is correctly implemented and tested (it fires in the selftest's synthetic
+fixtures), but on THIS puzzle it is not pure corpus sparsity: the full 2,220-head-word
+committed table (1.41 substitutes/head word on average, measured) still produced zero
+three-part hits, even though it did raise the two-shapes-combined total from 4 to 11
+candidates. So this puzzle's own clue structure (how many runs of 3+ adjacent clue words
+each have a mined substitute at all) is at least as limiting as table size — a sharper,
+more useful diagnosis than "grow the corpus and it'll fire" would have been. This also
+explains why the earlier two-word shape fires only rarely (11 hits, 0 gold, on a 28-clue
+puzzle even with the full table): the ADJACENCY constraint that keeps this mechanism
+precise (vs. the open-ended search that failed before) is also what keeps it rare. A
+second puzzle's data point, and checking whether non-adjacent (but still scoped, e.g.
+"skip one function word") charades fire more often, are the concrete next steps if this is
+revisited — not attempted today to keep this run to one lever's full cycle, per protocol.
+
+NOT DONE, honestly: did not re-crawl the private_defs corpus (mordo/note.co.il) — that is
+queue item 1(d), already extensively measured across 6 prior runs, and re-running it today
+would blur attribution between TWO levers in one run; did not test the three-part shape on
+a second puzzle (see HONEST READ — logged as the natural next step if this lever is
+revisited, likely alongside a larger substitution table rather than a different puzzle
+alone, given today's own diagnosis); did not update the Current state table's
+precision/coverage/yield rows (no live `solve_pass.py` trial run today — this run's one
+lever is a candidate-generation diagnostic, not a live solve); did not merge or otherwise
+act on any open PR (branch history shows none open against this main).
+
+WHY THE GAP: the commits between 2026-08-31 and 2026-10-20 (`git log`) are all site
+deliverables — nativ game fairness/UI, topic-crossword clue-quality rebuilds, dead-URL/
+redirect handling, SEO index changes, the weekly news crossword refresh, analytics tags —
+none touch `solver/`, `evals/`, `DAILY.md`, or `RESEARCH.md`. This scheduled routine's own
+prompt names the solver specifically, so whatever ran this account's other work during that
+window was not this routine (or was overridden by more urgent asks); flagging honestly
+rather than silently treating the week-old log as current. Not something this run can fix
+(outside its own one-lever scope and this account's scheduling, not this session's to
+reconfigure) — noted here so the gap is visible in the handoff rather than invisible.
+
+Previous lever (2026-08-30): **closed 2026-08-29's own "NOT DONE" gap: re-measured
 `retrieval_candidates` on 2026-06-26 — the puzzle 2026-08-28/08-29 both flagged as still
 needing a bigger corpus and no run had finished re-transcribing — this time FULLY (28/28
 clues, not the 18/28 partial 2026-08-26 left) and against a corpus grown far past any
@@ -451,7 +559,19 @@ propagated), `blank`. Score with `python3 evals/run_eval.py <file>`.
    PLAYBOOK.md diagnosis (setter leans on these devices) may still be right even though
    this implementation of them didn't capture it — candidate: the mined substitution
    table needs to cover multi-part charades (3+ segments), not just 1-2 word coverage of
-   the FULL answer length, which is what today's version required. A separate, earlier
+   the FULL answer length, which is what today's version required.
+   **2026-10-23 ATTEMPTED THIS EXACT CANDIDATE**: added a three-adjacent-word charade shape
+   to `substitution_candidates`, scoped (adjacency + full-length only, same discipline as
+   the existing two-word shape). MEASURED NEGATIVE on 2026-05-29: recall unchanged at 3.6%
+   (1/28), and the new shape fired ZERO times on this puzzle's 28 clues — checked against
+   BOTH the session's in-memory 525-head-word corpus rebuild AND the real committed
+   2,220-head-word `solver/lex/substitutions.json` (audit-only), still 0/28 either way,
+   even though the larger table did raise the two-word shape's hit count (4 -> 11
+   candidates, 0 gold). So this is NOT simply corpus sparsity — this puzzle's clue
+   structure (how many runs of 3+ adjacent substitutable words it has at all) is at least
+   as limiting. Do not re-attempt this exact shape again without either a second puzzle's
+   data point or a relaxed adjacency rule (e.g. skip-one-function-word) — see DAILY.md log
+   and RESEARCH.md 2026-10-23 for the full measurement. A separate, earlier
    attempt at this same lever (2026-08-17, see log) measured the same negative result on
    a THIRD dev puzzle (2026-04-03, 4.0% recall unchanged) with an independently-written
    version of these two mechanisms — two different implementations, two different
@@ -2427,3 +2547,81 @@ Measure each lever on dev (fixed enums) with run_eval.py before/after; one lever
   "כולם חפצים מהבית" theme (an אוטובוס was due to appear on 09-08).
   Gates: ui_smoke 9/9 pages at both widths, topicgen_eval 52/52 boards,
   url_guard clean (6,071 URLs, none dropped), nativ regression 22/22.
+
+- 2026-10-23: **solver lever resumed after an almost-two-month gap** (this file's own log
+  and RESEARCH.md both last show solver work on 2026-08-30/2026-08-25; everything between
+  2026-08-31 and 2026-10-20 in `git log` is site/SEO/nativ work that never touches
+  `solver/`, `evals/`, `DAILY.md` or `RESEARCH.md` — disclosed plainly rather than treating
+  the stale log as current, see the "Last lever added" section above for the honest "why
+  the gap" note). Bootstrap (`./bootstrap.sh --dev-only`) succeeded fully: hspell lexicon,
+  14across answers corpus (52/52 puzzles, 1,457 clues, no bot-wall today), culture
+  entities, substitution dictionary (528 head words from this session's reachable corpus),
+  and 4 dev puzzle images, all rebuilt cleanly in under 2 minutes.
+
+  RESEARCH (full entry in RESEARCH.md): three searches (candidate-generation literature,
+  charade/wordplay-segmentation specifically, Hebrew morphological tooling) found nothing
+  new since the last pass two months ago — same closed ~6-8 paper set, same closed Hebrew
+  NLP tool set (HebPipe/RFTokenizer/ONLP, no confirmed 2026 activity for any of them). No
+  external technique to build on; this run's lever is internal.
+
+  TRANSCRIBED 2026-05-29 independently for a fourth time, from `data/images/2026-05-28.jpg`,
+  using 14across's real answers (bootstrap worked fully, no image-fallback needed this
+  time). Caught and correctly resolved one real layout trap: across clues 1-13 print in a
+  separate box next to the small reference-grid graphic, and clue 13's text overflows that
+  box, wrapping into the TOP of the main clue column before clue 15 begins — "...13. בני
+  טוב" (end of the box) continues as "כמלחין (4) 15. ..." (start of the main column), so
+  the clue is "בני טוב כמלחין" (4), not a 2-word fragment missing its enum as it first
+  appeared. `python3 solver/build_dataset.py` confirmed **0/28 enum-sum mismatches**
+  against 14across's real gold answer lengths. Mechanical-only recall@N on this fresh
+  transcription reproduced the historical **3.6% (1/28)** exactly — the same cross-check
+  prior independent re-transcriptions of this puzzle (2026-08-06/08-25/08-28/08-30) have
+  used to confirm correctness, now a fifth time.
+
+  IMPLEMENTED (queue item 1's own long-open next step, flagged since 2026-08-20):
+  `solver/candidates.py`'s `substitution_candidates` gained a third shape — three ADJACENT
+  clue words' mined substitutes concatenating to the full target length, same
+  adjacency-plus-full-length discipline as the existing two-word shape, deliberately not
+  the open-ended every-split search `charade.py` already measured weak (2.8% recall,
+  2026-08-08). Two new selftest cases added (a positive three-part hit, and a negative
+  control proving the mechanism does not chain across a non-adjacent clue word) —
+  `python3 solver/candidates.py selftest`: ALL PASSED, including the 5 pre-existing
+  mechanism checks unchanged.
+
+  MEASURED, controlled before/after (`python3 solver/candidates.py recall
+  data/dataset/clues.jsonl eval --no-culture --no-retrieval`): **3.6% (1/28) -> 3.6%
+  (1/28), UNCHANGED**. Instrumented directly to check whether the new shape fired at all
+  (not just inferred from the flat aggregate): **0 three-part hits across all 28 clues** —
+  total substitution-mechanism candidates stayed at 4 against the session's in-memory
+  525-head-word corpus rebuild, identical to before this change, all from the pre-existing
+  one- and two-word shapes. Checked the REAL committed `solver/lex/substitutions.json`
+  (2,220 head words, confirmed via `git show HEAD:...`) as an audit-only diagnostic (not
+  used for the scored number, same discipline as 2026-08-20's audit-only check): **still 0
+  three-part hits**, even though the larger table raised the two-shapes-combined total to
+  11 candidates (0 gold) — ruling out "the in-memory table is just too small" as the whole
+  story. One real near-miss caught before this measurement, not after: bootstrap.sh's step
+  4 unconditionally rebuilds `substitutions.json` and had silently overwritten the
+  committed 2,220-word file in the working tree with a 528-word regression (visible in
+  `git status`); the first pass at this audit misread that clobbered copy as "what's
+  committed," caught by checking `git diff --stat` before trusting it, reverted with `git
+  checkout -- solver/lex/substitutions.json`, and the diagnostic above re-run against the
+  real file.
+
+  AUDITED: `lexicon.held_out_answers()`, `substitutions.held_out()`, and
+  `retrieve_defs.held_out()` all computed (not assumed) to block all 28 of this puzzle's
+  own gold answers (`gold - blocked` empty for all three). No forbidden reads: gold came
+  from 14across's real scrape via bootstrap's sanctioned path, clue text from the public
+  CDN image only. All 5 affected selftests re-run clean. No implausibility to explain — the
+  result stayed exactly flat.
+
+  HONEST READ: a genuine negative result, not a failed implementation — the extension
+  works correctly (proven by its own selftest), but on THIS puzzle it is not pure corpus
+  sparsity: even the full 2,220-head-word table (1.41 substitutes/head word on average)
+  never produces a three-way adjacent chain here, so this puzzle's own clue structure (how
+  many runs of 3+ adjacent substitutable words it even has) is at least as limiting as
+  table size — a sharper diagnosis than "grow the corpus" alone would have given.
+  NOT DONE, honestly: did not re-crawl private_defs (that is a different, already
+  extensively-measured lever, 1(d) — mixing it in here would blur attribution); did not
+  test the new shape on a second puzzle (logged as the natural next step, likely paired
+  with growing the substitution table rather than tried alone); did not run a live
+  `solve_pass.py` trial (today's one lever is a candidate-generation diagnostic); did not
+  merge or act on any PR (none open against this main).
