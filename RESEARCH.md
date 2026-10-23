@@ -4,6 +4,58 @@ One entry per run: what was found, one-line summary, and an honest judgement of 
 it transfers to a Hebrew cryptic solver with an 8k-clue corpus. Default skepticism: most
 crossword-AI work targets non-cryptic (American-style) puzzles and does not transfer.
 
+## 2026-10-23
+
+First run in almost two months (the log and DAILY.md's log both stop at 2026-09-07; the
+commits in between are all site/SEO/nativ work unrelated to this solver — see today's
+DAILY.md entry for that gap, disclosed rather than silently resumed as if nothing happened).
+Bootstrap worked fully today: 14across returned 52/52 puzzles, 1,457 clues, no bot-wall or
+intermittent-redirect symptom this run (contrast the 2026-08-19/08-26/08-27/08-28/08-29
+hard-wall streak) — re-transcribed the canonical dev puzzle (2026-05-29) from
+`data/images/2026-05-28.jpg` for a fourth independent time, confirmed correct by reproducing
+the historical 3.6% (1/28) mechanical-only baseline exactly (see DAILY.md).
+
+**"cryptic crossword clue solving LLM candidate generation 2026" (general search).**
+Surfaced only the same paper family logged repeatedly since 2026-08-06 (2506.04824 ICML
+2025 "A Reasoning-Based Approach to Cryptic Crossword Clue Solving", 2406.09043 "Language
+Models are Crossword Solvers", 2407.08824). No 2026-dated paper turned up at all — the
+search tool's own assessment matches this log's: "mostly 2024-2025 papers." One citation
+worth naming explicitly for the first time even though it isn't new: Saha et al.
+(2406.09043) pair an LLM with a search algorithm over the full grid and reach 93% on NYT
+crossword puzzles — but NYT puzzles are the ordinary (non-cryptic) American style, the
+same genre gap this log has flagged every time grid-level numbers from that line of work
+have come up (2026-08-15/08-27 and others): a fill-in-the-blank grid search is a different
+problem from parsing dense multi-device wordplay, and the number does not transfer here.
+**Transfer: none new.**
+
+**"wordplay decomposition charade segmentation crossword solver research" (general
+search, specifically probing for anything that would validate or improve today's lever
+before building it).** No academic hits at all — only SEO crossword-clue-explainer sites,
+several of which the search tool itself flagged as unreliable (worked examples that don't
+follow from their own stated logic). **Transfer: none** — confirms rather than changes the
+standing read that charade/substitution segmentation in this specific setter's style has
+no published treatment to draw on; today's lever (see DAILY.md) is this project's own
+internal data (the mined substitution table), not an externally-sourced technique.
+
+**"Hebrew morphological segmentation NLP tool 2026 open source" (re-check, queue's
+standing "possible future lever for candidates.py's fodder-window search" note).**
+HebPipe, RFTokenizer, ONLP — the same tool set logged repeatedly since 2026-08-06, no 2026
+activity confirmed for any of them (HebPipe's most recent visible push is 2025-06-16).
+**Transfer: none new** — reconfirms, not motivates, the standing "plausible but not
+attempted" status; still not today's lever.
+
+**Conclusion, and the lever this run actually built.** No research thread (today's or the
+accumulated two-plus months of prior passes) produced a new external technique or resource
+to build on. Built the queue's own long-flagged internal next step instead (DAILY.md
+queue item 1's "the mined substitution table needs to cover multi-part charades (3+
+segments)", open since 2026-08-20): extended `substitution_candidates` with a third,
+three-adjacent-clue-word charade shape, scoped (not the open-ended search `charade.py`
+already measured weak) the same way the existing two-word shape is. Measured negative on
+today's dev puzzle — checked against both the session's bootstrap-rebuilt corpus and the
+real committed table, 0/28 either way — see DAILY.md for the full numbers and the honest
+read of why (not a design flaw: this puzzle's clue structure, not just corpus size, limits
+how often three adjacent clue words can all have a mined substitute at once).
+
 ## 2026-08-30
 
 Bootstrap hit the same hard 14across wall as 2026-08-19/08-26/08-27/08-28 (4 consecutive
