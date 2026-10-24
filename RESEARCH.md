@@ -910,3 +910,50 @@ priority 2. Wiring in an already-built, already-audited tool as one more candida
 is not itself a research question — it is closing a gap between what the project's own
 research queue prioritized in 2026-08-08 and what got implemented, which is worth doing
 regardless of whether today's literature sweep turned up anything new.
+
+## 2026-10-24
+
+First solver-lever run since 2026-08-30 (the runs in between, per DAILY.md's log, were
+site/נתיב UX work, not solver-eval work — this run returns to the candidate-generation
+queue). Four searches this cycle: (1) cryptic crossword solving + definition-span
+detection, (2) wordplay formalisation / executable proof, (3) Hebrew morphology + crossword
+candidate generation, (4) a targeted follow-up on candidate-generation diversity and
+definition location specifically.
+
+**Nothing genuinely new since 2026-08-25's last check.** No 2026 paper turned up in any of
+the four searches — every hit is the same 2024-2025 paper set this project has already
+logged and largely absorbed: Andrews & Witteveen's proof-based pipeline (ICML 2025,
+arXiv 2506.04824, the published version of the 2024 ICML-workshop paper arXiv 2407.08824
+already cited by `SOLVE_PROTOCOL.md`'s PROOF GATE section), the "What Makes Cryptic
+Crosswords Challenging for LLMs?" study (arXiv 2412.09012), and the original zero-shot
+baseline paper (arXiv 2403.12094). Hebrew-morphology search surfaced only general
+finite-state/disambiguation background (Haifa/Bar-Ilan work already a known quantity), no
+crossword-specific or candidate-generation-specific Hebrew NLP resource — reconfirms the
+2026-08-22/23/24 finding that no external generator or scorer exists to build on here, this
+time for the morphology angle specifically rather than definition-fit.
+
+**One detail worth transferring, surfaced by the 4th (targeted) search, and the direct
+motivation for today's lever.** Re-reading the ICML 2025 paper's own candidate-generation
+description: it generates "20 candidate answers for each clue, using temperature 1.0 to
+increase diversity" (10 wordplay hypotheses each) — the "hypothesis breadth" item already
+sitting in this project's 2026-08-08 research-informed queue (item 4), still unattempted in
+this project's own `candidates.py` as its own named lever (recall@N's `avg_candidates/clue`
+has only ever grown as a side effect of corpus size, per 2026-08-29's log entry, never from
+a deliberate breadth change). More specifically useful: the paper states the clue's
+definition "usually appears either at the beginning or at the end of the clue" — i.e. the
+SAME one-end structural premise `defspan.py` tried to exploit on 2026-08-19 by
+CLASSIFYING which end, which measured 1/5 (worse than chance, "Things already tried") and
+was struck from the queue. The paper's own framing does not classify either — it treats
+the definition location as a fact to be discovered by TRYING, not predicted in advance.
+
+**Transfer: this is what today's lever does.** `candidates.py` gained
+`definition_span_candidates` — for 1-3 word prefix and suffix windows of each clue (both
+ends, no classification), query the two existing definition-driven mechanisms
+(`culture_category_candidates`, `retrieval_candidates`) against the SHORT edge window
+instead of the whole clue, and union whatever comes back into the candidate pool. This is
+squarely "hypothesis breadth" (queue item 4) applied specifically to the two
+definition-driven generators, using the "one end, not classified" structural fact the
+ICML 2025 paper and this project's own SOLVE_PROTOCOL.md already agree on, while
+deliberately NOT repeating 2026-08-19's killed approach (no indicator-word density
+classifier, no decision about which end is right — both ends generate, recall@N below
+decides which hypothesis actually helped). See DAILY.md for the measured effect.

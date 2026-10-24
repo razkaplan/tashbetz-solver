@@ -21,9 +21,134 @@ tree - a stale CLI deploy overwrote the live site on 2026-08-29. See CLAUDE.md.
 | **Definition-span locatable rate (new, offline, diagnostic)** | **25% (7/28)** have mechanically-locatable single-window wordplay; of those 29% (2/7) are interior, not edge; classifier agreement on edge cases **1/5** | not a target — this diagnostic KILLED the lever, see log |
 | **`solve_pass.py` LIVE blind trial — cumulative (3 trials)** | **40% precision (2/5 committed)**: 2026-08-16 was 1/2 on a partial 21/28-clue puzzle (2026-06-12); 2026-08-22 was **0/2**, 7.1% coverage, on a FULL 28/28-clue puzzle (2026-05-15); **2026-08-27 is 1/1 = 100% precision but 5.3% coverage (1/19), 0% suggestion hit-rate (0/10)**, on 2026-07-10 (19/28 clues) — FIRST trial run with `retrieval_candidates` live (wired 2026-08-25, never live-trialed since); it contributed ZERO candidates all puzzle (grepped the transcript for `(retrieval, fodder=` hits — none), matching today's own offline recall@N finding on this same puzzle (0/19 with or without retrieval); the one correct commit came from `wiki.py` culture-fact lookup, not from any candidate generator | n=5 — still small; retrieval's live debut is a null result on this puzzle, not a regression, but not the coverage lift the queue hoped for either; see log |
 | **Candidate recall@N with `culture_category_candidates` added (new, offline, definition-driven)** | **0% (0/28)**, on 2026-06-19 — mechanism fired on only 1/28 clues (avg candidates/clue 10.5 → 11.4); its one firing (339 raw candidates, an "author" category hit) matched 0 gold | not yet a target — small-n diagnostic, see log |
+| **Candidate recall@N with `definition_span_candidates` added (new, offline, edge-restricted definition retrieval)** | **10.7% (3/28) on 2026-05-29, UNCHANGED vs whole-clue `retrieval_candidates` alone (also 10.7%, 3/28)** — same 2 retrieval-type hits either way (26A `פחותאבלכואב`, 1D `ברישניקוב`); confirmed the new mechanism DOES independently reach both via a genuinely shorter, edge-only query (1-word prefix/suffix, not the whole clue) but adds 0 NET-NEW recall on this puzzle, since whole-clue BM25 already found the same 2 docs; avg candidates/clue rose 19.0 → 20.4 (added noise, no added signal here) | not yet a target — n=1 puzzle, honest null result, see log |
 
 Baseline for comparison: v2 = 41% raw with untraceable errors.
-Last lever added (2026-08-30): **closed 2026-08-29's own "NOT DONE" gap: re-measured
+Last lever added (2026-10-24): **candidate generation — definition-span-HYPOTHESIS
+diversity, queue item 1's own still-open "N diverse candidates ... by definition-span
+hypothesis" framing, implemented as a genuinely different approach from 2026-08-19's
+killed `defspan.py` classifier** (same structural premise — a cryptic definition sits at
+one END of the clue — but no classification: `candidates.py` gained
+`definition_span_candidates`, which queries the two existing DEFINITION-driven generators
+(`culture_category_candidates`, `retrieval_candidates`) against every 1-3 word PREFIX and
+SUFFIX of the clue instead of the whole clue, unions whatever comes back, and leaves the
+choice of which hypothesis is right to recall@N / the proof gate downstream, exactly as
+2026-08-19's post-mortem said a non-classifying approach would have to be re-validated
+rather than assumed to inherit the kill. First solver-eval run since 2026-08-30 (the
+2026-08-31/09-04/09-07 runs in between were site/נתיב UX work, not solver levers).
+
+Re-transcribed the canonical dev puzzle (2026-05-29) a FOURTH independent time (after
+2026-08-06/08-25/08-28's prior transcriptions), from `data/images/2026-05-28.jpg`,
+because `data/` is gitignored and starts empty every run. `./bootstrap.sh --dev-only`
+succeeded fully at 14across this run (52/52 puzzles, 1,457 clues, no retries needed), so
+all 28 gold answers came from `data/answers/by_date/2026-05-29.json` (real crowd data),
+not the image-fallback technique. Clue TEXT transcription from the image was genuinely
+hard this run — DISCLOSED rather than smoothed over: this puzzle's two-column, wrapped,
+RTL clue list repeatedly produced self-contradictory readings when reconstructed from
+casual left-to-right pixel descriptions (a number's enum appearing to sit on the wrong
+side of its own text). Resolved it with a rigorous method rather than guessing: cropped
+narrow vertical pixel strips (~40px) across a confusing line and montaged them in known
+x-order, which gives an unambiguous ground truth for physical left/right position
+independent of any bidi assumption; cross-checked every resulting clue against this
+puzzle's OWN crowd explanations (`data/answers/by_date/2026-05-29.json`'s `explanations`
+field — e.g. clue 15's explanation names "מטרו גולדווין מאייר" / "האריה השואג", pinning
+`מגמ`'s clue to the MGM-lion content even where the raw pixel reconstruction was still
+ambiguous). Net effect on correctness: **every one of the 28 enum sums validated
+against the gold answer length with 0 mismatches** (`build_dataset.py`: "len mismatches:
+0") — the enums are now independently known-correct regardless of any residual word-order
+imprecision in the transcribed clue text; and the mechanical-only baseline reproduced
+**3.6% (1/28), exactly matching all 3 prior independent transcriptions of this puzzle**
+(2026-08-06/08-25/08-28), the project's standard cross-check that a transcription is
+sound. Honest residual: clue-TEXT word ORDER for a handful of clues (13, 15 especially)
+may not exactly match the newspaper's printed word order, reconstructed instead from
+visible fragments plus the crowd-explanation cross-reference once the strip-montage method
+confirmed the enum but direct bidi reconstruction of flowing multi-clue paragraphs stayed
+unreliable; this does not affect the candidate-generation mechanisms measured today
+(character-window anagram/hidden/reversal search and BM25 retrieval are both
+order-insensitive over the clue's words/letters), but a future transcription of this exact
+puzzle should re-derive clue text independently rather than trust today's wording verbatim.
+
+CORPUS: `scraper/crawl_defs.py mordo` run for this measurement — a deliberately bounded
+crawl (killed by this run's own 240s timeout, not run to exhaustion): **13,200 raw
+entries, 12,438 with parsed answers after `reparse_mordo()`** — smaller than every prior
+run's corpus (vs 2026-08-30's 66,443/62,403) but real and fully disclosed as partial, not
+presented as the biggest-available crawl; `note.co.il` was NOT crawled today (out of
+today's one-lever time budget — today's lever is about the QUERY shape, not the corpus,
+so a smaller-but-real corpus is sufficient to test it, and is honestly reported as smaller
+rather than silently reused from a stale prior run).
+
+MEASURED, controlled, on the re-derived puzzle (`python3 solver/candidates.py recall
+data/dataset/clues.jsonl eval --no-culture <ablation flags>`):
+- Mechanical-only (`--no-culture --no-retrieval --no-defspan`): **3.6% (1/28)**.
+- `+ retrieval_candidates` (whole-clue, old-style, `--no-culture --no-defspan`): **10.7%
+  (3/28)** — reproduces 2026-08-28's number on this exact puzzle (same private_defs
+  source type, smaller crawl today).
+- `+ definition_span_candidates` ALONE (`--no-culture --no-retrieval`, i.e. the new
+  mechanism with whole-clue retrieval OFF): **10.7% (3/28) — IDENTICAL**. Traced directly
+  (not just inferred from the matching percentage): both the whole-clue and the defspan
+  runs hit the SAME two clues (26A `פחותאבלכואב`, 1D `ברישניקוב`), and `definition_span_candidates`
+  reaches both via a genuinely shorter query than the whole clue (`fodder:
+  prefix1:יהונתן` for 26A, `fodder: suffix1:רקדן` for 1D — a ONE-WORD edge window each,
+  confirmed by calling the function directly rather than trusting the aggregate number) —
+  so the mechanism is functioning exactly as designed, it simply doesn't surface anything
+  whole-clue BM25 was missing on this puzzle's 2 retrieval-reachable answers.
+- Full defaults (culture+retrieval+defspan): also **10.7% (3/28)** — no additional lift
+  from combining all three definition-driven sources on this puzzle.
+- Candidate volume: avg candidates/clue rose from 19.0 (whole-clue retrieval only) to
+  20.4 (+ defspan) — the new mechanism adds raw candidate volume (12 edge-window queries
+  per clue: 3 prefix lengths + 3 suffix lengths, times culture+retrieval) without any
+  recall gain on this puzzle, i.e. noise without signal here. Per `prove.py`'s own
+  framing, extra unproven candidates are free as long as nothing is committed without a
+  passing proof — but they are not free of audit/review cost, so this is disclosed as a
+  real cost, not dismissed as harmless.
+
+AUDIT (mandatory gate). `lexicon.held_out_answers()` and `retrieve_defs.held_out()` both
+checked directly (not assumed): `gold_norm - blocked` is the empty set for both, over all
+28 of this puzzle's own gold answers. Provenance of both retrieval hits confirmed by
+reading the matched documents directly out of `retrieve_defs.build_index()`'s doc list:
+both carry `pid=None` (external private_defs corpus — one is literally "ספר יהונתן גפן",
+a listing of Geffen's own song titles including `פחות אבל כואב`; the other is "רקדן בלט
+ושחקן רוסי אמריקאי", a description of a Russian-American ballet dancer, matching
+Baryshnikov), never this project's own puzzle text. No forbidden reads: `14across` was
+touched only through `bootstrap.sh`'s own sanctioned scrape (for gold ANSWERS, never clue
+text or verbatim clue search); clue text came from the public Haaretz CDN image; no
+solution site was consulted. No implausible jump: 3.6% → 10.7% is the SAME well-explained
++7.1-point move 2026-08-28 already audited on this puzzle, not a new anomaly, and
+defspan's own marginal contribution is 0.0 points either way — nothing here clears, or
+needs to clear, the ~15-point suspicion bar. All 5 affected selftests (`candidates.py`,
+`retrieve_defs.py`, `lexicon.py`, `prove.py`, `substitutions.py`) re-run clean
+(`candidates.py selftest` includes two new checks for the mechanism added today: a
+definition-driven hit via a restricted edge window with an injected synthetic index, and
+confirming `use_defspan=False` disables it in `generate()`).
+
+HONEST READ: `definition_span_candidates` is real, audited, and demonstrably functions as
+designed (it reaches both of this puzzle's retrieval-reachable gold answers via a
+genuinely shorter, edge-only query, independently verified by inspecting the `fodder`
+field rather than trusting the aggregate recall number) — but today's single dev puzzle
+does not show it adding recall beyond what whole-clue retrieval already found, so this is
+an honest NULL result for the specific question "does restricting the query to an edge
+help", not a positive one. This differs from a simple repeat of 2026-08-19's killed
+`defspan.py` finding: that lever died because its CLASSIFIER scored worse than chance at
+picking the right end; today's mechanism makes no such pick (it queries both ends and
+lets the pool decide), so it cannot fail the same way, and it did not — it is a
+functioning, held-out-safe mechanism that happens to be redundant with an existing one on
+this specific puzzle's 2 hits. The real test (a puzzle/clue where whole-clue retrieval's
+extra noise words suppress a correct definition-edge match that a short query would find)
+is untested today — plausible in principle (BM25 ranking is sensitive to query length and
+term weighting, and a puzzle with longer, noisier clue surfaces than 2026-05-29's would
+exercise this differently) but not yet measured, which is the honest state to leave this
+in rather than claiming a win from a mechanism that merely behaved as designed.
+
+NOT DONE, honestly: did not test on a second puzzle (this run's full budget went to one
+puzzle's transcription-plus-measurement-plus-audit cycle, same one-lever discipline every
+prior run has followed); did not crawl `note.co.il` (today's corpus is mordo-only,
+smaller than several prior runs' — disclosed above, not a hidden regression since today's
+lever is about the query shape, not corpus size); did not re-verify queue item 8's
+across-1-13 column-gap question or item 9's definition-fit scoring question (out of
+today's one-lever scope); did not merge or otherwise act on any open PR (none were open
+against this branch's base when this run started).
+
+Previous lever (2026-08-30): **closed 2026-08-29's own "NOT DONE" gap: re-measured
 `retrieval_candidates` on 2026-06-26 — the puzzle 2026-08-28/08-29 both flagged as still
 needing a bigger corpus and no run had finished re-transcribing — this time FULLY (28/28
 clues, not the 18/28 partial 2026-08-26 left) and against a corpus grown far past any
@@ -518,9 +643,23 @@ propagated), `blank`. Score with `python3 evals/run_eval.py <file>`.
    leak-adjacent vector — it named 2 of today's 4 gold answers in a prior entry, before
    this run's required reading. Worth a future lever (redact specific answer strings from
    log prose, or split required-reading history from an answer-bearing appendix).
-2. ~~Definition-span detection~~ — TRIED 2026-08-19, NEGATIVE. See log and "already
-   tried" below. Do not re-attempt without a fundamentally different signal (not
-   indicator-word density).
+   (e) **[NEW 2026-10-24] `definition_span_candidates`** — edge-restricted (1-3 word
+   prefix/suffix) queries to `culture_category_candidates`/`retrieval_candidates`,
+   implementing the "N diverse candidates ... by definition-span hypothesis" framing
+   this item has named since the top of this file, without repeating item 2's killed
+   classifier (no decision about which end is right — both ends generate, the pool
+   decides). MEASURED NEUTRAL on 2026-05-29: 10.7% (3/28) with or without it, same 2
+   hits either way, confirmed (by inspecting `fodder`) to reach both via a genuinely
+   shorter 1-word edge query rather than by accident — functioning as designed, just
+   redundant with whole-clue retrieval on this puzzle's 2 reachable answers. Avg
+   candidates/clue rose 19.0 -> 20.4 (noise, no signal, on this puzzle). n=1 puzzle;
+   the real test (a puzzle where whole-clue query noise suppresses a definition-edge
+   match a short query would catch) is untested. See log.
+2. ~~Definition-span detection (classifier)~~ — TRIED 2026-08-19, NEGATIVE. See log and
+   "already tried" below. Do not re-attempt a CLASSIFIER without a fundamentally
+   different signal (not indicator-word density). A non-classifying, both-ends-generate
+   approach was tried 2026-10-24 (see item 1(e) above) — that is a different lever, not
+   a re-attempt of this one, and is itself now measured (neutral, not negative).
 3. **Grow the corpus** — 8,249 clue-answer pairs vs ~470k used by the SOTA system. The
    tartey_mashma Google Group posts weekly scans of easier setters; transcribing those
    unlocks both retrieval and any future fine-tune. This is the long game.
@@ -2427,3 +2566,76 @@ Measure each lever on dev (fixed enums) with run_eval.py before/after; one lever
   "כולם חפצים מהבית" theme (an אוטובוס was due to appear on 09-08).
   Gates: ui_smoke 9/9 pages at both widths, topicgen_eval 52/52 boards,
   url_guard clean (6,071 URLs, none dropped), nativ regression 22/22.
+
+- 2026-10-24: **candidate generation — `definition_span_candidates`**, first solver-eval
+  run since 2026-08-30 (the three runs in between were site/נתיב UX work). Implements
+  queue item 1's own open "N diverse candidates ... by definition-span hypothesis"
+  framing as a genuinely different approach from 2026-08-19's killed `defspan.py`
+  classifier: instead of CLASSIFYING which end of the clue holds the definition (that
+  scored 1/5, worse than chance — "Things already tried"), the new mechanism queries
+  `culture_category_candidates`/`retrieval_candidates` against every 1-3 word prefix AND
+  suffix of the clue (both ends, no decision), unions whatever comes back, and leaves the
+  choice to recall@N / the proof gate downstream. Confirmed by today's own targeted
+  research pass (RESEARCH.md): the ICML 2025 cryptic-solver paper (arXiv 2506.04824)
+  frames the definition as sitting "at the beginning or at the end of the clue" without
+  classifying either — the same non-classifying premise, independently arrived at.
+
+  Bootstrap succeeded fully (52/52 puzzles via 14across, no retries). Re-transcribed the
+  canonical dev puzzle 2026-05-29 a 4th independent time from `data/images/2026-05-28.jpg`
+  — DISCLOSED as genuinely difficult this run: this puzzle's wrapped two-column RTL clue
+  list repeatedly produced self-contradictory readings from casual transcription (an
+  enum appearing to sit on the wrong side of its own clue number). Resolved with narrow
+  vertical pixel-strip crops montaged in known x-order (removes any bidi assumption from
+  the read) cross-checked against this puzzle's own crowd explanations for semantic
+  anchoring. All 28 enum sums validated against the gold answer length, 0 mismatches
+  (`build_dataset.py`), and the mechanical-only baseline reproduced **3.6% (1/28) exactly**,
+  matching all 3 prior independent transcriptions of this puzzle (2026-08-06/08-25/08-28)
+  — the standard cross-check that today's transcription is sound, despite admitted
+  residual word-ORDER imprecision in a couple of clues' text (disclosed in the state
+  table; does not affect order-insensitive mechanical/BM25 mechanisms).
+
+  CORPUS: `crawl_defs.py mordo` run bounded (killed at this run's own 240s timeout, not
+  exhausted) — 13,200 raw / 12,438 parsed after `reparse_mordo()`, smaller than every
+  prior run's corpus and disclosed as such; `note.co.il` not crawled (today's lever is
+  about query shape, not corpus size, so a smaller real corpus was judged sufficient and
+  left out of scope rather than silently reused).
+
+  MEASURED (`candidates.py recall data/dataset/clues.jsonl eval <flags>`): mechanical-only
+  3.6% (1/28); + whole-clue `retrieval_candidates` 10.7% (3/28, reproduces 2026-08-28 on
+  this puzzle); + `definition_span_candidates` ALONE (whole-clue retrieval OFF) **also
+  10.7% (3/28) — IDENTICAL**, traced directly to the SAME two clues (26A `פחותאבלכואב`,
+  1D `ברישניקוב`), confirmed reached via a genuinely shorter query (`fodder:
+  prefix1:יהונתן`, `fodder: suffix1:רקדן` — one-word edge windows, not the whole clue) by
+  calling the function directly rather than trusting the aggregate number. Full defaults
+  (culture+retrieval+defspan): also 10.7%, no additional lift. Avg candidates/clue rose
+  19.0 -> 20.4 with defspan on — added raw volume, no added recall, on this puzzle.
+
+  AUDITED (mandatory gate). `lexicon.held_out_answers()` and `retrieve_defs.held_out()`
+  both confirmed directly to block all 28 of this puzzle's own gold answers
+  (`gold_norm - blocked` empty, both). Both retrieval hits' matching documents read
+  directly: both carry `pid=None` (external private_defs — one is a listing of Yehonatan
+  Geffen's own song titles including `פחות אבל כואב`; the other describes "a
+  Russian-American ballet dancer and actor", matching Baryshnikov), never this project's
+  own puzzle text. No forbidden reads: 14across touched only via bootstrap's sanctioned
+  scrape for gold ANSWERS, never clue text or verbatim search; clue text from the public
+  CDN image only; no solution site consulted. No implausible jump: 3.6% -> 10.7% is the
+  same well-explained move 2026-08-28 already audited on this exact puzzle, and
+  defspan's own marginal contribution is 0.0 points either way. All 5 affected selftests
+  re-run clean, including two new `candidates.py selftest` checks for today's mechanism.
+
+  HONEST READ: `definition_span_candidates` is real, held-out-safe, and demonstrably
+  functions as designed — it independently reaches both of this puzzle's
+  retrieval-reachable answers via a genuinely shorter query than the whole clue, verified
+  by inspecting `fodder` rather than trusting the recall percentage — but today's single
+  dev puzzle shows it adding ZERO net recall beyond whole-clue retrieval, an honest null
+  result for "does restricting the query to an edge help", not a positive one. This is
+  NOT a repeat of 2026-08-19's finding: that lever failed because its classifier picked
+  the wrong end more often than chance; today's mechanism never picks, so it cannot fail
+  that way, and measured as a working-but-redundant mechanism instead. The scenario where
+  it should matter most (a noisier/longer clue where whole-clue BM25's extra terms drown
+  out a real definition-edge match a short query would catch) is plausible but untested.
+
+  NOT DONE, honestly: no second puzzle (full run budget went to one puzzle's
+  transcription+measurement+audit cycle, same one-lever-per-run discipline as every prior
+  run); no `note.co.il` crawl (mordo-only corpus this run, disclosed as smaller); queue
+  items 8/9 not revisited; no open PR existed to act on.
