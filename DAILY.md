@@ -18,13 +18,111 @@ tree - a stale CLI deploy overwrote the live site on 2026-08-29. See CLAUDE.md.
 | Hardest puzzle | 2026-06-05: 100% / 43% / 43% | coverage stuck |
 | **Candidate recall@N (new, offline, mechanical only)** | **3.6% (1/28)**, avg 11.6 candidates/clue (capped), on 2026-05-29 — UNCHANGED after adding substitution+homograph mechanisms | not yet a target — diagnostic |
 | **Candidate recall@N with `retrieval_candidates` added (new, offline, BM25 definition retrieval)** | **7.1% (2/28)** on 2026-05-29 (up from 3.6%); **SECOND puzzle, 2026-08-26: 0.0% (0/18) → 5.6% (1/18)** on 2026-06-26 (partial, 18/28 clues); **THIRD puzzle, 2026-08-27: 0.0% (0/19) → 0.0% (0/19), UNCHANGED** on 2026-07-10; **2026-08-28, RE-MEASURED on 2026-05-29 with a GROWN corpus (mordo re-crawled 13,646 raw pairs vs 9,685; `note.co.il` crawled for the first time this project's lifetime, 829 pairs): 3.6% (1/28) → 10.7% (3/28)**, up from the 7.1% this exact puzzle scored with the smaller corpus; **2026-08-29, RE-MEASURED 2026-07-10 with an EVEN BIGGER corpus (mordo 25,350 raw / 24,361 parsed, up from 13,646/12,890; note.co.il 970 fetched out of 1,301 discovered): 0.0% (0/19) → 0.0% (0/19), STILL UNCHANGED**; **2026-08-30, RE-MEASURED 2026-06-26 — this time FULLY transcribed (28/28 clues, closing 2026-08-26's 18/28 partial gap) and with a MASSIVELY grown corpus (mordo 66,443 raw / 62,403 parsed, up from 25,350/24,361 — the blogspot feed has grown 2.6x again; note.co.il 1,001 fetched out of 1,301 discovered, up from 970/1301): 0.0% (0/28) → 14.3% (4/28)** — the highest recall this diagnostic has ever measured on any puzzle, and the largest single-puzzle point gain, from 4 independently-audited external hits (מניע, רומח, בובדילנ, ברסמכא) — see log | not yet a target — diagnostic; 6 independent measurements, 4 positive + 2 flat, confirming corpus growth is puzzle-dependent (rescued 2026-05-29 twice and now 2026-06-26 strongly, never moved 2026-07-10 across three corpus sizes) |
-| **Definition-span locatable rate (new, offline, diagnostic)** | **25% (7/28)** have mechanically-locatable single-window wordplay (2026-08-19, 2026-05-29); **SECOND, independent puzzle 2026-10-25: 21.4% (6/28)** on a fresh transcription of the SAME 2026-05-29 date (28/28 enum sums re-validated, 0 mismatches — the two transcriptions used the same date but the specific mechanically-locatable subset differs, expected since this depends on exact clue-text transcription detail, not a contradiction); of those 2 are interior | not a target — diagnostic |
-| **Definition-span classifier agreement, indicator-density vs. structural (new, offline, 2026-10-25)** | On the 2026-10-25 transcription's 4 start/end cases: **indicator-density 2/4 (50%)**, unchanged algorithm, better than 2026-08-19's 1/5 on a different puzzle; **NEW structural classifier (`split_structural`: does a word-span structurally produce a real word of the target length, via `candidates.py`'s own anagram/hidden/reversal generators — no indicator vocabulary, no gold answer needed) 2/3 (67%)**, abstaining (returning no verdict) on the 1 case where neither end scored positive evidence, rather than forcing a guess | not a target — n=3 vs 4 is far too small to call either classifier better; see log for the honest read |
+| **Definition-span locatable rate (new, offline, diagnostic)** | **25% (7/28)** on 2026-05-29 (2026-08-19); **21.4% (6/28)** on a SECOND independent transcription of the SAME date (2026-10-25); **THIRD puzzle, GENUINELY DIFFERENT date, 2026-10-26: 10.7% (3/28)** on 2026-06-05 (this project's own flagged "hardest puzzle" — 100%/43%/43% in the state table above) — lowest located rate measured yet, of those 1/3 interior | not a target — diagnostic; the located rate looks puzzle-dependent, not a fixed property of this setter |
+| **Definition-span classifier agreement, indicator-density vs. structural (new, offline)** | 2026-10-25 (2026-05-29, 4 start/end cases): indicator-density 2/4 (50%), structural 2/3 (67%, 1 abstention); **2026-10-26 (2026-06-05, 2 start/end cases, the 3rd case was interior and unscoreable by either classifier): indicator-density 0/2 (0%) — WORSE than the 1/5 that killed the original classifier in 2026-08-19; structural classifier n/a — ABSTAINED on both (score<=0), cast zero live verdicts** | not a target — n is tiny everywhere; see log. The structural classifier's abstention held even harder on this puzzle (0 forced guesses vs. indicator-density's 2 wrong-or-right picks) — exactly its designed failure mode (do nothing rather than guess), but it also means it contributed nothing measurable here either |
 | **`solve_pass.py` LIVE blind trial — cumulative (3 trials)** | **40% precision (2/5 committed)**: 2026-08-16 was 1/2 on a partial 21/28-clue puzzle (2026-06-12); 2026-08-22 was **0/2**, 7.1% coverage, on a FULL 28/28-clue puzzle (2026-05-15); **2026-08-27 is 1/1 = 100% precision but 5.3% coverage (1/19), 0% suggestion hit-rate (0/10)**, on 2026-07-10 (19/28 clues) — FIRST trial run with `retrieval_candidates` live (wired 2026-08-25, never live-trialed since); it contributed ZERO candidates all puzzle (grepped the transcript for `(retrieval, fodder=` hits — none), matching today's own offline recall@N finding on this same puzzle (0/19 with or without retrieval); the one correct commit came from `wiki.py` culture-fact lookup, not from any candidate generator | n=5 — still small; retrieval's live debut is a null result on this puzzle, not a regression, but not the coverage lift the queue hoped for either; see log |
 | **Candidate recall@N with `culture_category_candidates` added (new, offline, definition-driven)** | **0% (0/28)**, on 2026-06-19 — mechanism fired on only 1/28 clues (avg candidates/clue 10.5 → 11.4); its one firing (339 raw candidates, an "author" category hit) matched 0 gold | not yet a target — small-n diagnostic, see log |
 
 Baseline for comparison: v2 = 41% raw with untraceable errors.
-Last lever added (2026-10-25): **first run since 2026-09-07** (the commits in between are
+
+**⚠ PROCESS ALERT (2026-10-26), read before adding another lever:** this repo currently
+has **30 open, unmerged PRs** (#69-#101), one from nearly every daily run since
+2026-09-25, none merged. This is not a new finding — it has been flagged directly to the
+project owner, with a recommendation to triage, in at least 6 prior PRs (#71, #73, #82,
+#89, #92, #101) over seven weeks, with no action taken. The result is real, repeated
+duplicate work: `container_candidates` alone has 7-8 independent from-scratch
+implementations (#67, #72, #77, #79, #87, #92...) all measuring the same flat/negative
+result; substitution-charade extensions and defspan-retrieval wiring are each duplicated
+multiple times too. Today's own lever avoided adding an 8th duplicate by branching off
+the most recent unmerged PR (#101) instead of stale `main` and extending its own
+explicitly-named next step (a second puzzle) rather than re-deriving its classifier from
+scratch — a workaround, not a fix. I pushed a notification to the project owner directly
+about this at the start of today's run. **Do not open PR #103 by re-implementing
+something already in this backlog without first checking `list_pull_requests` yourself**
+— today's own defspan work would have been a duplicate of PR #101 had it not done so.
+
+Last lever added (2026-10-26): **second, genuinely different-puzzle measurement of
+`defspan.py`'s structural classifier** (PR #101's own, explicitly-named "not done" gap
+from yesterday: "did not grow the definition-span sample past one puzzle"). Built on top
+of PR #101's own branch (not stale `main`) rather than re-deriving its `split_structural`/
+`classifier_agrees_structural` code a second time — no new lever code was added today,
+only a new measurement.
+
+Bootstrap ran fully clean (52/52 puzzles, 1,457 clues at 14across on the first try);
+`solver/lex/substitutions.json`'s regressed rebuild (528 vs committed 2,220 head words)
+reverted per bootstrap.sh's own warning, untouched otherwise. RESEARCH (full entry in
+RESEARCH.md): one genuinely new, actionable finding — **RFTokenizer** (Zeldes, SIGMORPHON
+2018), a Hebrew morphological segmenter that uses an xgboost classifier, not a
+transformer, directly answering PR #101's own objection to DictaBERT (needs
+transformers/HuggingFace, this project's style avoids that dependency). Not installed or
+tried today (out of scope for this run's one-lever budget) — flagged as a concrete next
+step for a future lever, now that the dependency objection has an answer.
+
+Transcribed **2026-06-05** — this project's own flagged "hardest puzzle" (100%/43%/43% in
+the state table) and a date never used by ANY of the ~15 defspan/candidates measurements
+logged in this file to date, all of which reused 2026-05-29 — from
+`data/images/2026-06-04.jpg`. All 28 enum sums validated against the real
+`data/answers/by_date/2026-06-05.json` gold answer lengths (0 mismatches; `candidates.py
+recall --no-culture --no-retrieval` cross-check: 0/28 mechanical hits, consistent with
+this puzzle's own historically poor 43% coverage, not a transcription red flag). **Disclosed
+methodology deviation**: several printed enum comma-splits were not reliably legible at
+this image resolution and my first reading of them contradicted the gold answer length for
+3 of 28 clues (e.g. clue 8 across, read as `(3)`, is actually `(7)` — confirmed by both the
+gold answer's real length AND its crowd explanation, an anagram of a 7-letter phrase).
+Rather than guess at illegible sub-splits, enum is recorded as a single total
+(`[heb_len(gold_answer)]`) for every clue in this transcription — `defspan.py`'s structural
+classifier only ever consumes `sum(enum)`, never the internal split boundaries, so this is a
+disclosed simplification, not a hidden one, and does not affect today's measurement. A
+second, smaller disclosure: 3 clues' surface wording was corrected against the gold
+`explanations` field where my own reading produced a clue that could not account for the
+answer at all (e.g. clue 2 down's "באמרי קה" corrected to "באמריקה" — a line-wrap OCR
+error, not a content judgement call). Per the same precedent as the 2026-08-15 log entry's
+own integrity note, **this means 2026-06-05's transcription is explanation-assisted and
+should not be reused for a future blind live-solve trial** without an independent,
+non-explanation-assisted re-transcription.
+
+MEASURED (executed): `python3 solver/defspan.py stats data/dataset/clues.jsonl eval` —
+located rate **10.7% (3/28)**, the lowest this diagnostic has measured on any puzzle (prior:
+25% and 21.4%, both on 2026-05-29). Of the 3 located: 2 start, 1 interior (unscoreable by
+either classifier design). On the 2 start/end cases: indicator-density classifier **0/2
+(0%)** — worse than the 1/5 that struck the original classifier in 2026-08-19, on an
+independent puzzle; structural classifier **abstained on both** (its top hypothesis scored
+<=0 net evidence both times), so it cast zero live verdicts rather than two wrong ones.
+
+AUDITED: `lexicon.held_out_answers()` and `retrieve_defs.held_out()` both confirmed
+(computed, not assumed) to block all 28 of this puzzle's own gold answers (`gold_norm -
+blocked` empty for both). No forbidden reads beyond the public CDN image and the sanctioned
+14across answers scrape (explanations were read for transcription-correctness only, per the
+disclosure above, not to solve anything). No implausible jump to explain — this is a new
+diagnostic measurement on a new puzzle, not a before/after on the same number. All 3
+affected selftests (`defspan.py` — unmodified by today's run, re-verified; `candidates.py`;
+`lexicon.py`) re-run clean.
+
+HONEST READ: this is the second and third independent data point this diagnostic has ever
+produced on a date OTHER than 2026-05-29, and both move the same direction — down, not up.
+The located rate (10.7%, the lowest yet) and the indicator classifier's agreement (0/2, the
+worst yet) both weaken rather than strengthen confidence in definition-span classification
+as a usable lever on this setter, consistent with — not contradicting — 2026-08-19's
+original "killed" verdict and PLAYBOOK.md's standing qualitative note that this setter's
+definition position has "no fixed rule." The structural classifier's abstention property
+held up exactly as designed (0 forced wrong guesses, vs. the indicator classifier's 2
+guesses, 0 of them right) — genuinely useful IF this lever is ever wired live, since
+abstaining costs nothing while a live solve pass still has `prove.py`'s gate as a backstop.
+But on this puzzle it also means the structural classifier contributed literally zero
+information, same net effect as not running it. Across all 3 measurements now (2 on
+2026-05-29, 1 on 2026-06-05), the standing conclusion is unchanged and slightly reinforced:
+**most clues on this setter have no mechanically-locatable single-window wordplay to
+classify at all**, and that — not classifier quality — remains the real ceiling. Do not
+re-attempt definition-span classification as a primary lever without a different approach
+to the located-rate problem itself (not the classifier sitting on top of it).
+
+NOT DONE, honestly: did not attempt RFTokenizer (flagged as a scoped future lever, needs a
+fresh install + an egress check, out of today's one-lever budget); did not re-measure
+2026-05-29 a further time; did not act on the open-PR backlog beyond the process alert above
+and today's own choice to build on PR #101 rather than add to it; did not merge or close any
+PR (only the project owner can).
+
+Previous lever (2026-10-25): **first run since 2026-09-07** (the commits in between are
 all site/product work, not this track — see RESEARCH.md for the honest note on the gap).
 Bootstrapped clean: 14across worked fully (52/52, 1,457 clues, no image-fallback needed
 for gold data this time); `solver/lex/substitutions.json`'s regressed bootstrap rebuild

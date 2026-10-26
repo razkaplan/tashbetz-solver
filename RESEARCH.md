@@ -973,3 +973,54 @@ anagram-matchable" — rather than leaving the premise untested a second way. Bu
 scored by whether that span structurally PRODUCES a real word of the clue's own enum length
 — no indicator vocabulary, no gold answer needed (the enum is known at solve time). See
 DAILY.md for the measured result and an honest read of its very small sample size.
+
+## 2026-10-26
+
+Two targeted searches this run, since yesterday (2026-10-25) already did a broad three-
+search pass (candidate-gen/wordplay-formalisation literature, definition-span-detection
+literature, Hebrew morphology tooling) and found nothing 2026-dated beyond DictaBERT.
+
+**Search 1: "cryptic crossword definition span location clue segmentation 2026."**
+Returned only evergreen background (Wikipedia's cryptic-crossword article, generic
+solving guides) — nothing dated, nothing new beyond what PLAYBOOK.md and this project's
+own `defspan.py` docstring already encode (definition at one end, wordplay the
+complement). **Transfer: none** — reconfirms there is no literature-level fix to import
+for the definition-location problem; the gap is this specific setter's clue structure,
+not a known-solved problem the field has a name for.
+
+**Search 2: "Hebrew morphology segmentation lightweight library no transformers
+dependency."** Directly follows up yesterday's DictaBERT finding, which was flagged real
+but out of scope because it needs a `transformers`/HuggingFace dependency this project's
+style rule avoids. Surfaced **RFTokenizer** (Zeldes et al., SIGMORPHON 2018,
+aclanthology.org/W18-5811), a character-wise Hebrew/Arabic/Coptic morphological
+segmenter built on an **xgboost classifier, not a transformer** — on PyPI, Apache-2.0,
+small model files, no HuggingFace runtime. Reported >=97-98% accuracy on the SPMRL
+benchmark and an out-of-domain Wikipedia set. **Transfer: real and actionable, but not
+today's lever.** This project's own candidate generators (`candidates.py`'s
+anagram/hidden/reversal fodder search) currently operate on raw characters with no
+morphological awareness at all — a real segmenter could in principle let a future
+generator strip prefixes (ו/ב/ל/מ/ש/ה/כ) and construct-state suffixes before searching
+for fodder, which is exactly the class of miss PLAYBOOK.md's own "morphological
+agreement" rule (2026-08-14) was written to catch by hand. Not installed or tried this
+run (needs a fresh dependency install plus an unconfirmed egress check, and today's
+one-lever budget went to a second defspan measurement instead) — flagged as a concretely
+scoped future lever: install RFTokenizer, confirm it imports and runs offline-capable in
+this sandbox, then measure whether morphologically-stripped fodder windows change
+`candidates.py recall@N` on a dev puzzle, controlled before/after, same discipline as
+every other lever here.
+
+**Conclusion, and the lever this run actually built.** Neither search produced a
+buildable-today improvement, so today's lever is PR #101's own explicitly-named "not
+done" gap from yesterday: `defspan.py`'s structural classifier had only ever been
+measured on one puzzle (2026-05-29, reused by essentially every defspan/candidates
+measurement logged in this project to date). Measured it on a second, genuinely
+different date — 2026-06-05, this project's own flagged "hardest puzzle" — instead of
+writing new generator code. See DAILY.md for the full result: both the located rate and
+the indicator classifier's agreement moved DOWN relative to 2026-05-29's numbers, which
+reinforces rather than overturns 2026-08-19's original negative verdict on this lever as
+a whole, while the structural classifier's abstention behaved exactly as designed (zero
+forced wrong guesses) at the cost of contributing zero information on this specific
+puzzle. No new generator or classifier code was added this run — this was a measurement-
+only lever, built on top of PR #101's own unmerged branch specifically to avoid adding
+an 8th-or-so duplicate implementation to the open-PR backlog (see DAILY.md's new process
+alert).
