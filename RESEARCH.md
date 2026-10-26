@@ -910,3 +910,76 @@ priority 2. Wiring in an already-built, already-audited tool as one more candida
 is not itself a research question — it is closing a gap between what the project's own
 research queue prioritized in 2026-08-08 and what got implemented, which is worth doing
 regardless of whether today's literature sweep turned up anything new.
+
+## 2026-10-19
+
+First solver-lever research pass since 2026-08-25 — the runs in between (2026-08-31
+through 2026-09-07, see DAILY.md log) were all `/nativ` game and site-shell fixes, not
+solver levers, so no new external literature has been checked against this project's
+candidate-generation/definition-span queue in nearly two months. Bootstrap ran clean this
+time (52/52 puzzles at 14across on the first try, the historically flaky step), and
+2026-05-29 was re-transcribed a fourth time (28/28 clues, 0 enum mismatches against both
+the grid and the gold answer lengths) — see DAILY.md for the transcription.
+
+**General sweep: "cryptic crossword solver LLM candidate generation 2026".** No new 2026
+paper specifically on candidate generation. Confirms the same paper set already logged
+here repeatedly (2506.04824, 2406.09043/2406.09043v3, 2403.12094, 2407.08824) plus one
+genuinely new sighting: a PyData Amsterdam 2026 talk describing a LangGraph multi-agent
+system giving an LLM tool access (synonym lookup, anagram solver) for cryptic clues.
+**Transfer: none beyond what is already built here.** This project already IS that
+architecture — `solve_pass.py` is the agent loop, `candidates.py`/`substitutions.py`/
+`prove.py` are exactly the tool set a LangGraph wrapper would call — the talk describes
+the pattern this project implemented from scratch over two months ago, not a new
+technique or a result to port. No paper, slide deck, or benchmark number was found.
+
+**"Definition span detection cryptic crossword clue parsing neural 2025 2026".** No new
+2025-2026 paper. The closest hit is the NeurIPS 2021 Guardian-clues dataset paper
+(arXiv 2104.08620, revised to v4 in February 2025) — already the basis of the definition
++ wordplay framing this project's own SOLVE_PROTOCOL.md uses, and already the source of
+the "scrape train-split clue/answer/explanation triples" approach `retrieve.py`/
+`retrieve_defs.py` follow. **Transfer: none new** — reconfirms, does not add to, the
+standing 2026-08-19 finding that killed indicator-word-density definition-span detection
+(queue item 2).
+
+**"Hebrew morphology NLP crossword wordplay segmentation 2026".** No crossword-specific
+hit. General Hebrew-NLP landscape is unchanged from the 2026-08-06/08-20/09 entries
+already logged (RFTokenizer, HebPipe, DictaBERT-seg, the root-pattern-morphology transfer
+study) — one new paper surfaced, "Beyond Word Boundaries: A Hebrew Coreference Benchmark"
+(arXiv 2604.17108, a 2026 paper), but it is a coreference-resolution benchmark (tracking
+which mentions refer to the same entity across a document) with a finding that automatic
+morphological segmentation costs 1.4-2.6 F1 versus gold segmentation on THAT task.
+**Transfer: none.** Coreference is not a task this project has or needs; the segmentation-
+quality finding doesn't transfer either, since this project's lexicon/pattern matching
+already operates on WHOLE unsegmented words (the hspell wordlist + corpus), not segmented
+morphemes, so segmentation-induced degradation isn't a failure mode in play here.
+
+**"Cryptic crossword container insertion wordplay candidate generation algorithm"** (this
+run's own targeted check, not just a repeat of the standing general sweep). The one
+concrete, actionable finding this run: arXiv 2412.09012 (already logged 2026-08-06, the
+same paper whose definition-span embedding rerank was judged "structurally yes,
+technically no" for Hebrew) lists CONTAINER as one of five named wordplay taxonomy types
+(anagram, hidden word, double definition, container, assemblage) in English cryptic
+literature — one word inserted inside (or wrapped around) another. No paper or resource
+anywhere in two months of searches here has ever given a generation ALGORITHM for it
+specifically; it is treated in the literature as a taxonomy label for what a verifier
+checks, not something papers discuss generating candidates for. **Transfer: taxonomic
+confirmation only, not a technique to port** — but it prompted a direct check of this
+project's OWN code rather than more literature, which is where today's lever actually
+came from (see below), not from any paper.
+
+**The gap this run's own code-reading found, not the literature.** `solver/prove.py`
+has verified `is_container` since this project's earliest proof-gate work (its own
+worked docstring example, `is_container('קרים', 'תן', 'קרתנימ')`, is this run's own
+re-transcribed 2026-05-29 clue 11 across) — but `grep -rn container solver/candidates.py`
+returns nothing. Every other mechanism SOLVE_PROTOCOL.md names (anagram, reversal,
+hidden, charade/substitution, homograph, culture-reference) has a matching
+`*_candidates` generator; container is the one mechanism the proof gate can check that
+no generator ever proposes. This was found by reading this project's own source against
+its own protocol doc, not by any external paper — disclosed as such rather than dressed
+up as a literature-driven decision. Today's lever (see DAILY.md) builds
+`container_candidates`, reusing `_destem` (already built for `homograph_candidates`) for
+the outer piece and `sub_fwd()` (already built for `substitution_candidates`) for the
+inner piece, since this run's re-transcribed clue 11 example needs the inner piece
+(`תן`/jackal) resolved from a synonym of the literal clue word (`טורף`/predator), not a
+literal substring — a pure literal-substring search would miss exactly the worked example
+motivating this lever.

@@ -7,6 +7,32 @@ Read this first each run. It is the handoff between days.
 Vercel, Root Directory=docs). Never `vercel --prod` from a branch or dirty
 tree - a stale CLI deploy overwrote the live site on 2026-08-29. See CLAUDE.md.
 
+## ⚠ PROCESS ALERT (2026-10-19) — read before picking a lever
+
+**48 open PRs (#38 through #91) sit unmerged against this exact `main`, one from every
+single daily run from 2026-08-31 through 2026-10-18 (49 consecutive calendar days) — this
+is on top of the already-known pattern queue item 6 flagged repeatedly back in August. None
+of them have landed, including FOUR separate consolidation attempts that were themselves
+never merged (#71 2026-09-28, #73 2026-09-30, #82 2026-10-09, #89 2026-10-16). Because
+every daily agent branches off the same stale `main` (per this repo's own documented
+convention) rather than off yesterday's PR, this has produced real, measured, repeated
+duplicate work — most visibly `container_candidates` (PLAYBOOK.md's container/insertion
+device), independently designed, selftested, and measured flat/negative **at least seven
+times** by different agents who never saw each other's branch: PRs #67 (2026-09-23), #72
+(2026-09-29), #77 (2026-10-04), #79 (2026-10-06), #87 (2026-10-14), plus multiple same-day
+sub-measurements logged under queue item 1(e) inside those unmerged branches' own copies of
+this file. **This run independently built the SAME mechanism before discovering any of
+this** (see today's log entry) — an eighth data point, not new information. Checked via
+`gh`/the GitHub API directly (`list_pull_requests`, state=open), not assumed.
+
+This is a human-in-the-loop problem, not an agent one: a fifth consolidation PR is
+unlikely to fix a merge cadence that has not kept up for seven weeks despite four prior
+attempts. **Recommendation for the project owner: review and merge (or explicitly close)
+the open PR backlog before the next daily run**, starting with the most recent
+consolidation attempt (#89) or whichever PR carries the state you want `main` to reflect.
+Until that happens, expect continued duplicate measurement of whatever lever looks highest
+priority from `main`'s own (increasingly stale) queue below.
+
 ## Current state (update this section every run)
 
 | Metric | Value | Target |
@@ -21,9 +47,81 @@ tree - a stale CLI deploy overwrote the live site on 2026-08-29. See CLAUDE.md.
 | **Definition-span locatable rate (new, offline, diagnostic)** | **25% (7/28)** have mechanically-locatable single-window wordplay; of those 29% (2/7) are interior, not edge; classifier agreement on edge cases **1/5** | not a target — this diagnostic KILLED the lever, see log |
 | **`solve_pass.py` LIVE blind trial — cumulative (3 trials)** | **40% precision (2/5 committed)**: 2026-08-16 was 1/2 on a partial 21/28-clue puzzle (2026-06-12); 2026-08-22 was **0/2**, 7.1% coverage, on a FULL 28/28-clue puzzle (2026-05-15); **2026-08-27 is 1/1 = 100% precision but 5.3% coverage (1/19), 0% suggestion hit-rate (0/10)**, on 2026-07-10 (19/28 clues) — FIRST trial run with `retrieval_candidates` live (wired 2026-08-25, never live-trialed since); it contributed ZERO candidates all puzzle (grepped the transcript for `(retrieval, fodder=` hits — none), matching today's own offline recall@N finding on this same puzzle (0/19 with or without retrieval); the one correct commit came from `wiki.py` culture-fact lookup, not from any candidate generator | n=5 — still small; retrieval's live debut is a null result on this puzzle, not a regression, but not the coverage lift the queue hoped for either; see log |
 | **Candidate recall@N with `culture_category_candidates` added (new, offline, definition-driven)** | **0% (0/28)**, on 2026-06-19 — mechanism fired on only 1/28 clues (avg candidates/clue 10.5 → 11.4); its one firing (339 raw candidates, an "author" category hit) matched 0 gold | not yet a target — small-n diagnostic, see log |
+| **Candidate recall@N with `container_candidates` added (new to `main`, offline, mechanical — the container/insertion device; see today's PROCESS ALERT above: at least 7 prior independent implementations already measured this flat/negative in unmerged PRs #67/#72/#77/#79/#87, unknown to this run until after building it)** | **3.6% (1/28), UNCHANGED** on 2026-05-29 (4th independent transcription on `main`, 28/28 clues, 0 enum mismatches). Fires on only 1/28 clues (9 across, 10 raw candidates), 0 gold hits. Its own real motivating example (clue 11 across, `is_container('קרים','תן','קרתנימ')`, `prove.py`'s worked docstring) needs the mined synonym `תן~טורף`, which exists only in this puzzle's own held-out explanation and is correctly excluded by `substitutions.held_out()` — see log | not yet a target — an 8th consistent data point for this already-measured-flat mechanism, see PROCESS ALERT |
 
 Baseline for comparison: v2 = 41% raw with untraceable errors.
-Last lever added (2026-08-30): **closed 2026-08-29's own "NOT DONE" gap: re-measured
+Last lever added (2026-10-19): **built `container_candidates` — this project's one named
+wordplay mechanism (SOLVE_PROTOCOL.md "container: X בתוך Y") with a VERIFIER
+(`prove.py`'s `is_container`, used since the earliest proof-gate work) but no GENERATOR —
+found by reading this project's own code against its own protocol doc, not from any
+external paper (RESEARCH.md: the literature names container as a taxonomy type, 2412.09012,
+but gives no generation algorithm). SEE THE PROCESS ALERT ABOVE FIRST: this exact mechanism
+turns out to already have at least 7 independent prior implementations sitting in unmerged
+PRs (#67, #72, #77, #79, #87, plus same-day sub-measurements under queue item 1(e) in
+those branches), none visible from `main`, which is what this run actually read per its own
+instructions. Disclosing the duplication in full rather than presenting this as novel.**
+
+Bootstrap ran fully clean this run (52/52 puzzles, 1,457 clues at 14across on the first
+try — the historically flaky step). Re-transcribed 2026-05-29 a 4th independent time on
+`main` (28/28 clues, 0 enum mismatches against both the committed grid geometry via
+`grid_tools.py validate` and the real 14across gold answer lengths) directly from
+`data/images/2026-05-28.jpg`, reading the cross-column clue flow carefully at zoomed
+crops (across 1-13 in the narrow column beside the solution-grid thumbnail, 15 onward
+continuing into the wide column, per queue item 8) rather than assuming it.
+
+Built `container_candidates`: for every ordered pair of distinct clue words, combines
+every (de-affixed stem, or mined-substitution fragment) piece of each by inserting one
+into every split point of the other, keeping real-word hits. Reuses `_destem` (already
+built for `homograph_candidates`) for the outer piece and `sub_fwd()` (already built for
+`substitution_candidates`) for the inner piece, since a container's inner part is
+routinely a SYNONYM standing in the clue (`תן`/jackal for `טורף`/predator, this project's
+own clue 11 across) rather than a literal substring — a pure literal-substring search
+would miss the exact worked example motivating the lever. Selftest added (synthetic
+`שלום` = `שלם` + `ו` inserted, independent of any puzzle's gold data). Wired into
+`generate()`'s pool behind a `use_container` toggle (same pattern as
+`use_culture`/`use_retrieval`) and into `recall_eval`/the CLI's `--no-container` flag.
+
+MEASURED, controlled before/after (`python3 solver/candidates.py recall
+data/dataset/clues.jsonl eval --no-culture --no-retrieval [--no-container]`): **3.6%
+(1/28) -> 3.6% (1/28), UNCHANGED.** `container_candidates` fired on only 1/28 clues (9
+across, 10 raw candidates), 0 matched gold. Checked directly WHY the mechanism's own real
+motivating example (11 across) didn't fire: gold `קרתנימ` needs inner piece `תן` (per the
+crowd explanation `תן זה טורף / בתוך קרים`) from `sub_fwd()`, but `sub_fwd()` returns
+`None` for `טורף` — the only known source of that equivalence is THIS puzzle's own
+(held-out, now-excluded) explanation, and it does not recur in the other 51 puzzles'
+aggregate explanations. This is `substitutions.held_out()` working exactly as designed,
+not a bug, but it means 2026-05-29 cannot validate this mechanism against its own
+motivating example, by construction — the same structural tension 2026-09-12's (unmerged)
+measurement on 2026-06-05 already found for a different clue (בית~קן real, שופט~טל not).
+
+AUDITED (mandatory gate). `lex()` and `sub_fwd()` — the two tables `container_candidates`
+reads — both confirmed (computed, not assumed) to exclude all 28 of this puzzle's gold
+answers from their held-out-sensitive tiers: `lexicon.held_out_answers()` and
+`substitutions.held_out()` both block all 28. The 9 gold answers that DO still appear in
+`lex()` (`מגפ`, `ברבר`, `יחפניות`, `שלג`, `פנימאי`, `ערב`, `סרבית`, `נשי`, `אנזימימ`) were
+checked individually and confirmed at priority 1 (plain hspell dictionary), never
+priority 2/3 (corpus/culture) — RESULTS.md's own documented, accepted behavior, not a new
+leak. No gold fragment appears as a `sub_fwd()` value. No forbidden reads: gold came from
+bootstrap's sanctioned 14across scrape plus the public CDN image; no answers site or
+verbatim clue search. No jump to explain: 3.6% -> 3.6% is flat. `private_defs`
+(the corpus `retrieval_candidates`/`culture_category_candidates` need) does not exist this
+run — `bootstrap.sh --dev-only` never builds it, `scraper/crawl_defs.py` is a separate
+step not run today — disclosed so today's "full defaults" number (also 3.6%, identical to
+mechanical-only) isn't misread as a retrieval finding. All 6 affected selftests
+(`candidates.py` incl. the 2 new container checks, `retrieve_defs.py`, `lexicon.py`,
+`prove.py`, `substitutions.py`) pass clean.
+
+HONEST READ: the implementation is verified correct (selftest passes on a real insertion
+derivation; it fires non-trivially, 10 raw candidates, on a real clue in this puzzle, so
+it is not dead code) and the measurement is clean and properly audited — but it is not a
+new finding. This run's actual most valuable output is the PROCESS ALERT above: this is
+now confirmed an 8th consistent flat/negative measurement of this mechanism, strengthening
+rather than adding to the existing conclusion, and the real problem is that 7 prior
+measurements of the identical thing were invisible to this run because `main` was never
+updated. NOT DONE, honestly: did not attempt a 5th backlog consolidation (see PROCESS
+ALERT for why); did not re-crawl `private_defs`; did not measure a second puzzle.
+
+Previous lever (2026-08-30): **closed 2026-08-29's own "NOT DONE" gap: re-measured
 `retrieval_candidates` on 2026-06-26 — the puzzle 2026-08-28/08-29 both flagged as still
 needing a bigger corpus and no run had finished re-transcribing — this time FULLY (28/28
 clues, not the 18/28 partial 2026-08-26 left) and against a corpus grown far past any
@@ -518,6 +616,16 @@ propagated), `blank`. Score with `python3 evals/run_eval.py <file>`.
    leak-adjacent vector — it named 2 of today's 4 gold answers in a prior entry, before
    this run's required reading. Worth a future lever (redact specific answer strings from
    log prose, or split required-reading history from an answer-bearing appendix).
+   (e) `container_candidates` — the container/insertion device (SOLVE_PROTOCOL.md
+   "container: X בתוך Y") — ADDED on `main` 2026-10-19 (see log, and the PROCESS ALERT at
+   the top of this file): `prove.py` could verify a container since the proof gate's
+   earliest days but nothing generated one. MEASURED FLAT (3.6%/1/28, unchanged) on
+   2026-05-29 — but see the PROCESS ALERT: at least 7 prior independent implementations of
+   this exact mechanism already exist in unmerged PRs (#67, #72, #77, #79, #87) and
+   measured the same flat/negative result, including a richer 3-fragment-source design
+   (literal/destemmed + mined substitution + culture-entity lookup, see PR #67's branch
+   log for 2026-09-13's version) not reproduced here. Do not re-attempt a 9th from-scratch
+   implementation; if this item is revisited, start from whichever PR the owner merges.
 2. ~~Definition-span detection~~ — TRIED 2026-08-19, NEGATIVE. See log and "already
    tried" below. Do not re-attempt without a fundamentally different signal (not
    indicator-word density).
