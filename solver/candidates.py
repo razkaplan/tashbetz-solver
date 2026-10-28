@@ -14,6 +14,17 @@ This module does exactly that, per clue, with no LLM involved:
   - hidden_candidates:   a contiguous run inside the space-removed clue that is itself
                           a real word (the "hidden word" device).
   - reversal_candidates: same search, reversed.
+  - container_candidates: the container device (SOLVE_PROTOCOL.md "X בתוך Y") — one
+                          clue-derived fragment (OUTER) split around a second clue-derived
+                          fragment (INNER) inserted strictly inside it, matching
+                          prove.py's own is_container() exactly (insertion point strictly
+                          interior — splitting at either end would just be concatenation,
+                          i.e. a charade, not a container). Was never implemented despite
+                          prove.py having supported verifying it since this project's proof
+                          gate was built; container is one of SOLVE_PROTOCOL's core devices
+                          and had NO generator at all before today. Same character-window
+                          search as anagram/hidden/reversal, not word-aligned, for the same
+                          reason (setters use partial-word fodder).
   - substitution_candidates: the setter's private-vocabulary device — a clue word (or two
                           adjacent ones) substituted for a fragment mined from crowd
                           explanations (solver/substitutions.py), when the substitute(s)
@@ -163,6 +174,40 @@ def reversal_candidates(clue_text, target_len):
         rev = sub[::-1]
         if rev in words:
             out.append({'answer': rev, 'mechanism': 'reversal', 'fodder': sub})
+    return out
+
+
+def container_candidates(clue_text, target_len, max_outer_len=9):
+    """Container device: an OUTER fragment with an INNER fragment inserted strictly
+    inside it (not at either end — that is a charade, not a container; matches
+    prove.py's is_container(), which only accepts an interior split point). Both
+    fragments are character-level windows of the clue's letters (see _char_windows),
+    independently of each other and of word boundaries, same as anagram/hidden/reversal.
+
+    Quadratic in the clue length per enum split (O(L^2) window pairs, L ~= 20-40 here),
+    times O(outer_len) insertion points — fast enough per clue, but easily the highest-
+    volume mechanism of the four window-scan devices, so `max_outer_len` caps the outer
+    fragment's length (container outers in the worked examples are short function-word-
+    length fragments, not half the answer) to keep the raw candidate count from drowning
+    out everything else once this is folded into generate()'s priority order.
+    """
+    words = lex()
+    joined = joined_letters(clue_text)
+    L = len(joined)
+    out = []
+    for outer_len in range(2, min(target_len - 1, max_outer_len) + 1):
+        inner_len = target_len - outer_len
+        if inner_len < 1:
+            continue
+        outer_windows = {joined[i:i + outer_len] for i in range(L - outer_len + 1)}
+        inner_windows = {joined[i:i + inner_len] for i in range(L - inner_len + 1)}
+        for outer in outer_windows:
+            for inner in inner_windows:
+                for k in range(1, outer_len):  # strictly interior, matches is_container
+                    cand = outer[:k] + inner + outer[k:]
+                    if cand in words:
+                        out.append({'answer': cand, 'mechanism': 'container',
+                                    'fodder': f'{outer}+{inner}'})
     return out
 
 
@@ -479,7 +524,9 @@ def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retr
     (25 by default) and ranked, not an unbounded window scan, so it does not need to wait
     behind the cheap mechanisms either. `use_culture`/`use_retrieval` are plain on/off
     switches so a controlled before/after recall measurement doesn't need extra copies of
-    this function."""
+    this function. container_candidates goes LAST, after anagram/hidden/reversal: it is a
+    fourth character-window scan of the same high-volume, low-precision shape as those
+    three, so it would crowd out the rest the most if placed earlier."""
     target_len = sum(enum)
     cands = []
     cands += homograph_candidates(clue_text, target_len)
@@ -493,6 +540,7 @@ def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retr
     cands += anagram_candidates(clue_text, target_len)
     cands += hidden_candidates(clue_text, target_len)
     cands += reversal_candidates(clue_text, target_len)
+    cands += container_candidates(clue_text, target_len)
 
     seen, uniq = set(), []
     for c in cands:
@@ -574,6 +622,15 @@ def selftest():
     hits = reversal_candidates('אמר הרבנים על רב גדול', 2)
     found = any(h['answer'] == norm('בר') for h in hits)
     print(f'  found בר as a reversal of רב: {found} (expected True)')
+    ok &= found
+
+    print('--- container device: an outer fragment split around an inserted inner fragment ---')
+    # 'ישאל' (4, a real word on its own: "he will ask") + 'ר' (1) inserted after the
+    # first 2 letters -> 'יש' + 'ר' + 'אל' = 'ישראל' (5). Matches is_container's own
+    # interior-insertion rule (prove.py): splitting at either end would be a charade.
+    hits = container_candidates('הילד ישאל ר שאלה', 5)
+    found = any(h['answer'] == norm('ישראל') for h in hits)
+    print(f'  found ישראל as ישאל+ר assembled around an interior split: {found} (expected True)')
     ok &= found
 
     print('--- pattern device: crossing-pattern lookup wraps lexicon.pattern ---')
