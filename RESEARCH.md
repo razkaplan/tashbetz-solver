@@ -4,6 +4,72 @@ One entry per run: what was found, one-line summary, and an honest judgement of 
 it transfers to a Hebrew cryptic solver with an 8k-clue corpus. Default skepticism: most
 crossword-AI work targets non-cryptic (American-style) puzzles and does not transfer.
 
+## 2026-10-28
+
+First run since 2026-09-07 (the intervening log entries were site/UI work, not solver
+work — DAILY.md's own "Last lever added" line still pointed at 2026-08-30). Bootstrap
+succeeded FULLY this run: 52/52 puzzles from 14across (1,457 clues), 4 dev images. No
+private_defs corpus was crawled this run (`scraper/crawl_defs.py` is a separate, manual
+step, not part of `bootstrap.sh`) — this run's retrieval/culture ablations therefore ran
+against an essentially empty index; see DAILY.md for the honest effect of that.
+
+**"cryptic crossword solving LLM wordplay parsing 2026" (standard search).** Surfaced the
+same paper family this log has tracked since 2026-08-06/08: Saha et al. (NAACL 2025,
+arXiv 2406.09043, "Language Models are Crossword Solvers") report a search procedure
+(SweepClip) that iteratively generates candidates, prunes conflicting ones using grid
+constraints, and re-generates — 93.1% character accuracy on full NYT grids with GPT-4-
+Turbo, raising per-clue accuracy 43.5% -> 89.6%. **Transfer: already tried and already
+negative here.** This project built the same idea independently on 2026-08-08
+(`solver/sweep.py`) before this paper was in the log, and it was RECALIBRATED after
+measurement: promoting a suggestion on 2+ crossing agreement scored 1/5 on live puzzles
+(a wrong answer's crossings looked consistent with another wrong answer). The paper's
+93% is a very different regime — GPT-4-Turbo already has deep latent knowledge of NYT-
+style answers and clue conventions from pretraining; this Hebrew setter's corpus is 8k
+clues, not the NYT's decades of digitized puzzles, so the generate-prune-regenerate loop
+has far less to converge on here. Confirms the existing sweep.py verdict rather than
+reopening it.
+
+Andrews & Witteveen (ICML 2024 workshop, formalize wordplay as a step-by-step proof,
+translate to code, verify by execution) also resurfaced. **Transfer: no new action — this
+is independent convergence, not a new idea.** `solver/prove.py`'s PROOF GATE already does
+exactly this (built before this paper was read here), and the Andrews & Witteveen result
+that a prover can separate "correct" from "almost-correct" based on whether the wordplay
+actually executes is the same justification SOLVE_PROTOCOL.md already gives for PROOF
+GATE v16. Worth naming as confirmation the project's own independently-derived design
+matches the field's SOTA shape, not as something to build.
+
+Sadallah, Kotova & Kochmar (COLING 2025) study WHY open LLMs (Gemma2, LLaMA3, ChatGPT)
+underperform humans on cryptics. Not read in full this run (time-boxed to the single-
+lever budget) — flagged as a candidate read for a future run if the failure-mode
+taxonomy maps onto this project's own definition-fit gap (queue item 9), but not
+confirmed to transfer today, so not counted as a finding.
+
+**"Hebrew morphology NLP root pattern analysis open source tool 2025 2026" (standard
+search).** HebPipe (amir-zeldes/hebpipe) is the most recently active option found (last
+push June 2025): morphological segmentation, POS tagging, morphological tagging,
+dependency parsing in one pipeline. **Transfer: plausible but NOT attempted today** — it
+could in principle widen `lexicon.py`'s coverage of inflected forms beyond hspell's
+~130k-entry flat wordlist (homographs.py's `_destem`/`_HOMO_PREFIXES`/`_HOMO_SUFFIXES`
+already do a hand-rolled version of exactly this for one mechanism), but integrating a
+full dependency-parse pipeline is a bigger lift than today's one-lever budget and the
+project has no evidence yet that MISSING INFLECTIONS (as opposed to missing MECHANISMS)
+is the binding constraint on recall@N. Worth a future diagnostic (how many of today's 27
+misses would a wordplay mechanism reach if the lexicon had broader inflectional coverage)
+before spending a lever on it.
+
+**Conclusion, and the lever this run actually built.** Neither thread produced a new
+EXTERNAL technique to adopt (SweepClip: already tried, already negative, for a legible
+reason — not enough pretrained latent knowledge of this setter's answers; prove.py:
+independent convergence, nothing to add; HebPipe: plausible but unproven-necessary, out
+of scope for one lever). So today's lever, in the spirit of the scheduled task's own
+priority (a) ("candidate generation... by mechanism"), is a gap found by reading this
+project's OWN code rather than the literature: `solver/prove.py` has verified container-
+device proofs (`is_container`) since the proof gate was built, and SOLVE_PROTOCOL.md
+lists "container: X בתוך Y phrasing; assemble" as one of the playbook's core devices —
+but `solver/candidates.py` had anagram/hidden/reversal/substitution/homograph/culture/
+retrieval generators and NO container generator at all. See DAILY.md for what was built
+and measured.
+
 ## 2026-08-30
 
 Bootstrap hit the same hard 14across wall as 2026-08-19/08-26/08-27/08-28 (4 consecutive
