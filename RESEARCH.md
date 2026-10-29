@@ -3073,3 +3073,61 @@ dependency objection) remains the single most concretely scoped unactioned lever
 literature review history, now with one more paper agreeing the underlying linguistic
 problem is real — still not attempted (would need a fresh install + an egress check,
 out of scope for a consolidation-and-verification run).
+
+## 2026-10-29
+
+**Housekeeping note before anything else**: `list_pull_requests` at the start of this
+run found 30 open, unmerged solver-backlog PRs (down from PR #103's 56 two days ago,
+confirming someone has been triaging — but checking the CLOSED list, every sampled
+closed PR shows `merged: false`). See DAILY.md's process alert for the full count and
+a direct notification sent to the project owner this run, rather than a ninth
+repetition of the same ask buried in a log file nobody not already reading this file
+would see.
+
+**Search 1: cryptic crossword solving / candidate generation / definition extraction,
+2026.** `WebSearch` for "cryptic crossword solving LLM 2026 candidate generation
+definition extraction" and "definition span detection cryptic clue neural model 2025
+2026" surfaced nothing dated later than the papers already on file here
+(2412.09012, 2506.04824, 2407.08824, Cryptonite/2103.01242, Rozner et al./2104.08620).
+**Transfer: none new** — reconfirms, does not add.
+
+**Search 2: Hebrew semantic-similarity / embedding resources, targeted differently
+from every prior pass on this item.** Every prior check of queue item 9
+(2026-08-24/08-25, and the DictaBERT-for-MORPHOLOGY checks logged repeatedly since)
+asked whether a Hebrew resource exists for SYNONYMY (WordNet) or SEGMENTATION
+(DictaBERT-seg/RFTokenizer) — never whether a general-purpose Hebrew SENTENCE/WORD
+EMBEDDING model exists and is actually fetchable from this sandbox. Checked directly:
+**AlephBERT** (`biu-nlp/alephbert-base`, Seker et al., ACL 2022) is on HuggingFace,
+no auth required, confirmed reachable through this sandbox's egress proxy this run
+(HTTP 307 redirect on a plain `curl`, then a real `transformers`
+`AutoModel.from_pretrained` load in under 15s once cached). **Transfer: real and
+fetchable, tried, and the result is logged in DAILY.md as today's lever** — a
+dense-embedding reranker (`solver/embed_fit.py`) alongside `deffit.py`'s existing
+BM25-based one, measured NEGATIVE on real data (MRR 0.500 → 0.067 on the one
+reachable clue), root-caused to the embedding tracking surface/subword overlap with
+the clue rather than the candidate's real-world meaning. Recorded here as a negative
+but genuine result, not a non-finding: the resource exists and is usable, the
+specific application (whole-clue-surface cosine similarity over an unfiltered,
+anagram-heavy candidate pool) does not transfer well, at least on this data point.
+
+**Also checked, narrowly: whether the "no transformers dependency" line repeated in
+the 2026-10-25/10-26 entries is an actual project rule or an inference.** Searched
+CLAUDE.md, SOLVE_PROTOCOL.md, PLAYBOOK.md, RESULTS.md directly (grep, not memory) for
+any stated dependency-avoidance rule. **Found none.** The claim traces to a single
+agent's own phrasing, repeated as settled fact by a later research pass without being
+re-verified — see DAILY.md's log for the correction and why keeping the dependency
+optional is still the right call, just not for the reason previously stated.
+
+**Not checked this run, flagged rather than silently skipped**: HalleluBERT (LREC
+2026, logged 2026-10-27 as a new plain-BPE Hebrew encoder) — did not compare its
+embeddings against AlephBERT's for this same reranking task; a natural second data
+point for embed_fit.py if this lever is revisited, not attempted today to keep the
+run's research budget from ballooning past its one-lever implementation.
+
+**Conclusion, and the lever this run actually built.** Search 2 is the one that
+mattered: it found a resource three prior research passes on queue item 9 did not
+specifically look for (a general Hebrew sentence-embedding model, as opposed to a
+synonymy or segmentation resource), confirmed it is real and reachable rather than
+assuming so, and built+measured a second, independent definition-fit re-ranker on it.
+The measured result is negative, cleanly root-caused, and disclosed as such rather
+than reframed — see DAILY.md.

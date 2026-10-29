@@ -91,7 +91,16 @@ def build_index(exclude_puzzle=None):
             ans = [norm(a) for a in r.get('answers', []) if norm(a)]
             if ans:
                 docs.append((toks(clean_definition(r.get('definition', ''))), ans, None))
-    for line in open('data/dataset/clues.jsonl'):
+    # data/dataset/clues.jsonl does not exist until at least one puzzle has been
+    # transcribed+built (solver/build_dataset.py) -- genuinely absent in a fresh
+    # checkout, not an error condition. Found 2026-10-29 the hard way: this
+    # unconditional open() crashes candidates.py's OWN selftest (via
+    # retrieval_candidates()'s lazy index build), which is supposed to be fully
+    # synthetic-data-independent like every other selftest in this project. Treat a
+    # missing file as "no train-split docs yet" -- private_defs above is unaffected,
+    # and this changes nothing once the file exists.
+    if os.path.exists('data/dataset/clues.jsonl'):
+      for line in open('data/dataset/clues.jsonl'):
         c = json.loads(line)
         if c.get('split') != 'train': continue
         a = norm(c['answer_raw'])
