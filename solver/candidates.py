@@ -198,35 +198,65 @@ def sub_fwd():
     return _SUB_FWD
 
 
-def substitution_candidates(clue_text, target_len, table=None):
+MAX_CHARADE_PARTS = 4   # 2026-08-06..2026-08-30 logs flagged "multi-part charades (3+
+                        # segments), not just 1-2 word coverage" as the concrete next step
+                        # for this mechanism (DAILY.md queue item 1, e.g. 2026-08-20 entry)
+                        # -- never attempted until now.
+MAX_BRANCH = 15         # cap substitutes explored per word (sub_fwd() already sorts by
+                        # -frequency, so this keeps the most-attested equivalences and
+                        # bounds the DFS: a clue word like 'מה' mines 50+ substitutes in
+                        # the real corpus, and 50^4 adjacent-word chains is not viable.
+
+
+def _charade_chains(ws, start, target_len, fwd, max_parts):
+    """DFS over ADJACENT clue words starting at ws[start], chaining each word's mined
+    substitute in clue order. Yields (concatenated_fragment, [source_words]) once the
+    cumulative length hits target_len exactly -- never past it, since every substitute is
+    at least 1 character and overshoot can only grow. Length-only pruning (not realness of
+    a partial prefix) matches the existing 1-/2-word mechanism's own discipline: only the
+    FINAL concatenation is checked against the lexicon, not each intermediate fragment,
+    because a correct charade's middle segments need not themselves be free-standing words
+    (e.g. a single letter standing for an abbreviation)."""
+    def rec(j, parts, length, frag, words_used):
+        if length == target_len and parts >= 1:
+            yield frag, words_used
+        if parts >= max_parts or j >= len(ws) or length >= target_len:
+            return
+        for b, _n in fwd.get(norm(ws[j]), [])[:MAX_BRANCH]:
+            nlen = length + len(b)
+            if nlen > target_len:
+                continue
+            yield from rec(j + 1, parts + 1, nlen, frag + b, words_used + [ws[j]])
+    yield from rec(start, 0, 0, '', [])
+
+
+def substitution_candidates(clue_text, target_len, table=None, max_parts=MAX_CHARADE_PARTS):
     """The setter's private-vocabulary device (SOLVE_PROTOCOL.md 'Substitutions'): a clue
     word stands in for a fragment mined from crowd explanations (a name completed by a
-    surname, an abbreviation, a gloss). Two shapes:
-      (a) one clue word's substitute already has the FULL target length -- propose it
-          directly, filtered to real words/names (lex()) to cut noise;
-      (b) two ADJACENT clue words' substitutes concatenate, in clue order, to the full
-          target length -- a tightly scoped two-part charade. Deliberately NOT the
-          open-ended every-enum-split search charade.py already tried and measured weak
-          (2.8% recall, DAILY.md 2026-08-08): unrestricted part search over a sparse table
-          combinatorially explodes false positives. Adjacency + full-length coverage keeps
-          this mechanism precise instead.
-    `table` is injectable (tests / callers) instead of always hitting sub_fwd()."""
+    surname, an abbreviation, a gloss). A run of 1 to `max_parts` ADJACENT clue words'
+    substitutes concatenate, in clue order, to the full target length -- a charade built
+    from the setter's own recorded equivalences, not an open-ended enum-split search.
+
+    Originally only 1- and 2-word chains (2026-08-20); every log entry on this mechanism
+    since (2026-08-20 through 2026-08-30) flagged the identical next step and never took
+    it: "the mined substitution table needs to cover multi-part charades (3+ segments),
+    not just 1-2 word coverage of the FULL answer length". This generalizes the same
+    adjacency + full-length-coverage discipline to 3- and 4-word chains via `_charade_chains`,
+    deliberately keeping the bound that made the 1-/2-word version precise where
+    charade.py's unrestricted every-enum-split search measured weak (2.8% recall,
+    DAILY.md 2026-08-08): a candidate must still be built ONLY from physically adjacent
+    clue words in clue order, never an arbitrary subset, so this cannot invent a charade
+    the surface text doesn't actually present. `table` is injectable (tests / callers)
+    instead of always hitting sub_fwd()."""
     fwd = table if table is not None else sub_fwd()
     words = lex()
     ws = words_of(clue_text)
-    subs_of = lambda w: [b for b, n in fwd.get(norm(w), [])]
     out = []
-    for w in ws:
-        for b in subs_of(w):
-            if len(b) == target_len and b in words:
-                out.append({'answer': b, 'mechanism': 'substitution', 'fodder': w})
-    for i in range(len(ws) - 1):
-        for b1 in subs_of(ws[i]):
-            for b2 in subs_of(ws[i + 1]):
-                joined = b1 + b2
-                if len(joined) == target_len and joined in words:
-                    out.append({'answer': joined, 'mechanism': 'substitution',
-                                'fodder': f'{ws[i]}+{ws[i + 1]}'})
+    for i in range(len(ws)):
+        for frag, src_words in _charade_chains(ws, i, target_len, fwd, max_parts):
+            if frag in words:
+                out.append({'answer': frag, 'mechanism': 'substitution',
+                            'fodder': '+'.join(src_words)})
     return out
 
 
@@ -598,6 +628,41 @@ def selftest():
     found = any(h['answer'] == norm('שלום') for h in hits)
     print(f'  found שלום as של+ום from two adjacent words: {found} (expected True)')
     ok &= found
+
+    print('--- substitution device: THREE adjacent words\' substitutes chain (new) ---')
+    sub_table3 = {norm('אחד'): [(norm('ש'), 1)], norm('שני'): [(norm('לו'), 1)],
+                  norm('שלישי'): [(norm('ם'), 1)]}
+    hits = substitution_candidates('אחד שני שלישי משהו', 4, table=sub_table3)
+    found = any(h['answer'] == norm('שלום') for h in hits)
+    fodder_ok = any(h['answer'] == norm('שלום') and h['fodder'].count('+') == 2 for h in hits)
+    print(f'  found שלום as ש+לו+ם from three adjacent words: {found} (expected True), '
+          f'fodder names all three: {fodder_ok} (expected True)')
+    ok &= found and fodder_ok
+
+    print('--- substitution device: FOUR adjacent words\' substitutes chain (new) ---')
+    sub_table4 = {norm('א'): [(norm('ש'), 1)], norm('ב'): [(norm('ל'), 1)],
+                  norm('ג'): [(norm('ו'), 1)], norm('ד'): [(norm('ם'), 1)]}
+    hits = substitution_candidates('א ב ג ד', 4, table=sub_table4)
+    found = any(h['answer'] == norm('שלום') for h in hits)
+    print(f'  found שלום as ש+ל+ו+ם from four adjacent words: {found} (expected True)')
+    ok &= found
+
+    print('--- substitution device: a NON-adjacent combination is never proposed ---')
+    # 'אחד' and 'שלישי' both have substitutes that would sum to the target, but they are
+    # not adjacent (שני sits between them without a usable substitute here) -- the
+    # mechanism must not skip a word to force a match.
+    sub_table5 = {norm('אחד'): [(norm('של'), 1)], norm('שני'): [],
+                  norm('שלישי'): [(norm('ום'), 1)]}
+    hits = substitution_candidates('אחד שני שלישי', 4, table=sub_table5)
+    found = any(h['answer'] == norm('שלום') for h in hits)
+    print(f'  שלום NOT proposed by skipping over שני: {not found} (expected True)')
+    ok &= not found
+
+    print('--- substitution device: max_parts caps the chain length ---')
+    hits = substitution_candidates('א ב ג ד', 4, table=sub_table4, max_parts=3)
+    found = any(h['answer'] == norm('שלום') for h in hits)
+    print(f'  four-part chain blocked when max_parts=3: {not found} (expected True)')
+    ok &= not found
 
     print('--- homograph device: a clue word, de-prefixed, already IS the answer ---')
     # שרה is the canonical example (PLAYBOOK.md/SOLVE_PROTOCOL.md): she sings / a female
