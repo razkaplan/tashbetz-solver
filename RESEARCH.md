@@ -4,6 +4,85 @@ One entry per run: what was found, one-line summary, and an honest judgement of 
 it transfers to a Hebrew cryptic solver with an 8k-clue corpus. Default skepticism: most
 crossword-AI work targets non-cryptic (American-style) puzzles and does not transfer.
 
+## 2026-10-30
+
+Long gap since the last run (last log entries are 2026-09-04/09-07 UI/content sessions,
+and 2026-08-31 for the last solver-lever run) — bootstrap and the full state table were
+re-verified from scratch rather than assumed current. `./bootstrap.sh --dev-only` ran
+clean this time: 52/52 puzzles from 14across (no bot-check wall today, unusual compared
+to several 2026-08 runs), 129,574-word hspell lexicon, culture entities, 4 dev images.
+The in-memory `substitutions.json` rebuild (528 head words from only the 52-puzzle main
+corpus bootstrap can reach, vs 2,220 committed) regressed as documented — reverted with
+`git checkout`, not committed, matching bootstrap.sh's own warning.
+
+**"cryptic crossword solver LLM candidate generation 2026" (general search).** Surfaced
+the same paper family logged on nearly every prior run since 2026-08-06 (2506.04824 ICML
+2025 "A Reasoning-Based Approach to Cryptic Crossword Clue Solving", 2406.09043 "Language
+Models are Crossword Solvers", 2403.12094/2412.09012 "Are LLMs Good / What Makes Cryptic
+Crosswords Challenging for LLMs?") plus one apparently new item: a search-engine summary
+claimed a "PyData Amsterdam 2026" talk describes "a LangGraph multi-agent system for Dutch
+cryptic crosswords" with anagram/synonym lookup tools. **Checked directly, not trusted**:
+a follow-up search against the actual PyData Amsterdam 2026 program/pretalx listing found
+no such talk — the only listed talk matching anything in that space is an unrelated ML
+distillation talk by a different author. This is the THIRD time this project's research
+log has caught a search-engine auto-summary asserting something not actually verifiable
+at the primary source (2026-08-20, 2026-08-25's "retracted 96% number" repeat, now this
+apparently-fabricated talk) — **transfer: none, and worth restating the standing lesson
+a third time**: never cite a search summary here without opening the primary source: this
+entry does not count the PyData item as a real finding, because it isn't one.
+
+**"definition span detection cryptic crossword wordplay segmentation NLP 2025 2026".**
+No new paper beyond the already-logged 2412.09012 (Dec 2024, "What Makes Cryptic
+Crosswords Challenging for LLMs?", revised into 2025). Re-read its concrete numbers this
+run rather than just its headline: wordplay-TYPE classification on 200 annotated clues
+scored 20-44% depending on model/prompt, and adding the gold answer or gold definition to
+the prompt barely helped. **Transfer: this independently corroborates, from an external
+source for the first time, this project's own 2026-08-19 `defspan.py` finding** (25% of
+clues even have a mechanically-locatable single-window span; indicator-density
+classification scored 1/5 on the rest) — two unrelated methodologies (an external
+20-clue-annotation study on English cryptics; this project's own empirical measurement on
+a Hebrew setter) land on the same conclusion: definition/wordplay segmentation is a
+genuinely hard subproblem where naive classification is close to useless, not a tooling
+gap specific to either project. Reinforces DAILY.md's standing "do not re-attempt
+definition-span detection without a fundamentally different signal" — now with outside
+confirmation, not just this project's own one negative result.
+
+**"Hebrew morphology NLP constrained decoding crossword charade abbreviation dictionary
+2025".** Nothing on Hebrew crossword construction, charade clueing, or a Hebrew
+abbreviation/ראשי תיבות resource exists in the literature — confirms, again, that the
+mined `substitutions.json` table (crowd explanations -> clue-fragment/answer-fragment
+equivalences) is this project's own de facto version of a resource that doesn't exist
+anywhere else to borrow. **Transfer: none** (no external resource to adopt), but it is
+the reason today's lever (see DAILY.md) grows what that table can already do rather than
+waiting on an external one that was never going to appear.
+
+**"compositional candidate generation multi-segment charade decomposition puzzle solving
+2025 2026".** Nothing contemporary and on-topic turned up (closest hits: a 2016 ACL paper
+on Chinese riddle-solving via DP-combined metaphor candidates + SVM reranking; Turney's
+2014 composition/decomposition paper). Turney's one-line finding is worth keeping even
+though it's old: decomposition search is much harder than composition because the search
+space is larger (its own words: "decomposition is considerably more difficult... due to
+the larger search space"). **Transfer: this is a plausible-sounding explanation, not new
+evidence, for why `charade.py`'s UNRESTRICTED every-enum-split decomposition search
+measured weak (2.8% recall, DAILY.md 2026-08-08)** compared to `candidates.py`'s adjacency-
+constrained substitution charade (which only ever decomposes along the clue's own word
+boundaries, never an arbitrary letter-count split) — it directly motivated keeping today's
+lever (multi-part substitution charades, see DAILY.md) bounded the same way: adjacent
+clue words only, capped branching per word, rather than reopening the open-ended search
+this project already measured and rejected.
+
+**Conclusion and the lever this run actually built.** No research thread surfaced a new
+external resource or technique to adopt — consistent with nearly every prior run's
+finding that this project's specific need (Hebrew cryptic candidate generation from a
+small mined corpus) sits outside what the cryptic-crossword-AI literature covers, which
+targets English, non-cryptic puzzles, or large training corpora this project doesn't
+have. Today's lever is therefore the queue's own long-flagged internal gap (DAILY.md
+queue item 1, flagged in the 2026-08-20, 2026-08-28, and 2026-08-30 log entries and never
+attempted): `candidates.py`'s `substitution_candidates` covered only 1- and 2-word
+adjacent charades; extended to 3- and 4-word chains via a length-pruned DFS
+(`_charade_chains`), keeping the SAME adjacency + full-length-coverage discipline that
+made the 1-/2-word version precise where `charade.py`'s unrestricted search wasn't.
+
 ## 2026-08-30
 
 Bootstrap hit the same hard 14across wall as 2026-08-19/08-26/08-27/08-28 (4 consecutive

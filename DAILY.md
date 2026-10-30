@@ -16,14 +16,31 @@ tree - a stale CLI deploy overwrote the live site on 2026-08-29. See CLAUDE.md.
 | Accurate fulfilment (yield) | 55% (unchanged, not re-run today) | ~67% |
 | Best single puzzle | 2026-05-29: 95% / 71% / 68% ✓ all targets | |
 | Hardest puzzle | 2026-06-05: 100% / 43% / 43% | coverage stuck |
-| **Candidate recall@N (new, offline, mechanical only)** | **3.6% (1/28)**, avg 11.6 candidates/clue (capped), on 2026-05-29 — UNCHANGED after adding substitution+homograph mechanisms | not yet a target — diagnostic |
+| **Candidate recall@N (new, offline, mechanical only)** | **3.6% (1/28)**, avg 11.6 candidates/clue (capped), on 2026-05-29 — UNCHANGED after adding substitution+homograph mechanisms; **2026-10-30, STILL UNCHANGED at 3.6% (1/28) after extending `substitution_candidates` to 3-/4-word adjacent charade chains** (independently re-transcribed 2026-05-29 a fourth time, 28/28 enums validated, 0 mismatches) — the multi-part mechanism fired on only 3/28 clues (4 raw candidates total, today's in-memory substitution table being a modest 525 head words/660 pairs reconstructed from only the 52-puzzle main corpus bootstrap can reach) and produced ZERO 3-or-4-part chains and zero new gold hits; see log | not yet a target — diagnostic |
 | **Candidate recall@N with `retrieval_candidates` added (new, offline, BM25 definition retrieval)** | **7.1% (2/28)** on 2026-05-29 (up from 3.6%); **SECOND puzzle, 2026-08-26: 0.0% (0/18) → 5.6% (1/18)** on 2026-06-26 (partial, 18/28 clues); **THIRD puzzle, 2026-08-27: 0.0% (0/19) → 0.0% (0/19), UNCHANGED** on 2026-07-10; **2026-08-28, RE-MEASURED on 2026-05-29 with a GROWN corpus (mordo re-crawled 13,646 raw pairs vs 9,685; `note.co.il` crawled for the first time this project's lifetime, 829 pairs): 3.6% (1/28) → 10.7% (3/28)**, up from the 7.1% this exact puzzle scored with the smaller corpus; **2026-08-29, RE-MEASURED 2026-07-10 with an EVEN BIGGER corpus (mordo 25,350 raw / 24,361 parsed, up from 13,646/12,890; note.co.il 970 fetched out of 1,301 discovered): 0.0% (0/19) → 0.0% (0/19), STILL UNCHANGED**; **2026-08-30, RE-MEASURED 2026-06-26 — this time FULLY transcribed (28/28 clues, closing 2026-08-26's 18/28 partial gap) and with a MASSIVELY grown corpus (mordo 66,443 raw / 62,403 parsed, up from 25,350/24,361 — the blogspot feed has grown 2.6x again; note.co.il 1,001 fetched out of 1,301 discovered, up from 970/1301): 0.0% (0/28) → 14.3% (4/28)** — the highest recall this diagnostic has ever measured on any puzzle, and the largest single-puzzle point gain, from 4 independently-audited external hits (מניע, רומח, בובדילנ, ברסמכא) — see log | not yet a target — diagnostic; 6 independent measurements, 4 positive + 2 flat, confirming corpus growth is puzzle-dependent (rescued 2026-05-29 twice and now 2026-06-26 strongly, never moved 2026-07-10 across three corpus sizes) |
 | **Definition-span locatable rate (new, offline, diagnostic)** | **25% (7/28)** have mechanically-locatable single-window wordplay; of those 29% (2/7) are interior, not edge; classifier agreement on edge cases **1/5** | not a target — this diagnostic KILLED the lever, see log |
 | **`solve_pass.py` LIVE blind trial — cumulative (3 trials)** | **40% precision (2/5 committed)**: 2026-08-16 was 1/2 on a partial 21/28-clue puzzle (2026-06-12); 2026-08-22 was **0/2**, 7.1% coverage, on a FULL 28/28-clue puzzle (2026-05-15); **2026-08-27 is 1/1 = 100% precision but 5.3% coverage (1/19), 0% suggestion hit-rate (0/10)**, on 2026-07-10 (19/28 clues) — FIRST trial run with `retrieval_candidates` live (wired 2026-08-25, never live-trialed since); it contributed ZERO candidates all puzzle (grepped the transcript for `(retrieval, fodder=` hits — none), matching today's own offline recall@N finding on this same puzzle (0/19 with or without retrieval); the one correct commit came from `wiki.py` culture-fact lookup, not from any candidate generator | n=5 — still small; retrieval's live debut is a null result on this puzzle, not a regression, but not the coverage lift the queue hoped for either; see log |
 | **Candidate recall@N with `culture_category_candidates` added (new, offline, definition-driven)** | **0% (0/28)**, on 2026-06-19 — mechanism fired on only 1/28 clues (avg candidates/clue 10.5 → 11.4); its one firing (339 raw candidates, an "author" category hit) matched 0 gold | not yet a target — small-n diagnostic, see log |
 
 Baseline for comparison: v2 = 41% raw with untraceable errors.
-Last lever added (2026-08-30): **closed 2026-08-29's own "NOT DONE" gap: re-measured
+Last lever added (2026-10-30): **extended `candidates.py`'s `substitution_candidates`
+from 1-/2-word adjacent charades to 3-/4-word chains** (`_charade_chains`, a length-
+pruned DFS over adjacent clue words) — the concrete next step for queue item 1 flagged in
+the 2026-08-20, 2026-08-28, and 2026-08-30 log entries and never attempted until now.
+MEASURED NEGATIVE on an independently re-transcribed 2026-05-29 (28/28 clues, 0 enum
+mismatches against gold, exactly reproducing the historical 3.6% mechanical baseline and
+its one known hit as a strong cross-check): recall unchanged at 3.6% (1/28); the new
+mechanism fired on only 3/28 clues (4 raw candidates, 0 of them 3-or-4-part chains) given
+today's in-memory substitution table (525 head words, rebuilt from only the 52-puzzle
+corpus bootstrap can reach — the 310-puzzle secondary corpus remains unfetchable, per the
+2026-08-06 finding). AUDITED: `lexicon.held_out_answers()` and `substitutions.held_out()`
+both confirmed to block all 28 of this puzzle's own gold answers; all 5 affected
+selftests re-run clean; 0.0-point change needs no implausibility check. HONEST READ: a
+real negative result on today's puzzle/corpus pairing, not a bug — see log for the full
+reasoning on why a bigger substitution table (not a different chain-length lever) is the
+likely next step if this is revisited.
+
+Previous lever (2026-08-30): **closed 2026-08-29's own "NOT DONE" gap: re-measured
 `retrieval_candidates` on 2026-06-26 — the puzzle 2026-08-28/08-29 both flagged as still
 needing a bigger corpus and no run had finished re-transcribing — this time FULLY (28/28
 clues, not the 18/28 partial 2026-08-26 left) and against a corpus grown far past any
@@ -451,7 +468,16 @@ propagated), `blank`. Score with `python3 evals/run_eval.py <file>`.
    PLAYBOOK.md diagnosis (setter leans on these devices) may still be right even though
    this implementation of them didn't capture it — candidate: the mined substitution
    table needs to cover multi-part charades (3+ segments), not just 1-2 word coverage of
-   the FULL answer length, which is what today's version required. A separate, earlier
+   the FULL answer length, which is what today's version required.
+   **2026-10-30: ATTEMPTED (see log) — `substitution_candidates` now chains 3-/4-word
+   adjacent charades via `_charade_chains`. MEASURED NEGATIVE** (3.6% -> 3.6% on
+   2026-05-29, 0 new chains fired) — root-caused to today's in-memory substitution table
+   being too sparse (525 head words from the 52-puzzle corpus alone) for multi-word
+   chains to co-occur, not a flaw in the chain-length extension itself (selftests
+   confirm it works when the table supports a chain). Do not re-attempt this exact
+   shape again without first growing the substitution corpus itself — the 310-puzzle
+   secondary corpus bootstrap.sh cannot fetch (2026-08-06 finding) is the likely
+   prerequisite, not another mechanism redesign. A separate, earlier
    attempt at this same lever (2026-08-17, see log) measured the same negative result on
    a THIRD dev puzzle (2026-04-03, 4.0% recall unchanged) with an independently-written
    version of these two mechanisms — two different implementations, two different
@@ -990,6 +1016,107 @@ propagated), `blank`. Score with `python3 evals/run_eval.py <file>`.
   this was a pure corpus-growth + re-measurement lever, matching 2026-08-28's shape); did
   not act on queue items 8 or 9 this run (item 9's research pass found nothing new, see
   RESEARCH.md); no PRs were open to merge or act on.
+
+- 2026-10-30: **multi-part substitution charades (3-/4-word adjacent chains), queue item
+  1's own concrete next step since 2026-08-20, never attempted until now.** Long gap
+  since the previous solver-lever run (2026-08-31 onward were nativ/site UI sessions, not
+  this runbook). `./bootstrap.sh --dev-only` ran clean: 52/52 puzzles from 14across (no
+  bot-check wall today), 129,574-word hspell lexicon, culture entities, 4 dev images
+  (2026-05-14/05-20/05-28/06-04 article dates). The in-memory `substitutions.json`
+  rebuild regressed as bootstrap's own warning documents (528 head words vs 2,220
+  committed, since the 310-puzzle secondary corpus stays unfetchable) — reverted with
+  `git checkout`, not committed.
+
+  RESEARCH (see RESEARCH.md for full detail): general search surfaced only the same
+  paper family logged on nearly every prior run (2506.04824, 2406.09043, 2403.12094,
+  2412.09012) — confirmed, not assumed, by checking each citation already appears
+  repeatedly in this log. One apparent new item (a "PyData Amsterdam 2026" talk on a
+  LangGraph Dutch-cryptic solver, per a search-engine auto-summary) turned out NOT to
+  exist on direct check of the actual program/pretalx listing — the third time this
+  project's research log has caught a search summary asserting something unverifiable at
+  the primary source, logged as a standing caution rather than cited as a finding.
+  2412.09012's wordplay-type classification numbers (20-44% on 200 annotated English
+  clues, barely improved by adding the gold answer or definition) independently
+  corroborate, for the first time from an external source, this project's own 2026-08-19
+  `defspan.py` finding that definition/wordplay segmentation is genuinely hard, not a
+  tooling gap — reinforces leaving that lever struck. No external resource existed for
+  Hebrew charade/abbreviation clueing (expected — this project's own mined
+  `substitutions.json` is the only such resource). Net: no new external technique to
+  adopt, so today's lever is the queue's own internal gap, same as several prior runs
+  when research came up empty.
+
+  TRANSCRIPTION: independently re-transcribed 2026-05-29 (the canonical dev puzzle,
+  transcribed from scratch a fourth separate time across this project's history) from
+  `data/images/2026-05-28.jpg`, this run with REAL crowd gold data from
+  `data/answers/by_date/2026-05-29.json` (14across worked fully, not the image-fallback
+  technique). All 28 enum sums validated against the gold answer's letter count — 0
+  mismatches, the strongest form of this check since it uses the real crowd answer
+  length directly, not a grid-derived proxy. One real transcription difficulty worked
+  through and disclosed rather than hidden: the across clues 13/15/17/19 boundary in the
+  clue-text image initially looked inconsistent (an enumeration seemed to be missing)
+  until re-reading full, un-fragmented line crops end to end resolved it cleanly — every
+  one of the 28 enums now matches its gold length exactly once read that way; no
+  enumeration was invented or guessed to force a match. Running the mechanical-only
+  recall diagnostic reproduced the historical 3.6% (1/28) number and its exact
+  known hit (2 down, `יחפניות`, anagram of `פחות יין`) — a strong cross-check that this
+  fourth independent transcription is correct.
+
+  BUILT: `solver/candidates.py`'s `substitution_candidates` generalized from fixed 1- and
+  2-word cases to a length-pruned DFS (`_charade_chains`) over up to `MAX_CHARADE_PARTS`
+  (4) ADJACENT clue words, each contributing one of its mined substitutes, concatenated
+  in clue order; a candidate fires only when the full concatenation hits the target
+  length exactly and is a real lexicon word. Branching per word capped at `MAX_BRANCH`
+  (15, taking the highest-frequency substitutes first, since `sub_fwd()` already sorts by
+  -count) to bound the DFS — RESEARCH.md's Turney citation this run gave a concrete
+  reason to expect unbounded decomposition search to blow up, which is exactly the
+  failure mode `charade.py`'s open-ended every-enum-split version already measured
+  (2.8% recall, 2026-08-08): this mechanism deliberately keeps the SAME constraint that
+  made the 1-/2-word version precise (adjacency + full-length coverage), extending only
+  the chain length, never the search shape. 6 new selftest cases added (3-word chain,
+  4-word chain, a non-adjacent combination correctly NOT proposed, `max_parts` capping
+  the chain length) alongside the 2 pre-existing substitution cases; `python3
+  solver/candidates.py selftest` and `python3 solver/substitutions.py selftest` both pass
+  clean (exit 0).
+
+  MEASURED, controlled before/after (`python3 solver/candidates.py recall
+  data/dataset/clues.jsonl eval --no-culture --no-retrieval`): **3.6% (1/28) before, 3.6%
+  (1/28) after — UNCHANGED.** Checked WHY directly rather than just reporting the flat
+  number: the mechanism fired on only 3/28 clues (4 raw candidates total), and NONE of
+  them were 3-or-4-part chains — every firing was still a 1- or 2-word case the
+  mechanism already covered before today. Root cause, measured not guessed: today's
+  in-memory `sub_fwd()` table (rebuilt fresh every run, by design, for held-out safety)
+  has only 525 head words / 660 pairs, reconstructed from the 52-puzzle main corpus alone
+  — the much larger 2,220-head-word committed table (built at some point from the
+  310-puzzle secondary corpus bootstrap.sh cannot fetch, per the 2026-08-06 finding) was
+  correctly NOT used here, so this run's table is the smallest honestly-available one. A
+  multi-part CHAIN needs several of its own words to each have a recorded substitute
+  simultaneously, which is combinatorially less likely with a sparse table — a plausible,
+  falsifiable explanation for why 0 new chains fired, not just an unexplained null.
+  (Full-default recall, culture+retrieval included, was also checked: still 1/28, since
+  no `private_defs` corpus was crawled this run — `scraper/crawl_defs.py` is a separate,
+  out-of-scope step for today's one-lever budget.)
+
+  AUDITED (mandatory gate). `lexicon.held_out_answers()` and `substitutions.held_out()`
+  both computed (not assumed) to block all 28 of this puzzle's own gold answers —
+  `gold_norm - blocked` empty for both, re-checked after today's dataset rebuild. All 5
+  potentially-affected selftests (`candidates.py`, `substitutions.py`, `lexicon.py`,
+  `prove.py`, `retrieve_defs.py`) re-run clean (exit 0 each). No forbidden reads: gold
+  came from the sanctioned `data/answers/by_date/` path via bootstrap's own 14across
+  scrape; clue text from the public CDN image only; no 14across query carried this
+  puzzle's clue text, no solution site was consulted. Implausibility check does not apply
+  — a 0.0-point change needs no explanation for being suspiciously large.
+
+  HONEST READ: a genuine negative result, not a bug — verified the mechanism is wired
+  correctly (selftests prove it finds a real 3- and 4-part chain when the injected table
+  supports one) and root-caused the null result to table sparsity, which is falsifiable
+  and actionable rather than a shrug. NOT DONE, honestly: did not grow the substitution
+  corpus itself (out of today's one-lever scope — the secondary 310-puzzle corpus stays
+  structurally unfetchable by bootstrap.sh, a standing gap this entry does not newly
+  discover); did not re-measure on a second puzzle (today's run spent its transcription
+  budget on one full re-verification cycle, consistent with most single-puzzle lever
+  runs in this log); did not crawl `private_defs` (`scraper/crawl_defs.py`), so today's
+  full-default number has no retrieval contribution either; did not merge or otherwise
+  act on any open PR (none were open at the start of this run).
 
 ---
 
