@@ -4,6 +4,50 @@ One entry per run: what was found, one-line summary, and an honest judgement of 
 it transfers to a Hebrew cryptic solver with an 8k-clue corpus. Default skepticism: most
 crossword-AI work targets non-cryptic (American-style) puzzles and does not transfer.
 
+## 2026-10-31
+
+Bootstrap succeeded fully this run (52/52 puzzles via 14across, real crowd answers +
+explanations, not the image-fallback technique) — the first clean 14across run logged
+since 2026-08-06/08-21ish; recent runs had been hitting an intermittent hard wall.
+
+Research followed the scheduled task's own stated priority order: candidate generation
+(diverse candidates by mechanism / by definition-span hypothesis) first, then Hebrew
+NLP/morphology.
+
+**"cryptic crossword clue solving candidate generation LLM 2026 arxiv" / "definition span
+detection cryptic crossword clue parsing neural 2026" / "cryptic crossword arxiv 2026"
+(three searches, one extended).** Surfaced exactly the same paper family logged
+repeatedly since 2026-08-06 and every research pass since (2506.04824 ICML 2025, 2407.08824,
+2406.09043, 2403.12094, 2104.08620, 2103.01242). No 2026 paper found on cryptic clue
+solving, candidate generation, or definition-span detection specifically — none of the
+three searches surfaced a single citation dated 2026, despite today being 2026-10-31, two
+months past the last research pass logged here (2026-08-30). **Transfer: none new** — this
+is now the seventh-plus consecutive literature pass (2026-08-06/15/16/17/19/20/21/22/23/24/
+25/26/27/28/29/30, and now this one) with nothing new and buildable on this project's two
+open fronts (candidate generation, definition-span/fit scoring). The field genuinely looks
+dormant on this specific task since mid-2025's ICML paper, at least as far as this search
+tool surfaces.
+
+**"Hebrew NLP morphology segmentation 2026 new model DictaBERT."** Same conclusion as every
+prior pass: DictaBERT (2023) and DictaBERT-Parse / "MRL Parsing Without Tears: The Case of
+Hebrew" (2403.06970, 2024) remain the most recent citations; no 2026 release found.
+**Transfer: none new.**
+
+**Conclusion for today's lever.** With the literature confirmed stale yet again, today's
+lever is an internal one: a genuine, previously-unnoticed gap between `prove.py` and
+`candidates.py`. `prove.py` has verified the CONTAINER device (`is_container`, "X inside Y")
+since the proof gate's first version — it is listed in SOLVE_PROTOCOL.md's own mechanism
+taxonomy — but `candidates.py` never once GENERATED a container candidate; every live
+solve pass had to spot the device by eye and ask prove.py to merely check it, exactly the
+"solver produces one candidate and tries to justify it" failure mode this task's own
+priority (a) names as backwards. Built `container_candidates`: a character-window scan
+(same `_char_windows`-style discipline as anagram/hidden/reversal, no corpus, no hand-
+curated list) that tries every pair of clue-letter fragments (outer, inner) and every
+STRICTLY INTERIOR insertion point — matching `prove.is_container`'s own `range(1,
+len(outer))`, which is empty for a 1-letter outer, so the search correctly excludes the
+edge positions that are charade territory, not container territory. See DAILY.md for the
+measured recall (negative on today's dev puzzle) and the full audit.
+
 ## 2026-08-30
 
 Bootstrap hit the same hard 14across wall as 2026-08-19/08-26/08-27/08-28 (4 consecutive
