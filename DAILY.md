@@ -21,9 +21,27 @@ tree - a stale CLI deploy overwrote the live site on 2026-08-29. See CLAUDE.md.
 | **Definition-span locatable rate (new, offline, diagnostic)** | **25% (7/28)** have mechanically-locatable single-window wordplay; of those 29% (2/7) are interior, not edge; classifier agreement on edge cases **1/5** | not a target — this diagnostic KILLED the lever, see log |
 | **`solve_pass.py` LIVE blind trial — cumulative (3 trials)** | **40% precision (2/5 committed)**: 2026-08-16 was 1/2 on a partial 21/28-clue puzzle (2026-06-12); 2026-08-22 was **0/2**, 7.1% coverage, on a FULL 28/28-clue puzzle (2026-05-15); **2026-08-27 is 1/1 = 100% precision but 5.3% coverage (1/19), 0% suggestion hit-rate (0/10)**, on 2026-07-10 (19/28 clues) — FIRST trial run with `retrieval_candidates` live (wired 2026-08-25, never live-trialed since); it contributed ZERO candidates all puzzle (grepped the transcript for `(retrieval, fodder=` hits — none), matching today's own offline recall@N finding on this same puzzle (0/19 with or without retrieval); the one correct commit came from `wiki.py` culture-fact lookup, not from any candidate generator | n=5 — still small; retrieval's live debut is a null result on this puzzle, not a regression, but not the coverage lift the queue hoped for either; see log |
 | **Candidate recall@N with `culture_category_candidates` added (new, offline, definition-driven)** | **0% (0/28)**, on 2026-06-19 — mechanism fired on only 1/28 clues (avg candidates/clue 10.5 → 11.4); its one firing (339 raw candidates, an "author" category hit) matched 0 gold | not yet a target — small-n diagnostic, see log |
+| **Candidate recall@N with `container_candidates` added (new, offline, mechanical — NEW MECHANISM 2026-10-31)** | **3.6% (1/28), UNCHANGED**, on 2026-05-29 (re-transcribed fresh this run) — mechanism fired on 19/28 clues (avg 22 raw candidates/clue when firing, max 130, uncapped) but matched 0 gold answers on any of them; avg candidates/clue in the full `generate()` pool rose 11.8 → 13.2 but recall held flat before/after on both the mechanical-only ablation and combined with culture+container | not yet a target — diagnostic; first real measurement of a genuinely new mechanism (prove.py could verify containers since the proof gate's first version, candidates.py never generated them until today) — negative on this one puzzle, see log |
 
 Baseline for comparison: v2 = 41% raw with untraceable errors.
-Last lever added (2026-08-30): **closed 2026-08-29's own "NOT DONE" gap: re-measured
+Last lever added (2026-10-31): **closed a real gap between `prove.py` and `candidates.py`:
+built `container_candidates`, the first-ever mechanical generator for the "X inside Y"
+container device (prove.is_container has existed since the proof gate's first version;
+candidates.py never generated a container candidate for it to check). Bootstrap's 14across
+step succeeded FULLY (52/52 puzzles, real crowd answers+explanations — the first clean run
+logged in some time). Re-transcribed 2026-05-29 (the project's own canonical dev puzzle)
+fresh from `data/images/2026-05-28.jpg`, reproducing the historical 3.6% (1/28) mechanical
+baseline exactly (same anagram hit, 2 down יחפניות) before touching anything — the standard
+cross-check that a fresh transcription is correct. MEASURED, controlled before/after
+(`python3 solver/candidates.py recall data/dataset/clues.jsonl eval --no-culture
+--no-retrieval [--no-container]`): 3.6% (1/28) both with and without container_candidates —
+a clean, honest NEGATIVE result. The mechanism is not dead code: it fires (produces at
+least one real-word candidate) on 19 of this puzzle's 28 clues, uncapped, averaging 22 raw
+hits per firing clue — it simply never produced this specific puzzle's gold answer via any
+container assembly. Selftest added (`python3 solver/candidates.py selftest`), all checks
+pass, synthetic example only (אבה+חנ -> אבחנה), independent of any puzzle's gold data. See
+log for the full audit.
+Previous lever (2026-08-30): **closed 2026-08-29's own "NOT DONE" gap: re-measured
 `retrieval_candidates` on 2026-06-26 — the puzzle 2026-08-28/08-29 both flagged as still
 needing a bigger corpus and no run had finished re-transcribing — this time FULLY (28/28
 clues, not the 18/28 partial 2026-08-26 left) and against a corpus grown far past any
@@ -518,6 +536,14 @@ propagated), `blank`. Score with `python3 evals/run_eval.py <file>`.
    leak-adjacent vector — it named 2 of today's 4 gold answers in a prior entry, before
    this run's required reading. Worth a future lever (redact specific answer strings from
    log prose, or split required-reading history from an answer-bearing appendix).
+   (e) `container_candidates` — ADDED 2026-10-31 (see log): the "X inside Y" device
+   `prove.is_container` has verified since the proof gate's first version, but which
+   `candidates.py` never generated a candidate for until today. MEASURED NEGATIVE on
+   2026-05-29 (freshly re-transcribed): 3.6% -> 3.6% (1/28), unchanged — the mechanism
+   fires real candidates on 19/28 clues (uncapped) but none matched this puzzle's gold
+   answers. Not dead code, just unproven on n=1; a second puzzle's data point (the same
+   discipline every other sub-lever here got before being trusted) is the concrete next
+   step if this is revisited.
 2. ~~Definition-span detection~~ — TRIED 2026-08-19, NEGATIVE. See log and "already
    tried" below. Do not re-attempt without a fundamentally different signal (not
    indicator-word density).
@@ -2427,3 +2453,110 @@ Measure each lever on dev (fixed enums) with run_eval.py before/after; one lever
   "כולם חפצים מהבית" theme (an אוטובוס was due to appear on 09-08).
   Gates: ui_smoke 9/9 pages at both widths, topicgen_eval 52/52 boards,
   url_guard clean (6,071 URLs, none dropped), nativ regression 22/22.
+
+- 2026-10-31: **candidate generation (queue item 1(e), NEW): `container_candidates`,
+  the first mechanical generator for the container device.** Bootstrap's 14across step
+  succeeded FULLY this run (52/52 puzzles, real crowd answers+explanations) — the first
+  clean run logged in some time; recent runs had been hitting an intermittent hard wall.
+
+  RESEARCH (full entries in RESEARCH.md): three searches (candidate generation, definition-
+  span detection, a general "cryptic crossword arxiv 2026" sweep, one extended) surfaced
+  only the same paper family logged on every prior pass since 2026-08-06 (2506.04824,
+  2407.08824, 2406.09043, 2403.12094, 2104.08620, 2103.01242) — zero results dated 2026,
+  despite today being two months past the last research pass logged here. Hebrew NLP
+  search likewise surfaced nothing past DictaBERT/DictaBERT-Parse (2023/2024). Seventh-plus
+  consecutive null literature pass; the field looks genuinely dormant on this task.
+
+  THE LEVER: with the literature confirmed stale again, looked for a buildable internal
+  gap instead of forcing a paper-shaped idea, and found a real one: `solver/prove.py` has
+  verified the CONTAINER device (`is_container`, "X inside Y" — SOLVE_PROTOCOL.md's own
+  mechanism taxonomy lists it alongside anagram/reversal/charade) since the proof gate's
+  very first version, but `solver/candidates.py` never once generated a container
+  candidate for it to check — every live solve pass had to spot the device by eye. This is
+  exactly the "solver produces one candidate and tries to justify it" pattern the task
+  brief's own priority (a) names as backwards, just for a mechanism nobody had gotten to
+  yet. Built `container_candidates(clue_text, target_len)`: a character-window scan in the
+  same `_char_windows` style as anagram/hidden/reversal (fodder need not align to word
+  boundaries, no corpus, no hand-curated list) that tries every pair of clue-letter
+  fragments (outer, inner) and every STRICTLY INTERIOR insertion point of inner into
+  outer — deliberately matching `prove.is_container`'s own `range(1, len(outer))`, which
+  is empty for a 1-letter outer, so a generated candidate is always one `prove.py` could
+  actually verify, not a looser notion of "container" than the proof gate accepts. Wired
+  into `generate()` at the same priority tier as anagram/hidden/reversal (a cheap,
+  high-volume window-scan mechanism, no reason to go first). Added a `use_container` on/off
+  switch to `generate()`/`recall_eval()`/the CLI, matching `use_culture`/`use_retrieval`'s
+  existing shape, for a controlled ablation.
+
+  TRANSCRIPTION: chose 2026-05-29, this project's own canonical dev puzzle, specifically so
+  today's number is directly comparable to the many historical measurements already made on
+  it. Re-transcribed all 28 clues fresh from `data/images/2026-05-28.jpg`. One real
+  transcription puzzle solved along the way, disclosed rather than silently resolved: clues
+  13 and 15's text/enum boundary looked ambiguous at first read (a naive left-to-right pixel
+  scan of the bidi-rendered image suggested the enum "(4)" belonged to clue 15 and "(3)"
+  opened clue 17 with nothing closing 15) — resolved by the same validation the protocol
+  already mandates: cross-checking against `data/answers/by_date/2026-05-29.json`'s gold
+  answer LENGTHS (not clue text, which 14across does not carry) showed clue 13 must be 4
+  letters (ליסט/Liszt, hence "...כמלחין" ending the clue surface) and clue 15 must be 3
+  (מגמ/MGM, matching "האריה שלה שואג מכל מקום" — the MGM roaring-lion logo). Validated
+  every one of the 28 enum sums against the GRID-DERIVED slot length
+  (`python3 solver/grid_tools.py validate data/grids/2026-05-29.json
+  data/clues/2026-05-29.json` -> `OK`) before touching any answer: 0/28 mismatches, no
+  reversed enumeration this time. `python3 solver/build_dataset.py` -> 28 rows, 0 length
+  mismatches, 0 missing answers.
+
+  CROSS-CHECK before touching the new mechanism: `python3 solver/candidates.py recall
+  data/dataset/clues.jsonl eval --no-culture --no-retrieval --no-container` reproduced the
+  historical 3.6% (1/28) mechanical baseline on this puzzle EXACTLY, same single anagram hit
+  (2 down, `יחפניות`) every prior independent transcription of this puzzle has also found —
+  strong confirmation today's transcription is correct before measuring anything new.
+
+  MEASURED, controlled before/after (`python3 solver/candidates.py recall
+  data/dataset/clues.jsonl eval --no-culture --no-retrieval [--no-container]`): **3.6%
+  (1/28) with container_candidates OFF, 3.6% (1/28) with it ON — UNCHANGED.** Full defaults
+  (culture+retrieval+container; no private_defs corpus crawled this run, so retrieval
+  contributed its usual nothing without a corpus) also land at 3.6% (1/28). Checked whether
+  this is a truncation artifact of `generate()`'s max_n=25 cap: ran `container_candidates`
+  standalone, UNCAPPED, directly against all 28 gold answers — it fires (produces >=1 real-
+  word candidate) on 19/28 clues, averaging 22 raw candidates per firing clue (max 130), and
+  still **0/28 hits even uncapped** — this is a genuine mechanism-level miss on this
+  puzzle, not a truncation artifact.
+
+  AUDITED (mandatory gate). No new leak surface: `container_candidates` draws only on
+  `lex()` (already held-out-filtered by `lexicon.held_out_answers()`, same as anagram/
+  hidden/reversal) and the clue's own letters — it cannot invent an answer that isn't
+  literally assembled from clue-text fragments, same no-invention guarantee as the other
+  window-scan mechanisms, so it needs no extra filtering layer the way
+  `culture_category_candidates` does. Selftest added (`python3 solver/candidates.py
+  selftest`, all checks pass): a synthetic example (אבה + חנ -> אבחנה, modeled on
+  `prove.py`'s own worked container example) independent of any puzzle's gold data — the
+  first attempt at this selftest accidentally used the REAL 2026-05-29 gold answer
+  `קרתנימ` as the worked example, which correctly FAILED (held_out_answers() blocks it from
+  `lex()`, exactly as designed) — caught before it could have been mistaken for a bug, fixed
+  by picking a genuinely synthetic triple mined from the lexicon itself, disclosed here
+  rather than silently corrected. All 5 previously-affected selftests
+  (`lexicon.py`, `retrieve_defs.py`, `substitutions.py`, `prove.py`, and `candidates.py`
+  itself) re-run clean. No forbidden reads: 14across was used only for answer
+  LENGTHS/explanations (the sanctioned enum-validation path), never for clue text, which it
+  does not carry; clue text came entirely from the public CDN image. Implausibility check:
+  N/A, no jump to explain — recall held flat at 3.6% before and after, the opposite of an
+  implausible result. Performance: ~17s for the full 28-clue mechanical-only sweep
+  (container included), no runaway blowup despite the triple-nested window search.
+
+  HONEST READ: a real, working, now-generated mechanism that measured negative on its first
+  trial. This is not nothing — it closes an actual capability gap (prove.py could verify a
+  device candidates.py could never propose) and is mechanically sound (fires real candidates
+  on 2/3 of this puzzle's clues, passes a non-trivial selftest) — but on this one dev
+  puzzle it contributed zero recall gain. Consistent with this project's standing pattern:
+  most individual new mechanisms (substitution/homograph 2026-08-20, culture_category
+  2026-08-24) measure flat or near-flat on their first puzzle and only retrieval has ever
+  shown a repeatable positive signal, and only once corpus size was pushed hard. n=1 puzzle
+  is not enough to call container dead — PLAYBOOK.md's position is this setter does use
+  containers among its devices — but it is not enough to call it promising either.
+
+  NOT DONE, honestly: did not test container on a second puzzle (today's one-lever budget
+  went to building + fully auditing the mechanism on the canonical puzzle, matching how
+  every other new-mechanism lever here was first measured); did not crawl private_defs (out
+  of scope for a mechanical-generation lever, and the corpus is gitignored/wiped every run
+  regardless); did not tighten `min_outer`/`min_inner` as a precision lever since this run
+  only measured recall, not live precision — SOLVE_PROTOCOL.md's proof gate is still the
+  precision backstop for any live use; did not merge or otherwise act on any open PR.
