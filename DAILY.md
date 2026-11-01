@@ -51,24 +51,113 @@ tree - a stale CLI deploy overwrote the live site on 2026-08-29. See CLAUDE.md.
 
 Baseline for comparison: v2 = 41% raw with untraceable errors.
 
-**⚠ PROCESS ALERT (2026-10-29, re-counted — read before adding another lever):**
-`list_pull_requests` at the start of this run found **30 open, unmerged PRs** (#72-#104)
-— fewer than PR #103's 56 two days ago, so someone (the project owner, almost certainly
-— agents don't close PRs they weren't asked to close) has been triaging. But checking
-the CLOSED list too (new this run, no prior alert did this): every closed daily-agent PR
-sampled shows `"merged": false`. Across this file's entire log, from the first lever
-(2026-07-28) through today, **main has never received a single solver/ commit from this
-routine** — `git log -- DAILY.md` / `-- solver/candidates.py` on `main` both stop at
-2026-09-07. Two+ months of daily runs, 100+ PRs, zero landed. This is the EIGHTH direct
-process alert (#71, #73, #82, #89, #92, #101/#102, #103) with the same ask and the same
-result. This run's recommendation is unchanged — merge PR #103 (or this one, which
-supersedes it) — but if the project owner has in fact reviewed this backlog and decided
-none of it is worth merging, repeating the same ask a ninth time helps no one; that is a
-decision for them to make explicitly (merge something, or scale back/retire this
-scheduled routine), not for a future agent to keep inferring from silence. Flagged to
-the user directly this run via notification, not just logged here.
+**⚠ PROCESS ALERT (2026-11-01, NINTH direct alert — count went UP, not down, since the
+last one):** `list_pull_requests` at the start of this run found **61 open, unmerged PRs**
+(#38-#107) — not fewer than 2026-10-29's 30 as that alert's "someone has been triaging"
+theory hoped; the backlog has grown by 31 PRs (+103%) in 3 days. Across this file's
+entire log, from the first lever (2026-07-28) through today, **main has still never
+received a single solver/ commit from this routine** — `git log -- DAILY.md` /
+`-- solver/candidates.py` on `main` both stop at 2026-09-07, now nearly two months
+stale. This is the NINTH direct process alert (#71, #73, #82, #89, #92, #101/#102, #103,
+#105) with the same ask and the same result.
 
-Last lever added (2026-10-29): **`solver/embed_fit.py`** — queue item 9's own standing
+NEW THIS RUN, not just a re-count: a mechanical audit of every open PR's actual diff
+(`gh api repos/.../pulls/<n>/files`, grepped for added top-level `def`s in `solver/`),
+rather than another prose plea. Confirmed by diff inspection, not inference: PR #107
+(`container_candidates`, opened 2026-10-31, one day after #105) and PR #106 (3-/4-word
+substitution chains, opened 2026-10-30) are BOTH exact-functionality duplicates of code
+already sitting in #105's own branch (which itself supersedes #103/#104) — in #106's
+case, confirmed by actually cherry-picking its commit onto #105's lineage and finding
+the merge conflict resolves to an EMPTY diff once #105's richer version (which already
+had `use_3part`/`use_4part`/`use_phrase`) is kept; #107's container_candidates was
+already flagged as superseded by #105's own text, now independently re-confirmed. Both
+authors branched from stale `main` without checking the open-PR list first — #105's own
+explicit, concrete recommendation ("check `list_pull_requests` before writing new lever
+code") was not followed two and three days later. This is not a one-off: `container_candidates`
+alone now has at least 10 independent from-scratch implementations across this backlog
+(#42,46,47,54-60,62-64,67,72,77,79,87,92,104,107 all add it fresh against their own stale
+base), every one converging on the same flat/negative recall result.
+
+This run's branch (`daily/2026-11-01-consolidate`) is built ON TOP of #105's branch (not
+stale `main`), folds in nothing new from #106/#107 (confirmed duplicates, see above), and
+supersedes #103/#104/#105/#106/#107 and everything those already superseded (#38-#102).
+**Recommendation, unchanged in substance from #71 through #105, now with harder evidence**:
+merge this PR, close the rest of the backlog as superseded (the specific duplicate-set
+breakdown above makes that a mechanical, not a judgment, decision for most of it), and —
+since this is the ninth ask, the backlog grew rather than shrank after the eighth, and a
+notification was already sent once (2026-10-29) with no visible change — decide explicitly
+whether this daily routine should keep running as-is, run on a longer interval, or pause
+until someone can clear the queue. Flagged to the user directly again this run via
+notification, with the growth trend as the concrete new reason, not a repeat for its own sake.
+
+Last lever added (2026-11-01): **backlog consolidation, not a new mechanism** — same
+category of "lever" as #71/#73/#82/#89/#96/#103/#105, chosen deliberately over shipping an
+11th `container_candidates` or a 3rd `substitution` multi-part-chain reimplementation,
+both of which the diff audit above shows are already-answered questions sitting unmerged.
+Branched `daily/2026-11-01-consolidate` off current `main` (`9a4e622a8`; confirmed by
+`git diff --stat` that `main` moved only in unrelated `docs/nosim/`+`topics_news.json`
+site content since #105's base, zero `solver/` drift), merged in #105's branch clean (no
+conflicts), then attempted to cherry-pick #106's commit: conflicted in `candidates.py`
+exactly where expected (both sides touch `substitution_candidates`), resolved by keeping
+#105's version (functionally a superset — `use_3part`/`use_4part`/`use_phrase` and a
+`phrase_split()` acceptance path #106's `_charade_chains` rewrite doesn't have), which
+left the cherry-pick with an EMPTY diff once applied — direct, mechanical proof #106 adds
+nothing #105 doesn't already have, not an assumption. #107 was not cherry-picked at all,
+same reasoning, following #105's own prior disclosure that `container_candidates` already
+existed in its lineage.
+
+Ran `./bootstrap.sh --dev-only` fresh (52/52 puzzles via 14across this run, no hard wall).
+Independently transcribed 2026-05-29 (this project's canonical dev puzzle, its ~20th+
+transcription) from `data/images/2026-05-28.jpg`: all 15 across clues (two separate printed
+text columns — a labeled `אופקי` block for 1-13 and an unlabeled continuation for 15-26,
+the long-documented column-wrap) and all 13 down clues, 28/28 enum sums validated against
+the real 14across gold answer lengths (`data/answers/by_date/2026-05-29.json`) — 0
+mismatches, including resolving several enum/clue-number boundary ambiguities in the
+down-clue column by matching candidate splits against the known gold lengths rather than
+guessing. `python3 solver/build_dataset.py`: 28 rows, 0 len mismatches, 0 missing answers.
+
+MEASURED (executed, not estimated), to confirm the merge didn't silently regress anything:
+`python3 solver/candidates.py recall data/dataset/clues.jsonl eval --no-culture
+--no-retrieval` reproduces **3.6% (1/28) exactly** — the same single anagram hit
+(`יחפניות`, 2 down) every independent transcription of this date has found since
+2026-08-06, now on a branch carrying ~20 merged-in mechanisms (container, container_entity,
+double_definition, defspan_retrieval, homophone/homophone_vowel, substitution 1-4 part,
+charade, abbreviation, hwdb dictionary tier, anagram_phrase, segment/segment_substitution,
+embed_fit). Full defaults (culture+retrieval) also land at 3.6% — disclosed, not hidden:
+`private_defs/` was not re-crawled this run (out of scope for a consolidation lever), so
+retrieval had zero corpus to query and correctly contributed nothing. 8/9 affected modules'
+`selftest` pass clean (`candidates`, `lexicon`, `prove`, `substitutions`, `retrieve_defs`,
+`defspan`, `deffit`, `solve_pass`); `embed_fit.py selftest` could not run in this sandbox
+(needs `torch`+`transformers`, not installed here — #105 already confirmed the dependency
+itself is reachable and usable, just not pre-installed; not re-verified today, disclosed
+rather than silently skipped). `lexicon.held_out_answers()` / `retrieve_defs.held_out()`
+both confirmed (computed directly) to block all 28 of this puzzle's gold answers — `gold -
+blocked` empty for both. No forbidden reads (gold from the sanctioned 14across bootstrap
+scrape; clue text from the public CDN image only). No implausible jump — every number here
+is an exact historical reproduction.
+
+RESEARCH this run (two searches, full detail in RESEARCH.md): nothing new and transferable
+on cryptic-crossword candidate generation, definition-span location, or Hebrew morphology/
+tokenization since the last several passes — same conclusion as roughly the tenth
+consecutive research pass to come back empty on this specific question, which is itself
+worth naming honestly: the external-literature well for this exact angle looks exhausted
+for now, and the more productive use of research time going forward may be a different
+question (e.g. prompting/decomposition strategies for the live solve pass, per Sadallah et
+al. 2412.09012, already noted in earlier entries as plausibly transferable but never
+actually tried here).
+
+NOT DONE, honestly: did not implement a new candidate-generation or definition-span
+mechanism (today's budget went to consolidation + verification + the duplicate-diff audit
+— this project's own precedent treats that as a legitimate one-lever day); did not
+re-crawl `private_defs`; did not hand-triage every one of the 61 PRs individually (the
+mechanical `def`-name audit covers `container_candidates` and the 2026-10-30/31 pair
+concretely; the remaining ~50 were not individually diffed against this branch, so some
+may still carry genuinely new, non-duplicate content not folded in here — a risk disclosed,
+not resolved, by today's run); did not merge or close any PR (only the project owner can —
+see the alert above for why that limit is itself now the binding constraint); did not touch
+`main`; did not run `vercel --prod`.
+
+Previous lever (2026-10-29): **`solver/embed_fit.py`** — queue item 9's own standing
 gap, approached with a resource no prior research pass on this item had tried (see
 RESEARCH.md): AlephBERT dense embeddings, as a second, independent definition-fit
 re-ranker alongside `deffit.py` (which has measured `nonretrieval_scored_clues` at 0/28

@@ -3131,3 +3131,39 @@ synonymy or segmentation resource), confirmed it is real and reachable rather th
 assuming so, and built+measured a second, independent definition-fit re-ranker on it.
 The measured result is negative, cleanly root-caused, and disclosed as such rather
 than reframed — see DAILY.md.
+
+## 2026-11-01
+
+Two targeted searches this run, both coming back with nothing new and transferable —
+honestly worth naming as a pattern now, not just a one-off null.
+
+**Search 1: "cryptic crossword solver candidate generation definition span 2026 arxiv".**
+No 2026 paper surfaced. Results were the same cluster this project has cited repeatedly
+since 2026-08 (Cryptonite/Deits split-first PCFG parsing, arXiv 2103.01242; Andrews &
+Witteveen's prover-based candidate verification, arXiv 2407.08824; Sadallah et al.'s
+task-decomposition finding, arXiv 2412.09012). Nothing changes any standing judgement
+here: the split-first/PCFG approach still assumes an English-cryptic grammar this
+project's own definition-span diagnostic (25% locatable, 2026-08-19/10-25/10-26) has
+already measured doesn't hold cleanly for this setter; the decomposition finding remains
+the one genuinely-untried, plausibly-transferable idea from this cluster (apply it to the
+LIVE solve pass's own prompting, not to a new offline generator) — flagged as such since
+at least 2026-08-30's entry and still not attempted.
+
+**Search 2: "Hebrew morphology NLP tokenizer 2026 crossword wordplay LLM".** No crossword-
+or wordplay-specific material at all. General Hebrew-NLP results (AlephBERT, the Bar-Ilan
+morphology-aware tokenization study, Tsarfaty lab tokenizer-property research) are all
+already known to this project and already acted on where actionable (AlephBERT is now
+`embed_fit.py`, 2026-10-29).
+
+**Honest pattern, not just today's result**: this is roughly the tenth consecutive
+research pass (at minimum 2026-10-05/07/11/14/16/18/20/21/22/25/26/27/29/30/31 all
+recorded "nothing new" or a minor citation that didn't change anything) to find nothing
+externally that changes a standing judgement on candidate generation or definition-span
+location specifically. That is not evidence the literature is exhausted in general — it's
+evidence that THIS narrow question (give me a new mechanism or a new signal for THESE two
+problems) has been asked of the literature enough times that repeating it unmodified is
+no longer a good use of a day's research budget. The one standing, repeatedly-flagged,
+never-executed idea in this file is Sadallah et al.'s decomposition-into-subtasks finding
+applied to this project's own live `solve_pass.py` prompting (not a new offline tool) —
+if a future run wants a research-informed lever rather than another backlog-consolidation
+day, that is the concrete next thing to actually try, not search for again.
