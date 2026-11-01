@@ -7470,7 +7470,7 @@
  {
   "topic": "hadashot",
   "title": "חדשות השבוע",
-  "blurb": "התשבץ השבועי על מי ומה היו בחדשות, שבוע 41 של 2026. התשובות הן שמות ומקומות שהופיעו השבוע בכותרות, וההגדרות הן ההגדרות שלנו מן המילון, לא טקסט מן העיתון.",
+  "blurb": "התשבץ השבועי על מי ומה היו בחדשות, שבוע 44 של 2026. התשובות הן שמות ומקומות שהופיעו השבוע בכותרות, וההגדרות הן ההגדרות שלנו מן המילון, לא טקסט מן העיתון.",
   "tags": [
    "חדשות",
    "שבועי"
@@ -7493,21 +7493,36 @@
    {
     "num": 1,
     "dir": "down",
-    "answer": "מחלקה",
-    "display": "מחלקה",
-    "clue": "יחידת משנה בפלוגה",
+    "answer": "יוכבד",
+    "display": "יוכבד",
+    "clue": "אמם של משה, אהרן ומרים",
     "mechanism": "definition",
     "topical": true,
     "proof": {
      "type": "definition",
      "source": "bank",
      "topic": "hadashot",
-     "key": "מחלקה"
+     "key": "יוכבד"
     }
    },
    {
     "num": 2,
     "dir": "across",
+    "answer": "אלישע",
+    "display": "אלישע",
+    "clue": "הנביא, תלמידו של אליהו",
+    "mechanism": "definition",
+    "topical": true,
+    "proof": {
+     "type": "definition",
+     "source": "bank",
+     "topic": "hadashot",
+     "key": "אלישע"
+    }
+   },
+   {
+    "num": 2,
+    "dir": "down",
     "answer": "איראנ",
     "display": "איראן",
     "clue": "רפובליקה תיאוקרטית אסלאמית-שיעית במערב אסיה",
@@ -7521,210 +7536,195 @@
     }
    },
    {
-    "num": 2,
+    "num": 3,
     "dir": "down",
-    "answer": "אוסלו",
-    "display": "אוסלו",
-    "clue": "בירת נורווגיה",
+    "answer": "לקח",
+    "display": "לקח",
+    "clue": "נטל, ההפך מנתן",
+    "mechanism": "definition",
+    "topical": false,
+    "proof": {
+     "type": "definition",
+     "source": "fill",
+     "key": "לקח"
+    }
+   },
+   {
+    "num": 4,
+    "dir": "down",
+    "answer": "שקית",
+    "display": "שקית",
+    "clue": "אריזה גמישה לנשיאה",
+    "mechanism": "definition",
+    "topical": false,
+    "proof": {
+     "type": "definition",
+     "source": "fill",
+     "key": "שקית"
+    }
+   },
+   {
+    "num": 5,
+    "dir": "across",
+    "answer": "ותיק",
+    "display": "ותיק",
+    "clue": "מי שנמצא זמן רב",
+    "mechanism": "definition",
+    "topical": false,
+    "proof": {
+     "type": "definition",
+     "source": "fill",
+     "key": "ותיק"
+    }
+   },
+   {
+    "num": 6,
+    "dir": "across",
+    "answer": "רחמימ",
+    "display": "רחמים",
+    "clue": "השתתפות בצער הזולת",
+    "mechanism": "definition",
+    "topical": false,
+    "proof": {
+     "type": "definition",
+     "source": "fill",
+     "key": "רחמים"
+    }
+   },
+   {
+    "num": 7,
+    "dir": "down",
+    "answer": "מכולה",
+    "display": "מכולה",
+    "clue": "ארגז ענק להובלה בים",
+    "mechanism": "definition",
+    "topical": false,
+    "proof": {
+     "type": "definition",
+     "source": "fill",
+     "key": "מכולה"
+    }
+   },
+   {
+    "num": 8,
+    "dir": "down",
+    "answer": "מרכבה",
+    "display": "מרכבה",
+    "clue": "עגלת מלחמה עתיקה",
+    "mechanism": "definition",
+    "topical": false,
+    "proof": {
+     "type": "definition",
+     "source": "fill",
+     "key": "מרכבה"
+    }
+   },
+   {
+    "num": 9,
+    "dir": "across",
+    "answer": "בטא",
+    "display": "בטא",
+    "clue": "הגה, אמר",
+    "mechanism": "definition",
+    "topical": false,
+    "proof": {
+     "type": "definition",
+     "source": "fill",
+     "key": "בטא"
+    }
+   },
+   {
+    "num": 10,
+    "dir": "down",
+    "answer": "טירה",
+    "display": "טירה",
+    "clue": "מבצר של אביר",
+    "mechanism": "definition",
+    "topical": false,
+    "proof": {
+     "type": "definition",
+     "source": "fill",
+     "key": "טירה"
+    }
+   },
+   {
+    "num": 11,
+    "dir": "across",
+    "answer": "כתר",
+    "display": "כתר",
+    "clue": "סמל מלכות לראש",
+    "mechanism": "definition",
+    "topical": false,
+    "proof": {
+     "type": "definition",
+     "source": "fill",
+     "key": "כתר"
+    }
+   },
+   {
+    "num": 12,
+    "dir": "across",
+    "answer": "דינמו",
+    "display": "דינמו",
+    "clue": "מה שיוצא מן האותיות של דמיון",
+    "mechanism": "anagram",
+    "topical": false,
+    "proof": {
+     "type": "anagram",
+     "from": "דמיונ"
+    }
+   },
+   {
+    "num": 13,
+    "dir": "down",
+    "answer": "מעד",
+    "display": "מעד",
+    "clue": "החליק ונפל",
+    "mechanism": "definition",
+    "topical": false,
+    "proof": {
+     "type": "definition",
+     "source": "fill",
+     "key": "מעד"
+    }
+   },
+   {
+    "num": 14,
+    "dir": "across",
+    "answer": "עלוב",
+    "display": "עלוב",
+    "clue": "מסכן ודל",
+    "mechanism": "definition",
+    "topical": false,
+    "proof": {
+     "type": "definition",
+     "source": "fill",
+     "key": "עלוב"
+    }
+   },
+   {
+    "num": 15,
+    "dir": "across",
+    "answer": "יהודה",
+    "display": "יהודה",
+    "clue": "בנו הרביעי של יעקב, אבי השבט",
     "mechanism": "definition",
     "topical": true,
     "proof": {
      "type": "definition",
      "source": "bank",
      "topic": "hadashot",
-     "key": "אוסלו"
-    }
-   },
-   {
-    "num": 3,
-    "dir": "down",
-    "answer": "ילל",
-    "display": "ילל",
-    "clue": "השמיע קול בכי ממושך",
-    "mechanism": "definition",
-    "topical": false,
-    "proof": {
-     "type": "definition",
-     "source": "fill",
-     "key": "ילל"
-    }
-   },
-   {
-    "num": 4,
-    "dir": "down",
-    "answer": "אלופ",
-    "display": "אלוף",
-    "clue": "המנצח בתחרות, וגם דרגה בצבא",
-    "mechanism": "definition",
-    "topical": false,
-    "proof": {
-     "type": "definition",
-     "source": "fill",
-     "key": "אלוף"
-    }
-   },
-   {
-    "num": 5,
-    "dir": "across",
-    "answer": "חתול",
-    "display": "חתול",
-    "clue": "חיית מחמד מיללת",
-    "mechanism": "definition",
-    "topical": false,
-    "proof": {
-     "type": "definition",
-     "source": "fill",
-     "key": "חתול"
-    }
-   },
-   {
-    "num": 6,
-    "dir": "across",
-    "answer": "סלמונ",
-    "display": "סלמון",
-    "clue": "דג בשר ורוד העולה בנהרות",
-    "mechanism": "definition",
-    "topical": false,
-    "proof": {
-     "type": "definition",
-     "source": "fill",
-     "key": "סלמון"
-    }
-   },
-   {
-    "num": 7,
-    "dir": "down",
-    "answer": "מנהרה",
-    "display": "מנהרה",
-    "clue": "מעבר חצוב מתחת לאדמה",
-    "mechanism": "definition",
-    "topical": false,
-    "proof": {
-     "type": "definition",
-     "source": "fill",
-     "key": "מנהרה"
-    }
-   },
-   {
-    "num": 8,
-    "dir": "down",
-    "answer": "נחושת",
-    "display": "נחושת",
-    "clue": "מתכת אדמדמה שמוליכה חשמל",
-    "mechanism": "definition",
-    "topical": false,
-    "proof": {
-     "type": "definition",
-     "source": "fill",
-     "key": "נחושת"
-    }
-   },
-   {
-    "num": 9,
-    "dir": "across",
-    "answer": "קהל",
-    "display": "קהל",
-    "clue": "אוסף הצופים באולם",
-    "mechanism": "definition",
-    "topical": false,
-    "proof": {
-     "type": "definition",
-     "source": "fill",
-     "key": "קהל"
-    }
-   },
-   {
-    "num": 10,
-    "dir": "down",
-    "answer": "הפסד",
-    "display": "הפסד",
-    "clue": "כישלון בתחרות",
-    "mechanism": "definition",
-    "topical": false,
-    "proof": {
-     "type": "definition",
-     "source": "fill",
-     "key": "הפסד"
-    }
-   },
-   {
-    "num": 11,
-    "dir": "across",
-    "answer": "נפח",
-    "display": "נפח",
-    "clue": "מי שעובד ברזל באש",
-    "mechanism": "definition",
-    "topical": false,
-    "proof": {
-     "type": "definition",
-     "source": "fill",
-     "key": "נפח"
-    }
-   },
-   {
-    "num": 12,
-    "dir": "across",
-    "answer": "הפוגה",
-    "display": "הפוגה",
-    "clue": "הפסקה בלחימה",
-    "mechanism": "definition",
-    "topical": false,
-    "proof": {
-     "type": "definition",
-     "source": "fill",
-     "key": "הפוגה"
-    }
-   },
-   {
-    "num": 13,
-    "dir": "down",
-    "answer": "גבנ",
-    "display": "גבן",
-    "clue": "מי שמייצר גבינה",
-    "mechanism": "definition",
-    "topical": false,
-    "proof": {
-     "type": "definition",
-     "source": "fill",
-     "key": "גבן"
-    }
-   },
-   {
-    "num": 14,
-    "dir": "across",
-    "answer": "ברנש",
-    "display": "ברנש",
-    "clue": "אדם, בלשון הדיבור",
-    "mechanism": "definition",
-    "topical": false,
-    "proof": {
-     "type": "definition",
-     "source": "fill",
-     "key": "ברנש"
-    }
-   },
-   {
-    "num": 15,
-    "dir": "across",
-    "answer": "מדינה",
-    "display": "מדינה",
-    "clue": "ארץ עם ממשלה וגבולות",
-    "mechanism": "definition",
-    "topical": false,
-    "proof": {
-     "type": "definition",
-     "source": "fill",
-     "key": "מדינה"
+     "key": "יהודה"
     }
    }
   ],
-  "topicality": 0.188,
-  "difficulty": 0.225
+  "topicality": 0.25,
+  "difficulty": 0.3
  },
  {
   "topic": "hadashot",
   "title": "חדשות השבוע",
-  "blurb": "התשבץ השבועי על מי ומה היו בחדשות, שבוע 41 של 2026. התשובות הן שמות ומקומות שהופיעו השבוע בכותרות, וההגדרות הן ההגדרות שלנו מן המילון, לא טקסט מן העיתון.",
+  "blurb": "התשבץ השבועי על מי ומה היו בחדשות, שבוע 44 של 2026. התשובות הן שמות ומקומות שהופיעו השבוע בכותרות, וההגדרות הן ההגדרות שלנו מן המילון, לא טקסט מן העיתון.",
   "tags": [
    "חדשות",
    "שבועי"
@@ -7749,19 +7749,340 @@
    {
     "num": 1,
     "dir": "across",
-    "answer": "לילכ",
-    "display": "לילך",
-    "clue": "פרח סגלגל ריחני",
+    "answer": "נשבר",
+    "display": "נשבר",
+    "clue": "ערבוב האותיות של ברנש",
+    "mechanism": "anagram",
+    "topical": false,
+    "proof": {
+     "type": "anagram",
+     "from": "ברנש"
+    }
+   },
+   {
+    "num": 1,
+    "dir": "down",
+    "answer": "נא",
+    "display": "נא",
+    "clue": "מילת בקשה מנומסת",
     "mechanism": "definition",
     "topical": false,
     "proof": {
      "type": "definition",
      "source": "fill",
-     "key": "לילך"
+     "key": "נא"
     }
    },
    {
-    "num": 1,
+    "num": 2,
+    "dir": "down",
+    "answer": "שמ",
+    "display": "שם",
+    "clue": "מה שקוראים לאדם",
+    "mechanism": "definition",
+    "topical": false,
+    "proof": {
+     "type": "definition",
+     "source": "fill",
+     "key": "שם"
+    }
+   },
+   {
+    "num": 3,
+    "dir": "down",
+    "answer": "בנימינ",
+    "display": "בנימין",
+    "clue": "בנו הצעיר של יעקב",
+    "mechanism": "definition",
+    "topical": true,
+    "proof": {
+     "type": "definition",
+     "source": "bank",
+     "topic": "hadashot",
+     "key": "בנימין"
+    }
+   },
+   {
+    "num": 4,
+    "dir": "down",
+    "answer": "רמו",
+    "display": "רמו",
+    "clue": "יושב ברצף בתוך מורמונים",
+    "mechanism": "hidden",
+    "topical": false,
+    "proof": {
+     "type": "hidden",
+     "carrier": "מורמונימ",
+     "at": 2
+    }
+   },
+   {
+    "num": 5,
+    "dir": "across",
+    "answer": "מצא",
+    "display": "מצא",
+    "clue": "גילה מה שחיפש",
+    "mechanism": "definition",
+    "topical": false,
+    "proof": {
+     "type": "definition",
+     "source": "fill",
+     "key": "מצא"
+    }
+   },
+   {
+    "num": 5,
+    "dir": "down",
+    "answer": "מיטה",
+    "display": "מיטה",
+    "clue": "רהיט לשינה",
+    "mechanism": "definition",
+    "topical": false,
+    "proof": {
+     "type": "definition",
+     "source": "fill",
+     "key": "מיטה"
+    }
+   },
+   {
+    "num": 6,
+    "dir": "down",
+    "answer": "צפורה",
+    "display": "צפורה",
+    "clue": "מה שיוצא מן האותיות של צרופה",
+    "mechanism": "anagram",
+    "topical": false,
+    "proof": {
+     "type": "anagram",
+     "from": "צרופה"
+    }
+   },
+   {
+    "num": 7,
+    "dir": "down",
+    "answer": "אונס",
+    "display": "אונס",
+    "clue": "כפייה בכוח",
+    "mechanism": "definition",
+    "topical": false,
+    "proof": {
+     "type": "definition",
+     "source": "fill",
+     "key": "אונס"
+    }
+   },
+   {
+    "num": 8,
+    "dir": "across",
+    "answer": "אמנמ",
+    "display": "אמנם",
+    "clue": "אכן, באמת",
+    "mechanism": "definition",
+    "topical": false,
+    "proof": {
+     "type": "definition",
+     "source": "fill",
+     "key": "אמנם"
+    }
+   },
+   {
+    "num": 9,
+    "dir": "across",
+    "answer": "יפו",
+    "display": "יפו",
+    "clue": "מוסתר בתוך קוליפורמים",
+    "mechanism": "hidden",
+    "topical": false,
+    "proof": {
+     "type": "hidden",
+     "carrier": "קוליפורמימ",
+     "at": 3
+    }
+   },
+   {
+    "num": 10,
+    "dir": "across",
+    "answer": "יוסטונ",
+    "display": "יוסטון",
+    "clue": "עיר בטקסס, ארצות הברית",
+    "mechanism": "definition",
+    "topical": true,
+    "proof": {
+     "type": "definition",
+     "source": "bank",
+     "topic": "hadashot",
+     "key": "יוסטון"
+    }
+   },
+   {
+    "num": 11,
+    "dir": "across",
+    "answer": "דגמ",
+    "display": "דגם",
+    "clue": "דוגמה בקנה מידה קטן",
+    "mechanism": "definition",
+    "topical": false,
+    "proof": {
+     "type": "definition",
+     "source": "fill",
+     "key": "דגם"
+    }
+   },
+   {
+    "num": 11,
+    "dir": "down",
+    "answer": "דקלימ",
+    "display": "דקלים",
+    "clue": "עצי התמרים",
+    "mechanism": "definition",
+    "topical": false,
+    "proof": {
+     "type": "definition",
+     "source": "fill",
+     "key": "דקלים"
+    }
+   },
+   {
+    "num": 12,
+    "dir": "down",
+    "answer": "גרוש",
+    "display": "גרוש",
+    "clue": "מי שנפרד מאשתו בדין",
+    "mechanism": "definition",
+    "topical": false,
+    "proof": {
+     "type": "definition",
+     "source": "fill",
+     "key": "גרוש"
+    }
+   },
+   {
+    "num": 13,
+    "dir": "across",
+    "answer": "הרס",
+    "display": "הרס",
+    "clue": "ההפך מבנה",
+    "mechanism": "definition",
+    "topical": false,
+    "proof": {
+     "type": "definition",
+     "source": "fill",
+     "key": "הרס"
+    }
+   },
+   {
+    "num": 14,
+    "dir": "across",
+    "answer": "קריאה",
+    "display": "קריאה",
+    "clue": "הבנת הכתוב",
+    "mechanism": "definition",
+    "topical": false,
+    "proof": {
+     "type": "definition",
+     "source": "fill",
+     "key": "קריאה"
+    }
+   },
+   {
+    "num": 15,
+    "dir": "down",
+    "answer": "אדמה",
+    "display": "אדמה",
+    "clue": "הקרקע שדורכים עליה",
+    "mechanism": "definition",
+    "topical": false,
+    "proof": {
+     "type": "definition",
+     "source": "fill",
+     "key": "אדמה"
+    }
+   },
+   {
+    "num": 16,
+    "dir": "down",
+    "answer": "הומר",
+    "display": "הומר",
+    "clue": "מה שיוצא מן האותיות של מוהר",
+    "mechanism": "anagram",
+    "topical": false,
+    "proof": {
+     "type": "anagram",
+     "from": "מוהר"
+    }
+   },
+   {
+    "num": 17,
+    "dir": "across",
+    "answer": "לונדונ",
+    "display": "לונדון",
+    "clue": "בירת בריטניה",
+    "mechanism": "definition",
+    "topical": true,
+    "proof": {
+     "type": "definition",
+     "source": "bank",
+     "topic": "hadashot",
+     "key": "לונדון"
+    }
+   },
+   {
+    "num": 18,
+    "dir": "down",
+    "answer": "נשי",
+    "display": "נשי",
+    "clue": "קראו את ישן אחורה",
+    "mechanism": "reversal",
+    "topical": false,
+    "proof": {
+     "type": "reversal",
+     "from": "ישנ"
+    }
+   },
+   {
+    "num": 19,
+    "dir": "down",
+    "answer": "נהמ",
+    "display": "נהם",
+    "clue": "השמיע קול כמו דוב",
+    "mechanism": "definition",
+    "topical": false,
+    "proof": {
+     "type": "definition",
+     "source": "fill",
+     "key": "נהם"
+    }
+   },
+   {
+    "num": 20,
+    "dir": "across",
+    "answer": "יש",
+    "display": "יש",
+    "clue": "מסתתר בתוך אלישמע",
+    "mechanism": "hidden",
+    "topical": false,
+    "proof": {
+     "type": "hidden",
+     "carrier": "אלישמע",
+     "at": 2
+    }
+   },
+   {
+    "num": 21,
+    "dir": "across",
+    "answer": "ממשלה",
+    "display": "ממשלה",
+    "clue": "השרים שמנהלים את המדינה",
+    "mechanism": "definition",
+    "topical": false,
+    "proof": {
+     "type": "definition",
+     "source": "fill",
+     "key": "ממשלה"
+    }
+   },
+   {
+    "num": 22,
     "dir": "down",
     "answer": "לי",
     "display": "לי",
@@ -7775,333 +8096,17 @@
     }
    },
    {
-    "num": 2,
-    "dir": "down",
-    "answer": "יו",
-    "display": "יו",
-    "clue": "מסתתר בתוך אידיוטי",
-    "mechanism": "hidden",
-    "topical": false,
-    "proof": {
-     "type": "hidden",
-     "carrier": "אידיוטי",
-     "at": 3
-    }
-   },
-   {
-    "num": 3,
-    "dir": "down",
-    "answer": "לאומני",
-    "display": "לאומני",
-    "clue": "סדרו מחדש את האותיות של אלונים",
-    "mechanism": "anagram",
-    "topical": false,
-    "proof": {
-     "type": "anagram",
-     "from": "אלונימ"
-    }
-   },
-   {
-    "num": 4,
-    "dir": "down",
-    "answer": "כלי",
-    "display": "כלי",
-    "clue": "חפץ לשימוש, כמו סיר או פטיש",
-    "mechanism": "definition",
-    "topical": false,
-    "proof": {
-     "type": "definition",
-     "source": "fill",
-     "key": "כלי"
-    }
-   },
-   {
-    "num": 5,
-    "dir": "across",
-    "answer": "ינק",
-    "display": "ינק",
-    "clue": "שתה חלב משד אמו",
-    "mechanism": "definition",
-    "topical": false,
-    "proof": {
-     "type": "definition",
-     "source": "fill",
-     "key": "ינק"
-    }
-   },
-   {
-    "num": 5,
-    "dir": "down",
-    "answer": "ישרה",
-    "display": "ישרה",
-    "clue": "ערבוב האותיות של השיר",
-    "mechanism": "anagram",
-    "topical": false,
-    "proof": {
-     "type": "anagram",
-     "from": "השיר"
-    }
-   },
-   {
-    "num": 6,
-    "dir": "down",
-    "answer": "נפתלי",
-    "display": "נפתלי",
-    "clue": "בנו של יעקב ובלהה",
-    "mechanism": "definition",
-    "topical": true,
-    "proof": {
-     "type": "definition",
-     "source": "bank",
-     "topic": "hadashot",
-     "key": "נפתלי"
-    }
-   },
-   {
-    "num": 7,
-    "dir": "down",
-    "answer": "קנימ",
-    "display": "קנים",
-    "clue": "ערבוב האותיות של קמין",
-    "mechanism": "anagram",
-    "topical": false,
-    "proof": {
-     "type": "anagram",
-     "from": "קמינ"
-    }
-   },
-   {
-    "num": 8,
-    "dir": "across",
-    "answer": "יואל",
-    "display": "יואל",
-    "clue": "ערבוב האותיות של אולי",
-    "mechanism": "anagram",
-    "topical": false,
-    "proof": {
-     "type": "anagram",
-     "from": "אולי"
-    }
-   },
-   {
-    "num": 9,
-    "dir": "across",
-    "answer": "שפנ",
-    "display": "שפן",
-    "clue": "מכרסם עם אוזניים ארוכות",
-    "mechanism": "definition",
-    "topical": false,
-    "proof": {
-     "type": "definition",
-     "source": "fill",
-     "key": "שפן"
-    }
-   },
-   {
-    "num": 10,
-    "dir": "across",
-    "answer": "ויתרתי",
-    "display": "ויתרתי",
-    "clue": "מה שיוצא מן האותיות של תיירות",
-    "mechanism": "anagram",
-    "topical": false,
-    "proof": {
-     "type": "anagram",
-     "from": "תיירות"
-    }
-   },
-   {
-    "num": 11,
-    "dir": "across",
-    "answer": "אתמ",
-    "display": "אתם",
-    "clue": "כינוי הגוף לנוכחים רבים",
-    "mechanism": "definition",
-    "topical": false,
-    "proof": {
-     "type": "definition",
-     "source": "fill",
-     "key": "אתם"
-    }
-   },
-   {
-    "num": 11,
-    "dir": "down",
-    "answer": "איראנ",
-    "display": "איראן",
-    "clue": "רפובליקה תיאוקרטית אסלאמית-שיעית במערב אסיה",
-    "mechanism": "definition",
-    "topical": true,
-    "proof": {
-     "type": "definition",
-     "source": "bank",
-     "topic": "hadashot",
-     "key": "איראן"
-    }
-   },
-   {
-    "num": 12,
-    "dir": "down",
-    "answer": "תושב",
-    "display": "תושב",
-    "clue": "אותן אותיות כמו בושת, בסדר אחר",
-    "mechanism": "anagram",
-    "topical": false,
-    "proof": {
-     "type": "anagram",
-     "from": "בושת"
-    }
-   },
-   {
-    "num": 13,
-    "dir": "across",
-    "answer": "הלמ",
-    "display": "הלם",
-    "clue": "הכה בחוזקה, וגם זעזוע",
-    "mechanism": "definition",
-    "topical": false,
-    "proof": {
-     "type": "definition",
-     "source": "fill",
-     "key": "הלם"
-    }
-   },
-   {
-    "num": 14,
-    "dir": "across",
-    "answer": "יונתנ",
-    "display": "יונתן",
-    "clue": "בנו של שאול, ידידו של דוד",
-    "mechanism": "definition",
-    "topical": true,
-    "proof": {
-     "type": "definition",
-     "source": "bank",
-     "topic": "hadashot",
-     "key": "יונתן"
-    }
-   },
-   {
-    "num": 15,
-    "dir": "down",
-    "answer": "תמיר",
-    "display": "תמיר",
-    "clue": "אותן אותיות כמו תרים, בסדר אחר",
-    "mechanism": "anagram",
-    "topical": false,
-    "proof": {
-     "type": "anagram",
-     "from": "תרימ"
-    }
-   },
-   {
-    "num": 16,
-    "dir": "down",
-    "answer": "נובל",
-    "display": "נובל",
-    "clue": "ערבוב האותיות של בלון",
-    "mechanism": "anagram",
-    "topical": false,
-    "proof": {
-     "type": "anagram",
-     "from": "בלונ"
-    }
-   },
-   {
-    "num": 17,
-    "dir": "across",
-    "answer": "רשימות",
-    "display": "רשימות",
-    "clue": "כמה דפי פריטים",
-    "mechanism": "definition",
-    "topical": false,
-    "proof": {
-     "type": "definition",
-     "source": "fill",
-     "key": "רשימות"
-    }
-   },
-   {
-    "num": 18,
-    "dir": "down",
-    "answer": "תרמ",
-    "display": "תרם",
-    "clue": "נתן כסף למטרה טובה",
-    "mechanism": "definition",
-    "topical": false,
-    "proof": {
-     "type": "definition",
-     "source": "fill",
-     "key": "תרם"
-    }
-   },
-   {
-    "num": 19,
-    "dir": "down",
-    "answer": "לוט",
-    "display": "לוט",
-    "clue": "עטוף, מכוסה",
-    "mechanism": "definition",
-    "topical": false,
-    "proof": {
-     "type": "definition",
-     "source": "fill",
-     "key": "לוט"
-    }
-   },
-   {
-    "num": 20,
-    "dir": "across",
-    "answer": "אב",
-    "display": "אב",
-    "clue": "הורה זכר במשפחה",
-    "mechanism": "definition",
-    "topical": false,
-    "proof": {
-     "type": "definition",
-     "source": "fill",
-     "key": "אב"
-    }
-   },
-   {
-    "num": 21,
-    "dir": "across",
-    "answer": "יברחו",
-    "display": "יברחו",
-    "clue": "ערבוב האותיות של חיבור",
-    "mechanism": "anagram",
-    "topical": false,
-    "proof": {
-     "type": "anagram",
-     "from": "חיבור"
-    }
-   },
-   {
-    "num": 22,
-    "dir": "down",
-    "answer": "חנ",
-    "display": "חן",
-    "clue": "יופי ונעימות שמושכים את הלב",
-    "mechanism": "definition",
-    "topical": false,
-    "proof": {
-     "type": "definition",
-     "source": "fill",
-     "key": "חן"
-    }
-   },
-   {
     "num": 23,
     "dir": "across",
-    "answer": "פרלמנט",
-    "display": "פרלמנט",
-    "clue": "בית המחוקקים",
+    "answer": "נהריימ",
+    "display": "נהריים",
+    "clue": "שני זרמי מים גדולים",
     "mechanism": "definition",
     "topical": false,
     "proof": {
      "type": "definition",
      "source": "fill",
-     "key": "פרלמנט"
+     "key": "נהריים"
     }
    }
   ],
@@ -8213,12 +8218,12 @@
   },
   "wide": true,
   "topicality": 0.115,
-  "difficulty": 0.846
+  "difficulty": 0.612
  },
  {
   "topic": "hadashot",
   "title": "חדשות השבוע",
-  "blurb": "התשבץ השבועי על מי ומה היו בחדשות, שבוע 41 של 2026. התשובות הן שמות ומקומות שהופיעו השבוע בכותרות, וההגדרות הן ההגדרות שלנו מן המילון, לא טקסט מן העיתון.",
+  "blurb": "התשבץ השבועי על מי ומה היו בחדשות, שבוע 44 של 2026. התשובות הן שמות ומקומות שהופיעו השבוע בכותרות, וההגדרות הן ההגדרות שלנו מן המילון, לא טקסט מן העיתון.",
   "tags": [
    "חדשות",
    "שבועי"
@@ -8238,39 +8243,52 @@
    ".....#...",
    "...#....."
   ],
-  "seed": 20260830,
+  "seed": 7,
   "entries": [
    {
     "num": 1,
     "dir": "across",
-    "answer": "לוזונ",
-    "display": "לוזון",
-    "clue": "אי בפיליפינים",
+    "answer": "יהודה",
+    "display": "יהודה",
+    "clue": "בנו הרביעי של יעקב, אבי השבט",
     "mechanism": "definition",
     "topical": true,
     "proof": {
      "type": "definition",
      "source": "bank",
      "topic": "hadashot",
-     "key": "לוזון"
+     "key": "יהודה"
     }
    },
    {
     "num": 1,
     "dir": "down",
-    "answer": "לחי",
-    "display": "לחי",
-    "clue": "צד הפנים שמתחת לעין",
+    "answer": "יער",
+    "display": "יער",
+    "clue": "שטח מכוסה עצים",
     "mechanism": "definition",
     "topical": false,
     "proof": {
      "type": "definition",
      "source": "fill",
-     "key": "לחי"
+     "key": "יער"
     }
    },
    {
     "num": 2,
+    "dir": "down",
+    "answer": "הפק",
+    "display": "הפק",
+    "clue": "קפה בכיוון ההפוך",
+    "mechanism": "reversal",
+    "topical": false,
+    "proof": {
+     "type": "reversal",
+     "from": "קפה"
+    }
+   },
+   {
+    "num": 3,
     "dir": "down",
     "answer": "ורד",
     "display": "ורד",
@@ -8284,49 +8302,380 @@
     }
    },
    {
-    "num": 3,
-    "dir": "down",
-    "answer": "זכה",
-    "display": "זכה",
-    "clue": "ניצח בהגרלה",
-    "mechanism": "definition",
-    "topical": false,
-    "proof": {
-     "type": "definition",
-     "source": "fill",
-     "key": "זכה"
-    }
-   },
-   {
     "num": 4,
     "dir": "down",
-    "answer": "נתרו",
-    "display": "נתרו",
-    "clue": "מה שיוצא מן האותיות של תורן",
+    "answer": "הלוא",
+    "display": "הלוא",
+    "clue": "אותן אותיות כמו אוהל, בסדר אחר",
     "mechanism": "anagram",
     "topical": false,
     "proof": {
      "type": "anagram",
-     "from": "תורנ"
+     "from": "אוהל"
     }
    },
    {
     "num": 5,
     "dir": "across",
-    "answer": "דשנ",
-    "display": "דשן",
-    "clue": "חומר להזנת הצמחים",
+    "answer": "איש",
+    "display": "איש",
+    "clue": "אדם בוגר",
     "mechanism": "definition",
     "topical": false,
     "proof": {
      "type": "definition",
      "source": "fill",
-     "key": "דשן"
+     "key": "איש"
     }
    },
    {
     "num": 5,
     "dir": "down",
+    "answer": "אלישע",
+    "display": "אלישע",
+    "clue": "הנביא, תלמידו של אליהו",
+    "mechanism": "definition",
+    "topical": true,
+    "proof": {
+     "type": "definition",
+     "source": "bank",
+     "topic": "hadashot",
+     "key": "אלישע"
+    }
+   },
+   {
+    "num": 6,
+    "dir": "down",
+    "answer": "יוכבד",
+    "display": "יוכבד",
+    "clue": "אמם של משה, אהרן ומרים",
+    "mechanism": "definition",
+    "topical": true,
+    "proof": {
+     "type": "definition",
+     "source": "bank",
+     "topic": "hadashot",
+     "key": "יוכבד"
+    }
+   },
+   {
+    "num": 7,
+    "dir": "down",
+    "answer": "שמועה",
+    "display": "שמועה",
+    "clue": "ידיעה שאינה מאומתת",
+    "mechanism": "definition",
+    "topical": false,
+    "proof": {
+     "type": "definition",
+     "source": "fill",
+     "key": "שמועה"
+    }
+   },
+   {
+    "num": 8,
+    "dir": "across",
+    "answer": "עפר",
+    "display": "עפר",
+    "clue": "אדמה יבשה",
+    "mechanism": "definition",
+    "topical": false,
+    "proof": {
+     "type": "definition",
+     "source": "fill",
+     "key": "עפר"
+    }
+   },
+   {
+    "num": 9,
+    "dir": "across",
+    "answer": "לחלומ",
+    "display": "לחלום",
+    "clue": "ערבוב האותיות של למחול",
+    "mechanism": "anagram",
+    "topical": false,
+    "proof": {
+     "type": "anagram",
+     "from": "למחול"
+    }
+   },
+   {
+    "num": 10,
+    "dir": "across",
+    "answer": "רקדנו",
+    "display": "רקדנו",
+    "clue": "מה שיוצא מן האותיות של דוקרן",
+    "mechanism": "anagram",
+    "topical": false,
+    "proof": {
+     "type": "anagram",
+     "from": "דוקרנ"
+    }
+   },
+   {
+    "num": 11,
+    "dir": "down",
+    "answer": "נבוט",
+    "display": "נבוט",
+    "clue": "ערבוב האותיות של בטון",
+    "mechanism": "anagram",
+    "topical": false,
+    "proof": {
+     "type": "anagram",
+     "from": "בטונ"
+    }
+   },
+   {
+    "num": 12,
+    "dir": "across",
+    "answer": "יכו",
+    "display": "יכו",
+    "clue": "אפשר לקרוא אותו בתוך פסיכולוג",
+    "mechanism": "hidden",
+    "topical": false,
+    "proof": {
+     "type": "hidden",
+     "carrier": "פסיכולוג",
+     "at": 2
+    }
+   },
+   {
+    "num": 13,
+    "dir": "across",
+    "answer": "בארשבע",
+    "display": "באר שבע",
+    "clue": "עיר בישראל, בירת הנגב",
+    "mechanism": "definition",
+    "topical": true,
+    "proof": {
+     "type": "definition",
+     "source": "bank",
+     "topic": "hadashot",
+     "key": "באר שבע"
+    }
+   },
+   {
+    "num": 14,
+    "dir": "down",
+    "answer": "רונו",
+    "display": "רונו",
+    "clue": "יושב ברצף בתוך אסטרונומיה",
+    "mechanism": "hidden",
+    "topical": false,
+    "proof": {
+     "type": "hidden",
+     "carrier": "אסטרונומיה",
+     "at": 3
+    }
+   },
+   {
+    "num": 15,
+    "dir": "across",
+    "answer": "נגנו",
+    "display": "נגנו",
+    "clue": "מה שיוצא מן האותיות של גונן",
+    "mechanism": "anagram",
+    "topical": false,
+    "proof": {
+     "type": "anagram",
+     "from": "גוננ"
+    }
+   },
+   {
+    "num": 15,
+    "dir": "down",
+    "answer": "ניניק",
+    "display": "ניניק",
+    "clue": "אותן אותיות כמו קניין, בסדר אחר",
+    "mechanism": "anagram",
+    "topical": false,
+    "proof": {
+     "type": "anagram",
+     "from": "קניינ"
+    }
+   },
+   {
+    "num": 16,
+    "dir": "down",
+    "answer": "גופימ",
+    "display": "גופים",
+    "clue": "ערבוב האותיות של פיגום",
+    "mechanism": "anagram",
+    "topical": false,
+    "proof": {
+     "type": "anagram",
+     "from": "פיגומ"
+    }
+   },
+   {
+    "num": 17,
+    "dir": "down",
+    "answer": "נסיכה",
+    "display": "נסיכה",
+    "clue": "בת המלך",
+    "mechanism": "definition",
+    "topical": false,
+    "proof": {
+     "type": "definition",
+     "source": "fill",
+     "key": "נסיכה"
+    }
+   },
+   {
+    "num": 18,
+    "dir": "across",
+    "answer": "ועדה",
+    "display": "ועדה",
+    "clue": "קבוצה שממונה לדון בעניין",
+    "mechanism": "definition",
+    "topical": false,
+    "proof": {
+     "type": "definition",
+     "source": "fill",
+     "key": "ועדה"
+    }
+   },
+   {
+    "num": 19,
+    "dir": "across",
+    "answer": "יוסטונ",
+    "display": "יוסטון",
+    "clue": "עיר בטקסס, ארצות הברית",
+    "mechanism": "definition",
+    "topical": true,
+    "proof": {
+     "type": "definition",
+     "source": "bank",
+     "topic": "hadashot",
+     "key": "יוסטון"
+    }
+   },
+   {
+    "num": 20,
+    "dir": "down",
+    "answer": "ורוד",
+    "display": "ורוד",
+    "clue": "צבע בין אדום ללבן",
+    "mechanism": "definition",
+    "topical": false,
+    "proof": {
+     "type": "definition",
+     "source": "fill",
+     "key": "ורוד"
+    }
+   },
+   {
+    "num": 21,
+    "dir": "across",
+    "answer": "נפי",
+    "display": "נפי",
+    "clue": "יפן מהסוף להתחלה",
+    "mechanism": "reversal",
+    "topical": false,
+    "proof": {
+     "type": "reversal",
+     "from": "יפנ"
+    }
+   },
+   {
+    "num": 22,
+    "dir": "across",
+    "answer": "רוכסנ",
+    "display": "רוכסן",
+    "clue": "סוגר נגרר בעל שיניים",
+    "mechanism": "definition",
+    "topical": false,
+    "proof": {
+     "type": "definition",
+     "source": "fill",
+     "key": "רוכסן"
+    }
+   },
+   {
+    "num": 23,
+    "dir": "down",
+    "answer": "כלב",
+    "display": "כלב",
+    "clue": "חיית מחמד נאמנה",
+    "mechanism": "definition",
+    "topical": false,
+    "proof": {
+     "type": "definition",
+     "source": "fill",
+     "key": "כלב"
+    }
+   },
+   {
+    "num": 24,
+    "dir": "down",
+    "answer": "סבא",
+    "display": "סבא",
+    "clue": "אביו של ההורה",
+    "mechanism": "definition",
+    "topical": false,
+    "proof": {
+     "type": "definition",
+     "source": "fill",
+     "key": "סבא"
+    }
+   },
+   {
+    "num": 25,
+    "dir": "down",
+    "answer": "נשי",
+    "display": "נשי",
+    "clue": "קראו את ישן אחורה",
+    "mechanism": "reversal",
+    "topical": false,
+    "proof": {
+     "type": "reversal",
+     "from": "ישנ"
+    }
+   },
+   {
+    "num": 26,
+    "dir": "across",
+    "answer": "ייכבו",
+    "display": "ייכבו",
+    "clue": "מה שיוצא מן האותיות של כיבוי",
+    "mechanism": "anagram",
+    "topical": false,
+    "proof": {
+     "type": "anagram",
+     "from": "כיבוי"
+    }
+   },
+   {
+    "num": 27,
+    "dir": "across",
+    "answer": "לבש",
+    "display": "לבש",
+    "clue": "שם על גופו בגד",
+    "mechanism": "definition",
+    "topical": false,
+    "proof": {
+     "type": "definition",
+     "source": "fill",
+     "key": "לבש"
+    }
+   },
+   {
+    "num": 28,
+    "dir": "across",
+    "answer": "קמה",
+    "display": "קמה",
+    "clue": "תבואה בשדה לפני הקציר",
+    "mechanism": "definition",
+    "topical": false,
+    "proof": {
+     "type": "definition",
+     "source": "fill",
+     "key": "קמה"
+    }
+   },
+   {
+    "num": 29,
+    "dir": "across",
     "answer": "דובאי",
     "display": "דובאי",
     "clue": "העיר הגדולה באיחוד האמירויות",
@@ -8338,359 +8687,15 @@
      "topic": "hadashot",
      "key": "דובאי"
     }
-   },
-   {
-    "num": 6,
-    "dir": "down",
-    "answer": "שיקגו",
-    "display": "שיקגו",
-    "clue": "עיר בארצות הברית לחוף אגם מישיגן",
-    "mechanism": "definition",
-    "topical": true,
-    "proof": {
-     "type": "definition",
-     "source": "bank",
-     "topic": "hadashot",
-     "key": "שיקגו"
-    }
-   },
-   {
-    "num": 7,
-    "dir": "down",
-    "answer": "נמרוד",
-    "display": "נמרוד",
-    "clue": "גיבור הציד הראשון בארץ",
-    "mechanism": "definition",
-    "topical": true,
-    "proof": {
-     "type": "definition",
-     "source": "bank",
-     "topic": "hadashot",
-     "key": "נמרוד"
-    }
-   },
-   {
-    "num": 8,
-    "dir": "across",
-    "answer": "חרכ",
-    "display": "חרך",
-    "clue": "פתח צר בקיר",
-    "mechanism": "definition",
-    "topical": false,
-    "proof": {
-     "type": "definition",
-     "source": "fill",
-     "key": "חרך"
-    }
-   },
-   {
-    "num": 9,
-    "dir": "across",
-    "answer": "תסוימ",
-    "display": "תסוים",
-    "clue": "מה שיוצא מן האותיות של סיומת",
-    "mechanism": "anagram",
-    "topical": false,
-    "proof": {
-     "type": "anagram",
-     "from": "סיומת"
-    }
-   },
-   {
-    "num": 10,
-    "dir": "across",
-    "answer": "ידהיר",
-    "display": "ידהיר",
-    "clue": "אותן אותיות כמו ירידה, בסדר אחר",
-    "mechanism": "anagram",
-    "topical": false,
-    "proof": {
-     "type": "anagram",
-     "from": "ירידה"
-    }
-   },
-   {
-    "num": 11,
-    "dir": "down",
-    "answer": "יתיב",
-    "display": "יתיב",
-    "clue": "ביתי מהסוף להתחלה",
-    "mechanism": "reversal",
-    "topical": false,
-    "proof": {
-     "type": "reversal",
-     "from": "ביתי"
-    }
-   },
-   {
-    "num": 12,
-    "dir": "across",
-    "answer": "בקר",
-    "display": "בקר",
-    "clue": "פרות ושוורים",
-    "mechanism": "definition",
-    "topical": false,
-    "proof": {
-     "type": "definition",
-     "source": "fill",
-     "key": "בקר"
-    }
-   },
-   {
-    "num": 13,
-    "dir": "across",
-    "answer": "תודאגו",
-    "display": "תודאגו",
-    "clue": "אותן אותיות כמו דואגות, בסדר אחר",
-    "mechanism": "anagram",
-    "topical": false,
-    "proof": {
-     "type": "anagram",
-     "from": "דואגות"
-    }
-   },
-   {
-    "num": 14,
-    "dir": "down",
-    "answer": "דאבי",
-    "display": "דאבי",
-    "clue": "אותן אותיות כמו אדיב, בסדר אחר",
-    "mechanism": "anagram",
-    "topical": false,
-    "proof": {
-     "type": "anagram",
-     "from": "אדיב"
-    }
-   },
-   {
-    "num": 15,
-    "dir": "across",
-    "answer": "קדרי",
-    "display": "קדרי",
-    "clue": "מה שיוצא מן האותיות של ריקד",
-    "mechanism": "anagram",
-    "topical": false,
-    "proof": {
-     "type": "anagram",
-     "from": "ריקד"
-    }
-   },
-   {
-    "num": 15,
-    "dir": "down",
-    "answer": "קתדרה",
-    "display": "קתדרה",
-    "clue": "כיסא הפרופסור",
-    "mechanism": "definition",
-    "topical": false,
-    "proof": {
-     "type": "definition",
-     "source": "fill",
-     "key": "קתדרה"
-    }
-   },
-   {
-    "num": 16,
-    "dir": "down",
-    "answer": "דליימ",
-    "display": "דליים",
-    "clue": "מה שיוצא מן האותיות של ילדים",
-    "mechanism": "anagram",
-    "topical": false,
-    "proof": {
-     "type": "anagram",
-     "from": "ילדימ"
-    }
-   },
-   {
-    "num": 17,
-    "dir": "down",
-    "answer": "ראווה",
-    "display": "ראווה",
-    "clue": "הצגה לעיני כול",
-    "mechanism": "definition",
-    "topical": false,
-    "proof": {
-     "type": "definition",
-     "source": "fill",
-     "key": "ראווה"
-    }
-   },
-   {
-    "num": 18,
-    "dir": "across",
-    "answer": "איוד",
-    "display": "איוד",
-    "clue": "אותן אותיות כמו ואדי, בסדר אחר",
-    "mechanism": "anagram",
-    "topical": false,
-    "proof": {
-     "type": "anagram",
-     "from": "ואדי"
-    }
-   },
-   {
-    "num": 19,
-    "dir": "across",
-    "answer": "תלאביב",
-    "display": "תל אביב",
-    "clue": "העיר הגדולה בגוש דן",
-    "mechanism": "definition",
-    "topical": true,
-    "proof": {
-     "type": "definition",
-     "source": "bank",
-     "topic": "hadashot",
-     "key": "תל אביב"
-    }
-   },
-   {
-    "num": 20,
-    "dir": "down",
-    "answer": "יצחק",
-    "display": "יצחק",
-    "clue": "אחד משלושת אבות עם ישראל",
-    "mechanism": "definition",
-    "topical": true,
-    "proof": {
-     "type": "definition",
-     "source": "bank",
-     "topic": "hadashot",
-     "key": "יצחק"
-    }
-   },
-   {
-    "num": 21,
-    "dir": "across",
-    "answer": "דיו",
-    "display": "דיו",
-    "clue": "הנוזל שכותבים בו",
-    "mechanism": "definition",
-    "topical": false,
-    "proof": {
-     "type": "definition",
-     "source": "fill",
-     "key": "דיו"
-    }
-   },
-   {
-    "num": 22,
-    "dir": "across",
-    "answer": "צינור",
-    "display": "צינור",
-    "clue": "מוביל נוזל או גז",
-    "mechanism": "definition",
-    "topical": false,
-    "proof": {
-     "type": "definition",
-     "source": "fill",
-     "key": "צינור"
-    }
-   },
-   {
-    "num": 23,
-    "dir": "down",
-    "answer": "נאמ",
-    "display": "נאם",
-    "clue": "נשא דברים לפני קהל",
-    "mechanism": "definition",
-    "topical": false,
-    "proof": {
-     "type": "definition",
-     "source": "fill",
-     "key": "נאם"
-    }
-   },
-   {
-    "num": 24,
-    "dir": "down",
-    "answer": "ותר",
-    "display": "ותר",
-    "clue": "אפשר לקרוא אותו בתוך מוותרים",
-    "mechanism": "hidden",
-    "topical": false,
-    "proof": {
-     "type": "hidden",
-     "carrier": "מוותרימ",
-     "at": 2
-    }
-   },
-   {
-    "num": 25,
-    "dir": "down",
-    "answer": "רמו",
-    "display": "רמו",
-    "clue": "יושב ברצף בתוך מורמונים",
-    "mechanism": "hidden",
-    "topical": false,
-    "proof": {
-     "type": "hidden",
-     "carrier": "מורמונימ",
-     "at": 2
-    }
-   },
-   {
-    "num": 26,
-    "dir": "across",
-    "answer": "ריווח",
-    "display": "ריווח",
-    "clue": "ערבוב האותיות של חיוור",
-    "mechanism": "anagram",
-    "topical": false,
-    "proof": {
-     "type": "anagram",
-     "from": "חיוור"
-    }
-   },
-   {
-    "num": 27,
-    "dir": "across",
-    "answer": "אתמ",
-    "display": "אתם",
-    "clue": "כינוי הגוף לנוכחים רבים",
-    "mechanism": "definition",
-    "topical": false,
-    "proof": {
-     "type": "definition",
-     "source": "fill",
-     "key": "אתם"
-    }
-   },
-   {
-    "num": 28,
-    "dir": "across",
-    "answer": "המה",
-    "display": "המה",
-    "clue": "רעש של המון",
-    "mechanism": "definition",
-    "topical": false,
-    "proof": {
-     "type": "definition",
-     "source": "fill",
-     "key": "המה"
-    }
-   },
-   {
-    "num": 29,
-    "dir": "across",
-    "answer": "קומרו",
-    "display": "קומרו",
-    "clue": "מה שיוצא מן האותיות של מרוקו",
-    "mechanism": "anagram",
-    "topical": false,
-    "proof": {
-     "type": "anagram",
-     "from": "מרוקו"
-    }
    }
   ],
   "topicality": 0.188,
-  "difficulty": 1.134
+  "difficulty": 1.141
  },
  {
   "topic": "hadashot",
   "title": "חדשות השבוע",
-  "blurb": "התשבץ השבועי על מי ומה היו בחדשות, שבוע 41 של 2026. התשובות הן שמות ומקומות שהופיעו השבוע בכותרות, וההגדרות הן ההגדרות שלנו מן המילון, לא טקסט מן העיתון.",
+  "blurb": "התשבץ השבועי על מי ומה היו בחדשות, שבוע 44 של 2026. התשובות הן שמות ומקומות שהופיעו השבוע בכותרות, וההגדרות הן ההגדרות שלנו מן המילון, לא טקסט מן העיתון.",
   "tags": [
    "חדשות",
    "שבועי"
@@ -8715,90 +8720,8 @@
    {
     "num": 1,
     "dir": "across",
-    "answer": "הושמ",
-    "display": "הושם",
-    "clue": "סדרו מחדש את האותיות של שוהם",
-    "mechanism": "anagram",
-    "topical": false,
-    "proof": {
-     "type": "anagram",
-     "from": "שוהמ"
-    }
-   },
-   {
-    "num": 1,
-    "dir": "down",
-    "answer": "הב",
-    "display": "הב",
-    "clue": "חבוי בתוך התלהבנו",
-    "mechanism": "hidden",
-    "topical": false,
-    "proof": {
-     "type": "hidden",
-     "carrier": "התלהבנו",
-     "at": 3
-    }
-   },
-   {
-    "num": 2,
-    "dir": "down",
-    "answer": "וי",
-    "display": "וי",
-    "clue": "מסתתר בתוך אווירה",
-    "mechanism": "hidden",
-    "topical": false,
-    "proof": {
-     "type": "hidden",
-     "carrier": "אווירה",
-     "at": 2
-    }
-   },
-   {
-    "num": 3,
-    "dir": "down",
-    "answer": "שיתקנו",
-    "display": "שיתקנו",
-    "clue": "סדרו מחדש את האותיות של נשיקות",
-    "mechanism": "anagram",
-    "topical": false,
-    "proof": {
-     "type": "anagram",
-     "from": "נשיקות"
-    }
-   },
-   {
-    "num": 4,
-    "dir": "down",
-    "answer": "מצת",
-    "display": "מצת",
-    "clue": "חבוי בתוך מתומצתות",
-    "mechanism": "hidden",
-    "topical": false,
-    "proof": {
-     "type": "hidden",
-     "carrier": "מתומצתות",
-     "at": 3
-    }
-   },
-   {
-    "num": 5,
-    "dir": "across",
-    "answer": "בלי",
-    "display": "בלי",
-    "clue": "חבוי בתוך ביבליוגרפיה",
-    "mechanism": "hidden",
-    "topical": false,
-    "proof": {
-     "type": "hidden",
-     "carrier": "ביבליוגרפיה",
-     "at": 2
-    }
-   },
-   {
-    "num": 5,
-    "dir": "down",
-    "answer": "ברכי",
-    "display": "ברכי",
+    "answer": "רכבי",
+    "display": "רכבי",
     "clue": "אותן אותיות כמו ביכר, בסדר אחר",
     "mechanism": "anagram",
     "topical": false,
@@ -8808,265 +8731,342 @@
     }
    },
    {
-    "num": 6,
+    "num": 1,
     "dir": "down",
-    "answer": "לוזונ",
-    "display": "לוזון",
-    "clue": "אי בפיליפינים",
+    "answer": "רה",
+    "display": "רה",
+    "clue": "אפשר לקרוא אותו בתוך מהרהרים",
+    "mechanism": "hidden",
+    "topical": false,
+    "proof": {
+     "type": "hidden",
+     "carrier": "מהרהרימ",
+     "at": 2
+    }
+   },
+   {
+    "num": 2,
+    "dir": "down",
+    "answer": "כי",
+    "display": "כי",
+    "clue": "חבוי בתוך איכילוב",
+    "mechanism": "hidden",
+    "topical": false,
+    "proof": {
+     "type": "hidden",
+     "carrier": "איכילוב",
+     "at": 2
+    }
+   },
+   {
+    "num": 3,
+    "dir": "down",
+    "answer": "בנימינ",
+    "display": "בנימין",
+    "clue": "בנו הצעיר של יעקב",
     "mechanism": "definition",
     "topical": true,
     "proof": {
      "type": "definition",
      "source": "bank",
      "topic": "hadashot",
-     "key": "לוזון"
+     "key": "בנימין"
+    }
+   },
+   {
+    "num": 4,
+    "dir": "down",
+    "answer": "יפו",
+    "display": "יפו",
+    "clue": "מוסתר בתוך קוליפורמים",
+    "mechanism": "hidden",
+    "topical": false,
+    "proof": {
+     "type": "hidden",
+     "carrier": "קוליפורמימ",
+     "at": 3
+    }
+   },
+   {
+    "num": 5,
+    "dir": "across",
+    "answer": "פינ",
+    "display": "פין",
+    "clue": "אפשר לקרוא אותו בתוך פיליפינים",
+    "mechanism": "hidden",
+    "topical": false,
+    "proof": {
+     "type": "hidden",
+     "carrier": "פיליפינימ",
+     "at": 4
+    }
+   },
+   {
+    "num": 5,
+    "dir": "down",
+    "answer": "פרטו",
+    "display": "פרטו",
+    "clue": "אותן אותיות כמו טרוף, בסדר אחר",
+    "mechanism": "anagram",
+    "topical": false,
+    "proof": {
+     "type": "anagram",
+     "from": "טרופ"
+    }
+   },
+   {
+    "num": 6,
+    "dir": "down",
+    "answer": "ידווש",
+    "display": "ידווש",
+    "clue": "שוודי בכיוון ההפוך",
+    "mechanism": "reversal",
+    "topical": false,
+    "proof": {
+     "type": "reversal",
+     "from": "שוודי"
     }
    },
    {
     "num": 7,
     "dir": "down",
-    "answer": "יוונ",
-    "display": "יוון",
-    "clue": "מדינה בדרום אירופה השוכנת לחוף הים התיכון",
-    "mechanism": "definition",
-    "topical": true,
+    "answer": "נינק",
+    "display": "נינק",
+    "clue": "סדרו מחדש את האותיות של קינן",
+    "mechanism": "anagram",
+    "topical": false,
     "proof": {
-     "type": "definition",
-     "source": "bank",
-     "topic": "hadashot",
-     "key": "יוון"
+     "type": "anagram",
+     "from": "קיננ"
     }
    },
    {
     "num": 8,
     "dir": "across",
-    "answer": "בייצ",
-    "display": "בייץ",
-    "clue": "אותן אותיות כמו יציב, בסדר אחר",
+    "answer": "הינפ",
+    "display": "הינף",
+    "clue": "אותן אותיות כמו פינה, בסדר אחר",
     "mechanism": "anagram",
     "topical": false,
     "proof": {
      "type": "anagram",
-     "from": "יציב"
+     "from": "פינה"
     }
    },
    {
     "num": 9,
     "dir": "across",
-    "answer": "רוו",
-    "display": "רוו",
-    "clue": "מוסתר בתוך נורווגיה",
+    "answer": "רדי",
+    "display": "רדי",
+    "clue": "מסתתר בתוך אקורדיון",
     "mechanism": "hidden",
     "topical": false,
     "proof": {
      "type": "hidden",
-     "carrier": "נורווגיה",
-     "at": 2
+     "carrier": "אקורדיונ",
+     "at": 3
     }
    },
    {
     "num": 10,
     "dir": "across",
-    "answer": "תתרכזו",
-    "display": "תתרכזו",
-    "clue": "ערבוב האותיות של תזכורת",
-    "mechanism": "anagram",
-    "topical": false,
-    "proof": {
-     "type": "anagram",
-     "from": "תזכורת"
-    }
-   },
-   {
-    "num": 11,
-    "dir": "across",
-    "answer": "סרק",
-    "display": "סרק",
-    "clue": "הפוך את קרס",
-    "mechanism": "reversal",
-    "topical": false,
-    "proof": {
-     "type": "reversal",
-     "from": "קרס"
-    }
-   },
-   {
-    "num": 11,
-    "dir": "down",
-    "answer": "סידני",
-    "display": "סידני",
-    "clue": "העיר הגדולה באוסטרליה",
+    "answer": "יוסטונ",
+    "display": "יוסטון",
+    "clue": "עיר בטקסס, ארצות הברית",
     "mechanism": "definition",
     "topical": true,
     "proof": {
      "type": "definition",
      "source": "bank",
      "topic": "hadashot",
-     "key": "סידני"
+     "key": "יוסטון"
+    }
+   },
+   {
+    "num": 11,
+    "dir": "across",
+    "answer": "גזמ",
+    "display": "גזם",
+    "clue": "קראו את מזג אחורה",
+    "mechanism": "reversal",
+    "topical": false,
+    "proof": {
+     "type": "reversal",
+     "from": "מזג"
+    }
+   },
+   {
+    "num": 11,
+    "dir": "down",
+    "answer": "גדליה",
+    "display": "גדליה",
+    "clue": "ערבוב האותיות של הגליד",
+    "mechanism": "anagram",
+    "topical": false,
+    "proof": {
+     "type": "anagram",
+     "from": "הגליד"
     }
    },
    {
     "num": 12,
     "dir": "down",
-    "answer": "רואי",
-    "display": "רואי",
-    "clue": "קראו את יאור אחורה",
-    "mechanism": "reversal",
+    "answer": "זנוח",
+    "display": "זנוח",
+    "clue": "ערבוב האותיות של חזון",
+    "mechanism": "anagram",
     "topical": false,
     "proof": {
-     "type": "reversal",
-     "from": "יאור"
+     "type": "anagram",
+     "from": "חזונ"
     }
    },
    {
     "num": 13,
     "dir": "across",
-    "answer": "יונ",
-    "display": "יון",
-    "clue": "אפשר לקרוא אותו בתוך מריונטה",
-    "mechanism": "hidden",
+    "answer": "ווק",
+    "display": "ווק",
+    "clue": "קוו מהסוף להתחלה",
+    "mechanism": "reversal",
     "topical": false,
     "proof": {
-     "type": "hidden",
-     "carrier": "מריונטה",
-     "at": 2
+     "type": "reversal",
+     "from": "קוו"
     }
    },
    {
     "num": 14,
     "dir": "across",
-    "answer": "יונתנ",
-    "display": "יונתן",
-    "clue": "בנו של שאול, ידידו של דוד",
+    "answer": "דניימ",
+    "display": "דניים",
+    "clue": "מה שיוצא מן האותיות של דמיין",
+    "mechanism": "anagram",
+    "topical": false,
+    "proof": {
+     "type": "anagram",
+     "from": "דמיינ"
+    }
+   },
+   {
+    "num": 15,
+    "dir": "down",
+    "answer": "ידעת",
+    "display": "ידעת",
+    "clue": "סדרו מחדש את האותיות של עתיד",
+    "mechanism": "anagram",
+    "topical": false,
+    "proof": {
+     "type": "anagram",
+     "from": "עתיד"
+    }
+   },
+   {
+    "num": 16,
+    "dir": "down",
+    "answer": "מוקא",
+    "display": "מוקא",
+    "clue": "קראו את אקום אחורה",
+    "mechanism": "reversal",
+    "topical": false,
+    "proof": {
+     "type": "reversal",
+     "from": "אקומ"
+    }
+   },
+   {
+    "num": 17,
+    "dir": "across",
+    "answer": "לונדונ",
+    "display": "לונדון",
+    "clue": "בירת בריטניה",
     "mechanism": "definition",
     "topical": true,
     "proof": {
      "type": "definition",
      "source": "bank",
      "topic": "hadashot",
-     "key": "יונתן"
-    }
-   },
-   {
-    "num": 15,
-    "dir": "down",
-    "answer": "תנמק",
-    "display": "תנמק",
-    "clue": "מה שיוצא מן האותיות של מתקן",
-    "mechanism": "anagram",
-    "topical": false,
-    "proof": {
-     "type": "anagram",
-     "from": "מתקנ"
-    }
-   },
-   {
-    "num": 16,
-    "dir": "down",
-    "answer": "נייד",
-    "display": "נייד",
-    "clue": "דיין מהסוף להתחלה",
-    "mechanism": "reversal",
-    "topical": false,
-    "proof": {
-     "type": "reversal",
-     "from": "דיינ"
-    }
-   },
-   {
-    "num": 17,
-    "dir": "across",
-    "answer": "דאונימ",
-    "display": "דאונים",
-    "clue": "מה שיוצא מן האותיות של אדמוני",
-    "mechanism": "anagram",
-    "topical": false,
-    "proof": {
-     "type": "anagram",
-     "from": "אדמוני"
+     "key": "לונדון"
     }
    },
    {
     "num": 18,
     "dir": "down",
-    "answer": "מאי",
-    "display": "מאי",
-    "clue": "יושב ברצף בתוך עצמאיות",
+    "answer": "נומ",
+    "display": "נום",
+    "clue": "אפשר לקרוא אותו בתוך אסטרונומיה",
     "mechanism": "hidden",
     "topical": false,
     "proof": {
      "type": "hidden",
-     "carrier": "עצמאיות",
-     "at": 2
+     "carrier": "אסטרונומיה",
+     "at": 5
     }
    },
    {
     "num": 19,
     "dir": "down",
-    "answer": "ויי",
-    "display": "ויי",
-    "clue": "יושב ברצף בתוך לווייתן",
-    "mechanism": "hidden",
+    "answer": "להמ",
+    "display": "להם",
+    "clue": "קראו את מהל אחורה",
+    "mechanism": "reversal",
     "topical": false,
     "proof": {
-     "type": "hidden",
-     "carrier": "לווייתנ",
-     "at": 2
+     "type": "reversal",
+     "from": "מהל"
     }
    },
    {
     "num": 20,
     "dir": "across",
-    "answer": "ני",
-    "display": "ני",
-    "clue": "חבוי בתוך אוניברסיטה",
+    "answer": "יח",
+    "display": "יח",
+    "clue": "יושב ברצף בתוך אביחיל",
     "mechanism": "hidden",
     "topical": false,
     "proof": {
      "type": "hidden",
-     "carrier": "אוניברסיטה",
+     "carrier": "אביחיל",
      "at": 2
     }
    },
    {
     "num": 21,
     "dir": "across",
-    "answer": "מיאמי",
-    "display": "מיאמי",
-    "clue": "עיר בפלורידה, ארצות הברית",
-    "mechanism": "definition",
-    "topical": true,
+    "answer": "עקומה",
+    "display": "עקומה",
+    "clue": "סדרו מחדש את האותיות של מועקה",
+    "mechanism": "anagram",
+    "topical": false,
     "proof": {
-     "type": "definition",
-     "source": "bank",
-     "topic": "hadashot",
-     "key": "מיאמי"
+     "type": "anagram",
+     "from": "מועקה"
     }
    },
    {
     "num": 22,
     "dir": "down",
-    "answer": "מש",
-    "display": "מש",
-    "clue": "שם בכיוון ההפוך",
-    "mechanism": "reversal",
+    "answer": "מי",
+    "display": "מי",
+    "clue": "אפשר לקרוא אותו בתוך אימייל",
+    "mechanism": "hidden",
     "topical": false,
     "proof": {
-     "type": "reversal",
-     "from": "שמ"
+     "type": "hidden",
+     "carrier": "אימייל",
+     "at": 2
     }
    },
    {
     "num": 23,
     "dir": "across",
-    "answer": "הקדישי",
-    "display": "הקדישי",
-    "clue": "אותן אותיות כמו שקדייה, בסדר אחר",
+    "answer": "התאמימ",
+    "display": "התאמים",
+    "clue": "מה שיוצא מן האותיות של מתאימה",
     "mechanism": "anagram",
     "topical": false,
     "proof": {
      "type": "anagram",
-     "from": "שקדייה"
+     "from": "מתאימה"
     }
    }
   ],
@@ -9176,8 +9176,8 @@
     2
    ]
   },
-  "topicality": 0.192,
-  "difficulty": 1.762
+  "topicality": 0.115,
+  "difficulty": 1.981
  },
  {
   "topic": "historia",
