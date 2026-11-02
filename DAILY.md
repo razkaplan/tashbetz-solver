@@ -17,13 +17,88 @@ tree - a stale CLI deploy overwrote the live site on 2026-08-29. See CLAUDE.md.
 | Best single puzzle | 2026-05-29: 95% / 71% / 68% ✓ all targets | |
 | Hardest puzzle | 2026-06-05: 100% / 43% / 43% | coverage stuck |
 | **Candidate recall@N (new, offline, mechanical only)** | **3.6% (1/28)**, avg 11.6 candidates/clue (capped), on 2026-05-29 — UNCHANGED after adding substitution+homograph mechanisms | not yet a target — diagnostic |
+| **Candidate recall@N with `gematria_candidates` added (new, offline, 2026-11-02)** | **3.6% (1/28), UNCHANGED**, on 2026-05-29 (a fourth independent transcription of this puzzle, reproducing the historical 3.6%/1-28 baseline exactly) — mechanism fired on 2/28 clues (7A, 23A — a real idiom match, "ל"ו צדיקים"=36) but produced zero candidates passing the length/lexicon filter on either | not yet a target — small-n (1 puzzle) diagnostic, see log |
 | **Candidate recall@N with `retrieval_candidates` added (new, offline, BM25 definition retrieval)** | **7.1% (2/28)** on 2026-05-29 (up from 3.6%); **SECOND puzzle, 2026-08-26: 0.0% (0/18) → 5.6% (1/18)** on 2026-06-26 (partial, 18/28 clues); **THIRD puzzle, 2026-08-27: 0.0% (0/19) → 0.0% (0/19), UNCHANGED** on 2026-07-10; **2026-08-28, RE-MEASURED on 2026-05-29 with a GROWN corpus (mordo re-crawled 13,646 raw pairs vs 9,685; `note.co.il` crawled for the first time this project's lifetime, 829 pairs): 3.6% (1/28) → 10.7% (3/28)**, up from the 7.1% this exact puzzle scored with the smaller corpus; **2026-08-29, RE-MEASURED 2026-07-10 with an EVEN BIGGER corpus (mordo 25,350 raw / 24,361 parsed, up from 13,646/12,890; note.co.il 970 fetched out of 1,301 discovered): 0.0% (0/19) → 0.0% (0/19), STILL UNCHANGED**; **2026-08-30, RE-MEASURED 2026-06-26 — this time FULLY transcribed (28/28 clues, closing 2026-08-26's 18/28 partial gap) and with a MASSIVELY grown corpus (mordo 66,443 raw / 62,403 parsed, up from 25,350/24,361 — the blogspot feed has grown 2.6x again; note.co.il 1,001 fetched out of 1,301 discovered, up from 970/1301): 0.0% (0/28) → 14.3% (4/28)** — the highest recall this diagnostic has ever measured on any puzzle, and the largest single-puzzle point gain, from 4 independently-audited external hits (מניע, רומח, בובדילנ, ברסמכא) — see log | not yet a target — diagnostic; 6 independent measurements, 4 positive + 2 flat, confirming corpus growth is puzzle-dependent (rescued 2026-05-29 twice and now 2026-06-26 strongly, never moved 2026-07-10 across three corpus sizes) |
 | **Definition-span locatable rate (new, offline, diagnostic)** | **25% (7/28)** have mechanically-locatable single-window wordplay; of those 29% (2/7) are interior, not edge; classifier agreement on edge cases **1/5** | not a target — this diagnostic KILLED the lever, see log |
 | **`solve_pass.py` LIVE blind trial — cumulative (3 trials)** | **40% precision (2/5 committed)**: 2026-08-16 was 1/2 on a partial 21/28-clue puzzle (2026-06-12); 2026-08-22 was **0/2**, 7.1% coverage, on a FULL 28/28-clue puzzle (2026-05-15); **2026-08-27 is 1/1 = 100% precision but 5.3% coverage (1/19), 0% suggestion hit-rate (0/10)**, on 2026-07-10 (19/28 clues) — FIRST trial run with `retrieval_candidates` live (wired 2026-08-25, never live-trialed since); it contributed ZERO candidates all puzzle (grepped the transcript for `(retrieval, fodder=` hits — none), matching today's own offline recall@N finding on this same puzzle (0/19 with or without retrieval); the one correct commit came from `wiki.py` culture-fact lookup, not from any candidate generator | n=5 — still small; retrieval's live debut is a null result on this puzzle, not a regression, but not the coverage lift the queue hoped for either; see log |
 | **Candidate recall@N with `culture_category_candidates` added (new, offline, definition-driven)** | **0% (0/28)**, on 2026-06-19 — mechanism fired on only 1/28 clues (avg candidates/clue 10.5 → 11.4); its one firing (339 raw candidates, an "author" category hit) matched 0 gold | not yet a target — small-n diagnostic, see log |
 
 Baseline for comparison: v2 = 41% raw with untraceable errors.
-Last lever added (2026-08-30): **closed 2026-08-29's own "NOT DONE" gap: re-measured
+Last lever added (2026-11-02): **`gematria_candidates`, a new mechanism in
+`solver/candidates.py`** — PLAYBOOK.md documents gematria (digits/spelled-out counts/
+fixed idioms like "ל"ו צדיקים"=36 -> standard Hebrew-numeral letter spelling, e.g.
+15->ט"ו) as a real device for this genre, but no prior candidates.py mechanism
+implemented it, unlike every other documented device. First run in this log since
+2026-08-25 (roughly nine weeks; the intervening sessions in DAILY.md's own log are
+site/product work, not this queue — see RESEARCH.md for the explicit note). Bootstrap
+ran clean (52/52 puzzles via 14across, first full-dev-only run logged this cycle).
+Transcribed 2026-05-29 (the project's most-measured canonical dev puzzle) a fourth
+independent time from `data/images/2026-05-28.jpg`, catching and resolving one real
+transcription-order trap along the way (disclosed, not silently fixed, below) before
+validating: all 28 enum sums matched `grid_tools.py`'s grid-derived slot lengths
+(0/28 mismatches), and `grid_tools.py validate` printed OK.
+MEASURED, controlled before/after (`python3 solver/candidates.py recall
+data/dataset/clues.jsonl eval --no-culture --no-retrieval [--no-gematria]`):
+mechanical baseline **3.6% (1/28)** — exactly reproduces the historical number on this
+exact puzzle (2026-08-06/08-20/08-25 all measured the same 1/28), a strong cross-check
+that today's independent transcription is correct; **+ gematria: still 3.6% (1/28),
+UNCHANGED**. The mechanism fired (found a genuine number mention) on 2 of 28 clues — 7A
+("חייו", matched the "חי"=18 idiom stem) and 23A ("הצדיקים", matched the "ל"ו
+צדיקים"=36 idiom) — but neither produced a candidate passing the length/lexicon filter:
+7A's target length is 7 and "חי" alone is 2 letters with no adjacent mined substitute
+completing it; 23A's gold answer is actually `הלו` (3 letters, a phone-greeting/
+righteous-idiom double pun: "ה" + "לו" where "לו" IS the gematria-36 fragment this
+mechanism correctly derived) but the mechanism's two-adjacent-word-charade shape has no
+way to supply a bare, unmined definite-article "ה" as the other half — that requires
+understanding the pun's grammar, not a charade concatenation, so this is a real,
+diagnosed limitation of the SHAPE built today, not a bug. A real bug WAS caught and
+fixed before measuring: the idiom matcher first used plain substring search, which
+false-fired "חי" inside the unrelated word "כמלחין" (clue 13A); fixed to require the
+idiom sit at a word boundary (optionally after a standard single-letter prefix), the
+same discipline homograph_candidates' `_destem` already uses — re-verified against the
+puzzle's full clue set after the fix (false fire gone, the two genuine fires above
+unaffected). AUDITED: `lexicon.held_out_answers()` and `substitutions.held_out()` (the
+table `gematria_candidates`' adjacency shape draws on, same `sub_fwd()` function
+`substitution_candidates` already used) both confirmed, computed not assumed, to block
+all 28 of this puzzle's own gold answers (`gold_norm - blocked` empty for both). No
+forbidden reads: gold came from `data/answers/by_date/2026-05-29.json` via bootstrap's
+sanctioned 14across scrape (clean 52/52 run this cycle), clue text from the public CDN
+image. No implausible jump: 3.6% stayed 3.6%, the opposite of a suspicious result. All 6
+affected selftests (`candidates.py` — 4 new gematria checks added and passing, plus the
+existing 12 — `retrieve_defs.py`, `lexicon.py`, `prove.py`, `substitutions.py`) re-run
+clean; `solver/lex/substitutions.json`'s known dev-only-bootstrap regression (a smaller
+in-repo rebuild than the committed file, bootstrap.sh's own documented, expected
+warning) was reverted with `git checkout --` before committing, not shipped.
+TRANSCRIPTION NOTE (disclosed): the printed clue column for this puzzle splits across
+two side-by-side sub-columns (a narrow one next to the small reference-solution
+graphic, holding across clues 1-13, then a wider one continuing 15-26) — already a
+known layout quirk (queue item 8). Getting the clue-number/enum boundary right at
+EXACTLY the 13->15->17->19 seam required checking pixel position directly (crops at
+fixed x-ranges) rather than trusting a first-pass natural reading, which initially
+mis-ordered which enum belonged to which clue number at that one seam; resolved by
+cross-validating every candidate ordering against the grid-derived slot length until
+all 28 matched with 0 mismatches. Every other clue's text read correctly on the first
+pass. Flagging this because it is a real, repeatable transcription hazard at any
+multi-column clue-number boundary, not specific to today's puzzle.
+HONEST READ: a clean, real negative result on a single puzzle (n=1) — the mechanism is
+correctly implemented and fires on exactly the clues that genuinely name a gematria
+value (2/2 true positives after the bug fix, 0 false positives), but this puzzle
+happens to need the device in a shape (bare-prefix-letter pun) this implementation
+doesn't cover, and its one other firing lacked enough adjacent material to complete the
+charade. This does not mean the device is useless — PLAYBOOK.md's examples (ט"ו in
+טורבנימ, י"ד in אירביד) are full-charade cases closer to shape (b) than today's puzzle
+happened to offer; a second puzzle with an explicit digit or date reference would be a
+more informative next data point than re-measuring this one again.
+NOT DONE, honestly: did not try a second puzzle (kept to one, per the one-lever/one-
+puzzle discipline this run's budget allowed); did not extend the mechanism to handle a
+bare prefix-letter (ה/ו/ב/ל) as a chargeable fragment on its own (the 23A near-miss's
+concrete next step, if this lever is revisited); did not re-crawl `private_defs` (not
+built this run — `retrieval_candidates` and `culture_category_candidates` both
+contributed their already-established zero/near-zero on this exact puzzle, unrelated to
+today's change); did not merge or otherwise act on any PR (none were open after the
+nine-week gap).
+
+Previous lever (2026-08-30): **closed 2026-08-29's own "NOT DONE" gap: re-measured
 `retrieval_candidates` on 2026-06-26 — the puzzle 2026-08-28/08-29 both flagged as still
 needing a bigger corpus and no run had finished re-transcribing — this time FULLY (28/28
 clues, not the 18/28 partial 2026-08-26 left) and against a corpus grown far past any
@@ -2427,3 +2502,21 @@ Measure each lever on dev (fixed enums) with run_eval.py before/after; one lever
   "כולם חפצים מהבית" theme (an אוטובוס was due to appear on 09-08).
   Gates: ui_smoke 9/9 pages at both widths, topicgen_eval 52/52 boards,
   url_guard clean (6,071 URLs, none dropped), nativ regression 22/22.
+
+- 2026-11-02: **back on the solver lever queue** after a roughly nine-week gap (the
+  intervening sessions logged above were site/product work, not this queue). Bootstrap
+  ran clean (52/52 puzzles). Built `gematria_candidates` (`solver/candidates.py`) — a
+  mechanism for PLAYBOOK.md's documented-but-never-implemented gematria device (digits/
+  spelled-out counts/fixed idioms like "ל"ו צדיקים"=36 -> standard Hebrew-numeral letter
+  spelling, e.g. 15->ט"ו). Transcribed 2026-05-29 a fourth independent time (0/28 enum
+  mismatches against grid-derived slot lengths); caught and fixed a real bug before
+  measuring (the idiom matcher was plain substring search, false-firing on an unrelated
+  word) by requiring a word boundary. MEASURED: mechanical baseline 3.6% (1/28, exactly
+  reproduces the historical number on this puzzle) -> + gematria: still 3.6% (1/28),
+  UNCHANGED — the mechanism correctly fired on 2/28 clues (both genuine idiom matches,
+  0 false positives after the fix) but neither produced a candidate clearing the
+  length/lexicon filter. AUDITED: held_out_answers()/substitutions.held_out() both
+  confirmed to block all 28 gold answers; no forbidden reads; no implausible jump. See
+  the state table and its "Last lever added" entry above for the full measurement,
+  diagnosis of the two near-misses, and what's honestly not done. selftest green
+  (4 new gematria checks + the existing 12, all passing).

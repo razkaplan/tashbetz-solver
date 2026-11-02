@@ -4,6 +4,69 @@ One entry per run: what was found, one-line summary, and an honest judgement of 
 it transfers to a Hebrew cryptic solver with an 8k-clue corpus. Default skepticism: most
 crossword-AI work targets non-cryptic (American-style) puzzles and does not transfer.
 
+## 2026-11-02
+
+First run in this log since 2026-08-25 (a roughly nine-week gap — DAILY.md's own log
+shows the intervening sessions went to site/product work, not this lever queue; nothing
+solver-side changed in that window, so today starts from exactly where 2026-08-25 left
+off, not from a regressed or drifted baseline).
+
+**General search: "cryptic crossword solver LLM candidate generation 2026".** Turned up
+the same paper set already logged here across multiple prior runs (Andrews & Witteveen,
+ICML 2025, arXiv 2506.04824 — LLM proposes candidates + informal wordplay, rewritten to
+Python and verified; arXiv 2406.09043 "Language Models are Crossword Solvers"; arXiv
+2403.12094 "Are LLMs Good Cryptic Crossword Solvers?"; the Berkeley Crossword Solver,
+arXiv 2104.08620/NeurIPS 2021). No new 2026 paper on this exact topic surfaced. One new
+sighting: a PyData Amsterdam 2026 talk (10 September 2026) on a LangGraph multi-agent
+setup for DUTCH cryptics, giving an LLM synonym/anagram-lookup tools plus prompt
+optimisation and distillation. **Transfer: thin** — it's architecturally the same
+"LLM + lookup tools" shape this project already tried and moved past (SOLVE_PROTOCOL.md's
+tool-assisted blind trials, 25-40% cumulative live precision); no evaluation numbers were
+published in the talk abstract to compare against, and Dutch cryptics are a different
+clue-convention family. Nothing here changes course.
+
+**Wordplay formalisation / execution verification, re-checked.** Same Andrews &
+Witteveen paper as above is still the closest match (prover writes wordplay as Python,
+a verifier executes it) — this project's own `solver/prove.py` already independently
+converged on the same idea (assert `is_anagram`/`is_reversal`/`word_order`/`means` and
+require the assertions to PASS) well before this run, so there is nothing new to adopt;
+re-confirms the existing design choice rather than motivating a change.
+
+**Definition-span detection, re-checked once more.** No new resource found. The standing
+2026-08-19 finding stands: indicator-word-density classification measured 1/5 (worse than
+chance) and was struck from the queue; no literature surfaced this run gives a different,
+untried signal to test instead (the "does each end's residual pattern-match the lexicon"
+idea DAILY.md floated 2026-08-19 as a possible alternative remains unbuilt and untried —
+noted again, not attempted today, since it needs its own measurement discipline rather
+than a quick bolt-on). **Transfer: none new** — still not re-attempting this item.
+
+**Hebrew NLP / morphology, re-checked.** One genuinely new-to-this-project sighting:
+NeoDictaBERT (arXiv 2510.20386, Oct 2025), a newer Hebrew BERT release with strong
+morphology/parsing numbers. **Transfer: does not apply to today's bottleneck.** This
+project's own diagnosis (RESULTS.md, repeated across many runs) is that morphological
+segmentation is NOT where recall is lost — hspell plus `lexicon.py`'s final-letter
+folding already handles that cleanly; the measured gap is candidate generation and
+definition-fit, which a stronger masked-LM embedding does not directly address (and
+`retrieve_defs.py` already has a standing, re-confirmed finding that BM25 beats a
+commercial embedding model at this corpus's scale — see 2026-08-24/08-25 entries below).
+Filed as a lead for a possible future `means()`-adjacent synonym-expansion lever, not
+today's.
+
+**Conclusion, and the lever this run actually built.** No literature or resource turned
+up a usable external candidate generator or definition-fit scorer today — same
+conclusion as every research pass since 2026-08-22. Went back to the project's OWN
+documented-but-unimplemented gap instead: `solver/PLAYBOOK.md` names "gematria" as a
+real, recurring device for this genre in two places (line ~125, "Gematria numbers"; line
+~709, "Digits in clue -> letter spelling: printed numbers become gematria letter pairs
+inside the answer, e.g. 15 -> ט"ו") and `solver/defspan.py` even carries a
+`gematria_letters` key as a documentation-only placeholder — but no `candidates.py`
+mechanism ever implemented it, unlike every OTHER device PLAYBOOK.md documents
+(anagram/hidden/reversal/substitution/homograph all have a mechanism; gematria alone did
+not). This is exactly the queue's standing priority: a NEW mechanism by which the
+existing proof gate gets something new to filter, not a rehash of a previously-measured-
+negative lever. See DAILY.md for what was built and the measured (honestly negative, n=1
+puzzle) result.
+
 ## 2026-08-30
 
 Bootstrap hit the same hard 14across wall as 2026-08-19/08-26/08-27/08-28 (4 consecutive
