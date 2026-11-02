@@ -4,6 +4,72 @@ One entry per run: what was found, one-line summary, and an honest judgement of 
 it transfers to a Hebrew cryptic solver with an 8k-clue corpus. Default skepticism: most
 crossword-AI work targets non-cryptic (American-style) puzzles and does not transfer.
 
+## 2026-09-29
+
+Followed the scheduled task's stated priority order: candidate generation (diverse
+candidates by mechanism / by definition-span hypothesis) first, then definition-span
+detection, then Hebrew NLP/morphology.
+
+**"cryptic crossword solving candidate generation LLM 2026" / "definition span detection
+cryptic crossword clue NLP research" / "'Language Models are Crossword Solvers' candidate
+generation diverse beam".** Surfaced only the same paper family logged on nearly every
+prior research day since 2026-08-06 (2506.04824 "A Reasoning-Based Approach to Cryptic
+Crossword Clue Solving", 2407.08824 "Proving that Cryptic Crossword Clue Answers are
+Correct", 2104.08620/Cryptonite, 2406.09043 "Language Models are Crossword Solvers",
+2412.09012, 2403.12094). Read 2407.08824 and 2406.09043 directly (not just the abstracts)
+to check two specific details relevant to today's chosen lever rather than re-logging the
+citation list:
+- 2407.08824's own number (already logged 2026-08-15, reconfirmed today, not new): even
+  with the correct answer already known and a mature FastText-retrieval candidate pool,
+  formalizing wordplay into code and executing it only discriminates correct from a
+  plausible-wrong alternative ~38-40% of the time (~55% draws). This is independent,
+  external confirmation of what this project's own log has found empirically three
+  separate times (RESULTS.md's v8/PLAN_V2 item E, the 2026-08-16/08-22 live trials): a
+  mechanically-verified wordplay proof is evidence a candidate is *possible*, not that it
+  is *correct* — `prove.py`'s design already assumes this (CONFIDENCE DISCIPLINE, SOLVE_
+  PROTOCOL.md), so today's read changes nothing about the architecture, but is worth
+  recording as the literature's own ceiling for that class of approach, not just this
+  project's.
+- 2406.09043's SweepClip inner loop (candidate generation, then partition into
+  grid-consistent vs conflicting subsets, keep only the largest connected component,
+  repeat) is structurally what `solver/sweep.py` already does — and `sweep.py`'s own
+  docstring records that this project already MEASURED promoting a suggestion because it
+  fits 2+ committed crossings and got 1/5 correct (2026-08-08), the opposite of the
+  paper's assumption that grid-consistency is a strong correctness signal. Read as
+  corroboration that this project's own negative finding is a real, non-idiosyncratic
+  disagreement with a NAACL 2025 paper's design choice on THIS puzzle's error profile, not
+  a bug in `sweep.py`. **Transfer: none actionable today for either detail** — both are
+  confirmations of standing findings, not new levers.
+
+**"cryptic clue container insertion wordplay device automatic generation algorithm".**
+Targeted search for today's chosen lever (a container/insertion candidate generator,
+`candidates.py`'s `container_candidates`, described below). Found only general
+cryptic-crossword-construction reference material (thebrowser.com's "Cryptics 7:
+Containers", crypticcrosswords.net's rules page) confirming container/insertion is a
+standard, named device in the English-cryptic tradition — no algorithmic or NLP paper
+specific to generating container candidates exists that this project hadn't already
+found via the general search above. **Transfer: confirms the device taxonomy (already
+independently corroborated by this project's own PLAYBOOK.md corpus mining, ~10-12% of
+728 crowd-explained clues), not a technique** — today's implementation is original to
+this project, not adapted from a paper, same as substitution/homograph were.
+
+**"Hebrew root pattern morphology crossword generation 2025 templatic".** Checked
+directly whether Hebrew's non-concatenative root-and-pattern morphology has been applied
+to crossword or wordplay generation anywhere in the literature — it has not. What exists
+is purely theoretical/linguistic (Hebrew templatic morphology as morpho-syntax, Arabic
+finite-state morphological generators) with no crossword or puzzle-solving application.
+Consistent with every prior research day's finding on this axis (2026-08-06 through
+2026-08-30): no Hebrew-specific NLP-for-crosswords resource exists; this project's own
+corpus-mined tools (`substitutions.py`, `homographs.py`, PLAYBOOK.md) remain the only
+Hebrew-specific asset in play. **Transfer: none — confirms the standing null result, does
+not open a new lead.**
+
+HONEST SUMMARY: no new external technique surfaced today. Today's lever (below) is
+motivated entirely by this project's own PLAYBOOK.md corpus statistics (container is the
+#2 single mechanism by frequency, ~10-12% of clues, yet had zero candidate-generation
+coverage in `candidates.py` despite `prove.py` supporting `is_container` verification
+since the proof gate shipped) rather than by anything found in today's research pass.
+
 ## 2026-08-30
 
 Bootstrap hit the same hard 14across wall as 2026-08-19/08-26/08-27/08-28 (4 consecutive
