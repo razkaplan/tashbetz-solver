@@ -4,6 +4,53 @@ One entry per run: what was found, one-line summary, and an honest judgement of 
 it transfers to a Hebrew cryptic solver with an 8k-clue corpus. Default skepticism: most
 crossword-AI work targets non-cryptic (American-style) puzzles and does not transfer.
 
+## 2026-11-03
+
+Bootstrap succeeded FULLY this run (52/52 puzzles, 1,457 clues from 14across, no bot-check
+wall) — the first clean bootstrap logged in a while. `solver/lex/substitutions.json`
+rebuilt smaller (528 vs the committed 2,220 head words), per bootstrap's own standing
+warning (it can't fetch the secondary corpus) — reverted with `git checkout`, not committed.
+
+**"cryptic crossword clue candidate generation definition span detection 2026 arxiv"**
+(standard search). No new 2026 arXiv paper surfaced. The one new citation: the MINDS
+system for Cruciverb-IT at EVALITA 2026 (CEUR-WS, not arXiv) — masked-span modeling with a
+fine-tuned BERT for candidate completion, then multi-length ranking, for ITALIAN crosswords.
+**Transfer: checked and rejected, for two independent reasons, not just "non-cryptic
+doesn't transfer."** (1) Cruciverb-IT is a standard (definitional) crossword; masking the
+answer span and asking a BERT to fill it from context works because the clue text IS a
+definition. A Yoram HaRoeh cryptic clue's surface is mostly wordplay fodder and misdirection,
+not a definition of the answer — the premise the technique depends on doesn't hold here any
+more than it did for the definition-span-detection attempts already killed in this log
+(2026-08-19). (2) Practically: it requires `torch`+`transformers` plus a downloaded Hebrew
+BERT (DictaBERT is the live Hebrew equivalent, confirmed reachable), which is a real,
+heavy new dependency this project has deliberately avoided — DAILY.md's own style rule for
+`solver/` is "plain Python, no frameworks." Not implemented today; noted here in case a
+future run with different constraints wants to revisit it specifically for the handful of
+double-definition / pun-definition clues where the premise might actually hold.
+
+**"Hebrew morphological analyzer wordplay crossword solver NLP 2025 2026"** (standard
+search). Nothing on Hebrew cryptic/wordplay specifically, as every prior pass has also
+found. Recent tooling worth naming for the first time: an open-source Elasticsearch
+Hebrew-lemmatization plugin wrapping DictaBERT via ONNX, and HebPipe (tokenization +
+morphological segmentation + POS tagging, last pushed June 2025). Both are
+general-lemmatization tools, not wordplay-aware, and neither changes this project's own
+standing assessment (RESULTS.md, HOMOGRAPHS.md) that its hand-built prefix/suffix stripping
+(`_destem` in `candidates.py`/`homographs.py`) already covers the cases that matter for this
+setter's device at a fraction of the dependency cost. Not actionable today.
+
+**"cryptic crossword definition side classification length-based heuristic end-of-clue
+2025"** (standard search, following up on queue item 9's definition-fit gap). Surfaced only
+generic solving tutorials, nothing new or technique-shaped. Confirms rather than overturns
+2026-08-19's finding: no alternative signal to indicator-word density has turned up across
+several passes now, so item 2 (definition-span detection) stays struck; nothing to revisit.
+
+Net: three searches, zero directly-buildable transfers, one explicitly-reasoned rejection
+(the EVALITA masked-LM approach) worth recording so a future run doesn't re-discover and
+re-reject the same thing from scratch. Fell back to the queue's own concrete next step —
+see the Log entry below for a candidate-generation gap found directly in this project's own
+code rather than in the literature: `candidates.py` had no generator at all for the
+CONTAINER device, despite the device having its own proof primitive and indicator list.
+
 ## 2026-11-02
 
 First run in this log since 2026-08-25 (a roughly nine-week gap — DAILY.md's own log

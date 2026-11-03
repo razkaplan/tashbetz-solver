@@ -34,6 +34,21 @@ This module does exactly that, per clue, with no LLM involved:
                           the spelling alone covers the full length, or it concatenates
                           with an ADJACENT clue word's mined substitute. A device PLAYBOOK.md
                           documents but no prior candidates.py mechanism implemented.
+  - container_candidates: the setter's insertion device (SOLVE_PROTOCOL.md 'container: X
+                          בתוך Y phrasing'; prove.py's own worked example, is_container('קרים',
+                          'תן', 'קרתנימ'), IS clue 11 across of the 2026-05-29 dev puzzle) --
+                          never had a candidate generator despite being a named device with
+                          its own proof primitive and its own indicator list
+                          (solver/indicators.json's 'container' key, unused by any generator
+                          until now). Two clue-derived fragments (a clue word, its de-prefixed
+                          stem, or a mined substitution of it -- the SAME three fragment
+                          sources homograph_candidates/substitution_candidates already use) are
+                          tried as OUTER/INNER: every strictly-interior split point of the
+                          outer fragment is tried with the inner fragment spliced in, and a
+                          hit is kept only if the result is a real lexicon word of the exact
+                          enum length. Mirrors is_container's own definition (insertion point
+                          in range(1, len(outer)), i.e. never prepend/append -- that is plain
+                          concatenation, not a container, and already anagram/hidden territory).
   - pattern_candidates:  wraps lexicon.py's crossing-pattern lookup, for when grid
                           letters are already known.
   - culture_category_candidates: a DEFINITION-hypothesis mechanism, not a wordplay one —
@@ -396,6 +411,59 @@ def homograph_candidates(clue_text, target_len, idx=None):
     return out
 
 
+def _container_fragments(clue_text, sub_table=None):
+    """Candidate OUTER/INNER fragments for container_candidates: each clue word itself,
+    its de-prefixed/de-suffixed stems (_destem, same table homograph_candidates uses --
+    a clue word almost always carries grammatical glue a bare fodder/fragment does not),
+    and its mined substitutions (sub_fwd(), the same equivalence table substitution_candidates
+    uses -- a container's inner piece is very often a SYNONYM standing for a clue word, not
+    the word's own letters; this project's own worked example needs exactly this: 'טורף'
+    (predator) supplies 'תן' (jackal) only via a mined substitution, never by letter reuse).
+    Returns {fragment: source_word} so a hit's fodder can name what produced it."""
+    fwd = sub_table if sub_table is not None else sub_fwd()
+    out = {}
+    for w in words_of(clue_text):
+        nw = norm(w)
+        for frag in _destem(nw) | {nw}:
+            out.setdefault(frag, w)
+        for b, _n in fwd.get(nw, []):
+            out.setdefault(b, w)
+    return out
+
+
+def container_candidates(clue_text, target_len, sub_table=None):
+    """The setter's insertion device (SOLVE_PROTOCOL.md 'container'): one clue fragment
+    (OUTER) is split at a strictly interior point and a second clue fragment (INNER) is
+    spliced in -- mirrors prove.py's is_container exactly (insertion point in
+    range(1, len(outer)), so this never degenerates into plain concatenation, which
+    anagram_candidates/hidden_candidates already cover). See module docstring for why this
+    was missing entirely until today despite having both a proof primitive and an unused
+    indicator list. `sub_table` is injectable (tests / callers), same discipline as every
+    other corpus-backed mechanism here."""
+    words = lex()
+    frags = _container_fragments(clue_text, sub_table)
+    out, seen = [], set()
+    items = list(frags.items())
+    for outer, outer_src in items:
+        lo = len(outer)
+        if lo < 2 or lo >= target_len:
+            continue
+        inner_len = target_len - lo
+        for inner, inner_src in items:
+            # A container combines TWO DIFFERENT clue elements; splitting one word's own
+            # stem/suffix back into itself is noise (and a different, unmodelled device --
+            # partial-word fodder -- not an insertion), so require distinct source words.
+            if inner == outer or inner_src == outer_src or len(inner) != inner_len:
+                continue
+            for k in range(1, lo):
+                cand = outer[:k] + inner + outer[k:]
+                if cand in words and cand not in seen:
+                    seen.add(cand)
+                    out.append({'answer': cand, 'mechanism': 'container',
+                                'fodder': f'{outer_src}(outer)+{inner_src}(inner)'})
+    return out
+
+
 _CULTURE = None
 
 
@@ -577,7 +645,7 @@ def split_candidates(cands, enum):
 
 
 def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retrieval=True,
-             use_gematria=True):
+             use_gematria=True, use_container=True):
     """Diverse candidates for one clue. Never consults the answer.
 
     Mechanism order here is a PRIORITY order, not just an accumulation order: dedup +
@@ -586,25 +654,27 @@ def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retr
     appended last, a character-level anagram/hidden window scan alone routinely produces
     40-50+ raw hits on a short target length (lots of short real words exist), crowding
     every substitution/homograph candidate for that clue out of the top max_n before the
-    proof gate — or a recall eval — ever sees them, even when they were found. Homograph
-    and substitution are comparatively RARE and higher-precision (a token already sitting
-    in the clue, or a mined equivalence, either fires or it doesn't — there's no
-    combinatorial window scan inflating their count), so they go first; the cheap,
-    high-volume window-scan mechanisms fill whatever budget is left. gematria is in the
-    same early tier for the same reason (a number mention either exists in the clue or it
-    doesn't). culture_category and retrieval candidates are DEFINITION-driven rather than
-    letter-driven (see their own docstrings) — placed in the same early tier as
-    homograph/substitution: culture_category fires rarely and each hit is a real named
-    entity; retrieval is capped at its own topk (25 by default) and ranked, not an
-    unbounded window scan, so it does not need to wait behind the cheap mechanisms either.
-    `use_culture`/`use_retrieval`/`use_gematria` are plain on/off switches so a controlled
-    before/after recall measurement doesn't need extra copies of this function."""
+    proof gate — or a recall eval — ever sees them, even when they were found. Homograph,
+    substitution, container and gematria are comparatively RARE and higher-precision (a
+    token already sitting in the clue, a mined equivalence, an exact-length insertion hit,
+    or a number mention, either fires or it doesn't — there's no unbounded window scan
+    inflating their count), so they go first; the cheap, high-volume window-scan mechanisms
+    fill whatever budget is left. culture_category and retrieval candidates are
+    DEFINITION-driven rather than letter-driven (see their own docstrings) — placed in the
+    same early tier: culture_category fires rarely and each hit is a real named entity;
+    retrieval is capped at its own topk (25 by default) and ranked, not an unbounded window
+    scan, so it does not need to wait behind the cheap mechanisms either.
+    `use_culture`/`use_retrieval`/`use_gematria`/`use_container` are plain on/off switches
+    so a controlled before/after recall measurement doesn't need extra copies of this
+    function."""
     target_len = sum(enum)
     cands = []
     cands += homograph_candidates(clue_text, target_len)
     cands += substitution_candidates(clue_text, target_len)
     if use_gematria:
         cands += gematria_candidates(clue_text, target_len)
+    if use_container:
+        cands += container_candidates(clue_text, target_len)
     if use_culture:
         cands += culture_category_candidates(clue_text, target_len)
     if use_retrieval:
@@ -633,7 +703,7 @@ def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retr
 # separate integration step, not done by this lever).
 # ---------------------------------------------------------------------------
 def recall_eval(dataset_path, split=None, max_n=25, use_culture=True, use_retrieval=True,
-                 use_gematria=True):
+                 use_gematria=True, use_container=True):
     total = 0
     hit = 0
     by_mech = Counter()
@@ -647,7 +717,8 @@ def recall_eval(dataset_path, split=None, max_n=25, use_culture=True, use_retrie
             continue
         total += 1
         cands = generate(r['clue_text'], r['enum'], max_n=max_n, use_culture=use_culture,
-                          use_retrieval=use_retrieval, use_gematria=use_gematria)
+                          use_retrieval=use_retrieval, use_gematria=use_gematria,
+                          use_container=use_container)
         sizes.append(len(cands))
         gold = norm(r['answer_raw'])
         found = [c for c in cands if c['answer'] == gold]
@@ -764,6 +835,27 @@ def selftest():
     print(f'  found שרה (destemmed from ושרה) as a homograph: {found} (expected True)')
     ok &= found
 
+    print('--- container device: one fragment spliced strictly inside another yields a '
+          'real word ---')
+    # synthetic clue, independent of any puzzle's gold data: שולחן (table) = outer 'שחן'
+    # with inner 'ול' spliced in after the first letter (שחן -> ש + ול + חן = שולחן).
+    # Neither fragment needs to be a real word on its own -- only the spliced result does.
+    hits = container_candidates('ראיתי שחן גדול וגם ול קטן', 5)
+    found = any(h['answer'] == norm('שולחן') for h in hits)
+    print(f'  found שולחן by splicing ול inside שחן: {found} (expected True)')
+    ok &= found
+    print('--- container device: a clue word\'s mined substitution supplies the INNER '
+          'fragment, not just the clue\'s own letters ---')
+    # mirrors this project's own real worked example (prove.py: is_container('קרים','תן',
+    # 'קרתנימ')) structurally, with fresh synthetic words: outer 'שחן' sits literally in
+    # the clue, inner 'ול' does NOT -- it only exists via an injected substitution of the
+    # clue word 'מילהבדויה', the same mechanism substitution_candidates already relies on.
+    sub_table = {norm('מילהבדויה'): [(norm('ול'), 1)]}
+    hits2 = container_candidates('ראיתי שחן גדול וגם מילהבדויה קטנה', 5, sub_table=sub_table)
+    found2 = any(h['answer'] == norm('שולחן') and 'מילהבדויה' in h['fodder'] for h in hits2)
+    print(f'  found שולחן via a substituted inner fragment: {found2} (expected True)')
+    ok &= found2
+
     print('--- culture_category device: a category the clue NAMES surfaces its namelist,'
           ' matched by MEANING not letters ---')
     # synthetic table + triggers, independent of the live corpus and its real entities —
@@ -837,16 +929,18 @@ def main():
         use_culture = '--no-culture' not in rest
         use_retrieval = '--no-retrieval' not in rest
         use_gematria = '--no-gematria' not in rest
-        rest = [a for a in rest if a not in ('--no-culture', '--no-retrieval', '--no-gematria')]
+        use_container = '--no-container' not in rest
+        rest = [a for a in rest if a not in
+                ('--no-culture', '--no-retrieval', '--no-gematria', '--no-container')]
         path = rest[0] if len(rest) > 0 else 'data/dataset/clues.jsonl'
         split = rest[1] if len(rest) > 1 else None
         os.chdir(ROOT)
         res = recall_eval(path, split, use_culture=use_culture, use_retrieval=use_retrieval,
-                           use_gematria=use_gematria)
+                           use_gematria=use_gematria, use_container=use_container)
         print(f"recall@N: {res['hit']}/{res['total']} = {res['recall']:.1%}  "
               f"(avg {res['avg_candidates']:.1f} candidates/clue, "
               f"use_culture={use_culture}, use_retrieval={use_retrieval}, "
-              f"use_gematria={use_gematria})")
+              f"use_gematria={use_gematria}, use_container={use_container})")
         print('hits by mechanism:', res['by_mechanism'])
         if res['misses']:
             print(f"\n{len(res['misses'])} misses (clue_number, direction, gold):")

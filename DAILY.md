@@ -22,9 +22,90 @@ tree - a stale CLI deploy overwrote the live site on 2026-08-29. See CLAUDE.md.
 | **Definition-span locatable rate (new, offline, diagnostic)** | **25% (7/28)** have mechanically-locatable single-window wordplay; of those 29% (2/7) are interior, not edge; classifier agreement on edge cases **1/5** | not a target — this diagnostic KILLED the lever, see log |
 | **`solve_pass.py` LIVE blind trial — cumulative (3 trials)** | **40% precision (2/5 committed)**: 2026-08-16 was 1/2 on a partial 21/28-clue puzzle (2026-06-12); 2026-08-22 was **0/2**, 7.1% coverage, on a FULL 28/28-clue puzzle (2026-05-15); **2026-08-27 is 1/1 = 100% precision but 5.3% coverage (1/19), 0% suggestion hit-rate (0/10)**, on 2026-07-10 (19/28 clues) — FIRST trial run with `retrieval_candidates` live (wired 2026-08-25, never live-trialed since); it contributed ZERO candidates all puzzle (grepped the transcript for `(retrieval, fodder=` hits — none), matching today's own offline recall@N finding on this same puzzle (0/19 with or without retrieval); the one correct commit came from `wiki.py` culture-fact lookup, not from any candidate generator | n=5 — still small; retrieval's live debut is a null result on this puzzle, not a regression, but not the coverage lift the queue hoped for either; see log |
 | **Candidate recall@N with `culture_category_candidates` added (new, offline, definition-driven)** | **0% (0/28)**, on 2026-06-19 — mechanism fired on only 1/28 clues (avg candidates/clue 10.5 → 11.4); its one firing (339 raw candidates, an "author" category hit) matched 0 gold | not yet a target — small-n diagnostic, see log |
+| **Candidate recall@N with `container_candidates` added (new, offline, insertion device)** | **3.6% (1/28), UNCHANGED**, on 2026-05-29 (fresh transcription, full 14across bootstrap this run) — fires on only 1/28 clues (2 raw candidates, neither gold); the one real container clue in this puzzle (11 across, prove.py's own worked example) needs a semantic substitution (טורף→תן) absent from the mined corpus, so the mechanism correctly declined to invent it | not yet a target — small-n diagnostic, see log |
 
 Baseline for comparison: v2 = 41% raw with untraceable errors.
-Last lever added (2026-11-02): **`gematria_candidates`, a new mechanism in
+Last lever added (2026-11-03): **`container_candidates` — a new mechanical generator for
+the insertion/container device (SOLVE_PROTOCOL.md "container: X בתוך Y phrasing"), which
+`candidates.py` had never implemented despite the device having its own proof primitive
+(`prove.py`'s `is_container`) and its own unused indicator list (`solver/indicators.json`'s
+`container` key).** Bootstrap succeeded FULLY this run (52/52 puzzles, 1,457 clues, no
+14across bot-check wall — first clean run in a while). Transcribed clue text for the
+canonical dev puzzle 2026-05-29 fresh from `data/images/2026-05-28.jpg` (28/28 clues);
+gold answers came directly from the real `data/answers/by_date/2026-05-29.json` (14across
+succeeded, so no image-fallback needed this time). Every enum sum validated against the
+GRID-DERIVED slot length via `solver/grid_tools.py`'s own `validate()` (0/28 mismatches).
+Mechanical-only baseline reproduced the historical **3.6% (1/28)** exactly — a strong
+cross-check that today's independent transcription is correct.
+
+`container_candidates(clue_text, target_len)` builds a fragment pool per clue (each word,
+its de-prefixed/de-suffixed stems via the same `_destem` homograph_candidates uses, and its
+mined substitutions via the same `sub_fwd()` substitution_candidates uses), then tries every
+pair of distinct-source fragments as OUTER/INNER, splicing INNER into every STRICTLY
+INTERIOR split point of OUTER (mirrors `is_container`'s own `range(1, len(outer))` exactly,
+so it can never degenerate into plain concatenation, which anagram/hidden already cover),
+keeping a hit only when the spliced string is a real lexicon word of the exact enum length.
+Caught and fixed one real bug before measuring: an early version let a SINGLE clue word's
+own stem and its own full form combine with each other (e.g. "בני" as both outer and inner),
+producing self-referential noise with no connection to the actual device (an insertion
+combines two DIFFERENT clue elements); fixed by requiring outer and inner to trace back to
+different source words.
+
+MEASURED, controlled before/after (`python3 solver/candidates.py recall
+data/dataset/clues.jsonl eval --no-culture --no-retrieval`, and again with defaults):
+**3.6% (1/28), UNCHANGED** in both configurations; avg candidates/clue unchanged at 11.82
+(the one clue container fired on, 9 across, was already at the max_n=25 cap from anagram
+volume alone, so its 2 container candidates displaced lower-priority anagram noise rather
+than changing the total). `container_candidates` fired on only 1/28 clues (9 across, 2
+candidates, neither matching gold). The puzzle's one genuine container clue — 11 across,
+`קרתנימ`, which is **`prove.py`'s own worked example** `is_container('קרים', 'תן',
+'קרתנימ')` — was NOT recovered: `קרים` is mechanically present (destemmed from the clue's
+`בקרים`), but `תן` only exists as a *meaning* for the clue word `טורף` ("predator" →
+"jackal"), and that specific substitution pair is absent from the 52-puzzle mined corpus
+(`sub_fwd()` returns nothing for `טורף`) — checked directly, not assumed.
+
+AUDITED (mandatory gate). `lexicon.held_out_answers()` and `substitutions.held_out()` both
+confirmed (computed, not assumed) to block all 28 of this puzzle's own gold answers;
+directly checked that `container_candidates` produces zero hits matching a clue's OWN
+held-out gold answer across all 28 clues (not just on the one that happened to fire). No
+forbidden reads: gold came from the sanctioned `data/answers/by_date/` path (this run's
+14across scrape succeeded fully), clue text from the public CDN image. No jump to explain:
+flat 3.6% -> 3.6%, the opposite of an implausible result. All 5 affected selftests
+(`candidates.py` — including two new container selftest cases on fresh synthetic data, not
+today's puzzle — `substitutions.py`, `lexicon.py`, `prove.py`, `retrieve_defs.py`) re-run
+clean. `solver/lex/substitutions.json` rebuilt smaller by this run's bootstrap (528 vs the
+committed 2,220 head words, the same known gap bootstrap.sh documents) — reverted with
+`git checkout`, not committed.
+
+HONEST READ: this is a real, honest negative result on the one puzzle measured, not a
+success — the device exists in this exact dataset (prove.py's worked example proves it),
+the generator is correctly built and selftested to recover it under synthetic conditions,
+but it could not recover the REAL instance because the single missing ingredient (one
+semantic substitution pair) lives outside what any tool in this project currently mines.
+This sharpens, rather than contradicts, this project's standing diagnosis
+(SOLVE_PROTOCOL.md, PLAYBOOK.md): candidate generation here is bottlenecked on SEMANTIC
+coverage (synonym/role equivalences), not on mechanical string manipulation, which this
+project has now built generators for almost exhaustively (anagram/hidden/reversal/pattern/
+substitution/homograph/culture_category/retrieval/container) without closing the gap.
+RESEARCH.md's EVALITA finding (masked-LM candidate completion) is the one concrete lead
+aimed at exactly this gap, and was explicitly not pursued today because it requires a
+torch/transformers dependency this project's `solver/` style rule excludes — worth a
+deliberate, scoped future lever if that constraint is ever revisited, not a drive-by add.
+
+NOT DONE, honestly: did not crawl `private_defs` (mordo/note.co.il) this run, so
+`retrieval_candidates` measured with an empty external corpus (train-split explanations
+only) — today's ONE lever was container, and re-crawling would have conflated two
+independent changes in one measurement; did not test container_candidates against any
+other puzzle (only 2026-05-29 has transcribed clue text this run); did not attempt to mine
+a broader semantic-substitution source to close the `טורף`→`תן` gap specifically — that is
+a concrete next step if this device is revisited, not something to improvise under today's
+one-lever budget; did not merge or otherwise act on any open PR. This PR consolidates onto
+one branch with the previous (unmerged) lever, 2026-11-02's `gematria_candidates` PR #109
+— same situation as every prior consolidation (#71/#73/#82/#89/#96/#103/#105/#108):
+independently branched from the same stale `main`, so folded in by hand rather than
+re-derived. See the entry immediately below for that lever's own full detail.
+
+Previous lever (2026-11-02): **`gematria_candidates`, a new mechanism in
 `solver/candidates.py`** — PLAYBOOK.md documents gematria (digits/spelled-out counts/
 fixed idioms like "ל"ו צדיקים"=36 -> standard Hebrew-numeral letter spelling, e.g.
 15->ט"ו) as a real device for this genre, but no prior candidates.py mechanism
@@ -593,6 +674,17 @@ propagated), `blank`. Score with `python3 evals/run_eval.py <file>`.
    leak-adjacent vector — it named 2 of today's 4 gold answers in a prior entry, before
    this run's required reading. Worth a future lever (redact specific answer strings from
    log prose, or split required-reading history from an answer-bearing appendix).
+   (e) `container_candidates` — a new MECHANICAL generator for the insertion/container
+   device, ADDED 2026-11-03 (see log): the one named device (SOLVE_PROTOCOL.md, its own
+   proof primitive `is_container`) that had never had a generator at all. MEASURED FLAT:
+   3.6% -> 3.6% (1/28, unchanged) on 2026-05-29 — fires on only 1/28 clues, and the
+   puzzle's one real container clue (11 across, which is `is_container`'s own worked
+   example) needs a semantic substitution (טורף->תן) absent from the mined corpus. A real
+   negative result that sharpens, not contradicts, the standing diagnosis: mechanical
+   generation is now close to exhaustive (9 mechanisms) and the remaining gap is semantic
+   coverage, not missing string-manipulation devices. Next concrete step if revisited: mine
+   a broader synonym/role-equivalence source for the inner-fragment half specifically,
+   rather than adding another mechanical device.
 2. ~~Definition-span detection~~ — TRIED 2026-08-19, NEGATIVE. See log and "already
    tried" below. Do not re-attempt without a fundamentally different signal (not
    indicator-word density).
@@ -2520,3 +2612,61 @@ Measure each lever on dev (fixed enums) with run_eval.py before/after; one lever
   the state table and its "Last lever added" entry above for the full measurement,
   diagnosis of the two near-misses, and what's honestly not done. selftest green
   (4 new gematria checks + the existing 12, all passing).
+
+- 2026-11-03: **candidate generation — new mechanism, `container_candidates`, for the
+  insertion/container device.** `candidates.py` had generators for anagram, hidden,
+  reversal, substitution, homograph, culture_category and retrieval, but never for
+  container, despite the device having its own proof primitive (`prove.py`'s
+  `is_container`, whose own worked example `is_container('קרים', 'תן', 'קרתנימ')` is
+  literally clue 11 across of the canonical 2026-05-29 dev puzzle) and its own unused
+  indicator list (`solver/indicators.json`'s `container` key). Bootstrap succeeded FULLY
+  this run (52/52 puzzles via 14across, no bot-check wall — first clean run in a while).
+  Transcribed 2026-05-29 fresh (28/28 clues from `data/images/2026-05-28.jpg`), gold from
+  the real `data/answers/by_date/2026-05-29.json`; every enum validated against the
+  grid-derived slot length via `grid_tools.validate()`, 0/28 mismatches.
+
+  Research (full entries in RESEARCH.md): the EVALITA 2026 Cruciverb-IT system (masked-span
+  BERT candidate completion) was the one new citation found, and was explicitly rejected
+  for two reasons rather than waved off generically: it assumes the clue text IS a
+  definition (true for standard crosswords, false for this setter's wordplay-heavy
+  surfaces), and it requires a torch/transformers dependency this project's plain-Python
+  style rule excludes. Nothing else new turned up on definition-span detection or Hebrew
+  wordplay NLP specifically. Fell back to a gap found directly in this project's own code.
+
+  `container_candidates` builds a per-clue fragment pool (each clue word, its
+  de-prefixed/de-suffixed stems via the same `_destem` homograph_candidates uses, and its
+  mined substitutions via the same `sub_fwd()` substitution_candidates uses), then tries
+  every pair of fragments from DIFFERENT source words as outer/inner, splicing inner into
+  every strictly-interior split point of outer (mirrors `is_container`'s own
+  `range(1, len(outer))`) and keeping only real-lexicon-word hits of the exact enum length.
+  Caught one real bug before measuring: an early version let a single clue word's own stem
+  combine with its own full form (self-referential noise); fixed by requiring distinct
+  source words.
+
+  MEASURED, controlled before/after: **3.6% (1/28), UNCHANGED**, both with and without
+  culture/retrieval. Fires on only 1/28 clues (9 across, 2 candidates, neither gold). The
+  puzzle's one real container clue, 11 across (`קרתנימ`, prove.py's own worked example),
+  was NOT recovered: `קרים` is mechanically present (destemmed from `בקרים`), but `תן` is
+  only reachable as a MEANING of the clue word `טורף` ("predator"->"jackal"), and that
+  specific pair is absent from the 52-puzzle mined substitution corpus — checked directly
+  (`sub_fwd()` returns nothing for `טורף`), not assumed.
+
+  AUDITED: `lexicon.held_out_answers()` / `substitutions.held_out()` both confirmed to
+  block all 28 gold answers; directly checked `container_candidates` produces zero hits
+  matching any clue's own held-out gold across all 28 clues. No forbidden reads (gold from
+  the sanctioned by_date path, 14across succeeded fully this run; clue text from the public
+  image). No jump to explain — flat result. All 5 affected selftests re-run clean,
+  including two new container selftest cases on fresh synthetic data (not this puzzle's).
+  `solver/lex/substitutions.json` was rebuilt smaller by bootstrap (528 vs 2,220 head
+  words, the documented gap) — reverted, not committed.
+
+  HONEST READ: a real negative result, not a success — the generator is correctly built
+  and selftested, but recovers nothing new on the one puzzle measured because the missing
+  ingredient (one semantic substitution) lives outside everything this project currently
+  mines. Sharpens the standing diagnosis that candidate generation here is bottlenecked on
+  SEMANTIC coverage, not mechanical string manipulation, which is now implemented almost
+  exhaustively (9 mechanisms) without closing the gap. NOT DONE: did not crawl
+  `private_defs` this run (today's one lever was container, not retrieval-corpus growth);
+  did not test on any other puzzle (only 2026-05-29 has transcribed clue text today); did
+  not attempt to mine a broader semantic-substitution source; did not merge or act on any
+  open PR.
