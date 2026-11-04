@@ -910,3 +910,98 @@ priority 2. Wiring in an already-built, already-audited tool as one more candida
 is not itself a research question — it is closing a gap between what the project's own
 research queue prioritized in 2026-08-08 and what got implemented, which is worth doing
 regardless of whether today's literature sweep turned up anything new.
+
+## 2026-11-04
+
+First run of this project in roughly two months (the repo's commits since 2026-09-07
+were all site/content work — nativ, SEO, the weekly news crossword — not the solver core;
+DAILY.md's log confirms 2026-09-07 is the last entry touching candidates.py/defspan.py/
+retrieve_defs.py). Research this run focused on the task's own stated priorities:
+candidate generation (generating N diverse candidates per clue by mechanism AND by
+definition-span hypothesis) and definition-span detection, plus a fresh look at Hebrew
+NLP tooling since enough time has passed that the landscape could have moved.
+
+**"A Reasoning-Based Approach to Cryptic Crossword Clue Solving" (arXiv 2506.04824, first
+logged here 2026-08-?? per the paper set already in RESULTS.md's citations — re-read with
+this run's framing).** A fine-tuned model proposes ~20 answer candidates per clue; a
+second fine-tuned model proposes up to 10 wordplay hypotheses per candidate; each
+hypothesis is FORMALISED and VERIFIED by execution, with a fallback to the most frequent
+of the 20 candidates if nothing formalises. Two things transfer directly: (1) the
+diagnosis that generation, not verification, is the ceiling (their ablation: logprob-only
+scoring without the verify step loses ~2x accuracy) — this is exactly this project's own
+standing finding since 2026-08-06, independently reached; (2) formalise-and-execute as the
+verification step is structurally identical to `prove.py`'s proof gate, built here before
+this paper was read. What does NOT transfer: their candidate PROPOSER is a fine-tuned
+model, which this project has no training budget or infrastructure for (SOLVE_PROTOCOL.md
+and DAILY.md's own style note are explicit: plain Python, in-context solving, no
+fine-tuning track beyond the deprioritised sft.jsonl line in RESULTS.md). The actionable
+takeaway is the one this run actually builds on: generate MANY candidates per clue from
+MULTIPLE independent signals and let the proof/recall gate filter, rather than trying to
+score one candidate's plausibility — which is a restatement of this project's own
+`candidates.py` design, not new information, but it does say the current lever queue's
+priority (a) ("generating N diverse candidates... so the existing proof gate has something
+to filter") is aimed at the right target per the broader literature, not just this
+project's own internal diagnosis.
+
+**Definition-span detection, re-checked (queue item 2, STRUCK 2026-08-19 — checking
+whether anything changes that verdict).** Andrews & Witteveen (2024 workshop paper) treat
+clue-solving as two steps: locate the definition span, then parse the wordplay in the
+remainder — and their accompanying Wordplay Dataset marks the span with curly braces,
+i.e. it is SUPERVISED, human-annotated data, not a rule derived from indicator-word
+density. A 2024 LLM study (already in this project's citation set) found models do
+noticeably better at definition EXTRACTION (41.2% best) than full-clue solving (16.2%),
+consistent with span-finding being the more tractable half. **Transfer: still none that
+unsticks the killed lever.** This project's own `defspan.py` attempt used an indicator-
+density SIGNAL (not supervised labels — no Hebrew annotated span dataset exists to train
+or even validate against), and the 2026-08-19 finding was that most of this setter's
+clues carry no indicator word to key off at all (PLAYBOOK.md's own finding: this setter's
+anagram signal is mechanical, not lexical). A curly-brace-annotated English dataset does
+not transfer to Hebrew, and building an equivalent Hebrew-annotated set is its own large
+project, not a one-lever change. The standing verdict holds: do not re-attempt
+*classifying* the span with this signal. See below for what this run built INSTEAD,
+which sidesteps the classification problem entirely rather than re-attempting it.
+
+**Hebrew NLP tooling, re-checked after a ~2-month gap (DictaBERT-morph, Dicta-LM 3.0,
+YAP).** DictaBERT-morph (Dicta, BERT-based Hebrew morphological tagger: POS, gender,
+number, person, tense, CC-BY-4.0) and a newer Dicta-LM 3.0 open-weight LLM collection
+both exist and are real, maintained resources — a genuine change from this project's
+last Hebrew-NLP sweep (nothing dated this recently had been checked before). **Transfer:
+plausible for a DIFFERENT lever, not generation.** A morphological tagger could help
+VALIDATE anagram/hidden fodder roots or disambiguate inflected forms beyond hspell's
+static wordlist — but that is a vocabulary-breadth tool, and PLAYBOOK.md's standing
+diagnosis (reaffirmed multiple times in this log) is that vocabulary breadth was never
+this setter's bottleneck; wordplay-decomposition and definition-fit are. Running a BERT
+model is also a real infrastructure departure from every other file in solver/ (plain
+Python, no ML frameworks, synthetic-fixture selftests) and would need its own dependency/
+weights-fetch story this run did not attempt to validate (network egress to huggingface.co
+from this sandbox is unconfirmed). Flagging as a possible future lever for fodder-
+validity checking, not pursued today — the research queue's own standing finding (no
+buildable-today generator or definition-fit resource has turned up across many sweeps)
+is reaffirmed, not overturned.
+
+**PyData Amsterdam 2026 talk (multi-agent LangGraph solver for Dutch cryptics) — a
+scheduled-talk abstract, not a paper with results.** Gives the LLM tool access
+(synonyms, anagrams) inside an agent loop to solve whole grids. Transfer is weak and
+indirect: it is one more independent data point that the "LLM + mechanical tool calls"
+architecture (which is what `solve_pass.py` already is) is a live, not abandoned, pattern
+elsewhere — not a new technique or result to borrow from.
+
+**Conclusion, and the lever this run actually built.** No new resource turns a wish into
+a working DEFINITION-SPAN-AWARE generator via fine-tuning or Hebrew-specific tooling
+today — consistent with the last several research passes. But re-reading `candidates.py`
+and `retrieve_defs.py` side by side (not a literature search, a code-reading exercise
+prompted by the task's framing of "candidate generation... by definition-span hypothesis")
+surfaced a concrete, already-partially-built gap: `retrieve_defs.py` has carried an
+`end_candidates()` function since its 2026-08-08 build — it queries the clue's first/last
+2-4 words SEPARATELY instead of the whole clue, exactly the "generate both definition-span
+hypotheses, don't classify which is right" idea the task asks for, and avoiding the exact
+failure mode that killed `defspan.py` (no classification decision to get wrong). Checked
+directly: `retrieve_defs.py`'s own `eval` CLI has used `end_candidates()` from day one,
+but `candidates.py`'s `retrieval_candidates()` — the function that actually feeds every
+recall@N and live-trial number in DAILY.md since 2026-08-25 — has queried the WHOLE clue
+text the entire time. The better-targeted query shape was built and measured standalone,
+then never reached the live candidate pool. Today's lever closes exactly that gap: a new
+`edge_retrieval_candidates()` in `candidates.py`, wired into `generate()` behind its own
+`use_edge_retrieval` ablation flag (same pattern as `use_culture`/`use_retrieval`), so its
+contribution can be isolated the same way every other source in this file already is. See
+DAILY.md for the measured, audited before/after.

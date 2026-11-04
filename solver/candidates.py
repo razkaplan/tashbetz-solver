@@ -38,7 +38,15 @@ This module does exactly that, per clue, with no LLM involved:
                           standalone on 2026-08-08 (gold@25=5.4%, ceiling 27%) but never
                           before combined with the mechanisms above as one candidate pool —
                           see its own docstring for why the union, not either number alone,
-                          is the point of wiring it in here.
+                          is the point of wiring it in here. Queries the WHOLE clue text.
+  - edge_retrieval_candidates: the SAME BM25 index, but queried by DEFINITION-SPAN
+                          HYPOTHESIS instead of the whole clue — see its own docstring.
+                          A cryptic clue's definition sits at one END; querying the whole
+                          clue lets wordplay/indicator words dilute the BM25 signal the
+                          definition would otherwise give. This generates BOTH end
+                          hypotheses (does not classify which one is right — that was
+                          tried as defspan.py and killed, see DAILY.md 2026-08-19) and
+                          lets the proof gate / recall diagnostic use whichever fires.
   - split_candidates:    for multi-part enums (e.g. (5,2)), splits a hit at the enum
                           boundary and flags whether BOTH pieces are real words — the
                           precondition prove.py's word_order() needs to succeed.
@@ -423,6 +431,51 @@ def retrieval_candidates(clue_text, target_len, topk=25, docs_df=None):
     return [{'answer': a, 'mechanism': 'retrieval', 'fodder': None} for a, _score in hits]
 
 
+def edge_retrieval_candidates(clue_text, target_len, docs_df=None):
+    """DEFINITION-SPAN-HYPOTHESIS retrieval (current lever queue priority (a)+(b),
+    2026-11-04) — the queue's own standing gap: retrieve_defs.py has carried an
+    `end_candidates()` function since this project's 2026-08-08 build (it queries the
+    first/last 2-4 words of the clue separately, rather than the whole clue, because a
+    cryptic clue's DEFINITION sits at exactly one end), and its own `eval` CLI has always
+    used it (checked directly: 'python3 solver/retrieve_defs.py eval' calls
+    end_candidates, not candidates). But candidates.py's own retrieval_candidates()
+    above has queried the WHOLE clue text since the day it was wired in (2026-08-25) —
+    the better-targeted query shape was built and measured in isolation, then never
+    actually reached the live candidate pool this project's recall numbers come from.
+
+    This is NOT the indicator-density definition-span CLASSIFIER that defspan.py tried
+    and DAILY.md killed (2026-08-19, queue item 2): that approach had to decide WHICH end
+    is the definition before doing anything, and degenerated because most clues here
+    carry no indicator word to decide with. This generates candidates for BOTH end
+    hypotheses unconditionally and lets the proof gate / recall diagnostic keep whichever
+    one fires — no classification step to get wrong, by construction.
+
+    A short query (2-4 words from one edge) should rank differently against the BM25
+    index than the whole clue: wordplay fodder and indicator words elsewhere in the clue
+    no longer compete for term weight against the actual definition phrase. Whether this
+    measurably helps or not is exactly what today's recall@N ablation checks — this
+    docstring states the mechanism, not a result.
+
+    Held-out safety is inherited for free: this calls the same retrieve_defs.end_candidates
+    -> candidates() path, over the same held-out-filtered index retrieval_candidates()
+    already uses, so no new leak surface is introduced."""
+    sys.path.insert(0, HERE)
+    import retrieve_defs
+    cwd = os.getcwd()
+    try:
+        os.chdir(ROOT)
+        if docs_df is not None:
+            hits = retrieve_defs.end_candidates(clue_text, target_len, docs_df=docs_df)
+        else:
+            global _RETRIEVE_DOCS_DF
+            if _RETRIEVE_DOCS_DF is None:
+                _RETRIEVE_DOCS_DF = retrieve_defs.build_index()
+            hits = retrieve_defs.end_candidates(clue_text, target_len, docs_df=_RETRIEVE_DOCS_DF)
+    finally:
+        os.chdir(cwd)
+    return [{'answer': a, 'mechanism': 'edge_retrieval', 'fodder': None} for a, _score in hits]
+
+
 def pattern_candidates(pattern):
     """pattern like '?ו?ר??' — '?' or '_' = unknown crossing letter. The lexicon folds
     final letters (ם/ן/ץ/ף/ך -> מ/נ/צ/פ/כ) everywhere, so fixed cells must be folded
@@ -459,7 +512,8 @@ def split_candidates(cands, enum):
     return out
 
 
-def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retrieval=True):
+def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retrieval=True,
+             use_edge_retrieval=True):
     """Diverse candidates for one clue. Never consults the answer.
 
     Mechanism order here is a PRIORITY order, not just an accumulation order: dedup +
@@ -479,7 +533,10 @@ def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retr
     (25 by default) and ranked, not an unbounded window scan, so it does not need to wait
     behind the cheap mechanisms either. `use_culture`/`use_retrieval` are plain on/off
     switches so a controlled before/after recall measurement doesn't need extra copies of
-    this function."""
+    this function. `use_edge_retrieval` is the same kind of switch for
+    edge_retrieval_candidates (2026-11-04) — placed in the SAME early tier as the other
+    definition-driven sources, for the same reason: ranked and capped, not an unbounded
+    window scan."""
     target_len = sum(enum)
     cands = []
     cands += homograph_candidates(clue_text, target_len)
@@ -488,6 +545,8 @@ def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retr
         cands += culture_category_candidates(clue_text, target_len)
     if use_retrieval:
         cands += retrieval_candidates(clue_text, target_len)
+    if use_edge_retrieval:
+        cands += edge_retrieval_candidates(clue_text, target_len)
     if pattern:
         cands += pattern_candidates(pattern)
     cands += anagram_candidates(clue_text, target_len)
@@ -511,7 +570,8 @@ def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retr
 # isolation, BEFORE it is wired into a live solve+proof loop (which is a
 # separate integration step, not done by this lever).
 # ---------------------------------------------------------------------------
-def recall_eval(dataset_path, split=None, max_n=25, use_culture=True, use_retrieval=True):
+def recall_eval(dataset_path, split=None, max_n=25, use_culture=True, use_retrieval=True,
+                 use_edge_retrieval=True):
     total = 0
     hit = 0
     by_mech = Counter()
@@ -525,7 +585,7 @@ def recall_eval(dataset_path, split=None, max_n=25, use_culture=True, use_retrie
             continue
         total += 1
         cands = generate(r['clue_text'], r['enum'], max_n=max_n, use_culture=use_culture,
-                          use_retrieval=use_retrieval)
+                          use_retrieval=use_retrieval, use_edge_retrieval=use_edge_retrieval)
         sizes.append(len(cands))
         gold = norm(r['answer_raw'])
         found = [c for c in cands if c['answer'] == gold]
@@ -656,6 +716,24 @@ def selftest():
           f'not here): {len(off) >= 1} (expected True)')
     ok &= len(off) >= 1
 
+    print('--- edge_retrieval device: definition-span-hypothesis BM25, queried by clue '
+          'EDGE rather than the whole clue ---')
+    # the definition phrase sits at the END of a longer clue, after wordplay-looking
+    # filler that shares no tokens with any indexed doc; a 2-4-word edge query should
+    # still find it (same as the whole-clue query would here) — this selftest checks
+    # the mechanism fires end-to-end through retrieve_defs.end_candidates(), not that
+    # it beats the whole-clue query (that is recall_eval's job, on real data).
+    long_clue = 'ערבוב אותיות משונה כלשהו מי היה הנשיא הראשון של המדינה'
+    hits = edge_retrieval_candidates(long_clue, 6, docs_df=docs_df)
+    found = any(h['answer'] == norm('וייצמן') for h in hits)
+    print(f'  found וייצמן via an end-anchored query of a longer clue: {found} '
+          f'(expected True)')
+    ok &= found
+    print('  mechanism tag is edge_retrieval, not retrieval (so an ablation can tell '
+          f'them apart): {hits[0]["mechanism"] == "edge_retrieval" if hits else False} '
+          '(expected True)')
+    ok &= bool(hits) and hits[0]['mechanism'] == 'edge_retrieval'
+
     print('--- split_candidates: flags whether a multi-part answer is two real words ---')
     split = split_candidates([{'answer': norm('שלוםעליכם'), 'mechanism': 'test'}], [4, 5])
     print(f'  split result: {split[0]["split"]} (expected two real words, not None)')
@@ -681,14 +759,18 @@ def main():
         rest = sys.argv[2:]
         use_culture = '--no-culture' not in rest
         use_retrieval = '--no-retrieval' not in rest
-        rest = [a for a in rest if a not in ('--no-culture', '--no-retrieval')]
+        use_edge_retrieval = '--no-edge-retrieval' not in rest
+        rest = [a for a in rest if a not in
+                ('--no-culture', '--no-retrieval', '--no-edge-retrieval')]
         path = rest[0] if len(rest) > 0 else 'data/dataset/clues.jsonl'
         split = rest[1] if len(rest) > 1 else None
         os.chdir(ROOT)
-        res = recall_eval(path, split, use_culture=use_culture, use_retrieval=use_retrieval)
+        res = recall_eval(path, split, use_culture=use_culture, use_retrieval=use_retrieval,
+                           use_edge_retrieval=use_edge_retrieval)
         print(f"recall@N: {res['hit']}/{res['total']} = {res['recall']:.1%}  "
               f"(avg {res['avg_candidates']:.1f} candidates/clue, "
-              f"use_culture={use_culture}, use_retrieval={use_retrieval})")
+              f"use_culture={use_culture}, use_retrieval={use_retrieval}, "
+              f"use_edge_retrieval={use_edge_retrieval})")
         print('hits by mechanism:', res['by_mechanism'])
         if res['misses']:
             print(f"\n{len(res['misses'])} misses (clue_number, direction, gold):")
