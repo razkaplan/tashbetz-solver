@@ -4,6 +4,153 @@ One entry per run: what was found, one-line summary, and an honest judgement of 
 it transfers to a Hebrew cryptic solver with an 8k-clue corpus. Default skepticism: most
 crossword-AI work targets non-cryptic (American-style) puzzles and does not transfer.
 
+## 2026-11-05
+
+Primary focus this run was NOT a new lever — it was clearing two independently-branched,
+unmerged PRs (#109 `gematria_candidates`, #110 `container_candidates`, both opened this
+week, both branched from the same stale `main` without seeing each other) onto one
+consolidated branch, and auditing the scale of the PR backlog itself (see DAILY.md's log
+entry and this run's PR body for the full count: 64 open PRs, oldest from 2026-08-31,
+zero `solver/` merges to `main` in the project's entire 4-month history). Two searches run
+regardless, to keep the research habit intact even on a consolidation day:
+
+**"cryptic crossword wordplay LLM semantic synonym equivalence mining candidate generation
+2026"** (standard search). No 2026-dated paper surfaced — same result as every pass since
+2026-08-22. The one point worth logging: Andrews & Witteveen (arXiv 2506.04824, already in
+this log) name `is_synonym` — matching a clue word to a DISTANT, non-obvious synonym — as
+their system's own remaining weak point, the same shape of gap PR #110's `container_candidates`
+hit today (`טורף` -> `תן`, "predator" -> "jackal", a real but non-literal equivalence absent
+from the mined substitution table). This doesn't hand us a technique, but it's independent
+confirmation from outside this project that semantic-equivalence coverage, not mechanical
+candidate generation, is where general-purpose cryptic solvers are ALSO stuck — strengthens
+rather than changes the standing diagnosis (SOLVE_PROTOCOL.md, PLAYBOOK.md; and PR #110's own
+"HONEST READ"). **Transfer: confirms the diagnosis, offers no new buildable mechanism.**
+
+**"definition side detection cryptic crossword clue arxiv 2026"** (standard search). No 2026
+paper. Nothing beyond what 2026-08-19's indicator-density finding and the subsequent
+re-checks (2026-08-22/23/24, 2026-11-02/03) already established: no alternative signal to
+indicator-word density has turned up across now 8+ research passes. Item 2 (definition-span
+detection) stays struck.
+
+Net: zero new buildable transfers, consistent with every research pass logged here since
+2026-08-22 (now roughly a dozen consecutive empty passes on this exact question). Did not
+implement a new mechanism today — per DAILY.md's own standing permission ("if research
+suggests today's lever is unpromising, say so and implement nothing"), and because the
+PR backlog itself (see DAILY.md) is now the higher-value thing for this run to spend its
+one-lever budget on: two real, already-written, already-measured negative results
+(gematria, container) sitting unmerged and duplicated-at-risk is a bigger loss than one
+more untested idea would be a gain.
+
+## 2026-11-03
+
+Bootstrap succeeded FULLY this run (52/52 puzzles, 1,457 clues from 14across, no bot-check
+wall) — the first clean bootstrap logged in a while. `solver/lex/substitutions.json`
+rebuilt smaller (528 vs the committed 2,220 head words), per bootstrap's own standing
+warning (it can't fetch the secondary corpus) — reverted with `git checkout`, not committed.
+
+**"cryptic crossword clue candidate generation definition span detection 2026 arxiv"**
+(standard search). No new 2026 arXiv paper surfaced. The one new citation: the MINDS
+system for Cruciverb-IT at EVALITA 2026 (CEUR-WS, not arXiv) — masked-span modeling with a
+fine-tuned BERT for candidate completion, then multi-length ranking, for ITALIAN crosswords.
+**Transfer: checked and rejected, for two independent reasons, not just "non-cryptic
+doesn't transfer."** (1) Cruciverb-IT is a standard (definitional) crossword; masking the
+answer span and asking a BERT to fill it from context works because the clue text IS a
+definition. A Yoram HaRoeh cryptic clue's surface is mostly wordplay fodder and misdirection,
+not a definition of the answer — the premise the technique depends on doesn't hold here any
+more than it did for the definition-span-detection attempts already killed in this log
+(2026-08-19). (2) Practically: it requires `torch`+`transformers` plus a downloaded Hebrew
+BERT (DictaBERT is the live Hebrew equivalent, confirmed reachable), which is a real,
+heavy new dependency this project has deliberately avoided — DAILY.md's own style rule for
+`solver/` is "plain Python, no frameworks." Not implemented today; noted here in case a
+future run with different constraints wants to revisit it specifically for the handful of
+double-definition / pun-definition clues where the premise might actually hold.
+
+**"Hebrew morphological analyzer wordplay crossword solver NLP 2025 2026"** (standard
+search). Nothing on Hebrew cryptic/wordplay specifically, as every prior pass has also
+found. Recent tooling worth naming for the first time: an open-source Elasticsearch
+Hebrew-lemmatization plugin wrapping DictaBERT via ONNX, and HebPipe (tokenization +
+morphological segmentation + POS tagging, last pushed June 2025). Both are
+general-lemmatization tools, not wordplay-aware, and neither changes this project's own
+standing assessment (RESULTS.md, HOMOGRAPHS.md) that its hand-built prefix/suffix stripping
+(`_destem` in `candidates.py`/`homographs.py`) already covers the cases that matter for this
+setter's device at a fraction of the dependency cost. Not actionable today.
+
+**"cryptic crossword definition side classification length-based heuristic end-of-clue
+2025"** (standard search, following up on queue item 9's definition-fit gap). Surfaced only
+generic solving tutorials, nothing new or technique-shaped. Confirms rather than overturns
+2026-08-19's finding: no alternative signal to indicator-word density has turned up across
+several passes now, so item 2 (definition-span detection) stays struck; nothing to revisit.
+
+Net: three searches, zero directly-buildable transfers, one explicitly-reasoned rejection
+(the EVALITA masked-LM approach) worth recording so a future run doesn't re-discover and
+re-reject the same thing from scratch. Fell back to the queue's own concrete next step —
+see the Log entry below for a candidate-generation gap found directly in this project's own
+code rather than in the literature: `candidates.py` had no generator at all for the
+CONTAINER device, despite the device having its own proof primitive and indicator list.
+
+## 2026-11-02
+
+First run in this log since 2026-08-25 (a roughly nine-week gap — DAILY.md's own log
+shows the intervening sessions went to site/product work, not this lever queue; nothing
+solver-side changed in that window, so today starts from exactly where 2026-08-25 left
+off, not from a regressed or drifted baseline).
+
+**General search: "cryptic crossword solver LLM candidate generation 2026".** Turned up
+the same paper set already logged here across multiple prior runs (Andrews & Witteveen,
+ICML 2025, arXiv 2506.04824 — LLM proposes candidates + informal wordplay, rewritten to
+Python and verified; arXiv 2406.09043 "Language Models are Crossword Solvers"; arXiv
+2403.12094 "Are LLMs Good Cryptic Crossword Solvers?"; the Berkeley Crossword Solver,
+arXiv 2104.08620/NeurIPS 2021). No new 2026 paper on this exact topic surfaced. One new
+sighting: a PyData Amsterdam 2026 talk (10 September 2026) on a LangGraph multi-agent
+setup for DUTCH cryptics, giving an LLM synonym/anagram-lookup tools plus prompt
+optimisation and distillation. **Transfer: thin** — it's architecturally the same
+"LLM + lookup tools" shape this project already tried and moved past (SOLVE_PROTOCOL.md's
+tool-assisted blind trials, 25-40% cumulative live precision); no evaluation numbers were
+published in the talk abstract to compare against, and Dutch cryptics are a different
+clue-convention family. Nothing here changes course.
+
+**Wordplay formalisation / execution verification, re-checked.** Same Andrews &
+Witteveen paper as above is still the closest match (prover writes wordplay as Python,
+a verifier executes it) — this project's own `solver/prove.py` already independently
+converged on the same idea (assert `is_anagram`/`is_reversal`/`word_order`/`means` and
+require the assertions to PASS) well before this run, so there is nothing new to adopt;
+re-confirms the existing design choice rather than motivating a change.
+
+**Definition-span detection, re-checked once more.** No new resource found. The standing
+2026-08-19 finding stands: indicator-word-density classification measured 1/5 (worse than
+chance) and was struck from the queue; no literature surfaced this run gives a different,
+untried signal to test instead (the "does each end's residual pattern-match the lexicon"
+idea DAILY.md floated 2026-08-19 as a possible alternative remains unbuilt and untried —
+noted again, not attempted today, since it needs its own measurement discipline rather
+than a quick bolt-on). **Transfer: none new** — still not re-attempting this item.
+
+**Hebrew NLP / morphology, re-checked.** One genuinely new-to-this-project sighting:
+NeoDictaBERT (arXiv 2510.20386, Oct 2025), a newer Hebrew BERT release with strong
+morphology/parsing numbers. **Transfer: does not apply to today's bottleneck.** This
+project's own diagnosis (RESULTS.md, repeated across many runs) is that morphological
+segmentation is NOT where recall is lost — hspell plus `lexicon.py`'s final-letter
+folding already handles that cleanly; the measured gap is candidate generation and
+definition-fit, which a stronger masked-LM embedding does not directly address (and
+`retrieve_defs.py` already has a standing, re-confirmed finding that BM25 beats a
+commercial embedding model at this corpus's scale — see 2026-08-24/08-25 entries below).
+Filed as a lead for a possible future `means()`-adjacent synonym-expansion lever, not
+today's.
+
+**Conclusion, and the lever this run actually built.** No literature or resource turned
+up a usable external candidate generator or definition-fit scorer today — same
+conclusion as every research pass since 2026-08-22. Went back to the project's OWN
+documented-but-unimplemented gap instead: `solver/PLAYBOOK.md` names "gematria" as a
+real, recurring device for this genre in two places (line ~125, "Gematria numbers"; line
+~709, "Digits in clue -> letter spelling: printed numbers become gematria letter pairs
+inside the answer, e.g. 15 -> ט"ו") and `solver/defspan.py` even carries a
+`gematria_letters` key as a documentation-only placeholder — but no `candidates.py`
+mechanism ever implemented it, unlike every OTHER device PLAYBOOK.md documents
+(anagram/hidden/reversal/substitution/homograph all have a mechanism; gematria alone did
+not). This is exactly the queue's standing priority: a NEW mechanism by which the
+existing proof gate gets something new to filter, not a rehash of a previously-measured-
+negative lever. See DAILY.md for what was built and the measured (honestly negative, n=1
+puzzle) result.
+
 ## 2026-08-30
 
 Bootstrap hit the same hard 14across wall as 2026-08-19/08-26/08-27/08-28 (4 consecutive
