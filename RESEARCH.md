@@ -4,6 +4,43 @@ One entry per run: what was found, one-line summary, and an honest judgement of 
 it transfers to a Hebrew cryptic solver with an 8k-clue corpus. Default skepticism: most
 crossword-AI work targets non-cryptic (American-style) puzzles and does not transfer.
 
+## 2026-11-05
+
+Primary focus this run was NOT a new lever — it was clearing two independently-branched,
+unmerged PRs (#109 `gematria_candidates`, #110 `container_candidates`, both opened this
+week, both branched from the same stale `main` without seeing each other) onto one
+consolidated branch, and auditing the scale of the PR backlog itself (see DAILY.md's log
+entry and this run's PR body for the full count: 64 open PRs, oldest from 2026-08-31,
+zero `solver/` merges to `main` in the project's entire 4-month history). Two searches run
+regardless, to keep the research habit intact even on a consolidation day:
+
+**"cryptic crossword wordplay LLM semantic synonym equivalence mining candidate generation
+2026"** (standard search). No 2026-dated paper surfaced — same result as every pass since
+2026-08-22. The one point worth logging: Andrews & Witteveen (arXiv 2506.04824, already in
+this log) name `is_synonym` — matching a clue word to a DISTANT, non-obvious synonym — as
+their system's own remaining weak point, the same shape of gap PR #110's `container_candidates`
+hit today (`טורף` -> `תן`, "predator" -> "jackal", a real but non-literal equivalence absent
+from the mined substitution table). This doesn't hand us a technique, but it's independent
+confirmation from outside this project that semantic-equivalence coverage, not mechanical
+candidate generation, is where general-purpose cryptic solvers are ALSO stuck — strengthens
+rather than changes the standing diagnosis (SOLVE_PROTOCOL.md, PLAYBOOK.md; and PR #110's own
+"HONEST READ"). **Transfer: confirms the diagnosis, offers no new buildable mechanism.**
+
+**"definition side detection cryptic crossword clue arxiv 2026"** (standard search). No 2026
+paper. Nothing beyond what 2026-08-19's indicator-density finding and the subsequent
+re-checks (2026-08-22/23/24, 2026-11-02/03) already established: no alternative signal to
+indicator-word density has turned up across now 8+ research passes. Item 2 (definition-span
+detection) stays struck.
+
+Net: zero new buildable transfers, consistent with every research pass logged here since
+2026-08-22 (now roughly a dozen consecutive empty passes on this exact question). Did not
+implement a new mechanism today — per DAILY.md's own standing permission ("if research
+suggests today's lever is unpromising, say so and implement nothing"), and because the
+PR backlog itself (see DAILY.md) is now the higher-value thing for this run to spend its
+one-lever budget on: two real, already-written, already-measured negative results
+(gematria, container) sitting unmerged and duplicated-at-risk is a bigger loss than one
+more untested idea would be a gain.
+
 ## 2026-11-03
 
 Bootstrap succeeded FULLY this run (52/52 puzzles, 1,457 clues from 14across, no bot-check

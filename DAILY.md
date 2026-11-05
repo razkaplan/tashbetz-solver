@@ -23,9 +23,105 @@ tree - a stale CLI deploy overwrote the live site on 2026-08-29. See CLAUDE.md.
 | **`solve_pass.py` LIVE blind trial — cumulative (3 trials)** | **40% precision (2/5 committed)**: 2026-08-16 was 1/2 on a partial 21/28-clue puzzle (2026-06-12); 2026-08-22 was **0/2**, 7.1% coverage, on a FULL 28/28-clue puzzle (2026-05-15); **2026-08-27 is 1/1 = 100% precision but 5.3% coverage (1/19), 0% suggestion hit-rate (0/10)**, on 2026-07-10 (19/28 clues) — FIRST trial run with `retrieval_candidates` live (wired 2026-08-25, never live-trialed since); it contributed ZERO candidates all puzzle (grepped the transcript for `(retrieval, fodder=` hits — none), matching today's own offline recall@N finding on this same puzzle (0/19 with or without retrieval); the one correct commit came from `wiki.py` culture-fact lookup, not from any candidate generator | n=5 — still small; retrieval's live debut is a null result on this puzzle, not a regression, but not the coverage lift the queue hoped for either; see log |
 | **Candidate recall@N with `culture_category_candidates` added (new, offline, definition-driven)** | **0% (0/28)**, on 2026-06-19 — mechanism fired on only 1/28 clues (avg candidates/clue 10.5 → 11.4); its one firing (339 raw candidates, an "author" category hit) matched 0 gold | not yet a target — small-n diagnostic, see log |
 | **Candidate recall@N with `container_candidates` added (new, offline, insertion device)** | **3.6% (1/28), UNCHANGED**, on 2026-05-29 (fresh transcription, full 14across bootstrap this run) — fires on only 1/28 clues (2 raw candidates, neither gold); the one real container clue in this puzzle (11 across, prove.py's own worked example) needs a semantic substitution (טורף→תן) absent from the mined corpus, so the mechanism correctly declined to invent it | not yet a target — small-n diagnostic, see log |
+| **Candidate recall@N with gematria+container CONSOLIDATED onto one branch (2026-11-05)** | **3.6% (1/28), UNCHANGED** — fresh 5th independent transcription of 2026-05-29, both mechanisms merged into `generate()` together (`use_gematria`/`use_container` toggles), reproduces the exact same single anagram hit with both on, both off, and with full defaults (12.7 avg candidates/clue) | not a new result — consolidation verification, see log |
+| **⚠ PR BACKLOG** | **64 open, unmerged PRs** (#38-#110) as of this run; oldest (#38) opened 2026-08-31, **66 days ago**; zero `solver/` commits have reached `main` in this project's entire history (last `solver/` merge: 2026-08-20/21); this is the **TENTH** consecutive run to flag the same unaddressed problem (#71,#73,#82,#89,#92,#101/102,#103,#105,#108, now this one) | blocking — only the project owner can merge; see log |
 
 Baseline for comparison: v2 = 41% raw with untraceable errors.
-Last lever added (2026-11-03): **`container_candidates` — a new mechanical generator for
+Last lever added (2026-11-05): **no new mechanism — consolidated the two most recent unmerged
+PRs (#109 `gematria_candidates`, #110 `container_candidates`, both opened this week, both
+independently branched from the same stale `main` commit `9a4e622a8` without either one
+seeing the other) onto a single branch, and re-verified the merged result from scratch.**
+Chose this over a new mechanism for an explicit reason, not by default: `list_pull_requests`
+at the start of this run found **64 open, unmerged PRs**, the oldest (#38) now **66 days**
+old, and confirmed directly (not by repeating a prior claim) that `main`'s own git history
+contains zero `solver/`-path commits since 2026-08-20/21 — every lever this project has
+measured since then (dozens: substitution/homograph variants, culture_category, retrieval,
+defspan x3, deffit/embed_fit, segment/container/gematria candidates...) exists only on
+unmerged branches. This is the **tenth** run in a row to raise this exact problem (see the
+state table row above for the full prior-alert list) with no visible change in response —
+the backlog grew from 30 (2026-10-29) to 61 (2026-11-01) to 64 (today), not shrunk. A
+PushNotification was sent directly to the project owner this run, since nine prior PR-body
+alerts produced no visible action and a PR nobody opens is not the same as a notification
+that reaches a phone.
+
+Given that, this run's actual lever-budget went to making sure at least ONE well-verified,
+consolidated branch exists that captures the week's genuine (if negative) results, rather
+than adding an 11th branch to the pile. Bootstrap ran clean (52/52 puzzles via 14across).
+Fetched both PR branches (`daily/2026-11-02-gematria-candidates`,
+`claude/container-candidates-2026-11-03`), confirmed both are exactly one commit ahead of
+the current `main`, and cherry-picked both onto a fresh branch: three-way conflicts in
+`solver/candidates.py` (both touched `generate()`'s docstring, signature and dispatch — see
+`gematria_candidates`/`container_candidates` in the docstring list), `DAILY.md` and
+`RESEARCH.md` (both logged the same date range independently) were resolved BY HAND, not by
+picking one side — `generate()` now takes both `use_gematria` and `use_container` toggles
+(the CLI gained a matching `--no-container` ablation flag, which PR #110 itself hadn't
+added), and both narrative logs are kept in full, in chronological order, not merged away.
+
+RE-VERIFIED FROM SCRATCH, not trusted from either PR's own claim: transcribed 2026-05-29 a
+FIFTH independent time directly from `data/images/2026-05-28.jpg` (every PR this week did
+its own transcription of this same canonical puzzle — now 5 independent transcriptions in
+2 weeks alone, on top of the ~20 before that). Caught and resolved a genuine transcription
+trap while doing it, disclosed here rather than silently fixed: this puzzle's across-clue
+column physically splits into a NARROW sub-column (clues 1-13, printed beside the small
+reference-grid graphic) and a WIDE one (clues 15-26) — a known, previously-logged layout
+quirk (queue item 8) — but ADDITIONALLY, within the wide column, each clue's own
+ENUMERATION is printed flush against the START of the NEXT clue's number marker rather than
+immediately after its own text (e.g. clue 15's text ends mid-line and its `(3)` enum appears
+only once clue 17's number has already been typeset on the next line). A naive first-pass
+reading attributed enums to the wrong neighboring clue throughout 15-26 (shifted by one);
+caught by cross-checking EVERY enum sum against this puzzle's real, bootstrap-scraped gold
+answer LENGTHS from `data/answers/by_date/2026-05-29.json` (not just the committed grid) —
+all 15 across + 13 down enums now match exactly, and `python3 solver/grid_tools.py validate`
+independently confirms the full clue-to-slot structural match (`OK`, 0 problems) as a second,
+geometry-only cross-check. `python3 solver/build_dataset.py`: 28/28 rows, 0 length
+mismatches, 0 missing answers.
+
+MEASURED (executed, not assumed): `python3 solver/candidates.py recall data/dataset/clues.jsonl
+eval --no-culture --no-retrieval` gives **3.6% (1/28)** with gematria+container both ON, and
+the IDENTICAL **3.6% (1/28)** with `--no-gematria --no-container` added — both configurations
+hit the exact same single anagram (2D, `יחפניות`), confirming the merge introduced no
+regression and both mechanisms are correctly wired as independent on/off toggles. Full
+defaults (culture+retrieval+gematria+container): still 3.6% (12.7 avg candidates/clue;
+`retrieval_candidates` contributes nothing this run since `private_defs` was not re-crawled,
+expected and consistent with every prior run that skipped that crawl).
+
+AUDITED (mandatory gate). `lexicon.held_out_answers()`, `retrieve_defs.held_out()`, and
+`substitutions.held_out()` all independently confirmed (computed, not assumed) to block all
+28 of this puzzle's own gold answers (`gold - blocked` empty for all three). Directly checked
+`container_candidates` and `gematria_candidates` each produce ZERO hits matching this
+puzzle's own held-out gold across all 28 clues (not just the clues they happen to fire on).
+No forbidden reads: gold from the sanctioned `data/answers/by_date/` path (14across
+succeeded fully this run), clue text from the public CDN image only. No implausible jump:
+flat 3.6% in every configuration, the opposite of a suspicious result. All 5 affected
+selftests (`candidates.py`, `lexicon.py`, `prove.py`, `substitutions.py`, `retrieve_defs.py`)
+re-run clean; `solver/lex/substitutions.json`'s known dev-only-bootstrap regression was
+reverted with `git checkout --` before any commit, not shipped.
+
+HONEST READ: this run's real deliverable is the backlog alert and a single clean,
+independently-reverified branch — not a new measured finding about the solver itself (both
+component results were already honest negatives when their own PRs reported them, and
+merging them doesn't change that). The one thing worth taking away mechanically: candidate
+generation here now has NINE mechanisms (anagram/hidden/reversal/pattern/substitution/
+homograph/culture_category/retrieval/gematria/container — actually ten counting pattern
+separately) and the measured recall on this one canonical puzzle has not moved off 3.6%
+since 2026-08-06 under ANY mechanical combination tried — only `retrieval_candidates` with a
+freshly-crawled external corpus has ever moved it, and only on some puzzles. This is now a
+strong, repeated signal that the mechanical half of candidate generation is close to
+exhausted for this dataset, not a one-off reading.
+
+NOT DONE, honestly: did not implement a new mechanism (deliberate choice this run, see
+above); did not crawl `private_defs`; did not triage the other ~62 open PRs individually
+beyond confirming #109/#110 are genuinely independent, non-duplicate contributions (unlike
+#108's finding that #106/#107 were exact duplicates) — a full triage of the whole backlog is
+still not done and is now itself a standing gap; did not merge anything to `main` (not this
+run's call to make); did not delete or close any of the other open PRs (also not this run's
+call). The core, unresolved ask — stated here for the tenth time, now backed by a direct
+notification rather than only a PR body — is unchanged: someone needs to either merge the
+backlog (this branch, built on current `main`, is offered as the next candidate to merge),
+or explicitly decide this daily routine should pause, run less often, or change its process
+so branches stop compounding faster than they can be reviewed.
+
+Previous lever (2026-11-03): **`container_candidates` — a new mechanical generator for
 the insertion/container device (SOLVE_PROTOCOL.md "container: X בתוך Y phrasing"), which
 `candidates.py` had never implemented despite the device having its own proof primitive
 (`prove.py`'s `is_container`) and its own unused indicator list (`solver/indicators.json`'s
@@ -2670,3 +2766,32 @@ Measure each lever on dev (fixed enums) with run_eval.py before/after; one lever
   did not test on any other puzzle (only 2026-05-29 has transcribed clue text today); did
   not attempt to mine a broader semantic-substitution source; did not merge or act on any
   open PR.
+
+- 2026-11-05: **no new mechanism — consolidated PR #109 (`gematria_candidates`) and #110
+  (`container_candidates`) onto one branch, and flagged the PR backlog directly to the
+  project owner (PushNotification, not just this log).** `list_pull_requests` found 64
+  open, unmerged PRs (#38-#110), oldest 66 days old, zero `solver/` commits on `main` since
+  2026-08-20/21 — the TENTH consecutive run to raise this (see the state table's new
+  backlog row for the prior nine). Fetched both branches, confirmed each is exactly one
+  commit ahead of the same stale `main`, cherry-picked both: conflicts in `candidates.py`
+  (`generate()`'s docstring/signature/dispatch), `DAILY.md`, `RESEARCH.md` resolved by hand
+  (both toggles kept: `use_gematria` and `use_container`, plus a `--no-container` CLI flag
+  PR #110 itself lacked). Re-transcribed 2026-05-29 a fifth independent time from
+  `data/images/2026-05-28.jpg` to re-verify rather than trust either PR's own number;
+  caught a real enum-attribution trap in the wide across-column (15-26) where each clue's
+  printed enumeration sits flush against the NEXT clue's number rather than its own text —
+  resolved by cross-checking every enum against the real gold answer lengths from
+  `data/answers/by_date/2026-05-29.json`, confirmed by `grid_tools.py validate` printing
+  `OK` independently. `build_dataset.py`: 28/28, 0 mismatches. MEASURED: 3.6% (1/28) with
+  both mechanisms on, identical 3.6% (1/28) with both off (`--no-gematria --no-container`),
+  same single anagram hit (2D) either way — confirms no regression from the merge. Full
+  defaults (culture+retrieval+gematria+container): still 3.6% (retrieval contributes
+  nothing, `private_defs` not re-crawled this run, expected). AUDITED: all three held-out
+  filters (`lexicon`, `retrieve_defs`, `substitutions`) confirmed to block all 28 gold
+  answers; `container_candidates`/`gematria_candidates` confirmed to produce zero hits on
+  this puzzle's own held-out gold; all 5 affected selftests re-run clean; no forbidden
+  reads; no implausible jump (flat throughout). See the state table and this entry's fuller
+  write-up above ("Last lever added") for the full backlog numbers and what's still not
+  done. Sent a PushNotification to the project owner this run, since nine prior PR-body-only
+  alerts produced no visible change in the backlog's trajectory (30 -> 61 -> 64 open PRs
+  over the last week).
