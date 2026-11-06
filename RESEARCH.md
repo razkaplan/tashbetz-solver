@@ -1057,3 +1057,39 @@ priority 2. Wiring in an already-built, already-audited tool as one more candida
 is not itself a research question — it is closing a gap between what the project's own
 research queue prioritized in 2026-08-08 and what got implemented, which is worth doing
 regardless of whether today's literature sweep turned up anything new.
+
+## 2026-11-06 — global constraint propagation (queue item 4, the lever this run built)
+
+Two searches this run, aimed squarely at queue item 4 ("global constraint optimization",
+flagged repeatedly as "the real prize" since PLAN_V2.md and never attempted despite ~10
+candidate-generation PRs since).
+
+**"crossword solver arc consistency weighted CSP loopy belief propagation candidate
+pruning 2025 2026"**: turned up nothing newer than the Berkeley Crossword Solver (Wallace
+et al., ACL 2022, arXiv 2205.09665), already this project's standing reference for the
+loopy-belief-propagation approach. No 2025/2026 successor found. **Transfer: the
+architecture (ranked candidates per slot, then a global pass over grid crossings instead
+of greedy one-at-a-time placement) is exactly what queue item 4 already names — today's
+lever is an implementation of the KNOWN idea, not a response to a new paper.**
+
+**"cryptic crossword definition span detection wordplay LLM 2026 paper"**: the two
+results already in this project's citation history (Sadallah et al. arXiv 2412.09012,
+"What Makes Cryptic Crosswords Challenging for LLMs?"; Andrews & Witteveen arXiv
+2506.04824, the reasoning-based Gemma2 approach PR #111 already cited for its own
+`is_synonym` finding) are still the most recent relevant work; nothing newer surfaced.
+**Transfer: none new** — consistent with roughly a dozen consecutive empty passes on
+this exact question.
+
+**Conclusion and the lever this run actually built.** No new external resource, so today's
+lever is queue item 4 itself: `solver/constraint_solve.py`, a minimal arc-consistency pass
+(AC-3-style, not full loopy BP — scoped to be shippable in one run) over the EXISTING
+per-slot candidate lists `candidates.py generate()` already produces, run across every
+slot in the grid at once before anything is committed, rather than the greedy
+one-clue-at-a-time pattern `SOLVE_PROTOCOL.md`'s "cross-letter pass" already uses. See
+DAILY.md for the measured result: a genuinely new, honestly negative finding with a
+specific, now-understood mechanism (10/28 slots on the canonical dev puzzle start with
+ZERO candidates at all, and even after guarding against that, the one slot that *did*
+contain gold lost it to pruning because its crossing neighbours' own candidate pools
+never separately produced a letter-compatible answer either) — not a generic "recall is
+low" restatement, but a concrete diagnosis of WHY a global optimizer can't yet rescue a
+~4-7% recall candidate pool on this setter.

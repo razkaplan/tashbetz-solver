@@ -24,10 +24,60 @@ tree - a stale CLI deploy overwrote the live site on 2026-08-29. See CLAUDE.md.
 | **Candidate recall@N with `culture_category_candidates` added (new, offline, definition-driven)** | **0% (0/28)**, on 2026-06-19 — mechanism fired on only 1/28 clues (avg candidates/clue 10.5 → 11.4); its one firing (339 raw candidates, an "author" category hit) matched 0 gold | not yet a target — small-n diagnostic, see log |
 | **Candidate recall@N with `container_candidates` added (new, offline, insertion device)** | **3.6% (1/28), UNCHANGED**, on 2026-05-29 (fresh transcription, full 14across bootstrap this run) — fires on only 1/28 clues (2 raw candidates, neither gold); the one real container clue in this puzzle (11 across, prove.py's own worked example) needs a semantic substitution (טורף→תן) absent from the mined corpus, so the mechanism correctly declined to invent it | not yet a target — small-n diagnostic, see log |
 | **Candidate recall@N with gematria+container CONSOLIDATED onto one branch (2026-11-05)** | **3.6% (1/28), UNCHANGED** — fresh 5th independent transcription of 2026-05-29, both mechanisms merged into `generate()` together (`use_gematria`/`use_container` toggles), reproduces the exact same single anagram hit with both on, both off, and with full defaults (12.7 avg candidates/clue) | not a new result — consolidation verification, see log |
-| **⚠ PR BACKLOG** | **64 open, unmerged PRs** (#38-#110) as of this run; oldest (#38) opened 2026-08-31, **66 days ago**; zero `solver/` commits have reached `main` in this project's entire history (last `solver/` merge: 2026-08-20/21); this is the **TENTH** consecutive run to flag the same unaddressed problem (#71,#73,#82,#89,#92,#101/102,#103,#105,#108, now this one) | blocking — only the project owner can merge; see log |
+| **⚠ PR BACKLOG** | **64 open, unmerged PRs** (#38-#110) as of 2026-11-05; oldest (#38) opened 2026-08-31, **66 days ago**; zero `solver/` commits have reached `main` in this project's entire history (last `solver/` merge: 2026-08-20/21); this is the **TENTH** consecutive run to flag the same unaddressed problem (#71,#73,#82,#89,#92,#101/102,#103,#105,#108), now ELEVENTH with this run's own PR (#112 or similar) added on top, +1 to ~65 open | blocking — only the project owner can merge; already escalated via PushNotification 2026-11-05, not repeated today — see log |
+| **Global constraint propagation (new, offline, 2026-11-06, queue item 4 — FIRST attempt ever)** | **Negative, mechanism understood.** `solver/constraint_solve.py`: arc-consistency over `candidates.py`'s existing per-slot candidate lists, all 28 slots at once, before anything is committed. Naive strict version collapsed the WHOLE grid to empty (avg candidates/slot 15.2 → 0.0) within 2 rounds — 10/28 slots start with ZERO candidates, and one empty neighbour vetoes every candidate touching it, cascading everywhere. Guarded (empty neighbour = no information, not impossible): avg candidates/slot 15.2 → 5.75, 3 rounds to fixpoint, 4 slots forced to one candidate — **0/4 correct**, and the ONE slot that held gold before propagation (2 down, `יחפניות`) **lost it**, because its two non-empty crossing neighbours (9 across, 38 candidates; 11 across, 21 candidates) separately never produced a candidate with the right crossing letter either | not yet a target — diagnostic; see log for the full per-cell trace |
 
 Baseline for comparison: v2 = 41% raw with untraceable errors.
-Last lever added (2026-11-05): **no new mechanism — consolidated the two most recent unmerged
+Last lever added (2026-11-06): **first-ever attempt at queue item 4 (global constraint
+optimization), the item PLAN_V2.md has called "the real prize" and "worth doing once
+candidate lists are good" since before this project had any candidate generator at all —
+never attempted across ~10 PRs that instead added new candidate-generation mechanisms.**
+Branched from PR #111's head (`fbb9569a8`, yesterday's consolidation of #109/#110) rather
+than stale `main`, carrying forward the already-verified gematria+container merge instead
+of re-deriving it a third time. Re-transcribed 2026-05-29 independently (a sixth time this
+project has now transcribed this exact puzzle), 28/28 enum sums validated against the real
+gold answer lengths from `data/answers/by_date/2026-05-29.json` (14across succeeded fully
+this run, 52/52 puzzles) with **zero mismatches**, cross-confirmed by `grid_tools.py
+validate` printing `OK`. Built `solver/constraint_solve.py`: arc consistency (AC-3-style)
+over the candidate lists `candidates.py generate()` already produces for every slot,
+applied across the whole grid simultaneously rather than greedily one clue at a time.
+MEASURED, controlled, with a real bug caught and fixed mid-run (not hidden): the first,
+naive version treated an EMPTY crossing-neighbour candidate list as proof no letter works
+there, which cascaded into emptying all 28 slots within 2 rounds, including the one slot
+holding gold (recall 1/28 → 0/28, avg candidates/slot 15.2 → 0.0). Fixed by treating an
+empty neighbour as "no information" rather than "impossible" (reasonable: it reflects the
+generator's own incompleteness, not the grid's actual constraints) and re-measured: avg
+candidates/slot 15.2 → 5.75 (real narrowing, not collapse), 4 slots forced to exactly one
+candidate, **0 of those 4 correct**, and the one slot that DID contain gold before
+propagation (2 down, `יחפניות`) still lost it — traced to the specific cause, not just
+observed: its two non-empty crossing neighbours (9 across/38 cands, 11 across/21 cands)
+never separately generated a candidate with the correct crossing letter either, so strict
+mutual-support propagation correctly (by its own logic) discarded a right answer that had
+no neighbourly corroboration. AUDITED: `lexicon.held_out_answers()`,
+`retrieve_defs.held_out()`, `substitutions.held_out()` all directly confirmed (computed,
+not assumed) to block all 28 of this puzzle's own gold answers. No forbidden reads (gold
+from the sanctioned `by_date` path; clue text from the public CDN image only). No
+implausible positive jump to explain — the result is a clean, mechanistically-traced
+negative. `solver/lex/substitutions.json`'s bootstrap-regressed rebuild reverted, not
+committed. New `solver/constraint_solve.py selftest` (3 synthetic checks: arc consistency
+correctly forces a mutually-consistent synthetic grid to the planted truth; correctly
+empties a slot given genuinely inconsistent singleton candidates) — all pass, independent
+of any real puzzle data. HONEST READ: this is the sharpest evidence yet for the project's
+oldest standing diagnosis (RESULTS.md v3, 2026-07: "below a bootstrapping threshold, grid
+propagation amplifies errors instead of cascading to a solution") — now demonstrated for
+candidate-list propagation specifically, with the exact mechanism named rather than
+inferred. A global optimizer cannot manufacture support that was never generated; it can
+only arbitrate between candidates that already exist, and at ~4-7% recall the few correct
+candidates are isolated (their crossing neighbours independently miss too), not clustered
+in a way propagation can exploit. NOT DONE, honestly: did not try a SOFT (count/score
+re-ranking, never hard elimination) variant, which is the natural next step if this item is
+revisited, since strict elimination is provably the wrong tool at this recall level; did
+not test on a second puzzle (only 2026-05-29 has transcribed clue text on this branch); did
+not crawl `private_defs` (retrieval candidates were included in the "full defaults" run via
+whatever corpus this branch already had — contributed nothing new, as expected, since it
+wasn't re-crawled); did not merge or act on any other PR — not this run's call to make.
+
+Previous lever (2026-11-05): **no new mechanism — consolidated the two most recent unmerged
 PRs (#109 `gematria_candidates`, #110 `container_candidates`, both opened this week, both
 independently branched from the same stale `main` commit `9a4e622a8` without either one
 seeing the other) onto a single branch, and re-verified the merged result from scratch.**
@@ -789,6 +839,21 @@ propagated), `blank`. Score with `python3 evals/run_eval.py <file>`.
    unlocks both retrieval and any future fine-tune. This is the long game.
 4. **Global constraint optimization** — scored candidates + belief propagation over the
    grid (Berkeley Crossword Solver approach). Worth doing once candidate lists are good.
+   **FIRST ATTEMPT 2026-11-06** (`solver/constraint_solve.py`, arc-consistency over the
+   existing candidate lists, not full loopy BP): MEASURED NEGATIVE, with the mechanism
+   fully understood, not just the number. A naive strict pass (any crossing neighbour with
+   zero candidates vetoes everything through it) collapsed the ENTIRE 28-slot grid to empty
+   within 2 rounds, including the one slot that held gold. Guarding against that (treat an
+   empty neighbour list as "no information" rather than "impossible") still landed at 0/1
+   gold retained and 0/3 "forced-to-one-candidate" slots correct — see the state table and
+   log for the full mechanistic trace (which TWO specific crossing neighbours' candidate
+   pools lacked support for gold's own crossing letters). Confirms the standing diagnosis
+   from a new angle: a global optimizer can only rank/filter what candidate generation
+   hands it, and at ~4-7% recall the failures are not even aligned across crossing slots,
+   so a hit in one slot is routinely vetoed by misses in its neighbours. Worth doing again
+   only once candidate recall is substantially higher, or with a SOFT (count/score-based
+   re-ranking, never hard elimination) version — not attempted this run, concrete next step
+   if this item is revisited.
 5. **Validate on the easier tier** (דקל בנו) — where 80% is realistic; tells us whether
    the harness is sound and this setter is simply hard.
 6. ~~Merge or close the PR backlog~~ — STRUCK 2026-08-21, RECURRED 2026-08-24, CONSOLIDATED
@@ -2795,3 +2860,28 @@ Measure each lever on dev (fixed enums) with run_eval.py before/after; one lever
   done. Sent a PushNotification to the project owner this run, since nine prior PR-body-only
   alerts produced no visible change in the backlog's trajectory (30 -> 61 -> 64 open PRs
   over the last week).
+
+- 2026-11-06: **first attempt at queue item 4 (global constraint optimization/propagation),
+  never tried before despite being on the queue since PLAN_V2.md and flagged repeatedly as
+  "the real prize."** Branched from PR #111's head (yesterday's gematria+container
+  consolidation) rather than stale `main`. Re-transcribed 2026-05-29 a sixth independent
+  time (28/28 enum sums match the real gold answer lengths with zero mismatches,
+  `grid_tools.py validate` prints `OK`). Built `solver/constraint_solve.py`: arc
+  consistency over `candidates.py`'s existing per-slot candidate lists, applied across the
+  whole grid at once rather than greedily. Caught and fixed a real bug mid-run (disclosed,
+  not hidden): a naive version let any EMPTY crossing-neighbour list veto everything
+  touching it, collapsing all 28 slots to 0 candidates within 2 rounds; fixed by treating
+  an empty neighbour as missing information rather than proof of impossibility. MEASURED
+  after the fix: avg candidates/slot 15.2 → 5.75, 4 slots forced to one candidate, 0/4
+  correct, and the one slot that held gold before propagation (2 down) lost it — traced to
+  its two non-empty crossing neighbours independently never producing a candidate with the
+  right crossing letter either. AUDITED: all three held-out filters confirmed to block all
+  28 gold answers; no forbidden reads; no implausible jump (a clean, explained negative).
+  New `constraint_solve.py selftest` (3 synthetic checks) passes, independent of any real
+  puzzle. HONEST READ: sharpens, with a named mechanism, the project's oldest diagnosis —
+  a global optimizer can only arbitrate between candidates that already exist; at ~4-7%
+  recall the rare correct candidates are isolated, not clustered, so strict mutual-support
+  propagation is the wrong tool at this recall level. A soft, score-based variant (never
+  hard elimination) is the natural next step, not attempted this run. See the state table
+  and RESEARCH.md for the full trace. PR backlog now +1 (~65 open) — already escalated via
+  PushNotification yesterday, not repeated today.
