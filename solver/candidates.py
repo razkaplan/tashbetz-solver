@@ -51,6 +51,16 @@ This module does exactly that, per clue, with no LLM involved:
                           concatenation, not a container, and already anagram/hidden territory).
   - pattern_candidates:  wraps lexicon.py's crossing-pattern lookup, for when grid
                           letters are already known.
+  - double_definition_candidates: the double-definition device (SOLVE_PROTOCOL.md's method
+                          list, step 2: "one word answering both halves of the clue") --
+                          like container before 2026-11-03, this had a named device, a
+                          worked-example mention in the protocol, and NO generator at all.
+                          Splits the clue's words into every left/right partition and
+                          proposes a lexicon word of the exact length if it is a mined
+                          substitute (sub_fwd(), the same equivalence table
+                          substitution_candidates/container_candidates already use) of some
+                          word in BOTH halves -- two independent crowd-explanation sightings,
+                          one from each half of THIS clue, converging on the same answer.
   - culture_category_candidates: a DEFINITION-hypothesis mechanism, not a wordplay one —
                           see its own docstring. Every mechanism above derives an answer
                           from the clue's LETTERS; this derives one from the clue's MEANING
@@ -464,6 +474,48 @@ def container_candidates(clue_text, target_len, sub_table=None):
     return out
 
 
+def double_definition_candidates(clue_text, target_len, table=None):
+    """The double-definition device (SOLVE_PROTOCOL.md step 2: "one word answering both
+    halves of the clue") -- no wordplay manipulation at all, just two independent
+    definitions of the same answer sitting side by side in the clue surface. Like
+    container_candidates before 2026-11-03, this device has its own mention in the
+    protocol and never had a generator.
+
+    This project has no synonym/thesaurus resource to test "does this word mean that
+    phrase" directly (the standing diagnosis on queue item 9 -- see DAILY.md -- is that
+    none exists in a usable form). The only DEFINITIONAL equivalence table on hand is
+    sub_fwd(): clue-word -> answer-fragment pairs mined from OTHER clues' crowd
+    explanations elsewhere in the corpus. Operationalize a double definition as: split
+    the clue's words into every non-empty left/right partition, and propose a
+    length-`target_len` lexicon word if it is a mined substitute of some word in the LEFT
+    half AND, independently, of some (possibly different) word in the RIGHT half -- two
+    separate pieces of corpus evidence, one from each half of THIS clue, converging on
+    one answer. This is a bet, not a certainty: a single over-common substitute could
+    satisfy both halves by coincidence rather than because the setter intended a double
+    definition, which is exactly what MEASURED recall must check, not assume away.
+    `table` is injectable (tests / callers), same discipline as every other corpus-backed
+    mechanism here."""
+    fwd = table if table is not None else sub_fwd()
+    words = lex()
+    ws = words_of(clue_text)
+    if len(ws) < 2:
+        return []
+    subs_of = lambda w: {b for b, n in fwd.get(norm(w), [])}
+    out, seen = [], set()
+    for split in range(1, len(ws)):
+        left_subs, right_subs = set(), set()
+        for w in ws[:split]:
+            left_subs |= subs_of(w)
+        for w in ws[split:]:
+            right_subs |= subs_of(w)
+        for cand in left_subs & right_subs:
+            if len(cand) == target_len and cand in words and cand not in seen:
+                seen.add(cand)
+                out.append({'answer': cand, 'mechanism': 'double_definition',
+                            'fodder': f'{"".join(ws[:split])}|{"".join(ws[split:])}'})
+    return out
+
+
 _CULTURE = None
 
 
@@ -645,7 +697,7 @@ def split_candidates(cands, enum):
 
 
 def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retrieval=True,
-             use_gematria=True, use_container=True):
+             use_gematria=True, use_container=True, use_doubledef=True):
     """Diverse candidates for one clue. Never consults the answer.
 
     Mechanism order here is a PRIORITY order, not just an accumulation order: dedup +
@@ -664,9 +716,9 @@ def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retr
     same early tier: culture_category fires rarely and each hit is a real named entity;
     retrieval is capped at its own topk (25 by default) and ranked, not an unbounded window
     scan, so it does not need to wait behind the cheap mechanisms either.
-    `use_culture`/`use_retrieval`/`use_gematria`/`use_container` are plain on/off switches
-    so a controlled before/after recall measurement doesn't need extra copies of this
-    function."""
+    `use_culture`/`use_retrieval`/`use_gematria`/`use_container`/`use_doubledef` are plain
+    on/off switches so a controlled before/after recall measurement doesn't need extra
+    copies of this function."""
     target_len = sum(enum)
     cands = []
     cands += homograph_candidates(clue_text, target_len)
@@ -675,6 +727,8 @@ def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retr
         cands += gematria_candidates(clue_text, target_len)
     if use_container:
         cands += container_candidates(clue_text, target_len)
+    if use_doubledef:
+        cands += double_definition_candidates(clue_text, target_len)
     if use_culture:
         cands += culture_category_candidates(clue_text, target_len)
     if use_retrieval:
@@ -703,7 +757,7 @@ def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retr
 # separate integration step, not done by this lever).
 # ---------------------------------------------------------------------------
 def recall_eval(dataset_path, split=None, max_n=25, use_culture=True, use_retrieval=True,
-                 use_gematria=True, use_container=True):
+                 use_gematria=True, use_container=True, use_doubledef=True):
     total = 0
     hit = 0
     by_mech = Counter()
@@ -718,7 +772,7 @@ def recall_eval(dataset_path, split=None, max_n=25, use_culture=True, use_retrie
         total += 1
         cands = generate(r['clue_text'], r['enum'], max_n=max_n, use_culture=use_culture,
                           use_retrieval=use_retrieval, use_gematria=use_gematria,
-                          use_container=use_container)
+                          use_container=use_container, use_doubledef=use_doubledef)
         sizes.append(len(cands))
         gold = norm(r['answer_raw'])
         found = [c for c in cands if c['answer'] == gold]
@@ -856,6 +910,47 @@ def selftest():
     print(f'  found שולחן via a substituted inner fragment: {found2} (expected True)')
     ok &= found2
 
+    print('--- double_definition device: two mined substitutes, one from each half of '
+          'the clue, converge on the same answer ---')
+    # injected table, independent of the live corpus. 'שמחה' (joy) -> 'חג' (holiday) is
+    # the LEFT half's mined substitute; 'חופש' (freedom/vacation) -> 'חג' is a SEPARATE,
+    # independent sighting from the RIGHT half. Neither half's word shares a single
+    # letter with חג -- this mechanism finds it only because two different corpus
+    # sightings happen to agree, exactly the double-definition shape.
+    dd_table = {norm('שמחה'): [(norm('חג'), 3)], norm('חופש'): [(norm('חג'), 2)]}
+    hits = double_definition_candidates('שמחה גדולה או חופש מהעבודה', 2, table=dd_table)
+    found = any(h['answer'] == norm('חג') for h in hits)
+    print(f'  found חג from independent left/right substitutes: {found} (expected True)')
+    ok &= found
+    print('--- double_definition device: a substitute present on only ONE side does not '
+          'fire ---')
+    one_sided = {norm('שמחה'): [(norm('חג'), 3)]}
+    hits2 = double_definition_candidates('שמחה גדולה או חופש מהעבודה', 2, table=one_sided)
+    print(f'  no candidate without a right-side sighting too: {hits2 == []} '
+          f'(expected True)')
+    ok &= hits2 == []
+    print('--- double_definition device: use_doubledef=False in generate() disables it ---')
+    # generate() always calls the real sub_fwd(), so to test the toggle itself (not just
+    # that both calls run), temporarily substitute the module-level cache with the same
+    # synthetic table used above -- restored immediately after, so no other check in this
+    # run is affected.
+    global _SUB_FWD
+    saved_sub_fwd = _SUB_FWD
+    _SUB_FWD = dd_table
+    try:
+        with_dd = generate('שמחה גדולה או חופש מהעבודה', [2], use_culture=False,
+                            use_retrieval=False, use_gematria=False, use_container=False,
+                            use_doubledef=True)
+        without_dd = generate('שמחה גדולה או חופש מהעבודה', [2], use_culture=False,
+                               use_retrieval=False, use_gematria=False, use_container=False,
+                               use_doubledef=False)
+    finally:
+        _SUB_FWD = saved_sub_fwd
+    toggled_dd = any(c['mechanism'] == 'double_definition' for c in with_dd) and \
+        not any(c['mechanism'] == 'double_definition' for c in without_dd)
+    print(f'  double_definition present only when enabled: {toggled_dd} (expected True)')
+    ok &= toggled_dd
+
     print('--- culture_category device: a category the clue NAMES surfaces its namelist,'
           ' matched by MEANING not letters ---')
     # synthetic table + triggers, independent of the live corpus and its real entities —
@@ -930,17 +1025,21 @@ def main():
         use_retrieval = '--no-retrieval' not in rest
         use_gematria = '--no-gematria' not in rest
         use_container = '--no-container' not in rest
+        use_doubledef = '--no-doubledef' not in rest
         rest = [a for a in rest if a not in
-                ('--no-culture', '--no-retrieval', '--no-gematria', '--no-container')]
+                ('--no-culture', '--no-retrieval', '--no-gematria', '--no-container',
+                 '--no-doubledef')]
         path = rest[0] if len(rest) > 0 else 'data/dataset/clues.jsonl'
         split = rest[1] if len(rest) > 1 else None
         os.chdir(ROOT)
         res = recall_eval(path, split, use_culture=use_culture, use_retrieval=use_retrieval,
-                           use_gematria=use_gematria, use_container=use_container)
+                           use_gematria=use_gematria, use_container=use_container,
+                           use_doubledef=use_doubledef)
         print(f"recall@N: {res['hit']}/{res['total']} = {res['recall']:.1%}  "
               f"(avg {res['avg_candidates']:.1f} candidates/clue, "
               f"use_culture={use_culture}, use_retrieval={use_retrieval}, "
-              f"use_gematria={use_gematria}, use_container={use_container})")
+              f"use_gematria={use_gematria}, use_container={use_container}, "
+              f"use_doubledef={use_doubledef})")
         print('hits by mechanism:', res['by_mechanism'])
         if res['misses']:
             print(f"\n{len(res['misses'])} misses (clue_number, direction, gold):")

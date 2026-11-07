@@ -1093,3 +1093,67 @@ contain gold lost it to pruning because its crossing neighbours' own candidate p
 never separately produced a letter-compatible answer either) — not a generic "recall is
 low" restatement, but a concrete diagnosis of WHY a global optimizer can't yet rescue a
 ~4-7% recall candidate pool on this setter.
+
+## 2026-11-07 — double_definition_candidates, plus a feasibility check on the easier tier
+
+Two threads this run: the standard literature sweep, and a direct feasibility check of
+queue item 3/5 (grow the corpus / validate on the easier, דקל בנו tier) — the latter not
+a literature search but an honest attempt to answer a question this file and DAILY.md
+have both carried, unexamined, since before PLAN_V2.md existed.
+
+**"cryptic crossword clue solving LLM wordplay definition span 2026 arxiv"**: surfaced
+only the same three papers this project has cited repeatedly since 2026-08-06 (Andrews &
+Witteveen, arXiv 2407.08824 and arXiv 2506.04824; Sadallah et al., arXiv 2412.09012).
+**Transfer: none new** — consistent with roughly a dozen prior passes on this exact
+question across the project's history.
+
+**Feasibility check: can the easier-tier (secondary) corpus actually be built today?**
+PLAN_V2.md item G and the lever queue's item 3/5 both assume the answer is yes
+("effort: medium, reuses the existing image-transcription pipeline") but neither has ever
+been tested. Checked directly: `scraper/parse_answers_multi.py` already exists and can
+fetch 14across answers+explanations for six easier crosswords, including id 12
+("תרתי משמע, דקל בנו") — confirmed live by fetching that page directly (not assumed from
+the script's own docstring): it returned real, current data (issue 11467, dated
+06/11/2026). But — same structural fact as the main setter, checked directly against the
+fetched HTML rather than assumed by analogy — 14across's `answers.php` pages carry
+clue NUMBER, ANSWER and crowd EXPLANATIONS only; there is no clue TEXT anywhere in the
+page (`parse_answers.py`'s own `parse_page()` regex confirms this: it extracts
+`question_number`, `actual-answer`, and a `<ul>` of explanations, nothing else). So this
+tier needs its own newspaper-image source, exactly like the main setter does, and
+DAILY.md's own text names one: "the tartey_mashma Google Group posts weekly scans."
+
+Searched for that Google Group directly (Hebrew and transliterated terms, plus
+"groups.google.com תרתי משמע תשבץ"): found nothing — no matching group surfaced in
+either search. Searched separately for a newspaper-archive or magazine-site scan of
+"דקל בנו" / "תרתי משמע" (לאישה, ידיעות, National Library-style archive queries): also
+nothing reachable by general web search. Fetched 14across's own crossword-12 page for any
+named source publication: the page lists over 20 crossword variants by name
+("אורח מעריב", "ידיעות יום שני, דקל בנו", "לאישה, דקל בנו", etc.) but "תרתי משמע, דקل בנו"
+itself (id 12) carries no publication name in that list — it is not obviously tied to one
+of the newspapers whose CDN bootstrap.sh already knows how to reach.
+
+**Transfer: a genuine, disclosed negative — this lever is blocked on a data source this
+project does not currently have, not on unspent effort.** Three honest options for anyone
+revisiting this: (1) a slower, more targeted search (National Library of Israel's press
+archive, or asking the project owner directly whether they have access to the Google
+Group DAILY.md's text references); (2) check whether any of the OTHER five crosswords
+`parse_answers_multi.py` already targets (ids 2, 3, 5, 49, 62 — ידיעות/לאישה/גלובס
+variants of the same two setters) happen to publish on a newspaper whose public CDN
+pattern is already known (ynet/ידיעות and גלובס both have major websites, unlike the
+more obscure "תרתי משמע" brand specifically — worth checking their own puzzle pages
+directly, not assumed reachable, before the next attempt); (3) accept that this lever
+stays blocked and remove it from "next concrete step" framing until a source is found,
+rather than re-stating it as available each time the queue is read. Not resolved today;
+disclosed so a future run does not re-spend a cycle re-discovering the same gap.
+
+**Conclusion and the lever this run actually built.** No new external resource on either
+thread, so today's lever is the queue's own remaining internal gap: `candidates.py` had
+generators for nine mechanisms (anagram, hidden, reversal, pattern, substitution,
+homograph, gematria, container, culture_category, retrieval) but none for the
+double-definition device SOLVE_PROTOCOL.md's method list names in step 2 — the same kind
+of gap `container_candidates` closed 2026-11-03 for the insertion device. See DAILY.md for
+the measured result (flat, fired on 0/28 clues, root-caused to `sub_fwd()`'s 12% clue-word
+coverage rather than left unexplained) and today's second, independent confirmation of the
+project's standing diagnosis: ten mechanisms deep, the device-coverage well is close to
+dry, and what moves recall from here is growing the one shared equivalence resource, not
+another device shape.
