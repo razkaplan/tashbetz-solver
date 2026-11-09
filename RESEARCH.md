@@ -910,3 +910,34 @@ priority 2. Wiring in an already-built, already-audited tool as one more candida
 is not itself a research question — it is closing a gap between what the project's own
 research queue prioritized in 2026-08-08 and what got implemented, which is worth doing
 regardless of whether today's literature sweep turned up anything new.
+
+## 2026-11-09
+
+Two searches this run, both honest nulls — full context (why no code lever followed) is
+in DAILY.md's dated entry; this is just the research record.
+
+1. **"cryptic crossword solving candidate generation definition extraction 2026"**
+   (standard web search). Surfaced the same papers this file has cited since 2026-08-06:
+   Cryptonite (arXiv 2103.01242), "Proving that Cryptic Crossword Clue Answers are
+   Correct" (2407.08824), "What Makes Cryptic Crosswords Challenging for LLMs?"
+   (2412.09012), and Andrews & Witteveen's reasoning-based solver (2506.04824). Nothing
+   dated 2026. **Transfer: none new** — roughly the fourteenth consecutive pass on this
+   exact question to come back empty since 2026-08-22.
+
+2. **Locating the tartey_mashma Google Group** (queue item 3/5's blocker — the only
+   named source for clue TEXT on the easier-tier דקל בנו/ליאני setters, needed to attempt
+   "validate on the easier tier," which has never once been tried despite being on the
+   plan since before PLAN_V2.md). Three phrasings tried: the Hebrew name directly with
+   "google groups," an English transliteration with "crossword," and the literal
+   underscore-joined string "tartey_mashma". None returned a reachable group, or any
+   group by a visibly similar name. **Transfer: none** — this independently reproduces,
+   rather than newly discovers, PR #113's (2026-11-07) identical finding: 14across can
+   reach the דקל בנו crossword's real answers+explanations (confirmed by this project's
+   own `scraper/parse_answers_multi.py`) but never publishes clue TEXT, and the
+   tartey_mashma group this project's own planning docs name as the fallback source for
+   that text could not be located by either of today's or #113's searches. Worth stating
+   plainly rather than leaving as a standing unexamined assumption a fifteenth run might
+   re-discover: **this item may not be reachable without a human member of that group
+   (or a different source entirely), not just a harder search query.** If a future run
+   wants to pursue queue item 5, the next concrete step is asking the project owner
+   whether they have (or can get) access to that group, not another web search.
