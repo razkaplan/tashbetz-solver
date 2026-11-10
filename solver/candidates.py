@@ -137,6 +137,19 @@ This module does exactly that, per clue, with no LLM involved:
                           (ABBREV_TABLE/ABBREV_BIGRAMS, taken verbatim from PLAYBOOK.md's
                           own worked table), so unlike substitution_candidates it does not
                           depend on 14across access at all. See its own docstring.
+  - gematria_candidates: [PORTED 2026-11-10 from the parallel daily/2026-11-02 branch,
+                          PR #109 -- see DAILY.md's reconciliation entry] a NUMBER named
+                          in the clue (a digit run, a spelled-out count, or a fixed
+                          cultural idiom like ל"ו צדיקים=36) stands for its standard
+                          Hebrew-numeral letter spelling (int_to_gematria), either alone
+                          or charading with an ADJACENT clue word's mined substitute.
+                          Distinct from abbreviation_candidates above: that mechanism
+                          spells a WORD's own curated numeric/institutional value;
+                          this one spells a NUMBER the clue states outright. MEASURED
+                          NEGATIVE on 2026-05-29 in its original PR (recall unchanged,
+                          3.6%->3.6%) -- ported for code-reconciliation reasons (closing
+                          the two-lineage PR-backlog divergence PR #115 diagnosed), not
+                          because this run found a new positive result for it.
   - split_candidates:    for multi-part enums (e.g. (5,2)), splits a hit at the enum
                           boundary and flags whether BOTH pieces are real words — the
                           precondition prove.py's word_order() needs to succeed.
@@ -218,6 +231,7 @@ CLI:
   python3 solver/candidates.py recall data/dataset/clues.jsonl eval --no-substitution-3part
   python3 solver/candidates.py recall data/dataset/clues.jsonl eval --no-charade  # ablation
   python3 solver/candidates.py recall data/dataset/clues.jsonl eval --no-abbreviation
+  python3 solver/candidates.py recall data/dataset/clues.jsonl eval --no-gematria  # ablation
   python3 solver/candidates.py recall data/dataset/clues.jsonl eval --no-defs-lexicon
     # ablation: private_defs answers removed from lex() (see defs_lexicon above)
   python3 solver/candidates.py recall data/dataset/clues.jsonl eval --no-hwdb
@@ -1131,6 +1145,114 @@ def abbreviation_candidates(clue_text, target_len, table=None, bigrams=None):
     return out
 
 
+# --- gematria device (ported 2026-11-10 from PR #109 -- see generate()'s own note) ---
+
+# Standard Hebrew numeral letter values, descending, for greedy decomposition.
+# 500-900 fall out of the same greedy pass as repeated ת (ת+ק=500, ת+ת+ק=900, ...);
+# no separate table entry is needed for them.
+_GEMATRIA_TABLE = [
+    (400, 'ת'), (300, 'ש'), (200, 'ר'), (100, 'ק'),
+    (90, 'צ'), (80, 'פ'), (70, 'ע'), (60, 'ס'), (50, 'נ'), (40, 'מ'),
+    (30, 'ל'), (20, 'כ'), (10, 'י'), (9, 'ט'), (8, 'ח'), (7, 'ז'),
+    (6, 'ו'), (5, 'ה'), (4, 'ד'), (3, 'ג'), (2, 'ב'), (1, 'א'),
+]
+
+# Spelled-out counts a clue might name. Not exhaustive (hundreds beyond a round 100/200
+# are vanishingly rare in a clue's surface text); covers 1-19, the round tens, and the
+# two round hundreds worth a dedicated word.
+NUMBER_WORDS = {
+    'אחד': 1, 'אחת': 1, 'שניים': 2, 'שתיים': 2, 'שני': 2, 'שתי': 2,
+    'שלושה': 3, 'שלוש': 3, 'ארבעה': 4, 'ארבע': 4, 'חמישה': 5, 'חמש': 5,
+    'שישה': 6, 'שש': 6, 'שבעה': 7, 'שבע': 7, 'שמונה': 8, 'תשעה': 9, 'תשע': 9,
+    'עשרה': 10, 'עשר': 10,
+    'אחד עשר': 11, 'אחת עשרה': 11, 'שנים עשר': 12, 'שתים עשרה': 12,
+    'שלושה עשר': 13, 'שלוש עשרה': 13, 'ארבעה עשר': 14, 'ארבע עשרה': 14,
+    'חמישה עשר': 15, 'חמש עשרה': 15, 'שישה עשר': 16, 'שש עשרה': 16,
+    'שבעה עשר': 17, 'שבע עשרה': 17, 'שמונה עשר': 18, 'שמונה עשרה': 18,
+    'תשעה עשר': 19, 'תשע עשרה': 19,
+    'עשרים': 20, 'שלושים': 30, 'ארבעים': 40, 'חמישים': 50, 'שישים': 60,
+    'שבעים': 70, 'שמונים': 80, 'תשעים': 90, 'מאה': 100, 'מאתיים': 200,
+}
+
+# Fixed cultural gematria idioms (general Hebrew/Jewish knowledge, not mined from this
+# project's own puzzle corpus) — a clue naming the IDIOM is naming the number.
+GEMATRIA_IDIOMS = {'צדיק': 36, 'חי': 18}
+
+
+def int_to_gematria(n):
+    """Standard Hebrew numeral spelling, 1-999, greedy largest-value-first. 15/16 use
+    ט"ו/ט"ז (9+6, 9+7) rather than the letter-for-letter 10+5/10+6, which would spell
+    two letters of the Tetragrammaton — a centuries-old convention this genre's own
+    crowd explanations follow (PLAYBOOK.md C.3), not an edge case to special-case away."""
+    if not isinstance(n, int) or not (1 <= n <= 999):
+        return None
+    out, rem = [], n
+    for v, l in _GEMATRIA_TABLE:
+        if v == 10 and rem in (15, 16):
+            out.append('טו' if rem == 15 else 'טז')
+            rem = 0
+            continue
+        while rem >= v:
+            out.append(l)
+            rem -= v
+    return ''.join(out)
+
+
+def gematria_mentions(clue_text):
+    """Numbers named in a clue -> [(value, matched_phrase), ...]: digit runs, spelled-out
+    counts (NUMBER_WORDS, longest phrase first so a teen like 'חמישה עשר' is not shadowed
+    by matching its own first word 'חמישה'), and fixed idioms (GEMATRIA_IDIOMS)."""
+    text = strip_credit(clue_text)
+    out = []
+    for m in re.finditer(r'\d+', text):
+        v = int(m.group())
+        if 1 <= v <= 999:
+            out.append((v, m.group()))
+    for phrase in sorted(NUMBER_WORDS, key=len, reverse=True):
+        if re.search(r'(?<![א-ת])' + re.escape(phrase) + r'(?![א-ת])', text):
+            out.append((NUMBER_WORDS[phrase], phrase))
+    for phrase, v in GEMATRIA_IDIOMS.items():
+        for w in words_of(text):
+            nw = norm(w)
+            if nw.startswith(phrase) or any(nw.startswith(p + phrase) for p in HOMO_PREFIXES):
+                out.append((v, w))
+                break
+    return out
+
+
+def gematria_candidates(clue_text, target_len, table=None):
+    """A number NAMED in the clue stands for its Hebrew-numeral letter spelling. Two
+    shapes, mirroring substitution_candidates:
+      (a) the spelling alone covers the full target length;
+      (b) the spelling plus an ADJACENT clue word's mined substitute (sub_fwd(), held-out
+          safe) concatenate to the full length, in either order — a number-flavoured
+          charade. Adjacency keeps this precise instead of an open-ended part search.
+    `table` is injectable (tests / callers) instead of always hitting sub_fwd()."""
+    fwd = table if table is not None else sub_fwd()
+    words = lex()
+    ws = words_of(clue_text)
+    out = []
+    for value, phrase in gematria_mentions(clue_text):
+        letters = int_to_gematria(value)
+        if not letters:
+            continue
+        if len(letters) == target_len and letters in words:
+            out.append({'answer': letters, 'mechanism': 'gematria', 'fodder': phrase})
+        first_tok = norm(phrase.split()[0])
+        for i, w in enumerate(ws):
+            if norm(w) != first_tok:
+                continue
+            for j in (i - 1, i + 1):
+                if not (0 <= j < len(ws)):
+                    continue
+                for b, n in fwd.get(norm(ws[j]), []):
+                    for joined in (letters + b, b + letters):
+                        if len(joined) == target_len and joined in words:
+                            out.append({'answer': joined, 'mechanism': 'gematria',
+                                        'fodder': f'{phrase}+{ws[j]}'})
+    return out
+
+
 def _trigger_index(triggers):
     """Invert CATEGORY_TRIGGERS-shaped {category: [trigger, ...]} into
     {trigger: [category, ...]} once per call, so container_parts' per-word loop below
@@ -1573,7 +1695,7 @@ def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retr
              use_substitution_3part=True, use_substitution_4part=True, use_charade=True,
              use_abbreviation=True, use_phrase=True, use_anagram_phrase=True,
              use_container_phrase=False, use_substitution_phrase=True,
-             use_segment=True, use_segment_substitution=True):
+             use_segment=True, use_segment_substitution=True, use_gematria=True):
     """Diverse candidates for one clue. Never consults the answer.
 
     Mechanism order here is a PRIORITY order, not just an accumulation order: dedup +
@@ -1655,7 +1777,15 @@ def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retr
     substitution table (sub_fwd()), not only anagram/hidden/reversal -- see
     `segment_candidates`' own docstring for why this is a genuinely different mechanism
     from both #86's mechanical-only version and substitution_candidates' adjacency-and-
-    full-length-only version, and the measured result."""
+    full-length-only version, and the measured result.
+    `use_gematria` (ported 2026-11-10 from the parallel daily/2026-11-02 branch, PR #109,
+    during the PR-backlog two-lineage reconciliation PR #115 diagnosed) gates
+    `gematria_candidates` -- a number named in the clue standing for its Hebrew-numeral
+    letter spelling. Placed in the same early, rare/high-precision tier as abbreviation/
+    homograph/substitution: it is a bounded number-mention scan, not an unbounded
+    window search. MEASURED NEGATIVE in its original PR (3.6%->3.6%, unchanged, on
+    2026-05-29) -- kept ON by default for parity with every other mechanism here, not
+    because this run re-measured a positive result for it; see its own docstring."""
     target_len = sum(enum)
     cands = []
     cands += homograph_candidates(clue_text, target_len)
@@ -1664,6 +1794,8 @@ def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retr
                                       use_phrase=use_substitution_phrase)
     if use_abbreviation:
         cands += abbreviation_candidates(clue_text, target_len)
+    if use_gematria:
+        cands += gematria_candidates(clue_text, target_len)
     if use_segment:
         cands += segment_candidates(clue_text, enum, use_substitution=use_segment_substitution)
     if use_container:
@@ -1715,7 +1847,7 @@ def recall_eval(dataset_path, split=None, max_n=25, use_culture=True, use_retrie
                  use_abbreviation=True, use_defs_lexicon=True, use_hwdb=True, use_phrase=True,
                  use_anagram_phrase=True, use_container_phrase=False,
                  use_substitution_phrase=True, use_segment=True,
-                 use_segment_substitution=True, use_rank=False):
+                 use_segment_substitution=True, use_rank=False, use_gematria=True):
     """`use_rank` (2026-10-12): solve_pass.py's rank() found and fixed a real bug in
     2026(ish) -- generate() truncates to max_n BEFORE any ranking happens, so a
     genuine, high-priority hit can sit outside the default max_n=25 window and never
@@ -1762,7 +1894,8 @@ def recall_eval(dataset_path, split=None, max_n=25, use_culture=True, use_retrie
                           use_phrase=use_phrase, use_container_phrase=use_container_phrase,
                           use_substitution_phrase=use_substitution_phrase,
                           use_segment=use_segment,
-                          use_segment_substitution=use_segment_substitution)
+                          use_segment_substitution=use_segment_substitution,
+                          use_gematria=use_gematria)
         if use_rank:
             cands = solve_pass.rank_candidates(cands, r['enum'], max_n=max_n)
         sizes.append(len(cands))
@@ -2487,6 +2620,39 @@ def selftest():
           ' (checked via the standalone call above already firing) ---')
     ok &= True
 
+    print('--- gematria device: int_to_gematria matches the standard-spelling exceptions ---')
+    checks = {14: 'יד', 15: 'טו', 16: 'טז', 36: 'לו', 100: 'ק'}
+    gem_ok = all(int_to_gematria(n) == norm(s) for n, s in checks.items())
+    print(f'  {checks}: {gem_ok} (expected True; 15/16 use the ט"ו/ט"ז exception)')
+    ok &= gem_ok
+
+    print('--- gematria device: a digit named in the clue covers the full length alone ---')
+    # 14 -> יד ("hand"), a real two-letter word — a number and a word at once.
+    hits = gematria_candidates('יש לי 14 ספרים', 2)
+    found = any(h['answer'] == norm('יד') for h in hits)
+    print(f'  found יד (14) as a standalone gematria hit: {found} (expected True)')
+    ok &= found
+
+    print('--- gematria device: a spelled-out count + an ADJACENT word\'s substitute '
+          'concatenate ---')
+    # 'שלוש' (3) -> ג; injected table gives the next word a synthetic substitute 'וב';
+    # ג+וב = גוב, a real word (den/pit, as in גוב אריות).
+    gem_table = {norm('משהו'): [(norm('וב'), 3)]}
+    hits = gematria_candidates('הגיעו שלוש משהו', 3, table=gem_table)
+    found = any(h['answer'] == norm('גוב') for h in hits)
+    print(f'  found גוב as ג(3)+וב from an adjacent substitute: {found} (expected True)')
+    ok &= found
+
+    print('--- gematria device: use_gematria=False in generate() disables it ---')
+    with_g = generate('יש לי 14 ספרים', [2], use_culture=False, use_retrieval=False,
+                       use_gematria=True)
+    without_g = generate('יש לי 14 ספרים', [2], use_culture=False, use_retrieval=False,
+                          use_gematria=False)
+    toggled = any(c['mechanism'] == 'gematria' for c in with_g) and \
+        not any(c['mechanism'] == 'gematria' for c in without_g)
+    print(f'  gematria present only when enabled: {toggled} (expected True)')
+    ok &= toggled
+
     print('--- culture_category device: a category the clue NAMES surfaces its namelist,'
           ' matched by MEANING not letters ---')
     # synthetic table + triggers, independent of the live corpus and its real entities —
@@ -2887,6 +3053,7 @@ def main():
         use_segment_substitution = '--no-segment-substitution' not in rest
         use_charade = '--no-charade' not in rest
         use_abbreviation = '--no-abbreviation' not in rest
+        use_gematria = '--no-gematria' not in rest
         use_defs_lexicon = '--no-defs-lexicon' not in rest
         use_hwdb = '--no-hwdb' not in rest
         use_phrase = '--no-phrase' not in rest
@@ -2906,9 +3073,9 @@ def main():
                  '--no-double-def', '--no-defspan-retrieval', '--no-homophone',
                  '--no-homophone-vowel', '--no-substitution-3part', '--no-substitution-4part',
                  '--no-segment', '--no-segment-substitution', '--no-charade',
-                 '--no-abbreviation', '--no-defs-lexicon', '--no-hwdb', '--no-phrase',
-                 '--no-anagram-phrase', '--container-phrase', '--no-substitution-phrase',
-                 '--ranked')]
+                 '--no-abbreviation', '--no-gematria', '--no-defs-lexicon', '--no-hwdb',
+                 '--no-phrase', '--no-anagram-phrase', '--container-phrase',
+                 '--no-substitution-phrase', '--ranked')]
         path = rest[0] if len(rest) > 0 else 'data/dataset/clues.jsonl'
         split = rest[1] if len(rest) > 1 else None
         os.chdir(ROOT)
@@ -2921,6 +3088,7 @@ def main():
                            use_substitution_3part=use_substitution_3part,
                            use_substitution_4part=use_substitution_4part,
                            use_charade=use_charade, use_abbreviation=use_abbreviation,
+                           use_gematria=use_gematria,
                            use_defs_lexicon=use_defs_lexicon, use_hwdb=use_hwdb,
                            use_phrase=use_phrase, use_anagram_phrase=use_anagram_phrase,
                            use_container_phrase=use_container_phrase,
@@ -2937,7 +3105,8 @@ def main():
               f"use_homophone_vowel={use_homophone_vowel}, "
               f"use_substitution_3part={use_substitution_3part}, "
               f"use_substitution_4part={use_substitution_4part}, use_charade={use_charade}, "
-              f"use_abbreviation={use_abbreviation}, use_defs_lexicon={use_defs_lexicon}, "
+              f"use_abbreviation={use_abbreviation}, use_gematria={use_gematria}, "
+              f"use_defs_lexicon={use_defs_lexicon}, "
               f"use_hwdb={use_hwdb}, use_phrase={use_phrase}, "
               f"use_anagram_phrase={use_anagram_phrase}, "
               f"use_container_phrase={use_container_phrase}, "

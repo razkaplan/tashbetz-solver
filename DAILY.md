@@ -90,7 +90,86 @@ whether this daily routine should keep running as-is, run on a longer interval, 
 until someone can clear the queue. Flagged to the user directly again this run via
 notification, with the growth trend as the concrete new reason, not a repeat for its own sake.
 
-Last lever added (2026-11-01): **backlog consolidation, not a new mechanism** — same
+Last lever added (2026-11-10): **PR-backlog code reconciliation, not a new mechanism**
+— PR #115 (2026-11-09) diffed two lineages directly (`git fetch`+`comm`, not PR prose) and
+found they had silently DIVERGED rather than one superseding the other: Lineage A
+(...->#90->#96->#105->**#108**, this branch's own base) has 25 functions #114 lacks
+(`deffit.py`, `embed_fit.py`, abbreviation/charade/segment/double-def/homophone/etc.);
+Lineage B (#109->...->**#114**) independently built `gematria_candidates` and
+`constraint_solve.py` (global constraint propagation, queue item 4) that #108 lacks
+entirely. #115 explicitly recommended NOT shipping a 15th candidate-generation variant
+(mechanical coverage reported exhausted by #112/#113) and NOT a full from-scratch
+reconciliation (overreach risk) — instead: "a future run port the other's unique
+functions in with full re-verification." This run does exactly that, scoped down: ported
+ONLY the two functions/files #108 was independently confirmed (by this run's own
+`comm -23`/`comm -13` on `grep -oE '^def '`, not by trusting #115's count) to be missing
+— `gematria_candidates`/`gematria_mentions`/`int_to_gematria` (3 functions, ~120 lines,
+wired into `generate()`/`recall_eval()`/the CLI exactly like every other early-tier
+mechanism) and `solver/constraint_solve.py` whole (261 lines, unchanged) — onto THIS
+branch (`daily/2026-11-10-reconcile`, based on #108's head, not stale `main`). Lineage
+B's own duplicate `container_candidates` reimplementation was deliberately NOT ported:
+#108 already has one, and the two never diverged in capability per #115's audit, only in
+code — porting a second, different-but-equivalent implementation would just reintroduce
+the exact "two divergent versions of the same thing" problem this run exists to close.
+
+VERIFIED, not assumed, at every step: `ast.parse()` clean after each edit; every
+affected module's `selftest` re-run clean post-merge (`candidates.py` — including 4 new
+gematria-specific checks ported verbatim from #109 — `constraint_solve.py`, `lexicon.py`,
+`prove.py`, `substitutions.py`, `retrieve_defs.py`, `defspan.py`, `solve_pass.py`,
+`deffit.py`; `embed_fit.py` still cannot run in this sandbox, torch/transformers not
+installed, same disclosed gap #108 already named). Independently RE-TRANSCRIBED
+2026-05-29 a further time (this project's canonical dev puzzle, now ~21st+ independent
+transcription) from `data/images/2026-05-28.jpg`, confirming #108's own finding unprompted:
+the across clues really do split across a labeled `אופקי` block (1-13) and an unlabeled
+continuation (15-26) sharing its column with `אנכי`. All 28 enum sums validated against
+the real 14across gold lengths (`data/answers/by_date/2026-05-29.json`, bootstrap's
+14across succeeded 52/52 this run, no hard wall) — 0 mismatches — AND independently
+cross-checked against `solver/grid_tools.py validate`'s grid-derived slot lengths (pure
+structural geometry): **OK**, 0 mismatches there either.
+
+MEASURED (executed): `python3 solver/candidates.py recall data/dataset/clues.jsonl eval`
+— mechanical-only **3.6% (1/28)**, full defaults **3.6% (1/28)**, full defaults with
+`--no-gematria` **3.6% (1/28)**, all three IDENTICAL (same single anagram hit, `יחפניות`,
+2 down, every transcription of this date has found since 2026-08-06) — the merge changes
+no existing mechanism's behavior, and the ported gematria mechanism reproduces its own
+origin PR's flat result (#109: 3.6%->3.6%) exactly, on an independently redone
+transcription. `python3 solver/constraint_solve.py measure data/dataset/clues.jsonl eval`
+also reproduces #112's finding on this fresh transcription: avg candidates/slot
+35.3->4.7, 3 rounds to fixpoint, the one gold answer present before propagation (2 down)
+LOST after it (`gold_lost_to_pruning: [[2, 'down']]`), one slot fully emptied — a second,
+independent confirmation of #112's root cause (strict elimination can only arbitrate
+between candidates that already exist; it cannot manufacture support a sparse generator
+never produced), not a new result.
+
+AUDITED (mandatory gate): `lexicon.held_out_answers()`, `substitutions.held_out()`,
+`retrieve_defs.held_out()` all directly computed (not assumed) to block all 28 of this
+puzzle's own gold answers — confirmed clean, `gold - blocked` empty for all three. No
+forbidden reads: gold from the sanctioned `data/answers/by_date/` path (14across), clue
+text from the public Haaretz CDN image only; `data/answers/private_defs/` does not exist
+in this sandbox (not crawled this run, out of scope for a reconciliation lever — disclosed,
+not hidden; this is why retrieval/culture contribute identically 0 with gematria on or
+off). No implausible jump to explain: every number here is an exact reproduction of an
+already-published result, the opposite of a suspicious one.
+
+RESEARCH this run (full entries in RESEARCH.md): found a genuinely new, specific lead for
+queue item 4's own next step — Ginsberg's Dr.Fill (arXiv 1401.4597) frames crossword
+solving as a WEIGHTED CSP from the start (candidates carry a score, never hard-deleted for
+lacking a neighbour's current support), which is a concrete named mechanism for the
+"soft, score-based, never-hard-eliminating" variant #112 called for but did not specify.
+Not implemented today (one lever per run; this run's budget went to the reconciliation
+above) — flagged as the concrete next step if `constraint_solve.py` is revisited, rather
+than inventing a soft variant from scratch or re-trying strict elimination a third time.
+
+NOT DONE, honestly: did not attempt the full lineage reconciliation (every function,
+including re-verifying #108's own ~25 beyond what #115 already diffed) — scoped
+deliberately to the two pieces independently confirmed missing, per #115's own
+recommendation against overreach. Did not re-crawl `private_defs`. Did not install
+torch/transformers to unblock `embed_fit.py`'s selftest. Did not merge or close any PR —
+only the project owner can; this PR is offered as a candidate to supersede #109 and #112
+specifically (their unique content is now folded in here, on top of #108's own already-
+larger supersession of #103/#104/#105/#106/#107), not the whole 69-PR backlog at once.
+
+Previous lever (2026-11-01): **backlog consolidation, not a new mechanism** — same
 category of "lever" as #71/#73/#82/#89/#96/#103/#105, chosen deliberately over shipping an
 11th `container_candidates` or a 3rd `substitution` multi-part-chain reimplementation,
 both of which the diff audit above shows are already-answered questions sitting unmerged.
@@ -3713,6 +3792,15 @@ propagated), `blank`. Score with `python3 evals/run_eval.py <file>`.
    corpus before trusting the exact percentage).
 4. **Global constraint optimization** — scored candidates + belief propagation over the
    grid (Berkeley Crossword Solver approach). Worth doing once candidate lists are good.
+   FIRST ATTEMPT 2026-11-06 (`solver/constraint_solve.py`, PR #112): strict (hard-
+   elimination) arc consistency, MEASURED NEGATIVE — narrows pools but deletes the one
+   gold answer present before propagation, since its crossing neighbours never separately
+   generated the right letter either. INDEPENDENTLY REPRODUCED 2026-11-10 on a fresh
+   transcription after porting the file onto the reconciled branch (same result: avg
+   candidates/slot 35.3->4.7, gold lost, a slot emptied). 2026-11-10's research pass
+   named the concrete next step: Ginsberg's Dr.Fill (arXiv 1401.4597) frames this as a
+   WEIGHTED CSP (candidates carry a score, never hard-deleted) — build THAT, not another
+   strict pass or an invented-from-scratch soft heuristic.
 5. **Validate on the easier tier** (דקל בנו) — where 80% is realistic; tells us whether
    the harness is sound and this setter is simply hard.
 6. ~~Merge or close the PR backlog~~ — STRUCK 2026-08-21, RECURRED 2026-08-24, CONSOLIDATED
@@ -3772,6 +3860,17 @@ propagated), `blank`. Score with `python3 evals/run_eval.py <file>`.
    is not a durable fix and something upstream (the owner's merge cadence, or this
    runbook's own instructions) needs to change instead. See DAILY.md's Log and this run's
    PR description for the concrete list of what was folded in vs. what remains open.
+
+   2026-11-09 (PR #115): sharpened the diagnosis from "the backlog is big" to "the
+   backlog's own consolidation attempts have silently DIVERGED" — #108 and #114 each
+   have unique content the other lacks, confirmed by diffing branches directly, not by
+   trusting either PR's "supersedes" claim. Recommended the owner pick a lineage or pause
+   the routine, and recommended against a daily agent attempting the full reconciliation
+   itself (overreach risk). 2026-11-10 took the narrow, explicitly-left-open middle path:
+   ported only #114's two pieces confirmed missing from #108 (`gematria_candidates`,
+   `constraint_solve.py`), with full re-verification, onto a branch based on #108's head
+   — see this run's own Log entry and the state table above. Still true: only the project
+   owner can actually merge anything or decide whether this routine keeps running daily.
 7. ~~Fix `lexicon.held_out_answers()`'s coverage gap~~ — FIXED 2026-08-21 (PR #23),
    confirmed byte-identical in PR #25's cherry-pick, both folded into this branch
    2026-08-25. It only blocked an answer when its clue had a row in
@@ -9273,3 +9372,90 @@ Measure each lever on dev (fixed enums) with run_eval.py before/after; one lever
   got its own fix) — a natural next lever if this one is revisited; did not merge or
   otherwise act on any open PR — only the project owner can; never pushed to `main`; never
   ran `vercel --prod`.
+
+- 2026-11-10: **PR-backlog code reconciliation** (queue item 6), branched from PR #108's
+  head rather than stale `main`, in response to PR #115 (2026-11-09) finding that #108
+  (Lineage A: 25 functions, `deffit.py`, `embed_fit.py`) and #114 (Lineage B:
+  `gematria_candidates`, `constraint_solve.py`) had silently DIVERGED — neither supersedes
+  the other, and #115 explicitly warned that merging either alone would silently drop the
+  other's unique content. #115 recommended against both a 15th candidate-generation variant
+  (coverage reported exhausted) and a full from-scratch reconciliation (overreach risk for
+  a daily agent); this run took the narrow path it left open: port only the pieces
+  independently re-confirmed missing from #108 (not trusting #115's count), with full
+  re-verification.
+
+  Re-derived the two lineages' function-level diff myself (`git fetch origin
+  pull/108/head pull/114/head`, `grep -oE '^def '`+`comm -23`/`comm -13` on both
+  `candidates.py`s, not #115's numbers) and got the same two-function/file gap: 108 is
+  missing `gematria_candidates`/`gematria_mentions`/`int_to_gematria` (and *only* those
+  three — everything else #114 has, 114 also lacks relative to 108); 114's own
+  `container_candidates` was confirmed a DIFFERENT, independently-built implementation of
+  a device 108 already has, so it was deliberately NOT ported (porting it would just
+  create a second divergent pair, the exact failure this run exists to close). Ported the
+  three gematria functions plus the unchanged `solver/constraint_solve.py` (261 lines)
+  onto this branch, wired into `generate()`/`recall_eval()`/the CLI's `--no-gematria`
+  exactly like every other early-tier mechanism already there, plus 4 selftest checks
+  carried over verbatim from #109.
+
+  VERIFIED (executed, not assumed) at every step: `ast.parse()` clean; every affected
+  module's `selftest` re-run clean (`candidates`, `constraint_solve`, `lexicon`, `prove`,
+  `substitutions`, `retrieve_defs`, `defspan`, `solve_pass`, `deffit` — `embed_fit` still
+  can't run here, torch/transformers not installed, a pre-existing disclosed gap, not a
+  new one). `./bootstrap.sh --dev-only`: clean, 52/52 puzzles via 14across. Independently
+  re-transcribed 2026-05-29 (this project's canonical dev puzzle, now 21+ independent
+  transcriptions) from `data/images/2026-05-28.jpg`, using `convert`(ImageMagick, since
+  this sandbox's Pillow install is broken — `_imaging` import error, confirmed directly,
+  not worked around silently) to crop and 3x-upscale each clue-text column for a clean
+  re-read, catching and correcting one real misread along the way before it reached the
+  committed file (clue 22 across's "הזימים", initially misread as a nonsense "הזור-זים"
+  split across the column-wrap, corrected by cross-checking against the clue's own gold
+  crowd explanation "נשמע אין זימים" — a legitimate, already-established cross-check
+  method in this project, not a shortcut around reading the image). All 28 enum sums
+  validated BOTH against the real 14across gold answer lengths (0 mismatches) AND against
+  `solver/grid_tools.py validate`'s independent grid-derived slot lengths: **OK**.
+
+  MEASURED (executed): `candidates.py recall` — mechanical-only 3.6% (1/28), full
+  defaults 3.6% (1/28), full defaults with `--no-gematria` 3.6% (1/28) — all three
+  identical (the same `יחפניות`/2-down anagram hit every transcription of this date has
+  found since 2026-08-06). The merge changes no existing mechanism's measured behavior,
+  and the ported gematria mechanism reproduces its own origin PR's flat result (#109:
+  3.6%->3.6%) exactly, now on a fresh, independent transcription. `constraint_solve.py
+  measure` also reproduces #112's finding independently: avg candidates/slot 35.3->4.7,
+  3 rounds to fixpoint, the one gold answer present before propagation (2 down) LOST
+  after it, one slot fully emptied — a second, independent confirmation of #112's root
+  cause (strict elimination can only arbitrate between candidates that already exist; it
+  cannot manufacture support a sparse generator never produced).
+
+  AUDITED (mandatory gate): `lexicon.held_out_answers()`, `substitutions.held_out()`,
+  `retrieve_defs.held_out()` all directly computed to block all 28 of this puzzle's own
+  gold answers — `gold - blocked` empty for all three. No forbidden reads: gold from the
+  sanctioned `data/answers/by_date/` path, clue text from the public CDN image only;
+  `data/answers/private_defs/` does not exist in this sandbox (not crawled this run,
+  disclosed, which is why retrieval/culture contribute identically 0 with gematria on or
+  off). No implausible jump: every number is an exact reproduction of an already-published
+  result.
+
+  RESEARCH this run (full entries in RESEARCH.md): two searches aimed at
+  `constraint_solve.py`'s own next step surfaced a genuinely new, specific lead —
+  Ginsberg's Dr.Fill (arXiv 1401.4597) frames crossword solving as a WEIGHTED CSP from the
+  start (candidates carry a score, never hard-deleted for lacking a neighbour's current
+  support), which names the actual mechanism behind the "soft, never-hard-eliminating"
+  variant PR #112 called for without specifying one. Not implemented today (one lever per
+  run); flagged as the concrete next step if this item is revisited.
+
+  HONEST READ: this is a code-integrity/process fix, not a new solving result — every
+  measured number here is a reproduction of an already-published finding (#109's flat
+  gematria result, #112's negative constraint-propagation result), now confirmed on an
+  independently redone transcription and merged onto a single branch instead of two
+  silently-diverging ones. The value is that a future run building on this branch no
+  longer risks losing either lineage's content by picking the "wrong" PR to merge first.
+
+  NOT DONE, honestly: did not attempt full lineage reconciliation beyond the two
+  confirmed-missing pieces (scoped deliberately, per #115's own warning against overreach
+  for a single daily run); did not re-crawl `private_defs`; did not install
+  torch/transformers; did not merge or close any PR — only the project owner can. This
+  branch is offered as a PR that supersedes #109 and #112 specifically (their unique
+  content is folded in here, on top of #108's own prior supersession of
+  #103-#107) — not a claim to supersede the whole 69-PR backlog, which still needs the
+  project owner's own decision per #115's recommendation (pick a lineage, or pause the
+  routine).

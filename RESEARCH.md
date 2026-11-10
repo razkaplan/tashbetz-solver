@@ -3167,3 +3167,39 @@ never-executed idea in this file is Sadallah et al.'s decomposition-into-subtask
 applied to this project's own live `solve_pass.py` prompting (not a new offline tool) —
 if a future run wants a research-informed lever rather than another backlog-consolidation
 day, that is the concrete next thing to actually try, not search for again.
+
+## 2026-11-10
+
+Two searches aimed squarely at `constraint_solve.py` (PR #112, 2026-11-06), which measured
+arc consistency's STRICT (hard-elimination) version negative: it narrowed candidate pools
+(15.2 -> 5.75 avg) but also deleted the one slot that held the gold answer before
+propagation ran, because that slot's own crossing neighbours never separately generated a
+candidate with the right letter either. PR #112's own "not done" section named a SOFT
+(score/count-based, never hard-eliminating) variant as the natural next step.
+
+**Search 1: "cryptic crossword solver global constraint propagation candidate pruning 2026
+arxiv".** No 2026 paper. Confirms this project's existing citations (SweepClip/arXiv
+2406.09043, already in the lever queue since 2026-08-08) are still the current frontier;
+nothing new on the strict-vs-soft question specifically.
+
+**Search 2: "arc consistency soft constraint reranking crossword solver weak candidate
+lists research".** Surfaced a genuinely sharper, previously-uncited lead: Ginsberg's
+Dr.Fill paper (arXiv 1401.4597) frames crossword solving as a WEIGHTED CSP from the start,
+not a binary-feasible/infeasible one — candidates carry a fitness SCORE and the solver
+searches for a high-SCORING joint assignment, never hard-deleting a candidate just because
+one neighbour's pool currently lacks support for it. That is a more specific answer to
+PR #112's own open question than "try something soft" — it names the actual mechanism
+(a weighted objective over the whole grid, not a pass that prunes to a fixed-point) that
+would stop a correct-but-currently-unsupported candidate from being deleted outright, which
+is exactly how `constraint_solve.py`'s strict version lost 2-down's gold answer both times
+it has now been measured (2026-11-06 and again today, independently re-transcribed — see
+DAILY.md). Soft arc consistency (Cooper & Schiex, arXiv cs/0111038) and its weighted-CSP
+specialization (Larrosa & Schiex, AC*) are the underlying formal tools Dr.Fill's own
+postprocessing step builds on.
+
+**Judgement: transfers, and is now the concrete next step for queue item 4, not a vague
+one.** Not implemented today (this run's one-lever budget went to the PR-backlog code
+reconciliation below, not a new lever) — but a future run revisiting constraint_solve.py
+should build the weighted/soft version Dr.Fill names, rather than inventing one from
+scratch or re-trying strict elimination a third time.
+day, that is the concrete next thing to actually try, not search for again.
