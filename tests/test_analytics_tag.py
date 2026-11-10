@@ -46,8 +46,16 @@ class AnalyticsTag(unittest.TestCase):
         csp = next(h["value"] for rule in cfg["headers"] for h in rule["headers"] if h["key"] == "Content-Security-Policy")
         script = [d for d in csp.split(";") if d.strip().startswith("script-src")][0]
         connect = [d for d in csp.split(";") if d.strip().startswith("connect-src")][0]
-        self.assertIn("https://www.clarity.ms", script)
+        # The tag at www.clarity.ms loads the real library from scripts.clarity.ms.
+        # Allowing only www.clarity.ms (2026-10-20) let the loader run and
+        # blocked clarity.js on every page: no data for three weeks. Microsoft's
+        # documented policy is *.clarity.ms for scripts, connections and images.
+        img = [d for d in csp.split(";") if d.strip().startswith("img-src")][0]
+        self.assertIn("https://*.clarity.ms", script)
         self.assertIn("https://*.clarity.ms", connect)
+        self.assertIn("https://c.bing.com", connect)
+        self.assertIn("https://*.clarity.ms", img)
+        self.assertIn("https://c.bing.com", img)
 
     def test_built_pages_carry_the_tag(self):
         for rel in SAMPLE:
