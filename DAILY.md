@@ -539,6 +539,14 @@ propagated), `blank`. Score with `python3 evals/run_eval.py <file>`.
    log merge, no content dropped) rather than re-deriving any of the three days' work. Only
    the project owner can merge PRs; this run's branch is offered as the single PR that
    supersedes #23/#25/#26 so they can close those three instead of merging four times.
+   **RECURRED MUCH MORE SEVERELY 2026-11-09, see log: the backlog is not merely large (68
+   open PRs, #38-#114, oldest 70 days old) — its own repeated "consolidate" rescue attempts
+   have themselves forked into two incompatible lineages (PR #108 vs. the PR #111->#114
+   chain), neither of which contains the other's unique work, and both PR bodies claim to
+   be "the one to merge." DO NOT merge either on trust; see the dated entry for the exact
+   file/function-level diff. The eleventh-plus alert and a PushNotification produced no
+   visible change as of 2026-11-05/08; this run escalates with a concrete new finding
+   (divergence, not just size) rather than repeating the same ask.
 7. ~~Fix `lexicon.held_out_answers()`'s coverage gap~~ — FIXED 2026-08-21 (PR #23),
    confirmed byte-identical in PR #25's cherry-pick, both folded into this branch
    2026-08-25. It only blocked an answer when its clue had a row in
@@ -2427,3 +2435,110 @@ Measure each lever on dev (fixed enums) with run_eval.py before/after; one lever
   "כולם חפצים מהבית" theme (an אוטובוס was due to appear on 09-08).
   Gates: ui_smoke 9/9 pages at both widths, topicgen_eval 52/52 boards,
   url_guard clean (6,071 URLs, none dropped), nativ regression 22/22.
+
+- 2026-11-09: **no new solving lever — a backlog-divergence audit, because the audit
+  itself is the actionable finding today.** Not a solving measurement (precision/
+  coverage/yield numbers in the state table above are unchanged, still the 2026-08-30
+  values, since nothing from this project's 70+ days of unmerged `solver/` work has ever
+  reached `main`).
+
+  CONTEXT: bootstrap succeeded fully this run (`./bootstrap.sh --dev-only`, 52/52 puzzles
+  via 14across, no hard wall). `list_pull_requests` found **68 open, unmerged PRs**
+  (#38-#114), oldest (#38) opened 2026-08-31, **70 days old**. This is at least the
+  thirteenth consecutive run to flag the backlog by count alone (#71, #73, #82, #89, #92,
+  #101/#102, #103, #105, #108, #111, #112, #113, now this one) — but today's finding is
+  qualitatively different, not another repeat of the size alert, so it gets documented in
+  full rather than folded into one line.
+
+  THE FINDING: the backlog's own repeated "consolidate" rescue attempts have themselves
+  forked into two mutually-incomplete lineages, confirmed by direct `git diff`/function-
+  listing comparison (not inferred from PR prose):
+
+  - **Lineage A** — ...->#90->#96->#105->**#108** (2026-11-01, "ninth alert"). Its
+    `solver/candidates.py` is 2,996 lines / ~25 top-level functions, including
+    `abbreviation_candidates`, `anagram_phrase_candidates`, `charade_candidates`,
+    `container_candidates`, `defspan_retrieval_candidates`, `double_definition_candidates`,
+    `homophone_candidates`, `homophone_vowel_candidates`, `segment_candidates`,
+    `lexicon_coverage_eval`, `rerank_eval`, `phrase_split`. It also carries whole files
+    this lineage never ported forward — `solver/deffit.py` (662 lines) and
+    `solver/embed_fit.py` (295 lines), the two definition-fit rerankers from #53/#66/#80/
+    #96/#105 — plus `solver/lexicon.py`'s queue-item-11 fix (parameterizing a hardcoded
+    corpus path, PR #90) and `solve_pass.py` ranking fixes (#85/#91).
+  - **Lineage B** — #109+#110->**#111**(2026-11-05)->**#112**(2026-11-06, adds
+    `constraint_solve.py`)->**#113**(2026-11-07, adds `double_definition_candidates`,
+    already independently present in Lineage A since #108, six days earlier)
+    ->**#114**(2026-11-08, the current HEAD of this chain). Its `solver/candidates.py` is
+    only 1,053 lines / ~9 top-level functions — it has `gematria_candidates` (+3 helpers)
+    and `constraint_solve.py` (261 lines, global constraint propagation, queue item 4,
+    measured negative) that Lineage A lacks entirely, but is missing every one of
+    Lineage A's 25 functions and both reranker files listed above.
+
+  Every PR in Lineage B (#111/#112/#113/#114) branched from current `main`
+  (`9a4e622a8`), not from #108 or anything in Lineage A, despite #108 predating all four
+  and #108's own body explicitly disclosing the exact risk this created: "the remaining
+  ~50 were not individually diffed against this branch, so some may carry genuinely new
+  content not folded in here (a risk disclosed, not resolved)." That risk materialized:
+  #113's double-definition work is a six-days-later duplicate of something already sitting
+  unmerged in #108, and #114's own recommendation ("merging #113, or this PR, which
+  supersedes it, is the one action that would make today's and every prior run's work land
+  somewhere") is **false as written** — merging #114 would silently drop `deffit.py`,
+  `embed_fit.py`, 25 other candidate-generation functions, and two real bug fixes, with no
+  warning, because #114 does not actually contain them.
+
+  VERIFIED, not assumed: fetched both PR branches (`git fetch origin pull/108/head:pr108
+  pull/114/head:pr114`), diffed `solver/candidates.py` directly, listed top-level `def`s
+  with `grep -oE '^def [a-z_]+' | sort -u` and `comm -23`/`comm -13` on both branches
+  rather than trusting either PR's own "supersedes" claim; confirmed `solver/deffit.py`/
+  `embed_fit.py` exist in #108 and raise `fatal: path ... does not exist` in #114;
+  confirmed `solver/constraint_solve.py` raises the same in #108. Both candidates.py files
+  parse cleanly (`ast.parse`), so this is a real content gap, not a broken-branch artifact.
+
+  RESEARCH this run (full entries in RESEARCH.md): two searches — general cryptic-
+  crossword candidate-generation/definition-extraction literature, and another attempt to
+  locate the tartey_mashma Google Group (queue item 5's blocker, independently also
+  searched and come up empty by PR #113 two days ago). Both came back with nothing new:
+  the literature search surfaced only papers already cited in this file since 2026-08-06
+  (arXiv 2407.08824, 2412.09012, 2506.04824, plus Cryptonite); the tartey_mashma search
+  found no reachable group under several phrasings, confirming #113's finding rather than
+  adding a new one. Roughly the fourteenth-plus consecutive empty literature pass on this
+  question — RESEARCH.md's own standing conclusion (no external generator/scorer resource
+  exists to build on) still holds and is not re-argued in full here.
+
+  WHY NO CODE LEVER TODAY: candidate-generation device coverage is reported exhausted by
+  two independent, measured PRs this week (#112, #113: "ten mechanisms... the remaining
+  gap is the sparsity of the one shared, corpus-mined equivalence table"); definition-span
+  detection is struck; corpus growth via the secondary 14across crosswords is now
+  structurally capped (#114's own finding, a ~1-year rolling window, not a growing
+  archive); queue item 5 (easier-tier validation) is blocked on an unlocatable image
+  source, confirmed independently today. Adding a 69th PR with a 15th variant of an
+  already-measured-flat mechanism, on top of a backlog whose own rescue attempts are
+  already diverging, would make the reconciliation problem worse, not better — so today's
+  one-lever budget went entirely to this audit instead, in the same spirit as the
+  2026-08-23 "integrity fix" entry (not a solving lever, still the right use of the budget).
+
+  WHAT THIS RUN DELIBERATELY DID NOT DO: did not attempt to reconcile the two lineages by
+  hand. A real union of both — restoring Lineage A's 25 functions and two reranker files
+  into a branch that also keeps Lineage B's `gematria_candidates`/`constraint_solve.py`/
+  sub_fwd corpus finding, then re-running every selftest and the recall@N eval together —
+  is a large, correctness-sensitive integration across ~3,000 lines of unfamiliar,
+  already-once-diverged research code touching `lexicon.py`'s call signature used
+  throughout `candidates.py`/`solve_pass.py`/`retrieve_defs.py`. Attempting that under a
+  single day's one-lever budget is exactly the kind of overreach this project's own
+  history warns against (RESULTS.md v3-v6: confident-looking large changes, not measured
+  incrementally, produced this project's worst regressions and its one real data leak).
+  Flagging the precise, evidenced shape of the problem is more valuable today than a rushed
+  attempt at the fix. Did not merge or close any PR (not this run's call — only the project
+  owner can). Did not re-send the generic "backlog is big" PushNotification pattern from
+  2026-11-05, which PR #112/#113 already noted produced no visible change; did send one
+  new notification for this run's specific divergence finding, since it changes what the
+  owner should actually do (do not trust either PR's self-description) rather than
+  repeating what they already know.
+
+  RECOMMENDATION for the project owner, concretely: do not merge #108 or #114 under the
+  assumption either is "the" consolidated branch. Either (a) pick ONE lineage as the
+  trunk and have a future run port the other's unique functions into it with full
+  re-verification (not a cherry-pick glued together by hand), or (b) if the daily routine
+  itself is producing more reconciliation debt than solving progress at this scale, pause
+  it (or drop its frequency) until a human reviews and closes the superseded PRs. The
+  routine cannot resolve this on its own: opening a 69th PR that claims to supersede the
+  other 68 would just add a third unverifiable "trust me" branch to the pile.
