@@ -3801,6 +3801,70 @@ propagated), `blank`. Score with `python3 evals/run_eval.py <file>`.
    named the concrete next step: Ginsberg's Dr.Fill (arXiv 1401.4597) frames this as a
    WEIGHTED CSP (candidates carry a score, never hard-deleted) — build THAT, not another
    strict pass or an invented-from-scratch soft heuristic.
+   **BUILT 2026-11-11: `soft_propagate()` + `build_candidate_lists_scored()`,
+   `measure_soft()`, 2 new selftest checks (7 total).** A deliberately scoped
+   translation of Dr.Fill's own framing (confirmed by reading the paper's actual
+   mechanism this run, not just its citation — see RESEARCH.md): candidates carry a
+   score (their rank-position in `candidates.generate()`'s own documented
+   priority-ordered output — an existing signal, not an invented one), and each
+   round a candidate's score accumulates SUPPORT from its crossing slots' current
+   best-agreeing candidate — but NOTHING is ever removed from a slot's pool, by
+   construction (asserted and checked on real data, not just claimed). Re-
+   transcribed 2026-05-29 independently this run (14across worked cleanly — 52/52
+   puzzles — so gold came from real crowd answers, not the image-fallback
+   technique; 0/28 enum mismatches against both the grid-derived slot lengths AND
+   the real 14across answer lengths).
+   MEASURED (executed, `python3 solver/constraint_solve.py measure-soft
+   data/dataset/clues.jsonl eval`), against the SAME real candidate pools
+   `measure` (strict) sees: **the safety guarantee holds and is exactly where it
+   needed to**: `gold_lost_strict_hard_elimination: [[2, "down"]]` (reproduces
+   2026-11-06/11-10's exact finding), `gold_lost_soft_scoring: []`,
+   `strict_lost_but_soft_kept: [[2, "down"]]` — the one slot strict elimination
+   deleted gold from is exactly the one slot soft scoring keeps it in, as designed
+   and asserted (construction-guarantee check passes on real data, not just the
+   synthetic selftest). **But the RANKING half is a genuine, honest negative**:
+   `top1_before_scoring: 0`, `top1_after_soft_propagation: 0`,
+   `rank_worsened: [[2, "down"]]` — gold (`יחפניות`) started at rank 2/40 by its
+   own base (generation-priority) score and FELL to rank 14/40 after 3 rounds of
+   crossing-support scoring, while the pool's own top-3 candidates after
+   propagation (`פזתאוחו` 156.0, `אפתוזחו` 154.0, `אחזופתו` 148.0) inflated far past
+   their starting scores. Root-caused, not just observed: checked directly
+   against `candidates.lex()` — none of those three top-scoring post-propagation
+   strings are real lexicon words, and a puzzle-wide audit found only **357/988
+   (36.1%)** of all candidates across all 28 slots are real lexicon members at
+   all. With recall@N at 3.6% baseline, most crossing slots don't hold their own
+   true letter either, so "how many neighbours agree with me" mostly measures
+   mutual agreement among NON-WORD noise (raw character-window permutations that
+   outnumber real words 2:1 in this pool), which is anti-correlated with
+   correctness on this data point, not neutral. AUDITED (mandatory gate):
+   `lexicon.held_out_answers()`, `retrieve_defs.held_out()`, and
+   `substitutions.held_out()` all directly computed to block all 28 of this
+   puzzle's own gold answers (`gold - blocked` empty for all three, re-checked
+   after re-transcription); no forbidden reads — gold came from the sanctioned
+   bootstrap 14across scrape, clue text from the public CDN image only (crop+zoom
+   via ImageMagick `convert`, Pillow still broken in this sandbox — confirmed
+   again, same as 2026-11-10); no implausible jump — this is a single clue's rank
+   moving within one puzzle's one gold-containing slot, fully explained by a
+   directly-measured lexicon-membership statistic, not a recall-rate claim. All 6
+   affected selftests (`constraint_solve.py` now 7 checks, `candidates.py`,
+   `lexicon.py`, `prove.py`, `substitutions.py`, `retrieve_defs.py`) re-run clean.
+   HONEST READ: this closes the queue's own named next step (build the weighted
+   version, don't re-try strict or invent from scratch) and the SAFETY half is a
+   real, verified win — a correct candidate can no longer be deleted outright the
+   way strict elimination did. But the RANKING half does not yet deliver what a
+   useful weighted CSP needs: Dr.Fill's own p(f|c) is a trained per-candidate
+   correctness probability; this lever's base score is only a generation-priority
+   proxy, and "crossing agreement" over a mostly-wrong, mostly-non-word pool adds
+   noise, not signal, on this data point. Concrete next step if revisited: filter
+   the scored pool to real lexicon words before propagating (cheap, mechanical,
+   untried), and/or weight support by the crossing candidate's OWN rank rather
+   than raw presence, before concluding soft scoring can't help ranking at all —
+   today's one-lever budget went to building and verifying the safety property,
+   not to that follow-up. NOT DONE, honestly: only one puzzle measured (n=1, same
+   as 2026-11-06/11-10's strict measurements); did not filter the pool to
+   lexicon-only before propagating; did not wire this into any live solve path;
+   did not merge or otherwise act on any open PR — only the project owner can
+   (see the 70-open-PR backlog note below, now sharper than 2026-11-09's count).
 5. **Validate on the easier tier** (דקל בנו) — where 80% is realistic; tells us whether
    the harness is sound and this setter is simply hard.
 6. ~~Merge or close the PR backlog~~ — STRUCK 2026-08-21, RECURRED 2026-08-24, CONSOLIDATED
@@ -9459,3 +9523,47 @@ Measure each lever on dev (fixed enums) with run_eval.py before/after; one lever
   #103-#107) — not a claim to supersede the whole 69-PR backlog, which still needs the
   project owner's own decision per #115's recommendation (pick a lineage, or pause the
   routine).
+
+- 2026-11-11: **built the weighted/soft constraint-propagation variant queue item 4
+  named as its own concrete next step (2026-11-10): `soft_propagate()` /
+  `build_candidate_lists_scored()` / `measure_soft()` in `solver/constraint_solve.py`,
+  branched from `daily/2026-11-10-reconcile` (PR #117) per this file's own step-0
+  instruction, not from stale `main`.** Research this run (RESEARCH.md) read Dr.Fill's
+  actual mechanism (arXiv 1401.4597) directly rather than trusting the citation:
+  score every candidate, search for the highest-scoring crossing-consistent
+  assignment, never hard-delete. Built the scoped, honest translation of that:
+  candidates keep their existing generation-priority score, each round accumulates
+  crossing-agreement SUPPORT, and nothing is ever removed from a slot's pool — checked
+  by assertion against real data, not just claimed. Re-transcribed 2026-05-29 (14across
+  worked cleanly this run, 52/52 puzzles — real crowd gold, not the image-fallback
+  technique; 0/28 enum mismatches against the grid AND the real answer lengths).
+  MEASURED: the safety half works exactly as designed — the one slot strict
+  elimination deletes gold from (2-down, `יחפניות`) is the one slot soft scoring
+  keeps it in (`gold_lost_soft_scoring: []` vs strict's `[[2,"down"]]`). The ranking
+  half is an honest negative: gold's rank WORSENED (2/40 -> 14/40) because the
+  pool's post-propagation top-ranked strings are not real lexicon words (audited:
+  only 357/988 = 36.1% of this puzzle's whole candidate pool are real words at all),
+  so crossing "support" mostly measures agreement among noise. Full detail, audit,
+  and concrete next step (filter to lexicon-real candidates before propagating) are
+  in the lever queue's item 4 above, not repeated here. All 6 affected selftests
+  re-run clean (`constraint_solve.py` now 7 checks). No forbidden reads, no leak
+  (`held_out_answers()`/`held_out()` x2 all confirmed to block all 28 gold answers),
+  no implausible jump (a single clue's rank move, fully root-caused). Did not merge
+  or act on any PR — see the backlog note below, now sharper than 2026-11-09's count.
+
+  **STANDING PROCESS ALERT, sharper than 2026-11-09's (PR #115):** `main` has merged
+  no solver-track PR since 2026-08-31 (now 72 days). `list_pull_requests` at the start
+  of this run found **70 open, unmerged solver-backlog PRs (#38 through #117)**, every
+  one authored by the project owner's own account, roughly one new PR per day with
+  none closed. #115 (2026-11-09) already found two of the backlog's own
+  "consolidation" attempts (#108, #114) had silently diverged, and #117 (2026-11-10,
+  this branch's own base) narrowly reconciled just those two without claiming to fix
+  the backlog itself. This run adds no new diagnosis — the structural cause (daily
+  branches, no merges, so this file's own step 0 instruction is the only thing
+  stopping yet another fork) is unchanged from 2026-11-09's finding — but the COUNT
+  is now large enough, and old enough (72 days with zero merges), that "a future run
+  will reconcile it by hand again" is no longer a credible mitigation on its own.
+  Only the project owner can merge a PR, delete/close the stale ones, or decide to
+  pause this daily routine until the backlog is addressed; this run's own PR is
+  offered as a normal next-day branch on top of #117, same as every day since
+  2026-08-31, not as a 71st consolidation attempt.

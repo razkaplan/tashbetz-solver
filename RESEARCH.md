@@ -3203,3 +3203,47 @@ reconciliation below, not a new lever) — but a future run revisiting constrain
 should build the weighted/soft version Dr.Fill names, rather than inventing one from
 scratch or re-trying strict elimination a third time.
 day, that is the concrete next thing to actually try, not search for again.
+
+## 2026-11-11
+
+Two searches, aimed at turning 2026-11-10's "concrete next step" (build Dr.Fill's
+weighted CSP instead of another strict arc-consistency pass) into an actually
+buildable one-day unit, plus one broad sweep for anything new in the general literature.
+
+**Search 1: "Dr.Fill weighted CSP crossword solver Ginsberg algorithm scoring
+candidates".** Went past the citation (already on file since 2026-11-10) to the
+paper's own mechanism. Confirmed directly (WebSearch summary of arXiv 1401.4597 /
+JAIR 42:851-886): Dr.Fill assigns each candidate fill f for clue c a score p(f|c)
+(a probability the fill is correct given the clue) and searches for the legal
+assignment (crossing letters agree) that MAXIMIZES the total score — never a
+hard feasibility filter. Its search method is a modified limited discrepancy
+search (LDS); branch-and-bound was tried and dropped as impractical. **Transfer:
+confirms the "never hard-delete, always score" framing is the real mechanism, not
+just a slogan** — and clarifies that a full port would mean implementing LDS over
+the whole grid, which is bigger than a one-lever day. The buildable-today piece is
+the SCORING half (replace strict elimination's keep/discard with a score that
+only ever grows or holds, never zeroes a candidate out) without claiming to also
+port Dr.Fill's own search strategy — see today's lever in DAILY.md for the honest
+scope line this draws.
+
+**Search 2: "cryptic crossword solving candidate generation 2026 arxiv new
+method".** Nothing dated later than this project's existing citations (Cryptonite/
+2103.01242, Andrews & Witteveen's reasoning-plus-code-verification pipeline/
+2506.04824, "Language Models are Crossword Solvers"/2406.09043, Sadallah et al.'s
+task-decomposition finding/2412.09012). Consistent with the now roughly dozen
+consecutive research passes (2026-10-05 through 2026-11-01, per DAILY.md's own
+running tally) finding nothing new for candidate generation or definition-span
+location specifically. **Transfer: none new** — reconfirms, does not add. The one
+standing, repeatedly-flagged, never-executed idea from this literature remains
+Sadallah et al.'s decomposition-into-subtasks finding applied to this project's own
+LIVE `solve_pass.py` prompting (not a new offline tool) — still not attempted,
+flagged again rather than re-researched, since re-asking the same question an
+eleventh time would not be a good use of today's research budget either.
+
+**Judgement, and what today's lever actually is.** The weighted-CSP framing
+transfers and is worth building NOW, scoped honestly: a scoring layer that
+never removes a candidate from its slot (the thing that broke 2-down's gold
+answer under strict elimination, 2026-11-06 and reproduced 2026-11-10), re-ranking
+instead of pruning, using crossing agreement as the support signal — not a claim
+to have implemented Dr.Fill's own LDS search end to end. See DAILY.md for the
+build and the measured, audited result.

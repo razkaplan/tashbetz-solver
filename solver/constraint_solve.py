@@ -167,6 +167,170 @@ def measure(dataset_path, split=None, max_n=40, **gen_kwargs):
     return report
 
 
+def build_candidate_lists_scored(grid, clue_rows, max_n=40, **gen_kwargs):
+    """Like build_candidate_lists, but keeps a BASE SCORE per candidate instead of
+    collapsing to a bare set. The score is the candidate's position in generate()'s
+    own priority-ordered output (see candidates.generate()'s docstring: mechanism
+    order there is a deliberate rare/high-precision-first tier, not an arbitrary
+    accumulation order) -- the first-listed candidate for a clue scores highest.
+    This is the existing, already-documented confidence signal this project has,
+    not an invented one. Returns {(num, direction): {answer: score}}."""
+    sl = G.slots(grid)
+    out = {}
+    for row in clue_rows:
+        key = (row['clue_number'], row['direction'])
+        cells = sl.get(key)
+        if not cells:
+            continue
+        cands = C.generate(row['clue_text'], row['enum'], max_n=max_n, **gen_kwargs)
+        n = len(cands)
+        scores = {}
+        for i, c in enumerate(cands):
+            ans = c['answer']
+            if len(ans) != len(cells):
+                continue
+            scores[ans] = max(scores.get(ans, 0), float(n - i))
+        out[key] = scores
+    return out
+
+
+def soft_propagate(grid, cand_scores, rounds=3, support_weight=1.0):
+    """Weighted-CSP-style re-ranking, in the spirit of Dr.Fill (Ginsberg, arXiv
+    1401.4597 / JAIR 42:851-886): Dr.Fill assigns every candidate fill a score and
+    searches for the highest-scoring assignment that agrees at every crossing --
+    it never hard-deletes a candidate just because a crossing slot's OWN pool
+    currently lacks support for it. That is exactly the failure mode propagate()'s
+    strict (arc-consistency) version hit on this project's own canonical dev
+    puzzle: the one slot holding the gold answer got pruned to empty because its
+    crossing neighbour's generator never separately produced the matching letter
+    (see this module's docstring and DAILY.md's 2026-11-06/11-10 entries).
+
+    This function is a deliberately scoped translation of that principle, not a
+    port of Dr.Fill's own search (a full limited-discrepancy search over the whole
+    grid's joint assignment -- see RESEARCH.md's 2026-11-11 entry for why that is
+    a bigger-than-one-day unit). What IS ported: scoring instead of deleting. Each
+    round, a candidate's score accumulates SUPPORT from its crossing slots' own
+    current best-scoring agreeing candidate at the shared cell. A candidate with
+    no support anywhere simply keeps its base score -- it is NEVER removed from
+    its slot's pool, by construction (every key and every candidate present on
+    input is present on output; only the attached score changes). That guarantee
+    is what a hard-elimination pass cannot offer and is the entire point of this
+    function: a correct-but-currently-unsupported candidate can still be ranked
+    #1 by its own base score even when nothing agrees with it yet, and never
+    disappears the way it did under propagate().
+
+    cand_scores: {(num, direction): {answer: base_score}} (e.g. from
+    build_candidate_lists_scored). Returns a NEW dict of the same shape; the
+    *set* of answers per slot is always identical to the input's, only scores
+    change."""
+    sl = G.slots(grid)
+    crossmap = G.crossings(grid)
+    scores = {k: dict(v) for k, v in cand_scores.items()}
+    for _ in range(max(0, rounds)):
+        new_scores = {k: dict(v) for k, v in scores.items()}
+        for cell, keys in crossmap.items():
+            if len(keys) < 2:
+                continue
+            for key in keys:
+                if key not in scores:
+                    continue
+                cells = sl[key]
+                idx = cells.index(cell)
+                others = [k for k in keys if k != key and k in scores]
+                if not others:
+                    continue
+                for cand, base in cand_scores[key].items():
+                    if idx >= len(cand):
+                        continue
+                    ch = cand[idx]
+                    support = 0.0
+                    for ok in others:
+                        ocells = sl[ok]
+                        oidx = ocells.index(cell)
+                        best = max((sc for oc, sc in scores[ok].items()
+                                    if len(oc) > oidx and oc[oidx] == ch), default=0.0)
+                        support += best
+                    new_scores[key][cand] = base + support_weight * support
+        scores = new_scores
+    return scores
+
+
+def _rank_of(score_map, target):
+    """1-based rank of `target` by score descending (stable tie-break: answer
+    string), or None if target isn't a key at all."""
+    if target not in score_map:
+        return None
+    order = sorted(score_map.items(), key=lambda kv: (-kv[1], kv[0]))
+    for i, (ans, _) in enumerate(order, 1):
+        if ans == target:
+            return i
+    return None
+
+
+def measure_soft(dataset_path, split=None, max_n=40, rounds=3, support_weight=1.0,
+                  **gen_kwargs):
+    """Honest before/after for the soft/scored variant, run alongside the SAME
+    puzzle's strict propagate() result so the comparison this lever exists to make
+    -- does scoring instead of deleting actually avoid strict's failure mode? --
+    is answered directly, not just asserted. See soft_propagate()'s docstring for
+    the construction guarantee this function checks rather than assumes."""
+    rows = [json.loads(l) for l in open(dataset_path)]
+    if split:
+        rows = [r for r in rows if r['split'] == split]
+    by_puzzle = {}
+    for r in rows:
+        by_puzzle.setdefault(r['puzzle_date'], []).append(r)
+
+    report = []
+    for date, prows in sorted(by_puzzle.items()):
+        grid_path = f'data/grids/{date}.json'
+        try:
+            grid = json.load(open(grid_path))['grid']
+        except FileNotFoundError:
+            continue
+        gold = {(r['clue_number'], r['direction']): C.norm(r['answer_raw'])
+                for r in prows if r.get('answer_raw')}
+        cand_scores = build_candidate_lists_scored(grid, prows, max_n=max_n, **gen_kwargs)
+
+        gold_in_pool = {k for k, g in gold.items()
+                        if k in cand_scores and g in cand_scores[k]}
+        ranks_before = {k: _rank_of(cand_scores[k], gold[k]) for k in gold_in_pool}
+
+        after = soft_propagate(grid, cand_scores, rounds=rounds, support_weight=support_weight)
+
+        # Construction guarantee: cardinality (the candidate SET) never changes.
+        for k in cand_scores:
+            assert set(after.get(k, {})) == set(cand_scores[k]), \
+                f'{k}: soft_propagate must never change a slot\'s candidate SET'
+
+        ranks_after = {k: _rank_of(after[k], gold[k]) for k in gold_in_pool}
+        gold_lost_soft = {k for k in gold_in_pool if gold[k] not in after.get(k, {})}
+
+        # Cross-check against strict propagate() on the SAME raw pools -- the
+        # comparison this lever exists to make.
+        strict_lists = {k: set(v.keys()) for k, v in cand_scores.items()}
+        strict_after, _, _ = propagate(grid, strict_lists)
+        gold_lost_strict = {k for k in gold_in_pool if gold[k] not in strict_after.get(k, set())}
+
+        top1_before = sum(1 for k in gold_in_pool if ranks_before[k] == 1)
+        top1_after = sum(1 for k in gold_in_pool if ranks_after[k] == 1)
+        rank_improved = sorted(k for k in gold_in_pool if ranks_after[k] < ranks_before[k])
+        rank_worsened = sorted(k for k in gold_in_pool if ranks_after[k] > ranks_before[k])
+
+        report.append({
+            'puzzle_date': date,
+            'n_slots_with_gold_in_pool': len(gold_in_pool),
+            'gold_lost_strict_hard_elimination': sorted(gold_lost_strict),
+            'gold_lost_soft_scoring': sorted(gold_lost_soft),
+            'strict_lost_but_soft_kept': sorted(gold_lost_strict - gold_lost_soft),
+            'top1_before_scoring': top1_before,
+            'top1_after_soft_propagation': top1_after,
+            'rank_improved': rank_improved,
+            'rank_worsened': rank_worsened,
+        })
+    return report
+
+
 def selftest():
     """Synthetic fixtures only (no puzzle data) -- same discipline every
     other selftest in this repo follows: never embed held-out answers."""
@@ -232,7 +396,38 @@ def selftest():
     after3, _, emptied3 = propagate(grid, cand_lists3)
     assert emptied3, 'mutually inconsistent singleton candidates must empty at least one slot'
 
-    print('ALL PASSED (3 checks)')
+    # --- soft_propagate() checks (never hard-deletes; re-ranks instead) ---
+    # Check 4: equal base scores for truth and a decoy2 in every slot. decoy
+    # (checks 1-3) reuses the SAME 2-letter string 'זח' in all four slots, which
+    # can coincidentally self-agree at some crossing index -- fine for strict
+    # propagate()'s pass/fail check, but not a clean "shares nothing" fixture for
+    # a scoring test. decoy2 uses globally-unique letters (no letter repeated
+    # across any slot) so it is GUARANTEED to get zero crossing support anywhere,
+    # unlike truth (mutually consistent by construction). soft_propagate must
+    # therefore rank truth #1 after scoring, even though it starts tied with
+    # decoy2 and NEVER removes decoy2 from the pool.
+    decoy2 = {a0: 'זח', a1: 'טכ', d0: 'סע', d1: 'פצ'}
+    equal_scores = {k: {truth[k]: 1.0, decoy2[k]: 1.0} for k in keys}
+    soft_after = soft_propagate(grid, equal_scores, rounds=2)
+    for k in keys:
+        assert set(soft_after[k]) == {truth[k], decoy2[k]}, \
+            f'{k}: soft_propagate must never remove a candidate, got {soft_after[k]}'
+        assert soft_after[k][truth[k]] > soft_after[k][decoy2[k]], (
+            f'{k}: truth (mutually consistent) should outrank decoy2 (not) after '
+            f'scoring, got truth={soft_after[k][truth[k]]} decoy2={soft_after[k][decoy2[k]]}')
+        assert _rank_of(soft_after[k], truth[k]) == 1, f'{k}: truth should rank #1'
+
+    # Check 5: the mutually-INCONSISTENT singleton case (check 2's `bad`, where
+    # strict propagate() emptied a slot outright). soft_propagate on a single-
+    # candidate-per-slot pool must still never remove anything -- cardinality
+    # preserved even when nothing anywhere agrees with anything.
+    bad_scores = {k: {bad[k]: 1.0} for k in keys}
+    soft_bad = soft_propagate(grid, bad_scores, rounds=2)
+    for k in keys:
+        assert set(soft_bad[k]) == {bad[k]}, \
+            f'{k}: soft_propagate must keep the sole candidate even with zero support'
+
+    print('ALL PASSED (5 checks)')
 
 
 def main():
@@ -251,6 +446,16 @@ def main():
             if flag in sys.argv:
                 kwargs[key] = False
         for r in measure(dataset_path, split, **kwargs):
+            print(json.dumps(r, ensure_ascii=False))
+    elif cmd == 'measure-soft':
+        dataset_path = sys.argv[2]
+        split = sys.argv[3] if len(sys.argv) > 3 else None
+        kwargs = {}
+        for flag, key in (('--no-culture', 'use_culture'), ('--no-retrieval', 'use_retrieval'),
+                           ('--no-gematria', 'use_gematria'), ('--no-container', 'use_container')):
+            if flag in sys.argv:
+                kwargs[key] = False
+        for r in measure_soft(dataset_path, split, **kwargs):
             print(json.dumps(r, ensure_ascii=False))
     else:
         print(__doc__)
