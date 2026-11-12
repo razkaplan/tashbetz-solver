@@ -9567,3 +9567,123 @@ Measure each lever on dev (fixed enums) with run_eval.py before/after; one lever
   pause this daily routine until the backlog is addressed; this run's own PR is
   offered as a normal next-day branch on top of #117, same as every day since
   2026-08-31, not as a 71st consolidation attempt.
+
+- 2026-11-12: **`constraint_solve.py`: real_word_support filter for `soft_propagate()`
+  (queue item 4, PR #118's own named next step), measured negative on the one gold
+  slot this diagnostic has data for.** Branched from `daily/2026-11-11-work` (PR #118),
+  not stale `main`, per this file's own step-0 rule.
+
+  Bootstrap FULLY succeeded this run (52/52 puzzles, 1,457 clues, 0 empty answers) —
+  gold for 2026-05-29 came from the real sanctioned `data/answers/by_date/` scrape, not
+  the image-fallback technique. Independently re-transcribed all 28 clues of 2026-05-29
+  (yet another independent transcription of this project's canonical dev puzzle) from
+  `data/images/2026-05-28.jpg`: clue text for across 1/7/8/9/10/11/13 again sits in the
+  separate `אופקי:` block next to the solved-grid box (the standing across-1-13 layout
+  split this file has documented many times), clue 13's own text ("בני טוב") turned out
+  to continue, unusually, as "כמלחין" at the very start of the SECOND clue column before
+  enum (4) — a genuine, disclosed print-layout quirk (the clue is split, not missing;
+  "ליסט" = Liszt the composer fits "בני טוב כמלחין" as a double-definition, consistent
+  with the gold answer). All 28 enum sums validated TWICE, independently: against the
+  real 14across answer lengths (`python3 solver/build_dataset.py`: 0 mismatches) AND
+  against the grid-derived slot lengths (`python3 solver/grid_tools.py validate
+  data/grids/2026-05-29.json data/clues/2026-05-29.json`: **OK**). Re-ran
+  `constraint_solve.py measure-soft` first, unchanged, as a cross-check: reproduced
+  PR #118's exact numbers (`gold_lost_strict_hard_elimination: [[2,"down"]]`,
+  `rank_worsened: [[2,"down"]]`, top1 0->0) on this fresh, independent transcription.
+
+  BUILT: `is_real_word()` (checks `candidates.lex()`, cached, held-out-safe by
+  construction since `lex()` already runs every tier but hspell through
+  `lexicon.held_out_answers()`) and a `real_word_support` flag on `soft_propagate()` --
+  when set, a candidate in a CROSSING slot may only lend support to another slot's
+  candidate if it is itself a real word. This changes nothing about which candidates
+  EXIST in any slot (the never-delete guarantee PR #118 built is untouched, checked by
+  the same cardinality assertion extended to the new path) -- it only restricts which
+  candidates are allowed to cast a supporting vote. `measure_soft()` now runs both the
+  plain and real-word-filtered variants on the same pools in one call, so the comparison
+  is direct rather than two separate runs. 2 new selftest checks (on top of the existing
+  5): cardinality preservation under the new flag, and a discriminator built from a
+  REAL measured bug in this file's own existing `decoy` fixture (the same 2-letter
+  string reused in all 4 synthetic slots self-agrees at some crossings, producing a
+  false tie with `truth` under plain scoring -- confirmed by first asserting the false
+  tie actually occurs, not assumed) that filtering correctly resolves in `truth`'s favor.
+
+  MEASURED (executed): `python3 solver/constraint_solve.py measure-soft
+  data/dataset/clues.jsonl eval` -- `pool_real_word_fraction: 0.36` (independently
+  reproduces PR #118's 36.1%, 357/988 vs today's 356/989 -- 1-candidate difference is
+  normal transcription-to-transcription noise, not a regression). On the ONE slot this
+  puzzle's diagnostic has gold data for (2 down, `יחפניות`, recall@N is 3.6%/1-28 on this
+  puzzle so there is only ever one such slot): rank before propagation **2/40**; rank
+  after PLAIN soft_propagate **14/40** (score 39.0, matching PR #118 exactly); rank after
+  REAL-WORD-FILTERED soft_propagate **14/40 (score 39.0) -- IDENTICAL**, same top-5
+  candidates, none of which are real words either way (`פזתאוחו`, `אפתוזחו`,
+  `אחזופתו`, ...). **Zero effect on the one case this project can measure it against.**
+  Root-caused, not left as a bare number: the filter DOES change scores elsewhere in the
+  puzzle (197/989 = 19.9% of all candidate scores differ between the plain and filtered
+  runs, confirmed directly, so the mechanism is not inert) -- it simply didn't touch this
+  particular slot's crossings, because `יחפניות`'s highest-scoring rivals get their lift
+  from crossing cells where the winning supporter is unaffected by the filter (either
+  already a real word, or the comparison never flips the max at that specific cell). A
+  real-word filter can suppress noise-supporting-noise; it cannot stop a noise candidate
+  from legitimately sharing a letter with a REAL neighboring candidate at a shared cell,
+  which is a different, structural problem this lever was never going to fix: recall@N
+  is 3.6% on this puzzle, so most slots' true letter isn't in ANY candidate pool at all,
+  real or not, and a quality filter on existing candidates cannot manufacture the ones
+  that were simply never generated.
+
+  AUDITED (mandatory gate): `lexicon.held_out_answers()`, `substitutions.held_out()`,
+  `retrieve_defs.held_out()` all directly computed (not assumed) to block all 28 gold
+  answers (`gold - blocked` empty for all three). Checked the one thing specific to
+  THIS lever directly: 9 of the 28 gold answers (`סרבית`, `יחפניות`, `ברבר`, `נשי`,
+  `ערב`, `פנימאי`, `מגפ`, `שלג`, `אנזימימ`) ARE present in `candidates.lex()` -- verified
+  by direct lookup that every one sits there via the plain hspell tier (priority 1,
+  confirmed against the raw `solver/lex/hspell.txt` file directly, not assumed), never
+  the held-out-filtered corpus/culture tiers -- the same legitimate "ordinary dictionary
+  word that happens to be an answer" case RESULTS.md's own INTEGRITY FINDING already
+  carved out as not a leak. No forbidden reads: gold from the sanctioned 14across
+  scrape, clue text from the public CDN image. No implausible jump to explain: this is a
+  flat/negative result (0 change in rank or top1 under either scoring variant), the
+  opposite of a suspicious one. All 6 affected selftests re-run clean
+  (`constraint_solve.py` now 7 checks, `candidates.py`, `lexicon.py`, `prove.py`,
+  `substitutions.py`, `retrieve_defs.py`).
+
+  RESEARCH this run (full entry in RESEARCH.md): one search, aimed at this exact lever
+  rather than a fresh topic. No 2026 paper on real-word-confidence filtering for a
+  weighted-CSP crossword solver exists (confirms there was nothing to port, consistent
+  with roughly a dozen consecutive research passes finding nothing new for this
+  project's specific gaps) -- but surfaced one genuinely new, not-yet-logged idea:
+  Cruciform (arXiv 1611.02360, already cited here 2026-10-29 for a different reason)
+  also has a CSP variable-selection heuristic -- commit the slot with the LARGEST
+  confidence gap between its best and second-best candidate first. That targets WHICH
+  SLOT to trust, not candidate quality, so it is complementary to today's lever, not a
+  substitute. Not implemented today (one lever per run); flagged for a future
+  `constraint_solve.py` pass that builds an actual commitment order.
+
+  HONEST READ: a clean, informative negative. The real-word filter is a real, working,
+  now-tested mechanism (confirmed to move ~20% of this puzzle's candidate scores), but
+  it did not touch the one outcome this project can currently measure it against,
+  because the puzzle's binding constraint is candidate RECALL (3.6%), not candidate
+  QUALITY discrimination among what little exists. Do not re-attempt real-word-quality
+  filtering on `constraint_solve.py` expecting a different puzzle-level result until
+  candidate recall itself improves -- this is the same standing diagnosis queue item 1
+  has carried since 2026-08-06, now independently reconfirmed from the global-constraint
+  side rather than the single-clue side.
+
+  NOT DONE, honestly: only one puzzle, one gold-bearing slot, measured (n=1, the same
+  limit every `constraint_solve.py` measurement has had since PR #112) -- a puzzle with
+  more than one slot holding gold in its pool would make this a real comparison instead
+  of a single data point; did not implement Cruciform's confidence-gap ordering idea;
+  did not merge or otherwise act on any open PR. Also noticed, not fixed (out of today's
+  one-lever budget): the top "Current state" table above has not gained a new row since
+  2026-10-16, and the "Last lever added" summary immediately below it has not been
+  updated since 2026-11-10, even though real work (PR #117, #118, today) has landed
+  since both dates -- only this file's append-only bottom `## Log` section has stayed
+  current. A third stale-tracking surface on top of the PR backlog itself; disclosed
+  here rather than silently patched, since reconciling three drifting summaries under
+  today's one-lever budget would risk corrupting a 2,400+ line file for little benefit.
+
+  **PROCESS ALERT, unchanged in substance, now day 73+ since the last solver-track
+  merge (2026-08-31):** this run again found no PR merged and the backlog still fully
+  open (#38 through #118, 71 PRs once this run's own PR lands). Nothing new to add to
+  PR #118's own alert text beyond the day count; repeating the full breakdown a further
+  time would not make it more actionable than yesterday's already was. Only the project
+  owner can merge, close, or pause this routine.

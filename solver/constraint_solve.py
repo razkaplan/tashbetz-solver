@@ -194,7 +194,28 @@ def build_candidate_lists_scored(grid, clue_rows, max_n=40, **gen_kwargs):
     return out
 
 
-def soft_propagate(grid, cand_scores, rounds=3, support_weight=1.0):
+_REAL_WORD_CACHE = {}
+
+
+def is_real_word(ans):
+    """True iff `ans` sits in candidates.lex() at all (any of the three tiers:
+    hspell/corpus/culture). Held-out-safe by construction -- lex() already runs
+    every dev/eval puzzle's own gold answers through lexicon.held_out_answers()
+    before this ever sees them (same guard every other tool in this project
+    uses), so this can never leak a held-out answer by letting it "pass" the
+    real-word check BECAUSE it is the answer. The one accepted side effect,
+    disclosed rather than hidden: a CORRECT candidate that happens to equal
+    the puzzle's own held-out gold answer in some OTHER slot is scrubbed from
+    lex() too, so it will read as "not real" here even though it is -- a
+    conservative bias against this puzzle's specific answers, never a leak in
+    the other direction. Cached per answer string (lex() itself is already
+    cached in candidates.py; this just avoids re-hashing in a hot loop)."""
+    if ans not in _REAL_WORD_CACHE:
+        _REAL_WORD_CACHE[ans] = C.norm(ans) in C.lex()
+    return _REAL_WORD_CACHE[ans]
+
+
+def soft_propagate(grid, cand_scores, rounds=3, support_weight=1.0, real_word_support=False):
     """Weighted-CSP-style re-ranking, in the spirit of Dr.Fill (Ginsberg, arXiv
     1401.4597 / JAIR 42:851-886): Dr.Fill assigns every candidate fill a score and
     searches for the highest-scoring assignment that agrees at every crossing --
@@ -218,6 +239,16 @@ def soft_propagate(grid, cand_scores, rounds=3, support_weight=1.0):
     function: a correct-but-currently-unsupported candidate can still be ranked
     #1 by its own base score even when nothing agrees with it yet, and never
     disappears the way it did under propagate().
+
+    real_word_support (queue item 4's own named next step, PR #118 2026-11-11):
+    when True, a candidate in the SUPPORTING slot may only lend support if it is
+    itself a real word per is_real_word() -- PR #118 measured only 357/988
+    (36.1%) of this puzzle's whole candidate pool are real lexicon entries at
+    all, so unfiltered "does anything agree with me" mostly counts agreement
+    among anagram/reversal letter-salad, which is noise, not signal. This never
+    changes which candidates exist in the SUPPORTED slot (the construction
+    guarantee above is untouched) -- it only restricts which candidates in
+    OTHER slots are allowed to cast a supporting vote.
 
     cand_scores: {(num, direction): {answer: base_score}} (e.g. from
     build_candidate_lists_scored). Returns a NEW dict of the same shape; the
@@ -247,7 +278,10 @@ def soft_propagate(grid, cand_scores, rounds=3, support_weight=1.0):
                     for ok in others:
                         ocells = sl[ok]
                         oidx = ocells.index(cell)
-                        best = max((sc for oc, sc in scores[ok].items()
+                        pool = scores[ok].items()
+                        if real_word_support:
+                            pool = ((oc, sc) for oc, sc in pool if is_real_word(oc))
+                        best = max((sc for oc, sc in pool
                                     if len(oc) > oidx and oc[oidx] == ch), default=0.0)
                         support += best
                     new_scores[key][cand] = base + support_weight * support
@@ -317,16 +351,38 @@ def measure_soft(dataset_path, split=None, max_n=40, rounds=3, support_weight=1.
         rank_improved = sorted(k for k in gold_in_pool if ranks_after[k] < ranks_before[k])
         rank_worsened = sorted(k for k in gold_in_pool if ranks_after[k] > ranks_before[k])
 
+        # Queue item 4's own named next step (PR #118, 2026-11-11): does
+        # restricting cross-slot SUPPORT to real-lexicon-word candidates (not
+        # touching which candidates exist, same construction guarantee) fix
+        # the "agreement among noise" problem PR #118 found and measured?
+        after_rw = soft_propagate(grid, cand_scores, rounds=rounds,
+                                   support_weight=support_weight, real_word_support=True)
+        for k in cand_scores:
+            assert set(after_rw.get(k, {})) == set(cand_scores[k]), \
+                f'{k}: real_word_support must never change a slot\'s candidate SET either'
+        ranks_after_rw = {k: _rank_of(after_rw[k], gold[k]) for k in gold_in_pool}
+        gold_lost_rw = {k for k in gold_in_pool if gold[k] not in after_rw.get(k, {})}
+        top1_after_rw = sum(1 for k in gold_in_pool if ranks_after_rw[k] == 1)
+        rank_improved_rw = sorted(k for k in gold_in_pool if ranks_after_rw[k] < ranks_before[k])
+        rank_worsened_rw = sorted(k for k in gold_in_pool if ranks_after_rw[k] > ranks_before[k])
+        n_real = sum(1 for scores in cand_scores.values() for ans in scores if is_real_word(ans))
+        n_total = sum(len(scores) for scores in cand_scores.values())
+
         report.append({
             'puzzle_date': date,
             'n_slots_with_gold_in_pool': len(gold_in_pool),
+            'pool_real_word_fraction': round(n_real / n_total, 3) if n_total else None,
             'gold_lost_strict_hard_elimination': sorted(gold_lost_strict),
             'gold_lost_soft_scoring': sorted(gold_lost_soft),
+            'gold_lost_soft_scoring_real_word_support': sorted(gold_lost_rw),
             'strict_lost_but_soft_kept': sorted(gold_lost_strict - gold_lost_soft),
             'top1_before_scoring': top1_before,
             'top1_after_soft_propagation': top1_after,
+            'top1_after_real_word_support': top1_after_rw,
             'rank_improved': rank_improved,
             'rank_worsened': rank_worsened,
+            'rank_improved_real_word_support': rank_improved_rw,
+            'rank_worsened_real_word_support': rank_worsened_rw,
         })
     return report
 
@@ -427,7 +483,41 @@ def selftest():
         assert set(soft_bad[k]) == {bad[k]}, \
             f'{k}: soft_propagate must keep the sole candidate even with zero support'
 
-    print('ALL PASSED (5 checks)')
+    # --- real_word_support checks (queue item 4's PR #118 2026-11-11 next step) ---
+    # Check 6: the construction guarantee (cardinality never changes) must hold under
+    # real_word_support too, not just the default path.
+    tied = {k: {truth[k]: 1.0, decoy[k]: 1.0} for k in keys}
+    rw_after = soft_propagate(grid, tied, rounds=2, real_word_support=True)
+    for k in keys:
+        assert set(rw_after[k]) == {truth[k], decoy[k]}, \
+            f'{k}: real_word_support=True must never remove a candidate either'
+
+    # Check 7: the actual discriminator. Seed the cache (never touches the real
+    # lexicon -- is_real_word() checks this cache before any file access, so this
+    # stays a fully synthetic fixture) marking `truth` real and `decoy` not. `decoy`
+    # reuses the identical string in all four slots, which -- as check 1-3's own
+    # comment already notes -- lets it coincidentally self-agree with itself at
+    # some crossings. That self-agreement is a direct model of PR #118's measured
+    # bug: 357/988 (36.1%) of the real puzzle's pool are real words, so plain
+    # "does anything agree with me" mostly counts noise agreeing with noise.
+    # Confirm the fixture actually reproduces a false tie first (decoy, which is
+    # WRONG, scoring equal to truth after plain propagation) -- otherwise this
+    # check would be testing nothing.
+    for k in keys:
+        _REAL_WORD_CACHE[truth[k]] = True
+        _REAL_WORD_CACHE[decoy[k]] = False
+    plain_tied = soft_propagate(grid, tied, rounds=2, real_word_support=False)
+    false_tie = [k for k in keys if plain_tied[k][truth[k]] == plain_tied[k][decoy[k]]]
+    assert false_tie, ('fixture precondition failed: expected plain soft_propagate to '
+                        'produce at least one false tie between truth and noise-decoy '
+                        f'(got {plain_tied}) -- this check would test nothing otherwise')
+    filtered_tied = soft_propagate(grid, tied, rounds=2, real_word_support=True)
+    for k in keys:
+        assert filtered_tied[k][truth[k]] > filtered_tied[k][decoy[k]], (
+            f'{k}: with decoy marked non-real, truth should strictly outrank it after '
+            f'filtered propagation (the false tie plain scoring produced), got {filtered_tied[k]}')
+
+    print('ALL PASSED (7 checks)')
 
 
 def main():

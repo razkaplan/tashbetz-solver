@@ -3247,3 +3247,37 @@ answer under strict elimination, 2026-11-06 and reproduced 2026-11-10), re-ranki
 instead of pruning, using crossing agreement as the support signal — not a claim
 to have implemented Dr.Fill's own LDS search end to end. See DAILY.md for the
 build and the measured, audited result.
+
+## 2026-11-12
+
+**Search: "crossword weighted CSP candidate filtering real word confidence
+2026 cryptic solver arxiv".** Aimed at PR #118's own named next step (filter
+the scored pool to lexicon-real candidates before propagating) rather than a
+fresh topic. Surfaced the same weighted-CSP family already on file (Dr.Fill
+1401.4597; WebCrow's probabilistic-CSP technical report; WebCrow 2.0, arXiv
+2311.15626 — belief propagation over confidence + clue-type + answer length)
+plus one genuinely new data point: **Cruciform (arXiv 1611.02360)**, already
+cited here on 2026-10-29 for its definition-fit cosine-similarity idea, ALSO
+has a distinct, not-yet-logged piece — its CSP variable-selection heuristic
+picks the slot with the **largest confidence gap between its best and
+second-best candidate** to commit next, on the reasoning that a wide gap is
+the most reliable signal regardless of absolute score. **Transfer: no 2026
+paper on this exact filter exists (confirms there is nothing to simply port),
+but Cruciform's gap heuristic is a different, usable idea for a FUTURE lever**
+— it targets which slot to trust FIRST (an ordering/commitment question),
+which is complementary to, not a substitute for, today's candidate-QUALITY
+filter (which slots' support should even count). Not implemented today (one
+lever per run); flagged here so a future constraint_solve.py pass building a
+real commitment order doesn't have to re-search for it.
+
+**What today's lever actually is.** PR #118 measured that only 357/988
+(36.1%) of this puzzle's whole candidate pool are real lexicon words, and
+root-caused soft_propagate()'s flat-to-negative ranking result (gold
+`יחפניות` fell from rank 2 to rank 14 after scoring) to "most 'agreement' is
+noise agreeing with noise," naming "filter the scored pool to lexicon-real
+candidates before propagating" as the concrete untried next step. Built
+exactly that, scoped as PR #118 itself scoped it (a restriction on which
+candidates may LEND support, never on which candidates EXIST — the
+never-delete guarantee stays intact) rather than inventing a different
+mechanism. See DAILY.md for the build, the measured result (a genuine,
+audited negative on the one puzzle this diagnostic has data for), and why.
