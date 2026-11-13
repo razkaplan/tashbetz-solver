@@ -21,9 +21,84 @@ tree - a stale CLI deploy overwrote the live site on 2026-08-29. See CLAUDE.md.
 | **Definition-span locatable rate (new, offline, diagnostic)** | **25% (7/28)** have mechanically-locatable single-window wordplay; of those 29% (2/7) are interior, not edge; classifier agreement on edge cases **1/5** | not a target — this diagnostic KILLED the lever, see log |
 | **`solve_pass.py` LIVE blind trial — cumulative (3 trials)** | **40% precision (2/5 committed)**: 2026-08-16 was 1/2 on a partial 21/28-clue puzzle (2026-06-12); 2026-08-22 was **0/2**, 7.1% coverage, on a FULL 28/28-clue puzzle (2026-05-15); **2026-08-27 is 1/1 = 100% precision but 5.3% coverage (1/19), 0% suggestion hit-rate (0/10)**, on 2026-07-10 (19/28 clues) — FIRST trial run with `retrieval_candidates` live (wired 2026-08-25, never live-trialed since); it contributed ZERO candidates all puzzle (grepped the transcript for `(retrieval, fodder=` hits — none), matching today's own offline recall@N finding on this same puzzle (0/19 with or without retrieval); the one correct commit came from `wiki.py` culture-fact lookup, not from any candidate generator | n=5 — still small; retrieval's live debut is a null result on this puzzle, not a regression, but not the coverage lift the queue hoped for either; see log |
 | **Candidate recall@N with `culture_category_candidates` added (new, offline, definition-driven)** | **0% (0/28)**, on 2026-06-19 — mechanism fired on only 1/28 clues (avg candidates/clue 10.5 → 11.4); its one firing (339 raw candidates, an "author" category hit) matched 0 gold | not yet a target — small-n diagnostic, see log |
+| **Candidate recall@N with `anagram_split_candidates` added (new, offline, multi-word anagram)** | **7.1% (2/28), UNCHANGED**, on a FIFTH independent dev puzzle, 2026-05-21 (freshly transcribed, 28/28, first time this puzzle has been measured) — avg candidates/clue rose 10.6 → 16.1 (the mechanism fires, often) but contributed 0 net recall gain at a practical per-clue budget; see log for why (combinatorial noise, not a bug) | not yet a target — diagnostic, see log |
 
 Baseline for comparison: v2 = 41% raw with untraceable errors.
-Last lever added (2026-08-30): **closed 2026-08-29's own "NOT DONE" gap: re-measured
+Last lever added (2026-11-13): **candidate generation, queue item 1's own next concrete
+step, from a different angle than 2026-08-25—2026-08-30's corpus-growth runs: a new
+MECHANISM rather than a bigger corpus.** `anagram_candidates`/`hidden_candidates` only
+ever match a clue window against a SINGLE lexicon entry of the full target length, so a
+2-part-enum answer that is two separate real words (e.g. `חלב`+`סויה`) is structurally
+invisible to them no matter how exact the letter match is — confirmed, not assumed, as
+a real miss on a fresh dev puzzle before writing any code (clue 20A, 2026-05-21).
+Built `anagram_split_candidates` (`solver/candidates.py`): backtracking search over
+the lexicon, indexed by length and by letter-signature for an O(1) exact-match on the
+last unassigned part, branching on whichever part's lexicon group is smaller first to
+keep it fast (confirmed: the whole 2-part-enum subset of this puzzle's 28 clues runs in
+well under a second). Returns both word orders, since this setter prints enums reversed
+often enough (SOLVE_PROTOCOL.md) that committing to one order would silently lose real
+hits. New selftest (synthetic `שלום`+`טוב`, independent of any puzzle, same discipline
+as every other mechanism here) confirms the search is correct: it finds the two-word
+split `anagram_candidates` structurally cannot, in both orders, and declines to fire on
+a 1-part enum.
+
+MEASURED, controlled before/after on the fresh puzzle
+(`python3 solver/candidates.py recall data/dataset/clues.jsonl eval [--no-culture]
+[--no-retrieval]`): **7.1% (2/28) before AND after** — the mechanism visibly fires
+(avg candidates/clue 10.6 → 16.1 mechanical-only) but contributed zero net recall gain
+at the per-clue candidate budget (25, matching `generate()`'s own `max_n`) the rest of
+the generator already respects. Same 2 hits both before and after, by the pre-existing
+`anagram` mechanism (11A `החלמ`, 18D `גבינות`) — confirmed identical, not just the same
+count, so nothing regressed either.
+
+DIAGNOSED WHY, not just reported flat: this device has two independent degrees of
+freedom (which letters go to which word) where every other mechanism here has one, so
+it is far noisier. Measured directly: the 7-letter window for clue 20A (`יבולחסה`)
+alone admits **254** distinct valid two-real-word partitions — `חלב`+`סויה` sits at
+rank 131 of 254 in the lexicon's own (unranked, not frequency-sorted) word order. At
+any practical per-clue budget shared with every other mechanism, the correct split is
+buried too deep to survive truncation, even though a much larger budget confirms it is
+findable (verified directly, uncapped: found at rank 131/254). Separately, the clue
+that MOTIVATED this mechanism (9A, gold `תקוה`+`לנס`) turned out to have a second,
+different blocker: `לנס` (`ל` + `נס`) is not itself an hspell lexicon entry — Hebrew's
+prefixes attach productively and the wordlist does not enumerate every prefixed form —
+so no budget, however large, would have found it; a mechanism requiring both halves to
+be literal lexicon entries cannot reach this specific answer at all. Both findings are
+disclosed in the function's own docstring, not just here.
+
+AUDITED (mandatory gate). The new mechanism consults only the committed lexicon and
+plain Counter arithmetic — no corpus, no gold data, nothing held-out to leak.
+`lexicon.held_out_answers()` and `retrieve_defs.held_out()` both confirmed (computed,
+not assumed) to block all 28 of this puzzle's own gold answers (`gold - blocked` empty
+for both). All 5 affected selftests (`candidates.py`, `lexicon.py`, `substitutions.py`,
+`retrieve_defs.py`, `prove.py`) re-run clean. No forbidden reads: gold came from
+14across's real scrape (bootstrap ran cleanly, 52/52, no captcha wall this run), clue
+text from the public CDN image only. Implausibility check: not applicable — the result
+is UNCHANGED (7.1%→7.1%), the opposite of a suspicious jump.
+
+HONEST READ: a correct, verified, genuinely new mechanism that closes a real structural
+gap (confirmed on a real miss, not a synthetic worry) — and a clean negative result on
+recall@N in practice, for a diagnosed and disclosed reason rather than a shrug. The
+device's real problem is ranking, not search correctness: by_len()'s word order is
+whatever order the source lexicon file happens to list words in, not frequency-sorted,
+so a common everyday word like `סויה` is no more likely to surface early than an
+obscure one. Two concrete next steps, both NOT done today to keep this run to one
+lever: (1) rank `_split_search`'s candidates by word frequency/commonness instead of
+raw lexicon order, which should directly fix today's measured failure mode; (2) reuse
+`homograph_candidates`' own `HOMO_PREFIXES`/`_destem()` so a productively-prefixed
+fragment like `לנס` can match too, closing the second, different blocker found on 9A.
+
+NOT DONE, honestly: did not re-measure any of the four previously-used dev puzzles
+(2026-05-29, 2026-06-05, 2026-06-26, 2026-07-10) with this mechanism — today's fresh
+puzzle was chosen specifically to add a new, independent data point to the candidate-
+recall diagnostic rather than re-run an already-measured one; did not implement either
+of the two next steps above (frequency ranking, prefix-tolerant matching) — both would
+be reasonable candidates for tomorrow's single lever, not today's, since mixing them in
+would make today's measured negative result unattributable to either the base mechanism
+or the fix; did not touch `solve_pass.py` or run a live trial; did not merge or
+otherwise act on any open PR.
+
+Previous lever (2026-08-30): **closed 2026-08-29's own "NOT DONE" gap: re-measured
 `retrieval_candidates` on 2026-06-26 — the puzzle 2026-08-28/08-29 both flagged as still
 needing a bigger corpus and no run had finished re-transcribing — this time FULLY (28/28
 clues, not the 18/28 partial 2026-08-26 left) and against a corpus grown far past any
@@ -518,6 +593,19 @@ propagated), `blank`. Score with `python3 evals/run_eval.py <file>`.
    leak-adjacent vector — it named 2 of today's 4 gold answers in a prior entry, before
    this run's required reading. Worth a future lever (redact specific answer strings from
    log prose, or split required-reading history from an answer-bearing appendix).
+   2026-11-13 added (e): a NEW MECHANISM, not a corpus change — `anagram_split_candidates`,
+   closing the structural gap that anagram/hidden/reversal only ever match a window
+   against a SINGLE lexicon word, so a 2-part-enum answer that is two real words (e.g.
+   `חלב`+`סויה`) was invisible to them. MEASURED NEGATIVE on recall@N despite being
+   verified correct: on a fresh 5th dev puzzle (2026-05-21), it fires often (avg
+   candidates/clue 10.6→16.1) but the correct split is buried too deep in an unranked
+   list to survive the shared per-clue budget — diagnosed precisely (one real window
+   admitted 254 valid two-word partitions; the gold split sat at rank 131/254). Two
+   concrete, NOT-yet-tried fixes this surfaced: rank `_split_search`'s output by word
+   frequency instead of raw lexicon order, and reuse `homograph_candidates`'
+   `HOMO_PREFIXES` so a productively-prefixed fragment (e.g. `לנס` = `ל`+`נס`, not its
+   own lexicon entry) can match too — the second blocker found on the very clue that
+   motivated this mechanism. See log.
 2. ~~Definition-span detection~~ — TRIED 2026-08-19, NEGATIVE. See log and "already
    tried" below. Do not re-attempt without a fundamentally different signal (not
    indicator-word density).
@@ -2427,3 +2515,109 @@ Measure each lever on dev (fixed enums) with run_eval.py before/after; one lever
   "כולם חפצים מהבית" theme (an אוטובוס was due to appear on 09-08).
   Gates: ui_smoke 9/9 pages at both widths, topicgen_eval 52/52 boards,
   url_guard clean (6,071 URLs, none dropped), nativ regression 22/22.
+
+- 2026-11-13: **candidate generation, queue item 1(e) — a new mechanism
+  (`anagram_split_candidates`), not a corpus change.** First solver-lever run since
+  2026-08-30 (the intervening runs — 08-31, 09-04, 09-07 — were nativ/site-UI work, a
+  different track in this same repo; see their own entries above).
+
+  Bootstrap ran clean: 52/52 puzzles via 14across (no captcha wall this run). Transcribed
+  2026-05-21 fresh from `data/images/2026-05-20.jpg` (article date; the paper dates the
+  puzzle to the next day) — a puzzle never used by this diagnostic before, chosen
+  specifically to add a new independent data point rather than re-run an already-measured
+  one. All 28 clues (15 across, 13 down) validated 0/28 mismatches against the
+  GRID-DERIVED slot length directly (`grid_tools.slots()` on the already-committed
+  `data/grids/2026-05-21.json`, pure structural geometry, no gold answer read) — the
+  strongest form of this project's own validation discipline. One of the setter's known
+  reversed-enum instances was caught in passing (9A prints `(3,4)` but the actual split is
+  `תקוה`(4)+`לנס`(3); sum still matches so `len_ok` is unaffected). Transcription needed
+  three rounds of self-correction before it was right: an early pass mis-assigned which of
+  two adjacent parenthetical enums belonged to which clue in the printed column-wrap
+  layout (clues 22/23 and 11/12), each caught and fixed by checking the enum sum against
+  the real `data/answers/by_date/2026-05-21.json` gold length — a concrete demonstration
+  of why that cross-check is mandatory, not optional, even on an otherwise-careful read.
+
+  RESEARCH (RESEARCH.md has the full entry): a literature search for 2026 cryptic-solver
+  candidate-generation work found nothing dated 2026; the closest prior work (Deits 2013,
+  definition hypothesized at one end, wordplay grammar over the residual) describes
+  exactly the structure `defspan.py` already tried and killed on 2026-08-19 — confirms
+  that finding from an independent angle rather than offering a new resource. A Hebrew-NLP
+  search found neural (DictaBERT) and lexicon-based (HebPipe) morphological tools, and one
+  paper arguing AGAINST lexicon-guided Hebrew analysis entirely — none fit this project's
+  plain-Python, no-ML-framework architecture, and the actionable takeaway was confirmatory:
+  this project already has a working lightweight prefix list (`HOMO_PREFIXES`) that today's
+  own measurement shows real value in reusing elsewhere, no external library needed.
+
+  BUILT: `anagram_split_candidates` (`solver/candidates.py`). `anagram_candidates` and
+  `hidden_candidates` only ever test a window against a SINGLE lexicon entry of the full
+  target length; a 2-part-enum answer that is two separate real words (e.g. `חלב`+`סויה`,
+  clue 20A on this puzzle) is therefore structurally invisible to them, confirmed as a
+  real miss before any code was written, not assumed. The new function backtracks over
+  the lexicon (indexed both by length and, for the final unassigned part, by an exact
+  letter-signature for an O(1) lookup instead of a second linear scan), branching on
+  whichever part's lexicon group is smaller first to keep it fast, and returns BOTH word
+  orders (this setter prints enums reversed often enough — SOLVE_PROTOCOL.md — that
+  committing to one order loses real hits). Capped per-window as well as overall: an
+  early version capped only the overall total, and a single noisy window exhausted the
+  whole budget before a window later in the clue was ever tried — caught and fixed before
+  measuring anything, not after. New selftest uses a synthetic `שלום`+`טוב` example,
+  independent of any puzzle (same discipline every other mechanism's selftest already
+  follows) — confirms the search finds what `anagram_candidates` structurally cannot, in
+  both orders, and declines to fire on a 1-part enum. All 5 affected selftests
+  (`candidates.py`, `lexicon.py`, `substitutions.py`, `retrieve_defs.py`, `prove.py`)
+  re-run clean.
+
+  MEASURED, controlled before/after (`python3 solver/candidates.py recall
+  data/dataset/clues.jsonl eval [--no-culture] [--no-retrieval]`): **7.1% (2/28) before
+  AND after**, all three configurations (mechanical-only, +retrieval, full defaults).
+  avg candidates/clue rose 10.6 → 16.1 mechanical-only, confirming the mechanism fires
+  (it is not silently dead code), but it contributed zero net recall gain at the per-clue
+  candidate budget (25, matching `generate()`'s own `max_n`) the rest of the generator
+  already shares. The same 2 hits survive before and after (11A `החלמ`, 18D `גבינות`,
+  both via the pre-existing `anagram` mechanism) — confirmed identical, not just an
+  identical count, so nothing regressed either.
+
+  DIAGNOSED, not just reported flat. This device has two independent degrees of freedom
+  (which letters go to which of two words) where every other mechanism here has one, so
+  it is measurably noisier: the 7-letter window for clue 20A (`יבולחסה`) alone admits
+  **254** distinct valid two-real-word partitions when searched uncapped, and the correct
+  split (`חלב`+`סויה`) sits at rank 131 of 254 in the lexicon's own word order, which is
+  not frequency-sorted. At the shared per-clue budget, that is simply too deep to survive
+  — a measured, explained cause, not a shrug. Separately, the clue that actually MOTIVATED
+  building this mechanism (9A, gold `תקוה`+`לנס`) turned out to have a second, different
+  blocker: `לנס` (`ל`+`נס`) is not an hspell lexicon entry at all — Hebrew's prefixes
+  attach productively and the wordlist does not enumerate every prefixed form — so no
+  budget, however large, would have found it. Both findings are disclosed in the
+  function's own docstring as well as here, not only in the more-visible place.
+
+  AUDITED (mandatory gate). The new mechanism consults only the committed lexicon and
+  plain Counter arithmetic on the clue text itself — no corpus, no gold data, nothing
+  held-out reachable, so no new leak surface. `lexicon.held_out_answers()` and
+  `retrieve_defs.held_out()` both confirmed (computed, not assumed) to block all 28 of
+  this puzzle's own gold answers (`gold - blocked` empty for both). No forbidden reads:
+  gold came from 14across's real scrape (clean bootstrap, 52/52, no captcha wall this
+  run), clue text from the public CDN image only, no solution-grid image needed.
+  Implausibility check: not applicable — the result is UNCHANGED (7.1%→7.1%), the
+  opposite of a jump that would need explaining.
+
+  HONEST READ: a correct, verified, genuinely new mechanism — confirmed to close a real
+  structural gap on a real miss, not a hypothetical one — that is nonetheless a clean
+  negative result on recall@N in practice, for a diagnosed and disclosed reason. The
+  device's problem is ranking, not search correctness: `by_len()`'s word order is
+  whatever order the source lexicon file lists words in, not sorted by commonness, so an
+  everyday word like `סויה` is no more likely to surface early than an obscure one. Two
+  concrete next steps, both NOT done today to keep this run to one lever and keep its
+  effect attributable: (1) rank `_split_search`'s output by word frequency instead of raw
+  lexicon order — should directly fix today's measured failure mode; (2) reuse
+  `homograph_candidates`'s own `HOMO_PREFIXES`/`_destem()` so a productively-prefixed
+  fragment like `לנס` can match too, closing the second, different blocker found on 9A.
+
+  NOT DONE, honestly: did not re-measure any of the four previously-used dev puzzles with
+  this mechanism (today's fresh puzzle was chosen to add a new data point, not re-run an
+  old one); did not implement either of the two next steps above — mixing a fix in with
+  today's base-mechanism measurement would make the negative result unattributable to
+  either one; did not touch `solve_pass.py` or run a live trial; did not merge or
+  otherwise act on any open PR; did not investigate whether other misses on this puzzle
+  (e.g. 1A's Ruth-quote hidden-phrase device, 17D's direct-charade device) suggest further
+  mechanism gaps — noted in passing while reading the crowd explanations, not pursued,
+  since today's one lever was already chosen and measured before that reading happened.

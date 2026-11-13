@@ -910,3 +910,59 @@ priority 2. Wiring in an already-built, already-audited tool as one more candida
 is not itself a research question — it is closing a gap between what the project's own
 research queue prioritized in 2026-08-08 and what got implemented, which is worth doing
 regardless of whether today's literature sweep turned up anything new.
+
+## 2026-11-13
+
+First solver-lever run since 2026-08-30 (the project ran several site/SEO/nativ cycles in
+between; see DAILY.md's log). Bootstrap succeeded fully this run (52/52 puzzles via
+14across, no captcha wall), and 2026-05-21 was transcribed fresh (28/28 clues, 0 enum
+mismatches against the grid-derived slot lengths directly) — a dev puzzle never measured by
+this project before, giving an independent 5th data point on the standing candidate-recall
+diagnostic rather than a re-measurement of an already-used one.
+
+**Search: "cryptic crossword wordplay candidate generation multi-word anagram solver
+2026".** Turned up nothing dated 2026; the closest relevant prior work is still Robin
+Deits' 2013 grammar-based solver (definition hypothesized at the first OR last phrase,
+remaining words searched against a wordplay grammar) and the same arXiv paper set this
+project has already logged (2104.08620, 2406.09043, 2412.09012 — the last one new to this
+project's log, LLM-by-wordplay-type eval with anagram as one of five categories,
+code+data at github.com/bodasadallah/decrypting-crosswords). **Transfer, honest:**
+Deits' "definition at one end, search the residual" structure is exactly what this
+project's own `defspan.py` tried and killed on 2026-08-19 — only 25% of this corpus's
+clues even have a mechanically-locatable single-window residual, and 29% of those are
+interior, not edge. The English cryptic literature's clean one-end assumption does not
+describe this Hebrew setter's clue surface nearly as well; this is a confirmation of
+2026-08-19's finding from an independent angle (the grammar these papers formalize simply
+assumes a clause structure this corpus's clues often don't have), not a new resource to
+build from. 2412.09012's per-mechanism eval breakdown is a reasonable format to imitate
+for this project's own recall@N-by-mechanism table (already tracked informally via
+`hits by mechanism` in `candidates.py recall`'s output) but is not itself a new technique.
+
+**Search: "Hebrew morphological analysis prefix stripping lexicon lookup NLP tool 2025
+2026".** Surfaced an Elasticsearch Hebrew analyzer plugin built on DictaBERT
+lemmatization (neural, CC-BY-4.0), HebPipe (lexicon-based segmentation, last pushed June
+2025), and "MRL Parsing Without Tears" (ACL 2024, argues AGAINST lexicon-guided
+morphological analysis for Hebrew, in favor of whole-token modeling). **Transfer,
+honest:** none of these fit this project's architecture (plain Python, no ML framework,
+no model download) without a real dependency change, and MRL Parsing Without Tears'
+own conclusion runs the opposite direction from what this project would want anyway
+(it argues lexicons specifically are the wrong tool for Hebrew morphology, while this
+project's hspell lexicon lookup is exactly the mechanism candidates.py leans on
+everywhere). The one actionable takeaway is confirmatory rather than new: this project
+already has a working lightweight answer to Hebrew's productive prefixes
+(`candidates.py`'s `HOMO_PREFIXES`/`_destem()`, used by `homograph_candidates`) and
+today's own measurement (below) shows exactly where NOT reusing it costs a real hit —
+no external library is needed to close that gap, just applying the existing list in one
+more place.
+
+**What today's lever actually found.** Not primarily a literature gap but a measured
+code gap: `anagram_candidates`/`hidden_candidates` only ever match a clue window against
+a SINGLE lexicon entry of the full target length, so a multi-part enum (e.g. (4,3))
+whose answer is two independent real words is structurally invisible to them no matter
+how exact the letter match is. Confirmed on two real misses in today's dev puzzle before
+building anything: clue 20A's fodder is a letter-perfect anagram of חלב+סויה (both real
+words), and clue 9A's fodder is a letter-perfect anagram of תקוה+לנס (תקוה real, לנס not
+its own lexicon entry — see DAILY.md). Built `anagram_split_candidates` to close the
+first shape of this gap; see DAILY.md for the measured, honestly negative recall@N
+result and the two concrete next steps it surfaced (frequency-ranking the search, and
+reusing HOMO_PREFIXES so a productively-prefixed word like לנס can be matched too).
