@@ -11,6 +11,11 @@ rather than have the solver guess once and rationalize.
 This module does exactly that, per clue, with no LLM involved:
   - anagram_candidates:  every contiguous word-window whose letter count matches the
                           enum total, checked against the lexicon for real-word anagrams.
+  - anagram_split_candidates: the same window scan, but for a 2-part enum (e.g. (4,3))
+                          whose answer is TWO separate real words rather than one
+                          lexicon entry of the full length -- anagram_candidates cannot
+                          find this at all, since anagram_lookup only matches a SINGLE
+                          lexicon word. See its own docstring.
   - hidden_candidates:   a contiguous run inside the space-removed clue that is itself
                           a real word (the "hidden word" device).
   - reversal_candidates: same search, reversed.
@@ -145,6 +150,141 @@ def anagram_candidates(clue_text, target_len):
                 continue  # not a rearrangement, just the fodder itself (that's `hidden`)
             out.append({'answer': hit, 'mechanism': 'anagram', 'fodder': sub})
     return out
+
+
+_SIG_INDEX = None
+_SPLIT_GROUP_CAP = 6000  # see anagram_split_candidates docstring
+
+
+def sig_index():
+    """Lexicon indexed by (length, sorted-letter-signature) -> words. anagram_split_
+    candidates needs an EXACT multiset match for the last unassigned part of a
+    multi-word anagram once the other part(s) are fixed; without this, that last check
+    would degrade to a second full by_len() scan per candidate, squaring the cost of the
+    by_len() scan anagram_candidates already does."""
+    global _SIG_INDEX
+    if _SIG_INDEX is None:
+        idx = {}
+        for n, ws in by_len().items():
+            d = {}
+            for w in ws:
+                d.setdefault(tuple(sorted(w)), []).append(w)
+            idx[n] = d
+        _SIG_INDEX = idx
+    return _SIG_INDEX
+
+
+def _split_search(remaining, idxs, part_lens, assign, out, cap):
+    """Backtracking search: does `remaining` (a Counter of letters) split exactly into
+    real words of lengths part_lens[i] for every i in idxs? Fills `assign[i] = word` for
+    one full solution per call and appends a copy of `assign` to `out`. Picks the
+    smallest-lexicon part to branch on first (whichever length has fewest words), which
+    is what keeps this tractable: for a (4,3) split that means branching on the ~2.6k
+    length-3 words rather than the ~16k length-4 words, and the LAST remaining part is
+    resolved with one O(1) sig_index() lookup instead of another branch."""
+    if len(out) >= cap:
+        return
+    if len(idxs) == 1:
+        i = idxs[0]
+        n = part_lens[i]
+        if sum(remaining.values()) != n:
+            return
+        sig = tuple(sorted(remaining.elements()))
+        for w in sig_index().get(n, {}).get(sig, []):
+            assign[i] = w
+            out.append(dict(assign))
+            del assign[i]
+            if len(out) >= cap:
+                return
+        return
+    i = min(idxs, key=lambda j: len(by_len().get(part_lens[j], [])))
+    n = part_lens[i]
+    rest = [j for j in idxs if j != i]
+    for w in by_len().get(n, []):
+        wc = Counter(w)
+        if any(remaining.get(ch, 0) < cnt for ch, cnt in wc.items()):
+            continue
+        new_remaining = remaining.copy()
+        new_remaining.subtract(wc)
+        assign[i] = w
+        _split_search(new_remaining, rest, part_lens, assign, out, cap)
+        del assign[i]
+        if len(out) >= cap:
+            return
+
+
+def anagram_split_candidates(clue_text, enum, cap=25, per_window_cap=8):
+    """Multi-word anagram: a 2-part enum like (4,3) whose answer is TWO separate real
+    words (e.g. חלב + סויה) rather than one 7-letter lexicon entry. anagram_candidates
+    above cannot find this at all -- anagram_lookup only matches a window against a
+    SINGLE lexicon word of the full target length, so a window that anagrams to two
+    shorter real words is invisible to it no matter how exact the letter match is.
+    Confirmed gap, not hypothetical (2026-11-13, dev puzzle 2026-05-21): clue 20A's
+    fodder 'יבולחסה' is a letter-perfect anagram of gold חלב+סויה, both real lexicon
+    words, and anagram_candidates misses it for exactly this reason; this function
+    finds it (verified directly, uncapped).
+
+    HONEST LIMIT, measured the same day: this device is noisier than any other
+    mechanism here, because it has two independent degrees of freedom (which letters go
+    to which word) instead of one. That single 7-letter window alone admits 254 valid
+    real-word-pair partitions, not a handful -- so at any per-clue candidate budget
+    comparable to what the rest of the generator uses (~25, matching generate()'s own
+    max_n), the correct split is buried deep in an UNRANKED list (by_len()'s own word
+    order, not sorted by commonness) and essentially never survives truncation in
+    practice. Measured end-to-end: wiring this in left candidate recall@N on this
+    puzzle UNCHANGED (7.1%, 2/28) at these practical cap settings, despite the search
+    being demonstrably able to find real hits when given a much larger budget. The
+    mechanism is kept because it is correct and does close a real structural blind
+    spot, but closing it in practice needs a ranking signal this function does not
+    have yet (e.g. word frequency, so common words like סויה rank near the top of
+    by_len()'s list instead of wherever the source lexicon file happened to put them)
+    -- a concrete next step, not done here.
+
+    A second, different limit surfaced on the clue that MOTIVATED this function (9A,
+    gold תקוה+לנס): לנס ('ל' + 'נס') is not itself a lexicon entry -- Hebrew's
+    prefixes (ל/ב/כ/מ/ש/ה/ו) attach productively and hspell does not enumerate every
+    prefixed form as its own headword -- so a mechanism that requires both halves to be
+    literal lexicon words cannot recover this specific answer at all, independent of
+    budget. Also a concrete next step (reuse homograph_candidates' HOMO_PREFIXES
+    de-affixing here), also not done today.
+
+    Restricted to 2-part enums: a 3rd part adds a second expensive branch (this
+    project's own lexicon has 10k-40k words at the common lengths) with no cheap
+    prefilter, which is not worth the recall for how rarely 3-part enums occur here. A
+    split is skipped entirely if both parts' lexicon groups exceed _SPLIT_GROUP_CAP,
+    since the backtracking search's cost is dominated by the SMALLER group and an
+    uncapped worst case (two long, common part-lengths, nothing to prune on) can take
+    tens of seconds. Returns both orderings of the two words (word_order is unknown
+    from an anagram alone, and this setter prints the enum order reversed often enough
+    -- see SOLVE_PROTOCOL.md -- that guessing one order would silently lose real hits).
+
+    `per_window_cap` is capped PER WINDOW, not just overall: an earlier version of this
+    function capped only the overall total, and a single common-letter window could by
+    itself exhaust the whole budget before a window later in the clue was ever reached.
+    Capping per window instead guarantees every window gets a chance to contribute, at
+    the cost of still not reaching very deep into any one window's own ranking (see the
+    HONEST LIMIT above)."""
+    if len(enum) != 2:
+        return []
+    n1, n2 = enum
+    if min(len(by_len().get(n1, [])), len(by_len().get(n2, []))) > _SPLIT_GROUP_CAP:
+        return []
+    target_len = n1 + n2
+    out = []
+    for sub in _char_windows(clue_text, target_len):
+        found = []
+        _split_search(Counter(sub), [0, 1], [n1, n2], {}, found, per_window_cap)
+        for assign in found:
+            w1, w2 = assign[0], assign[1]
+            if w1 == w2 == sub:
+                continue
+            out.append({'answer': w1 + w2, 'mechanism': 'anagram_split',
+                         'fodder': sub, 'split': [w1, w2]})
+            out.append({'answer': w2 + w1, 'mechanism': 'anagram_split',
+                         'fodder': sub, 'split': [w2, w1]})
+        if len(out) >= cap:
+            break
+    return out[:cap]
 
 
 def hidden_candidates(clue_text, target_len):
@@ -491,6 +631,8 @@ def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retr
     if pattern:
         cands += pattern_candidates(pattern)
     cands += anagram_candidates(clue_text, target_len)
+    if len(enum) == 2:
+        cands += anagram_split_candidates(clue_text, enum)
     cands += hidden_candidates(clue_text, target_len)
     cands += reversal_candidates(clue_text, target_len)
 
@@ -558,6 +700,37 @@ def selftest():
     found = any(h['answer'] == norm('שלום') for h in cands)
     print(f'  found שלום as an anagram of םולש: {found} (expected True)')
     ok &= found
+
+    print('--- anagram_split device: a 2-part enum whose answer is TWO real words, '
+          'not one lexicon entry anagram_candidates could match ---')
+    # 'שלום' (4, real word) + 'טוב' (3, real word) = 7 letters, scrambled (reversed) into
+    # a fodder string that is itself not a real word and shares a letter multiset with no
+    # single 7-letter lexicon entry -- independent of any puzzle, same discipline as the
+    # anagram selftest above. anagram_candidates must miss this entirely; that is the gap
+    # this mechanism exists to close.
+    clue = 'בוטםולש'  # exactly one target_len-7 window, so no earlier spurious window
+    # in a longer clue can fill the result cap before the real one is reached
+    plain_miss = anagram_candidates(clue, 7)
+    found_plain = any(h['answer'] == norm('שלוםטוב') for h in plain_miss)
+    print(f'  anagram_candidates (single-word) finds it: {found_plain} (expected False)')
+    ok &= not found_plain
+    # cap raised well above the default: the letters of 'בוטםולש' happen to admit many
+    # other real 3+4 word splits too (e.g. בול+משוט), so this checks the SEARCH finds
+    # the target at all, independent of the production cap's truncation order.
+    hits = anagram_split_candidates(clue, [4, 3], cap=500, per_window_cap=500)
+    found = any(h['answer'] == norm('שלוםטוב') for h in hits)
+    print(f'  anagram_split_candidates finds שלום+טוב: {found} (expected True)')
+    ok &= found
+    print('--- anagram_split device: also returns the reversed part order, since this '
+          'setter prints enums reversed often enough that guessing one order would '
+          'silently lose real hits ---')
+    found_rev = any(h['answer'] == norm('טובשלום') for h in hits)  # reuses the cap=500 hits above
+    print(f'  also offers טוב+שלום (the other order): {found_rev} (expected True)')
+    ok &= found_rev
+    print('--- anagram_split device: only fires for a 2-part enum ---')
+    off = anagram_split_candidates(clue, [7])
+    print(f'  no candidates for a 1-part enum: {off == []} (expected True)')
+    ok &= off == []
 
     print('--- hidden device: finds a real word hiding across a word boundary ---')
     # עברית (5 letters) hides across the join of 'קרא' + 'עב' ... use a run that
