@@ -3281,3 +3281,47 @@ candidates may LEND support, never on which candidates EXIST — the
 never-delete guarantee stays intact) rather than inventing a different
 mechanism. See DAILY.md for the build, the measured result (a genuine,
 audited negative on the one puzzle this diagnostic has data for), and why.
+
+## 2026-11-14
+
+Before any search, checked `list_pull_requests` (per this file's own step-0
+instruction) and found this run's own planned lever — a three-adjacent-word
+extension to `substitution_candidates` — already built, in the actual trunk
+(#108→#117→#118→#119), since PR #83 (2026-10-10). Research this run went
+looking for anything that would make a DIFFERENT lever defensible instead.
+
+**"cryptic crossword candidate generation 2026" / "definition span detection
+crossword clue 2026" / "cryptic crossword solver arxiv October November
+2026" (general sweep, repeating 2026-08-30's and 2026-11-10's queries with
+the current month).** Nothing newer than the same paper family logged
+repeatedly since 2026-08-06 (Andrews & Witteveen 2506.04824, Saha et al.
+2406.09043, 2407.08824, Efrat et al. 2104.08620/2103.01242). One new
+citation this run's search surfaced that none of the prior ~15 research
+entries had: **"The WebCrow French Crossword Solver" (arXiv:2311.15626).**
+Checked directly, not assumed from the title: WebCrow targets standard
+French definitional clues (no wordplay/cipher layer at all), the same
+non-cryptic clue type every other crossword-AI system this log has already
+dismissed turns out to be. **Transfer: none** — confirms rather than
+revises the standing verdict.
+
+**"Berkeley Crossword Solver follow-up belief propagation weighted CSP
+2025 2026".** Nothing post-2022 found on the original BCS system itself.
+Already fully mined by PR #117/#118 (Dr.Fill's actual weighted-CSP mechanism,
+arXiv:1401.4597, read directly and implemented as `soft_propagate()` —
+measured negative, see DAILY.md). No further lead this run.
+
+**"תשבץ היגיון פתרון אוטומטי בינה מלאכותית" (direct Hebrew-language search
+for an existing Hebrew cryptic-crossword solver).** Repeats 2026-11-09's
+query with the same honest-null result: nothing found, aside from background
+on the puzzle genre itself (Hamichlol's own description of תשבץ היגיון,
+which this project's own README/PLAYBOOK.md already describe more
+precisely from direct puzzle analysis).
+
+**Honest read.** Five searches, zero actionable transfers, one new citation
+that checked out as another non-cryptic system. This is the same
+field-is-saturated conclusion this log has reached on nearly every run since
+2026-08-22 — worth stating plainly rather than padding with a sixth search:
+the candidate-generation and definition-span problems this project still has
+are not going to be solved by finding one more paper. The backlog itself
+(see DAILY.md's 2026-11-14 entry) is a bigger lever on throughput right now
+than another literature pass.
