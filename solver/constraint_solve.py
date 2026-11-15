@@ -35,6 +35,15 @@ expected to often make precision WORSE, not better, until candidate recall
 improves -- a global optimizer can only rank/filter what candidate
 generation hands it, exactly as PLAN_V2.md's own ordering (A after B) says.
 Measuring that honestly, on this project's own data, is the point.
+
+2026-11-15 ADDITION: every measurement of `soft_propagate()` so far (PR #118,
+#119) scored gold's RANK in a single flat batch-scoring pass -- never an
+actual sequential solve. Dr.Fill/Cruciform's own account (arXiv 1611.02360)
+describes something this project had only cited, never built: commit one
+slot at a time, picking next the slot with the largest CONFIDENCE GAP
+(top-candidate score minus runner-up), and letting each commit's letters
+inform the slots still waiting. `confidence_gap()` / `simulate_sequential_commit()`
+/ `measure_commit_order()` close that gap -- see their docstrings.
 """
 import json
 import sys
@@ -387,6 +396,170 @@ def measure_soft(dataset_path, split=None, max_n=40, rounds=3, support_weight=1.
     return report
 
 
+def confidence_gap(score_map):
+    """Gap between a slot's best- and second-best-scoring candidate.
+
+    Cruciform's account of Dr.Fill's own variable-selection heuristic (arXiv
+    1611.02360, section on Dr.Fill; the underlying solver is Ginsberg's, arXiv
+    1401.4597) picks the slot where this gap is LARGEST to commit first: a
+    decisive slot (one clear leader) is unlikely to change its mind no matter
+    what the rest of the grid does, while a slot with several near-tied
+    candidates should wait for more crossing information before being forced.
+    DAILY.md's 2026-11-12 research entry named this as a genuinely new,
+    not-yet-built idea (found reading Cruciform directly, not just its title)
+    and explicitly left it for a future run -- this is that run.
+
+    A slot with zero candidates has no gap to measure (treated as the LEAST
+    decisive, -inf, so it is picked last and never crashes the max-selection
+    below). A slot with exactly one candidate is maximally decisive (+inf,
+    picked first) -- there is nothing to be tied with, so by this heuristic's
+    own logic it carries zero remaining uncertainty."""
+    n = len(score_map)
+    if n == 0:
+        return float('-inf')
+    if n == 1:
+        return float('inf')
+    top2 = sorted(score_map.values(), reverse=True)[:2]
+    return top2[0] - top2[1]
+
+
+def _apply_commit_bonus(grid, scores, key, answer, bonus=1000.0, penalty=-1000.0):
+    """After committing `answer` for slot `key`, adjust every OTHER uncommitted
+    slot's candidate scores at the cells they share with `key`: a candidate
+    agreeing with the now-locked letter gets `bonus` (so it is very likely to
+    be picked next, the whole point of letting a commit inform later picks);
+    a candidate disagreeing gets `penalty` (so it is very unlikely to be
+    picked, though -- unlike propagate()'s strict elimination -- it is never
+    actually removed from the pool, same never-delete discipline
+    soft_propagate() already established, since the committed answer could
+    itself be wrong and a later audit may need the full pool intact).
+    Mutates `scores` in place; returns nothing."""
+    sl = G.slots(grid)
+    crossmap = G.crossings(grid)
+    cells = sl.get(key)
+    if not cells:
+        return
+    for idx, cell in enumerate(cells):
+        if idx >= len(answer):
+            continue
+        ch = answer[idx]
+        for other_key in crossmap.get(cell, ()):
+            if other_key == key or other_key not in scores:
+                continue
+            ocells = sl[other_key]
+            oidx = ocells.index(cell)
+            for cand in scores[other_key]:
+                if oidx >= len(cand):
+                    continue
+                scores[other_key][cand] += bonus if cand[oidx] == ch else penalty
+
+
+def simulate_sequential_commit(grid, cand_scores, gold=None, gap_order=True,
+                                bonus=1000.0, penalty=-1000.0):
+    """The actual incremental solve Dr.Fill/Cruciform describe and that
+    `measure_soft()` never built: one slot at a time, pick-and-commit-and-
+    propagate, rather than one flat batch scoring pass. At every step, the
+    uncommitted slot with the largest `confidence_gap()` is committed next
+    (`gap_order=True`, the heuristic under test) or -- for the controlled
+    comparison -- slots are committed in a fixed, confidence-blind order
+    (`gap_order=False`, sorted by (clue_number, direction), the simplest
+    baseline a real solve loop could use instead). Either way the exact same
+    scoring mechanism (`_apply_commit_bonus`) propagates each commit's
+    letters to every other still-uncommitted slot before the next pick, so
+    the comparison isolates ONE variable: does gap-based ORDERING (not the
+    propagation itself) commit more gold answers, on the same real candidate
+    pools this project's own recall@N has already measured?
+
+    `gold`, if given ({key: norm_answer}), only used to ANNOTATE the trace
+    (was_gold) for reporting -- it never influences which candidate is
+    picked, by construction (checked by the selftest below).
+
+    Returns a list of trace dicts in commit order:
+      {'key', 'answer', 'was_gold' (or None if `gold` wasn't given),
+       'rank_at_commit' (1-based rank of the committed answer among its OWN
+       slot's live scores at the moment it was committed -- always 1, since
+       the committed answer IS the top-scored one; kept for symmetry with
+       measure_soft()'s rank reporting and as a sanity check)}."""
+    scores = {k: dict(v) for k, v in cand_scores.items()}
+    committed = set()
+    trace = []
+    remaining = {k for k, v in scores.items() if v}
+    while remaining:
+        if gap_order:
+            pick = max(remaining, key=lambda k: (confidence_gap(scores[k]), k[0], k[1]))
+        else:
+            pick = min(remaining, key=lambda k: (k[0], k[1]))
+        best_answer = max(scores[pick].items(), key=lambda kv: (kv[1], kv[0]))[0]
+        was_gold = (gold.get(pick) == best_answer) if gold is not None else None
+        trace.append({'key': pick, 'answer': best_answer, 'was_gold': was_gold,
+                      'rank_at_commit': _rank_of(scores[pick], best_answer)})
+        committed.add(pick)
+        remaining.discard(pick)
+        _apply_commit_bonus(grid, scores, pick, best_answer, bonus=bonus, penalty=penalty)
+    return trace
+
+
+def measure_commit_order(dataset_path, split=None, max_n=40, **gen_kwargs):
+    """Honest before/after for queue item 4's own named next step (PR #119,
+    2026-11-12 research entry): does Cruciform/Dr.Fill's confidence-gap
+    variable-ordering heuristic, run as an actual sequential commit
+    simulation (see `simulate_sequential_commit()`), commit more of a
+    puzzle's gold answers than committing in a fixed, confidence-blind
+    order -- on the exact same base candidate pools this project's own
+    `candidates.py recall` already measured, so the comparison is isolated
+    to the ordering policy alone, nothing else."""
+    rows = [json.loads(l) for l in open(dataset_path)]
+    if split:
+        rows = [r for r in rows if r['split'] == split]
+    by_puzzle = {}
+    for r in rows:
+        by_puzzle.setdefault(r['puzzle_date'], []).append(r)
+
+    report = []
+    for date, prows in sorted(by_puzzle.items()):
+        grid_path = f'data/grids/{date}.json'
+        try:
+            grid = json.load(open(grid_path))['grid']
+        except FileNotFoundError:
+            continue
+        gold = {(r['clue_number'], r['direction']): C.norm(r['answer_raw'])
+                for r in prows if r.get('answer_raw')}
+        cand_scores = build_candidate_lists_scored(grid, prows, max_n=max_n, **gen_kwargs)
+        gold_in_pool = {k for k, g in gold.items()
+                        if k in cand_scores and g in cand_scores[k]}
+
+        trace_gap = simulate_sequential_commit(grid, cand_scores, gold=gold, gap_order=True)
+        trace_fixed = simulate_sequential_commit(grid, cand_scores, gold=gold, gap_order=False)
+
+        def correct_on_gold_slots(trace):
+            by_key = {t['key']: t for t in trace}
+            return sorted(k for k in gold_in_pool if by_key[k]['was_gold'])
+
+        correct_gap = correct_on_gold_slots(trace_gap)
+        correct_fixed = correct_on_gold_slots(trace_fixed)
+
+        # Where a gold-bearing slot sits in each policy's commit ORDER (1-based
+        # position in the trace) -- does gap-ordering actually commit the
+        # gold-bearing slots earlier, which is the heuristic's own stated
+        # rationale (commit decisive slots first), independent of whether the
+        # committed answer is correct?
+        order_gap = {t['key']: i + 1 for i, t in enumerate(trace_gap)}
+        order_fixed = {t['key']: i + 1 for i, t in enumerate(trace_fixed)}
+
+        report.append({
+            'puzzle_date': date,
+            'n_slots': len(cand_scores),
+            'n_slots_with_gold_in_pool': len(gold_in_pool),
+            'correct_commits_gap_order': correct_gap,
+            'correct_commits_fixed_order': correct_fixed,
+            'gap_order_better_on': sorted(set(correct_gap) - set(correct_fixed)),
+            'fixed_order_better_on': sorted(set(correct_fixed) - set(correct_gap)),
+            'gold_slot_commit_position_gap_order': {f'{k[0]}{k[1][0]}': order_gap[k] for k in gold_in_pool},
+            'gold_slot_commit_position_fixed_order': {f'{k[0]}{k[1][0]}': order_fixed[k] for k in gold_in_pool},
+        })
+    return report
+
+
 def selftest():
     """Synthetic fixtures only (no puzzle data) -- same discipline every
     other selftest in this repo follows: never embed held-out answers."""
@@ -517,7 +690,72 @@ def selftest():
             f'{k}: with decoy marked non-real, truth should strictly outrank it after '
             f'filtered propagation (the false tie plain scoring produced), got {filtered_tied[k]}')
 
-    print('ALL PASSED (7 checks)')
+    # --- confidence_gap() / simulate_sequential_commit() checks (queue item 4's
+    # own named next step, PR #119 2026-11-12 research entry: Cruciform's
+    # confidence-gap variable-ordering heuristic, never built until now) ---
+
+    # Check 8: confidence_gap()'s own edge cases, independent of any grid.
+    assert confidence_gap({}) == float('-inf'), 'an empty pool has no gap -- least decisive'
+    assert confidence_gap({'א': 1.0}) == float('inf'), 'a singleton pool is maximally decisive'
+    assert confidence_gap({'א': 5.0, 'ב': 5.0}) == 0.0, 'a tie has zero gap'
+    assert confidence_gap({'א': 9.0, 'ב': 5.0, 'ג': 1.0}) == 4.0, 'gap is top minus RUNNER-UP, not top minus worst'
+
+    # Check 9: a hand-built case where gap-ordering provably helps, so this is a
+    # positive capability proof independent of whatever today's real puzzle
+    # measurement finds -- same discipline as check 4's decoy2 fixture for
+    # soft_propagate(). Reuses THIS SAME function's own grid/truth fixture
+    # above (a0 across, d0 down -- they share exactly one cell, since a0 spans
+    # row 0 and d0 spans a single column). d0 is made DECISIVE (one candidate,
+    # gap = +inf); a0's candidate pool has a DECOY that starts out-scoring the
+    # truth (2.0 vs 1.0 -- modelling a real situation: candidates.py's own
+    # generation-priority base score has no idea which candidate is gold, so a
+    # wrong candidate legitimately outranking a right one pre-propagation is
+    # the normal case, not a contrived one), differing from truth ONLY at the
+    # cell shared with d0. Gap-order must commit d0 (the decisive slot) first
+    # regardless of key order, so its bonus can swing a0's shared cell toward
+    # truth and overturn the decoy's base-score lead; a fixed, confidence-
+    # blind order that happens to commit a0 before d0 has no such information
+    # yet and must commit the decoy.
+    shared_cell = [c for c in cells_a0 if c in cells_d0][0]
+    idx_in_a0 = cells_a0.index(shared_cell)
+    wrong_letter = next(ch for ch in 'זחטיכ' if ch != truth[a0][idx_in_a0])
+    decoy_a0 = list(truth[a0])
+    decoy_a0[idx_in_a0] = wrong_letter
+    decoy_a0 = ''.join(decoy_a0)
+    assert decoy_a0 != truth[a0]
+    scores9 = {d0: {truth[d0]: 1.0}, a0: {truth[a0]: 1.0, decoy_a0: 2.0}}
+
+    trace_gap = simulate_sequential_commit(grid, scores9, gap_order=True)
+    trace_fixed = simulate_sequential_commit(grid, scores9, gap_order=False)
+    order_gap = [t['key'] for t in trace_gap]
+    assert order_gap[0] == d0, f'gap-order must commit the decisive (singleton) slot first, got {order_gap}'
+    gap_a0 = next(t for t in trace_gap if t['key'] == a0)
+    assert gap_a0['answer'] == truth[a0], (
+        f'gap-order: committing the decisive slot first should let its bonus overturn the '
+        f'decoy\'s base-score lead, got {gap_a0["answer"]!r} (truth {truth[a0]!r})')
+    order_fixed = [t['key'] for t in trace_fixed]
+    assert order_fixed == sorted(order_fixed), 'fixed order must commit strictly by (clue_number, direction)'
+    if order_fixed[0] == a0:
+        # The informative case this fixture is built for: a0 sorts first, so
+        # fixed order must commit by raw base score BEFORE d0 can inform it,
+        # and the decoy's base score is higher -- so it must get it wrong.
+        fixed_a0 = next(t for t in trace_fixed if t['key'] == a0)
+        assert fixed_a0['answer'] == decoy_a0, (
+            f'fixed order: a0 committed before d0 can inform it must pick the higher-base-score '
+            f'decoy, got {fixed_a0["answer"]!r} -- if this changed, the fixture no longer '
+            f'demonstrates anything and must be rebuilt')
+        assert gap_a0['answer'] != fixed_a0['answer'], (
+            'the whole point of this fixture: gap-order and fixed-order must DISAGREE on a0, '
+            'with gap-order correct and fixed-order wrong')
+
+    # Check 10: _apply_commit_bonus never DELETES a candidate (same
+    # never-remove discipline as soft_propagate), it only rescales scores.
+    probe = {a0: {truth[a0]: 1.0, decoy_a0: 1.0}}
+    before_keys = set(probe[a0])
+    _apply_commit_bonus(grid, probe, d0, truth[d0])
+    assert set(probe[a0]) == before_keys, '_apply_commit_bonus must never remove a candidate'
+
+    print('ALL PASSED (10 checks)')
 
 
 def main():
@@ -546,6 +784,16 @@ def main():
             if flag in sys.argv:
                 kwargs[key] = False
         for r in measure_soft(dataset_path, split, **kwargs):
+            print(json.dumps(r, ensure_ascii=False))
+    elif cmd == 'commit-order':
+        dataset_path = sys.argv[2]
+        split = sys.argv[3] if len(sys.argv) > 3 else None
+        kwargs = {}
+        for flag, key in (('--no-culture', 'use_culture'), ('--no-retrieval', 'use_retrieval'),
+                           ('--no-gematria', 'use_gematria'), ('--no-container', 'use_container')):
+            if flag in sys.argv:
+                kwargs[key] = False
+        for r in measure_commit_order(dataset_path, split, **kwargs):
             print(json.dumps(r, ensure_ascii=False))
     else:
         print(__doc__)

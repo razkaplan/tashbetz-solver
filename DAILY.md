@@ -48,6 +48,7 @@ tree - a stale CLI deploy overwrote the live site on 2026-08-29. See CLAUDE.md.
 | **Candidate recall@N with `container_candidates`' new phrase_split() acceptance path (NEW 2026-10-02, offline, mechanical -- queue item 10(b)'s container quarter: "wiring phrase-awareness into anagram/substitution/charade/container," the third quarter closed after 2026-09-21 did `hidden`/`reversal` and 2026-10-01 did `anagram`)** | **SHIPS DEFAULT OFF -- a measured REGRESSION, not a neutral diagnostic.** On a freshly re-transcribed 2026-05-29 (12th independent transcription, 21/28 clues, 0/21 enum mismatches against both the 14across answer lengths AND the committed grid geometry via `grid_tools.py validate` -- the first time this exact puzzle's transcription has had BOTH cross-checks in the same run): baseline (container ON, phrase OFF, the shipped default) **4.8% (1/21), matching every prior measurement of this puzzle back to 2026-08-06** (same hit, 2 down `יחפניות`, plain anagram). Turning `use_container_phrase=True` ON **DROPS recall to 0.0% (0/21)** -- root-caused, not just observed: `יחפניות` sits at raw candidate rank 2 of 5 with the toggle off, and rank **35 of 38** with it on, past `generate()`'s own `max_n=25` cutoff -- the exact 2026-08-20 truncation-priority failure mode `anagram_phrase_candidates` (2026-10-01) and `charade_candidates` (2026-09-08) both already capped against, now measured for container specifically rather than assumed. Also found BEFORE this real-data run, auditing an unrelated pre-existing selftest the change broke: with the toggle defaulted on, a 3-word synthetic fixture built to test something else produced **10 spurious phrase-accepted container 'answers'** from pure coincidental short-word splices -- raising `phrase_split`'s own `min_part` floor from 2 to 3 did NOT fix it (8/10 persisted; Hebrew's lexicon has plenty of real 3-letter words too). Both findings point the same way: container tests `phrase_split()` against every outer×inner×k splice combination (dozens-hundreds per clue) rather than the 1-2 fixed strings `hidden`/`reversal` test, so its false-positive surface is structurally much larger. Shipped anyway, opt-in only (`use_container_phrase=True` / `--container-phrase`), because the capability is real and selftested (a crafted `ביתפר`+`ס`→`ביתספר`→`בית`+`ספר` splice is correctly accepted when explicitly turned on) and genuinely closes the GENERATOR half of this queue item's container quarter -- just not safe as this file's first-ever default-on-by-default phrase toggle | not yet a target -- a real, measured, root-caused NEGATIVE result when defaulted on, which is why it ships defaulted off; substitution remains the one open quarter of this queue item, harder to test cleanly since it depends on `sub_fwd()` (14across-mined), see log |
 | **Candidate recall@N with `substitution_candidates`' new phrase_split() acceptance path (NEW 2026-10-05, offline, mechanical -- queue item 10(b)'s LAST quarter, closing it: anagram 2026-10-01, hidden/reversal 2026-09-21, container 2026-10-02, substitution now)** | **FLAT, 3.7% (1/27), IDENTICAL across all 4 configurations** (mechanical-only / full-defaults × phrase on/off) on 2026-05-29 (14th independent transcription, 27/28 clues -- clue 13A honestly excluded, its printed text cut off mid-clue -- 0/27 enum mismatches against `grid_tools.py validate`). `avg_candidates` was also IDENTICAL (24.7) in all 4 configs. **First time this device has been tested against a REAL, non-empty `sub_fwd()` table** (134 head words) rather than the confounded-to-zero table every recent run measured (14across has hard-walled the general 52-puzzle scrape since 2026-08-19) -- gotten by fetching puzzle dates individually and saving incrementally rather than risking the standard script's single-write-at-end + timeout combination (the exact loss mode PR #75 already documented); 14/52 dates recovered before the 280s budget ran out, including 2026-05-29 itself (correctly held out). Root-caused, not just observed: 7/27 clues had a clue word matching the table, but only 2 of those (8A, 12D) produced ANY raw candidate after the target-length filter (6 raw candidates total), and ALL 6 were direct `lex()` members -- `phrase_split()` was never once needed to accept a candidate on this specific puzzle's specific table intersection, so the toggle's measured contribution is a clean, unconfounded zero, not a masked positive. Ships default ON (unlike container's phrase path): the mechanism's own docstring argues its false-positive surface should be much smaller (a handful of fixed strings tested per clue, not container's dozens-hundreds-per-clue splice search) -- not yet confirmed on real data beyond today's 0-contribution case, since the device barely fired at all this run | not yet a target -- a genuine, unconfounded flat result; the quarter is closed (built + selftested + now real-corpus-tested), but today's puzzle gave it almost nothing to work with -- a puzzle with a denser substitution-table intersection is the natural next check, see log |
 | **`segment_candidates(use_substitution=True)` -- today's lever, NEW 2026-10-16, offline, mechanical+substitution MIXED per-part charade** | **FLAT, 4.8% (1/21), IDENTICAL in all three configurations** (`--no-segment --no-segment-substitution`, default segment mechanical-only, default segment+use_substitution) on a FRESH 15th+ independent transcription of 2026-05-29 (21/28 clues, the standard across-1-13 image-cutoff gap, 0/21 enum mismatches, real 14across gold). All 8 of this puzzle's multi-part-enum clues hit `segment_candidates`' own 300-combo cap without finding gold; re-checked UNCAPPED (up to 20,000 combos/clue) and still **0/8 found gold even then** -- a genuine mechanism-level null (these specific multi-part answers aren't recoverable from mechanical devices or the mined-substitution table at all), not a truncation artifact, independently reproducing PR #86's own "0/10 even uncapped" finding on a SECOND transcription of the same puzzle | not yet a target -- diagnostic; a real, root-caused negative result, see log |
+| **`constraint_solve.py commit-order`: Cruciform/Dr.Fill confidence-gap sequential-commit ordering (NEW 2026-11-15, offline -- queue item 4's own named next step, PR #119's 2026-11-12 research entry)** | **FLAT/NEGATIVE across the only 2 gold-bearing slots this project can currently test it against (one on each of 2 puzzles, 2026-05-29 + a freshly transcribed 2026-06-26): `gap_order_better_on: []`, `fixed_order_better_on: []` on BOTH puzzles -- confidence-gap ordering and a fixed clue-number order NEVER disagree on correctness.** 2026-05-29 (2D `יחפניות`): both policies commit the SAME correct answer (base score 39.0, already the clear leader) -- gap-order processes this slot DEAD LAST (position 28/28, its own gap was one of the smallest on the puzzle) while fixed-order processes it 3rd; the ordering changed WHEN it was committed, not WHAT, because nothing in either policy's accumulated cross-slot bonus was ever large enough to unseat a 39.0-point lead. 2026-06-26 (17A `רומח`, base score only 8.0): NEITHER policy commits it correctly -- gap-order commits a different wrong answer (`סניפ`, position 9) than fixed-order (`שוכר`, position 18); `רומח`'s own low base score (it is one of ~30 weapon-synonym candidates tied near-equally by a single external category-listing document, see below) means no realistic amount of crossing support from mostly-wrong neighbouring slots could lift it to rank 1 either way. All 10 selftest checks (2 new vs PR #118's 7 -- `confidence_gap()` edge cases, plus a hand-built fixture PROVING gap-order can beat fixed-order when it has the chance to, since today's real-data result never got that chance) pass | not yet a target -- a clean, doubly-confirmed negative result; see log for the full root-cause and a found-but-not-fixed truncation/tie-break issue in `rank_candidates()` that this run surfaced along the way |
 
 Baseline for comparison: v2 = 41% raw with untraceable errors.
 
@@ -3865,6 +3866,20 @@ propagated), `blank`. Score with `python3 evals/run_eval.py <file>`.
    lexicon-only before propagating; did not wire this into any live solve path;
    did not merge or otherwise act on any open PR — only the project owner can
    (see the 70-open-PR backlog note below, now sharper than 2026-11-09's count).
+   **2026-11-15 BUILT THE OTHER NAMED NEXT STEP** (PR #119's own research entry:
+   Cruciform's confidence-gap variable-SELECTION heuristic, as an actual sequential
+   commit simulation, not another flat batch rescoring): `confidence_gap()` /
+   `simulate_sequential_commit()` / `measure_commit_order()`. MEASURED FLAT/NEGATIVE on
+   the only 2 gold-bearing slots now available (2026-05-29's standing 2D hit plus a
+   NEWLY transcribed 2026-06-26, the first time this diagnostic has used a second
+   puzzle) — gap-ordering and fixed-clue-order never disagree on correctness on either
+   slot, for two different, individually-explained reasons (one slot's base score
+   already dominates regardless of order; the other's base score is too low for any
+   realistic crossing bonus to close the gap). See log for the full root-cause,
+   including a found-but-unfixed `rank_candidates()` tie-break gap this run surfaced
+   (many same-mechanism candidates tied at one BM25-document's shared score lose
+   independent ranking information once reduced to a boolean PRECISION_MECHANISMS
+   floor — a concrete next step for whoever revisits recall@N's own truncation story).
 5. **Validate on the easier tier** (דקל בנו) — where 80% is realistic; tells us whether
    the harness is sound and this setter is simply hard.
 6. ~~Merge or close the PR backlog~~ — STRUCK 2026-08-21, RECURRED 2026-08-24, CONSOLIDATED
@@ -9783,3 +9798,174 @@ Measure each lever on dev (fixed enums) with run_eval.py before/after; one lever
   evidenced — see RESEARCH.md); did not re-crawl `private_defs` (today's lever was
   transcription + cross-checking, not corpus growth); did not merge, close, or re-base
   any PR — only the project owner can.
+
+- 2026-11-15: **`constraint_solve.py commit-order`: Cruciform/Dr.Fill confidence-gap
+  sequential-commit ordering, queue item 4's own other named next step (PR #119,
+  2026-11-12 research entry).** Checked `list_pull_requests` first per this file's own
+  step-0 rule: branched from `daily/2026-11-14-work` (PR #121), the actual trunk tip,
+  not stale `main` (last solver commit 2026-09-07). PR #120 (2026-11-13) remains an
+  unflagged, un-rebased stray branch off `main`; not touched further this run.
+
+  RESEARCH (full entries in RESEARCH.md): four targeted searches. The one worth citing
+  here directly: re-read Cruciform's own account of Dr.Fill's variable-selection rule
+  (not just its title, already cited many times) and confirmed, by direct quote, that
+  it is exactly "pick the variable where the difference between the best candidate and
+  the second-best candidate is maximized" — a genuine confidence-gap heuristic, and the
+  one half of Dr.Fill's design (alongside VALUE ordering and limited-discrepancy search,
+  both still unbuilt) this project had cited but never implemented. No other new,
+  buildable lead found — the fifteenth-plus consecutive research pass with that outcome.
+
+  BOOTSTRAP: `./bootstrap.sh` (full, not `--dev-only`, to also reach the two extra
+  image dates this run needed) succeeded FULLY at 14across — 52/52 puzzles, 1,457
+  clues, 0 empty answers. Reverted the regressed `solver/lex/substitutions.json`
+  rebuild (528 vs 2,220 head words) via `git checkout --` per the standing warning
+  before touching anything else.
+
+  TRANSCRIPTION (two puzzles, so the new mechanism has more than the one gold-bearing
+  slot every prior `constraint_solve.py` measurement has been limited to — PR #119's
+  own explicitly named gap). **2026-06-26**, chosen because it is the one puzzle this
+  exact module has never been measured against: transcribed all 28 clues fresh from
+  `data/images/2026-06-25.jpg` (the standard across-1-13/19 print-column-wrap pattern
+  this project's queue item 8 already documents for this date, confirmed again —
+  clue 19's own enum sits across the column break, same as 2026-08-30's independent
+  transcription of this date found). Validated every enum sum against the GRID-DERIVED
+  slot length (`solver/grid_tools.py validate`: **OK**, 0/28 mismatches) before
+  touching any gold data, then against the real, freshly-scraped
+  `data/answers/by_date/2026-06-26.json` via `solver/build_dataset.py`: **0 len
+  mismatches, 0 missing answers**. **2026-05-29** (this project's canonical dev
+  puzzle, re-transcribed independently from `data/images/2026-05-28.jpg` since this
+  exact module's only two prior measurements, PR #118/#119, both used it and a second,
+  genuinely different puzzle was the explicit point of today's run): same double
+  validation, **0/28 mismatches** against both the grid and the real 14across answer
+  lengths. Both puzzles landed in the `eval` split (the dataset's own newest-6-dates
+  rule). Disclosed, not hidden: building both puzzles' datasets read
+  `data/answers/by_date/*.json` directly for the sanctioned enum-length join
+  `build_dataset.py` performs, and `candidates.py recall`'s own standard miss-report
+  (used below, as in every prior run) prints every gold answer by design — both are
+  this project's standing, already-disclosed practice for measuring an algorithmic
+  lever, not an attempt at a personal blind solve of either puzzle this run.
+
+  CORPUS: grew `private_defs` for the first time since 2026-09-25/09-27 — fresh
+  `crawl_defs.py mordo` (68,547 raw entries, the largest this project has ever
+  crawled, beating 2026-08-30's prior peak of 66,443) and `crawl_defs.py note` (720
+  of 1,301 discovered URLs fetched under a disclosed ~10-minute time budget, the same
+  bounded-not-exhaustive practice every prior note.co.il crawl has used).
+
+  **A SURPRISE FOUND BEFORE TRUSTING TODAY'S NUMBERS, root-caused rather than
+  shrugged off**: `candidates.py recall data/dataset/clues.jsonl eval` on 2026-06-26,
+  full defaults (culture+retrieval), scored **0.0% (0/28)** — a steep, unexpected DROP
+  from this exact puzzle's own historical 14.3% (2026-08-30/09-25, the highest this
+  diagnostic has ever measured), despite a BIGGER corpus this time. Even `--ranked`
+  (the 2026-10-12/10-18 truncation fix) stayed at 0.0%. Dug in rather than reporting
+  the drop as a plain corpus-dependence story: `retrieve_defs.candidates()` queried
+  directly still finds 17A's historical hit `רומח` (rank 10 of 25 raw retrieval
+  results); `candidates.generate(max_n=200)` still contains it (raw index 32); but
+  `solve_pass.rank_candidates()` drops it from the final top-25 even with the
+  PRECISION_MECHANISMS floor applied. ROOT CAUSE, confirmed directly: the clue ("a
+  serious weapon? reversed") matches a single external private_defs document that
+  lists ~30 weapon synonyms (`רובה`, `אקדח`, `חנית`, `סכין`, `תותח`, `רומח`, ...) —
+  BM25 scores them all near-identically, so `retrieval_candidates` emits ~20-30
+  mutually-TIED hits for this one clue alone. `rank_candidates()`'s PRECISION_MECHANISMS
+  fix (2026-10-18) promotes every one of them to the SAME shared tier-1 floor but
+  carries no further signal to rank among them, so Python's stable sort keeps them in
+  `generate()`'s own accumulation order — and with roughly twice as many mechanisms
+  active today as in 2026-08-30 (container/double-def/homophone/substitution-3-and-
+  4-part/charade/abbreviation/gematria/segment/phrase-aware variants, none of which
+  existed when 14.3% was first measured), enough OTHER tier-1-equivalent candidates
+  from other mechanisms now intervene that `רומח` falls past the top 25 in the combined
+  pool, even though it is comfortably inside the top 25 of its OWN mechanism's results.
+  This is NOT a corpus regression and NOT evidence retrieval stopped working — it is a
+  genuine, newly-surfaced gap in the ranker: a BOOLEAN precision-mechanism floor cannot
+  discriminate among many tied same-mechanism candidates, a situation that did not
+  exist when `rank_candidates()` was built (far fewer mechanisms competing for the
+  floor) and has grown more likely as the mechanism count has grown. Confirmed this is
+  real, not a one-off, by checking `constraint_solve.py measure data/dataset/clues.jsonl
+  eval`'s OWN plain `generate(max_n=40)` call (no ranking at all): `רומח` IS present
+  there (`recall_before: 1` for 2026-06-26), confirming the loss is specific to
+  `rank_candidates()`'s 25-candidate final cut, not a disappearance from generation
+  itself. NOT fixed this run (one lever per run; this is a found-not-fixed gap, named
+  as a concrete next step below) — but it is WHY 2026-06-26 contributes only 1
+  gold-bearing slot (17A, `רומח`, surviving at `constraint_solve.py`'s own `max_n=40`
+  default) rather than reproducing 4, and that 1 slot's own BASE SCORE is low (8.0,
+  deep among its ~30 tied rivals) precisely because of this same tie-break gap —
+  which turns out to be the central fact explaining today's actual lever result, not
+  a side note.
+
+  BUILT: `confidence_gap()` (the gap between a slot's best- and second-best-scoring
+  candidate — Cruciform's own account of Dr.Fill's variable-selection rule, quoted
+  above), `_apply_commit_bonus()` (after a slot commits, bonus/penalty — never
+  deletion, same discipline `soft_propagate()` already established — to every OTHER
+  uncommitted slot's candidates at their shared cells), `simulate_sequential_commit()`
+  (the actual incremental solve this project had only ever cited: commit one slot at a
+  time, by confidence-gap order or a fixed clue-order baseline, propagating each
+  commit before the next pick), and `measure_commit_order()` (runs both policies on
+  the same real candidate pools and reports where they agree/disagree). 2 new selftest
+  checks beyond PR #118's existing 7 (10 total, `python3 solver/constraint_solve.py
+  selftest`): `confidence_gap()`'s own edge cases (empty pool = `-inf`, singleton pool
+  = `+inf`, gap is top-minus-RUNNER-UP not top-minus-worst), and a hand-built fixture
+  that reuses this file's own existing 2x2 grid/truth fixture to PROVE gap-ordering
+  CAN beat fixed-ordering when given the chance (a decisive singleton slot's bonus
+  correctly overturns a coin-flip slot's higher-base-score decoy under gap-order,
+  while fixed order — committing the coin-flip slot first, before the decisive slot
+  can inform it — picks the decoy) — built specifically because today's REAL puzzles
+  never gave the mechanism that chance, so the capability itself still needed its own
+  positive proof, same discipline `soft_propagate()`'s own decoy2 fixture modelled.
+
+  MEASURED (executed): `python3 solver/constraint_solve.py commit-order
+  data/dataset/clues.jsonl eval` —
+  - **2026-05-29, slot 2D (`יחפניות`, base score 39.0, this project's oldest standing
+    hit)**: gap-order commits it CORRECTLY at position 28/28 (dead last — this slot's
+    own confidence gap was one of the SMALLEST on the puzzle, the opposite of what
+    "decisive" would predict, yet it is still right); fixed-order commits it
+    CORRECTLY at position 3/28. Same answer, wildly different commit TIMING, zero
+    effect on the OUTCOME — its 39.0-point lead over every rival was never in danger
+    from either policy's accumulated cross-slot bonus.
+  - **2026-06-26, slot 17A (`רומח`, base score 8.0, see the surprise above)**: gap-order
+    commits `סניפ` (position 9/28) — WRONG; fixed-order commits a DIFFERENT wrong
+    answer, `שוכר` (position 18/28). Neither policy's crossing bonus was large enough
+    to lift a rank-deep-in-a-30-way-tie candidate to rank 1.
+  - **`gap_order_better_on: []` and `fixed_order_better_on: []` on BOTH puzzles** — the
+    two policies never disagree on correctness, only on timing/which-wrong-answer.
+
+  AUDITED (mandatory gate). `lexicon.held_out_answers()`, `substitutions.held_out()`,
+  `retrieve_defs.held_out()` all directly computed (not assumed) to block all 56 gold
+  answers across BOTH puzzles combined (`gold - blocked` empty for all three,
+  checked as one combined set, not per-puzzle). `רומח`'s two matching private_defs
+  documents confirmed `pid=None` (an external "types of weapons" category listing,
+  never this project's own puzzle text) by direct grep over `retrieve_defs.index()`'s
+  live doc list. No forbidden reads: gold for both puzzles came from the sanctioned
+  bootstrap 14across scrape; clue text from the two public CDN images only; no
+  solution-site access, no verbatim clue search. No implausible jump to explain in
+  the CHOSEN lever's own numbers (both outcomes are ties, the least suspicious result
+  a controlled comparison can produce) — the one steep, surprising number this run
+  found (2026-06-26's retrieval recall dropping from a historical 14.3% to 0.0%) was
+  investigated and fully root-caused (above) rather than either hidden or taken at
+  face value, which is itself part of the audit, not separate from it. All 9 affected
+  selftests (`constraint_solve.py` now 10 checks, `candidates.py`, `lexicon.py`,
+  `substitutions.py`, `retrieve_defs.py`, `prove.py`, `solve_pass.py`, `defspan.py`,
+  `deffit.py`) re-run clean.
+
+  HONEST READ: a clean, doubly-confirmed negative result for the lever itself — the
+  confidence-gap heuristic is real, correctly implemented (proven capable on a
+  synthetic fixture), and genuinely changes COMMIT ORDER, but on the only 2 real
+  data points available today it never changes CORRECTNESS, for two individually
+  understood reasons (one slot's lead is too dominant to move; the other's deficit is
+  too large to close). This is the THIRD independent `constraint_solve.py` refinement
+  (after strict arc-consistency, PR #112, and the real-word support filter, PR #119)
+  to reach the same structural conclusion from a different angle: this project's
+  binding constraint is candidate-pool RECALL (and, newly sharpened by today's
+  side-finding, candidate-pool DISCRIMINATION once many mechanisms tie at the same
+  floor), not the global-optimization layer sitting on top of whatever pool recall
+  happens to produce. The more valuable deliverable today may be the found-not-fixed
+  `rank_candidates()` tie-break gap, not the lever it was found while measuring.
+
+  NOT DONE, honestly: did not fix the `rank_candidates()` tie-break gap found above
+  (flagged as a concrete next step — carry `retrieve_defs`' own BM25 score into the
+  sort key as a tertiary tiebreak among PRECISION_MECHANISMS-tied candidates, instead
+  of a boolean floor); did not re-measure 2026-07-10 or any other previously-flat
+  puzzle under today's much bigger corpus (today's puzzle choice was driven by this
+  lever's own need for a second gold-bearing slot, not corpus-growth follow-up); did
+  not implement Dr.Fill's VALUE-ordering half or limited-discrepancy search (both
+  still-unbuilt, named in RESEARCH.md); did not merge, close, or re-base any PR — only
+  the project owner can (the backlog stands at #38-#121, 76+ PRs, unchanged in kind
+  from every prior run's alert).

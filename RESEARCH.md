@@ -3325,3 +3325,69 @@ the candidate-generation and definition-span problems this project still has
 are not going to be solved by finding one more paper. The backlog itself
 (see DAILY.md's 2026-11-14 entry) is a bigger lever on throughput right now
 than another literature pass.
+
+## 2026-11-15
+
+Checked `list_pull_requests` first (76+ open PRs, #38-#121). Branched from
+`daily/2026-11-14-work` (PR #121), the actual trunk tip per #121's own
+"checked the PR backlog first" finding, not stale `main` (last solver commit
+2026-09-07).
+
+Four targeted searches, each checked against what is already logged here
+before accepting a result as new, not just re-run on general terms:
+
+**"crossword constraint satisfaction variable ordering heuristic confidence
+gap Cruciform Dr.Fill 2025 2026".** No 2025-2026 material — only the
+original Dr.Fill (arXiv 1401.4597, 2014) and Cruciform (arXiv 1611.02360,
+2016) papers, both already logged repeatedly since PR #112/#117. One detail
+worth confirming directly rather than re-citing from memory, since DAILY.md's
+2026-11-12 entry named it as "found reading Cruciform directly, not just its
+title" but did not quote the mechanism: Cruciform's own account of Dr.Fill's
+variable-selection rule is "pick the variable where the difference between
+the best candidate and the second-best candidate is maximized" — exactly a
+confidence-gap heuristic, confirmed by this run's own direct read, not
+assumed from the paper's abstract. Cruciform also describes Dr.Fill's VALUE
+ordering (minimise the cost increase to crossing clues, not just pick the
+single best-scoring fill) and Ginsberg's own warning that classic CSP
+variable-selection heuristics do not transfer to crosswords — neither of
+those two pieces is what today's lever builds (today is variable-selection
+only), both are logged here as the next two concrete extensions if this
+line is revisited. **Transfer: the one piece not yet built (confidence-gap
+ordering) is what today's lever implements; the other two pieces (value
+ordering, limited-discrepancy search) remain real, unbuilt next steps.**
+
+**"cryptic crossword clue solving diverse candidate generation 2026
+arxiv".** Same paper family logged on every prior run since 2026-08-06
+(2506.04824, 2406.09043, 2407.08824) — no 2026 paper on candidate diversity
+found. **Transfer: none new**, consistent with roughly fifteen consecutive
+research passes on this exact query shape.
+
+**"definition span detection cryptic crossword clue neural 2026".** Same
+2021 Decrypting-Cryptic-Crosswords baseline (arXiv 2104.08620) and the
+already-logged 2024 reasoning-steps workshop paper — no 2026 definition-span
+work found. **Transfer: none new** — `defspan.py`'s own two independent
+classifier lines (indicator-density, 2026-08-19; structural, PR #101/#102)
+remain this project's only implementations, both already measured.
+
+**"Hebrew morphology NLP root pattern tokenizer 2026".** SPLINTER (ACL
+Findings 2025, arXiv 2503.14433) reconfirmed, already logged since
+2026-08-27/08-29. One citation checked directly for the first time this run
+rather than taken on the strength of its abstract: a 2026 tokenizer study
+comparing Turkish and Hebrew verbal-paradigm tokenization reports
+AlephBERT tokenizes Hebrew verb forms more atomically than a multilingual
+Electra baseline (which lands near chance, F1≈0.333, on capturing binyanim)
+— informative about WHY a multilingual tokenizer underperforms on Hebrew,
+but it is a tokenizer-quality finding, not a root/pattern GENERATION or
+candidate-lookup tool this project could call. **Transfer: none actionable**
+— confirms, rather than extends, the standing read that no off-the-shelf
+Hebrew morphology resource fills `candidates.py`'s generation gap.
+
+**Conclusion for today's lever.** Nothing new to build FROM the literature,
+for at least the fifteenth consecutive run — but today's targeted Dr.Fill/
+Cruciform search, read directly rather than re-cited, surfaced a genuinely
+concrete, unbuilt INTERNAL next step that DAILY.md's own 2026-11-12 entry
+had already flagged and left open: the confidence-gap variable-SELECTION
+heuristic, simulated as an actual sequential commit process rather than
+measured only as a flat batch re-ranking (which is all `soft_propagate()`
+has ever been measured as, across PR #118 and #119). See DAILY.md for what
+was built and measured.
