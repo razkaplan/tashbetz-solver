@@ -72,6 +72,84 @@ def proof_for(c):
     return '\n'.join(lines)
 
 
+# Mechanisms that only ever emit a hit backed by TARGETED evidence -- a mined equivalence
+# match, a literal clue-word occurrence, or an independent BM25 definition match -- never
+# a blind scan of every same-length character window the way anagram/hidden/reversal/
+# pattern/charade/container/homophone(_vowel) do. A hit from one of these is evidence in
+# itself, the same reason phrase_ok/split_ok below get a tier-1 floor (see that docstring):
+# a verified-real-words-glued-together hit and a targeted-mechanism hit are both signal a
+# plain window scan cannot produce by accident, so neither should rank behind one.
+PRECISION_MECHANISMS = {
+    'retrieval', 'defspan_retrieval', 'culture_category', 'homograph', 'substitution',
+    'abbreviation', 'double_definition',
+}
+
+
+def rank_candidates(cands, enum, max_n=25):
+    """Annotate an already-generated candidate list with lexicon priority tier + split
+    feasibility, and rank by the signals that actually discriminate (see module
+    docstring): culture/corpus-tier hits first, then multi-part hits whose pieces are
+    real words, then a proof-string convenience field. Does NOT claim any candidate is
+    correct. Factored out of rank() (2026-10-12) so a caller that already has a WIDE raw
+    pool (e.g. candidates.py recall_eval's `use_rank` diagnostic, see its own docstring
+    for why the offline recall metric needs this same fix) can rank it without
+    regenerating candidates a second time.
+
+    `phrase_ok`/crediting `split_ok` in the PRIMARY key (2026-10-12, found while building
+    the `use_rank` fix above, in two parts): several mechanisms (anagram/hidden/reversal/
+    container/substitution) can accept a hit via `phrase_split()` -- the WHOLE answer is
+    not itself a lex() entry, but IS the unbroken concatenation of 2-3 words that each ARE
+    (e.g. `צר`+`נוביל` -> `צרנוביל`, a real anagram hit on 2026-05-29's 25 across).
+    Those hits carry a `phrase` field but `lexicon_tier` only ever looks up the WHOLE
+    answer string, so `words.get()` correctly returns 0 -- not a bug in the lookup, but
+    the ranker then treated verified-real-words-glued-together identically to pure
+    noise. The SAME gap existed, worse, for `split` (candidates.split_candidates(), the
+    OLDER field, used for every multi-part-enum candidate including retrieval hits):
+    it was already read here, but only as a SECONDARY tiebreaker (`split_ok is False`),
+    never promoted into the PRIMARY tier -- so a `split_ok=True` hit with
+    `lexicon_tier=0` (e.g. a retrieval-sourced multi-word answer, 2026-05-29's 26 across
+    `פחותאבלכואב`, `split=['פחות','אבל','כואב']`) still sorted behind every single tier-1
+    dictionary word, and in practice got pushed OUT of the top 25 entirely once the raw
+    pool widened enough to surface more tier>=1 noise ahead of it -- measured directly:
+    fixing ONLY `phrase_ok` first and shipping it alone made `recall_eval(use_rank=True)`
+    REGRESS (2/40 -> 1/40) by demoting this exact retrieval hit, which is why both fields
+    are fixed together here, not one at a time. Both `phrase_split()` and
+    `split_candidates()` only ever accept a hit when EVERY piece is independently a
+    lex() member, so either signal deserves the same tier-1 floor a plain dictionary
+    word gets.
+
+    `mechanism_ok` (2026-10-18): 2026-10-12's fix only promotes a MULTI-part hit (via
+    split_ok/phrase_ok). A SINGLE-part retrieval/culture_category/homograph/substitution
+    hit has neither field set (split_ok is None when len(enum)==1, phrase_ok is only ever
+    set by the phrase_split() path those mechanisms don't use) -- so it still sat at the
+    unmodified lexicon_tier, usually 0, and still lost to every tier>=1 dictionary-word
+    window-scan hit once the wide raw pool was ranked. Found by RUNNING recall_eval
+    (use_rank=True) on a fresh, independently transcribed 2026-05-29 and seeing recall
+    regress 7.1%->3.6% (2/28->1/28): the lost hit was 1D `ברישניקוב` (Baryshnikov), a
+    single-part (9) `retrieval` hit with split=None, phrase unset, lexicon_tier=0 (it is
+    not itself a lex() member -- the whole point of retrieval is finding an answer the
+    lexicon doesn't already contain). PRECISION_MECHANISMS gets the exact same tier-1
+    floor phrase_ok/split_ok already get, for the exact same reason: a hit from one of
+    these mechanisms cannot have been produced by blind character-window noise."""
+    words = candidates.lex()
+    out = []
+    for c in cands:
+        c = dict(c)
+        c['lexicon_tier'] = words.get(c['answer'], 0)
+        c['split_ok'] = bool(c.get('split')) if len(enum) > 1 else None
+        c['phrase_ok'] = bool(c.get('phrase'))
+        c['mechanism_ok'] = c.get('mechanism') in PRECISION_MECHANISMS
+        c['proof'] = proof_for(c)
+        out.append(c)
+    out.sort(key=lambda c: (
+        -max(c['lexicon_tier'],
+             1 if (c['phrase_ok'] or c['split_ok'] or c['mechanism_ok']) else 0),
+        c['split_ok'] is False,       # multi-part hits with real-word pieces rank first
+        len(c.get('fodder') or ''),
+    ))
+    return out[:max_n]
+
+
 def rank(clue_text, enum, pattern=None, max_n=25):
     """generate() candidates, annotate with lexicon priority tier + split feasibility,
     and rank by the signals that actually discriminate (see module docstring):
@@ -84,22 +162,9 @@ def rank(clue_text, enum, pattern=None, max_n=25):
     can sit outside the default max_n=25 window and never reach this function. Fixed by
     pulling a much larger raw pool, ranking all of it, and truncating LAST.
     """
-    words = candidates.lex()
     raw_pool = max(max_n * 8, 200)
     cands = candidates.generate(clue_text, enum, pattern=pattern, max_n=raw_pool)
-    out = []
-    for c in cands:
-        c = dict(c)
-        c['lexicon_tier'] = words.get(c['answer'], 0)
-        c['split_ok'] = bool(c.get('split')) if len(enum) > 1 else None
-        c['proof'] = proof_for(c)
-        out.append(c)
-    out.sort(key=lambda c: (
-        -c['lexicon_tier'],
-        c['split_ok'] is False,       # multi-part hits with real-word pieces rank first
-        len(c.get('fodder') or ''),
-    ))
-    return out[:max_n]
+    return rank_candidates(cands, enum, max_n=max_n)
 
 
 # ---------------------------------------------------------------------------
@@ -142,6 +207,24 @@ def selftest():
     print(f'  שלום survives ranking into the top 5: {found} (expected True — it is the '
           f'only real-dictionary-tier hit among ~40 raw anagram windows)')
     ok &= found
+
+    print('--- mechanism_ok: a SINGLE-part precision-mechanism hit outranks tier-0 '
+          'window-scan noise (2026-10-18 regression: 1D ברישניקוב, a retrieval hit, '
+          'measured dropped by ranking before this fix) ---')
+    # synthetic, controlled noise -- 30 fake tier-0 anagram hits (not real lex() words,
+    # so lexicon_tier=0 and mechanism_ok=False for every one), same shape generate()'s
+    # raw char-window scan produces in bulk. The precision_hit's answer is ALSO not a
+    # lex() member (tier 0) -- mechanism_ok is the ONLY signal that can rank it above
+    # the noise, same as a real retrieval hit (not itself a dictionary word) relies on.
+    fake_noise = [{'answer': candidates.norm('קקקק') + str(i), 'mechanism': 'anagram',
+                   'fodder': 'xx'} for i in range(30)]
+    precision_hit = {'answer': candidates.norm('קקקק'), 'mechanism': 'retrieval', 'fodder': None}
+    mixed = rank_candidates(fake_noise + [precision_hit], [4], max_n=5)
+    kept = any(c['answer'] == precision_hit['answer'] and c.get('mechanism_ok')
+               for c in mixed)
+    print(f'  single-part retrieval hit survives ranking into the top 5: {kept} '
+          f'(expected True)')
+    ok &= kept
 
     print(f'\n{"ALL PASSED" if ok else "FAILURES ABOVE"}')
     return ok

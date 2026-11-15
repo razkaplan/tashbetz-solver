@@ -25,9 +25,25 @@ CLASSIFIER (`split`): only useful if `stats` supports the one-end premise. Score
 solver/indicators.json trigger lists SOLVE_PROTOCOL.md already tells a solver to check
 by hand. Never opens an answer.
 
+STRUCTURAL CLASSIFIER (`split_structural`, 2026-10-25): the 2026-08-19 indicator-density
+classifier scored 1/5 on the mechanically-locatable edge cases — worse than chance — because
+most of this setter's clues carry NO indicator word at all (PLAYBOOK.md already notes the
+anagram signal here is mechanical, not lexical). That run's own log named one untried,
+fundamentally different signal rather than a retry of the same one: "scoring by whether each
+end's residual is anagram-matchable". This is that signal. Instead of counting trigger words,
+it asks candidates.py's own mechanism generators (anagram / hidden / reversal) whether a given
+end's word-span, taken as fodder, actually PRODUCES a real Hebrew word of the exact target
+length (the enum total — known at solve time, not a leak). A real definition phrase has no
+particular reason to also happen to be a letter-rearrangement of a real word of that exact
+length; the wordplay side does, by construction, for the correct hypothesis. This needs no
+gold answer to run (target_len comes from the clue's own enum), so unlike `locate_fodder`
+(a diagnostic that can only ever check a known answer) it is a real, usable classifier.
+
 CLI:
   python3 solver/defspan.py stats [dataset] [split]   # measured fodder-position distribution
-  python3 solver/defspan.py split "<clue text>"       # ranked (definition, wordplay) hypotheses
+                                                       # + both classifiers' agreement
+  python3 solver/defspan.py split "<clue text>"       # ranked hypotheses, indicator classifier
+  python3 solver/defspan.py split_structural "<clue text>" <enum...>  # structural classifier
   python3 solver/defspan.py selftest
 """
 import sys, os, re, json
@@ -151,6 +167,76 @@ def split(clue_text, top_n=3):
 
 
 # ---------------------------------------------------------------------------
+# structural classifier: does this end's residual actually PRODUCE a real word
+# of the right length by a named mechanism, rather than merely carry a trigger word?
+# ---------------------------------------------------------------------------
+def structural_hits(words, target_len):
+    """candidates.py's anagram/hidden/reversal generators, restricted to the text of
+    these words only, searched for the exact target length. Returns the raw hit list
+    (empty if this word-span cannot produce a real word of that length by any of the
+    three mechanisms)."""
+    if target_len <= 0 or not words:
+        return []
+    import candidates
+    text = ' '.join(words)
+    out = []
+    out += candidates.anagram_candidates(text, target_len)
+    out += candidates.hidden_candidates(text, target_len)
+    out += candidates.reversal_candidates(text, target_len)
+    return out
+
+
+def score_structural(hyp, target_len):
+    """wordplay-side structural hit count minus definition-side structural hit count.
+    The wordplay side is EXPECTED to hit (that is what a mechanism does); the
+    definition side hitting too is not disqualifying by itself (short common words
+    anagram to other short common words by chance) but is weaker corroboration, so it
+    counts against the hypothesis rather than for it. Tie-break: shorter wordplay span
+    first (a tighter mechanical account is less likely to be a coincidence)."""
+    wp_hits = structural_hits(hyp['wp_words'], target_len)
+    def_hits = structural_hits(hyp['def_words'], target_len)
+    return len(wp_hits) - len(def_hits), -len(hyp['wp_words']), wp_hits, def_hits
+
+
+def split_structural(clue_text, enum, top_n=3):
+    """Ranked (definition, wordplay) hypotheses by the structural signal. enum is the
+    clue's own printed enumeration (list of ints) — known at solve time, not derived
+    from the gold answer."""
+    target_len = sum(enum) if enum else 0
+    scored = []
+    for hyp in hypotheses(clue_text):
+        s, tiebreak, wp_hits, def_hits = score_structural(hyp, target_len)
+        scored.append((s, tiebreak, hyp, wp_hits, def_hits))
+    scored.sort(key=lambda x: (-x[0], -x[1]))
+    out = []
+    for s, _, hyp, wp_hits, def_hits in scored[:top_n]:
+        out.append({
+            'definition': ' '.join(hyp['def_words']),
+            'wordplay': ' '.join(hyp['wp_words']),
+            'def_end': hyp['def_end'],
+            'score': s,
+            'wordplay_hits': wp_hits,
+        })
+    return out
+
+
+def classifier_agrees_structural(clue_text, enum, bucket):
+    """Same contract as classifier_agrees(), for the structural classifier. None when
+    there is no top hypothesis with POSITIVE net evidence (score <= 0: no word-span
+    structurally produced a real word of the target length, or the two ends tied) --
+    abstaining is the honest answer when the mechanism found nothing, not a forced
+    guess -- or the bucket is 'interior'/'whole_clue'."""
+    if bucket not in ('start', 'end'):
+        return None
+    ranked = split_structural(clue_text, enum, top_n=1)
+    if not ranked or ranked[0]['score'] <= 0:
+        return None
+    top = ranked[0]
+    wordplay_end = 'start' if top['def_end'] == 'end' else 'end'
+    return wordplay_end == bucket
+
+
+# ---------------------------------------------------------------------------
 # measurement: where does mechanically-locatable wordplay actually sit?
 # ---------------------------------------------------------------------------
 def locate_fodder(clue_text, answer):
@@ -211,6 +297,7 @@ def stats(dataset_path, split_name=None):
     by_mech = Counter()
     examples = []
     clf_correct = clf_total = 0
+    struct_correct = struct_total = 0
     for line in open(dataset_path):
         r = json.loads(line)
         if split_name and r['split'] != split_name:
@@ -229,6 +316,10 @@ def stats(dataset_path, split_name=None):
         if agree is not None:
             clf_total += 1
             clf_correct += agree
+        sagree = classifier_agrees_structural(r['clue_text'], r.get('enum') or [], b)
+        if sagree is not None:
+            struct_total += 1
+            struct_correct += sagree
         if len(examples) < 8:
             examples.append((r['clue_number'], r['direction'], b, loc['mechanism'], r['clue_text']))
     return {
@@ -238,6 +329,7 @@ def stats(dataset_path, split_name=None):
         'by_mechanism': dict(by_mech),
         'examples': examples,
         'classifier_agreement': f'{clf_correct}/{clf_total}' if clf_total else 'n/a (no start/end cases)',
+        'structural_classifier_agreement': f'{struct_correct}/{struct_total}' if struct_total else 'n/a (no start/end cases)',
     }
 
 
@@ -309,6 +401,35 @@ def selftest():
     print(f'  agree: {agree} (expected True — wordplay/reversal-indicator is at the start)')
     ok &= agree is True
 
+    print('--- structural: a tail word-span that anagrams to the target length scores ' +
+          'as wordplay, no indicator word involved ---')
+    # 'קבר' (3 letters) anagrams to 'בקר'/'ברק'/'קרב'/'רקב', all real words -- a letter-
+    # rearrangement device with zero trigger vocabulary, exactly the setter's own
+    # documented pattern. 'אם' (2 letters) is shorter than the 3-letter target, so it
+    # structurally CANNOT produce a window of that length -- the definition side is
+    # guaranteed zero hits by construction, isolating the signal this test checks.
+    os.chdir(ROOT)
+    res = split_structural('אם קבר', [3])
+    top = res[0]
+    got = top['def_end'] == 'start' and 'קבר' in top['wordplay']
+    print(f"  top hypothesis: def={top['definition']!r} wordplay={top['wordplay']!r} "
+          f"hits={top['wordplay_hits']}")
+    print(f'  wordplay landed on the anagram-bearing tail: {got} (expected True)')
+    ok &= got
+
+    print('--- structural: an all-zero-score clue returns hypotheses but no classifier claim ---')
+    # No word-span here anagrams/hides/reverses to a real 4-letter word; the classifier
+    # must not force a confident pick it has no structural evidence for.
+    sagree = classifier_agrees_structural('קקקקק קקקקק', [4], 'start')
+    print(f'  classifier_agrees_structural on an unsolvable clue: {sagree} '
+          f'(expected None — no hypothesis scored above the null)')
+    ok &= sagree is None
+
+    print('--- structural_hits: needs no gold answer, only the enum total ---')
+    hits = structural_hits(['קבר'], 3)
+    print(f'  hits: {hits} (expected a nonempty anagram hit)')
+    ok &= bool(hits)
+
     print(f'\n{"ALL PASSED" if ok else "FAILURES ABOVE"}')
     return ok
 
@@ -323,6 +444,11 @@ def main():
     elif cmd == 'split':
         for h in split(sys.argv[2]):
             print(h)
+    elif cmd == 'split_structural':
+        enum = [int(x) for x in sys.argv[3:]]
+        os.chdir(ROOT)
+        for h in split_structural(sys.argv[2], enum):
+            print(h)
     elif cmd == 'stats':
         path = sys.argv[2] if len(sys.argv) > 2 else 'data/dataset/clues.jsonl'
         split_name = sys.argv[3] if len(sys.argv) > 3 else None
@@ -332,8 +458,10 @@ def main():
               f"of clues have a mechanically-locatable wordplay window")
         print('position of that window within the clue:', res['position_buckets'])
         print('by mechanism:', res['by_mechanism'])
-        print('classifier top-hypothesis agreement (start/end cases only):',
+        print('indicator-density classifier agreement (start/end cases only):',
               res['classifier_agreement'])
+        print('structural classifier agreement (start/end cases only):',
+              res['structural_classifier_agreement'])
         if res['examples']:
             print('\nexamples (clue_number, direction, position, mechanism, text):')
             for num, direction, b, mech, text in res['examples']:
