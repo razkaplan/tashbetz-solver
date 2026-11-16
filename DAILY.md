@@ -49,6 +49,7 @@ tree - a stale CLI deploy overwrote the live site on 2026-08-29. See CLAUDE.md.
 | **Candidate recall@N with `substitution_candidates`' new phrase_split() acceptance path (NEW 2026-10-05, offline, mechanical -- queue item 10(b)'s LAST quarter, closing it: anagram 2026-10-01, hidden/reversal 2026-09-21, container 2026-10-02, substitution now)** | **FLAT, 3.7% (1/27), IDENTICAL across all 4 configurations** (mechanical-only / full-defaults × phrase on/off) on 2026-05-29 (14th independent transcription, 27/28 clues -- clue 13A honestly excluded, its printed text cut off mid-clue -- 0/27 enum mismatches against `grid_tools.py validate`). `avg_candidates` was also IDENTICAL (24.7) in all 4 configs. **First time this device has been tested against a REAL, non-empty `sub_fwd()` table** (134 head words) rather than the confounded-to-zero table every recent run measured (14across has hard-walled the general 52-puzzle scrape since 2026-08-19) -- gotten by fetching puzzle dates individually and saving incrementally rather than risking the standard script's single-write-at-end + timeout combination (the exact loss mode PR #75 already documented); 14/52 dates recovered before the 280s budget ran out, including 2026-05-29 itself (correctly held out). Root-caused, not just observed: 7/27 clues had a clue word matching the table, but only 2 of those (8A, 12D) produced ANY raw candidate after the target-length filter (6 raw candidates total), and ALL 6 were direct `lex()` members -- `phrase_split()` was never once needed to accept a candidate on this specific puzzle's specific table intersection, so the toggle's measured contribution is a clean, unconfounded zero, not a masked positive. Ships default ON (unlike container's phrase path): the mechanism's own docstring argues its false-positive surface should be much smaller (a handful of fixed strings tested per clue, not container's dozens-hundreds-per-clue splice search) -- not yet confirmed on real data beyond today's 0-contribution case, since the device barely fired at all this run | not yet a target -- a genuine, unconfounded flat result; the quarter is closed (built + selftested + now real-corpus-tested), but today's puzzle gave it almost nothing to work with -- a puzzle with a denser substitution-table intersection is the natural next check, see log |
 | **`segment_candidates(use_substitution=True)` -- today's lever, NEW 2026-10-16, offline, mechanical+substitution MIXED per-part charade** | **FLAT, 4.8% (1/21), IDENTICAL in all three configurations** (`--no-segment --no-segment-substitution`, default segment mechanical-only, default segment+use_substitution) on a FRESH 15th+ independent transcription of 2026-05-29 (21/28 clues, the standard across-1-13 image-cutoff gap, 0/21 enum mismatches, real 14across gold). All 8 of this puzzle's multi-part-enum clues hit `segment_candidates`' own 300-combo cap without finding gold; re-checked UNCAPPED (up to 20,000 combos/clue) and still **0/8 found gold even then** -- a genuine mechanism-level null (these specific multi-part answers aren't recoverable from mechanical devices or the mined-substitution table at all), not a truncation artifact, independently reproducing PR #86's own "0/10 even uncapped" finding on a SECOND transcription of the same puzzle | not yet a target -- diagnostic; a real, root-caused negative result, see log |
 | **`constraint_solve.py commit-order`: Cruciform/Dr.Fill confidence-gap sequential-commit ordering (NEW 2026-11-15, offline -- queue item 4's own named next step, PR #119's 2026-11-12 research entry)** | **FLAT/NEGATIVE across the only 2 gold-bearing slots this project can currently test it against (one on each of 2 puzzles, 2026-05-29 + a freshly transcribed 2026-06-26): `gap_order_better_on: []`, `fixed_order_better_on: []` on BOTH puzzles -- confidence-gap ordering and a fixed clue-number order NEVER disagree on correctness.** 2026-05-29 (2D `יחפניות`): both policies commit the SAME correct answer (base score 39.0, already the clear leader) -- gap-order processes this slot DEAD LAST (position 28/28, its own gap was one of the smallest on the puzzle) while fixed-order processes it 3rd; the ordering changed WHEN it was committed, not WHAT, because nothing in either policy's accumulated cross-slot bonus was ever large enough to unseat a 39.0-point lead. 2026-06-26 (17A `רומח`, base score only 8.0): NEITHER policy commits it correctly -- gap-order commits a different wrong answer (`סניפ`, position 9) than fixed-order (`שוכר`, position 18); `רומח`'s own low base score (it is one of ~30 weapon-synonym candidates tied near-equally by a single external category-listing document, see below) means no realistic amount of crossing support from mostly-wrong neighbouring slots could lift it to rank 1 either way. All 10 selftest checks (2 new vs PR #118's 7 -- `confidence_gap()` edge cases, plus a hand-built fixture PROVING gap-order can beat fixed-order when it has the chance to, since today's real-data result never got that chance) pass | not yet a target -- a clean, doubly-confirmed negative result; see log for the full root-cause and a found-but-not-fixed truncation/tie-break issue in `rank_candidates()` that this run surfaced along the way |
+| **`solve_pass.rank_candidates()`: retrieval_score tertiary tie-break (NEW 2026-11-16, offline -- directly fixes the `rank_candidates()` tie-break gap PR #122 found but left unfixed)** | **Directly reproduced PR #122's regression on a fresh transcription + a freshly re-crawled corpus (mordo 18,299 raw / 17,396 parsed, smaller than #122's 66k but enough to reproduce the exact mechanism): 2026-06-26 17A `רומח` IS found by `retrieve_defs.candidates()` (rank 4/25, confirmed one of ~33 weapon-synonym answers a SINGLE external mordo document lists, all sharing that document's one BM25 score -- `retrieve_defs.candidates()` scores per DOCUMENT, not per answer) but `rank_candidates()`'s top-25 cutoff drops it (`candidates.py recall ... --ranked`: 0.0%/0/28, vs bare 3.6%/1/28, `{'retrieval': 1}`).** Fixed the discarded signal: `retrieval_candidates()`/`defspan_retrieval_candidates()` were computing `retrieve_defs`' BM25 score and then THROWING IT AWAY (`for a, _score in hits`) before this run; now carried through as `retrieval_score` on each candidate dict and read by `rank_candidates()` as a THIRD sort key (after the tier floor, after split_ok, before the pre-existing `len(fodder)` catch-all) -- see `rank_candidates()`'s own docstring for the full mechanism and its citation of Lin & Yang (SIGIR 2019, arXiv:1807.05798) on exactly this failure shape in IR generally. **PROVEN to work mechanically, via a new selftest (`solve_pass.py selftest`) that reproduces the ~30-tied-synonym shape on synthetic data**: a scored hit appended LAST among 30 unscored same-floor candidates survives a tight `max_n=5` truncation (True), and a CONTROL -- the identical hit with no score, same position -- is buried (True), proving the fix and not some unrelated effect is what rescues it. **MEASURED FLAT on recall@N for the two real puzzles available (2026-06-26, 2026-05-29, 56 clues combined): `--ranked` recall is IDENTICAL before and after this fix on BOTH puzzles (2026-06-26: 0.0%/0/28 both; 2026-05-29: 7.1%/2/28 both, confirmed by `git stash`/`git stash pop` A-B comparison on the same corpus) -- no regression, but no rescue either.** Root-caused why, not just reported: directly inspected `רומח`'s full ranked neighborhood -- every one of the ~20 weapon-synonym candidates ranked above it this run shares its exact tie-break score too (all from the one document), so the tie-break I added cannot separate them from EACH OTHER; what is actually excluding `רומח` is a SENIOR sort key, `lexicon_tier` (several sibling weapons, e.g. `אקדח`/`גרזנ`/`מקלע`, are ALSO previously-used corpus crossword answers, tier>=2, while `רומח` is "only" a plain dictionary word, tier=1) -- a real, legitimate signal this fix does not and should not override. The fix DOES do real, verified work one level down: directly confirmed the new key correctly re-interleaves `retrieval_candidates()`'s and `defspan_retrieval_candidates()`'s two independently score-sorted lists by their shared score instead of concatenating them as two separate stable-sort runs (own insertion order within each), which is a genuine, previously-silent ordering bug independent of today's one headline clue. AUDITED: `lexicon.held_out_answers()`, `substitutions.held_out()`, `retrieve_defs.held_out()` all directly confirmed (computed set difference, not assumed) to block all 56 gold answers across both puzzles; `רומח`'s 2 matching mordo documents both confirmed `pid=None` (external, not this project's own train-split pairings); no forbidden reads (gold from the sanctioned 14across scrape, 52/52 puzzles this run; clue text from the two public CDN images only); no implausible jump (every number here is either an exact reproduction or a disclosed zero-point delta). All affected selftests (`solve_pass.py` incl. 2 new checks, `candidates.py`, `retrieve_defs.py`, `lexicon.py`, `substitutions.py`, `prove.py`) re-run clean | not yet a target -- a real, selftest-proven infrastructure fix with a disclosed null effect on the two puzzles measured; the concrete next step is a puzzle/clue where two PRECISION_MECHANISMS candidates tie at the SAME `lexicon_tier` too, which is the actual precondition for this specific tie-break to change an outcome -- see log |
 
 Baseline for comparison: v2 = 41% raw with untraceable errors.
 
@@ -61,6 +62,12 @@ received a single solver/ commit from this routine** — `git log -- DAILY.md` /
 `-- solver/candidates.py` on `main` both stop at 2026-09-07, now nearly two months
 stale. This is the NINTH direct process alert (#71, #73, #82, #89, #92, #101/#102, #103,
 #105) with the same ask and the same result.
+
+**2026-11-16 update, not a new alert:** `list_pull_requests` at the start of this
+run confirmed **75 open, unmerged PRs (#38-#122)**, all still unmerged, continuing
+the branch chain (per PR #122's own note) rather than re-litigating the count.
+Already flagged to the project owner separately this run outside this file; see
+this run's PR body for the one-line acknowledgement.
 
 NEW THIS RUN, not just a re-count: a mechanical audit of every open PR's actual diff
 (`gh api repos/.../pulls/<n>/files`, grepped for added top-level `def`s in `solver/`),
@@ -4603,6 +4610,79 @@ propagated), `blank`. Score with `python3 evals/run_eval.py <file>`.
   coverage; did not act on the multi-word-phrase category of miss, which is larger than
   the prefix category on this puzzle; did not merge or otherwise act on the PR backlog
   beyond flagging its size explicitly for the project owner's attention.
+- 2026-11-16: branched from `daily/2026-11-15-work` (PR #122), the trunk tip, per
+  this file's own step-0 rule — `list_pull_requests` confirmed 75 open PRs
+  (#38-#122), already flagged to the project owner separately this run, not
+  re-alerted here. `./bootstrap.sh --dev-only` ran clean: 14across 52/52 puzzles,
+  1,457 clues. Fresh-crawled `private_defs/mordo.jsonl` for the first time this
+  run (18,299 raw docs / 17,396 parsed, within a 280s budget — smaller than PR
+  #122's 66k but, as this run showed, enough to reproduce the exact mechanism it
+  flagged). Transcribed TWO dev puzzles from the public CDN images, both
+  cross-validated against real 14across gold via `grid_tools.py validate` (0
+  mismatches each): 2026-06-26 (28/28, the puzzle PR #122's own body root-caused
+  the tie-break gap on) and 2026-05-29 (28/28, this project's canonical
+  baseline), 56 clues combined.
+  Took PR #122's own flagged lead (verified myself before building, not taken on
+  faith): `candidates.py recall ... eval --ranked` on 2026-06-26 reproduced the
+  exact regression, 0.0%/0/28 vs bare 3.6%/1/28 (`{'retrieval': 1}`) — confirmed
+  directly that `retrieve_defs.candidates()` finds 17A `רומח` at rank 4/25 (one
+  of ~33 weapon-synonym answers a single external mordo document lists, ALL
+  sharing that one document's BM25 score — `retrieve_defs.candidates()` scores
+  per DOCUMENT, not per answer, confirmed by reading its code) but
+  `rank_candidates()`'s top-25 cutoff drops it.
+  Built the fix PR #122 named: `retrieval_candidates()`/`defspan_retrieval_candidates()`
+  were computing that BM25 score and then discarding it (`for a, _score in hits`);
+  now carried through as `retrieval_score` on each candidate dict, and
+  `rank_candidates()` reads it as a third sort key (after the tier floor, after
+  `split_ok`, before the pre-existing `len(fodder)` catch-all). New selftest in
+  `solve_pass.py` proves the mechanism on synthetic data (a scored hit appended
+  LAST among 30 unscored same-floor candidates survives `max_n=5`; the identical
+  hit with no score, same position, is buried — the control that proves the fix,
+  not something else, does the rescuing).
+  MEASURED: the real-data regression on 2026-06-26 is NOT rescued (`--ranked`
+  still 0.0%/0/28, confirmed with `git stash`/`git stash pop` A-B on the same
+  corpus) because `רומח`'s ~20 ranked-above siblings turn out to ALSO share its
+  exact tie-break score (same document) — what's actually excluding it is a
+  SENIOR key, `lexicon_tier` (several siblings are themselves previously-used
+  corpus crossword answers, tier>=2; `רומח` is "only" tier 1). 2026-05-29: bare
+  10.7%/3/28, `--ranked` 7.1%/2/28 both before and after this fix (identical,
+  confirmed by the same stash A-B) — no regression, no rescue. The fix DOES do
+  real, directly-confirmed work one level down even though recall@N didn't move:
+  it correctly re-interleaves `retrieval_candidates()`'s and
+  `defspan_retrieval_candidates()`'s two independently score-sorted lists by
+  their shared score instead of concatenating them as two separate stable-sort
+  runs — a genuine, previously-silent ordering bug, independent of today's one
+  headline clue.
+  RESEARCH: two targeted searches. "BM25 tied scores tie-breaking" surfaced a
+  genuinely new citation, Lin & Yang (SIGIR 2019, arXiv:1807.05798), read
+  directly: breaking BM25 ties on an index-internal key (document id, insertion
+  order) is non-deterministic and carries no relevance signal; recommends a
+  stable EXTERNAL key instead — independently confirms, from outside this
+  codebase, that today's fix is the textbook answer to this exact failure shape.
+  The usual cryptic-crossword-AI search surfaced nothing new (sixteenth-plus
+  consecutive null on that query shape). See RESEARCH.md.
+  AUDIT: `lexicon.held_out_answers()`, `substitutions.held_out()`,
+  `retrieve_defs.held_out()` all directly confirmed (computed set difference) to
+  block all 56 gold answers across both puzzles; `רומח`'s 2 matching mordo docs
+  both confirmed `pid=None` (external, not this project's own train-split
+  pairings). No forbidden reads: gold from the sanctioned 14across scrape, clue
+  text from the two public CDN images only. No implausible jump: every number is
+  either an exact historical reproduction or a disclosed zero-point delta.
+  Reverted `solver/lex/substitutions.json` after bootstrap's smaller rebuild
+  touched it (same standing warning prior runs have hit). All affected
+  selftests (`solve_pass.py` incl. 2 new checks, `candidates.py`,
+  `retrieve_defs.py`, `lexicon.py`, `substitutions.py`, `prove.py`,
+  `defspan.py`, `deffit.py`, `constraint_solve.py`) re-run clean.
+  NOT DONE, honestly: did not fix `lexicon_tier`'s own dominance over this
+  tie-break (the actual blocker for `רומח` specifically) — that is a different,
+  larger design question (should a previously-used-answer bonus ever be
+  tradeable against a real BM25 score?) deliberately left for its own lever, not
+  folded in here. Did not find or construct a puzzle/clue where two
+  PRECISION_MECHANISMS candidates tie at the SAME `lexicon_tier` too, which is
+  the actual precondition for this specific fix to move a real recall@N number —
+  the concrete next step if this line is revisited. Did not crawl note.co.il
+  (mordo only, time-boxed to a 280s budget). Did not merge, close, or re-base
+  any PR.
 
 ---
 

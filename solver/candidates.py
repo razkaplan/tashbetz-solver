@@ -1546,7 +1546,17 @@ def retrieval_candidates(clue_text, target_len, topk=25, docs_df=None):
                                              docs_df=_RETRIEVE_DOCS_DF)
     finally:
         os.chdir(cwd)
-    return [{'answer': a, 'mechanism': 'retrieval', 'fodder': None} for a, _score in hits]
+    # retrieval_score (2026-11-16): the BM25 score was computed and then THROWN AWAY here
+    # (the old `for a, _score in hits` discarded it) -- found while root-causing a real
+    # regression PR #122 flagged but did not fix: a clue whose BM25 hit lands on a single
+    # external document that itself lists ~30 near-synonyms (a "weapon" list) gets every
+    # one of those ~30 promoted to the SAME solve_pass.PRECISION_MECHANISMS tier-1 floor,
+    # and once there, Python's stable sort falls back to insertion order -- an accident of
+    # which mechanism ran first in generate(), not a quality signal. Keeping the score lets
+    # rank_candidates() use it as a tertiary tie-break (see its own docstring) instead of
+    # silently losing it. See defspan_retrieval_candidates() below for the same fix.
+    return [{'answer': a, 'mechanism': 'retrieval', 'fodder': None, 'retrieval_score': score}
+            for a, score in hits]
 
 
 def defspan_retrieval_candidates(clue_text, target_len, docs_df=None):
@@ -1585,7 +1595,10 @@ def defspan_retrieval_candidates(clue_text, target_len, docs_df=None):
                                                  docs_df=_RETRIEVE_DOCS_DF)
     finally:
         os.chdir(cwd)
-    return [{'answer': a, 'mechanism': 'defspan_retrieval', 'fodder': None} for a, _score in hits]
+    # retrieval_score (2026-11-16): same fix as retrieval_candidates() above, same reason
+    # -- see its comment.
+    return [{'answer': a, 'mechanism': 'defspan_retrieval', 'fodder': None, 'retrieval_score': score}
+            for a, score in hits]
 
 
 _DOUBLE_DEF_DOCS_DF = None

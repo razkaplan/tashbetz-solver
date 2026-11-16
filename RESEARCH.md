@@ -3391,3 +3391,53 @@ heuristic, simulated as an actual sequential commit process rather than
 measured only as a flat batch re-ranking (which is all `soft_propagate()`
 has ever been measured as, across PR #118 and #119). See DAILY.md for what
 was built and measured.
+
+## 2026-11-16
+
+Branched from `daily/2026-11-15-work` (PR #122), the trunk tip. Two targeted
+searches, each checked against what is already logged here before accepting
+a result as new:
+
+**"BM25 tied scores tie-breaking rerank strategy information retrieval".**
+Surfaced a genuinely new citation for this project: Lin & Yang, "Repeatability
+Corner Cases in Document Ranking: The Impact of Score Ties" (SIGIR 2019,
+arXiv:1807.05798) — read directly, not just the abstract. Its finding:
+Lucene's default tie-break for equal-BM25-score documents is internal
+document ID (effectively insertion/index order), which is non-deterministic
+across index rebuilds and gives arbitrary-looking rankings among tied
+documents; the paper's own fix is to break ties on a STABLE EXTERNAL key
+(an external id, recency, or a secondary score) rather than an index-internal
+one. **Transfer: directly on point for the exact gap PR #122's own body
+flagged and left unfixed** — `solve_pass.rank_candidates()`'s sort key here
+has precisely the same shape the paper diagnoses (candidates promoted to a
+shared tier-1 floor by `PRECISION_MECHANISMS`, then Python's *stable* sort
+falls back to original list order, which is itself just whichever mechanism
+ran first in `generate()` — an internal, accidental key, not a quality
+signal). The paper's own prescribed fix (sort on a secondary, meaningful
+score) is exactly what today's lever does: carry retrieval's BM25 score
+through as a tertiary tie-break key, instead of leaving ties to resolve by
+accidental generation order. First time this project has looked outside the
+cryptic-crossword-AI literature specifically for a ranking/IR mechanics
+citation rather than a crossword-solving one — worth doing again when a
+future lever touches ranking/sorting logic rather than candidate generation.
+
+**"cryptic crossword solving AI 2026 candidate generation wordplay
+formalization".** Same paper family logged on every prior run since
+2026-08-06 (2506.04824 Andrews & Witteveen ICML 2025, 2407.08824,
+2104.08620/2103.01242 Cryptonite, 2406.09043, 2403.12094, 241209012) — no
+2026 paper found. **Transfer: none new**, the sixteenth-plus consecutive
+research pass with nothing new on this exact query shape; see the entries
+logged since 2026-08-06 for why this family's own candidate-generation
+approach (fine-tuned LLM proposing ~20 candidates, filtered by pattern) does
+not drop in here without a compute budget and training data this project
+does not have.
+
+**Conclusion for today's lever.** The IR-tie-break paper is the first
+clearly NEW, actionable citation in many consecutive runs (contrast the
+"nothing new" crossword-AI searches) — not because crossword-solving
+research moved, but because this run searched a DIFFERENT, adjacent field
+(ranking/retrieval mechanics) for a lever that is itself about ranking
+mechanics rather than candidate generation. It independently confirms
+(from outside this codebase) that the `rank_candidates()` gap PR #122 found
+really is a known failure mode with a known fix, not a one-off quirk of this
+file's own sort key. See DAILY.md for what was built and measured.
