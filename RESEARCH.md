@@ -910,3 +910,70 @@ priority 2. Wiring in an already-built, already-audited tool as one more candida
 is not itself a research question — it is closing a gap between what the project's own
 research queue prioritized in 2026-08-08 and what got implemented, which is worth doing
 regardless of whether today's literature sweep turned up anything new.
+
+## 2026-11-17
+
+First run in over two months (last solver-lever log entry 2026-09-07; the repo's activity
+since then was entirely the public site/product side — nativ, topic crosswords, SEO,
+dead-URL handling — not this solver). Bootstrap succeeded FULLY today: 52/52 puzzles from
+14across (1,457 clues, real crowd explanations), no bot-wall. Transcribed two dev puzzles
+from scratch (2026-05-29, 2026-06-05 — both 28/28 clues, 0/56 enum-sum mismatches against
+the grid-derived slot lengths AND the real 14across gold answer lengths, the strongest
+double cross-check this project's transcription step can get when 14across is fully up).
+
+**General search: "cryptic crossword solving LLM candidate generation definition span
+2026", "constrained decoding candidate generation crossword solver belief propagation
+2025 2026", "'cryptic crossword' diverse candidate generation sampling 2026 arxiv".**
+Surfaced the same core paper family logged repeatedly since 2026-08-06 (2506.04824 ICML
+2025, 2412.09012, 2407.08824, 2403.12094, 2406.09043) plus three genuinely new-to-this-log
+items, checked directly rather than taken from search summaries:
+
+- **"A Model of Diverse Sampling from Language Models" (NeurIPS 2026).**
+  https://neurips.cc/virtual/2026/poster/151475 — frames diverse generation as K-DPP
+  sampling over a pool drawn from a tractable proposal, reweighted toward a tempered
+  quality distribution; reports a better quality-diversity Pareto frontier than
+  temperature sampling / diverse beam search / K-means reranking / LLM-based selection on
+  ambiguous text-to-SQL and math reasoning. **Transfer: no, and for a specific reason worth
+  recording.** The method needs an LLM producing the pool (its likelihood is the quality
+  signal) and an embedding space to repel similar candidates. This project's
+  `candidates.py` is a mechanical, non-LLM, combinatorial generator — there is no LLM
+  likelihood to reweight and no natural embedding geometry over "an anagram hit" vs. "a
+  container hit" that would separate by MECHANISM rather than surface meaning (the
+  repulsion this method needs). Filed as a real technique for if this project ever adds an
+  LLM-based candidate proposer, not applicable to the current generator.
+- **"FFT-UniBa at Cruciverb-IT: Special Length Tokens and CSP for Italian Crossword
+  Solving" (EVALITA 2026 shared task).** https://ceur-ws.org/Vol-4195/45.pdf — fine-tunes
+  an Italian T5 with special tokens that encode answer LENGTH explicitly, because standard
+  subword tokenization doesn't preserve character counts, then uses a CSP solver for grid
+  filling. **Transfer: confirms a design choice already made here, rather than suggesting a
+  new one.** This project hit the identical underlying problem (an enumeration constrains
+  exact LETTER count) and solved it differently: `candidates.py`'s fodder search is
+  character-level, not token-level, so it never loses the length constraint in the first
+  place — no fine-tuning, no special tokens needed. Also NON-cryptic (semantic clue ->
+  answer; CSP grid-filling is PLAN_V2.md item A's Berkeley-style approach, already logged,
+  not candidate generation for cryptic wordplay).
+- **"Mitigating Bias in Locally Constrained Decoding via Tractable Proposals" (2026).**
+  https://www.alphaxiv.org/abs/2606.01926 — general fix for a bias in token-masking
+  constrained decoding (next-token masking is myopic and skews the sampled distribution).
+  **Transfer: none** — this project does no constrained token-level decoding anywhere
+  (candidates.py enumerates complete strings against a lexicon, not token-by-token), so
+  the bias this paper fixes does not exist here to begin with.
+
+**Hebrew morphology/NLP** — re-checked (DictaBERT-morph, ONLP/Yap, the Haifa Semitic-roots
+finite-state grammar). No new 2026 resource beyond what's logged repeatedly since
+2026-08-06, and the standing conclusion is unchanged: this setter's gap is wordplay
+decomposition and definition-fit, not morphological ambiguity resolution.
+
+**Conclusion for today's lever.** Fourth-plus consecutive literature pass finding nothing
+both new AND buildable for either candidate generation or definition-fit scoring — see
+above for why each of today's three new sightings doesn't transfer. Per the scheduled
+task's own priority (a) (candidate generation, so the proof gate has something to filter)
+and a direct re-read of this project's OWN code rather than external literature: prove.py
+has carried a verifier for the CONTAINER/insertion device (`is_container`, with a worked
+example baked into its own docstring/selftest) since before `candidates.py` existed, but
+nothing in `candidates.py` ever generated a container candidate — every other mechanism in
+that file has both halves; this one only ever had the verifier half, mirroring the
+project's own founding diagnosis (2026-08-06: "the bottleneck is that a solver produces
+ONE candidate and tries to justify it") for this one specific device. That is today's
+lever — a genuinely new mechanism, not a literature transfer. See DAILY.md for the
+measurement, audit, and honest (negative, on both tested puzzles) result.
