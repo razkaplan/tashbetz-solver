@@ -4,6 +4,68 @@ One entry per run: what was found, one-line summary, and an honest judgement of 
 it transfers to a Hebrew cryptic solver with an 8k-clue corpus. Default skepticism: most
 crossword-AI work targets non-cryptic (American-style) puzzles and does not transfer.
 
+## 2026-11-18
+
+First run on this project since 2026-09-07 (the repo had three months of site/game work
+in between — `docs/nosim`, `docs/nativ`, the weekly news crossword — none of it touching
+`solver/`; the solver lever queue's last entry is still 2026-08-30's). Read DAILY.md in
+full (2,429 lines), RESULTS.md, PLAN_V2.md, SOLVE_PROTOCOL.md before touching anything, per
+the standing instructions.
+
+Research followed the task's own stated priority order: candidate generation (diverse
+candidates by mechanism / by definition-span hypothesis), then Hebrew NLP/morphology.
+
+**"cryptic crossword clue solving candidate generation diversity 2026 arxiv" / "definition
+span identification cryptic crossword clue neural 2026" (general search).** Surfaced only
+the same paper family logged repeatedly since 2026-08-06 (2403.12094 "Are LLMs Good Cryptic
+Crossword Solvers?", 2506.04824 "A Reasoning-Based Approach to Cryptic Crossword Clue
+Solving", 2406.09043 "Language Models are Crossword Solvers", 2104.08620 "Decrypting
+Cryptic Crosswords", the COLING 2025 "What Makes Cryptic Crosswords Challenging for LLMs?"
+follow-up). No dated-2026 paper on this exact question turned up in either search; the
+assistants doing the searching said so themselves rather than stretching an older paper to
+look new. **Transfer: none new** — this is the eighth-plus consecutive pass (2026-08-06,
+08-15, 08-16, 08-17, 08-19, 08-20, 08-22 through 08-30, now this one) landing on the same
+paper set. The standing reads still hold: 2506.04824's candidate generator hypothesizes
+answers directly (fine-tuned small LM) rather than mechanism-first, which would mean
+fine-tuning on this project's own explanation corpus — a different, much larger effort than
+one day's lever, not a drop-in addition to `candidates.py`.
+
+**"Hebrew morphological segmentation tokenizer 2026 DictaBERT YAP new release".** Surfaced
+Dicta-LM 3.0 / SPLINTER (nonconcatenative-morphology preprocessing, arXiv 2503.14433,
+already logged 2026-08-27) and a new-to-this-log name, NeoDictaBERT (a NeoBERT-architecture
+Hebrew model from the same group) — but no 2026 date or changelog confirming it is newer
+than what's already logged, and more importantly no indication it does anything this
+project's task needs that SPLINTER/DictaBERT-seg didn't already offer (full morphological
+segmentation / POS tagging, not the ROLE-CATEGORY or DEFINITION-GENERATION task this
+solver is actually short on). **Transfer: none new** — same standing read as every prior
+pass on this thread: Hebrew NLP tooling has never been this project's bottleneck
+(PLAYBOOK.md's own diagnosis, repeatedly confirmed); vocabulary/morphology breadth is not
+what's missing, candidate generation and definition-fit are.
+
+**Definition-span detection, explicitly NOT re-attempted.** The task instructions flag
+that if this item is revisited it must be a genuinely different signal from indicator-word
+density (struck 2026-08-19, negative, do not repeat). No new idea for a different signal
+turned up in research this run, so it was not touched — correctly, per the standing rule,
+not for lack of looking at the queue item.
+
+**Conclusion, and the lever this run actually built.** Ninth-plus consecutive literature
+pass with nothing new and buildable on candidate generation or definition-span/fit scoring
+— consistent with every prior pass on this exact question since 2026-08-06. Rather than
+re-attempt a struck lever or file a ninth identical null-research entry with no code change,
+this run took the concrete, well-evidenced internal gap PLAYBOOK.md and `prove.py` already
+point at but `candidates.py` never implemented: **container (הכלה / "X בתוך Y") candidate
+generation.** PLAYBOOK.md §1.4 measures container at ~10-12% of this setter's clues — the
+SECOND most common mechanism after plain charade, ahead of reversal (7%) and homophone
+(4%), both of which already have dedicated generators — and `prove.py` has carried a
+verifier for it (`is_container`, with its own worked example, labeled "11a" in its
+selftest) since the proof gate was built, with nothing in `candidates.py` ever generating a
+candidate for that verifier to check. This is not literature-sourced (the research passes
+above found nothing new to build on, as usual), but it is the queue's own item 1 (candidate
+generation, the measured bottleneck) and matches the task's framing of generating diverse
+candidates "by mechanism" — a genuinely new mechanism, not a re-run of a struck one. See
+DAILY.md for the implementation, the controlled measurement, and the honest (negative, on
+this one puzzle) result.
+
 ## 2026-08-30
 
 Bootstrap hit the same hard 14across wall as 2026-08-19/08-26/08-27/08-28 (4 consecutive
