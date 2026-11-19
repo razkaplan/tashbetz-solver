@@ -21,9 +21,35 @@ tree - a stale CLI deploy overwrote the live site on 2026-08-29. See CLAUDE.md.
 | **Definition-span locatable rate (new, offline, diagnostic)** | **25% (7/28)** have mechanically-locatable single-window wordplay; of those 29% (2/7) are interior, not edge; classifier agreement on edge cases **1/5** | not a target — this diagnostic KILLED the lever, see log |
 | **`solve_pass.py` LIVE blind trial — cumulative (3 trials)** | **40% precision (2/5 committed)**: 2026-08-16 was 1/2 on a partial 21/28-clue puzzle (2026-06-12); 2026-08-22 was **0/2**, 7.1% coverage, on a FULL 28/28-clue puzzle (2026-05-15); **2026-08-27 is 1/1 = 100% precision but 5.3% coverage (1/19), 0% suggestion hit-rate (0/10)**, on 2026-07-10 (19/28 clues) — FIRST trial run with `retrieval_candidates` live (wired 2026-08-25, never live-trialed since); it contributed ZERO candidates all puzzle (grepped the transcript for `(retrieval, fodder=` hits — none), matching today's own offline recall@N finding on this same puzzle (0/19 with or without retrieval); the one correct commit came from `wiki.py` culture-fact lookup, not from any candidate generator | n=5 — still small; retrieval's live debut is a null result on this puzzle, not a regression, but not the coverage lift the queue hoped for either; see log |
 | **Candidate recall@N with `culture_category_candidates` added (new, offline, definition-driven)** | **0% (0/28)**, on 2026-06-19 — mechanism fired on only 1/28 clues (avg candidates/clue 10.5 → 11.4); its one firing (339 raw candidates, an "author" category hit) matched 0 gold | not yet a target — small-n diagnostic, see log |
+| **Candidate recall@N with `container_candidates` added (new, offline, substitution-fed insertion device)** | **0/28, UNCHANGED** from the 3.6% (1/28) mechanical baseline on 2026-05-29 — fired on only 2/28 clues, both misses (noise). Root-caused, not just measured: this puzzle's own motivating case (clue 11, `prove.py`'s own worked example, 11A) is double-blocked — `קרתנימ` is absent from the lexicon entirely (not an hspell word, never in the corpus outside this held-out puzzle) AND its needed substitution (`טורף`~`תן`) exists only in this exact clue's own (correctly excluded) explanation. See log — this is at least the 11th independent `container_candidates` implementation across this project's history (per the PR backlog, below), the first confirmed to add a genuinely new ingredient (substitution-fed, not literal-only) rather than reproducing the same search, and it still lands flat | not yet a target — diagnostic; see "PR backlog" note below |
+
+**⚠ PR BACKLOG — READ BEFORE TRUSTING ANYTHING ABOVE.** This table and the Log below are
+read from `main`, but `main` has not received a solver-related merge since well before
+2026-08-31: **87 open PRs** sit unmerged against it as of 2026-11-19, dated 2026-08-31
+through 2026-11-18 (one per day, with no gaps) — meaning roughly 80 days of daily-agent
+work exist ONLY in unmerged branches and is invisible to this file. Reading recent PR
+titles directly (not trusting this stale file) shows: `container_candidates` was
+independently reimplemented in at least PRs #42, #46, #55-57, #67, #72, #75, #77, #79,
+#87, #92, #104, #107, #110, #124, #125 (16 attempts, nearly all titled "measured
+negative/flat/null"); multiple backlog-consolidation PRs (#46, #54, #56, #62, #71, #73,
+#82, #89, #103, #108, #111, #115, #117) tried to fix this and none stuck, because each
+day's agent is instructed to branch fresh off `main`, so yesterday's consolidation never
+reaches today's agent either. **This is a process failure, not a solver failure**: the
+owner needs to either merge the backlog (or at minimum the latest consolidation PR) or
+change the daily process so branches stack on each other. See this run's PR body and the
+2026-11-19 log entry for specifics. Everything else in this table reflects `main`'s real
+state honestly; it is simply a much smaller slice of total work done than it looks.
 
 Baseline for comparison: v2 = 41% raw with untraceable errors.
-Last lever added (2026-08-30): **closed 2026-08-29's own "NOT DONE" gap: re-measured
+Last lever added (2026-11-19): **`container_candidates`, a substitution-fed implementation
+of the insertion/container device (PLAYBOOK.md 1.4), measured 0/28 on 2026-05-29 — flat,
+same as every one of the ~15 prior independent attempts named in the PR-backlog note
+above, but this is the first version to add a genuinely new ingredient (mined
+substitution fragments, not just literal clue-text windows) and the first to pin down
+*why* it can't even reach its own motivating example. Full writeup in the 2026-11-19 log
+entry below, including the PR-backlog audit and a bootstrap re-run (52/52 puzzles, clean).**
+
+Previous lever (2026-08-30): **closed 2026-08-29's own "NOT DONE" gap: re-measured
 `retrieval_candidates` on 2026-06-26 — the puzzle 2026-08-28/08-29 both flagged as still
 needing a bigger corpus and no run had finished re-transcribing — this time FULLY (28/28
 clues, not the 18/28 partial 2026-08-26 left) and against a corpus grown far past any
@@ -518,6 +544,21 @@ propagated), `blank`. Score with `python3 evals/run_eval.py <file>`.
    leak-adjacent vector — it named 2 of today's 4 gold answers in a prior entry, before
    this run's required reading. Worth a future lever (redact specific answer strings from
    log prose, or split required-reading history from an answer-bearing appendix).
+   1(e) **container_candidates, the insertion/container device (PLAYBOOK.md 1.4), ADDED
+   2026-11-19**: per the PR backlog (see state table above), this exact mechanism was
+   independently attempted 15+ times already across unmerged branches, always flat —
+   this run's version is the first to feed OUTER/INNER fragments through the mined
+   substitution table (`sub_fwd()`) as well as literal clue text, on the theory that a
+   literal-only search structurally can't reach devices where (per PLAYBOOK.md's own
+   examples) one side is a synonym, not clue text. MEASURED STILL 0/28 on 2026-05-29 —
+   fired on 2/28 clues, 0 hits. Root-caused precisely: clue 11 (`prove.py`'s own worked
+   example, `is_container('קרים','תן','קרתנימ')`) is unreachable by ANY candidate
+   generator here, because `קרתנימ` is not in the lexicon at all (not hspell, not the
+   corpus outside this held-out puzzle) and `טורף`~`תן` only exists in this clue's own
+   (correctly excluded) explanation. Next step if revisited: this is now a LEXICON GAP
+   finding, not a generation-mechanism finding — the fix (if any) is growing/checking
+   lexicon coverage for this device's typical target words, not another candidates.py
+   rewrite. See log.
 2. ~~Definition-span detection~~ — TRIED 2026-08-19, NEGATIVE. See log and "already
    tried" below. Do not re-attempt without a fundamentally different signal (not
    indicator-word density).
@@ -539,6 +580,19 @@ propagated), `blank`. Score with `python3 evals/run_eval.py <file>`.
    log merge, no content dropped) rather than re-deriving any of the three days' work. Only
    the project owner can merge PRs; this run's branch is offered as the single PR that
    supersedes #23/#25/#26 so they can close those three instead of merging four times.
+   **RECURRED AGAIN, MUCH WORSE, by 2026-11-19: 87 open PRs**, one per day, 2026-08-31
+   through 2026-11-18, with zero merges in between. At least 13 of those PRs (#46, #54,
+   #56, #62, #71, #73, #82, #89, #103, #108, #111, #115, #117) were themselves attempts
+   to consolidate the backlog, and every one failed to stick for the exact structural
+   reason this item already named in 2026-08-25: each day's agent is told to branch off
+   `main`, `main` never moves, so a consolidation branch is just one more unmerged PR
+   next to all the others. **This is no longer fixable by another daily agent's PR** —
+   seen directly by reading PR titles rather than trusting this file (which, being on
+   `main`, is ~80 days stale on solver matters): the fix has to be either the owner
+   merging something, or the process itself changing (e.g. each day's agent branching
+   off the latest open PR instead of `main`, or scheduling the daily routine less often
+   than a human can realistically review). Flagging for the owner in this run's PR
+   rather than attempting a 14th consolidation.
 7. ~~Fix `lexicon.held_out_answers()`'s coverage gap~~ — FIXED 2026-08-21 (PR #23),
    confirmed byte-identical in PR #25's cherry-pick, both folded into this branch
    2026-08-25. It only blocked an answer when its clue had a row in
@@ -2427,3 +2481,146 @@ Measure each lever on dev (fixed enums) with run_eval.py before/after; one lever
   "כולם חפצים מהבית" theme (an אוטובוס was due to appear on 09-08).
   Gates: ui_smoke 9/9 pages at both widths, topicgen_eval 52/52 boards,
   url_guard clean (6,071 URLs, none dropped), nativ regression 22/22.
+
+- 2026-11-19: **PR backlog audit first, then `container_candidates` (queue item 1(e),
+  substitution-fed), measured flat, root-caused.** `main`'s solver-related content (this
+  file included) had not moved since roughly 2026-08-30; `list_pull_requests` showed 87
+  open PRs, one per day 2026-08-31 through 2026-11-18, zero merged. Read the full title
+  list before doing anything else (see the state table's PR-backlog note above for the
+  specifics): `container_candidates` alone had been independently reimplemented at least
+  15 times (PRs #42, #46, #55-57, #67, #72, #75, #77, #79, #87, #92, #104, #107, #110,
+  #124, #125), almost every one titled "measured negative/flat/null"; 13 separate PRs
+  tried to consolidate the backlog and none stuck, because each day's agent (per its own
+  instructions, same as mine) branches fresh off `main`, which never actually receives a
+  merge. **This is a process failure the project owner needs to act on directly** — no
+  amount of careful daily work lands if nothing is ever merged. Read `main`'s actual
+  `solver/candidates.py` directly (not any branch) to confirm what's really there: none
+  of the 15 container_candidates attempts, none of the gematria/double-definition/
+  segment/abbreviation/homophone mechanisms mentioned in PR titles, none of
+  `constraint_solve.py` — `main` only has the mechanisms this file's own log already
+  documents through 2026-08-30 (anagram/hidden/reversal/substitution/homograph/
+  culture_category/retrieval). Did not attempt a 14th consolidation PR (would just be
+  open PR #88) — flagged for the owner in this run's PR instead.
+
+  BOOTSTRAP: `./bootstrap.sh --dev-only` succeeded fully — **52/52 puzzles, 1,457
+  clues, 0 empty answers** (14across worked cleanly all the way through today, no bot
+  wall). hspell: 129,574 words. culture.json: 24 entity categories (song 6,417, artist
+  2,335, athlete 1,551, author 1,670, actor 973, politician 968, ...). Reverted the
+  regressed `solver/lex/substitutions.json` rebuild (528 vs committed 2,220 head words)
+  via `git checkout` per the standing warning, as every prior run has had to.
+
+  RESEARCH (full entries in RESEARCH.md): general search for 2026 work on cryptic
+  candidate generation and Hebrew span-boundary/definition-location NLP surfaced only
+  the same paper family already logged repeatedly since 2026-08-06 (2506.04824's
+  candidate-then-verify pipeline, SweepClip, "what makes cryptic crosswords challenging
+  for LLMs"), plus one new-to-this-project citation (HeQ, arXiv 2508.01812, Hebrew QA
+  span-boundary annotation) that names Hebrew affixation as a source of span-boundary
+  disagreement but gives no method to build on — consistent with, not a reversal of, the
+  standing "no literature lever this cycle" read from ~10 prior passes. No change to the
+  research queue.
+
+  TRANSCRIPTION: the canonical dev puzzle, 2026-05-29, independently re-transcribed a
+  FOURTH time (after 2026-08-06/08-25/08-28) from `data/images/2026-05-28.jpg`, this time
+  with REAL 14across gold answers available directly (`data/answers/by_date/2026-05-29.json`,
+  since bootstrap's 14across scrape worked cleanly this run — no image-fallback solution-
+  grid needed). All 28 clues (15 across, 13 down) transcribed and checked two independent
+  ways before any measurement: (1) `grid_tools.validate()` against `data/grids/2026-05-29.json`
+  — pure geometry, no gold data touched — **0 problems** (computed numbering matches every
+  printed clue number, every slot length matches the printed enum sum); (2) every enum sum
+  cross-checked against the REAL answer length from the 14across data — **0/28 mismatches**.
+  One genuinely ambiguous transcription resolved by this cross-check rather than guessed:
+  clue 13's text ("בני טוב") and its enum visually wrap across the newspaper's column
+  break exactly as DAILY.md's queue item 8 already documents for this puzzle — the gold
+  answer `ליסט` (4 letters) pinned the enum to (4), not the adjacent clue 15's text.
+  Reproduced the historical mechanical-only baseline EXACTLY: `candidates.py recall
+  data/dataset/clues.jsonl eval --no-culture --no-retrieval --no-container` =
+  **3.6% (1/28)**, identical to every prior independent transcription of this puzzle
+  (2026-08-06/08-25/08-28/08-30) — strong cross-check that today's fourth transcription is
+  correct. (Full defaults scored 3.6% too, not the 2026-08-30 figure of 14.3%: that number
+  depended on a grown `private_defs` corpus from `crawl_defs.py`, which is gitignored and
+  was not re-run this session — today's run did not touch the retrieval lever at all.)
+
+  BUILT `container_candidates()` in `solver/candidates.py` (+ `use_container` toggle in
+  `generate()`/`recall_eval()`/the CLI, matching `use_culture`/`use_retrieval`'s existing
+  pattern): the container/insertion device (PLAYBOOK.md 1.4, "X בתוך Y", ~10-12% of this
+  setter's clues; `prove.py`'s own worked example literally IS this puzzle's clue 11,
+  `is_container('קרים', 'תן', 'קרתנימ')`). Every one of the ~15 prior independent
+  attempts (per the PR backlog) searched OUTER/INNER purely among the clue's own literal
+  letters. This version additionally draws OUTER/INNER fragments from `sub_fwd()` (the
+  same held-out-safe, in-memory-rebuilt substitution table `substitution_candidates()`
+  already uses) — motivated directly by clue 11 itself: its clue text says `טורף`
+  (predator), not `תן`; `תן` only exists as `טורף`'s crowd-mined substitute. Bounded by
+  `max_pairs` (4,000) to avoid combinatorial blowup; OUTER/INNER must come from two
+  different clue words (no self-container), matching `prove.py`'s own insertion semantics
+  (interior split points only). Selftest (`python3 solver/candidates.py selftest`) adds
+  two synthetic checks independent of any puzzle's gold data: a literal two-word
+  container, and a second case where the inner fragment is reachable ONLY via an injected
+  substitution table, not literally present in the clue — both pass, confirming the new
+  code path actually fires, before trusting the real-corpus measurement.
+
+  MEASURED, controlled before/after (`python3 solver/candidates.py recall
+  data/dataset/clues.jsonl eval --no-culture --no-retrieval [--no-container]`):
+  mechanical baseline **3.6% (1/28)**; **+ container_candidates: still 3.6% (1/28),
+  UNCHANGED** — the mechanism fired on 2/28 clues (both noise, wrong real words that
+  happened to match a target length) and 0/28 hit gold. Isolated
+  (`container_candidates()` called directly, outside `generate()`): fired on 2/28, 0 hits,
+  confirming the flat result isn't masked by truncation from other mechanisms. Timing:
+  ~14s for the full 28-clue eval, not pathological.
+
+  ROOT-CAUSED, not just measured — checked directly whether the mechanism's own
+  motivating case (clue 11) was even reachable: `קרתנימ` is **absent from `lex()`
+  entirely** (not in hspell, not in `data/answers/answers_parsed.json` outside this
+  held-out puzzle itself), so no candidate generator gated by lexicon membership could
+  ever surface it, however correctly its wordplay is derived. Separately, `sub_fwd().get('טורף')`
+  returns `None` — the `טורף`~`תן` substitution this run's own code comment names as the
+  motivating gap exists ONLY in clue 11's own (correctly held-out-excluded) explanation,
+  so even with no lexicon gap it would not have been reachable from the rest of the
+  corpus either. Two independent blockers, both confirmed by direct lookup rather than
+  assumed. This reframes the finding: it is now evidence about LEXICON COVERAGE for this
+  device's typical target words, not (only) about candidate-generation mechanism design —
+  recorded as the concrete next step under queue item 1(e) rather than left as "yet
+  another flat container result."
+
+  AUDITED (mandatory gate). `lexicon.held_out_answers()`: all 28 of this puzzle's own
+  gold answers blocked (`gold_norm - blocked` empty, computed not assumed). Checked one
+  level deeper than the usual spot-check: 9 of the 28 gold answers (ערב, נשי, שלג,
+  אנזימימ, ברבר, יחפניות, סרבית, פנימאי, מגפ) ARE present in the final `lex()` dict
+  despite being in the BLOCK set — confirmed this is the documented, intentional
+  exception (RESULTS.md: "ordinary dictionary words that happen to be answers ... would
+  legitimately remain, as they would in any real solver's dictionary"), not a new leak:
+  `lexicon.load()` only checks BLOCK for the corpus-answers tier (priority 2), never for
+  the base hspell tier (priority 1, unconditional) — these 9 are common words (evening,
+  feminine, snow, enzymes, barber, barefoot-women, Serbian, interior, boot) that would be
+  in any Hebrew dictionary regardless of this puzzle. `sub_fwd()` re-checked directly for
+  this puzzle's own explanation leaking in: `fwd.get(norm('טורף'))` is `None`, confirming
+  clue 11's own substitution did NOT enter the held-out-filtered table. No forbidden
+  reads: only `data/images/2026-05-28.jpg` (this puzzle's own sanctioned dev image) and
+  the already-bootstrapped `data/answers/by_date/2026-05-29.json` (legitimate per the
+  BUILD step, not a solving-time read) were touched; no 14across queries beyond
+  bootstrap's own script, no solution-site access. No jump to explain — 3.6% stayed
+  3.6%, the opposite of an implausible result. All 5 affected selftests (`candidates.py`,
+  `retrieve_defs.py`, `lexicon.py`, `prove.py`, `substitutions.py`) re-run clean
+  (`prove.py`'s selftest deliberately prints two "FAIL" lines as part of its own suite —
+  demonstrating the proof gate correctly REJECTING a bad word-order claim and an invented
+  synonym — both by design, not real failures; exit code 0).
+
+  HONEST READ: a well-powered negative result, not a wasted run. This is at minimum the
+  16th independent measurement of `container_candidates`-shaped generation across this
+  project's history and the first to change WHAT is searched (substitution-fed, not
+  literal-only) rather than just how it's coded — and it still lands at exactly the same
+  flat result the ~15 literal-only attempts found. Combined with the lexicon-gap root
+  cause above, the honest conclusion is that this device's remaining gap on this setter
+  is less "the search is too narrow" and more "the target vocabulary (provincial/archaic/
+  coined words that container wordplay tends to produce) isn't in the lexicon at all" —
+  a different, more specific problem than the queue item currently names, and arguably a
+  better use of a future lever than reimplementing this mechanism a 17th time.
+
+  NOT DONE, honestly: did not re-run `crawl_defs.py` (private_defs corpus growth) —
+  today's lever was deliberately scoped to the mechanical/substitution side, not
+  retrieval; did not attempt to grow lexicon coverage for container-typical words (the
+  concrete next step this run's own root-cause analysis points to) — that is a new,
+  different lever, not today's one; did not attempt a 14th PR-backlog consolidation
+  (see above — judged not worth doing again given the structural reason the prior 13
+  didn't stick); did not merge or otherwise act on any of the 87 open PRs (only the
+  project owner can); did not act on queue items 8 (remaining unverified transcription-
+  legitimacy dates) or 9 (definition-fit) this run.
