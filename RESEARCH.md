@@ -910,3 +910,57 @@ priority 2. Wiring in an already-built, already-audited tool as one more candida
 is not itself a research question — it is closing a gap between what the project's own
 research queue prioritized in 2026-08-08 and what got implemented, which is worth doing
 regardless of whether today's literature sweep turned up anything new.
+
+## 2026-11-19
+
+Before any literature search: discovered `main` has not received a solver-related merge
+since roughly 2026-08-30 (87 open PRs, 2026-08-31 through 2026-11-18, none merged — see
+DAILY.md's state table and today's log entry for the full audit). This means every
+research entry below this file's own 2026-08-25 entry, if any exist in those unmerged
+branches, is invisible here; this entry is written against what `main` actually has, not
+against an assumed continuous research history.
+
+**General search: "cryptic crossword solving LLM wordplay candidate generation 2026".**
+Surfaced only the same paper family logged repeatedly since 2026-08-06: Andrews &
+Witteveen's candidate-then-verify pipeline (arXiv 2506.04824 — a fine-tuned Gemma2 9B
+proposes ~20 candidates per clue matched to the letter pattern, a second model proposes
+definition+wordplay, a third translates wordplay to Python assertions a verifier checks;
+authors report the system is bounded by candidate-generation quality, not verification —
+consistent with this project's own standing diagnosis); "Language Models are Crossword
+Solvers" (2407.08824, SweepClip, 93.1% on NYT-style puzzles — still a non-cryptic/English
+benchmark, does not transfer directly); "What Makes Cryptic Crosswords Challenging for
+LLMs?" (diagnostic study, finds sub-task decomposition helps — already reflected in this
+project's own mechanism-by-mechanism candidate generation design). **Transfer: none new.**
+
+**General search: "Hebrew morphology NLP crossword definition span detection".** No
+Hebrew-specific crossword work exists (expected, repeatedly confirmed). One new-to-this-
+project citation: **HeQ** (arXiv 2508.01812, a large Hebrew QA span-extraction benchmark,
+August 2025) — names Hebrew affixation (prepositions/particles glued onto words) as a
+direct cause of span-boundary annotation disagreement in Hebrew QA, and notes current
+span-match metrics penalize minor boundary deviations harshly. **Transfer: narrow but
+real, and directly relevant to how clue text is TOKENIZED, not just to definition-span
+location** — this run's own `container_candidates` work independently hit exactly this
+problem mechanically: clue words carry glued prefixes (ב/ל/מ/ש/ו/ה/כ) that must be
+stripped before a literal fragment is usable (handled here via `_destem()`, which
+`homograph_candidates` already had and `container_candidates` now reuses). HeQ doesn't
+give a new ALGORITHM — it's a benchmark/diagnosis paper, not a method — but it is
+independent confirmation that affix-stripping-before-fragment-matching is the right
+move, not a project-specific workaround. No action beyond what `_destem()` already does.
+Still no portable DEFINITION-SPAN LOCATION method exists in the literature for this
+setter's clue style — consistent with every prior pass since 2026-08-06.
+
+**Queue item 9 (definition-fit scoring) — not re-checked in depth this run.** Given the
+PR backlog shows at least 3 independent attempts already exist in unmerged branches
+(`deffit.py` ×2, `embed_fit.py` with AlephBERT, all titled "measured negative" or
+"measured redundant"), and this run's one-lever budget went to `container_candidates`
+instead, a fresh literature pass on item 9 was skipped rather than padded. Flagging the
+gap honestly rather than re-running the same search a config pass found nothing new in on
+2026-08-22/23/24/25.
+
+**Conclusion, and the lever this run actually built.** No paper or resource found this
+cycle changes the standing diagnosis (candidate generation, not verification or ranking,
+is the bottleneck on this setter). Given that, and given the PR backlog shows
+`container_candidates` has been attempted ~15 times already, always literal-only, this
+run's contribution is a genuinely different SHAPE of that same lever (substitution-fed
+fragments, motivated directly by `prove.py`'s own worked example) rather than new
+literature — see DAILY.md for the measured result and root cause.

@@ -230,6 +230,84 @@ def substitution_candidates(clue_text, target_len, table=None):
     return out
 
 
+def _literal_fragments(w):
+    """A clue word's own letters, plus its de-affixed stem (reuses homograph_candidates'
+    _destem, defined below but hoisted in spirit -- see the module-level HOMO_* tables).
+    The container device's OUTER/INNER pieces are as often a literal clue word (stripped
+    of a glued-on prefix/suffix) as a mined substitute."""
+    return {norm(w)} | {norm(s) for s in _destem(norm(w))}
+
+
+def container_candidates(clue_text, target_len, table=None, max_pairs=4000):
+    """The container/insertion device (PLAYBOOK.md 1.4, 'X בתוך Y', ~10-12% of this
+    setter's clues; prove.py's own worked example IS this project's canonical dev
+    puzzle's clue 11: is_container('קרים', 'תן', 'קרתנימ')). An OUTER fragment is split
+    open and an INNER fragment dropped inside it: קרים + תן -> ק-תן-רים = קרתנים.
+
+    Every prior attempt at this exact mechanism in this project's history (DAILY.md
+    queue item 1(e) log: container_candidates has been independently reimplemented well
+    over ten times across many daily runs, every one measured flat or negative) searched
+    OUTER/INNER purely among the clue's own literal letters. The worked example above
+    shows why that structurally can't work on this setter: clue 11's own word is טורף
+    (predator), not תן -- תן only exists as טורף's crowd-mined SUBSTITUTE
+    (SOLVE_PROTOCOL.md 'Substitutions'). So this version adds substitution-mapped
+    fragments (sub_fwd(), the same held-out-safe, in-memory-rebuilt table
+    substitution_candidates() already uses) to the OUTER/INNER pool alongside literal
+    clue-word fragments, instead of reimplementing the same literal-only search an
+    eleventh time. See DAILY.md for whether this closes the gap or just moves it.
+
+    OUTER and INNER must come from two DIFFERENT clue words (no self-container) and sum
+    exactly to target_len; every interior split point of OUTER is tried (matching
+    prove.py's is_container: the ends don't count as 'inside'). `max_pairs` bounds the
+    search -- a clue with many substitution hits could otherwise blow up combinatorially.
+    `table` is injectable (tests / callers) instead of always hitting sub_fwd()."""
+    fwd = table if table is not None else sub_fwd()
+    words = lex()
+    ws = words_of(clue_text)
+    if len(ws) < 2:
+        return []
+
+    def subs_of(w):
+        return [norm(b) for b, _n in fwd.get(norm(w), [])]
+
+    frags = []  # (text, source_word_index, 'literal'|'substitution')
+    for idx, w in enumerate(ws):
+        lits = _literal_fragments(w)
+        for lit in lits:
+            if 1 <= len(lit) < target_len:
+                frags.append((lit, idx, 'literal'))
+        for stem in lits:
+            for b in subs_of(stem):
+                if 1 <= len(b) < target_len:
+                    frags.append((b, idx, 'substitution'))
+
+    out, seen, tried = [], set(), 0
+    for outer_text, outer_idx, outer_src in frags:
+        if len(outer_text) < 2:
+            continue
+        for inner_text, inner_idx, inner_src in frags:
+            if outer_idx == inner_idx:
+                continue
+            if len(outer_text) + len(inner_text) != target_len:
+                continue
+            tried += 1
+            if tried > max_pairs:
+                return out
+            for k in range(1, len(outer_text)):
+                cand = outer_text[:k] + inner_text + outer_text[k:]
+                if cand not in words:
+                    continue
+                key = (cand, outer_text, inner_text)
+                if key in seen:
+                    continue
+                seen.add(key)
+                tag = 'container' if outer_src == 'literal' and inner_src == 'literal' \
+                    else 'container+sub'
+                out.append({'answer': cand, 'mechanism': tag,
+                            'fodder': f'{outer_text}+{inner_text}'})
+    return out
+
+
 _AMBIG = None
 
 
@@ -459,7 +537,8 @@ def split_candidates(cands, enum):
     return out
 
 
-def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retrieval=True):
+def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retrieval=True,
+             use_container=True):
     """Diverse candidates for one clue. Never consults the answer.
 
     Mechanism order here is a PRIORITY order, not just an accumulation order: dedup +
@@ -477,13 +556,17 @@ def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retr
     docstrings) — placed in the same early tier as homograph/substitution: culture_category
     fires rarely and each hit is a real named entity; retrieval is capped at its own topk
     (25 by default) and ranked, not an unbounded window scan, so it does not need to wait
-    behind the cheap mechanisms either. `use_culture`/`use_retrieval` are plain on/off
+    behind the cheap mechanisms either. container_candidates sits in the same early tier
+    as substitution — it draws on the same sub_fwd() table, bounded by max_pairs, not a
+    character-window scan. `use_culture`/`use_retrieval`/`use_container` are plain on/off
     switches so a controlled before/after recall measurement doesn't need extra copies of
     this function."""
     target_len = sum(enum)
     cands = []
     cands += homograph_candidates(clue_text, target_len)
     cands += substitution_candidates(clue_text, target_len)
+    if use_container:
+        cands += container_candidates(clue_text, target_len)
     if use_culture:
         cands += culture_category_candidates(clue_text, target_len)
     if use_retrieval:
@@ -511,7 +594,8 @@ def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retr
 # isolation, BEFORE it is wired into a live solve+proof loop (which is a
 # separate integration step, not done by this lever).
 # ---------------------------------------------------------------------------
-def recall_eval(dataset_path, split=None, max_n=25, use_culture=True, use_retrieval=True):
+def recall_eval(dataset_path, split=None, max_n=25, use_culture=True, use_retrieval=True,
+                 use_container=True):
     total = 0
     hit = 0
     by_mech = Counter()
@@ -525,7 +609,7 @@ def recall_eval(dataset_path, split=None, max_n=25, use_culture=True, use_retrie
             continue
         total += 1
         cands = generate(r['clue_text'], r['enum'], max_n=max_n, use_culture=use_culture,
-                          use_retrieval=use_retrieval)
+                          use_retrieval=use_retrieval, use_container=use_container)
         sizes.append(len(cands))
         gold = norm(r['answer_raw'])
         found = [c for c in cands if c['answer'] == gold]
@@ -656,6 +740,27 @@ def selftest():
           f'not here): {len(off) >= 1} (expected True)')
     ok &= len(off) >= 1
 
+    print('--- container device: two LITERAL clue words, one inserted into the other ---')
+    # שם(name,2) with לו(to-him,2) dropped inside it at the one interior split point ->
+    # שלום(4), a real lexicon word. Both fragments are the clue's own words, no table.
+    hits = container_candidates('שם טוב לו תמיד', 4)
+    found = any(h['answer'] == norm('שלום') and h['mechanism'] == 'container' for h in hits)
+    print(f'  found שלום as קר(שם)+inserted(לו), tagged plain container: {found} '
+          f'(expected True)')
+    ok &= found
+
+    print('--- container device: INNER reached only via a mined substitute, not literally'
+          ' in the clue (the gap literal-only container search cannot cross) ---')
+    # same שם+???=שלום target, but the clue never says לו -- it says אצלה, whose mined
+    # substitute (injected table, independent of the live corpus) IS לו.
+    sub_table3 = {norm('אצלה'): [(norm('לו'), 2)]}
+    hits = container_candidates('שם טוב תמיד אצלה', 4, table=sub_table3)
+    found = any(h['answer'] == norm('שלום') and h['mechanism'] == 'container+sub'
+                for h in hits)
+    print(f'  found שלום via a substitution-fed inner fragment, tagged container+sub: '
+          f'{found} (expected True)')
+    ok &= found
+
     print('--- split_candidates: flags whether a multi-part answer is two real words ---')
     split = split_candidates([{'answer': norm('שלוםעליכם'), 'mechanism': 'test'}], [4, 5])
     print(f'  split result: {split[0]["split"]} (expected two real words, not None)')
@@ -681,14 +786,17 @@ def main():
         rest = sys.argv[2:]
         use_culture = '--no-culture' not in rest
         use_retrieval = '--no-retrieval' not in rest
-        rest = [a for a in rest if a not in ('--no-culture', '--no-retrieval')]
+        use_container = '--no-container' not in rest
+        rest = [a for a in rest if a not in ('--no-culture', '--no-retrieval', '--no-container')]
         path = rest[0] if len(rest) > 0 else 'data/dataset/clues.jsonl'
         split = rest[1] if len(rest) > 1 else None
         os.chdir(ROOT)
-        res = recall_eval(path, split, use_culture=use_culture, use_retrieval=use_retrieval)
+        res = recall_eval(path, split, use_culture=use_culture, use_retrieval=use_retrieval,
+                           use_container=use_container)
         print(f"recall@N: {res['hit']}/{res['total']} = {res['recall']:.1%}  "
               f"(avg {res['avg_candidates']:.1f} candidates/clue, "
-              f"use_culture={use_culture}, use_retrieval={use_retrieval})")
+              f"use_culture={use_culture}, use_retrieval={use_retrieval}, "
+              f"use_container={use_container})")
         print('hits by mechanism:', res['by_mechanism'])
         if res['misses']:
             print(f"\n{len(res['misses'])} misses (clue_number, direction, gold):")
