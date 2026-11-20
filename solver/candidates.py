@@ -24,8 +24,43 @@ This module does exactly that, per clue, with no LLM involved:
                           sense (lex/ambiguities.json) that matches the enum length, so it
                           IS the answer undisguised. Cannot invent an answer that isn't
                           already a literal clue substring.
+  - gematria_candidates:  PLAYBOOK.md's "digits -> gematria letter pairs" device (and the
+                          mirror-image "number word -> letters" case): a number NAMED in
+                          the clue (a digit run, a spelled-out count, or a fixed idiom like
+                          'ל"ו צדיקים' = 36) stands for its standard Hebrew-numeral letter
+                          spelling (int_to_gematria — 15/16 use ט"ו/ט"ז, not the literal
+                          10+5/10+6, by the same centuries-old convention the crowd
+                          explanations use). Two shapes, mirroring substitution_candidates:
+                          the spelling alone covers the full length, or it concatenates
+                          with an ADJACENT clue word's mined substitute. A device PLAYBOOK.md
+                          documents but no prior candidates.py mechanism implemented.
+  - container_candidates: the setter's insertion device (SOLVE_PROTOCOL.md 'container: X
+                          בתוך Y phrasing'; prove.py's own worked example, is_container('קרים',
+                          'תן', 'קרתנימ'), IS clue 11 across of the 2026-05-29 dev puzzle) --
+                          never had a candidate generator despite being a named device with
+                          its own proof primitive and its own indicator list
+                          (solver/indicators.json's 'container' key, unused by any generator
+                          until now). Two clue-derived fragments (a clue word, its de-prefixed
+                          stem, or a mined substitution of it -- the SAME three fragment
+                          sources homograph_candidates/substitution_candidates already use) are
+                          tried as OUTER/INNER: every strictly-interior split point of the
+                          outer fragment is tried with the inner fragment spliced in, and a
+                          hit is kept only if the result is a real lexicon word of the exact
+                          enum length. Mirrors is_container's own definition (insertion point
+                          in range(1, len(outer)), i.e. never prepend/append -- that is plain
+                          concatenation, not a container, and already anagram/hidden territory).
   - pattern_candidates:  wraps lexicon.py's crossing-pattern lookup, for when grid
                           letters are already known.
+  - double_definition_candidates: the double-definition device (SOLVE_PROTOCOL.md's method
+                          list, step 2: "one word answering both halves of the clue") --
+                          like container before 2026-11-03, this had a named device, a
+                          worked-example mention in the protocol, and NO generator at all.
+                          Splits the clue's words into every left/right partition and
+                          proposes a lexicon word of the exact length if it is a mined
+                          substitute (sub_fwd(), the same equivalence table
+                          substitution_candidates/container_candidates already use) of some
+                          word in BOTH halves -- two independent crowd-explanation sightings,
+                          one from each half of THIS clue, converging on the same answer.
   - culture_category_candidates: a DEFINITION-hypothesis mechanism, not a wordplay one —
                           see its own docstring. Every mechanism above derives an answer
                           from the clue's LETTERS; this derives one from the clue's MEANING
@@ -56,6 +91,7 @@ CLI:
   python3 solver/candidates.py recall data/dataset/clues.jsonl eval   # offline recall@N
   python3 solver/candidates.py recall data/dataset/clues.jsonl eval --no-culture  # ablation
   python3 solver/candidates.py recall data/dataset/clues.jsonl eval --no-retrieval  # ablation
+  python3 solver/candidates.py recall data/dataset/clues.jsonl eval --no-gematria  # ablation
   python3 solver/candidates.py selftest
 """
 import sys, os, re, json
@@ -230,6 +266,112 @@ def substitution_candidates(clue_text, target_len, table=None):
     return out
 
 
+# Standard Hebrew numeral letter values, descending, for greedy decomposition.
+# 500-900 fall out of the same greedy pass as repeated ת (ת+ק=500, ת+ת+ק=900, ...);
+# no separate table entry is needed for them.
+_GEMATRIA_TABLE = [
+    (400, 'ת'), (300, 'ש'), (200, 'ר'), (100, 'ק'),
+    (90, 'צ'), (80, 'פ'), (70, 'ע'), (60, 'ס'), (50, 'נ'), (40, 'מ'),
+    (30, 'ל'), (20, 'כ'), (10, 'י'), (9, 'ט'), (8, 'ח'), (7, 'ז'),
+    (6, 'ו'), (5, 'ה'), (4, 'ד'), (3, 'ג'), (2, 'ב'), (1, 'א'),
+]
+
+# Spelled-out counts a clue might name. Not exhaustive (hundreds beyond a round 100/200
+# are vanishingly rare in a clue's surface text); covers 1-19, the round tens, and the
+# two round hundreds worth a dedicated word.
+NUMBER_WORDS = {
+    'אחד': 1, 'אחת': 1, 'שניים': 2, 'שתיים': 2, 'שני': 2, 'שתי': 2,
+    'שלושה': 3, 'שלוש': 3, 'ארבעה': 4, 'ארבע': 4, 'חמישה': 5, 'חמש': 5,
+    'שישה': 6, 'שש': 6, 'שבעה': 7, 'שבע': 7, 'שמונה': 8, 'תשעה': 9, 'תשע': 9,
+    'עשרה': 10, 'עשר': 10,
+    'אחד עשר': 11, 'אחת עשרה': 11, 'שנים עשר': 12, 'שתים עשרה': 12,
+    'שלושה עשר': 13, 'שלוש עשרה': 13, 'ארבעה עשר': 14, 'ארבע עשרה': 14,
+    'חמישה עשר': 15, 'חמש עשרה': 15, 'שישה עשר': 16, 'שש עשרה': 16,
+    'שבעה עשר': 17, 'שבע עשרה': 17, 'שמונה עשר': 18, 'שמונה עשרה': 18,
+    'תשעה עשר': 19, 'תשע עשרה': 19,
+    'עשרים': 20, 'שלושים': 30, 'ארבעים': 40, 'חמישים': 50, 'שישים': 60,
+    'שבעים': 70, 'שמונים': 80, 'תשעים': 90, 'מאה': 100, 'מאתיים': 200,
+}
+
+# Fixed cultural gematria idioms (general Hebrew/Jewish knowledge, not mined from this
+# project's own puzzle corpus) — a clue naming the IDIOM is naming the number.
+GEMATRIA_IDIOMS = {'צדיק': 36, 'חי': 18}
+
+
+def int_to_gematria(n):
+    """Standard Hebrew numeral spelling, 1-999, greedy largest-value-first. 15/16 use
+    ט"ו/ט"ז (9+6, 9+7) rather than the letter-for-letter 10+5/10+6, which would spell
+    two letters of the Tetragrammaton — a centuries-old convention this genre's own
+    crowd explanations follow (PLAYBOOK.md C.3), not an edge case to special-case away."""
+    if not isinstance(n, int) or not (1 <= n <= 999):
+        return None
+    out, rem = [], n
+    for v, l in _GEMATRIA_TABLE:
+        if v == 10 and rem in (15, 16):
+            out.append('טו' if rem == 15 else 'טז')
+            rem = 0
+            continue
+        while rem >= v:
+            out.append(l)
+            rem -= v
+    return ''.join(out)
+
+
+def gematria_mentions(clue_text):
+    """Numbers named in a clue -> [(value, matched_phrase), ...]: digit runs, spelled-out
+    counts (NUMBER_WORDS, longest phrase first so a teen like 'חמישה עשר' is not shadowed
+    by matching its own first word 'חמישה'), and fixed idioms (GEMATRIA_IDIOMS)."""
+    text = strip_credit(clue_text)
+    out = []
+    for m in re.finditer(r'\d+', text):
+        v = int(m.group())
+        if 1 <= v <= 999:
+            out.append((v, m.group()))
+    for phrase in sorted(NUMBER_WORDS, key=len, reverse=True):
+        if re.search(r'(?<![א-ת])' + re.escape(phrase) + r'(?![א-ת])', text):
+            out.append((NUMBER_WORDS[phrase], phrase))
+    for phrase, v in GEMATRIA_IDIOMS.items():
+        for w in words_of(text):
+            nw = norm(w)
+            if nw.startswith(phrase) or any(nw.startswith(p + phrase) for p in HOMO_PREFIXES):
+                out.append((v, w))
+                break
+    return out
+
+
+def gematria_candidates(clue_text, target_len, table=None):
+    """A number NAMED in the clue stands for its Hebrew-numeral letter spelling. Two
+    shapes, mirroring substitution_candidates:
+      (a) the spelling alone covers the full target length;
+      (b) the spelling plus an ADJACENT clue word's mined substitute (sub_fwd(), held-out
+          safe) concatenate to the full length, in either order — a number-flavoured
+          charade. Adjacency keeps this precise instead of an open-ended part search.
+    `table` is injectable (tests / callers) instead of always hitting sub_fwd()."""
+    fwd = table if table is not None else sub_fwd()
+    words = lex()
+    ws = words_of(clue_text)
+    out = []
+    for value, phrase in gematria_mentions(clue_text):
+        letters = int_to_gematria(value)
+        if not letters:
+            continue
+        if len(letters) == target_len and letters in words:
+            out.append({'answer': letters, 'mechanism': 'gematria', 'fodder': phrase})
+        first_tok = norm(phrase.split()[0])
+        for i, w in enumerate(ws):
+            if norm(w) != first_tok:
+                continue
+            for j in (i - 1, i + 1):
+                if not (0 <= j < len(ws)):
+                    continue
+                for b, n in fwd.get(norm(ws[j]), []):
+                    for joined in (letters + b, b + letters):
+                        if len(joined) == target_len and joined in words:
+                            out.append({'answer': joined, 'mechanism': 'gematria',
+                                        'fodder': f'{phrase}+{ws[j]}'})
+    return out
+
+
 _AMBIG = None
 
 
@@ -276,6 +418,101 @@ def homograph_candidates(clue_text, target_len, idx=None):
         for stem in _destem(nw):
             if len(stem) == target_len and stem in table:
                 out.append({'answer': stem, 'mechanism': 'homograph', 'fodder': w})
+    return out
+
+
+def _container_fragments(clue_text, sub_table=None):
+    """Candidate OUTER/INNER fragments for container_candidates: each clue word itself,
+    its de-prefixed/de-suffixed stems (_destem, same table homograph_candidates uses --
+    a clue word almost always carries grammatical glue a bare fodder/fragment does not),
+    and its mined substitutions (sub_fwd(), the same equivalence table substitution_candidates
+    uses -- a container's inner piece is very often a SYNONYM standing for a clue word, not
+    the word's own letters; this project's own worked example needs exactly this: 'טורף'
+    (predator) supplies 'תן' (jackal) only via a mined substitution, never by letter reuse).
+    Returns {fragment: source_word} so a hit's fodder can name what produced it."""
+    fwd = sub_table if sub_table is not None else sub_fwd()
+    out = {}
+    for w in words_of(clue_text):
+        nw = norm(w)
+        for frag in _destem(nw) | {nw}:
+            out.setdefault(frag, w)
+        for b, _n in fwd.get(nw, []):
+            out.setdefault(b, w)
+    return out
+
+
+def container_candidates(clue_text, target_len, sub_table=None):
+    """The setter's insertion device (SOLVE_PROTOCOL.md 'container'): one clue fragment
+    (OUTER) is split at a strictly interior point and a second clue fragment (INNER) is
+    spliced in -- mirrors prove.py's is_container exactly (insertion point in
+    range(1, len(outer)), so this never degenerates into plain concatenation, which
+    anagram_candidates/hidden_candidates already cover). See module docstring for why this
+    was missing entirely until today despite having both a proof primitive and an unused
+    indicator list. `sub_table` is injectable (tests / callers), same discipline as every
+    other corpus-backed mechanism here."""
+    words = lex()
+    frags = _container_fragments(clue_text, sub_table)
+    out, seen = [], set()
+    items = list(frags.items())
+    for outer, outer_src in items:
+        lo = len(outer)
+        if lo < 2 or lo >= target_len:
+            continue
+        inner_len = target_len - lo
+        for inner, inner_src in items:
+            # A container combines TWO DIFFERENT clue elements; splitting one word's own
+            # stem/suffix back into itself is noise (and a different, unmodelled device --
+            # partial-word fodder -- not an insertion), so require distinct source words.
+            if inner == outer or inner_src == outer_src or len(inner) != inner_len:
+                continue
+            for k in range(1, lo):
+                cand = outer[:k] + inner + outer[k:]
+                if cand in words and cand not in seen:
+                    seen.add(cand)
+                    out.append({'answer': cand, 'mechanism': 'container',
+                                'fodder': f'{outer_src}(outer)+{inner_src}(inner)'})
+    return out
+
+
+def double_definition_candidates(clue_text, target_len, table=None):
+    """The double-definition device (SOLVE_PROTOCOL.md step 2: "one word answering both
+    halves of the clue") -- no wordplay manipulation at all, just two independent
+    definitions of the same answer sitting side by side in the clue surface. Like
+    container_candidates before 2026-11-03, this device has its own mention in the
+    protocol and never had a generator.
+
+    This project has no synonym/thesaurus resource to test "does this word mean that
+    phrase" directly (the standing diagnosis on queue item 9 -- see DAILY.md -- is that
+    none exists in a usable form). The only DEFINITIONAL equivalence table on hand is
+    sub_fwd(): clue-word -> answer-fragment pairs mined from OTHER clues' crowd
+    explanations elsewhere in the corpus. Operationalize a double definition as: split
+    the clue's words into every non-empty left/right partition, and propose a
+    length-`target_len` lexicon word if it is a mined substitute of some word in the LEFT
+    half AND, independently, of some (possibly different) word in the RIGHT half -- two
+    separate pieces of corpus evidence, one from each half of THIS clue, converging on
+    one answer. This is a bet, not a certainty: a single over-common substitute could
+    satisfy both halves by coincidence rather than because the setter intended a double
+    definition, which is exactly what MEASURED recall must check, not assume away.
+    `table` is injectable (tests / callers), same discipline as every other corpus-backed
+    mechanism here."""
+    fwd = table if table is not None else sub_fwd()
+    words = lex()
+    ws = words_of(clue_text)
+    if len(ws) < 2:
+        return []
+    subs_of = lambda w: {b for b, n in fwd.get(norm(w), [])}
+    out, seen = [], set()
+    for split in range(1, len(ws)):
+        left_subs, right_subs = set(), set()
+        for w in ws[:split]:
+            left_subs |= subs_of(w)
+        for w in ws[split:]:
+            right_subs |= subs_of(w)
+        for cand in left_subs & right_subs:
+            if len(cand) == target_len and cand in words and cand not in seen:
+                seen.add(cand)
+                out.append({'answer': cand, 'mechanism': 'double_definition',
+                            'fodder': f'{"".join(ws[:split])}|{"".join(ws[split:])}'})
     return out
 
 
@@ -459,7 +696,8 @@ def split_candidates(cands, enum):
     return out
 
 
-def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retrieval=True):
+def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retrieval=True,
+             use_gematria=True, use_container=True, use_doubledef=True):
     """Diverse candidates for one clue. Never consults the answer.
 
     Mechanism order here is a PRIORITY order, not just an accumulation order: dedup +
@@ -468,22 +706,29 @@ def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retr
     appended last, a character-level anagram/hidden window scan alone routinely produces
     40-50+ raw hits on a short target length (lots of short real words exist), crowding
     every substitution/homograph candidate for that clue out of the top max_n before the
-    proof gate — or a recall eval — ever sees them, even when they were found. Homograph
-    and substitution are comparatively RARE and higher-precision (a token already sitting
-    in the clue, or a mined equivalence, either fires or it doesn't — there's no
-    combinatorial window scan inflating their count), so they go first; the cheap,
-    high-volume window-scan mechanisms fill whatever budget is left. culture_category and
-    retrieval candidates are DEFINITION-driven rather than letter-driven (see their own
-    docstrings) — placed in the same early tier as homograph/substitution: culture_category
-    fires rarely and each hit is a real named entity; retrieval is capped at its own topk
-    (25 by default) and ranked, not an unbounded window scan, so it does not need to wait
-    behind the cheap mechanisms either. `use_culture`/`use_retrieval` are plain on/off
-    switches so a controlled before/after recall measurement doesn't need extra copies of
-    this function."""
+    proof gate — or a recall eval — ever sees them, even when they were found. Homograph,
+    substitution, container and gematria are comparatively RARE and higher-precision (a
+    token already sitting in the clue, a mined equivalence, an exact-length insertion hit,
+    or a number mention, either fires or it doesn't — there's no unbounded window scan
+    inflating their count), so they go first; the cheap, high-volume window-scan mechanisms
+    fill whatever budget is left. culture_category and retrieval candidates are
+    DEFINITION-driven rather than letter-driven (see their own docstrings) — placed in the
+    same early tier: culture_category fires rarely and each hit is a real named entity;
+    retrieval is capped at its own topk (25 by default) and ranked, not an unbounded window
+    scan, so it does not need to wait behind the cheap mechanisms either.
+    `use_culture`/`use_retrieval`/`use_gematria`/`use_container`/`use_doubledef` are plain
+    on/off switches so a controlled before/after recall measurement doesn't need extra
+    copies of this function."""
     target_len = sum(enum)
     cands = []
     cands += homograph_candidates(clue_text, target_len)
     cands += substitution_candidates(clue_text, target_len)
+    if use_gematria:
+        cands += gematria_candidates(clue_text, target_len)
+    if use_container:
+        cands += container_candidates(clue_text, target_len)
+    if use_doubledef:
+        cands += double_definition_candidates(clue_text, target_len)
     if use_culture:
         cands += culture_category_candidates(clue_text, target_len)
     if use_retrieval:
@@ -511,7 +756,8 @@ def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retr
 # isolation, BEFORE it is wired into a live solve+proof loop (which is a
 # separate integration step, not done by this lever).
 # ---------------------------------------------------------------------------
-def recall_eval(dataset_path, split=None, max_n=25, use_culture=True, use_retrieval=True):
+def recall_eval(dataset_path, split=None, max_n=25, use_culture=True, use_retrieval=True,
+                 use_gematria=True, use_container=True, use_doubledef=True):
     total = 0
     hit = 0
     by_mech = Counter()
@@ -525,7 +771,8 @@ def recall_eval(dataset_path, split=None, max_n=25, use_culture=True, use_retrie
             continue
         total += 1
         cands = generate(r['clue_text'], r['enum'], max_n=max_n, use_culture=use_culture,
-                          use_retrieval=use_retrieval)
+                          use_retrieval=use_retrieval, use_gematria=use_gematria,
+                          use_container=use_container, use_doubledef=use_doubledef)
         sizes.append(len(cands))
         gold = norm(r['answer_raw'])
         found = [c for c in cands if c['answer'] == gold]
@@ -599,6 +846,39 @@ def selftest():
     print(f'  found שלום as של+ום from two adjacent words: {found} (expected True)')
     ok &= found
 
+    print('--- gematria device: int_to_gematria matches the standard-spelling exceptions ---')
+    checks = {14: 'יד', 15: 'טו', 16: 'טז', 36: 'לו', 100: 'ק'}
+    gem_ok = all(int_to_gematria(n) == norm(s) for n, s in checks.items())
+    print(f'  {checks}: {gem_ok} (expected True; 15/16 use the ט"ו/ט"ז exception)')
+    ok &= gem_ok
+
+    print('--- gematria device: a digit named in the clue covers the full length alone ---')
+    # 14 -> יד ("hand"), a real two-letter word — a number and a word at once.
+    hits = gematria_candidates('יש לי 14 ספרים', 2)
+    found = any(h['answer'] == norm('יד') for h in hits)
+    print(f'  found יד (14) as a standalone gematria hit: {found} (expected True)')
+    ok &= found
+
+    print('--- gematria device: a spelled-out count + an ADJACENT word\'s substitute '
+          'concatenate ---')
+    # 'שלוש' (3) -> ג; injected table gives the next word a synthetic substitute 'וב';
+    # ג+וב = גוב, a real word (den/pit, as in גוב אריות).
+    gem_table = {norm('משהו'): [(norm('וב'), 3)]}
+    hits = gematria_candidates('הגיעו שלוש משהו', 3, table=gem_table)
+    found = any(h['answer'] == norm('גוב') for h in hits)
+    print(f'  found גוב as ג(3)+וב from an adjacent substitute: {found} (expected True)')
+    ok &= found
+
+    print('--- gematria device: use_gematria=False in generate() disables it ---')
+    with_g = generate('יש לי 14 ספרים', [2], use_culture=False, use_retrieval=False,
+                       use_gematria=True)
+    without_g = generate('יש לי 14 ספרים', [2], use_culture=False, use_retrieval=False,
+                          use_gematria=False)
+    toggled = any(c['mechanism'] == 'gematria' for c in with_g) and \
+        not any(c['mechanism'] == 'gematria' for c in without_g)
+    print(f'  gematria present only when enabled: {toggled} (expected True)')
+    ok &= toggled
+
     print('--- homograph device: a clue word, de-prefixed, already IS the answer ---')
     # שרה is the canonical example (PLAYBOOK.md/SOLVE_PROTOCOL.md): she sings / a female
     # minister / the name Sarah. Here it appears with a ו- prefix glued on ('ושרה'); the
@@ -608,6 +888,68 @@ def selftest():
     found = any(h['answer'] == norm('שרה') for h in hits)
     print(f'  found שרה (destemmed from ושרה) as a homograph: {found} (expected True)')
     ok &= found
+
+    print('--- container device: one fragment spliced strictly inside another yields a '
+          'real word ---')
+    # synthetic clue, independent of any puzzle's gold data: שולחן (table) = outer 'שחן'
+    # with inner 'ול' spliced in after the first letter (שחן -> ש + ול + חן = שולחן).
+    # Neither fragment needs to be a real word on its own -- only the spliced result does.
+    hits = container_candidates('ראיתי שחן גדול וגם ול קטן', 5)
+    found = any(h['answer'] == norm('שולחן') for h in hits)
+    print(f'  found שולחן by splicing ול inside שחן: {found} (expected True)')
+    ok &= found
+    print('--- container device: a clue word\'s mined substitution supplies the INNER '
+          'fragment, not just the clue\'s own letters ---')
+    # mirrors this project's own real worked example (prove.py: is_container('קרים','תן',
+    # 'קרתנימ')) structurally, with fresh synthetic words: outer 'שחן' sits literally in
+    # the clue, inner 'ול' does NOT -- it only exists via an injected substitution of the
+    # clue word 'מילהבדויה', the same mechanism substitution_candidates already relies on.
+    sub_table = {norm('מילהבדויה'): [(norm('ול'), 1)]}
+    hits2 = container_candidates('ראיתי שחן גדול וגם מילהבדויה קטנה', 5, sub_table=sub_table)
+    found2 = any(h['answer'] == norm('שולחן') and 'מילהבדויה' in h['fodder'] for h in hits2)
+    print(f'  found שולחן via a substituted inner fragment: {found2} (expected True)')
+    ok &= found2
+
+    print('--- double_definition device: two mined substitutes, one from each half of '
+          'the clue, converge on the same answer ---')
+    # injected table, independent of the live corpus. 'שמחה' (joy) -> 'חג' (holiday) is
+    # the LEFT half's mined substitute; 'חופש' (freedom/vacation) -> 'חג' is a SEPARATE,
+    # independent sighting from the RIGHT half. Neither half's word shares a single
+    # letter with חג -- this mechanism finds it only because two different corpus
+    # sightings happen to agree, exactly the double-definition shape.
+    dd_table = {norm('שמחה'): [(norm('חג'), 3)], norm('חופש'): [(norm('חג'), 2)]}
+    hits = double_definition_candidates('שמחה גדולה או חופש מהעבודה', 2, table=dd_table)
+    found = any(h['answer'] == norm('חג') for h in hits)
+    print(f'  found חג from independent left/right substitutes: {found} (expected True)')
+    ok &= found
+    print('--- double_definition device: a substitute present on only ONE side does not '
+          'fire ---')
+    one_sided = {norm('שמחה'): [(norm('חג'), 3)]}
+    hits2 = double_definition_candidates('שמחה גדולה או חופש מהעבודה', 2, table=one_sided)
+    print(f'  no candidate without a right-side sighting too: {hits2 == []} '
+          f'(expected True)')
+    ok &= hits2 == []
+    print('--- double_definition device: use_doubledef=False in generate() disables it ---')
+    # generate() always calls the real sub_fwd(), so to test the toggle itself (not just
+    # that both calls run), temporarily substitute the module-level cache with the same
+    # synthetic table used above -- restored immediately after, so no other check in this
+    # run is affected.
+    global _SUB_FWD
+    saved_sub_fwd = _SUB_FWD
+    _SUB_FWD = dd_table
+    try:
+        with_dd = generate('שמחה גדולה או חופש מהעבודה', [2], use_culture=False,
+                            use_retrieval=False, use_gematria=False, use_container=False,
+                            use_doubledef=True)
+        without_dd = generate('שמחה גדולה או חופש מהעבודה', [2], use_culture=False,
+                               use_retrieval=False, use_gematria=False, use_container=False,
+                               use_doubledef=False)
+    finally:
+        _SUB_FWD = saved_sub_fwd
+    toggled_dd = any(c['mechanism'] == 'double_definition' for c in with_dd) and \
+        not any(c['mechanism'] == 'double_definition' for c in without_dd)
+    print(f'  double_definition present only when enabled: {toggled_dd} (expected True)')
+    ok &= toggled_dd
 
     print('--- culture_category device: a category the clue NAMES surfaces its namelist,'
           ' matched by MEANING not letters ---')
@@ -681,14 +1023,23 @@ def main():
         rest = sys.argv[2:]
         use_culture = '--no-culture' not in rest
         use_retrieval = '--no-retrieval' not in rest
-        rest = [a for a in rest if a not in ('--no-culture', '--no-retrieval')]
+        use_gematria = '--no-gematria' not in rest
+        use_container = '--no-container' not in rest
+        use_doubledef = '--no-doubledef' not in rest
+        rest = [a for a in rest if a not in
+                ('--no-culture', '--no-retrieval', '--no-gematria', '--no-container',
+                 '--no-doubledef')]
         path = rest[0] if len(rest) > 0 else 'data/dataset/clues.jsonl'
         split = rest[1] if len(rest) > 1 else None
         os.chdir(ROOT)
-        res = recall_eval(path, split, use_culture=use_culture, use_retrieval=use_retrieval)
+        res = recall_eval(path, split, use_culture=use_culture, use_retrieval=use_retrieval,
+                           use_gematria=use_gematria, use_container=use_container,
+                           use_doubledef=use_doubledef)
         print(f"recall@N: {res['hit']}/{res['total']} = {res['recall']:.1%}  "
               f"(avg {res['avg_candidates']:.1f} candidates/clue, "
-              f"use_culture={use_culture}, use_retrieval={use_retrieval})")
+              f"use_culture={use_culture}, use_retrieval={use_retrieval}, "
+              f"use_gematria={use_gematria}, use_container={use_container}, "
+              f"use_doubledef={use_doubledef})")
         print('hits by mechanism:', res['by_mechanism'])
         if res['misses']:
             print(f"\n{len(res['misses'])} misses (clue_number, direction, gold):")
