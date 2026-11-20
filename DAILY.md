@@ -23,7 +23,106 @@ tree - a stale CLI deploy overwrote the live site on 2026-08-29. See CLAUDE.md.
 | **Candidate recall@N with `culture_category_candidates` added (new, offline, definition-driven)** | **0% (0/28)**, on 2026-06-19 — mechanism fired on only 1/28 clues (avg candidates/clue 10.5 → 11.4); its one firing (339 raw candidates, an "author" category hit) matched 0 gold | not yet a target — small-n diagnostic, see log |
 
 Baseline for comparison: v2 = 41% raw with untraceable errors.
-Last lever added (2026-08-30): **closed 2026-08-29's own "NOT DONE" gap: re-measured
+
+⚠ **PR BACKLOG, 2026-11-20**: `main` has received no solver-related merge since
+2026-08-30 — this file and RESEARCH.md are correspondingly ~80 days stale against what has
+actually been measured. **87 PRs are open against `main` (#38-#126), one per day, zero
+merged.** Reading their titles directly shows severe duplication: `container_candidates`
+alone was independently reimplemented at least 15 times, almost always measured negative.
+13+ separate PRs attempted to consolidate the backlog; none stuck, because each day's agent
+branches fresh off `main` (per its own standing instructions, same as mine) and `main`
+never actually moves. Flagged to the project owner via push notification this run rather
+than attempted an (at least) 15th consolidation — that needs either a merge or a changed
+daily process, neither of which an agent can decide for itself. See the 2026-11-20 log
+entry and the open PRs (#108, #111, #115, #117, #121, #126) for the fuller history. The
+rest of this file (state table above, log below) reflects only what has actually merged to
+`main`, i.e. is current through 2026-08-30/2026-09-07 plus today's entry — NOT the
+(considerable) additional work sitting in the 87 open branches.
+
+Last lever added (2026-11-20): **reconstructed the secondary easier-setter corpus**
+(PLAN_V2.md item G; the 2026-08-06 log's own finding that it is "NOT actually
+reconstructible from what bootstrap.sh can reach" turns out to be stale).
+`scraper/parse_answers_multi.py` — already committed, never exercised by any bootstrap
+step or daily run before today — reaches it directly from 14across with no login and no
+image transcription (substitution mining needs only crowd EXPLANATIONS, not clue text):
+310 puzzles, 6,842 clues across 6 easier-setter crosswords (דקל בנו x5, גלובס/ליאני),
+matching RESULTS.md's documented size exactly. Rebuilding `solver/lex/substitutions.json`
+against the combined corpus grew it from the bootstrap-reconstructible 525 forward head
+words to **2,143** (589 → 2,378 reverse) — 97% of the originally-committed 2,220 (2,508
+reverse), i.e. this genuinely closes the "not reproducible" gap, not just approximates it.
+Checked, not assumed, whether to commit the regenerated table: the committed version is
+already slightly LARGER (2,220/2,508 vs today's fresh 2,143/2,378) — not a regression to
+revert from, but not an improvement to replace it with either, so the regenerated file was
+reverted (`git checkout --`) after measurement, same discipline the 2026-08-06 log applied
+to the smaller main-corpus-only reconstruction. The real deliverable today is the PROOF that
+`parse_answers_multi.py` reconstructs the secondary corpus at near-parity size from public
+sources with no login, not a specific JSON file.
+
+Re-transcribed the canonical dev puzzle (2026-05-29) independently, this time with
+bootstrap's 14across scrape fully clean (52/52 puzzles, 0 empty answers — no image-fallback
+needed for gold data). Clue text came from `data/images/2026-05-28.jpg`; one clue (13
+across) is split by a column wrap in the print layout — its tail ("...כמלחין (4)") sits at
+the very top of the next column, before clue 15's own text begins — recovered by reading
+both fragments and reassembling, the same technique logged 2026-08-30 for a different
+puzzle's across-clue wrap. All 28 enum sums validated against the real gold answer lengths
+(0/28 mismatches) AND independently via `solver/grid_tools.py validate` against the grid's
+own computed numbering (0 problems, prints `OK`) — the second check uses only grid geometry,
+no gold answer read, so it independently confirms clue 13's reconstruction landed in the
+right slot, not just that some 4-letter word would have summed correctly.
+
+MEASURED, controlled before/after (`python3 solver/candidates.py recall
+data/dataset/clues.jsonl eval [--no-culture --no-retrieval]`): mechanical+substitution+
+homograph baseline **3.6% (1/28) before the corpus growth, STILL 3.6% (1/28) after** — the
+identical single anagram hit, `hits by mechanism` identical (`{'anagram': 1}`) before and
+after. Full defaults (+ culture + retrieval, against a partial `private_defs/mordo.jsonl`
+crawl, 17,848 raw entries within a time-boxed run) also flat at 3.6%, retrieval contributing
+0 hits this specific puzzle (consistent with this diagnostic's own established
+puzzle-dependence finding, not a regression). Diagnosed, not just measured: direct clue-word
+coverage count against this puzzle's own 157 clue words went from an estimated ~12% (PR
+#113's figure, unmerged, different puzzle) to a directly-measured **26.8% (42/157)** with
+the grown table — real, more-than-doubled coverage that still did not change this puzzle's
+outcome. Checked the one specific gap PR #126 (unmerged) named as blocking
+`container_candidates` on this exact puzzle's clue 11 (`sub_fwd('טורפ')` needed to reach
+`תן`, for the container device's `קרתנימ`): **still `None` after the growth** — a direct,
+disclosed negative answer to "would corpus growth alone have fixed that specific miss," not
+an assumption.
+
+AUDITED (mandatory gate). `lexicon.held_out_answers()` and `substitutions.held_out()` both
+confirmed (computed set difference, not assumed) to block all 28 of this puzzle's own gold
+answers after the corpus growth — `gold_norm - blocked` empty for both. One alarming-looking
+grep result investigated and resolved: two of the new `data/answers/extra/*.json` files
+contain a puzzle dated `29/05/2026` — verified this is a DIFFERENT setter's DIFFERENT
+crossword (`תרתי משמע`/`הפוך על הפוך`, דקל בנו) that happens to publish on the same calendar
+date as our dev puzzle, not a copy of it; `held_out()`'s empty diff above already confirmed
+no cross-contamination, and this check explains why rather than leaving it unexplained. No
+forbidden reads: gold from the sanctioned 14across answers scrape; clue text from the public
+CDN image only. No implausible jump to explain — the result is flat, the opposite of
+suspicious. All 5 affected selftests (`candidates.py`, `lexicon.py`, `substitutions.py`,
+`retrieve_defs.py`, `prove.py`) re-run clean. Noted, not fixed (out of scope for one lever):
+spot-checking a few newly-mined pairs (`בני~גורנהמתמטיקאי`, `טוב~לאסובל`) shows the
+parenthetical-completion regex occasionally concatenates a multi-word gloss without its
+internal spaces — a pre-existing extraction-quality issue, not something today's corpus
+growth introduced, but worth a future lever now that the table is 4x bigger and errors like
+this are more visible.
+
+HONEST READ: a real, clean, well-audited NEGATIVE result for recall@N on this puzzle, but
+with genuine standing value: it is the first time this project has actually executed
+PLAN_V2.md item G rather than re-flagging it as open, it reverses a 2026-08-06 finding that
+was accepted as a hard limit for 3+ months, and it directly sets up two mechanisms sitting
+in the unmerged backlog (`container_candidates`, `double_definition_candidates`) that are
+explicitly `sub_fwd()`-coverage-limited per their own PRs (#126, #113) — once any of those
+branches is merged, it would inherit this bigger table for free. Growing `sub_fwd()`
+coverage further (the full corpus, not just these 6 crosswords, and fixing the
+multi-word-gloss extraction bug noted above) is the concrete next step if this is revisited.
+
+NOT DONE, honestly: did not re-run the full `solve_pass.py` live pipeline (this was an
+offline `candidates.py recall` diagnostic only, consistent with most prior lever
+measurements); did not crawl `note.co.il` (only a time-boxed `mordo` partial crawl, since
+retrieval corpus growth was not today's lever); did not attempt a 15th PR-backlog
+consolidation (see the backlog note above — flagged via push notification instead); did not
+merge or otherwise act on any of the 87 open PRs — only the repo owner can.
+
+Previous lever (2026-08-30): **closed 2026-08-29's own "NOT DONE" gap: re-measured
 `retrieval_candidates` on 2026-06-26 — the puzzle 2026-08-28/08-29 both flagged as still
 needing a bigger corpus and no run had finished re-transcribing — this time FULLY (28/28
 clues, not the 18/28 partial 2026-08-26 left) and against a corpus grown far past any
@@ -2427,3 +2526,28 @@ Measure each lever on dev (fixed enums) with run_eval.py before/after; one lever
   "כולם חפצים מהבית" theme (an אוטובוס was due to appear on 09-08).
   Gates: ui_smoke 9/9 pages at both widths, topicgen_eval 52/52 boards,
   url_guard clean (6,071 URLs, none dropped), nativ regression 22/22.
+
+- 2026-11-20: **PR backlog crisis flagged (87 open, zero merged since 08-30); secondary
+  corpus reconstructed (PLAN_V2.md item G), substitution coverage more than doubled,
+  recall@N measured flat.** Full detail in the "Last lever added" section at the top of
+  this file and in RESEARCH.md's 2026-11-20 entry; summary here for the chronological log.
+  `main`'s last solver merge is 2026-08-30 despite 87 daily PRs (#38-#126) sitting open —
+  read several directly (not stale `main`) to avoid duplicating measured work, which is how
+  today's lever was chosen: PR #113 (unmerged) concluded candidate-generation device
+  coverage is "close to exhaustive" and the real gap is `sub_fwd()` sparsity. Ran
+  `scraper/parse_answers_multi.py` (committed, never previously exercised) to pull the
+  310-puzzle/6,842-clue secondary corpus from 14across directly (no images needed —
+  substitution mining uses crowd explanations only); grew `solver/lex/substitutions.json`
+  from 525 to 2,143 forward head words (97% of the originally-committed 2,220, closing the
+  2026-08-06 "not reconstructible" finding). Re-transcribed 2026-05-29 fresh (14across
+  clean 52/52; clue 13's column-wrap tail recovered and independently confirmed via
+  `grid_tools.py validate` printing OK; 0/28 enum mismatches). Measured: recall@N flat at
+  3.6% (1/28) before and after the corpus growth, identical single hit; direct clue-word
+  coverage count went from ~12% to 26.8% (42/157) — real growth, no recall change on this
+  puzzle. Audited: held-out filters confirmed to block all 28 gold answers; a worrying-
+  looking date collision in the new secondary-corpus files (`29/05/2026`) investigated and
+  confirmed to be a different setter's different crossword, not contamination. Flagged the
+  backlog itself to the project owner directly (push notification) rather than attempting a
+  15th consolidation PR, since 13+ prior attempts didn't stick without a merge or a changed
+  daily process — a decision outside what an agent can make for itself. Opened PR, did not
+  push to main, did not merge or act on any of the 87 other open PRs.
