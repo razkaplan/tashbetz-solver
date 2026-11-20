@@ -4,6 +4,50 @@ One entry per run: what was found, one-line summary, and an honest judgement of 
 it transfers to a Hebrew cryptic solver with an 8k-clue corpus. Default skepticism: most
 crossword-AI work targets non-cryptic (American-style) puzzles and does not transfer.
 
+## 2026-11-20
+
+Before researching or building: `main`'s last solver-related merge is still 2026-08-30 —
+87 PRs (#38-#126) are open and unmerged, one per day since, and `DAILY.md`/`RESEARCH.md`
+on `main` are correspondingly ~80 days stale. I read several of the most recent open PRs
+directly (not trusting stale `main`) to avoid duplicating already-measured work: PR #126
+(2026-11-19) measured `container_candidates` flat for the ~15th time and root-caused the
+block to a lexicon-coverage gap on one specific word; PR #113 (2026-11-07) added
+`double_definition_candidates` (also flat) and concluded, in its own words, that
+"mechanical/corpus-backed candidate generation is now close to exhaustive in device
+coverage... the remaining gap is the sparsity of the one shared, corpus-mined equivalence
+table every semantic mechanism leans on" — i.e. the next lever should grow `sub_fwd()`'s
+coverage, not add an eleventh mechanism. Flagged the backlog itself to the project owner
+via push notification this run (see DAILY.md) rather than attempting a fifteenth
+consolidation PR, which PR #126 already reasoned would just become PR #127 next to 87
+others without a merge or process change.
+
+**Two searches** ("cryptic crossword clue solving candidate generation substitution mining
+equivalence table 2026"; "Hebrew morphology lexicon equivalence extraction crowd
+explanations low-resource NLP 2026"). First: nothing new — the same three-paper family
+this project has cited since 2026-08-06 (arXiv 2506.04824, 2406.09043, 2412.09012), and
+none of them address table/equivalence-mining methods specifically; one paper's own worked
+example does use synonym-substitution wordplay, consistent with (not new evidence for) this
+project's existing approach. Second surfaced one genuinely new citation: **L-ReLF**
+(arXiv:2603.29346, March 2026), a reproducible framework for building structured lexical
+datasets for underserved languages, Wikidata-Lexemes-compatible. Judged: does NOT transfer
+here — it targets general lexical semantics (machine translation, morphological analysis)
+for whole languages, not a single setter's private wordplay vocabulary of fragment
+equivalences mined from solution commentary; the genre-specific extraction this project
+needs isn't the problem L-ReLF solves. Also surfaced again (not new): Tsarfaty et al.'s
+lexicon-free Hebrew parsing (arXiv:2403.06970) and a Hebrew-homograph challenge set focused
+on Rabbinic Hebrew — neither bears on equivalence-table construction either.
+
+**Conclusion and the lever this run actually built.** Neither search produced an external
+method to build on, so — acting directly on PR #113's own conclusion above rather than
+re-discovering it — today's lever is PLAN_V2.md item G / the standing 2026-08-06 finding
+that the secondary easier-setter corpus (RESULTS.md: 310 puzzles, ~6,800 clues) "is NOT
+actually reconstructible from what bootstrap.sh can reach." That finding turns out to be
+stale: `scraper/parse_answers_multi.py` (already committed, not exercised by any bootstrap
+step) reaches it directly from 14across with no login and no image transcription, because
+substitution mining needs only crowd EXPLANATIONS, not clue text. See DAILY.md for the
+measured effect (corpus reconstructed, `sub_fwd()` coverage genuinely more than doubled,
+recall@N flat on the canonical dev puzzle) and the audit.
+
 ## 2026-08-30
 
 Bootstrap hit the same hard 14across wall as 2026-08-19/08-26/08-27/08-28 (4 consecutive
