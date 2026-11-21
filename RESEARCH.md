@@ -4,7 +4,57 @@ One entry per run: what was found, one-line summary, and an honest judgement of 
 it transfers to a Hebrew cryptic solver with an 8k-clue corpus. Default skepticism: most
 crossword-AI work targets non-cryptic (American-style) puzzles and does not transfer.
 
-## 2026-08-30
+## 2026-11-21
+
+Before researching: `main`'s last solver-related merge is still 2026-08-30 (confirmed via
+the GitHub API directly, not trusted from a stale local checkout) — 87 PRs (#38-#126) were
+open and unmerged as of yesterday, now 88 with #127. Already flagged to the project owner
+via push notification on 2026-11-20 (per that PR's own body); not re-flagged today, since
+nothing about it has changed in one day and a repeat notification for an unchanged,
+already-reported condition is not worth another interruption. Read PR #127 (2026-11-20)
+directly: it grew the secondary-corpus substitution table (`sub_fwd()` 525->2,143 forward
+head words) and measured recall@N flat, consistent with PR #113's (2026-11-07) own
+conclusion that "mechanical/corpus-backed candidate generation is now close to exhaustive
+in device coverage... the remaining gap is the sparsity of the one shared, corpus-mined
+equivalence table."
+
+**Two searches.** First: "cryptic crossword wordplay device frequency distribution corpus
+analysis 2026" — no 2026 paper reports device-frequency distributions from a labelled
+corpus. The one directly relevant hit, arXiv 2412.09012 ("What Makes Cryptic Crosswords
+Challenging for LLMs?", already cited in this log since 2026-08), states the gap plainly:
+"there is no large-scale dataset labelled with wordplay types," so that paper hand-annotated
+only 200 English clues (40 per major type) to even discuss frequency at all, and reports
+anagram/hidden-word/double-definition as the conventional "big three" for ENGLISH cryptics.
+**Transfer: this project can do better than that paper's own English annotation effort**,
+cheaply — see the lever below, which labels 1,457 Hebrew clues (7x their sample) for free
+using a resource this project already has and the English literature does not: crowd
+explanations that frequently name their own device.
+
+Second search: "weak supervision crowd-sourced solver explanations wordplay label mining
+low-resource language 2026" — no 2026 work combines these, but surfaced a real methodological
+precedent: **BabbleLabble** (Hancock et al. 2018, Stanford, arXiv-era NLP), where annotators'
+natural-language explanations for a label are parsed into labeling functions for weak
+supervision. **Transfer: the general pattern matches exactly** (explanation text -> weak
+label), even though BabbleLabble is 2018/English/unrelated-domain and nothing here is ported
+from it directly — it confirms "mine the free-text explanation for its own stated mechanism"
+is a recognized, not ad-hoc, weak-supervision pattern, which is reassuring methodologically
+rather than load-bearing technically (the classifier built today is simple substring matching
+on this project's own already-curated `indicators.json` vocabulary, not anything from the
+paper).
+
+**Conclusion and the lever this run actually built.** Every mechanical candidate-generation
+measurement this project has ever run (anagram/hidden/reversal/container/homograph/
+substitution/gematria/double-definition, ~20+ independent PRs) was measured on ONE 28-clue
+dev puzzle at a time — PLAN_V2.md's own methodology section says "one clue = 1.8 points,
+differences under ~10 points are noise," yet no run has ever stepped back and asked, at full
+corpus power (1,457 clues, not 28), how often each device actually occurs. Built
+`solver/device_census.py`: a rule-based classifier over `data/answers/answers_parsed.json`'s
+crowd explanations (no clue text, no image transcription needed — reconstructible straight
+from bootstrap's already-sanctioned 14across scrape), using ONLY the marker vocabulary this
+project already curated in `indicators.json`'s `explanation_labels.yoram_haroeh` list (e.g.
+"אנגרם" literally means "this is an anagram" in the crowd's own words), not a new invented
+keyword list. See DAILY.md for the measured distribution and its implications for which
+future generator-building effort is actually worth its cost.
 
 Bootstrap hit the same hard 14across wall as 2026-08-19/08-26/08-27/08-28 (4 consecutive
 answer-page fetches returned `None: 0 clues` after several minutes of retry-with-backoff
