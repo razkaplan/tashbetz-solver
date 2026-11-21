@@ -21,9 +21,97 @@ tree - a stale CLI deploy overwrote the live site on 2026-08-29. See CLAUDE.md.
 | **Definition-span locatable rate (new, offline, diagnostic)** | **25% (7/28)** have mechanically-locatable single-window wordplay; of those 29% (2/7) are interior, not edge; classifier agreement on edge cases **1/5** | not a target — this diagnostic KILLED the lever, see log |
 | **`solve_pass.py` LIVE blind trial — cumulative (3 trials)** | **40% precision (2/5 committed)**: 2026-08-16 was 1/2 on a partial 21/28-clue puzzle (2026-06-12); 2026-08-22 was **0/2**, 7.1% coverage, on a FULL 28/28-clue puzzle (2026-05-15); **2026-08-27 is 1/1 = 100% precision but 5.3% coverage (1/19), 0% suggestion hit-rate (0/10)**, on 2026-07-10 (19/28 clues) — FIRST trial run with `retrieval_candidates` live (wired 2026-08-25, never live-trialed since); it contributed ZERO candidates all puzzle (grepped the transcript for `(retrieval, fodder=` hits — none), matching today's own offline recall@N finding on this same puzzle (0/19 with or without retrieval); the one correct commit came from `wiki.py` culture-fact lookup, not from any candidate generator | n=5 — still small; retrieval's live debut is a null result on this puzzle, not a regression, but not the coverage lift the queue hoped for either; see log |
 | **Candidate recall@N with `culture_category_candidates` added (new, offline, definition-driven)** | **0% (0/28)**, on 2026-06-19 — mechanism fired on only 1/28 clues (avg candidates/clue 10.5 → 11.4); its one firing (339 raw candidates, an "author" category hit) matched 0 gold | not yet a target — small-n diagnostic, see log |
+| **Device-frequency census (new, FULL corpus, n=1,457, crowd-explanation markers)** | anagram 14.4%, double_definition 13.7%, container 8.1%, reversal 5.0%, homophone 4.2%, deletion 2.2%, hidden 1.0%, palindrome/gematria 0.0% — and **52.4% (763/1,457) unlabeled, 97% of those multi-fragment (charade/substitution-shaped), not simple definitions** | not a target — reprioritizes the candidate-generation queue, see log |
 
 Baseline for comparison: v2 = 41% raw with untraceable errors.
-Last lever added (2026-08-30): **closed 2026-08-29's own "NOT DONE" gap: re-measured
+Last lever added (2026-11-21): **a full-corpus device-frequency census, closing a statistical-power
+gap every prior candidate-generation measurement has silently carried.** Every mechanical
+generator this project has built (anagram/hidden/reversal/container/homograph/substitution/
+gematria/double-definition — 20+ independent PRs, many duplicated 5-17x across the unmerged
+backlog) was measured on a single 28-clue dev puzzle, and PLAN_V2.md's own methodology
+section already warned "one clue = 1.8 points, differences under ~10 points are noise" —
+yet no run had ever asked, at the full corpus's power (1,457 clues, not 28), how often each
+device actually occurs. Bootstrap ran clean this run (52/52 puzzles, 1,457 clues, 0 empty
+answers). Also re-transcribed the canonical dev puzzle (2026-05-29) independently from
+`data/images/2026-05-28.jpg`, for the standard regression check (not today's lever): clue
+13 across's text is genuinely incomplete in this image (the across-clue side column ends
+mid-clue at "13. בני טוב" with no visible continuation anywhere else on the page, unlike
+2026-08-30's column-wrap case which did have a findable continuation) — used the gold
+`explanations` field (which happens to quote the same two words, "ליס בני / ט טוב") to
+confirm "בני טוב" is the complete or near-complete clue text rather than guessing, and took
+the enum from the grid-validated gold answer length (4) rather than a printed number I could
+not confidently read. All 28 enum sums validated clean against both the gold answer length
+(0/28 mismatches) and independently via `grid_tools.py validate` against the grid's own
+computed numbering (prints `OK`). `candidates.py recall` reproduced the canonical baseline
+exactly: **3.6% (1/28), `{'anagram': 1}`**, unchanged — a strong cross-check that today's
+independent transcription is correct. All 5 affected selftests re-run clean.
+
+Built `solver/device_census.py`: classifies each of 1,457 clues' crowd explanations by
+device, using ONLY the marker vocabulary this project already curated in `indicators.json`'s
+`explanation_labels.yoram_haroeh` list (e.g. "אנגרם" literally means "this is an anagram" in
+the crowd's own words) — not a new invented keyword list. A clue can match more than one
+device. MEASURED (executed, not estimated — `python3 solver/device_census.py census`):
+anagram 210/1,457 (14.4%), double_definition 200 (13.7%), container 118 (8.1%), reversal 73
+(5.0%), homophone 61 (4.2%), deletion 32 (2.2%), hidden 14 (1.0%), palindrome 0, gematria 0.
+**763 clues (52.4%) matched no marker at all** — spot-checked 20 at random across every
+matched category (precision looked clean on inspection: container hits genuinely show "X
+בתוך Y" structure, hidden hits genuinely show "רצף אותיות", etc.) and separately checked the
+763 unlabeled ones structurally: 740 of them (97.0%) have a multi-fragment first explanation
+line (e.g. "טומי (לפיד) ב-אנה(זק)", "מנה ב-טוב") — the shape of a charade/substitution
+fragment breakdown, not a simple one-shot definition. Cross-checked against the one
+transcribed dev puzzle (2026-05-29): its own local distribution (anagram 6/28=21%, unlabeled
+14/28=50%) is broadly consistent with the full-corpus numbers, confirming this puzzle is not
+a weird outlier, just small.
+
+HONEST READ AND IMPLICATIONS. This does not generate or verify a single new candidate, so it
+moves no recall/precision number by itself — it is a measurement tool, same category as
+`lexicon_coverage_eval`. But it gives, for the first time, a statistically solid (n=1,457
+vs. n=28) answer to a question this project kept re-asking one small sample at a time: the
+devices with the MOST independently-built standalone generators (`container_candidates`:
+~17 separate implementations across the open-PR backlog; hidden-word generation) are exactly
+the RARE ones (8.1% and 1.0% of all clues respectively) — on a 28-clue sample, hidden-word's
+expected count is ~0.3 clues, so a dev puzzle containing zero hidden-word clues at all is the
+LIKELY outcome, not evidence the generator is broken. Conversely the single largest category
+by far, at 52%+ of the entire corpus and heavily charade/substitution-shaped, is exactly the
+one PR #113/#126/#127 already converged on independently from small-sample root-causing
+("the remaining gap is the sparsity of the one shared, corpus-mined equivalence table") —
+this census gives that qualitative conclusion its first quantitative, full-corpus backing,
+not a new disagreement with it. Practical implication for the queue: a 17th
+`container_candidates` reimplementation is very unlikely to move recall on any given 28-clue
+sample almost by construction (low base rate, not a bug in the 16 prior attempts), while
+further growing `sub_fwd()`/the substitution table (already PR #127's own next step) remains
+the best-supported lever for the dominant device category. Also notable against the English
+cryptic literature (arXiv 2412.09012, which itself hand-annotated only 200 clues for lack of
+a labelled corpus, and reports anagram/hidden-word/double-definition as English's
+conventional "big three"): hidden-word is near-absent here (1.0%) while charade/substitution
+dominates — a genuine, disclosed difference from the English genre's folklore, not an
+assumption carried over from it.
+
+AUDIT (mandatory gate). This reads only crowd `explanations` (never clue text, never a
+specific held-out answer used to generate or verify any one clue's candidate) across the
+FULL corpus including dev/eval dates — the same safety profile this project's own
+`PLAYBOOK.md`/`indicators.json` were already built under (explicitly sanctioned practice,
+not a new exception). It produces an aggregate frequency table, not a per-clue candidate, so
+there is nothing for `held_out_answers()` to block and no tool-leak surface to check. No
+forbidden reads: `data/answers/answers_parsed.json` only, from bootstrap's own sanctioned
+14across scrape; the one dev puzzle's gold data came from the public CDN image, not
+14across, consistent with established practice for that specific puzzle. No implausible
+jump to explain (this is a first-time measurement, not a before/after). All 7 affected
+selftests (`candidates.py`, `retrieve_defs.py`, `lexicon.py`, `prove.py`, `substitutions.py`,
+plus `device_census.py`'s own new selftest) re-run clean.
+
+NOT DONE, honestly: did not re-attempt any 18th `container_candidates`/defspan/constraint-
+solve variant — the whole point of today's lever is that doing so without this base-rate
+context first was the thing worth stopping; did not crawl note.co.il further or grow
+`sub_fwd()` itself (that is PR #127's own disclosed next step, not re-duplicated here); did
+not attempt a 15th backlog consolidation PR, nor re-send yesterday's backlog push
+notification (unchanged condition, already reported, see RESEARCH.md); did not extend the
+census to the secondary (easier-setter) corpus, which has no clue text and a different
+crowd-explanation convention (`explanation_labels.dekel_beno`/`lior_liani` use different
+marker words) — a natural next step, not attempted today to keep this run to one corpus and
+one lever; did not merge or otherwise act on any of the 88 other open PRs.
+
+Previous lever (2026-08-30): **closed 2026-08-29's own "NOT DONE" gap: re-measured
 `retrieval_candidates` on 2026-06-26 — the puzzle 2026-08-28/08-29 both flagged as still
 needing a bigger corpus and no run had finished re-transcribing — this time FULLY (28/28
 clues, not the 18/28 partial 2026-08-26 left) and against a corpus grown far past any
@@ -442,7 +530,19 @@ propagated), `blank`. Score with `python3 evals/run_eval.py <file>`.
 
 ## Lever queue (highest expected value first)
 
-1. **Candidate generation** — the measured bottleneck. `solver/candidates.py` (2026-08-06)
+1. **Candidate generation** — the measured bottleneck. **[2026-11-21: read this before
+   building another standalone mechanism.]** `solver/device_census.py` (see log) measured
+   the actual device-frequency distribution across the FULL 1,457-clue corpus, not one
+   28-clue sample: container 8.1%, hidden 1.0%, reversal 5.0%, palindrome/gematria 0.0% —
+   vs. 52.4% unlabeled, 97% of those charade/substitution-shaped. A new standalone generator
+   for a device sitting at 1-8% corpus-wide is very likely to measure flat on whichever
+   28-clue dev puzzle it's tried on, almost independent of how well it's built — that is the
+   expected outcome of a low base rate on a small sample, not evidence the next
+   implementation will fail differently from the last 5-17. Before adding generator #N for
+   any single named device, check this distribution; the better-supported target is growing
+   `sub_fwd()`/the substitution-equivalence table (PR #113/#126/#127's own independent
+   conclusion, now with full-corpus quantitative backing) since charade/substitution is the
+   one bucket at 50%+. `solver/candidates.py` (2026-08-06)
    does the mechanical half (anagram/hidden/reversal/pattern, character-level fodder
    windows) but measures only 3.6% recall alone — NOT sufficient by itself. (b)
    substitution- and homograph-aware generation was ADDED 2026-08-20 (see log) and
