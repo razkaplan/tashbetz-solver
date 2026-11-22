@@ -17,13 +17,81 @@ tree - a stale CLI deploy overwrote the live site on 2026-08-29. See CLAUDE.md.
 | Best single puzzle | 2026-05-29: 95% / 71% / 68% ✓ all targets | |
 | Hardest puzzle | 2026-06-05: 100% / 43% / 43% | coverage stuck |
 | **Candidate recall@N (new, offline, mechanical only)** | **3.6% (1/28)**, avg 11.6 candidates/clue (capped), on 2026-05-29 — UNCHANGED after adding substitution+homograph mechanisms | not yet a target — diagnostic |
-| **Candidate recall@N with `retrieval_candidates` added (new, offline, BM25 definition retrieval)** | **7.1% (2/28)** on 2026-05-29 (up from 3.6%); **SECOND puzzle, 2026-08-26: 0.0% (0/18) → 5.6% (1/18)** on 2026-06-26 (partial, 18/28 clues); **THIRD puzzle, 2026-08-27: 0.0% (0/19) → 0.0% (0/19), UNCHANGED** on 2026-07-10; **2026-08-28, RE-MEASURED on 2026-05-29 with a GROWN corpus (mordo re-crawled 13,646 raw pairs vs 9,685; `note.co.il` crawled for the first time this project's lifetime, 829 pairs): 3.6% (1/28) → 10.7% (3/28)**, up from the 7.1% this exact puzzle scored with the smaller corpus; **2026-08-29, RE-MEASURED 2026-07-10 with an EVEN BIGGER corpus (mordo 25,350 raw / 24,361 parsed, up from 13,646/12,890; note.co.il 970 fetched out of 1,301 discovered): 0.0% (0/19) → 0.0% (0/19), STILL UNCHANGED**; **2026-08-30, RE-MEASURED 2026-06-26 — this time FULLY transcribed (28/28 clues, closing 2026-08-26's 18/28 partial gap) and with a MASSIVELY grown corpus (mordo 66,443 raw / 62,403 parsed, up from 25,350/24,361 — the blogspot feed has grown 2.6x again; note.co.il 1,001 fetched out of 1,301 discovered, up from 970/1301): 0.0% (0/28) → 14.3% (4/28)** — the highest recall this diagnostic has ever measured on any puzzle, and the largest single-puzzle point gain, from 4 independently-audited external hits (מניע, רומח, בובדילנ, ברסמכא) — see log | not yet a target — diagnostic; 6 independent measurements, 4 positive + 2 flat, confirming corpus growth is puzzle-dependent (rescued 2026-05-29 twice and now 2026-06-26 strongly, never moved 2026-07-10 across three corpus sizes) |
+| **Candidate recall@N with `retrieval_candidates` added (new, offline, BM25 definition retrieval)** | **7.1% (2/28)** on 2026-05-29 (up from 3.6%); **SECOND puzzle, 2026-08-26: 0.0% (0/18) → 5.6% (1/18)** on 2026-06-26 (partial, 18/28 clues); **THIRD puzzle, 2026-08-27: 0.0% (0/19) → 0.0% (0/19), UNCHANGED** on 2026-07-10; **2026-08-28, RE-MEASURED on 2026-05-29 with a GROWN corpus (mordo re-crawled 13,646 raw pairs vs 9,685; `note.co.il` crawled for the first time this project's lifetime, 829 pairs): 3.6% (1/28) → 10.7% (3/28)**, up from the 7.1% this exact puzzle scored with the smaller corpus; **2026-08-29, RE-MEASURED 2026-07-10 with an EVEN BIGGER corpus (mordo 25,350 raw / 24,361 parsed, up from 13,646/12,890; note.co.il 970 fetched out of 1,301 discovered): 0.0% (0/19) → 0.0% (0/19), STILL UNCHANGED**; **2026-08-30, RE-MEASURED 2026-06-26 — this time FULLY transcribed (28/28 clues, closing 2026-08-26's 18/28 partial gap) and with a MASSIVELY grown corpus (mordo 66,443 raw / 62,403 parsed, up from 25,350/24,361 — the blogspot feed has grown 2.6x again; note.co.il 1,001 fetched out of 1,301 discovered, up from 970/1301): 0.0% (0/28) → 14.3% (4/28)** — the highest recall this diagnostic has ever measured on any puzzle, and the largest single-puzzle point gain, from 4 independently-audited external hits (מניע, רומח, בובדילנ, ברסמכא); **2026-11-22 (resuming after a 2.5-month gap), RE-MEASURED 2026-07-10 — this time FULLY transcribed (28/28, closing both 2026-08-27's AND 2026-08-29's 19/28 partial gap) against a corpus crawled fresh today (mordo 67,166 raw / 62,811 parsed — essentially FLAT vs 2026-08-30's 66,443/62,403, the blogspot feed has plateaued; note.co.il 1,301/1,301 fetched EXHAUSTIVELY for the first time, up from the prior best of 1,001/1,301 partial): 0.0% (0/28) → 3.6% (1/28)** — the FIRST non-zero result this puzzle has ever scored, after two prior flat measurements. One hit, 10 across `יוט` ("יו\"ט"/Yom Tov, clue "גרנט טוב לחג" directly containing טוב+לחג), from two mordo docs (pid=None). AUDIT found the honest attribution is NOT corpus growth (mordo was flat, and both contributing docs are generic חג/יום טוב entries almost certainly already in the 2026-08-29 corpus) — it is that clue 10 sits in the narrow "אופקי: 1...14" column this puzzle's two PRIOR attempts both silently dropped entirely (19/28 = exactly 6 across-tail clues + all 13 down; the 9-clue 1-14 block was never transcribed before), confirming queue item 8's "across-1-15 gap" caused a real measured null result here, not corpus coverage — see log | not yet a target — diagnostic; 7 independent measurements, 5 positive + 2 flat (both explained, not just repeated): corpus growth rescued 2026-05-29 twice and 2026-06-26 strongly; 2026-07-10's two flat runs are now explained by incomplete transcription, not an absent corpus match |
 | **Definition-span locatable rate (new, offline, diagnostic)** | **25% (7/28)** have mechanically-locatable single-window wordplay; of those 29% (2/7) are interior, not edge; classifier agreement on edge cases **1/5** | not a target — this diagnostic KILLED the lever, see log |
 | **`solve_pass.py` LIVE blind trial — cumulative (3 trials)** | **40% precision (2/5 committed)**: 2026-08-16 was 1/2 on a partial 21/28-clue puzzle (2026-06-12); 2026-08-22 was **0/2**, 7.1% coverage, on a FULL 28/28-clue puzzle (2026-05-15); **2026-08-27 is 1/1 = 100% precision but 5.3% coverage (1/19), 0% suggestion hit-rate (0/10)**, on 2026-07-10 (19/28 clues) — FIRST trial run with `retrieval_candidates` live (wired 2026-08-25, never live-trialed since); it contributed ZERO candidates all puzzle (grepped the transcript for `(retrieval, fodder=` hits — none), matching today's own offline recall@N finding on this same puzzle (0/19 with or without retrieval); the one correct commit came from `wiki.py` culture-fact lookup, not from any candidate generator | n=5 — still small; retrieval's live debut is a null result on this puzzle, not a regression, but not the coverage lift the queue hoped for either; see log |
 | **Candidate recall@N with `culture_category_candidates` added (new, offline, definition-driven)** | **0% (0/28)**, on 2026-06-19 — mechanism fired on only 1/28 clues (avg candidates/clue 10.5 → 11.4); its one firing (339 raw candidates, an "author" category hit) matched 0 gold | not yet a target — small-n diagnostic, see log |
 
 Baseline for comparison: v2 = 41% raw with untraceable errors.
-Last lever added (2026-08-30): **closed 2026-08-29's own "NOT DONE" gap: re-measured
+Last lever added (2026-11-22, resuming after a 2.5-month gap — see log): **closed
+2026-08-29's own explicitly-flagged "NOT DONE" gap: re-measured `retrieval_candidates` on
+2026-07-10 for a third time, this time with a FULL 28/28 transcription (both prior
+attempts, 2026-08-27 and 2026-08-29, independently stopped at the identical 19/28 —
+turns out they both silently dropped the same 9-clue block, not different ones each
+time) and a corpus crawled fresh today.** Bootstrap succeeded FULLY at 14across this run
+(52/52 puzzles, 1,457 clues, first attempt, no retry needed) so gold came straight from
+`data/answers/by_date/2026-07-10.json`; only clue TEXT was transcribed, from
+`data/images/2026-07-11.jpg` (already fetched once before for this exact puzzle, had to
+be fetched again this run since `data/` is gitignored and wiped between sessions).
+RESOLVED THE STANDING GAP: OCR (tesseract-heb, installed this run) plus manual
+cross-checking found the narrow "אופקי: 1. ... 14." column sitting directly under the
+`תשבץ היגיון` header (clues 1,7,8,9,10,11,12,13,14 — 9 clues) that both prior attempts on
+this exact image had silently missed entirely in favor of the across-tail-plus-down
+text block; all 28 enum sums validated against the real 14across gold answer lengths,
+0/28 mismatches. `held_out_answers()`/`retrieve_defs.held_out()` both confirmed to block
+all 28 gold answers before any measurement. MEASURED, controlled before/after
+(`python3 solver/candidates.py recall data/dataset/clues.jsonl eval [--no-culture
+--no-retrieval]`): mechanical-only baseline **0.0% (0/28)**; **+ retrieval: 3.6% (1/28)**
+— full defaults (culture+retrieval) land at the same 3.6%, culture contributing nothing,
+consistent with its established rare-firing pattern. AUDITED: the one hit (10 across,
+`יוט`, clue "גרנט טוב לחג") traced to two mordo documents (`חג`->['יו"ט','יום טוב'] and
+`יום טוב`->['חג','יו"ט','רגל','מועד']), both `pid=None` (external corpus), both a clean,
+non-coincidental semantic fit (`יו"ט` is the standard Hebrew abbreviation of `יום טוב`,
+and the clue's own words `טוב`/`לחג` are literally two of the three words in that
+abbreviation's expansion). Traced WHY this didn't fire on the two prior attempts despite
+mordo barely growing (67,166 raw vs 2026-08-30's 66,443, ~+1%, i.e. the blogspot feed has
+plateaued — both contributing docs are generic enough they were almost certainly already
+in the smaller corpus): clue 10 lives in the exact 9-clue block (`1,7,8,9,10,11,12,13,14`)
+that both 2026-08-27's and 2026-08-29's "19/28" transcriptions turn out to have dropped
+in full, not partially — `6 (across 16-24) + 13 (down) = 19` exactly. This is a genuine,
+previously-unverified root-cause finding, not a repeat: it shows queue item 8's
+"across-1-15 gap" caused a real, measured false-negative on this puzzle for two
+independent prior runs, which is a sharper, more useful explanation than "this puzzle's
+idioms aren't covered" (2026-08-29's honest-at-the-time but incomplete conclusion).
+`note.co.il` was crawled to full exhaustion for the first time (1,301/1,301 fetched, up
+from the prior best of 1,001/1,301 partial) but did not contribute to today's hit — both
+source docs are from mordo. Implausibility check: 0.0%->3.6% is a 3.6-point move, nowhere
+near the ~15-point suspicion bar, consistent with one well-explained hit. All 5 affected
+selftests re-run clean after the corpus grew. No forbidden reads: 14across was used only
+through its sanctioned bootstrap path for gold answers; clue text came only from the two
+public CDN images already on record for this puzzle; no answers/solution site, no
+verbatim clue search.
+
+HONEST READ: this is the first time 2026-07-10 has scored above 0.0% on this diagnostic
+across three independent attempts — but it is one single weak hit (3.6%), not a changed
+verdict on the puzzle's overall difficulty, and the root cause (transcription
+completeness, not corpus size) means the 2026-08-29 conclusion ("this puzzle's specific
+gaps aren't a corpus-size problem") was directionally right for the wrong reason: the gap
+being measured wasn't really about corpus coverage at all until today's transcription
+closed the hole that was hiding one easy clue. Net across all 7 measurements on 3
+puzzles: 5 positive, 2 flat (both now explained rather than mysterious) — corpus growth
+has essentially plateaued on mordo (+1% over 2.5 months) and note.co.il is now provably
+exhaustive, so a FOURTH corpus-size re-measurement on any of these three puzzles is
+unlikely to move the number further; the next move on this lever, if revisited, should be
+a NEW puzzle (not a fourth measurement of one of these three) or a structural change to
+the retrieval mechanism itself, not another crawl.
+
+NOT DONE, honestly: did not re-measure 2026-05-29 or 2026-06-26 with today's corpus (both
+already measured twice, and mordo's near-zero growth this run makes a third measurement
+low-value); did not act on the still-standing DAILY.md-as-leak-vector observation
+(flagged 2026-08-22, repeated 2026-08-30, unresolved); did not merge or otherwise act on
+any open PR (repo had none open at the start of this run); did not attempt queue item 9
+(definition-fit scoring) or any new mechanism — today's research (see RESEARCH.md)
+found one genuinely new paper (Darmok, arXiv:2611.13557, a championship-level English
+cryptic solver) but it confirms this project's own existing roadmap ordering rather than
+offering a new buildable technique, so nothing from it was implemented today.
+
+Previous lever (2026-08-30): **closed 2026-08-29's own "NOT DONE" gap: re-measured
 `retrieval_candidates` on 2026-06-26 — the puzzle 2026-08-28/08-29 both flagged as still
 needing a bigger corpus and no run had finished re-transcribing — this time FULLY (28/28
 clues, not the 18/28 partial 2026-08-26 left) and against a corpus grown far past any
@@ -518,6 +586,22 @@ propagated), `blank`. Score with `python3 evals/run_eval.py <file>`.
    leak-adjacent vector — it named 2 of today's 4 gold answers in a prior entry, before
    this run's required reading. Worth a future lever (redact specific answer strings from
    log prose, or split required-reading history from an answer-bearing appendix).
+   2026-11-22 (after a 2.5-month gap) CLOSED THE LAST FLAT CELL: 2026-07-10 fully
+   transcribed for the first time (28/28, up from both 2026-08-27's AND 2026-08-29's
+   19/28 — both independently dropped the identical 9-clue narrow-column block, not
+   different ones), re-measured against a freshly-crawled corpus that turned out to be
+   essentially FLAT on mordo (67,166 vs 66,443 raw, +1% — the blogspot feed has
+   plateaued) and newly EXHAUSTIVE on note.co.il (1,301/1,301, up from 1,001/1,301
+   partial): **0.0% (0/28) -> 3.6% (1/28), the first non-zero score this puzzle has ever
+   gotten.** Root-caused (not just measured): the hit traces to two generic mordo docs
+   that almost certainly already existed in the 2026-08-29 corpus, so the real cause was
+   this run finally transcribing the narrow "אופקי: 1...14" column the puzzle's two
+   prior attempts both silently skipped — a transcription-completeness fix, not a
+   corpus-size win. Net across all 7 measurements on 3 puzzles: 5 positive, 2 flat (both
+   now explained rather than mysterious). Corpus growth has plateaued on mordo and
+   note.co.il is now provably exhaustive — a fourth re-measurement of any of these three
+   puzzles is unlikely to move further; revisiting this lever again should mean a NEW
+   puzzle or a mechanism change, not another crawl. See log.
 2. ~~Definition-span detection~~ — TRIED 2026-08-19, NEGATIVE. See log and "already
    tried" below. Do not re-attempt without a fundamentally different signal (not
    indicator-word density).
@@ -2427,3 +2511,68 @@ Measure each lever on dev (fixed enums) with run_eval.py before/after; one lever
   "כולם חפצים מהבית" theme (an אוטובוס was due to appear on 09-08).
   Gates: ui_smoke 9/9 pages at both widths, topicgen_eval 52/52 boards,
   url_guard clean (6,071 URLs, none dropped), nativ regression 22/22.
+
+- 2026-11-22: **solver loop resumed after a 2.5-month gap** (last solver entry
+  2026-08-30/31; everything between 2026-09-04 and 2026-09-07 in this log was
+  site/SEO/nativ-game maintenance, a different recurring task on this repo, not this
+  loop — noted honestly rather than silently picking up as if yesterday). Bootstrapped
+  clean: `./bootstrap.sh --dev-only` recovered 52/52 puzzles / 1,457 clues from
+  14across on the first attempt (no retry needed, no hard wall today). RESEARCH.md
+  gained a dated entry: two searches on candidate generation / definition-span / Hebrew
+  morphology surfaced nothing newer than the paper set already on file, but a third
+  search turned up a genuinely new one, **Darmok (arXiv:2611.13557, ~2026-11-10)** —
+  a system the paper and UT Austin's own press coverage describe as placing first,
+  error-free, at the 2026 Times Crossword Championship, ahead of every human
+  competitor. Assessed honestly: its architecture (grid-wide constraint-tightening loop
+  + multiple models queried in parallel per clue) CONFIRMS this project's own existing
+  roadmap (PLAN_V2 item A: global constraint optimization once candidates are good; item
+  C: ensemble diversity, already validated here in the v4/v8 consensus runs) rather than
+  offering a new mechanism, and its precondition — that each model call already
+  produces a decent candidate — does not hold for this setter per this project's own
+  `candidates.py recall` numbers, so nothing from it was implemented today.
+
+  Today's lever (see the state table and queue item 1(d) above for the full numbers):
+  a THIRD `retrieval_candidates` measurement on 2026-07-10, this time with the puzzle's
+  first-ever FULL 28/28 transcription. Installed `tesseract-ocr`/`tesseract-ocr-heb`
+  this run to cross-check manual reading of the clue-text image
+  (`data/images/2026-07-11.jpg`, re-fetched since `data/` is gitignored) — OCR plus
+  careful boundary-matching against the real 14across gold enums (0/28 mismatches)
+  found that the puzzle's narrow "אופקי: 1. ... 14." column, sitting directly under the
+  `תשבץ היגיון` masthead, had been silently absent from BOTH prior attempts on this
+  exact image (2026-08-27 and 2026-08-29, each independently landing on exactly 19/28 —
+  now explained as 6 across-tail clues + all 13 down clues, with the same 9-clue block
+  missing both times). Crawled both private_defs sources fresh: mordo essentially
+  plateaued (67,166 raw / 62,811 parsed vs 2026-08-30's 66,443/62,403, about +1% over
+  2.5 months), note.co.il reached full exhaustion for the first time (1,301/1,301
+  fetched, up from the prior best of 1,001/1,301 partial). MEASURED: mechanical-only
+  0.0% (0/28); + retrieval 3.6% (1/28) — the first non-zero score this puzzle has
+  produced across three independent attempts. AUDITED: the one hit (10 across `יוט`,
+  clue "גרנט טוב לחג") traces to two `pid=None` mordo documents whose definitions
+  (`חג`, `יום טוב`) are a clean, non-coincidental fit (`יו"ט` is literally the standard
+  abbreviation of `יום טוב`, and the clue's own words `טוב`/`לחג` echo two of that
+  phrase's three words) — not a corpus-growth story, since both docs are generic enough
+  to have almost certainly been in the corpus already; the real cause was today's
+  transcription finally covering the clue that held the hit. `held_out_answers()` and
+  `retrieve_defs.held_out()` both reconfirmed to block all 28 gold answers; all 5
+  affected selftests re-run clean; no forbidden reads (14across used only through
+  bootstrap's sanctioned path for gold letters, clue text only from the public CDN
+  image); 0.0%->3.6% is well under the ~15-point implausibility bar.
+
+  HONEST READ: this closes the last of three puzzles' "flat" cells in the running
+  retrieval-recall diagnostic (now 5 positive / 2 flat across 7 measurements on 3
+  puzzles, both flat ones now explained rather than mysterious), but it is one weak hit,
+  not a verdict that 2026-07-10 is newly tractable, and it revises 2026-08-29's own
+  conclusion ("this puzzle's gaps aren't a corpus-size problem") from an educated guess
+  into a confirmed one, for a different reason than corpus size — a transcription gap
+  this project's own queue item 8 had already named as a recurring risk but never
+  before pinned to a specific measured null result. Corpus growth has now visibly
+  plateaued on mordo and note.co.il is provably exhaustive, so a further corpus-size
+  re-measurement on any of these three puzzles is low-value; the next useful move on
+  this lever is a new puzzle or a change to the retrieval mechanism, not another crawl.
+
+  NOT DONE, honestly: did not re-measure 2026-05-29 or 2026-06-26 (both already
+  measured twice each, and near-zero mordo growth makes a third pass low-value); did not
+  act on the still-open DAILY.md-leak-vector observation (flagged 2026-08-22, repeated
+  2026-08-30); did not attempt queue item 9 (definition-fit scoring) or build anything
+  from the Darmok paper; did not merge or act on any PR (none were open at the start of
+  this run).
