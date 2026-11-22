@@ -910,3 +910,74 @@ priority 2. Wiring in an already-built, already-audited tool as one more candida
 is not itself a research question — it is closing a gap between what the project's own
 research queue prioritized in 2026-08-08 and what got implemented, which is worth doing
 regardless of whether today's literature sweep turned up anything new.
+
+## 2026-11-22 — resuming after a long gap (last solver entry 2026-08-30/31)
+
+No solver-lever work happened between 2026-09-07 and today — the intervening sessions on
+this repo were site/SEO/nativ-game maintenance (CSP, GA4, index-cut, weekly news-crossword
+refresh, reader-request-queue mirrors; see `git log`), not this loop. Noting the gap
+honestly rather than silently picking up as if yesterday.
+
+**General search: "cryptic crossword solver LLM candidate generation 2026" and
+"definition span detection cryptic clue parsing neural 2026".** Both surfaced only the
+same paper set already logged here (2506.04824 Andrews/Witteveen candidate+formal-proof,
+2406.09043 SweepClip/grid-constrained LLM search, 2412.09012 definition-location
+evaluation, 2104.08620 Rozner/Potts/Mahowald span framing, 2025.naacl-long.104) — no new
+2026 work on span detection or candidate generation specifically. **Transfer: none new.**
+
+**Hebrew NLP / morphology / retrieval search.** Surfaced an Elastic write-up on a
+DictaBERT-backed Hebrew lemmatization plugin for Elasticsearch 9.x (prefixes/suffixes
+fuse onto the surface form, so plain token match misses בבית for בית) and a 2024 Hebrew
+homograph-disambiguation paper noting the task is hard here precisely because corpora are
+limited. **Transfer, honestly assessed: directionally relevant but not actionable today.**
+`retrieve_defs.py`'s BM25 index already folds finals and works on whole-token Hebrew
+strings with no lemmatization at all — a real gap (a crawled definition containing
+inflected forms of an answer's root won't match an unvocalized query token with a
+different prefix/suffix) — but DictaBERT is a ~700MB neural model requiring a Python ML
+stack (torch/onnxruntime) this project's solver deliberately does not carry (plain
+Python, no frameworks, per CLAUDE.md's own style rule), and the sandbox's egress is
+already the binding constraint on crawling more corpus, not matching what's crawled.
+Worth a line in the queue as a long-lead idea, not a buildable-today lever.
+
+**Genuinely new: Darmok (arXiv:2611.13557, posted ~2026-11-10), "Championship Cryptic
+Crossword Solving via Constraint Tightening and Resilient Orchestration."** A UT Austin
+system that the paper and a UT Austin press piece both describe as having placed first,
+error-free, at the 2026 Times Crossword Championship (English cryptics), ahead of every
+human competitor including the final puzzle (6m52s, ~3m13s ahead of the human champion).
+Architecture per the abstract/press coverage (not independently verified — self-reported
+preprint claims): grid-solving as an iterative constraint-tightening loop over crossing
+letters (the paper calls this "loosely analogous to arc-consistency propagation"),
+multiple frontier models queried in parallel per clue with the system waiting for all
+answers before committing to the grid, plus a resilience/fallback layer for API latency
+and failures.
+**Transfer, honestly assessed:** this is real signal, not a buildable lever today.
+Directionally it CONFIRMS two things this project's own error analysis already
+concluded independently: (1) PLAN_V2.md item A ("global constraint optimization over
+ranked candidates... the real prize, worth doing once candidate lists are good enough to
+optimise over") is validated as the winning architecture at the state of the art for
+English cryptics — Darmok's "constraint tightening" loop is this project's own
+sweep/re-crack worklist (`solver/sweep.py`, 2026-08-08) at championship scale; (2)
+ensemble/multi-model candidate diversity (Darmok's "query several models in parallel,
+wait for all answers") is the same lever this project already validated as PLAN_V2.md
+item C and measured directly in RESULTS.md's v4/v8 consensus runs (64% agreement-weighted
+vs 25% single-run baseline). Darmok does not transfer a new MECHANISM; it transfers
+confirmation that the project's own roadmap ordering is right, at a compute scale
+(multiple frontier-model API calls in parallel per clue, repeated across a live
+championship) this project is not resourced or scoped to match, and for English, where
+clue-text training data is ~1000x this project's own 8,249 Hebrew pairs. The actual
+bottleneck named in Darmok's own description — "waits for all answers before
+committing" — presupposes each model call already produces a decent candidate; this
+project's own `candidates.py recall` diagnostic says the opposite is true here
+(0.0%-14.3% recall@N on dev puzzles even with retrieval), so the precondition Darmok's
+architecture assumes does not yet hold for this setter. **Conclusion: log as the
+strongest external confirmation yet that PLAN_V2 item A is the right structural target,
+change nothing today** — candidate quality, not grid-level optimization, is still the
+measured constraint, per this project's own numbers, not Darmok's.
+
+**Lever chosen today (see DAILY.md):** neither thread produced a new buildable mechanism,
+so today continues the standing, explicitly-flagged gap from the 2026-08-29/08-30 entries
+— re-measuring `retrieval_candidates` on 2026-07-10, the one puzzle that has stayed flat
+at 0.0% across three prior corpus sizes, this time with a FULL 28/28 transcription
+(previous attempts twice got only 19/28 from the same across-1-15 column-wrap gap
+2026-08-30 already diagnosed and fixed for a different puzzle) and a corpus crawled fresh
+today, roughly 2.5 months after the last crawl.
