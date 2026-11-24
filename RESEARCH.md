@@ -4,6 +4,83 @@ One entry per run: what was found, one-line summary, and an honest judgement of 
 it transfers to a Hebrew cryptic solver with an 8k-clue corpus. Default skepticism: most
 crossword-AI work targets non-cryptic (American-style) puzzles and does not transfer.
 
+## 2026-11-24
+
+Resuming after PR #127/#128/#129 (2026-11-20/21/22, all unmerged — see "state of the
+backlog" below). Two searches this run: (1) cryptic-solver candidate generation /
+charade decomposition, (2) Hebrew morphological segmentation for wordplay.
+
+**Darmok (arXiv 2611.13557, late 2026)** — already surfaced by PR #129's research, still
+the most relevant hit. Formalizes cryptic wordplay as a compositional syntax tree over a
+fixed operator set (Manley's taxonomy), with charade as one explicit operator:
+concatenation of component strings end to end. This is exactly `solver/charade.py`'s own
+model (built 2026-08-08, never wired into `candidates.py`) — the paper doesn't offer a
+new mechanism here, but it is independent confirmation that charade-as-concatenation is
+the right formalization, not a simplification this project invented. **Transfer: confirms,
+doesn't add** — consistent with PR #129's read.
+
+**A Reasoning-Based Approach to Cryptic Clue Solving (arXiv 2506.04824, 2025).** Generates
+candidates, proposes wordplay parses, formalizes each as Python, and checks it — the same
+shape as this project's `prove.py` gate. Its verifier checks charade fragments like
+`"EXA"+"MP"+"LE"` directly against the answer, i.e. exactly `solver/charade.py`'s
+`rec()` assembly loop. Notably it treats "confident without crossing letters" as the
+target, which matches this project's own confidence-discipline language in
+SOLVE_PROTOCOL.md. **Transfer: validates the existing architecture (generate candidates,
+verify by execution), no new mechanism to port.**
+
+**Prompted reasoning models for device selection (arXiv 2601.00514, 2026).** A system
+prompt has the model enumerate candidate devices (charade, anagram, hidden, ...), check
+indicators per device, and pick one — in its worked example, correctly rejecting a
+hidden-word misparse in favor of charade after indicator-checking. This is pure-LLM
+device classification, the thing this project's `defspan.py` tried to make mechanical
+and measured negative four times (2026-08-19, 2026-10-24, 2026-10-25, 2026-10-26) because
+this setter's clues mostly carry no lexical indicator at all. **Transfer: none new** — a
+fifth attempt at indicator-based classification isn't warranted; this confirms rather
+than overturns the existing "do not re-attempt with the same signal" conclusion.
+
+**DictaBERT (arXiv 2308.16687) for Hebrew morphological segmentation**, surfaced by the
+second search. A genuine, real, fine-tuned Hebrew prefix-segmentation + morphological
+tagging model (not merely a synonym resource like the already-rejected Hebrew WordNet
+lead). `solver/charade.py`'s own `frags_for()` currently de-prefixes clue tokens with a
+hand-written list of 13 fixed prefix strings (`ו,ב,ל,מ,ש,כ,ה` and 7 two-letter
+combinations) — a real, disclosed simplification that misses compound prefixes
+(e.g. `וכש`, `ומ`) and any case where the "stem" needs more than prefix-stripping
+(construct-state changes, doubled letters). A proper morphological analyzer could plug in
+here. **Transfer: plausible but not buildable today** — this sandbox has no evidence of
+HuggingFace/model-download egress being available (every prior external-data path in this
+project goes through named public HTTP endpoints: 14across, he.wikipedia.org, mordo,
+note.co.il; no prior run has fetched a model checkpoint), and even if reachable, this is a
+dependency-adding change (torch/transformers) to a project that's been deliberately
+"plain Python, no frameworks" throughout. Flagging as a real, disclosed lead for a future
+run that first confirms egress + accepts the dependency, not attempting it today.
+
+**State of the backlog (read before picking today's lever, not re-researched today):**
+PRs #103 through #129 (2026-10-27 through 2026-11-22) already document, in detail, that
+`main` has had no solver-related merge since 2026-08-30, and PR #127 counted 87 open PRs
+with pervasive duplication (`container_candidates` alone ~15-17 times). PR #127 also
+already executed the "grow `sub_fwd()` via the secondary corpus" step (PLAN_V2 item G):
+525 -> 2,143 forward head words, but measured **flat** recall@N on this exact dev puzzle
+(2026-05-29) — same single anagram hit before and after, and the specific named gap
+(`sub_fwd('טורפ')`) still `None` post-growth. PR #128's device census (full corpus,
+n=1,457, rule-based classification via `indicators.json`'s own crowd-explanation-label
+vocabulary) found charade/substitution-shaped clues (no single device marker) are 52.4%
+of the corpus — the dominant category by far — which is the quantitative backing for why
+PR #113/#126/#127 each independently converged on "the shared substitution table is the
+real bottleneck, not another device generator."
+
+**Conclusion, and the lever this run actually built.** Neither search turned up a new
+mechanism to port. The concrete, non-literature-sourced gap this run targeted instead:
+`solver/charade.py` is a genuine multi-part charade ENUMERATOR (not a classifier) —
+exactly the thing the 2026-08-08 research-informed queue's lever 3 called for, and
+exactly what the English-cryptic literature above (Darmok, 2506.04824) independently
+confirms as the right formalization of this device. It was built 2026-08-08, measured a
+weak 2.8% standalone hit-rate on the train split with the ORIGINAL (small, main-corpus-
+only) substitution table, and was never wired into `candidates.py`'s `generate()` because
+of that weak number — and never re-measured since, including after PR #127's 4x table
+growth. Today's lever: reproduce the secondary-corpus growth (gitignored, must be redone
+every session) and re-measure `charade.py` standalone before deciding whether wiring it
+in is still a dead end or now worth it. See DAILY.md for the measured result.
+
 ## 2026-08-30
 
 Bootstrap hit the same hard 14across wall as 2026-08-19/08-26/08-27/08-28 (4 consecutive

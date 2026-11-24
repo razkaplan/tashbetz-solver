@@ -21,9 +21,34 @@ tree - a stale CLI deploy overwrote the live site on 2026-08-29. See CLAUDE.md.
 | **Definition-span locatable rate (new, offline, diagnostic)** | **25% (7/28)** have mechanically-locatable single-window wordplay; of those 29% (2/7) are interior, not edge; classifier agreement on edge cases **1/5** | not a target — this diagnostic KILLED the lever, see log |
 | **`solve_pass.py` LIVE blind trial — cumulative (3 trials)** | **40% precision (2/5 committed)**: 2026-08-16 was 1/2 on a partial 21/28-clue puzzle (2026-06-12); 2026-08-22 was **0/2**, 7.1% coverage, on a FULL 28/28-clue puzzle (2026-05-15); **2026-08-27 is 1/1 = 100% precision but 5.3% coverage (1/19), 0% suggestion hit-rate (0/10)**, on 2026-07-10 (19/28 clues) — FIRST trial run with `retrieval_candidates` live (wired 2026-08-25, never live-trialed since); it contributed ZERO candidates all puzzle (grepped the transcript for `(retrieval, fodder=` hits — none), matching today's own offline recall@N finding on this same puzzle (0/19 with or without retrieval); the one correct commit came from `wiki.py` culture-fact lookup, not from any candidate generator | n=5 — still small; retrieval's live debut is a null result on this puzzle, not a regression, but not the coverage lift the queue hoped for either; see log |
 | **Candidate recall@N with `culture_category_candidates` added (new, offline, definition-driven)** | **0% (0/28)**, on 2026-06-19 — mechanism fired on only 1/28 clues (avg candidates/clue 10.5 → 11.4); its one firing (339 raw candidates, an "author" category hit) matched 0 gold | not yet a target — small-n diagnostic, see log |
+| **`charade.py` standalone firing rate, before/after the secondary-corpus table growth (new, offline)** | **0/28 clues fired (0.0%) → 20/28 clues fired (71.4%)** on 2026-05-29 once the substitution table grows from 528 to 2,149 head words (main+secondary corpus, held-out filtered); **hit rate stayed 0/28 both before and after** — the mechanism went from silent to prolific on this puzzle without ever once landing on the actual answer; wiring it into `candidates.py generate()` confirmed recall@N unchanged (3.6%, same 1 hit) with avg candidates/clue rising 12.1→17.0 | not yet a target — diagnostic, see log |
 
 Baseline for comparison: v2 = 41% raw with untraceable errors.
-Last lever added (2026-08-30): **closed 2026-08-29's own "NOT DONE" gap: re-measured
+Last lever added (2026-11-24): **resumed the daily loop after a stall** (last solver-only
+entry committed to `main` was 2026-08-30/31; PRs #38 through #129, 2026-08-31 through
+2026-11-22, document ~90 days of real work that never merged — see Log for details).
+Built on PR #127's unmerged finding (growing the corpus-mined substitution table 525→2,143
+head words moved recall@N not at all on this exact dev puzzle) by asking a question that
+specific PR didn't: does the table growth even change what the SUBSTITUTION-SHAPED
+mechanisms *produce*, independent of whether it's correct? Reproduced the secondary-corpus
+growth fresh (gitignored, redone every session; 310 puzzles / 6,818 clues, matching
+RESULTS.md exactly) and re-ran `solver/charade.py` — a full multi-part charade enumerator
+built 2026-08-08, measured a weak 2.8% standalone and never wired into `candidates.py`
+since, and never re-tested after any later corpus growth. MEASURED: standalone, it fires on
+0/28 clues with the small (bootstrap-only) table and 20/28 (71%) with the grown one — a
+real, large behavioral change invisible to recall@N-only measurement — but 0/28 hits either
+way. Wiring it into `generate()` directly (temporary, not committed — see log) confirmed
+the full-pipeline number is unaffected: 3.6% (1/28, same anagram hit) before and after,
+avg candidates/clue 12.1→17.0. HONEST READ: this refines, not just reproduces, PR #127's
+negative result — the table's sparsity was never actually what stopped this specific
+mechanism on this specific puzzle; once the table is big enough to fire broadly, it still
+doesn't produce the right answers, which points at candidate PRECISION (the generated
+fragments are real words but the wrong ones) rather than table RECALL as the remaining gap.
+No code was shipped (negative result on both the micro- and macro-measurement; wiring a
+0-value mechanism into the live pool would only add noise to the candidate budget other
+mechanisms compete for). See log for the full transcription, audit, and research trail.
+
+Previous lever (2026-08-30): **closed 2026-08-29's own "NOT DONE" gap: re-measured
 `retrieval_candidates` on 2026-06-26 — the puzzle 2026-08-28/08-29 both flagged as still
 needing a bigger corpus and no run had finished re-transcribing — this time FULLY (28/28
 clues, not the 18/28 partial 2026-08-26 left) and against a corpus grown far past any
@@ -2427,3 +2452,138 @@ Measure each lever on dev (fixed enums) with run_eval.py before/after; one lever
   "כולם חפצים מהבית" theme (an אוטובוס was due to appear on 09-08).
   Gates: ui_smoke 9/9 pages at both widths, topicgen_eval 52/52 boards,
   url_guard clean (6,071 URLs, none dropped), nativ regression 22/22.
+
+- 2026-11-24: **resumed the daily solver-improvement loop** after a long gap in
+  solver-specific commits to `main` (the last one was 2026-08-30/31; intervening
+  sessions on this repo, visible above, were site/SEO/nativ-game maintenance — a
+  separate recurring task, not this one). Checked the PR backlog first, as the
+  queue's own standing advice says to: PRs #38 through #129 (2026-08-31 through
+  2026-11-22) are all open against this same stale `main`, roughly one per
+  calendar day, essentially none merged. The three most recent (#127, #128, #129,
+  2026-11-20/21/22) already did real, careful work: #127 grew the corpus-mined
+  substitution table via the secondary (easier-setter) corpus — 525 → 2,143
+  forward head words — and measured recall@N on 2026-05-29 UNCHANGED (3.6%,
+  same single anagram hit); #128 built a full-corpus (n=1,457) device-frequency
+  census and found 52.4% of clues are charade/substitution-shaped with no
+  single device marker, the dominant category by far; #129 closed out the
+  `retrieval_candidates` puzzle-dependence question on 2026-07-10. None of this
+  is merged, so none of it is on `main`, and a 15th backlog-consolidation
+  attempt was explicitly reasoned against by #126/#127 themselves (another
+  branch next to the rest does not fix a process problem only the project
+  owner can fix by merging something). This run did not attempt a
+  consolidation either, for the same reason, and instead did the queue's
+  actual job: research, then one lever, built on #127/#128's findings rather
+  than beside them.
+
+  BOOTSTRAP succeeded fully this run: `./bootstrap.sh --dev-only` recovered
+  52/52 puzzles from 14across cleanly (0 empty answers) — no image-fallback
+  needed for gold data, only for clue TEXT (never available from 14across).
+  TRANSCRIBED the canonical dev puzzle (2026-05-29) from `data/images/2026-05-28.jpg`
+  (per bootstrap step 6), all 28 clues, with real crowd-sourced gold answers
+  from `data/answers/by_date/2026-05-29.json` rather than the image-fallback
+  solution-grid technique (available this run since 14across worked). Caught
+  and resolved one genuine transcription ambiguity mid-run, disclosed rather
+  than guessed past: a line-wrap boundary at clues 14/16/18 (down) initially
+  read as enums (6,3) for clue 16 and (4,4) for clue 18 — neither matches
+  either clue's grid-derived or gold-derived length. Re-examined at higher
+  zoom and re-derived the correct pairing from BOTH semantic coherence (clue
+  18's text is unmistakably about Avigail/Nabal/David, clue 16's about a sad
+  author named Rafael/the book "מנחם מנדל") and enum-sum matching against gold:
+  the true pairing is clue 14 (6,3)=9 -> `טליגוטליב`, clue 16 (4,4)=8 ->
+  `מנחממנדל`, clue 18 (5,2)=7 -> `בתזוגתו`. Validated EVERY one of the 28
+  enums two independent ways before trusting any of them: (1) sum against the
+  real 14across gold answer length, via `solver/build_dataset.py` — **0/28
+  mismatches**; (2) pure grid geometry via `grid_tools.validate()` against the
+  already-committed `data/grids/2026-05-29.json` (no gold data involved at
+  all) — **0 problems**. Both checks passing independently is the strongest
+  cross-validation this transcription has had across every prior run that
+  used this same canonical puzzle. The baseline recall@N measurement below
+  reproduces the historical number exactly (same single hit, clue 2 down
+  `יחפניות`), a further honest cross-check that today's transcription is
+  correct, not just internally consistent.
+
+  RESEARCH (full writeup in RESEARCH.md): two searches, cryptic candidate
+  generation / charade decomposition, and Hebrew morphological segmentation.
+  Darmok (arXiv 2611.13557) and a reasoning-based solver (arXiv 2506.04824)
+  both independently confirm charade-as-concatenation is the right
+  formalization of the device (no new mechanism to port, just validation of
+  the existing `charade.py` design). A prompted-device-selection paper (arXiv
+  2601.00514) is more pure-LLM indicator-based classification, the exact
+  approach `defspan.py` already measured negative four times — not
+  re-attempted. DictaBERT (arXiv 2308.16687), a real Hebrew morphological
+  segmentation model, is a genuine, disclosed lead for improving
+  `charade.py`'s hand-written 13-entry prefix list, but not attempted today:
+  no evidence this sandbox can reach HuggingFace model weights, and it would
+  add a dependency (torch/transformers) to a project that has stayed
+  deliberately plain-Python throughout.
+
+  LEVER (queue item 1, building on PR #127's unmerged finding): reproduced
+  the secondary-corpus growth myself (`scraper/parse_answers_multi.py`,
+  gitignored output, redone every session) — **310 puzzles, 6,818 clues**,
+  matching RESULTS.md's documented size exactly. Rebuilt
+  `solver/lex/substitutions.json` against main+secondary: 2,149 forward head
+  words — smaller than the already-committed 2,220 (same finding bootstrap.sh
+  and PR #127 already documented: a from-scratch rebuild is never quite as
+  big as the file's own history), so **not committed**, reverted with `git
+  checkout --` immediately after use, same discipline as every prior run.
+  Re-ran `solver/charade.py` (a multi-part charade enumerator, built
+  2026-08-08, measured 2.8% standalone on the small original table and never
+  wired into `candidates.py` since) directly against this puzzle's 28 clues
+  (its own `eval` subcommand is a dead end in any single-dev-puzzle session —
+  it filters to `split=='train'` rows, which a session with only one
+  transcribed puzzle never has, so it has likely silently measured 0/0 in
+  every daily run since 2026-08-08 without anyone noticing).
+
+  MEASURED (executed): standalone charade firing — **0/28 clues produce any
+  candidate with the small (bootstrap-regenerated, 528-head-word) table ->
+  20/28 (71.4%) with the grown (2,149-head-word) table**, a large, real
+  change in mechanism behavior. Hit rate: **0/28 both before and after** —
+  not one of the now-abundant charade candidates is the right answer on this
+  puzzle. Wired charade into `candidates.py generate()` for a one-off
+  measurement (a monkey-patched copy of `generate()` in a scratch script, NOT
+  a committed code change): `recall_eval()` mechanical-only — **3.6% (1/28),
+  unchanged**, same single anagram hit (`יחפניות`), avg candidates/clue rose
+  12.1 -> 17.0.
+
+  AUDITED (mandatory gate). `lexicon.held_out_answers()`,
+  `substitutions.held_out()`, and `retrieve_defs.held_out()` all reconfirmed
+  (computed, not assumed) to block all 28 of this puzzle's own gold answers,
+  checked AFTER the corpus grew, not just before. Specifically checked
+  `charade.py`'s loaded `SUBS` table (the committed, reverted file) for any
+  gold answer sitting as a head-word: two were found (`הלו`, `אושכפ`) — looked
+  closer rather than waving it off, and both are consistent with the
+  established, accepted precedent (RESULTS.md's own leak writeup: "ordinary
+  dictionary words that happen to be answers legitimately remain") — they are
+  short common Hebrew strings appearing as substitution targets mined from
+  unrelated puzzles' explanations, not anything sourced from this puzzle's
+  own (held-out, excluded) text. No forbidden reads: 14across was used only
+  through bootstrap's sanctioned scrape path; clue text came only from the
+  public CDN image; no answers/solution site, no verbatim clue search. All 5
+  standard selftests (`candidates.py`, `retrieve_defs.py`, `lexicon.py`,
+  `prove.py`, `substitutions.py`) re-run clean. No implausible jump to
+  explain — both measured numbers (0/28 and 3.6%) are flat or a null
+  increase, the easy case to audit, not a suspicious one.
+
+  HONEST READ: a genuine negative result, but a more informative one than a
+  repeat of PR #127's finding would have been. PR #127 showed growing the
+  table doesn't move recall; this run shows WHY at the mechanism level — not
+  because the table is too sparse to fire (it now fires on 71% of clues) but
+  because what it produces, even abundantly, isn't the right answer. That
+  shifts the honest diagnosis for this specific lever from "needs a bigger
+  table" (already tried, by PR #127, flat) to "needs more PRECISE
+  candidates from the table it already has" — a different, not-yet-tried
+  shape of fix, if this is revisited. No code shipped: wiring a 0-hit
+  mechanism into the live candidate pool would cost other mechanisms budget
+  (`generate()`'s own documented truncation-priority concern) for no
+  measured benefit.
+
+  NOT DONE, honestly: did not attempt a 15th PR-backlog consolidation (see
+  above — #126/#127 already reasoned through why that doesn't fix anything a
+  human merge wouldn't fix faster). Did not re-measure the DictaBERT lead
+  (flagged, not attempted — see Research). Did not re-measure
+  `retrieval_candidates` or any other already-wired mechanism (today's one
+  lever was charade-specific). Did not merge or otherwise act on any of the
+  ~90 other open PRs — only the project owner can. Did not act on the
+  long-standing "DAILY.md itself is a leak-adjacent vector" observation
+  (flagged 2026-08-22, repeated 2026-08-30, still unaddressed) beyond not
+  making it worse.
