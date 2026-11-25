@@ -21,9 +21,115 @@ tree - a stale CLI deploy overwrote the live site on 2026-08-29. See CLAUDE.md.
 | **Definition-span locatable rate (new, offline, diagnostic)** | **25% (7/28)** have mechanically-locatable single-window wordplay; of those 29% (2/7) are interior, not edge; classifier agreement on edge cases **1/5** | not a target — this diagnostic KILLED the lever, see log |
 | **`solve_pass.py` LIVE blind trial — cumulative (3 trials)** | **40% precision (2/5 committed)**: 2026-08-16 was 1/2 on a partial 21/28-clue puzzle (2026-06-12); 2026-08-22 was **0/2**, 7.1% coverage, on a FULL 28/28-clue puzzle (2026-05-15); **2026-08-27 is 1/1 = 100% precision but 5.3% coverage (1/19), 0% suggestion hit-rate (0/10)**, on 2026-07-10 (19/28 clues) — FIRST trial run with `retrieval_candidates` live (wired 2026-08-25, never live-trialed since); it contributed ZERO candidates all puzzle (grepped the transcript for `(retrieval, fodder=` hits — none), matching today's own offline recall@N finding on this same puzzle (0/19 with or without retrieval); the one correct commit came from `wiki.py` culture-fact lookup, not from any candidate generator | n=5 — still small; retrieval's live debut is a null result on this puzzle, not a regression, but not the coverage lift the queue hoped for either; see log |
 | **Candidate recall@N with `culture_category_candidates` added (new, offline, definition-driven)** | **0% (0/28)**, on 2026-06-19 — mechanism fired on only 1/28 clues (avg candidates/clue 10.5 → 11.4); its one firing (339 raw candidates, an "author" category hit) matched 0 gold | not yet a target — small-n diagnostic, see log |
+| **Candidate recall@N with `gematria_candidates` + `container_candidates` + `charade_candidates` COMBINED (new, offline, 2026-11-25)** | **3.6% (1/28), UNCHANGED**, on a fifth independent transcription of 2026-05-29 (reproduces the historical baseline exactly) — all three mechanisms wired into ONE `generate()` pool for the first time (each individually measured flat in PRs #109/#124/#130); avg candidates/clue nearly doubles (11.9 → 22.5); container fired on 21/28 clues, charade on 19/28, gematria on 0/28 (no number mention anywhere in this puzzle) — productive, not dead code, but the UNION still lands on zero clues beyond the one pre-existing anagram hit, confirmed even at unlimited (untruncated) candidate budget | not yet a target — diagnostic; first test of the ensemble-diversity hypothesis (PLAN_V2 item C) for MECHANICAL generators specifically, see log |
 
 Baseline for comparison: v2 = 41% raw with untraceable errors.
-Last lever added (2026-08-30): **closed 2026-08-29's own "NOT DONE" gap: re-measured
+Last lever added (2026-11-25): **first-ever combined measurement of three mechanisms
+that were each built and measured flat in isolation, in separate unmerged PRs:
+`gematria_candidates` (#109, 2026-11-02), `container_candidates` (#124, 2026-11-17),
+and `charade.py`'s multi-part enumerator (re-tested against a grown table in #130,
+2026-11-24, never wired into `candidates.py` itself).** `main` has had no
+solver-related merge since 2026-08-30 (83 PRs open, #38-#130 — not re-flagged with a
+new push notification, since the condition is unchanged and was already reported
+2026-11-05/2026-11-20 with no visible effect — see the open-PR audit below). Because
+every daily branch forks fresh off that stale `main`, no branch anywhere in the
+backlog combines more than one of these three mechanisms with each other or with the
+existing seven — each was measured completely alone. Cherry-picked all three (reading
+their source PRs directly, not re-deriving) onto one branch and wired them into a
+single `generate()` pool with `use_gematria`/`use_container`/`use_charade` toggles,
+late-tier like anagram/hidden/reversal (both container and charade are measured
+COMBINATORIAL, same crowding-out risk 2026-08-20 already found once).
+
+Found and fixed a real, previously-unflagged held-out-safety gap while wiring
+`charade.py` in: it loaded the COMMITTED `solver/lex/substitutions.json` directly from
+disk (module-level `SUBS`, built at import time), the exact leak shape
+`candidates.py`'s own `sub_fwd()` was built in 2026-08-25 to avoid for
+`substitution_candidates` — that file predates `substitutions.held_out()`'s fix and
+may include dev/eval puzzles' own crowd explanations. `charade.py` had simply never
+been wired into a held-out recall measurement before, so nothing had exercised the
+gap. Fixed by making `charade.candidates()`/`frags_for()` accept an injectable `subs`
+table (CLI behavior unchanged — still falls back to the committed file via the new
+`default_subs()`), and added `candidates.py`'s own `charade_subs()`: an in-memory
+rebuild via `substitutions.mine()` (which excludes held-out clues by default),
+combining both directions the same way the committed file's `fwd`+`rev` would. Added a
+`selftest` to `charade.py` itself (it had none before today) proving an injected table
+is used INSTEAD of the committed file, not alongside it.
+
+Re-transcribed the canonical dev puzzle (2026-05-29) a fifth independent time, from
+`data/images/2026-05-28.jpg` (bootstrap's 14across scrape succeeded fully this run,
+52/52 puzzles — gold answers came from the real crowd data, not the image-fallback
+technique). Cross-validated two independent ways, both clean: every one of the 28 enum
+sums against the real 14across gold answer length (0/28 mismatches, after resolving
+one real line-wrap ambiguity at clues 10/11's shared boundary by re-cropping the image
+at higher zoom — disclosed, not silently fixed, see log) **and** `grid_tools.validate()`
+against the already-committed grid's own computed numbering (0 problems) — geometry
+only, no gold data involved, the strongest cross-check this project's transcription
+step has.
+
+MEASURED, controlled before/after (`python3 solver/candidates.py recall
+data/dataset/clues.jsonl eval --no-culture --no-retrieval [--no-gematria --no-container
+--no-charade]`): mechanical-only baseline (7 original mechanisms) **3.6% (1/28)** —
+exactly reproduces the historical number on this puzzle (fifth independent
+cross-check), the one hit being the long-standing anagram (2 down, `יחפניות`); **+ all
+three new mechanisms combined: still 3.6% (1/28), UNCHANGED** — avg candidates/clue
+rises 11.9 → 22.5. Direct per-mechanism firing counts (not inferred from the recall
+number): `container_candidates` fired on 21/28 clues (630 raw candidates),
+`charade_candidates` on 19/28 (689 raw), `gematria_candidates` on 0/28 (this puzzle
+names no number anywhere — a genuine absence, not a bug: the mechanism's own selftest
+confirms it fires correctly when a clue does name one). Re-ran at `max_n=100000`
+(effectively unlimited, no truncation) to rule out the 2026-08-20-shaped bug where a
+real hit exists but gets crowded out of a capped candidate list before scoring sees it:
+**still exactly 1/28** — the flat result is not a tier-ordering or budget artifact.
+Full defaults (culture+retrieval+gematria+container+charade) also 3.6%, unchanged
+(no `private_defs` corpus was crawled this run, so retrieval/culture contribute their
+already-established zero on this puzzle, same as several prior runs with no fresh
+crawl).
+
+AUDITED (mandatory gate). `lexicon.held_out_answers()` and `substitutions.held_out()`
+both confirmed (computed, not assumed) to block all 28 of this puzzle's own gold
+answers. Specifically checked the two new in-memory tables this lever added:
+`sub_fwd()` and the new `charade_subs()` were both directly checked for whether ANY of
+the 28 gold answers sits reachable as an output VALUE of either table — zero for both
+(not just zero collisions with this puzzle's clues; a direct membership check over all
+28 answers against every value either table can produce). No forbidden reads:
+14across was used only through bootstrap's sanctioned scrape, clue text from the
+public CDN image already on record for this puzzle; no answers/solution site visited.
+Implausibility check: N/A by construction — the result is flat (3.6% → 3.6%), the
+opposite of a jump, so there is nothing to explain away. All 5 standard selftests
+(`candidates.py` — 1 new gematria + 2 new container + 2 new charade-toggle checks
+added to the existing 12, all passing — `retrieve_defs.py`, `lexicon.py`, `prove.py`,
+`substitutions.py`) plus `charade.py`'s own new selftest re-run clean.
+
+HONEST READ: a real, clean negative result, and a more informative one than any of
+the three individual PRs could produce alone, because it directly tests (and rules
+out, on this puzzle) the specific hypothesis that motivated combining them: that three
+mechanisms each too weak to move recall alone might cover different clues from each
+other and from the existing seven, raising UNION recall the way independent LLM solve
+runs' consensus did (RESULTS.md v8, PLAN_V2 item C). They don't, here — both newly
+productive mechanisms (container, charade) fire on the large majority of clues
+(21/28, 19/28) without landing on any of the 27 that remain unsolved, which narrows
+the standing diagnosis further: this puzzle's remaining gap is not candidate-shape
+coverage (ten mechanisms now exist, covering every documented device plus charade/
+gematria, firing abundantly) but DEFINITION FIT — which candidate among the many
+genuinely-generated real words matches what the clue actually means — exactly queue
+item 9's long-standing, still-unsolved gap (the one external attempt at it, AlephBERT
+re-ranking, PR #105, also measured negative).
+
+NOT DONE, honestly: did not measure on a second puzzle (combining and auditing three
+mechanisms plus the held-out-safety fix for one of them filled this run's one-lever
+budget; a second puzzle would strengthen but is unlikely to change today's honest
+read, given container/charade already have 2-puzzle and PLAYBOOK-wide null results
+behind them individually). Did not resolve the printed-enum ambiguity at clues 10/11
+beyond re-reading the image at higher zoom (both readings summed correctly once
+correctly attributed to the right clue number — see log for the specific
+misattribution caught and fixed). Did not crawl `private_defs` fresh (today's lever
+was mechanism-combination, not corpus growth). Did not attempt a 16th backlog
+consolidation — the backlog is unchanged and already reported twice with no visible
+effect; repeating that report would itself be the noise the project's own reporting
+discipline warns against. Did not merge or otherwise act on any of the 83 other open
+PRs — only the project owner can.
+
+Previous lever (2026-08-30): **closed 2026-08-29's own "NOT DONE" gap: re-measured
 `retrieval_candidates` on 2026-06-26 — the puzzle 2026-08-28/08-29 both flagged as still
 needing a bigger corpus and no run had finished re-transcribing — this time FULLY (28/28
 clues, not the 18/28 partial 2026-08-26 left) and against a corpus grown far past any
@@ -518,6 +624,14 @@ propagated), `blank`. Score with `python3 evals/run_eval.py <file>`.
    leak-adjacent vector — it named 2 of today's 4 gold answers in a prior entry, before
    this run's required reading. Worth a future lever (redact specific answer strings from
    log prose, or split required-reading history from an answer-bearing appendix).
+   2026-11-25: three mechanisms built in separate unmerged PRs since (gematria #109,
+   container #124, charade re-tested #130) were COMBINED into one `generate()` pool for
+   the first time (none had ever been tested alongside each other) — still **3.6%
+   (1/28), UNCHANGED**, even though container/charade fire on 21/28 and 19/28 clues and
+   even at an unlimited candidate budget. Narrows the standing diagnosis: with ten
+   mechanisms now covering every documented device and firing abundantly, this puzzle's
+   remaining gap looks like DEFINITION-FIT (item 9 below), not device-shape coverage.
+   See log and the state table.
 2. ~~Definition-span detection~~ — TRIED 2026-08-19, NEGATIVE. See log and "already
    tried" below. Do not re-attempt without a fundamentally different signal (not
    indicator-word density).
@@ -2427,3 +2541,49 @@ Measure each lever on dev (fixed enums) with run_eval.py before/after; one lever
   "כולם חפצים מהבית" theme (an אוטובוס was due to appear on 09-08).
   Gates: ui_smoke 9/9 pages at both widths, topicgen_eval 52/52 boards,
   url_guard clean (6,071 URLs, none dropped), nativ regression 22/22.
+
+- 2026-11-25: **first-ever combined measurement of `gematria_candidates` (#109),
+  `container_candidates` (#124), and `charade.py`'s multi-part enumerator (#130) in ONE
+  `generate()` pool** — each had only ever been built and measured alone, in separate
+  unmerged PRs off stale `main` (83 open, #38-#130, no solver merge since 2026-08-30;
+  not re-flagged with a new push notification — unchanged condition, already reported
+  2026-11-05/2026-11-20). Full writeup (measurement, audit, honest read) is in the
+  state table's own "Last lever added" entry above; this entry covers the mechanics.
+
+  Bootstrap succeeded fully (52/52 puzzles via 14across, 1,457 clues). Transcribed
+  2026-05-29 (the canonical dev puzzle) a fifth independent time from
+  `data/images/2026-05-28.jpg`, cropping the image with ImageMagick (`convert`, since
+  the sandbox's `PIL`/Pillow install is broken — `ImportError: cannot import name
+  '_imaging'` — worked around rather than blocking on it) to read the small print
+  clearly at 3-4x zoom. One real transcription trap caught and fixed before measuring,
+  disclosed rather than silently corrected: a first pass misattributed the enum
+  `(3,4)` to clue 11 instead of clue 10 (both sit on the same printed line, with clue
+  10's trailing "..." immediately followed by "(3,4) 11. טורף..." — easy to misread
+  which number the parenthetical belongs to at normal zoom). Caught by the length
+  mismatch it would have caused (קרתנימ is 6 letters, not 7) and resolved by
+  re-cropping tightly around just that line; the corrected transcription (clue 10 gets
+  (3,4), clue 11 gets its own printed (6)) then matched both the real gold answer
+  lengths AND `grid_tools.validate()`'s independent, gold-blind geometry check, 0
+  problems either way.
+
+  Found a real, previously-unexercised held-out-safety gap in `charade.py` while
+  wiring it into `candidates.py` for the first time (see the state table entry for the
+  fix) — nothing had ever combined it with a held-out recall measurement before today,
+  so the gap (loading the committed, not-held-out-safe `lex/substitutions.json`
+  directly) had never been triggered, only `sub_fwd()`'s equivalent 2026-08-25 fix
+  existed as precedent to follow.
+
+  MEASURED: 3.6% (1/28) mechanical-only -> 3.6% (1/28) combined, unchanged, even at an
+  unlimited candidate budget (ruling out truncation as the explanation) and even though
+  container and charade both fire productively (21/28 and 19/28 clues respectively).
+  AUDITED clean: both new in-memory tables (`sub_fwd()`, `charade_subs()`) checked
+  directly for any of the 28 gold answers reachable as an output value — zero for
+  both. All 5 standard selftests plus `charade.py`'s new one re-run clean.
+
+  HONEST READ: a real negative result that is more informative than any one of
+  #109/#124/#130 alone, because it directly tests and rules out (on this puzzle) the
+  specific ensemble-diversity hypothesis that motivated combining them — three devices
+  that together now cover every mechanism PLAYBOOK.md documents, firing abundantly,
+  still don't move recall, which points the standing diagnosis more specifically at
+  DEFINITION-FIT (queue item 9) rather than any remaining device-coverage gap. See the
+  state table entry above for the full "not done, honestly" list.

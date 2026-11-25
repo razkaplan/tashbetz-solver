@@ -230,6 +230,178 @@ def substitution_candidates(clue_text, target_len, table=None):
     return out
 
 
+# Standard Hebrew numeral letter values, descending, for greedy decomposition.
+# 500-900 fall out of the same greedy pass as repeated ת (ת+ק=500, ת+ת+ק=900, ...);
+# no separate table entry is needed for them.
+_GEMATRIA_TABLE = [
+    (400, 'ת'), (300, 'ש'), (200, 'ר'), (100, 'ק'),
+    (90, 'צ'), (80, 'פ'), (70, 'ע'), (60, 'ס'), (50, 'נ'), (40, 'מ'),
+    (30, 'ל'), (20, 'כ'), (10, 'י'), (9, 'ט'), (8, 'ח'), (7, 'ז'),
+    (6, 'ו'), (5, 'ה'), (4, 'ד'), (3, 'ג'), (2, 'ב'), (1, 'א'),
+]
+
+# Spelled-out counts a clue might name. Not exhaustive (hundreds beyond a round 100/200
+# are vanishingly rare in a clue's surface text); covers 1-19, the round tens, and the
+# two round hundreds worth a dedicated word.
+NUMBER_WORDS = {
+    'אחד': 1, 'אחת': 1, 'שניים': 2, 'שתיים': 2, 'שני': 2, 'שתי': 2,
+    'שלושה': 3, 'שלוש': 3, 'ארבעה': 4, 'ארבע': 4, 'חמישה': 5, 'חמש': 5,
+    'שישה': 6, 'שש': 6, 'שבעה': 7, 'שבע': 7, 'שמונה': 8, 'תשעה': 9, 'תשע': 9,
+    'עשרה': 10, 'עשר': 10,
+    'אחד עשר': 11, 'אחת עשרה': 11, 'שנים עשר': 12, 'שתים עשרה': 12,
+    'שלושה עשר': 13, 'שלוש עשרה': 13, 'ארבעה עשר': 14, 'ארבע עשרה': 14,
+    'חמישה עשר': 15, 'חמש עשרה': 15, 'שישה עשר': 16, 'שש עשרה': 16,
+    'שבעה עשר': 17, 'שבע עשרה': 17, 'שמונה עשר': 18, 'שמונה עשרה': 18,
+    'תשעה עשר': 19, 'תשע עשרה': 19,
+    'עשרים': 20, 'שלושים': 30, 'ארבעים': 40, 'חמישים': 50, 'שישים': 60,
+    'שבעים': 70, 'שמונים': 80, 'תשעים': 90, 'מאה': 100, 'מאתיים': 200,
+}
+
+# Fixed cultural gematria idioms (general Hebrew/Jewish knowledge, not mined from this
+# project's own puzzle corpus) — a clue naming the IDIOM is naming the number.
+GEMATRIA_IDIOMS = {'צדיק': 36, 'חי': 18}
+
+
+def int_to_gematria(n):
+    """Standard Hebrew numeral spelling, 1-999, greedy largest-value-first. 15/16 use
+    ט"ו/ט"ז (9+6, 9+7) rather than the letter-for-letter 10+5/10+6, which would spell
+    two letters of the Tetragrammaton — a centuries-old convention this genre's own
+    crowd explanations follow (PLAYBOOK.md C.3), not an edge case to special-case away."""
+    if not isinstance(n, int) or not (1 <= n <= 999):
+        return None
+    out, rem = [], n
+    for v, l in _GEMATRIA_TABLE:
+        if v == 10 and rem in (15, 16):
+            out.append('טו' if rem == 15 else 'טז')
+            rem = 0
+            continue
+        while rem >= v:
+            out.append(l)
+            rem -= v
+    return ''.join(out)
+
+
+def gematria_mentions(clue_text):
+    """Numbers named in a clue -> [(value, matched_phrase), ...]: digit runs, spelled-out
+    counts (NUMBER_WORDS, longest phrase first so a teen like 'חמישה עשר' is not shadowed
+    by matching its own first word 'חמישה'), and fixed idioms (GEMATRIA_IDIOMS)."""
+    text = strip_credit(clue_text)
+    out = []
+    for m in re.finditer(r'\d+', text):
+        v = int(m.group())
+        if 1 <= v <= 999:
+            out.append((v, m.group()))
+    for phrase in sorted(NUMBER_WORDS, key=len, reverse=True):
+        if re.search(r'(?<![א-ת])' + re.escape(phrase) + r'(?![א-ת])', text):
+            out.append((NUMBER_WORDS[phrase], phrase))
+    for phrase, v in GEMATRIA_IDIOMS.items():
+        for w in words_of(text):
+            nw = norm(w)
+            if nw.startswith(phrase) or any(nw.startswith(p + phrase) for p in HOMO_PREFIXES):
+                out.append((v, w))
+                break
+    return out
+
+
+def gematria_candidates(clue_text, target_len, table=None):
+    """A number NAMED in the clue stands for its Hebrew-numeral letter spelling. Two
+    shapes, mirroring substitution_candidates:
+      (a) the spelling alone covers the full target length;
+      (b) the spelling plus an ADJACENT clue word's mined substitute (sub_fwd(), held-out
+          safe) concatenate to the full length, in either order — a number-flavoured
+          charade. Adjacency keeps this precise instead of an open-ended part search.
+    `table` is injectable (tests / callers) instead of always hitting sub_fwd()."""
+    fwd = table if table is not None else sub_fwd()
+    words = lex()
+    ws = words_of(clue_text)
+    out = []
+    for value, phrase in gematria_mentions(clue_text):
+        letters = int_to_gematria(value)
+        if not letters:
+            continue
+        if len(letters) == target_len and letters in words:
+            out.append({'answer': letters, 'mechanism': 'gematria', 'fodder': phrase})
+        first_tok = norm(phrase.split()[0])
+        for i, w in enumerate(ws):
+            if norm(w) != first_tok:
+                continue
+            for j in (i - 1, i + 1):
+                if not (0 <= j < len(ws)):
+                    continue
+                for b, n in fwd.get(norm(ws[j]), []):
+                    for joined in (letters + b, b + letters):
+                        if len(joined) == target_len and joined in words:
+                            out.append({'answer': joined, 'mechanism': 'gematria',
+                                        'fodder': f'{phrase}+{ws[j]}'})
+    return out
+
+
+def container_candidates(clue_text, target_len, table=None):
+    """The insertion device (SOLVE_PROTOCOL.md "container: X בתוך Y phrasing; assemble").
+    prove.py's is_container(outer, inner, answer) has verified this shape since before
+    this file existed, with a worked example already sitting in its own docstring/
+    selftest: 'תן' (jackal) inserted inside 'קרים' (cold/wintry ones) -> קרתנים. That
+    example was hand-derived by a human/past session, because nothing in candidates.py
+    ever GENERATED a container candidate — every other mechanism here had both a
+    generator and a verifier; this device only ever had the verifier. That is the gap
+    this function closes.
+
+    A container clue's two fragments routinely are NOT both literal clue substrings —
+    the worked example above is exactly this: 'קרים' sits literally inside the clue's
+    'בקרים', but 'תן' is nowhere in the clue's letters at all. It is the setter's own
+    crowd explanation for this project's own 2026-05-29/11-across ("תן זה טורף בתוך
+    קרים" — "תן [jackal] is a predator, inside קרים"): 'תן' is what 'טורף' (predator)
+    MEANS, i.e. the mined substitution device substitution_candidates() already uses,
+    not a letter run. So this searches four combinations for which fragment supplies
+    which role: literal clue char-window (same discipline as anagram/hidden/reversal —
+    `_char_windows`) and/or a mined substitution (`table`/`sub_fwd()`, same discipline
+    as substitution_candidates) for EACH of outer and inner. Insertion position is
+    INTERIOR only (prove.py's own is_container forbids k=0 or k=len(outer) — prepending
+    or appending is `concat`, not `container`).
+
+    Held-out safe exactly like substitution_candidates: `table` defaults to sub_fwd(),
+    which already excludes dev/eval clues' own mined explanations (so THIS clue's own
+    'טורף'->'תן' pair is correctly invisible when this puzzle itself is held out — this
+    function can only recover it from some OTHER puzzle's independently mined pair, same
+    discipline as every other corpus-backed mechanism in this file). A literal fragment
+    can only ever be a substring of the clue text itself, so that half carries the same
+    no-invention guarantee hidden_candidates has.
+
+    `table` is injectable (tests / callers), same discipline as every other mechanism.
+    """
+    fwd = table if table is not None else sub_fwd()
+    words = lex()
+    joined = joined_letters(clue_text)
+    ws = words_of(clue_text)
+    sub_frags = [(norm(b), w) for w in ws for b, n in fwd.get(norm(w), [])]
+
+    out = []
+    seen = set()
+
+    def options(length):
+        """(fragment, source-description) pairs of exactly `length`, from both the
+        clue's own letters and the mined substitution table."""
+        lits = [(joined[i:i + length], 'lit') for i in range(len(joined) - length + 1)]
+        subs = [(b, f'sub:{w}') for b, w in sub_frags if len(b) == length]
+        return lits + subs
+
+    for outer_len in range(2, target_len):
+        inner_len = target_len - outer_len
+        if inner_len < 1:
+            continue
+        outers = options(outer_len)
+        inners = options(inner_len)
+        for outer, o_src in outers:
+            for inner, i_src in inners:
+                for k in range(1, len(outer)):
+                    cand = outer[:k] + inner + outer[k:]
+                    if cand in words and cand not in seen:
+                        seen.add(cand)
+                        out.append({'answer': cand, 'mechanism': 'container',
+                                    'fodder': f'{o_src}:{outer}+{i_src}:{inner}'})
+    return out
+
+
 _AMBIG = None
 
 
@@ -423,6 +595,58 @@ def retrieval_candidates(clue_text, target_len, topk=25, docs_df=None):
     return [{'answer': a, 'mechanism': 'retrieval', 'fodder': None} for a, _score in hits]
 
 
+_CHARADE_SUBS = None
+
+
+def charade_subs():
+    """Held-out-safe equivalent of charade.py's module-level SUBS: both directions of
+    the mined substitution table, rebuilt IN-MEMORY from substitutions.mine() (which
+    excludes dev/eval clues' own explanations by default) rather than loading the
+    committed solver/lex/substitutions.json charade.py's own default_subs() uses — that
+    file predates substitutions.held_out()'s fix and was built from a corpus mix that may
+    include dev/eval puzzles' own crowd explanations (same leak shape sub_fwd() above was
+    built to avoid for substitution_candidates; charade.py never got the equivalent fix
+    because nothing had wired it into a held-out recall measurement before today)."""
+    global _CHARADE_SUBS
+    if _CHARADE_SUBS is None:
+        sys.path.insert(0, HERE)
+        import substitutions
+        cwd = os.getcwd()
+        try:
+            os.chdir(ROOT)
+            pairs = substitutions.mine(substitutions.explanations())
+        finally:
+            os.chdir(cwd)
+        subs = {}
+        for (a, b), n in pairs.items():
+            subs.setdefault(a, []).append((b, n))
+            subs.setdefault(b, []).append((a, n))  # charade.py's SUBS cites both directions
+        _CHARADE_SUBS = subs
+    return _CHARADE_SUBS
+
+
+def charade_candidates(clue_text, target_len, subs=None, max_parts=3):
+    """Wraps solver/charade.py's multi-part charade enumerator (2026-08-08) — built the
+    same day as this file but never wired into generate()'s pool, and its own standalone
+    `eval` subcommand has likely been silently measuring 0/0 in every daily session since
+    (it filters to split=='train' rows, which a single-dev-puzzle session never has).
+    Measured standalone on 2026-08-08: 2.8% train-split hit-rate — weak alone, but the
+    point of wiring it in here is the same UNION argument retrieval_candidates' docstring
+    makes: a different decomposition signal (ordered multi-part concatenation, not
+    anagram/hidden/reversal/adjacency-only-pairs) may cover clues the others miss, even
+    while contributing little alone.
+
+    ALWAYS passes a held-out-safe `subs` table (charade_subs() by default) rather than
+    letting charade.candidates() fall back to its own default_subs(), which loads the
+    committed (not held-out-safe) lex/substitutions.json — see charade_subs()'s own
+    docstring. `subs` stays injectable for tests."""
+    sys.path.insert(0, HERE)
+    import charade
+    table = subs if subs is not None else charade_subs()
+    hits = charade.candidates(clue_text, target_len, max_parts=max_parts, subs=table)
+    return [{'answer': a, 'mechanism': 'charade', 'fodder': p} for _score, a, p in hits]
+
+
 def pattern_candidates(pattern):
     """pattern like '?ו?ר??' — '?' or '_' = unknown crossing letter. The lexicon folds
     final letters (ם/ן/ץ/ף/ך -> מ/נ/צ/פ/כ) everywhere, so fixed cells must be folded
@@ -459,7 +683,8 @@ def split_candidates(cands, enum):
     return out
 
 
-def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retrieval=True):
+def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retrieval=True,
+             use_gematria=True, use_container=True, use_charade=True):
     """Diverse candidates for one clue. Never consults the answer.
 
     Mechanism order here is a PRIORITY order, not just an accumulation order: dedup +
@@ -477,13 +702,21 @@ def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retr
     docstrings) — placed in the same early tier as homograph/substitution: culture_category
     fires rarely and each hit is a real named entity; retrieval is capped at its own topk
     (25 by default) and ranked, not an unbounded window scan, so it does not need to wait
-    behind the cheap mechanisms either. `use_culture`/`use_retrieval` are plain on/off
-    switches so a controlled before/after recall measurement doesn't need extra copies of
-    this function."""
+    behind the cheap mechanisms either. gematria is in the same early tier for the same
+    reason (a number mention either exists in the clue or it doesn't). container and
+    charade are measured COMBINATORIAL (container: up to ~130 real-word hits on one clue,
+    PR #124; charade: fires on most clues once the substitution table is large enough,
+    PR #130), the same shape as anagram/hidden/reversal, so BOTH go in the late,
+    high-volume tier — placing either one early would silently crowd out the rare/precise
+    mechanisms exactly the way 2026-08-20's bug describes. `use_culture`/`use_retrieval`/
+    `use_gematria`/`use_container`/`use_charade` are plain on/off switches so a controlled
+    before/after recall measurement doesn't need extra copies of this function."""
     target_len = sum(enum)
     cands = []
     cands += homograph_candidates(clue_text, target_len)
     cands += substitution_candidates(clue_text, target_len)
+    if use_gematria:
+        cands += gematria_candidates(clue_text, target_len)
     if use_culture:
         cands += culture_category_candidates(clue_text, target_len)
     if use_retrieval:
@@ -493,6 +726,10 @@ def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retr
     cands += anagram_candidates(clue_text, target_len)
     cands += hidden_candidates(clue_text, target_len)
     cands += reversal_candidates(clue_text, target_len)
+    if use_container:
+        cands += container_candidates(clue_text, target_len)
+    if use_charade:
+        cands += charade_candidates(clue_text, target_len)
 
     seen, uniq = set(), []
     for c in cands:
@@ -511,7 +748,8 @@ def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retr
 # isolation, BEFORE it is wired into a live solve+proof loop (which is a
 # separate integration step, not done by this lever).
 # ---------------------------------------------------------------------------
-def recall_eval(dataset_path, split=None, max_n=25, use_culture=True, use_retrieval=True):
+def recall_eval(dataset_path, split=None, max_n=25, use_culture=True, use_retrieval=True,
+                 use_gematria=True, use_container=True, use_charade=True):
     total = 0
     hit = 0
     by_mech = Counter()
@@ -525,7 +763,8 @@ def recall_eval(dataset_path, split=None, max_n=25, use_culture=True, use_retrie
             continue
         total += 1
         cands = generate(r['clue_text'], r['enum'], max_n=max_n, use_culture=use_culture,
-                          use_retrieval=use_retrieval)
+                          use_retrieval=use_retrieval, use_gematria=use_gematria,
+                          use_container=use_container, use_charade=use_charade)
         sizes.append(len(cands))
         gold = norm(r['answer_raw'])
         found = [c for c in cands if c['answer'] == gold]
@@ -598,6 +837,96 @@ def selftest():
     found = any(h['answer'] == norm('שלום') for h in hits)
     print(f'  found שלום as של+ום from two adjacent words: {found} (expected True)')
     ok &= found
+
+    print('--- gematria device: int_to_gematria matches the standard-spelling exceptions ---')
+    checks = {14: 'יד', 15: 'טו', 16: 'טז', 36: 'לו', 100: 'ק'}
+    gem_ok = all(int_to_gematria(n) == norm(s) for n, s in checks.items())
+    print(f'  {checks}: {gem_ok} (expected True; 15/16 use the ט"ו/ט"ז exception)')
+    ok &= gem_ok
+
+    print('--- gematria device: a digit named in the clue covers the full length alone ---')
+    hits = gematria_candidates('יש לי 14 ספרים', 2)
+    found = any(h['answer'] == norm('יד') for h in hits)
+    print(f'  found יד (14) as a standalone gematria hit: {found} (expected True)')
+    ok &= found
+
+    print('--- gematria device: a spelled-out count + an ADJACENT word\'s substitute '
+          'concatenate ---')
+    gem_table = {norm('משהו'): [(norm('וב'), 3)]}
+    hits = gematria_candidates('הגיעו שלוש משהו', 3, table=gem_table)
+    found = any(h['answer'] == norm('גוב') for h in hits)
+    print(f'  found גוב as ג(3)+וב from an adjacent substitute: {found} (expected True)')
+    ok &= found
+
+    print('--- gematria device: use_gematria=False in generate() disables it ---')
+    with_g = generate('יש לי 14 ספרים', [2], use_culture=False, use_retrieval=False,
+                       use_container=False, use_charade=False, use_gematria=True)
+    without_g = generate('יש לי 14 ספרים', [2], use_culture=False, use_retrieval=False,
+                          use_container=False, use_charade=False, use_gematria=False)
+    toggled = any(c['mechanism'] == 'gematria' for c in with_g) and \
+        not any(c['mechanism'] == 'gematria' for c in without_g)
+    print(f'  gematria present only when enabled: {toggled} (expected True)')
+    ok &= toggled
+
+    print('--- container device: literal outer + literal inner, inserted interior-only ---')
+    # שלום = שם (outer, 2) with לו (inner, 2) inserted after the first letter: ש-לו-ם.
+    hits = container_candidates('שם ועוד לו משהו', 4, table={})
+    found = any(h['answer'] == norm('שלום') for h in hits)
+    print(f'  found שלום as שם with לו inserted: {found} (expected True)')
+    ok &= found
+
+    print('--- container device: literal outer + a MINED SUBSTITUTION as the inner ---')
+    sub_table3 = {norm('ליד'): [(norm('לו'), 3)]}
+    hits = container_candidates('שם ועוד ליד משהו', 4, table=sub_table3)
+    found = any(h['answer'] == norm('שלום') for h in hits)
+    print(f'  found שלום as שם with the mined substitute of ליד inserted: {found} '
+          f'(expected True)')
+    ok &= found
+    literal_only = container_candidates('שם ועוד ליד משהו', 4, table={})
+    none_found = not any(h['answer'] == norm('שלום') for h in literal_only)
+    print(f'  …and confirmed it is NOT findable without the substitution table at all: '
+          f'{none_found} (expected True)')
+    ok &= none_found
+
+    print('--- container device: use_container=False in generate() disables it ---')
+    on = generate('שם ועוד לו משהו', [4], use_container=True, use_culture=False,
+                   use_retrieval=False, use_gematria=False, use_charade=False, max_n=200)
+    off = generate('שם ועוד לו משהו', [4], use_container=False, use_culture=False,
+                    use_retrieval=False, use_gematria=False, use_charade=False, max_n=200)
+    on_has = any(c['answer'] == norm('שלום') and c['mechanism'] == 'container' for c in on)
+    off_has = any(c['mechanism'] == 'container' for c in off)
+    print(f'  on: {on_has} (expected True), off: {off_has} (expected False)')
+    ok &= on_has and not off_has
+
+    print('--- charade device: a 2-part charade from an INJECTED table, not the '
+          'committed file ---')
+    charade_table = {norm('אחד'): [(norm('של'), 3)], norm('שני'): [(norm('ום'), 2)]}
+    hits = charade_candidates('אחד שני דברים', 4, subs=charade_table)
+    found = any(h['answer'] == norm('שלום') for h in hits)
+    print(f'  found שלום as של+ום via charade.candidates(): {found} (expected True)')
+    ok &= found
+    print('--- charade device: use_charade=False in generate() disables it ---')
+    # generate() calls charade_candidates() with no injected table (it must use the real,
+    # held-out-safe charade_subs() in production), so the toggle check monkey-patches the
+    # module-level function itself rather than relying on this synthetic clue happening to
+    # fire against the real corpus — same discipline PR #113's double_definition toggle
+    # test used for an analogous fixed-table-at-call-time mechanism.
+    _orig_charade = globals()['charade_candidates']
+    globals()['charade_candidates'] = lambda *a, **k: [
+        {'answer': norm('שלום'), 'mechanism': 'charade', 'fodder': 'stub'}]
+    try:
+        with_c = generate('אחד שני דברים', [4], use_culture=False, use_retrieval=False,
+                           use_gematria=False, use_container=False, use_charade=True,
+                           max_n=200)
+        without_c = generate('אחד שני דברים', [4], use_culture=False, use_retrieval=False,
+                              use_gematria=False, use_container=False, use_charade=False,
+                              max_n=200)
+    finally:
+        globals()['charade_candidates'] = _orig_charade
+    on_has = any(c['mechanism'] == 'charade' for c in with_c)
+    off_has = any(c['mechanism'] == 'charade' for c in without_c)
+    print(f'  on: {on_has} (expected True), off: {off_has} (expected False)')
+    ok &= on_has and not off_has
 
     print('--- homograph device: a clue word, de-prefixed, already IS the answer ---')
     # שרה is the canonical example (PLAYBOOK.md/SOLVE_PROTOCOL.md): she sings / a female
@@ -681,14 +1010,23 @@ def main():
         rest = sys.argv[2:]
         use_culture = '--no-culture' not in rest
         use_retrieval = '--no-retrieval' not in rest
-        rest = [a for a in rest if a not in ('--no-culture', '--no-retrieval')]
+        use_gematria = '--no-gematria' not in rest
+        use_container = '--no-container' not in rest
+        use_charade = '--no-charade' not in rest
+        flags = ('--no-culture', '--no-retrieval', '--no-gematria', '--no-container',
+                  '--no-charade')
+        rest = [a for a in rest if a not in flags]
         path = rest[0] if len(rest) > 0 else 'data/dataset/clues.jsonl'
         split = rest[1] if len(rest) > 1 else None
         os.chdir(ROOT)
-        res = recall_eval(path, split, use_culture=use_culture, use_retrieval=use_retrieval)
+        res = recall_eval(path, split, use_culture=use_culture, use_retrieval=use_retrieval,
+                           use_gematria=use_gematria, use_container=use_container,
+                           use_charade=use_charade)
         print(f"recall@N: {res['hit']}/{res['total']} = {res['recall']:.1%}  "
               f"(avg {res['avg_candidates']:.1f} candidates/clue, "
-              f"use_culture={use_culture}, use_retrieval={use_retrieval})")
+              f"use_culture={use_culture}, use_retrieval={use_retrieval}, "
+              f"use_gematria={use_gematria}, use_container={use_container}, "
+              f"use_charade={use_charade})")
         print('hits by mechanism:', res['by_mechanism'])
         if res['misses']:
             print(f"\n{len(res['misses'])} misses (clue_number, direction, gold):")
