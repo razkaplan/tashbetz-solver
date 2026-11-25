@@ -910,3 +910,55 @@ priority 2. Wiring in an already-built, already-audited tool as one more candida
 is not itself a research question — it is closing a gap between what the project's own
 research queue prioritized in 2026-08-08 and what got implemented, which is worth doing
 regardless of whether today's literature sweep turned up anything new.
+
+## 2026-11-25
+
+First run after a gap since 2026-11-24 (PR #130, unmerged — `main` still has no
+solver-related merge since 2026-08-30; 83 PRs open, #38 through #130, flagged
+repeatedly — see DAILY.md, not re-litigated here). Read several recent open PRs'
+bodies directly before choosing today's lever (same discipline PR #127/#130 used), to
+avoid re-measuring something already settled.
+
+**Search: "cryptic crossword solving candidate generation ensemble diverse mechanisms
+2026 arxiv".** Same paper family logged on every prior pass since 2026-08-06 (Andrews
+& Witteveen 2506.04824, 2412.09012, 2406.09043, 2403.12094) — no 2026 paper on
+ensembling multiple MECHANICAL candidate generators specifically. **Transfer: none
+new.**
+
+**Search: "Hebrew morphology segmentation cryptic wordplay NLP 2026".** One
+genuinely new-to-this-log citation: **"Beyond Word Boundaries: A Hebrew Coreference
+Benchmark and an Evaluation Protocol for Morphologically Complex Text"** (arXiv
+2604.17108, 2026) — introduces KibutzR, a Hebrew coreference benchmark, and finds
+automatic (non-gold) segmentation costs neural coreference models 1.4-2.6 F1 points
+versus gold segmentation, arguing segmentation and coreference should be modeled
+jointly. **Transfer: none** — this is a coreference-resolution paper, not a wordplay
+or candidate-generation one, and this project's own standing diagnosis (repeated
+since 2026-08-06) already holds that morphological segmentation is not where this
+solver loses recall: `lexicon.py`'s hspell-plus-final-letter-folding handles
+segmentation cleanly, and `candidates.py`'s fodder search is character-level
+specifically so it never depends on word segmentation being correct in the first
+place. Checked directly (not taken on the abstract alone) rather than assumed not to
+transfer. No other Hebrew-NLP resource surfaced beyond what is already logged across
+the ten-plus prior passes on this exact query shape.
+
+**Conclusion, and the lever this run actually built.** Neither search produced a new,
+buildable external resource — the now-standard outcome for this project's literature
+sweeps (RESEARCH.md's last genuinely new, buildable citation was DictaBERT,
+2026-11-24, itself not attempted for a disclosed reason). Went back to the project's
+own code and its own open-PR backlog instead: three recent unmerged PRs each added
+ONE new mechanical generator to `candidates.py` in isolation — `gematria_candidates`
+(#109, 2026-11-02, measured flat), `container_candidates` (#124, 2026-11-17, measured
+flat on two puzzles), and `charade.py`'s multi-part enumerator re-tested against a
+grown table (#130, 2026-11-24, measured flat; fires on 71% of clues but 0 hits). No
+branch anywhere in the 83-PR backlog combines more than one of these with the others,
+because every daily branch forks fresh off stale `main`, which has none of them.
+PLAN_V2.md's own item C ("deliberate ensemble diversity... widening the union raises
+the ceiling the merge draws from") was validated years ago for independent LLM solve
+runs, but never tested for MECHANICAL candidate generators specifically — three
+individually-flat mechanisms could in principle still raise UNION recall by covering
+different clues than each other and the existing seven. That is a genuinely new
+empirical question none of #109/#124/#130 could ask alone, and it is today's lever.
+See DAILY.md for what was built (all three mechanisms cherry-picked and wired into one
+`generate()` pool, plus a held-out-safety fix to `charade.py` that wiring it in
+exposed) and the measured (flat, even combined, even at unlimited candidate budget)
+result.
