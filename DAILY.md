@@ -21,9 +21,32 @@ tree - a stale CLI deploy overwrote the live site on 2026-08-29. See CLAUDE.md.
 | **Definition-span locatable rate (new, offline, diagnostic)** | **25% (7/28)** have mechanically-locatable single-window wordplay; of those 29% (2/7) are interior, not edge; classifier agreement on edge cases **1/5** | not a target — this diagnostic KILLED the lever, see log |
 | **`solve_pass.py` LIVE blind trial — cumulative (3 trials)** | **40% precision (2/5 committed)**: 2026-08-16 was 1/2 on a partial 21/28-clue puzzle (2026-06-12); 2026-08-22 was **0/2**, 7.1% coverage, on a FULL 28/28-clue puzzle (2026-05-15); **2026-08-27 is 1/1 = 100% precision but 5.3% coverage (1/19), 0% suggestion hit-rate (0/10)**, on 2026-07-10 (19/28 clues) — FIRST trial run with `retrieval_candidates` live (wired 2026-08-25, never live-trialed since); it contributed ZERO candidates all puzzle (grepped the transcript for `(retrieval, fodder=` hits — none), matching today's own offline recall@N finding on this same puzzle (0/19 with or without retrieval); the one correct commit came from `wiki.py` culture-fact lookup, not from any candidate generator | n=5 — still small; retrieval's live debut is a null result on this puzzle, not a regression, but not the coverage lift the queue hoped for either; see log |
 | **Candidate recall@N with `culture_category_candidates` added (new, offline, definition-driven)** | **0% (0/28)**, on 2026-06-19 — mechanism fired on only 1/28 clues (avg candidates/clue 10.5 → 11.4); its one firing (339 raw candidates, an "author" category hit) matched 0 gold | not yet a target — small-n diagnostic, see log |
+| **`windowstats` — how often max_n=25 actually binds (new, offline, diagnostic)** | **32% (9/28)** of clues produce >=25 raw anagram/hidden/reversal candidates before truncation (one clue alone: 97); **50% (14/28)** have >=1 word-aligned end span whose length matches the enum, on 2026-05-29 (freshly re-transcribed this run) | not a target — motivates today's lever, see log |
+| **Candidate recall@N with `edge_spans`/`tag_edge_alignment` reordering (new, offline, definition-span-aware)** | **3.6% (1/28), UNCHANGED** with edgespan on vs off, on 2026-05-29 — reorder verified to change the surviving top-25 on genuine truncated clues (confirmed directly, not assumed), but none of the 9 truncated clues' GOLD answer happened to be promoted by it on this puzzle | not yet a target — honest null result, see log |
 
 Baseline for comparison: v2 = 41% raw with untraceable errors.
-Last lever added (2026-08-30): **closed 2026-08-29's own "NOT DONE" gap: re-measured
+Last lever added (2026-11-26): **definition-span-aware candidate reordering** (queue item
+1/9's own suggested alternative to the struck indicator-density signal: "scoring by whether
+each end's residual is anagram-matchable"). `solver/candidates.py` gained `edge_spans()`
+(word-aligned prefix/suffix word-spans whose own letter count equals the enum total — a pure
+length check, no indicator vocabulary) and `tag_edge_alignment()` (marks anagram/hidden/
+reversal candidates whose fodder window IS such a span, then `generate()` sorts them ahead of
+the rest of that tier). Motivated by a NEW measurement this run (`windowstats`): on the
+freshly re-transcribed 2026-05-29 puzzle, max_n=25 actually binds on 9/28 clues (one produces
+97 raw candidates before truncation) — the priority-order bug class DAILY.md already flagged
+once (2026-08-20, substitution/homograph vs the cheap window scan) is not fully closed; it
+just has a new instance inside the window-scan tier itself. MEASURED: recall@N UNCHANGED,
+3.6% (1/28) with the reorder on or off — a genuine, mechanistically-explained null result
+(verified directly that the reorder DOES change which candidates survive truncation on real
+truncated clues, e.g. clue 9 across; it just never happens to be the clue carrying this
+puzzle's one gold hit). AUDITED: no new data source (operates only on clue_text + enum, same
+inputs `_char_windows` already uses), `lexicon.held_out_answers()`/`retrieve_defs.held_out()`
+both confirmed to block all 28 of this puzzle's own gold answers, all 6 affected selftests
+(`candidates.py`, `retrieve_defs.py`, `lexicon.py`, `prove.py`, `substitutions.py`,
+`defspan.py`) re-run clean, no jump to explain (flat, not a spike). See log for the full
+transcription/measurement/audit trail.
+
+Previous lever (2026-08-30): **closed 2026-08-29's own "NOT DONE" gap: re-measured
 `retrieval_candidates` on 2026-06-26 — the puzzle 2026-08-28/08-29 both flagged as still
 needing a bigger corpus and no run had finished re-transcribing — this time FULLY (28/28
 clues, not the 18/28 partial 2026-08-26 left) and against a corpus grown far past any
@@ -589,6 +612,15 @@ propagated), `blank`. Score with `python3 evals/run_eval.py <file>`.
    (2026-08-22/23/24) — the next attempt on this item should assume none exists and work
    from the project's own data (as `culture_category_candidates`, 2026-08-24, did) or be
    scoped as a genuinely new internal idea, not another literature sweep.
+   2026-11-26: tried the item's own suggested alternative signal ("scoring by whether each
+   end's residual is anagram-matchable") as `candidates.py`'s new `edge_spans`/
+   `tag_edge_alignment` — see DAILY.md state table and log. Measured UNCHANGED recall@N on
+   this run's puzzle (a verified, explained null result, not a failure to measure); this is
+   a REORDERING signal for the existing mechanical tier, not yet a definition-FIT scorer
+   that could judge a culture_category/retrieval candidate's semantic fit — this item's
+   core gap (judging definition fit for candidates that don't share letters with the clue
+   at all) remains open. A second puzzle's data point is the natural next step before
+   judging the reordering lever itself either way.
 
 ## Things already tried — do not repeat
 - More knowledge tooling (wiki, culture lexicon, shironet titles): helped early, now saturated.
@@ -2427,3 +2459,106 @@ Measure each lever on dev (fixed enums) with run_eval.py before/after; one lever
   "כולם חפצים מהבית" theme (an אוטובוס was due to appear on 09-08).
   Gates: ui_smoke 9/9 pages at both widths, topicgen_eval 52/52 boards,
   url_guard clean (6,071 URLs, none dropped), nativ regression 22/22.
+
+- 2026-11-26: **candidate generation, definition-span-aware reordering** (queue item 1's
+  priority (a)/(b) combined, and queue item 9's own suggested next approach after the
+  indicator-density classifier was struck 2026-08-19: "scoring by whether each end's
+  residual is anagram-matchable"). `./bootstrap.sh --dev-only` ran clean: 14across worked
+  FULLY this run (52/52 puzzles, 1,457 clues — the "intermittent bot-check" failure mode
+  several recent runs hit did not recur today), so gold answers for 2026-05-29 (this
+  project's own canonical dev puzzle) came directly from `data/answers/by_date/2026-05-29.json`
+  (real crowd-sourced answers + explanations), not the image-fallback technique.
+
+  RESEARCH (full entries in RESEARCH.md): a full sweep across candidate generation, wordplay
+  formalisation, definition-span detection, and Hebrew NLP/morphology found nothing new and
+  buildable — same already-logged citation set (2506.04824, 2407.08824, 2412.09012,
+  2104.08620) on the crossword side. One new angle tried and explicitly rejected: 2025/2026
+  "diverse candidate generation" papers (GSA-Beam/IJCAI 2026, NeSylns/CP 2026) are all
+  techniques for getting diversity OUT OF AN LLM's decoding process — `candidates.py` has no
+  LLM in it, so none of them attach to anything here; checked and ruled out rather than left
+  unconfirmed. One new Hebrew-NLP sighting (arXiv 2604.17108, a 2026 Hebrew coreference
+  benchmark) found segmentation error costs 1.4-2.6 F1 points and GPT-4o trails a smaller
+  specialized encoder even with gold mentions — narrow transfer, and it argues AGAINST adding
+  a neural Hebrew segmenter here, confirming rather than challenging the project's existing
+  non-neural lexicon approach.
+
+  TRANSCRIPTION: re-transcribed all 28 clues of 2026-05-29 independently (this is at least
+  the fourth independent transcription of this exact puzzle across this project's history —
+  2026-08-06, 2026-08-20, 2026-08-25, 2026-08-28, now today — `data/` is gitignored so every
+  run redoes it) from `data/images/2026-05-28.jpg`, cropped into bands and read at 3-4x zoom
+  per DAILY.md's own documented technique for this setter's dense, two-column, bidi-tricky
+  layout. Caught one real layout subtlety mid-transcription, disclosed rather than silently
+  resolved: the top-right boxed "אופקי" sub-column (clues 1-13, printed separately from the
+  main clue column because this setter's layout runs out of room) cuts off clue 13's text
+  mid-sentence at the box's hard border ("...13. בני טוב"), and the clue's remainder plus its
+  enum continue in the MAIN column's first line, interleaved with the start of clue 15 — the
+  correct parse (verified against the known answer lengths: ליסט=4, מגמ=3) is "13. בני טוב
+  האריה שלה שואג מכל מקום (4)" then "15. כמלחצין (3)", not the naive top-to-bottom read.
+  VALIDATED every one of the 28 enum sums two ways: against the GRID-DERIVED slot length
+  (`python3 solver/grid_tools.py validate data/grids/2026-05-29.json data/clues/2026-05-29.json`
+  -> `OK`, 0/28 mismatches) and against the real gold answer's letter count via
+  `solver/build_dataset.py` (`28 rows ... len mismatches: 0; missing answers: 0`). Several
+  clues' semantic content cross-checks cleanly against this project's own prior independent
+  transcriptions of this puzzle logged on earlier dates (e.g. 26 across
+  יהונתן גפן ויהודה פוליקר על ברית מילה -> פחותאבלכואב, 2 down's anagram פחות יין ->
+  יחפניות) — strong corroboration the parse above is right, not a one-off guess.
+
+  IMPLEMENTED exactly one lever: `solver/candidates.py` gained `edge_spans(clue_text, enum)`
+  (every word-aligned prefix/suffix word-run whose own letter count equals the enum total —
+  pure counting, no indicator vocabulary, so it cannot be fooled by an absent or misleading
+  indicator word the way 2026-08-19's struck classifier was) and `tag_edge_alignment(cands,
+  clue_text, enum)` (marks which anagram/hidden/reversal candidates' fodder window IS such a
+  span). `generate()` now sorts the window-scan tier so edge-aligned candidates survive the
+  max_n=25 truncation ahead of the rest of that tier; `recall_eval`/the CLI gained a matching
+  `use_edgespan` toggle for a controlled ablation, and a new `windowstats` diagnostic command.
+
+  MEASURED (executed): `python3 solver/candidates.py windowstats data/dataset/clues.jsonl eval`
+  -> 9/28 (32%) of clues produce >=25 raw window-scan candidates before truncation (the
+  priority-order failure class 2026-08-20 already found once, now shown to have a second,
+  still-open instance INSIDE the window-scan tier itself, not just between tiers); 14/28 (50%)
+  have at least one word-aligned end span matching the enum length at all — a new structural
+  fact, measured independently of and complementary to defspan.py's 2026-08-19 finding (25%
+  of clues have ANY mechanically-locatable gold-answer window, char-level, of which 29% are
+  interior). `python3 solver/candidates.py recall data/dataset/clues.jsonl eval
+  [--no-culture --no-retrieval] [--no-edgespan]`: recall@N **UNCHANGED at 3.6% (1/28)** with
+  edgespan on or off, mechanical-only and with full defaults alike (culture/retrieval
+  contributed nothing either way today, honestly expected: `scraper/crawl_defs.py` was not
+  re-run this session, so `private_defs` has no corpus this run — not a regression, just an
+  untouched lever). Did not stop at "unchanged" without explaining it: directly verified the
+  reorder DOES change the surviving top-25 set on genuine truncated clues (e.g. 9 across,
+  56 raw candidates — the edge-aligned hit `שוב` moves from unranked-out to position 0,
+  displacing a non-edge-aligned candidate that fell off the list) and separately confirmed
+  the one clue carrying this puzzle's single recall hit (2 down, anagram, `יחפניות`, only 2
+  raw candidates) was never anywhere near the truncation boundary, so the reorder was
+  structurally incapable of moving this puzzle's specific recall number either way. Honest
+  null result, not an inconclusive one.
+
+  AUDITED (mandatory gate). No new data source: `edge_spans`/`tag_edge_alignment` operate only
+  on `clue_text` and `enum`, the same two inputs `_char_windows` already uses — nothing reads
+  gold data, the answers corpus, or any external resource. `lexicon.held_out_answers()` and
+  `retrieve_defs.held_out()` both confirmed (computed, not assumed) to block all 28 of this
+  puzzle's own gold answers (`gold_norm - blocked` empty for both). Re-ran all 6 affected
+  selftests clean: `candidates.py` (10 new assertions added for `edge_spans`/
+  `tag_edge_alignment`/the sort behavior, all passing alongside the 20 pre-existing ones),
+  `retrieve_defs.py`, `lexicon.py`, `prove.py`, `substitutions.py`, `defspan.py`. No forbidden
+  reads: 14across worked legitimately this run (bootstrap's own normal path), clue text came
+  from the public CDN image, gold answers from the real `data/answers/by_date/` file it wrote.
+  No implausibility to explain: the number is flat (3.6% -> 3.6%), the opposite of a suspicious
+  jump. Reverted `solver/lex/substitutions.json` (bootstrap.sh step 4 regenerates it SMALLER
+  from only the main corpus per its own documented warning; `git checkout --` restored the
+  committed, larger version — not part of today's diff).
+
+  HONEST READ: this is a correctly-implemented, correctly-verified, measured NULL result on
+  this specific puzzle — the mechanism demonstrably does what it claims (changes truncation
+  survivors on real data) but did not happen to touch the one clue this puzzle's recall
+  depended on. That is different from "doesn't work" and different from "proven to help";
+  with 32% of clues genuinely truncated, a second dev puzzle is a reasonable next data point
+  before judging this lever either way, exactly like `culture_category_candidates` and
+  `retrieval_candidates` both needed more than one puzzle before any real signal emerged.
+
+  NOT DONE, honestly: did not re-run `scraper/crawl_defs.py` (mordo/note.co.il), so retrieval
+  measured with an empty `private_defs` this run — not this run's chosen lever; did not
+  measure edge-span reordering on a second puzzle (would need another full transcription
+  cycle, out of scope for one lever); did not touch the full precision/coverage/yield pipeline
+  (`evals/run_eval.py`) or run a live `solve_pass.py` trial; did not act on any open PR beyond
+  this run's own.
