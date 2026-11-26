@@ -910,3 +910,70 @@ priority 2. Wiring in an already-built, already-audited tool as one more candida
 is not itself a research question — it is closing a gap between what the project's own
 research queue prioritized in 2026-08-08 and what got implemented, which is worth doing
 regardless of whether today's literature sweep turned up anything new.
+
+## 2026-11-26
+
+Full literature sweep before touching code (candidate generation, wordplay formalisation,
+definition-span detection, Hebrew NLP/morphology), per DAILY.md's standing instruction to be
+skeptical and check transfer explicitly rather than cite for its own sake.
+
+**Candidate generation / wordplay formalisation.** Search turned up no 2026 paper beyond the
+same citation set this log already carries (2506.04824 ICML 2025 "A Reasoning-Based Approach
+to Cryptic Crossword Clue Solving", 2407.08824 "Proving that Cryptic Crossword Clue Answers
+are Correct", 2412.09012 "What Makes Cryptic Crosswords Challenging for LLMs?", 2104.08620 the
+Cryptonite origin paper). **Transfer: none new** — all three are already logged and already
+informed this project's design (the proof-gate architecture in prove.py is this project's own
+independent convergence on 2407.08824's "formalise then execute" idea, predating a direct
+read of that paper).
+
+**Definition-location / indicator-based splitting.** General search on "definition location
+classifier neural wordplay indicator" surfaced only secondary sources (Wikipedia's cryptic
+crossword article, puzzle-blog explainers) restating the standard rule (definition sits at one
+end, usually no explicit marker for where the split falls) and the same arXiv papers above.
+**Transfer: none** — nothing contradicts or extends this project's own 2026-08-19 finding
+(defspan.py, indicator-word density scored 1/5, struck) or today's own lever (below), which
+deliberately avoids indicator vocabulary rather than tuning it further.
+
+**Diverse/multi-hypothesis candidate generation (new angle this run, prompted by DAILY.md's
+own framing of today's priority as "diverse candidates ... by mechanism and by definition-span
+hypothesis").** Checked whether 2025/2026 work on diverse-candidate decoding transfers:
+GSA-Beam (IJCAI 2026, grammar-state-aware beam search for structured-output diversity),
+NeSylns (CP 2026, neurosymbolic large-neighbourhood search pairing a CP solver with a neural
+model for diverse solutions under hard constraints), and an inference-time "decouple
+exploration from generation" sampling paper. **Transfer: none, checked and rejected rather than
+left unconfirmed** — every one of these is a technique for getting diversity OUT OF AN LLM's
+decoding process (beam search, sampling, neural-guided search). `solver/candidates.py` has no
+LLM in it at all; it is a closed-form enumeration over a fixed grammar of mechanisms
+(anagram/hidden/reversal/substitution/homograph/culture/retrieval) that already produces every
+candidate those mechanisms can find deterministically. There is no decoding process these
+papers' methods could attach to. The genuinely relevant question these papers kept surfacing
+by contrast — not their methods, but their shared PROBLEM FRAME — is one this project can
+answer today with its own data: when a mechanism's raw output is large, what SURVIVES
+truncation? That reframing is what today's lever (see DAILY.md) actually builds: not
+LLM-decoding diversity, but a structural filter over an already-enumerated candidate list.
+
+**Hebrew NLP / morphology.** One genuinely new sighting: arXiv 2604.17108, a 2026 Hebrew
+coreference benchmark and evaluation protocol for morphologically complex text. It reports (a)
+a consistent 1.4-2.6 F1 point drop when automatic segmentation replaces gold segmentation
+(segmentation error is a measurable, non-trivial downstream cost in Hebrew pipelines), and (b)
+GPT-4o trailing a smaller specialized neural encoder on Hebrew coreference even WITH gold
+mention boundaries (45.4 vs 50.4 F1). **Transfer: narrow, and it cuts against trying an LLM
+shortcut here, not for one** — this project's lexicon/morphology layer (hspell + the
+project's own prefix/suffix destem tables in candidates.py's `_destem`, homographs.py) is
+already a non-neural, non-segmentation-model approach that sidesteps exactly the failure mode
+2604.17108 measures (no automatic segmenter in the loop at all for wordplay matching — the
+clue text is matched char-for-char against a static lexicon). The paper is independent
+confirmation this project's existing choice not to add a neural Hebrew segmenter was
+reasonable, not a reason to add one now. DictaBERT/AlephBERT/HebrewWordnetShuly remain the
+same already-logged, already-judged-irrelevant-to-this-task resources (role-category lookup,
+not synonym/segmentation facts, is what this setter's culture clues need — see 2026-08-24's
+entry, unchanged).
+
+**Conclusion, and the lever this run actually built.** No external paper or resource turned
+into new code this cycle — same honest outcome as most of this log's recent entries. Built the
+smallest well-motivated INTERNAL idea instead, directly off DAILY.md queue item 9's own
+suggested next approach ("scoring by whether each end's residual is anagram-matchable" as an
+alternative to the struck indicator-density signal): `candidates.py`'s new `edge_spans` /
+`tag_edge_alignment`, a definition-span-aware REORDERING of the existing anagram/hidden/
+reversal candidate tier (no new candidates, no new data source — see DAILY.md for the full
+measurement and honest null result on today's specific puzzle).

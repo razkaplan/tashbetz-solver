@@ -42,6 +42,19 @@ This module does exactly that, per clue, with no LLM involved:
   - split_candidates:    for multi-part enums (e.g. (5,2)), splits a hit at the enum
                           boundary and flags whether BOTH pieces are real words — the
                           precondition prove.py's word_order() needs to succeed.
+  - edge_spans / tag_edge_alignment: definition-span-aware REORDERING (DAILY.md queue
+                          item 1/9, 2026-11-26) of the anagram/hidden/reversal tier. A
+                          word-aligned END span (the clue's first/last k WHOLE words)
+                          whose own letter count equals the enum is the structural
+                          precondition for the standard cryptic premise "wordplay sits
+                          at one end, definition at the other" — unlike queue item 2's
+                          struck indicator-word-density classifier (1/5 agreement,
+                          2026-08-19), this needs no indicator vocabulary, just a length
+                          count. It adds no new candidate; it only promotes window-scan
+                          hits that match such a span ahead of the rest of that tier, so
+                          they are less likely to be lost to the max_n truncation that
+                          windowstats (CLI, below) shows binds on 9/28 of the dev
+                          puzzle's clues.
 
 None of this asserts an answer is CORRECT — it only asserts an answer is POSSIBLE by a
 named mechanism. Selecting among candidates and proving one is still prove.py's job.
@@ -56,6 +69,8 @@ CLI:
   python3 solver/candidates.py recall data/dataset/clues.jsonl eval   # offline recall@N
   python3 solver/candidates.py recall data/dataset/clues.jsonl eval --no-culture  # ablation
   python3 solver/candidates.py recall data/dataset/clues.jsonl eval --no-retrieval  # ablation
+  python3 solver/candidates.py recall data/dataset/clues.jsonl eval --no-edgespan   # ablation
+  python3 solver/candidates.py windowstats data/dataset/clues.jsonl eval  # max_n / edge-span diagnostic
   python3 solver/candidates.py selftest
 """
 import sys, os, re, json
@@ -459,7 +474,59 @@ def split_candidates(cands, enum):
     return out
 
 
-def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retrieval=True):
+def edge_spans(clue_text, enum):
+    """Word-aligned END spans (DAILY.md queue item 1/9) — every contiguous run of the
+    clue's first k words, or last k words (k=1..n-1), whose OWN letter count equals the
+    enum total exactly. This is the necessary structural condition for that span to be
+    the setter's wordplay fodder under the standard cryptic premise that wordplay sits
+    at one end and the definition occupies the rest (PLAYBOOK.md 2.4). Unlike
+    defspan.py's `hypotheses()` (which scores a split by WORDPLAY-INDICATOR density and
+    measured 1/5 agreement, struck 2026-08-19 — "most of these clues carry NO indicator
+    word at all"), this needs no indicator vocabulary: it is a plain length count, so it
+    cannot be fooled by an absent or misleading indicator word. It is also a STRICTER
+    hypothesis space than candidates.py's own `_char_windows` (which slides through
+    every character offset with no regard for word boundaries at all): only the two
+    ends, only whole words. Returns `[{'def_end', 'span_words', 'letters'}, ...]` —
+    'def_end' names where the DEFINITION sits (the complementary side), matching
+    defspan.py's own naming so the two modules' output reads the same way."""
+    target_len = sum(enum)
+    words = words_of(clue_text)
+    n = len(words)
+    out = []
+    for k in range(1, n):
+        prefix = norm(''.join(words[:k]))
+        if len(prefix) == target_len:
+            out.append({'def_end': 'end', 'span_words': k, 'letters': prefix})
+        suffix = norm(''.join(words[-k:]))
+        if len(suffix) == target_len:
+            out.append({'def_end': 'start', 'span_words': k, 'letters': suffix})
+    return out
+
+
+def tag_edge_alignment(cands, clue_text, enum):
+    """Mark each mechanical candidate (anagram/hidden/reversal — anything carrying a
+    `fodder` string) with whether its fodder window IS one of `edge_spans`'s word-
+    aligned end spans, i.e. not just some character window found anywhere in the clue
+    (that's all `_char_windows` guarantees) but exactly the first/last k WHOLE WORDS.
+    Mutates `cands` in place and also returns it. Does not change which answers are
+    findable — only how they are tagged, so `generate()` can prioritise them without
+    adding any new candidate the mechanical window scan did not already produce."""
+    by_letters = {}
+    for sp in edge_spans(clue_text, enum):
+        by_letters.setdefault(sp['letters'], []).append(sp)
+    for c in cands:
+        sp = by_letters.get(c.get('fodder'))
+        if sp:
+            c['edge_aligned'] = True
+            c['def_end'] = sp[0]['def_end']
+            c['span_words'] = sp[0]['span_words']
+        else:
+            c['edge_aligned'] = False
+    return cands
+
+
+def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retrieval=True,
+             use_edgespan=True):
     """Diverse candidates for one clue. Never consults the answer.
 
     Mechanism order here is a PRIORITY order, not just an accumulation order: dedup +
@@ -479,7 +546,17 @@ def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retr
     (25 by default) and ranked, not an unbounded window scan, so it does not need to wait
     behind the cheap mechanisms either. `use_culture`/`use_retrieval` are plain on/off
     switches so a controlled before/after recall measurement doesn't need extra copies of
-    this function."""
+    this function.
+
+    `use_edgespan` (new, DAILY.md queue item 1/9): WITHIN the cheap window-scan tier
+    (anagram/hidden/reversal), candidates whose fodder is a word-aligned END span
+    (edge_spans — the first/last k WHOLE WORDS, length-matched to the enum) are moved
+    ahead of the rest of that tier. Measured (python3 solver/candidates.py windowstats):
+    9 of 28 clues on the 2026-05-29 dev puzzle produce 25+ raw window-scan candidates
+    BEFORE truncation (one clue alone produces 97) — max_n is a real, frequently-binding
+    cap, not a formality, so where a candidate lands in this list materially affects
+    whether the proof gate ever sees it. This does not add or remove any candidate the
+    scan already finds; it only changes which ones survive truncation."""
     target_len = sum(enum)
     cands = []
     cands += homograph_candidates(clue_text, target_len)
@@ -490,9 +567,14 @@ def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retr
         cands += retrieval_candidates(clue_text, target_len)
     if pattern:
         cands += pattern_candidates(pattern)
-    cands += anagram_candidates(clue_text, target_len)
-    cands += hidden_candidates(clue_text, target_len)
-    cands += reversal_candidates(clue_text, target_len)
+    window_cands = []
+    window_cands += anagram_candidates(clue_text, target_len)
+    window_cands += hidden_candidates(clue_text, target_len)
+    window_cands += reversal_candidates(clue_text, target_len)
+    if use_edgespan:
+        tag_edge_alignment(window_cands, clue_text, enum)
+        window_cands.sort(key=lambda c: 0 if c.get('edge_aligned') else 1)
+    cands += window_cands
 
     seen, uniq = set(), []
     for c in cands:
@@ -511,7 +593,8 @@ def generate(clue_text, enum, pattern=None, max_n=25, use_culture=True, use_retr
 # isolation, BEFORE it is wired into a live solve+proof loop (which is a
 # separate integration step, not done by this lever).
 # ---------------------------------------------------------------------------
-def recall_eval(dataset_path, split=None, max_n=25, use_culture=True, use_retrieval=True):
+def recall_eval(dataset_path, split=None, max_n=25, use_culture=True, use_retrieval=True,
+                 use_edgespan=True):
     total = 0
     hit = 0
     by_mech = Counter()
@@ -525,7 +608,7 @@ def recall_eval(dataset_path, split=None, max_n=25, use_culture=True, use_retrie
             continue
         total += 1
         cands = generate(r['clue_text'], r['enum'], max_n=max_n, use_culture=use_culture,
-                          use_retrieval=use_retrieval)
+                          use_retrieval=use_retrieval, use_edgespan=use_edgespan)
         sizes.append(len(cands))
         gold = norm(r['answer_raw'])
         found = [c for c in cands if c['answer'] == gold]
@@ -656,6 +739,44 @@ def selftest():
           f'not here): {len(off) >= 1} (expected True)')
     ok &= len(off) >= 1
 
+    print('--- edge_spans: finds a word-aligned END span whose length matches the enum ---')
+    spans = edge_spans('זזז שלום עולם', [4])
+    found = any(sp['letters'] == norm('עולם') and sp['def_end'] == 'start' and sp['span_words'] == 1
+                for sp in spans)
+    print(f'  spans: {spans} (expected one with letters=עולמ, def_end=start, span_words=1)')
+    ok &= found
+
+    print('--- edge_spans: no spurious span when no prefix/suffix word-run matches the enum length ---')
+    spans2 = edge_spans('זזז שלום עולם', [37])
+    print(f'  spans: {spans2} (expected empty)')
+    ok &= spans2 == []
+
+    print('--- tag_edge_alignment: marks a mechanical candidate whose fodder IS a word-aligned '
+          'end span, leaves others untagged ---')
+    hits = hidden_candidates('זזז שלום עולם', 4)
+    tag_edge_alignment(hits, 'זזז שלום עולם', [4])
+    hit = [c for c in hits if c['answer'] == norm('עולם')]
+    print(f'  candidate: {hit} (expected edge_aligned=True, def_end=start, span_words=1)')
+    ok &= bool(hit) and hit[0].get('edge_aligned') is True and hit[0].get('def_end') == 'start'
+    ok &= all('edge_aligned' in c for c in hits)  # every candidate gets the field, True or False
+
+    print('--- generate(): within the window-scan tier, edge-aligned candidates sort ahead of '
+          'unaligned ones (what lets them survive max_n truncation) ---')
+    mock = [{'answer': f'x{i}', 'mechanism': 'anagram', 'fodder': f'f{i}', 'edge_aligned': False}
+            for i in range(5)]
+    mock.append({'answer': 'edge', 'mechanism': 'anagram', 'fodder': 'e', 'edge_aligned': True})
+    mock.sort(key=lambda c: 0 if c.get('edge_aligned') else 1)
+    print(f'  order after sort: {[c["answer"] for c in mock]} (expected edge first)')
+    ok &= mock[0]['answer'] == 'edge'
+
+    print('--- generate(): use_edgespan=False keeps original (unsorted) window-scan order ---')
+    with_edge = generate('זזז שלום עולם', [4], max_n=50, use_culture=False, use_retrieval=False)
+    without_edge = generate('זזז שלום עולם', [4], max_n=50, use_culture=False, use_retrieval=False,
+                             use_edgespan=False)
+    same_set = {c['answer'] for c in with_edge} == {c['answer'] for c in without_edge}
+    print(f'  both toggles find the same SET of candidates, only reordered: {same_set} (expected True)')
+    ok &= same_set
+
     print('--- split_candidates: flags whether a multi-part answer is two real words ---')
     split = split_candidates([{'answer': norm('שלוםעליכם'), 'mechanism': 'test'}], [4, 5])
     print(f'  split result: {split[0]["split"]} (expected two real words, not None)')
@@ -681,19 +802,48 @@ def main():
         rest = sys.argv[2:]
         use_culture = '--no-culture' not in rest
         use_retrieval = '--no-retrieval' not in rest
-        rest = [a for a in rest if a not in ('--no-culture', '--no-retrieval')]
+        use_edgespan = '--no-edgespan' not in rest
+        rest = [a for a in rest if a not in ('--no-culture', '--no-retrieval', '--no-edgespan')]
         path = rest[0] if len(rest) > 0 else 'data/dataset/clues.jsonl'
         split = rest[1] if len(rest) > 1 else None
         os.chdir(ROOT)
-        res = recall_eval(path, split, use_culture=use_culture, use_retrieval=use_retrieval)
+        res = recall_eval(path, split, use_culture=use_culture, use_retrieval=use_retrieval,
+                           use_edgespan=use_edgespan)
         print(f"recall@N: {res['hit']}/{res['total']} = {res['recall']:.1%}  "
               f"(avg {res['avg_candidates']:.1f} candidates/clue, "
-              f"use_culture={use_culture}, use_retrieval={use_retrieval})")
+              f"use_culture={use_culture}, use_retrieval={use_retrieval}, "
+              f"use_edgespan={use_edgespan})")
         print('hits by mechanism:', res['by_mechanism'])
         if res['misses']:
             print(f"\n{len(res['misses'])} misses (clue_number, direction, gold):")
             for num, direction, text, gold in res['misses']:
                 print(f'  {num} {direction}: {gold}  <-  {text}')
+    elif cmd == 'windowstats':
+        # Diagnostic: how often does the max_n cap actually bind, and how often does a
+        # word-aligned end span exist at all (regardless of whether it hits the lexicon)?
+        path = sys.argv[2] if len(sys.argv) > 2 else 'data/dataset/clues.jsonl'
+        split_name = sys.argv[3] if len(sys.argv) > 3 else None
+        os.chdir(ROOT)
+        total = truncated = has_edge_span = 0
+        for line in open(path):
+            r = json.loads(line)
+            if split_name and r['split'] != split_name:
+                continue
+            if not r.get('answer_raw'):
+                continue
+            total += 1
+            tlen = sum(r['enum'])
+            raw = (len(anagram_candidates(r['clue_text'], tlen))
+                   + len(hidden_candidates(r['clue_text'], tlen))
+                   + len(reversal_candidates(r['clue_text'], tlen)))
+            if raw >= 25:
+                truncated += 1
+            if edge_spans(r['clue_text'], r['enum']):
+                has_edge_span += 1
+        print(f'{total} clues; {truncated} ({truncated / total:.0%}) produce >=25 raw '
+              f'window-scan candidates (max_n actually binds); {has_edge_span} '
+              f'({has_edge_span / total:.0%}) have at least one word-aligned end span '
+              f'whose length matches the enum')
     else:
         print(__doc__)
 
