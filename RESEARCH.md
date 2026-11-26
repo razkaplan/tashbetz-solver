@@ -910,3 +910,66 @@ priority 2. Wiring in an already-built, already-audited tool as one more candida
 is not itself a research question — it is closing a gap between what the project's own
 research queue prioritized in 2026-08-08 and what got implemented, which is worth doing
 regardless of whether today's literature sweep turned up anything new.
+
+## 2026-10-25
+
+First run since 2026-09-07 (the project's commit history in between is entirely site/
+product work — SEO, the nativ game, redirects — not this solver track; DAILY.md's own
+solver log picks back up here after a real gap, not a skipped day). Bootstrapped clean:
+14across worked fully this run (52/52 puzzles, 1,457 clues — no image-fallback needed for
+gold answers), `solver/lex/substitutions.json`'s regressed bootstrap rebuild (528 vs the
+committed 2,220 head words) was reverted per bootstrap.sh's own warning, and the
+private_defs corpus was NOT re-crawled (not needed for today's lever — see below).
+
+**Search 1: "cryptic crossword solver LLM candidate generation wordplay 2026".** No 2026
+publications surfaced. Confirmed the same paper set this project's RESEARCH.md already has
+on file (Andrews & Witteveen's hypothesise-then-verify-by-execution pipeline, ICML 2025;
+the prover-feedback-loop companion paper; Saha et al.'s grid-search solver at ~93% on
+NYT-style English grids). **Transfer: confirms, does not add.** The hypothesise-then-verify
+architecture is exactly what this project's own `candidates.py` (hypothesise) +
+`prove.py` (verify-by-execution) pair already independently arrived at — nothing new to
+adopt. Saha et al.'s full-grid search is English, non-cryptic-structured NYT grids; this
+project's own standing diagnosis (RESULTS.md, PLAN_V2.md item A) already names global
+constraint optimization as the eventual next structural lever, once candidate lists are
+good enough — this search adds no new evidence on timing that.
+
+**Search 2: "definition span detection cryptic clue parsing neural 2026".** No 2026 work,
+and no work at all specific to definition-span location as a stated subtask beyond the
+background (Rozner/Potts/Mahowald's definition+wordplay clue structure, Efrat et al.'s
+Cryptonite benchmark) already on file. **Transfer: none new** — this project's own 2026-08-19
+negative result (indicator-word-density classifier, 1/5 on locatable edge cases) remains
+the most specific evidence that exists anywhere on this subtask for Hebrew cryptics.
+
+**Search 3: Hebrew morphology (DictaBERT family).** New sighting, not previously logged:
+DictaBERT (arXiv 2308.16687, dicta-il) ships a fine-tuned prefix-segmentation + morphological-
+tagging model via HuggingFace Transformers, trained on Modern Hebrew, reportedly SOTA on
+Hebrew morphological benchmarks. This is a genuinely different, real resource from the
+Hebrew WordNet lead three prior runs (2026-08-22/23/24) checked and rejected (WordNet
+answers synonymy, not the role-category lookup this setter's clues need). DictaBERT's
+prefix/suffix segmentation targets a DIFFERENT, real gap this project has flagged twice:
+PLAN_V2.md item F ("the index under-covers; it needs morphological expansion — prefixes
+ב/ל/מ/ש/ה/ו/כ, construct forms, inflections") and 2026-09-07's own topicgen fix (fodder
+must be in the `common` word set, not the full inflected lexicon tail). **Transfer: real,
+but not buildable today.** It requires pulling in `transformers` + a BERT checkpoint over
+HTTPS from huggingface.co — a new framework dependency this project's own style rule
+(CLAUDE.md, SOLVE_PROTOCOL.md: "plain Python, no frameworks") deliberately avoids, and an
+egress target never previously exercised from this sandbox (unconfirmed reachable through
+the agent proxy). Flagging as a concrete, scoped-for-its-own-run candidate (verify
+huggingface.co reachability first; if reachable, a thin `solver/hebmorph.py` wrapper that
+calls the model once per lexicon headword and caches prefix/root splits to a committed
+JSON, so the solver itself still needs no framework at runtime) rather than attempting it
+under today's one-lever budget on top of a full transcription cycle.
+
+**Conclusion, and the lever this run actually built.** No search turned up anything
+buildable today that improves on this project's existing architecture (search 1), or a new
+resource for definition-fit/span scoring (search 2) beyond DictaBERT (search 3, real but a
+next run's own scoped lever, not fold-in-today). So today's lever reaches back into the
+project's own standing, structurally-correct queue item instead: 2026-08-19's definition-
+span classifier (indicator-word density) scored 1/5, and its own "do not repeat" note named
+one specific untried alternative signal — "scoring by whether each end's residual is
+anagram-matchable" — rather than leaving the premise untested a second way. Built it:
+`solver/defspan.py`'s new `split_structural`/`classifier_agrees_structural`, reusing
+`candidates.py`'s own anagram/hidden/reversal generators restricted to each end's word-span,
+scored by whether that span structurally PRODUCES a real word of the clue's own enum length
+— no indicator vocabulary, no gold answer needed (the enum is known at solve time). See
+DAILY.md for the measured result and an honest read of its very small sample size.
