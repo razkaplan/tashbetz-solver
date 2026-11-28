@@ -21,9 +21,52 @@ tree - a stale CLI deploy overwrote the live site on 2026-08-29. See CLAUDE.md.
 | **Definition-span locatable rate (new, offline, diagnostic)** | **25% (7/28)** have mechanically-locatable single-window wordplay; of those 29% (2/7) are interior, not edge; classifier agreement on edge cases **1/5** | not a target — this diagnostic KILLED the lever, see log |
 | **`solve_pass.py` LIVE blind trial — cumulative (3 trials)** | **40% precision (2/5 committed)**: 2026-08-16 was 1/2 on a partial 21/28-clue puzzle (2026-06-12); 2026-08-22 was **0/2**, 7.1% coverage, on a FULL 28/28-clue puzzle (2026-05-15); **2026-08-27 is 1/1 = 100% precision but 5.3% coverage (1/19), 0% suggestion hit-rate (0/10)**, on 2026-07-10 (19/28 clues) — FIRST trial run with `retrieval_candidates` live (wired 2026-08-25, never live-trialed since); it contributed ZERO candidates all puzzle (grepped the transcript for `(retrieval, fodder=` hits — none), matching today's own offline recall@N finding on this same puzzle (0/19 with or without retrieval); the one correct commit came from `wiki.py` culture-fact lookup, not from any candidate generator | n=5 — still small; retrieval's live debut is a null result on this puzzle, not a regression, but not the coverage lift the queue hoped for either; see log |
 | **Candidate recall@N with `culture_category_candidates` added (new, offline, definition-driven)** | **0% (0/28)**, on 2026-06-19 — mechanism fired on only 1/28 clues (avg candidates/clue 10.5 → 11.4); its one firing (339 raw candidates, an "author" category hit) matched 0 gold | not yet a target — small-n diagnostic, see log |
+| **Candidate recall@N, ORACLE crossing pattern (new, offline, diagnostic UPPER BOUND, not a live number)** | **32.1% (9/28)** on 2026-05-29, vs the SAME puzzle's blind baseline 3.6% (1/28) — every OTHER clue assumed at its gold answer (a perfect sweep's ceiling), bucketed by how many crossing letters the grid's own topology supplies: 1-2 known 66.7% (4/6), 3+ known 22.7% (5/22). All 9 hits via `pattern_candidates`, all plain priority-1 hspell dictionary words (audited, not leaked — see log). NOT comparable to the blind recall@N row above as a same-metric before/after; it is a ceiling, never reachable mid-solve | not yet a target — diagnostic, see log |
 
 Baseline for comparison: v2 = 41% raw with untraceable errors.
-Last lever added (2026-08-30): **closed 2026-08-29's own "NOT DONE" gap: re-measured
+Last lever added (2026-11-28): **crossing-letter-conditioned candidate generation —
+measured, for the first time, whether `candidates.py`'s `pattern_candidates()` (wired
+through `generate()` since 2026-08-06 but never once exercised by `recall_eval()`, which
+always calls `generate()` with `pattern=None`) actually helps once crossing letters are
+available, motivated by today's research (Chatterjee 2026, "Darmok", arXiv:2611.13557:
+"+33 to +50 percentage-point solve-rate jump at >=3 known [crossing] letters" for an LLM
+cryptic solver).** Added `crossing_pattern()` + `oracle_pattern_recall()` to
+`solver/candidates.py` (new `oracle` CLI subcommand): builds each clue's crossing pattern
+from every OTHER clue's gold answer via the grid's own checked-cell topology (the ceiling
+a perfect sweep would reach), buckets recall@N by known-letter count. MEASURED on the
+freshly re-transcribed 2026-05-29 (28/28 clues, 0 enum mismatches — exactly reproduces
+the historical 3.6% blind baseline first, a cross-check the re-transcription is correct):
+blind 3.6% (1/28) -> oracle 32.1% (9/28), mechanical-only and with culture+retrieval both
+(identical 9/28 either way — those two still contribute nothing extra here, consistent
+with their established rare-firing pattern). AUDITED: all 9 hits traced to `pattern`
+mechanism, all 8 NEW ones (beyond the pre-existing blind anagram hit) are priority-1
+plain-hspell entries (ערב, נשי, ברבר, פנימאי, אנזימימ, שלג, סרבית, מגפ) — the exact
+"ordinary dictionary word that happens to be an answer" category RESULTS.md's own
+integrity finding already named as legitimate (it literally cites ערב and נשי by name).
+`lexicon.held_out_answers()` still blocks this puzzle's corpus/culture tiers; nothing
+about the oracle pattern touches that. Implausibility check: the gap (+28.5pp) is well
+over the project's ~15-point suspicion bar, but this is NOT a same-metric before/after —
+it is a new, explicitly-labeled UPPER-BOUND diagnostic (every other clue assumed solved),
+never a number reachable mid-solve, so the large gap is the finding, not a red flag; see
+log for the full reasoning (including a genuine false alarm caught and resolved: clue 15's
+full-pattern miss, `מגמ`, traced to the word being absent from hspell entirely, not a
+diagnostic bug). HONEST READ: the lift is real and substantial but concentrated entirely
+in `pattern_candidates`, which does one whole-word lexicon lookup — it structurally cannot
+reach multi-part/charade answers (11/28 of this puzzle's clues have a multi-segment enum
+like (4,7) or (5,2)), which is most of why the "3+ known" bucket (mostly longer,
+multi-part answers) scores LOWER than "1-2 known" (mostly short single-word answers) —
+the opposite of Darmok's own bucket ordering, and a different mechanism than theirs (this
+project's generator doesn't need to understand a clue's wordplay at all once the pattern
+narrows the lexicon enough; Darmok's gain is from narrowing an LLM's hypothesis space).
+NOT DONE, honestly: did not change `pattern_candidates` to search per-enum-segment
+(splitting a multi-part pattern and matching each piece against the lexicon separately),
+which this run's own data says is the concrete next step to close the 3+-known gap — one
+lever at a time; did not wire this into a live `solve_pass.py`/`sweep.py` trial (today's
+number is an offline diagnostic ceiling, not a live measurement); did not re-measure any
+other puzzle (2026-05-29 only, to keep this run to one puzzle's transcription-plus-audit
+cycle); did not merge or otherwise act on any open PR (none were open).
+
+Previous lever (2026-08-30): **closed 2026-08-29's own "NOT DONE" gap: re-measured
 `retrieval_candidates` on 2026-06-26 — the puzzle 2026-08-28/08-29 both flagged as still
 needing a bigger corpus and no run had finished re-transcribing — this time FULLY (28/28
 clues, not the 18/28 partial 2026-08-26 left) and against a corpus grown far past any
@@ -518,6 +561,19 @@ propagated), `blank`. Score with `python3 evals/run_eval.py <file>`.
    leak-adjacent vector — it named 2 of today's 4 gold answers in a prior entry, before
    this run's required reading. Worth a future lever (redact specific answer strings from
    log prose, or split required-reading history from an answer-bearing appendix).
+   **(e) [NEW 2026-11-28] crossing-letter-conditioned generation — MEASURED for the first
+   time**: `pattern_candidates()`'s `pattern=` plumbing through `generate()` has existed
+   since 2026-08-06 but every recall measurement above (a-d) tested it BLIND
+   (`recall_eval()` never passes a pattern). An oracle measurement (every other clue at
+   its gold answer, the ceiling a perfect sweep reaches) on 2026-05-29: blind 3.6% (1/28)
+   -> oracle 32.1% (9/28), all 9 via `pattern_candidates`, all audited non-leaked plain
+   dictionary words. See the state table and log for the full result and its honest
+   limits — the gain is concentrated in single-word answers; `pattern_candidates` does one
+   whole-word lexicon lookup, so it cannot reach the 11/28 multi-part/charade answers in
+   this puzzle regardless of how many crossing letters are known. Next concrete step:
+   split a multi-part pattern at the enum boundary and match each segment against the
+   lexicon separately (mirrors what `split_candidates` already does for OUTPUT, not input)
+   — not attempted today, one lever at a time.
 2. ~~Definition-span detection~~ — TRIED 2026-08-19, NEGATIVE. See log and "already
    tried" below. Do not re-attempt without a fundamentally different signal (not
    indicator-word density).
@@ -2427,3 +2483,102 @@ Measure each lever on dev (fixed enums) with run_eval.py before/after; one lever
   "כולם חפצים מהבית" theme (an אוטובוס was due to appear on 09-08).
   Gates: ui_smoke 9/9 pages at both widths, topicgen_eval 52/52 boards,
   url_guard clean (6,071 URLs, none dropped), nativ regression 22/22.
+
+- 2026-11-28: **solver run resumes** after an intervening stretch of site/SEO/nativ work
+  (see the 2026-09-04/09-07 entries above — a different concern, same repo). Bootstrap
+  ran clean (`./bootstrap.sh --dev-only`: 52/52 puzzles via 14across, lexicon, culture,
+  substitutions, 4 dev images — no bot-check wall today). Fully re-transcribed 2026-05-29
+  from `data/images/2026-05-28.jpg` (28/28 clues, grid-validated via
+  `solver/grid_tools.py validate`, 0 enum mismatches) using the slice-by-slice
+  right-to-left crop method documented in this entry's commit for future transcriptions
+  of dense multi-clue-per-line text (a first full-image read mis-ordered which enum
+  belonged to which clue number at a line wrap once, on clue 17/19's boundary; caught by
+  cross-checking every enum sum against this puzzle's real gold answer lengths before
+  trusting any transcription, and by re-deriving ambiguous lines via thin right-to-left
+  pixel slices rather than a single holistic read). Mechanical-only blind baseline
+  reproduced EXACTLY: 3.6% (1/28), matching every prior independent transcription of this
+  same puzzle (2026-08-06/08-20/08-24/08-28/08-30) — strong evidence today's redo is
+  correct.
+
+  RESEARCH (see RESEARCH.md for the full entry): read Chatterjee 2026, "Darmok:
+  Championship Cryptic Crossword Solving via Constraint Tightening and Resilient
+  Orchestration" (arXiv:2611.13557, fetched and read in full, not just the abstract) — the
+  first system to beat the human field at the Times Crossword Championship. Its headline
+  transferable finding: "+33 to +50 percentage-point solve-rate jump at >=3 known
+  [crossing] letters." Checked this project's own `candidates.py` against that claim and
+  found a real gap: `recall_eval()`, the function every candidate-generation lever's
+  number in the state table above has ever been judged by, never once passes a `pattern`
+  to `generate()` — every measurement to date is the blind, zero-crossing-letter case,
+  even though `pattern_candidates()` has existed since 2026-08-06. Also read the same
+  paper's critique that a published symbolic wordplay verifier (the same lineage
+  `solver/prove.py`'s PROOF GATE is modeled on) solves half as many clues as a
+  naive frequency baseline (14.0% vs 28.0%) — flagged as a real tension worth a future
+  look (this project's own majority-vote consensus already has mixed results, so it's not
+  a clean transfer either way) but NOT acted on today, out of scope for a one-lever
+  budget. Hebrew-morphology search turned up nothing crossword-specific and nothing
+  actionable today.
+
+  LEVER: added `crossing_pattern()` and `oracle_pattern_recall()` to
+  `solver/candidates.py` (new `oracle` CLI subcommand, plus a selftest case on a
+  synthetic 3x3 grid, independent of any real puzzle's gold data per this file's own
+  discipline). Given a puzzle's grid and every clue's gold answer, it builds each clue's
+  crossing pattern from the OTHER clues' gold letters via the grid's own checked-cell
+  topology (a cell only one slot covers stays unknown regardless) and buckets recall@N by
+  how many crossing letters that topology supplies — the first time this project has
+  measured candidate generation under anything but zero known letters.
+
+  MEASURED (executed): on 2026-05-29, mechanical-only: blind 3.6% (1/28) -> oracle 32.1%
+  (9/28); full defaults (culture+retrieval) identical, 32.1% (9/28) either way — those two
+  mechanisms contribute nothing extra at the oracle ceiling either, consistent with their
+  established rare-firing pattern. Bucketed: 1-2 known crossing letters 66.7% (4/6), 3+
+  known 22.7% (5/22) — notably the OPPOSITE ordering from Darmok's own bucketing. Traced
+  why: all 9 hits come from `pattern_candidates`, which does one whole-word lexicon
+  lookup; it can never reach a multi-part/charade answer (11/28 of this puzzle's clues
+  have a multi-segment enum like (4,7) or (5,2)) no matter how many letters are known,
+  and the "3+ known" bucket happens to be dominated by exactly those longer, multi-part
+  answers in this grid's topology. The 8 newly-surfaced hits beyond the pre-existing blind
+  anagram hit (ערב, נשי, ברבר, פנימאי, אנזימימ, שלג, סרבית, מגפ) are short single-word
+  answers invisible to blind mechanism search (their wordplay isn't an anagram/hidden/
+  reversal of the clue text the generator can find blind) but trivial once 2-4 of their
+  3-7 letters are pattern-fixed.
+
+  AUDITED (mandatory gate). All 9 oracle hits traced to `pattern` mechanism; all 8 new
+  ones confirmed priority-1 (plain hspell, non-held-out) via direct `lexicon.load()`
+  lookup — the exact "ordinary dictionary word that happens to be an answer" category
+  RESULTS.md's own integrity finding already named as legitimate by citing ערב and נשי by
+  name. `held_out_answers()` unchanged and still blocks this puzzle's corpus/culture
+  tiers; the oracle pattern only ever derives letters from OTHER clues' gold answers
+  (never the target clue's own), which is the premise of the diagnostic, not a leak into
+  it. One apparent anomaly chased down rather than ignored: clue 15 (`מגמ`) missed even
+  with its FULL answer as the pattern (3/3 known) — traced to `מגמ` being genuinely
+  absent from `solver/lex/hspell.txt` (confirmed by direct grep), not a diagnostic bug or
+  a held-out-blocking artifact. Implausibility check: the gap (blind 3.6% -> oracle
+  32.1%, +28.5pp) is well over this project's ~15-point suspicion bar, but this is NOT a
+  same-metric before/after — it is a new, explicitly-labeled upper-bound diagnostic
+  (every other clue assumed solved), never a number a live solve reaches, so the size of
+  the gap is the finding, not a red flag; made this distinction explicit in the state
+  table so a future run does not mistake 32.1% for a live recall@N. All 7 selftests
+  touched or adjacent to this change re-run clean (`candidates.py`, `lexicon.py`,
+  `retrieve_defs.py`, `substitutions.py`, `prove.py`, `solve_pass.py`; `grid_tools.py` and
+  `sweep.py` have no `selftest` subcommand at all, pre-existing, unrelated to this change).
+
+  HONEST READ: Darmok's crossing-letter claim transfers in DIRECTION (crossing
+  information helps a lot) but not in MECHANISM — their gain narrows an LLM's hypothesis
+  space; this project's gain comes from `pattern_candidates` bypassing the need to model a
+  clue's wordplay at all once the pattern narrows the lexicon enough, which only works for
+  single-word answers. The real, measured, actionable implication: candidate generation in
+  this project is not one problem but two with very different ceilings — blind generation
+  (today confirmed stuck at 3.6%) and crossing-constrained generation (confirmed capable
+  of 32.1%, an upper bound no live solve reaches, but real headroom `pattern_candidates`
+  is not yet built to fully claim for multi-part answers).
+
+  NOT DONE, honestly: did not change `pattern_candidates` to search multi-part enums
+  per-segment (the concrete next step the bucket breakdown points to — one lever at a
+  time); did not wire this into a live `solve_pass.py`/`sweep.py` trial (today's number is
+  an offline diagnostic, not a live measurement — `sweep.py`'s re-crack worklist already
+  uses pattern information live, but nothing has measured what it is capable of finding
+  under full/oracle crossings until today, and nothing today changed the live path); did
+  not re-measure any other puzzle (2026-05-29 only); did not act on the DAILY.md-leak-
+  adjacent-vector or verifier-vs-self-consistency questions flagged above, both explicitly
+  deferred to a future lever; did not merge or otherwise act on any open PR (none were
+  open at the start of this run).

@@ -56,6 +56,12 @@ CLI:
   python3 solver/candidates.py recall data/dataset/clues.jsonl eval   # offline recall@N
   python3 solver/candidates.py recall data/dataset/clues.jsonl eval --no-culture  # ablation
   python3 solver/candidates.py recall data/dataset/clues.jsonl eval --no-retrieval  # ablation
+  python3 solver/candidates.py oracle data/dataset/clues.jsonl data/grids/<date>.json eval
+      # crossing-letter-conditioned recall@N: every OTHER clue at its gold answer (the
+      # upper bound a perfect sweep reaches), bucketed by how many crossing letters the
+      # grid's own topology actually supplies per slot. See the module comment above
+      # oracle_pattern_recall() for why this is a different, previously-unmeasured
+      # question from plain `recall`.
   python3 solver/candidates.py selftest
 """
 import sys, os, re, json
@@ -544,6 +550,91 @@ def recall_eval(dataset_path, split=None, max_n=25, use_culture=True, use_retrie
 
 
 # ---------------------------------------------------------------------------
+# crossing-letter-conditioned recall@N — every prior measurement of this module (the
+# state table in DAILY.md) calls recall_eval() above, which NEVER passes a `pattern` to
+# generate(): it always tests the hardest case, zero known crossing letters, even though
+# pattern_candidates()/the `pattern=` plumbing through generate()/solve_pass.py/sweep.py
+# has existed since 2026-08-06. Chatterjee 2026 (arXiv:2611.13557, "Darmok") measures a
+# "+33 to +50 percentage-point solve-rate jump at >=3 known [crossing] letters" for an
+# LLM cryptic solver — a different architecture, but the underlying claim (candidate
+# generation is far easier once crossings are known) should be checkable here too, and
+# never has been. This builds an ORACLE crossing pattern per clue — every OTHER slot in
+# the puzzle at its gold answer, i.e. the upper bound a perfect sweep would reach — from
+# the grid's own checked-cell topology, and buckets recall@N by how many of a slot's own
+# cells that topology actually supplies a crossing letter for (a cell only one slot
+# covers stays unknown no matter how solved the rest of the grid is). This is a DIAGNOSTIC
+# bound, not a live solving claim: a real sweep never has every other answer correct at
+# once. It separates two bottlenecks blind recall_eval() cannot tell apart: candidate
+# generation BLIND, vs. the lexicon's raw capacity to produce the word once crossings are
+# known (vocabulary coverage).
+# ---------------------------------------------------------------------------
+def crossing_pattern(key, sl, cellmap, gold):
+    """Pattern string + known-letter count for slot `key`, built from every OTHER slot's
+    gold answer via the grid's own crossing cells. A cell only `key` itself covers (no
+    perpendicular slot) stays '?' regardless of how much of the rest of the grid is known
+    — that is the real, structural ceiling on how much a sweep can ever tell this slot."""
+    cells = sl[key]
+    chars, known = [], 0
+    for cell in cells:
+        other = [k for k in cellmap.get(cell, []) if k != key]
+        letter = '?'
+        if other:
+            okey = other[0]
+            oans = gold.get(okey)
+            if oans:
+                ocells = sl[okey]
+                idx = ocells.index(cell)
+                if idx < len(oans):
+                    letter = oans[idx]
+                    known += 1
+        chars.append(letter)
+    return ''.join(chars), known
+
+
+def oracle_pattern_recall(dataset_path, grid_path, split=None, max_n=25, use_culture=True,
+                           use_retrieval=True):
+    sys.path.insert(0, HERE)
+    import grid_tools
+    grid = json.load(open(grid_path))['grid']
+    sl = grid_tools.slots(grid)
+    cellmap = grid_tools.crossings(grid)
+
+    rows = [json.loads(l) for l in open(dataset_path)]
+    if split:
+        rows = [r for r in rows if r['split'] == split]
+    gold = {(r['clue_number'], r['direction']): norm(r['answer_raw'])
+            for r in rows if r.get('answer_raw')}
+
+    total = hit = 0
+    buckets = {}
+    misses = []
+    for r in rows:
+        key = (r['clue_number'], r['direction'])
+        g = gold.get(key)
+        if not g or key not in sl:
+            continue
+        pattern, known = crossing_pattern(key, sl, cellmap, gold)
+        cands = generate(r['clue_text'], r['enum'], pattern=pattern, max_n=max_n,
+                          use_culture=use_culture, use_retrieval=use_retrieval)
+        found = any(c['answer'] == g for c in cands)
+        total += 1
+        hit += found
+        bucket = '0' if known == 0 else '1-2' if known <= 2 else '3+'
+        b = buckets.setdefault(bucket, [0, 0])
+        b[0] += found
+        b[1] += 1
+        if not found:
+            misses.append((r['clue_number'], r['direction'], r['clue_text'], g, pattern, known))
+    return {
+        'total': total, 'hit': hit,
+        'recall': hit / total if total else 0.0,
+        'buckets': {k: {'hit': v[0], 'total': v[1], 'recall': v[0] / v[1] if v[1] else 0.0}
+                    for k, v in sorted(buckets.items())},
+        'misses': misses,
+    }
+
+
+# ---------------------------------------------------------------------------
 def selftest():
     """Unit-level checks on synthetic examples — independent of any puzzle's gold
     data, so this file never embeds a dev/eval answer (same discipline lexicon.py
@@ -661,6 +752,20 @@ def selftest():
     print(f'  split result: {split[0]["split"]} (expected two real words, not None)')
     ok &= split[0]['split'] is not None
 
+    print('--- crossing_pattern: a checked cell takes its letter from the PERPENDICULAR '
+          "slot's gold answer; an unchecked cell (only this slot covers it) stays '?' "
+          "no matter how much of the rest of the grid is known ---")
+    sys.path.insert(0, HERE)
+    import grid_tools
+    tiny_grid = ['...', '.#.', '...']  # synthetic 3x3, not any real puzzle's grid
+    sl = grid_tools.slots(tiny_grid)
+    cellmap = grid_tools.crossings(tiny_grid)
+    tiny_gold = {(1, 'across'): norm('אבג'), (3, 'across'): norm('דהו')}
+    pat, known = crossing_pattern((1, 'down'), sl, cellmap, tiny_gold)
+    print(f'  (1,down) pattern given both across answers, (1,down) itself unsolved: '
+          f'{pat!r}, {known} known (expected \'א?ד\', 2)')
+    ok &= pat == 'א?ד' and known == 2
+
     print(f'\n{"ALL PASSED" if ok else "FAILURES ABOVE"}')
     return ok
 
@@ -694,6 +799,26 @@ def main():
             print(f"\n{len(res['misses'])} misses (clue_number, direction, gold):")
             for num, direction, text, gold in res['misses']:
                 print(f'  {num} {direction}: {gold}  <-  {text}')
+    elif cmd == 'oracle':
+        rest = sys.argv[2:]
+        use_culture = '--no-culture' not in rest
+        use_retrieval = '--no-retrieval' not in rest
+        rest = [a for a in rest if a not in ('--no-culture', '--no-retrieval')]
+        dataset_path = rest[0] if len(rest) > 0 else 'data/dataset/clues.jsonl'
+        grid_path = rest[1] if len(rest) > 1 else None
+        split = rest[2] if len(rest) > 2 else None
+        os.chdir(ROOT)
+        res = oracle_pattern_recall(dataset_path, grid_path, split, use_culture=use_culture,
+                                     use_retrieval=use_retrieval)
+        print(f"oracle recall@N: {res['hit']}/{res['total']} = {res['recall']:.1%}  "
+              f"(use_culture={use_culture}, use_retrieval={use_retrieval})")
+        print('by known-crossing-letter bucket:')
+        for bucket, b in res['buckets'].items():
+            print(f"  {bucket} known: {b['hit']}/{b['total']} = {b['recall']:.1%}")
+        if res['misses']:
+            print(f"\n{len(res['misses'])} misses (clue_number, direction, gold, pattern, known):")
+            for num, direction, text, gold, pattern, known in res['misses']:
+                print(f'  {num} {direction}: {gold}  pattern={pattern!r} known={known}  <-  {text}')
     else:
         print(__doc__)
 

@@ -910,3 +910,90 @@ priority 2. Wiring in an already-built, already-audited tool as one more candida
 is not itself a research question — it is closing a gap between what the project's own
 research queue prioritized in 2026-08-08 and what got implemented, which is worth doing
 regardless of whether today's literature sweep turned up anything new.
+
+## 2026-11-28
+
+First solver-focused run since 2026-08-31 (the repo's intervening history is the public
+site/SEO work tracked in DAILY.md's later entries, a separate concern — this run returns
+to the solver lever queue). Bootstrap ran clean (52/52 puzzles via 14across, no bot-check
+wall today); fully transcribed and grid-validated 2026-05-29 (28/28 enum sums match,
+0 mismatches) as this run's dev puzzle, confirming the mechanical-only baseline
+(3.6%, 1/28) exactly reproduces every prior independent transcription of this same
+puzzle (2026-08-06/08-20/08-24/08-28/08-30) — a strong cross-check that today's redo is
+correct before any lever work started.
+
+**Search: "cryptic crossword solver definition span detection 2026" / "LLM cryptic
+crossword wordplay formalization verification 2026".** Surfaced one genuinely new,
+directly on-topic result: **Chatterjee, "Darmok: Championship Cryptic Crossword Solving
+via Constraint Tightening and Resilient Orchestration"** (arXiv:2611.13557, Nov 2026) —
+the first system to beat the human field at the Times Crossword Championship (30/30 on
+the live Final, 3m13s ahead of the human champion; 99.84% clue accuracy / 95.3% perfect
+grids across a 43-day frozen daily-production epoch). Full PDF fetched and read (not just
+the abstract). Three findings transfer-checked against this project:
+
+1. **Crossing letters produce a steep, measured accuracy jump: "+33 to +50 percentage-
+   point solve-rate jump at >=3 known [crossing] letters"** (Section 1.4, their item (a)).
+   This is the single most actionable finding for this project's stated priority
+   (candidate generation) — and exposes a real gap: `solver/candidates.py`'s own
+   `recall_eval()` (the diagnostic every prior candidate-generation lever has been judged
+   by, including every number in DAILY.md's state table) **has never once passed a
+   `pattern` argument to `generate()`** — it always measures recall at ZERO known crossing
+   letters, the single hardest case, even though `pattern_candidates()` and the `pattern=`
+   plumbing through `generate()`/`solve_pass.py`/`sweep.py` have existed since 2026-08-06.
+   Six candidate-generation sub-levers (mechanical, substitution, homograph,
+   culture_category, retrieval) have all been judged ONLY in this blind regime. **Transfer:
+   direct and immediate** — this is today's lever (see DAILY.md): measure recall@N
+   conditioned on the number of crossing letters a perfect sweep would supply, which no
+   prior run has done, using the newly re-transcribed 2026-05-29 puzzle's real grid.
+
+2. **A published symbolic/code-based wordplay verifier — the same lineage this project's
+   own `prove.py` PROOF GATE is explicitly modeled on ("formalise wordplay as code, verify
+   by execution", citing the Andrews & Witteveen line of work) — is reported to solve
+   HALF as many clues as a zero-cost frequency baseline: "14.0% vs 28.0%" on a 200-clue
+   validation script, i.e. "without its candidate-frequency fallback, a published
+   symbolic-LLM wordplay verifier solves half as many clues as a zero-cost
+   candidate-frequency baseline" (Section 1.4, item 2). This is an uncomfortable,
+   worth-flagging tension: it suggests that for ENGLISH cryptics solved by LLM proposal +
+   symbolic verification, naive self-consistency (take the most frequent answer across
+   samples) beats formal verification alone. **Transfer: real but not actionable today,
+   and not a clean match for this project.** This project's own "Things already tried"
+   list already found majority-vote consensus is NOT a clean win here ("reverses sign with
+   run quality — helps weak runs, hurts strong ones") — a different, not-yet-reconciled
+   result on a related question, in a different architecture (this project's proof gate
+   checks a MECHANICALLY GENERATED candidate list, not an LLM's own free-form proposal, so
+   the failure mode Darmok diagnoses — a verifier with nothing good to check because the
+   proposer only offered one weak candidate — is closer to what today's lever addresses
+   than to a reason to drop the proof gate). Flagging for a future lever: whether
+   `solve_pass.py`'s ranking should also weight candidate-frequency/agreement across
+   independent generation passes, not just proof-gate pass/fail — out of scope for today's
+   one-lever budget.
+
+3. **Prompt scaffolding (chain-of-thought field ordering, self-revision, decomposition
+   fields) measured ZERO detectable accuracy benefit over native extended thinking on
+   frontier models**, and standalone frontier LLMs now solve whole British cryptic grids
+   at 97-100% in one shot. **Transfer: none** — this project does not solve via one-shot
+   frontier-LLM prompting at all (it is a lexicon/mechanism/proof-gate pipeline), and the
+   English-cryptic saturation these numbers reflect is itself evidence AGAINST
+   transferring blind "scale up the LLM prompt" advice to a much lower-resource Hebrew
+   setter with no comparable training-data saturation.
+
+**Search: "Hebrew morphology NLP word segmentation 2026 crossword".** Found nothing
+connecting Hebrew morphology to crosswords (unsurprising — this is a niche this project
+appears to be alone in). Background-only hits: DictaBERT (arXiv:2308.16687, prefix
+segmentation + morphological tagging) and a 2024 joint segmentation+parsing paper
+(arXiv:2402.02564) noting segmentation errors propagate when done separately from
+parsing. **Transfer: none actionable today** — this project's lexicon is already a flat
+wordlist with hspell-derived final-letter folding, not a morphological parser, and
+nothing found here argues for changing that; worth a second look only if a future lever
+specifically targets prefix-stripping (ו/ב/ל/מ/ש/ה/כ) for homograph/pattern matching,
+which `solver/homographs.py` already handles by hand per SOLVE_PROTOCOL.md.
+
+**Conclusion and today's lever.** Finding (1) above is the one with a clean, immediate,
+measurable action available today: it exposes that this project's own primary diagnostic
+has only ever tested the hardest case (zero crossing letters) and never the case a real
+sweep-based solve actually reaches. Today's lever (see DAILY.md) extends
+`candidates.py`'s recall diagnostic to build an ORACLE crossing pattern per clue (from
+the OTHER clues' gold answers via the grid's own checked-cell topology) and measures
+recall@N bucketed by how many crossing letters the puzzle's own grid structure supplies,
+replicating Darmok's bucketing methodology in this project's very different
+(non-LLM, mechanical-lexicon) architecture.
